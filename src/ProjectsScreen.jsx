@@ -3777,10 +3777,10 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               const image = pickImageForProject(project, index);
               const categoryLabel = getProjectCardCategoryLabel(project, project?.category || 'Project');
               const timelineLabel = getProjectCardTimelineLabel(project);
-              const cardKey = String(project?.id ?? project?.title ?? Math.random());
+              const cardKey = String(project?.id ?? project?.title ?? `project-${index}`);
               const cardLabel = project?.title || 'Untitled project';
-              const projectKey = String(project?.id || project?.title);
-              const isSaved = savedIds.has(projectKey);
+              const persistedProjectId = project?.id == null ? '' : String(project.id);
+              const isSaved = Boolean(persistedProjectId) && savedIds.has(persistedProjectId);
               return (
                 <div key={cardKey} className={`kb-live-card-wrap${showAllProjects ? '' : ' kb-live-card-wrap-cap'}`}>
                   <FaithBidCard11A
