@@ -820,6 +820,7 @@ function KBGEEditModal({ group, mode = "edit", defaultPlatform = "Facebook", def
 
 export default function GrowthEngine() {
   const [groups, setGroups] = useState([]);
+  const [groupsTotal, setGroupsTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [_error, setError] = useState("");
   const [search, setSearch] = useState("");
@@ -908,62 +909,53 @@ export default function GrowthEngine() {
   }, []);
 
   const loadGroups = useCallback(async () => {
+    const databaseView = engineView === "outreach" || engineView === "general_vendor";
+    if (!databaseView) {
+      setGroups([]);
+      setGroupsTotal(0);
+      setBackendReady(true);
+      setMetricsState("unavailable");
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError("");
     setMetricsState("loading");
-    // 872 (paginated load, hardened): a plain .select("*") is capped at
-    // Supabase's default row limit (1,000), so a table with 3,000+ groups
-    // was silently truncated on load. Page through with .range() in
-    // fixed-size batches, preserving the same order (member_count desc,
-    // nulls last) on every page so pages tile correctly, and concatenate
-    // results before any downstream processing.
-    //
-    // PAGE_SIZE is deliberately 500, not 1000: if this Supabase project's
-    // PostgREST "max rows" setting is also 1000, a 1000-row page size makes
-    // every page look like a possibly-full page, which is indistinguishable
-    // from "there's more data" vs "the server capped this page too." 500
-    // stays safely under any 1000-row server cap so a short page reliably
-    // means "no more rows," not "the server truncated again."
-    //
-    // console.log calls are intentional and temporary: they make it
-    // possible to confirm from the browser DevTools console that this
-    // paginated code is actually the code running (vs. a stale cached
-    // bundle), and to see exactly how many pages/rows were fetched.
-    const PAGE_SIZE = 500;
-    const MAX_PAGES = 50; // safety cap: 50 * 500 = 25,000 rows ceiling
-    let allRows = [];
-    let pageIndex = 0;
-    let loadError = null;
-    console.log("[loadGroups] starting paginated fetch, pageSize=", PAGE_SIZE);
-    while (pageIndex < MAX_PAGES) {
-      const from = pageIndex * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-      const { data: pageData, error: pageError } = await supabase
-        .from("groups")
-        .select("*")
-        .order("member_count", { ascending: false, nullsFirst: false })
-        .range(from, to);
-      if (pageError) {
-        loadError = pageError;
-        console.log("[loadGroups] page", pageIndex, "errored:", pageError.message);
-        break;
-      }
-      const pageRows = Array.isArray(pageData) ? pageData : [];
-      console.log("[loadGroups] page", pageIndex, "fetched", pageRows.length, "rows (range", from, "-", to, ")");
-      allRows = allRows.concat(pageRows);
-      if (pageRows.length < PAGE_SIZE) break;
-      pageIndex += 1;
+    // P3-3: fetch only the active database-backed view and only the visible
+    // page. Catalog tabs are local and never touch `groups`. This replaces
+    // the previous 500-row loop that downloaded all 4,318 production rows.
+    const from = (currentPage - 1) * pageSize;
+    const to = from + pageSize - 1;
+    const allowedSortKeys = new Set(["name", "platform", "audience_type", "member_count", "last_posted_at"]);
+    const sortKey = allowedSortKeys.has(sort.key) ? sort.key : "member_count";
+    const audienceValue = { Vendor: "vendor", "Church / Ministry": "church", Both: "both", "Community / Reach": "community" }[audience] || null;
+    const safeSearch = debouncedSearch.trim().replace(/[%_,()]/g, " ").replace(/\s+/g, " ").slice(0, 80);
+    let query = supabase.from("groups").select("*", { count: "exact" });
+    query = engineView === "general_vendor"
+      ? query.eq("growth_segment", "general_vendor")
+      : query.or("growth_segment.is.null,growth_segment.neq.general_vendor");
+    if (platform !== "All") query = query.eq("platform", platform);
+    if (audienceValue) query = query.eq("audience_type", audienceValue);
+    if (minReach > 0) query = query.gte("member_count", minReach);
+    if (safeSearch) {
+      const term = `%${safeSearch}%`;
+      query = query.or(["name", "platform", "audience_type", "category", "notes", "access_type", "privacy"].map((column) => `${column}.ilike.${term}`).join(","));
     }
-    console.log("[loadGroups] done. total rows fetched:", allRows.length);
+    const { data: pageData, error: loadError, count } = await query
+      .order(sortKey, { ascending: sort.dir === "asc", nullsFirst: false })
+      .range(from, to);
+    const allRows = Array.isArray(pageData) ? pageData : [];
     if (loadError) {
       setBackendReady(false);
       setError(loadError.message || "Growth Engine backend is not configured.");
       setGroups([]);
+      setGroupsTotal(0);
       setMetricsState("unavailable");
       setLoading(false);
       return;
     }
     setBackendReady(true);
+    setGroupsTotal(Number(count || 0));
     const rows = allRows;
 
     // 853ar (brief #7/#8): trusted metrics come ONLY from a server-side,
@@ -1005,9 +997,12 @@ export default function GrowthEngine() {
       setGroups(rows.map((g) => ({ ...g })));
     }
     setLoading(false);
-  }, []);
+  }, [audience, currentPage, debouncedSearch, engineView, minReach, pageSize, platform, sort.dir, sort.key]);
 
-  useEffect(() => { loadGroups(); }, [loadGroups]);
+  useEffect(() => {
+    const timer = setTimeout(() => { loadGroups(); }, 0);
+    return () => clearTimeout(timer);
+  }, [loadGroups]);
   useEffect(() => { loadBlueprintStatus(); }, [loadBlueprintStatus]);
 
   const catalogRows = useMemo(() => {
@@ -1092,10 +1087,12 @@ export default function GrowthEngine() {
   const growthReviewDueCount = reviewTrackedRows.filter(row => row.growth_next_review_at && String(row.growth_next_review_at).slice(0,10) <= reviewTodayKey).length;
   const growthReviewScheduledCount = reviewTrackedRows.filter(row => row.growth_next_review_at && String(row.growth_next_review_at).slice(0,10) > reviewTodayKey).length;
   const growthReviewMissingCount = reviewTrackedRows.filter(row => !row.growth_next_review_at && (['member','requested'].includes(String(row.join_status || '').toLowerCase()) || row.posting_rules_reviewed_at || row.growth_priority_tier === 'A')).length;
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const databaseView = engineView === "outreach" || engineView === "general_vendor";
+  const totalMatchingRows = databaseView ? groupsTotal : filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalMatchingRows / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const pageStart = (safePage - 1) * pageSize;
-  const paginatedRows = filtered.slice(pageStart, pageStart + pageSize);
+  const paginatedRows = databaseView ? filtered : filtered.slice(pageStart, pageStart + pageSize);
 
   // 893: keep the actual page state in sync with the clamped page the UI
   // displays. Without this, a filter can shrink the result set while
@@ -1434,7 +1431,7 @@ export default function GrowthEngine() {
       {!loading && filtered.length > 0 && (
         <div className="kbge-pagination">
           <button className="miniBtn" disabled={safePage <= 1} onClick={() => setCurrentPage(Math.max(1, safePage - 1))}>Previous</button>
-          <span className="kbge-page-info">Page {safePage} of {totalPages} · {filtered.length} groups</span>
+          <span className="kbge-page-info">Page {safePage} of {totalPages} · {totalMatchingRows} groups</span>
           <button className="miniBtn" disabled={safePage >= totalPages} onClick={() => setCurrentPage(Math.min(totalPages, safePage + 1))}>Next</button>
         </div>
       )}
