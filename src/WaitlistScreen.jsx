@@ -507,7 +507,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
   const inputBorder = "rgba(34,48,27,0.14)";
 
   const fieldStyle = { width: "100%", padding: "13px 14px", borderRadius: 10, border: `1px solid ${inputBorder}`, fontSize: 14, fontFamily: "DM Sans, sans-serif", boxSizing: "border-box", outline: "none", background: inputBg, color: formText, transition: "border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease" };
-  const labelStyle = { fontSize: 11, fontWeight: 750, color: formText, display: "block", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" };
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: formText, display: "block", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" };
   const requiredMark = <span style={{ color: "#B45309", marginLeft: 2 }}>*</span>;
 
   const resendWaitlistConfirmation = async () => {
@@ -634,7 +634,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
 
             {result.referralValidated ? (
               <div style={{padding:"16px 18px",borderRadius:16,background:"linear-gradient(135deg, rgba(34,48,27,0.075), rgba(168,123,42,0.065))",border:"1px solid rgba(168,123,42,0.24)",marginBottom:16}}>
-                <div style={{fontSize:10.5,fontWeight:850,letterSpacing:"0.14em",textTransform:"uppercase",color:accent,marginBottom:6}}>Founding Invite confirmed</div>
+                <div style={{fontSize:10.5,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:accent,marginBottom:6}}>Founding Invite confirmed</div>
                 <div style={{fontFamily:"'Playfair Display', Georgia, serif",fontSize:19,fontWeight:700,lineHeight:1.25,color:text,marginBottom:7}}>Your {isVendor ? "business" : "church"} application came through a validated FaithBid invite.</div>
                 <div style={{fontSize:12.5,lineHeight:1.65,color:muted}}>It is placed in the referred-applicant priority review group. Priority changes review order only; it does not change FaithBid's admission standards, guarantee approval, or guarantee a review time.</div>
               </div>
@@ -675,7 +675,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                 {["Application received","FaithBid review","Activate account","Complete profile"].map((label, idx) => (
                   <div key={label} style={{ padding:"11px 9px", borderRadius:12, background:idx===0 ? "rgba(168,123,42,0.11)" : softBg, border:`1px solid ${idx===0 ? "rgba(168,123,42,0.24)" : border}`, textAlign:"center" }}>
                     <div style={{ fontSize:10, fontWeight:800, letterSpacing:"0.08em", textTransform:"uppercase", color:idx===0 ? accent : muted, marginBottom:4 }}>Step {idx + 1}</div>
-                    <div style={{ fontSize:12.5, lineHeight:1.35, fontWeight:750, color:text }}>{label}</div>
+                    <div style={{ fontSize:12.5, lineHeight:1.35, fontWeight:700, color:text }}>{label}</div>
                   </div>
                 ))}
               </div>
@@ -684,7 +684,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
             <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
               {meta.nextSteps.map((line, idx) => (
                 <div key={idx} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                  <span style={{ color: accent, fontSize: 15, fontWeight: 900, lineHeight: 1.5, flexShrink: 0 }}>✓</span>
+                  <span style={{ color: accent, fontSize: 15, fontWeight: 800, lineHeight: 1.5, flexShrink: 0 }}>✓</span>
                   <div style={{ fontSize: 14, lineHeight: 1.65, color: muted }}>{line}</div>
                 </div>
               ))}
@@ -887,9 +887,9 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
               {meta.subhead}
             </p>
 
-            <div className="kb-waitlist-hero-meta-clean" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", maxWidth: 680, margin: "0 auto", padding: "9px 14px", borderRadius: 999, border: `1px solid ${border}`, background: "rgba(255,255,255,0.68)", color: muted, fontSize: 11.8, lineHeight: 1.45, fontWeight: 650, letterSpacing: "0.01em", boxShadow: "0 12px 28px rgba(21,28,24,0.045)" }}>
+            <div className="kb-waitlist-hero-meta-clean" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", maxWidth: 680, margin: "0 auto", padding: "9px 14px", borderRadius: 999, border: `1px solid ${border}`, background: "rgba(255,255,255,0.68)", color: muted, fontSize: 11.8, lineHeight: 1.45, fontWeight: 600, letterSpacing: "0.01em", boxShadow: "0 12px 28px rgba(21,28,24,0.045)" }}>
               <span style={{ width: 6, height: 6, borderRadius: 999, background: accent, boxShadow: `0 0 0 3px ${accentSoft}`, flex: "0 0 auto" }} />
-              <span style={{ color: accent, fontWeight: 850 }}>{isVendor ? "Charter review" : "Access reservation"}</span>
+              <span style={{ color: accent, fontWeight: 800 }}>{isVendor ? "Charter review" : "Access reservation"}</span>
               <span style={{ width: 3, height: 3, borderRadius: 999, background: "rgba(34,48,27,0.22)", flex: "0 0 auto" }} />
               <span>{isVendor ? "Free to apply · profile after acceptance" : "No project posted · free to reserve"}</span>
               <span style={{ width: 3, height: 3, borderRadius: 999, background: "rgba(34,48,27,0.22)", flex: "0 0 auto" }} />
@@ -912,10 +912,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
         >
           <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:16,marginBottom:16,paddingBottom:14,borderBottom:`1px solid ${formBorder}`}}>
             <div>
-              <div style={{fontSize:10.5,fontWeight:850,letterSpacing:"0.14em",textTransform:"uppercase",color:formAccent,marginBottom:5}}>{isVendor ? "Charter review" : "Access reservation"}</div>
+              <div style={{fontSize:10.5,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:formAccent,marginBottom:5}}>{isVendor ? "Charter review" : "Access reservation"}</div>
               <div style={{fontFamily:"'Playfair Display', Georgia, serif",fontSize:20,fontWeight:700,lineHeight:1.08,letterSpacing:"-0.02em",color:formText}}>{isVendor ? "Submit the essentials." : "Reserve your church's spot."}</div>
             </div>
-            <div style={{padding:"7px 10px",borderRadius:999,background:softBg,border:`1px solid ${formBorder}`,color:formMuted,fontSize:11,fontWeight:750,whiteSpace:"nowrap"}}>{meta.requiredSummary}</div>
+            <div style={{padding:"7px 10px",borderRadius:999,background:softBg,border:`1px solid ${formBorder}`,color:formMuted,fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>{meta.requiredSummary}</div>
           </div>
 
           {err ? (

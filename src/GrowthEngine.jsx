@@ -729,7 +729,7 @@ function KBGEEditModal({ group, mode = "edit", defaultPlatform = "Facebook", def
           <label className="field" ref={accessFieldRef}>Access<select value={draft.join_status || "not_joined"} onChange={(e) => update("join_status", e.target.value)}><option value="not_joined">Not joined</option><option value="requested">Requested</option><option value="member">Member</option></select></label>
           <label className="field" ref={postingModeFieldRef}>Posting Mode<select value={draft.posting_mode || "free"} onChange={(e) => update("posting_mode", e.target.value)}><option value="free">Free</option><option value="gated">Gated</option><option value="blocked">Blocked</option></select></label>
           <label className="field">Admin Status<select value={draft.admin_outreach_status || "not_started"} onChange={(e) => update("admin_outreach_status", e.target.value)}><option value="not_started">Not started</option><option value="identified">Identified</option><option value="messaged">Messaged</option><option value="responded">Responded</option><option value="partnership">Partnership</option></select></label>
-          <div className="field wide" style={{fontSize:12,fontWeight:850,color:"#26361f",letterSpacing:".04em",textTransform:"uppercase",paddingTop:8}}>Posting rule evidence</div>
+          <div className="field wide" style={{fontSize:12,fontWeight:800,color:"#26361f",letterSpacing:".04em",textTransform:"uppercase",paddingTop:8}}>Posting rule evidence</div>
           <label className="field">Rule Basis<select value={draft.posting_rule_basis || "unknown"} onChange={(e) => update("posting_rule_basis", e.target.value)}><option value="unknown">Unknown</option><option value="confirmed">Confirmed</option><option value="inferred">Inferred</option></select></label>
           <label className="field">Rules Reviewed<input type="date" value={draft.posting_rules_reviewed_at || ""} onChange={(e) => update("posting_rules_reviewed_at", e.target.value)} /></label>
           <label className="field">Priority<select value={draft.growth_priority_tier || ""} onChange={(e) => update("growth_priority_tier", e.target.value)}><option value="">Not ranked</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select></label>
@@ -741,7 +741,7 @@ function KBGEEditModal({ group, mode = "edit", defaultPlatform = "Facebook", def
           <label className="field wide">Posting-rule Finding<textarea value={draft.posting_rule_finding || ""} onChange={(e) => update("posting_rule_finding", e.target.value)} rows={3} placeholder="What the published group rules specifically establish" /></label>
           <label className="field wide">Allowed Posting Behavior<textarea value={draft.allowed_posting_behavior || ""} onChange={(e) => update("allowed_posting_behavior", e.target.value)} rows={3} placeholder="Evidence-pure posting boundary" /></label>
           <label className="field wide">Fit Rationale<textarea value={draft.fit_rationale || ""} onChange={(e) => update("fit_rationale", e.target.value)} rows={3} placeholder="Strategic judgment, kept separate from rule evidence" /></label>
-          <div className="field wide" style={{fontSize:12,fontWeight:850,color:"#26361f",letterSpacing:".04em",textTransform:"uppercase",paddingTop:8}}>Admin relationship (separate record)</div>
+          <div className="field wide" style={{fontSize:12,fontWeight:800,color:"#26361f",letterSpacing:".04em",textTransform:"uppercase",paddingTop:8}}>Admin relationship (separate record)</div>
           <label className="field">Admin Name<input value={adminRelationship.admin_name || ""} onChange={(e) => setAdminRelationship((r) => ({ ...r, admin_name: e.target.value }))} /></label>
           <label className="field">Relationship Status<select value={adminRelationship.relationship_status || "unknown"} onChange={(e) => setAdminRelationship((r) => ({ ...r, relationship_status: e.target.value }))}><option value="unknown">Unknown</option><option value="cold">Cold</option><option value="warm">Warm</option><option value="active">Active</option></select></label>
           <label className="field wide">Admin Profile URL<input value={adminRelationship.profile_url || ""} onChange={(e) => setAdminRelationship((r) => ({ ...r, profile_url: e.target.value }))} /></label>
@@ -749,7 +749,7 @@ function KBGEEditModal({ group, mode = "edit", defaultPlatform = "Facebook", def
           <label className="field">Admin Next Review<input type="date" value={adminRelationship.next_review_at || ""} onChange={(e) => setAdminRelationship((r) => ({ ...r, next_review_at: e.target.value }))} /></label>
           <label className="field wide">Relationship Notes<textarea rows={2} value={adminRelationship.notes || ""} onChange={(e) => setAdminRelationship((r) => ({ ...r, notes: e.target.value }))} /></label>
           <div className="field wide"><button type="button" className="ghostBtn" onClick={saveAdminRelationship} disabled={adminRelationshipBusy}>{adminRelationshipBusy ? "Saving relationship…" : "Save admin relationship"}</button></div>
-          <div className="field wide" style={{fontSize:12,fontWeight:850,color:"#26361f",letterSpacing:".04em",textTransform:"uppercase",paddingTop:8}}>Follow-up schedule</div>
+          <div className="field wide" style={{fontSize:12,fontWeight:800,color:"#26361f",letterSpacing:".04em",textTransform:"uppercase",paddingTop:8}}>Follow-up schedule</div>
           <label className="field">Last Meaningful Activity<input type="date" value={draft.growth_last_activity_at || ""} onChange={(e) => update("growth_last_activity_at", e.target.value)} /></label>
           <label className="field">Next Review Date<input type="date" value={draft.growth_next_review_at || ""} onChange={(e) => update("growth_next_review_at", e.target.value)} /></label>
           <label className="field wide">Review Reason<textarea value={draft.growth_review_reason || ""} onChange={(e) => update("growth_review_reason", e.target.value)} rows={2} placeholder="Why this record should return to the Founder queue on that date" /></label>
@@ -1403,11 +1403,11 @@ export default function GrowthEngine() {
                       />
                     </td>
                   ) : null}
-                  <td><div className="groupName" title={groupTitle}>{kbgeClean(g.name)}{String(g.join_status || "").toLowerCase() === "member" ? <span style={{marginLeft:6,color:"#2f855a",fontSize:11,fontWeight:800}}>(Joined)</span> : String(g.join_status || "").toLowerCase() === "requested" ? <span style={{marginLeft:6,color:"#9a6700",fontSize:11,fontWeight:800}}>(Requested)</span> : null}{g.posting_rule_basis && g.posting_rule_basis !== "unknown" ? <span style={{marginLeft:6,color:g.posting_rule_basis === "confirmed" ? "#2f855a" : "#9a6700",fontSize:10,fontWeight:800}}>{kbgeStatusLabel(g.posting_rule_basis)} rules{g.growth_priority_tier ? ` · ${g.growth_priority_tier}/${g.strategic_fit_score || "—"}` : ""}</span> : null}{reviewDate ? <span style={{marginLeft:6,color:reviewDue?"#b42318":"#466339",fontSize:10,fontWeight:850}}>{reviewDue ? "Review due" : `Review ${kbgeFormatDate(reviewDate)}`}</span> : reviewEligible ? <span style={{marginLeft:6,color:"#8a6a22",fontSize:10,fontWeight:800}}>Review date missing</span> : null}</div></td>
+                  <td><div className="groupName" title={groupTitle}>{kbgeClean(g.name)}{String(g.join_status || "").toLowerCase() === "member" ? <span style={{marginLeft:6,color:"#2f855a",fontSize:11,fontWeight:800}}>(Joined)</span> : String(g.join_status || "").toLowerCase() === "requested" ? <span style={{marginLeft:6,color:"#9a6700",fontSize:11,fontWeight:800}}>(Requested)</span> : null}{g.posting_rule_basis && g.posting_rule_basis !== "unknown" ? <span style={{marginLeft:6,color:g.posting_rule_basis === "confirmed" ? "#2f855a" : "#9a6700",fontSize:10,fontWeight:800}}>{kbgeStatusLabel(g.posting_rule_basis)} rules{g.growth_priority_tier ? ` · ${g.growth_priority_tier}/${g.strategic_fit_score || "—"}` : ""}</span> : null}{reviewDate ? <span style={{marginLeft:6,color:reviewDue?"#b42318":"#466339",fontSize:10,fontWeight:800}}>{reviewDue ? "Review due" : `Review ${kbgeFormatDate(reviewDate)}`}</span> : reviewEligible ? <span style={{marginLeft:6,color:"#8a6a22",fontSize:10,fontWeight:800}}>Review date missing</span> : null}</div></td>
                   <td className="membersCell">{kbgeFormatMembers(g.member_count)}</td>
                   <td><span className={`plainPill ${g.catalog_type === "Joinable Communities" ? "joinable" : ""}`}>{g.catalog_type || `${kbgeClean(g.platform, "Other")} Group`}</span></td>
                   <td>{kbgeAudienceLabel(g.audience_type)}</td>
-                  <td className="optionalCol">{g.is_catalog ? "Research" : <>{kbgeFormatDate(g.last_posted_at)} · {metricsState === "available" ? Number(g.tracked_signups || 0) : "—"}/{postCount}{g.channel_health_status ? <span style={{marginLeft:6,fontSize:9.5,fontWeight:850,color:g.channel_health_status === "producing" ? "#166534" : g.channel_health_status === "dead_weight" ? "#b91c1c" : "#667085"}}>{kbgeStatusLabel(g.channel_health_status)}</span> : null}</>}</td>
+                  <td className="optionalCol">{g.is_catalog ? "Research" : <>{kbgeFormatDate(g.last_posted_at)} · {metricsState === "available" ? Number(g.tracked_signups || 0) : "—"}/{postCount}{g.channel_health_status ? <span style={{marginLeft:6,fontSize:9.5,fontWeight:800,color:g.channel_health_status === "producing" ? "#166534" : g.channel_health_status === "dead_weight" ? "#b91c1c" : "#667085"}}>{kbgeStatusLabel(g.channel_health_status)}</span> : null}</>}</td>
                   {(engineView === "outreach" || engineView === "general_vendor") ? <td><span className={`nextPill ${action.tone}`}>{action.label}</span></td> : null}
                   <td>
                     <div className="rowActions">
@@ -1484,32 +1484,32 @@ const KBGE_STYLES = `
 }
 .kbge-root *{box-sizing:border-box}
 .kbge-root .kbge-blueprint-status{margin:0 0 10px;padding:12px 14px;background:#111827;color:#fff;border:1px solid #252f42;border-radius:10px;box-shadow:0 2px 8px rgba(17,24,39,.12)}
-.kbge-root .kbge-blueprint-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.kbge-root .kbge-blueprint-head>div{display:grid;gap:3px}.kbge-root .kbge-blueprint-head span{font-size:9px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:#d8c18f}.kbge-root .kbge-blueprint-head strong{font-size:12px;line-height:1.4}.kbge-root .kbge-blueprint-head .miniBtn{background:#fff;color:#111827;border-color:#fff}
+.kbge-root .kbge-blueprint-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.kbge-root .kbge-blueprint-head>div{display:grid;gap:3px}.kbge-root .kbge-blueprint-head span{font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#d8c18f}.kbge-root .kbge-blueprint-head strong{font-size:12px;line-height:1.4}.kbge-root .kbge-blueprint-head .miniBtn{background:#fff;color:#111827;border-color:#fff}
 .kbge-root .kbge-milestone-ladder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}.kbge-root .kbge-milestone-ladder div{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);border-radius:7px;padding:7px 9px}.kbge-root .kbge-milestone-ladder span{font-size:10px;color:#d8dee9}.kbge-root .kbge-milestone-ladder strong{font-family:DM Mono,monospace;font-size:15px}
 .kbge-root .kbge-gate-note{margin-top:8px;font-size:10.5px;line-height:1.5;color:#d8dee9}.kbge-root .kbge-gate-note strong{color:#fff}.kbge-root .kbge-blueprint-details{margin-top:8px;border-top:1px solid rgba(255,255,255,.1);padding-top:7px}.kbge-root .kbge-blueprint-details summary{cursor:pointer;font-size:10.5px;font-weight:800;color:#d8c18f}.kbge-root .kbge-module-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}.kbge-root .kbge-module-grid div,.kbge-root .kbge-guardrail-list div{display:grid;gap:2px;padding:7px 8px;background:rgba(255,255,255,.05);border-radius:6px}.kbge-root .kbge-module-grid strong,.kbge-root .kbge-guardrail-list strong{font-size:9.5px}.kbge-root .kbge-module-grid span{font-size:9px;color:#d8c18f}.kbge-root .kbge-module-grid small,.kbge-root .kbge-guardrail-list span{font-size:8.75px;line-height:1.4;color:#b9c1cf}.kbge-root .kbge-guardrail-list{display:grid;gap:6px;margin-top:8px}
 @media(max-width:800px){.kbge-root .kbge-milestone-ladder{grid-template-columns:repeat(2,minmax(0,1fr))}.kbge-root .kbge-module-grid{grid-template-columns:1fr}}
 .kbge-root button,.kbge-root input,.kbge-root select,.kbge-root textarea{font-family:inherit}
 .kbge-root{min-height:100vh;padding:6px 8px 10px;overflow-x:hidden;}
 .kbge-root .kbge-view-tabs{display:flex;flex-wrap:wrap;gap:2px 4px;margin-bottom:10px;border-bottom:1px solid var(--line);}
-.kbge-root .kbge-view-tab{height:32px;border:none;background:transparent;color:var(--muted);font-size:12.5px;font-weight:750;padding:0 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.kbge-root .kbge-view-tab{height:32px;border:none;background:transparent;color:var(--muted);font-size:12.5px;font-weight:700;padding:0 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
 .kbge-root .kbge-view-tab:hover{color:var(--ink);}
 .kbge-root .kbge-view-tab.active{color:var(--ink);border-bottom-color:var(--gold);}
 .kbge-root .topLine{min-height:34px;height:auto;display:flex;align-items:flex-start;justify-content:space-between;gap:10px 14px;margin-bottom:10px;padding:0;flex-wrap:wrap;}
 .kbge-root .titleBlock{display:flex;align-items:baseline;gap:10px;min-width:220px;flex:1 1 260px;text-align:left;padding-top:5px;}
-.kbge-root h1{font-size:18px;line-height:1;margin:0;font-weight:850;letter-spacing:-.04em;color:var(--ink);}
+.kbge-root h1{font-size:18px;line-height:1;margin:0;font-weight:800;letter-spacing:-.04em;color:var(--ink);}
 .kbge-root .titleBlock span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .kbge-root .topControls{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px;min-width:0;max-width:100%;flex:2 1 680px;}
 .kbge-root .search{height:28px;width:250px;max-width:100%;flex:1 1 250px;border:1px solid var(--line);border-radius:6px;padding:0 9px;font-size:12px;background:#fff;color:var(--ink);outline:none;}
 .kbge-root .search:focus{border-color:#b7b0a5;box-shadow:0 0 0 2px rgba(154,106,31,.08)}
 .kbge-root select{height:28px;border:1px solid var(--line);border-radius:6px;background:#fff;color:#344054;font-size:12px;padding:0 8px;outline:none;}
-.kbge-root .miniBtn{height:28px;border:1px solid var(--line);border-radius:6px;background:#fff;color:#344054;font-size:12px;font-weight:750;padding:0 10px;cursor:pointer;}
+.kbge-root .miniBtn{height:28px;border:1px solid var(--line);border-radius:6px;background:#fff;color:#344054;font-size:12px;font-weight:700;padding:0 10px;cursor:pointer;}
 .kbge-root .miniBtn:hover{border-color:#b7b0a5;color:var(--ink)}
 .kbge-root .miniBtn:disabled{opacity:.45;cursor:not-allowed;}
 .kbge-root .kbge-pagination{display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 0 2px;}
 .kbge-root .kbge-page-info{font-size:12px;color:var(--muted);font-weight:600;}
 .kbge-root .miniBtn.active{background:var(--gold);border-color:var(--gold);color:#fff;}
 .kbge-root .kbge-bulk-bar{display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:8px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;flex-wrap:wrap;}
-.kbge-root .kbge-bulk-count{font-size:12px;font-weight:750;color:#9a3412;}
+.kbge-root .kbge-bulk-count{font-size:12px;font-weight:700;color:#9a3412;}
 .kbge-root .kbge-bulk-setto{font-size:12px;color:#9a3412;margin-left:4px;}
 .kbge-root .kbge-bulk-saving{font-size:12px;color:#9a3412;font-style:italic;}
 .kbge-root .checkboxHead,.kbge-root .checkboxCell{text-align:center;width:36px;}
@@ -1518,8 +1518,8 @@ const KBGE_STYLES = `
 .kbge-root .tableWrap{height:calc(100vh - 118px);min-height:320px;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:auto;box-shadow:0 1px 2px rgba(17,24,39,.04);scroll-behavior:auto;}
 .kbge-root .catalogNotice{margin:0;padding:9px 12px;background:#fff7ed;border-bottom:1px solid #fed7aa;font-size:11.5px;line-height:1.4;color:#9a3412;white-space:normal;}
 .kbge-root .kbge-config-state{height:calc(100vh - 118px);min-height:320px;background:var(--panel);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:34px;box-shadow:0 1px 2px rgba(17,24,39,.04);}
-.kbge-root .kbge-config-kicker{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
-.kbge-root .kbge-config-title{font-size:22px;font-weight:900;letter-spacing:-.04em;color:var(--ink);margin-bottom:8px;}
+.kbge-root .kbge-config-kicker{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.kbge-root .kbge-config-title{font-size:22px;font-weight:800;letter-spacing:-.04em;color:var(--ink);margin-bottom:8px;}
 .kbge-root .kbge-config-copy{max-width:620px;font-size:13px;line-height:1.65;color:var(--muted);margin-bottom:18px;white-space:normal;}
 .kbge-root .kbge-config-copy code{font-size:12px;background:#f8f4eb;border:1px solid var(--line);border-radius:6px;padding:1px 5px;color:var(--gold);}
 /* 853bp (Actions-column visibility fix, corrects the 853bo regression):
@@ -1531,7 +1531,7 @@ const KBGE_STYLES = `
    "Mark Posted…", "Edit") on one line with margin to spare, while Group
    keeps a healthy 26% for names/tooltips. */
 .kbge-root .groupsTable{width:100%;min-width:920px;border-collapse:collapse;table-layout:fixed;background:#fff;font-size:12px;}
-.kbge-root th{position:sticky;top:0;z-index:2;height:26px;padding:5px 8px;text-align:left;background:var(--head);border-bottom:1px solid var(--line);border-right:1px solid var(--line-soft);color:#7a746b;font-size:9.25px;font-weight:850;letter-spacing:.075em;text-transform:uppercase;white-space:nowrap;cursor:pointer;user-select:none;}
+.kbge-root th{position:sticky;top:0;z-index:2;height:26px;padding:5px 8px;text-align:left;background:var(--head);border-bottom:1px solid var(--line);border-right:1px solid var(--line-soft);color:#7a746b;font-size:9.25px;font-weight:800;letter-spacing:.075em;text-transform:uppercase;white-space:nowrap;cursor:pointer;user-select:none;}
 .kbge-root th:first-child{padding-left:6px;text-align:left;}
 .kbge-root td:first-child{padding-left:6px;text-align:left;}
 .kbge-root th:last-child,.kbge-root td:last-child{border-right:none;}
@@ -1553,17 +1553,17 @@ const KBGE_STYLES = `
 .kbge-root .groupsTable td:last-child{height:auto;min-height:26px;overflow:visible;text-overflow:clip;white-space:normal;vertical-align:middle;}
 .kbge-root tr:nth-child(even) td{background:var(--row-alt);}
 .kbge-root tr:hover td{background:var(--hover);}
-.kbge-root .groupName{display:block;width:100%;font-size:12px;font-weight:850;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.05;letter-spacing:-.01em;text-align:left;margin-left:0;padding-left:0;}
+.kbge-root .groupName{display:block;width:100%;font-size:12px;font-weight:800;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.05;letter-spacing:-.01em;text-align:left;margin-left:0;padding-left:0;}
 .kbge-root .groupLink{display:none;}
 .kbge-root .groupsTable th:first-child,.kbge-root .groupsTable td:first-child,.kbge-root .groupsTable .kbge-root .groupName{padding-left:6px!important;margin-left:0!important;text-align:left!important;}
 .kbge-root .groupsTable td:first-child{max-width:0;}
 
-.kbge-root .membersCell{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:14px;font-weight:950;color:var(--gold);letter-spacing:-.055em;text-align:left;}
-.kbge-root .numCell{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:12px;font-weight:850;color:#111827;}
-.kbge-root .plainPill{display:inline-flex;align-items:center;height:18px;border:1px solid #e7e2da;border-radius:999px;padding:0 7px;background:#fff;color:#344054;font-size:10px;font-weight:750;max-width:100%;overflow:hidden;text-overflow:ellipsis;}
+.kbge-root .membersCell{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:14px;font-weight:800;color:var(--gold);letter-spacing:-.055em;text-align:left;}
+.kbge-root .numCell{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:12px;font-weight:800;color:#111827;}
+.kbge-root .plainPill{display:inline-flex;align-items:center;height:18px;border:1px solid #e7e2da;border-radius:999px;padding:0 7px;background:#fff;color:#344054;font-size:10px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;}
 .kbge-root .plainPill.joinable{background:#ecfdf5;border-color:#bbf7d0;color:#166534;}
 .kbge-root .notesCell{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#5f6672;line-height:1.2;}
-.kbge-root .nextPill{display:inline-flex;align-items:center;height:18px;border-radius:999px;padding:0 7px;font-size:9.75px;font-weight:850;border:1px solid #e5e7eb;background:#f9fafb;color:#667085;max-width:100%;overflow:hidden;text-overflow:ellipsis;}
+.kbge-root .nextPill{display:inline-flex;align-items:center;height:18px;border-radius:999px;padding:0 7px;font-size:9.75px;font-weight:800;border:1px solid #e5e7eb;background:#f9fafb;color:#667085;max-width:100%;overflow:hidden;text-overflow:ellipsis;}
 .kbge-root .nextPill.warn{background:var(--amber-bg);border-color:#fde68a;color:var(--amber)}
 .kbge-root .nextPill.danger{background:var(--red-bg);border-color:#fecaca;color:var(--red)}
 .kbge-root .nextPill.info{background:var(--blue-bg);border-color:#bfdbfe;color:var(--blue)}
@@ -1584,12 +1584,12 @@ const KBGE_STYLES = `
 .kbge-root .rowActions button:disabled{opacity:.4;cursor:not-allowed;}
 .kbge-root .stateCell{height:150px;text-align:center;color:#98a2b3;font-size:13px;}
 .kbge-root .errorText{color:var(--red);white-space:normal;}
-.kbge-root .toast{position:fixed;right:18px;bottom:18px;background:#111827;color:#fff;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:750;box-shadow:0 12px 34px rgba(17,24,39,.22);z-index:20;}
+.kbge-root .toast{position:fixed;right:18px;bottom:18px;background:#111827;color:#fff;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:700;box-shadow:0 12px 34px rgba(17,24,39,.22);z-index:20;}
 .kbge-root .toast.error{background:#7f1d1d}.kbge-root .toast.success{background:#14532d}
 .kbge-root .modalBack{position:fixed;inset:0;background:rgba(17,24,39,.42);display:flex;align-items:center;justify-content:center;padding:18px;z-index:30;}
 .kbge-root .modal{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:12px;border:1px solid var(--line);box-shadow:0 28px 80px rgba(17,24,39,.26);}
 .kbge-root .modalHead{height:58px;padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.kbge-root .modalTitle{font-size:14px;font-weight:850;color:#111827;}.kbge-root .modalSub{font-size:11px;color:#667085;margin-top:2px;}
+.kbge-root .modalTitle{font-size:14px;font-weight:800;color:#111827;}.kbge-root .modalSub{font-size:11px;color:#667085;margin-top:2px;}
 .kbge-root .xBtn{width:28px;height:28px;border:1px solid var(--line);border-radius:7px;background:#fff;font-size:18px;line-height:1;color:#667085;cursor:pointer;}
 /* 853br (Stage 4 Step 2): compact, premium contextual guidance banner shown
    only when the modal is opened via "Next Step…". Deliberately a slim
@@ -1599,7 +1599,7 @@ const KBGE_STYLES = `
 .kbge-root .focusHint{margin:10px 16px 0;padding:8px 12px;border-radius:8px;background:#faf6ec;border:1px solid #ecdfc0;border-left:3px solid var(--gold);color:#5c4b23;font-size:11.5px;font-weight:600;line-height:1.4;}
 .kbge-root .modalStats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--line);background:#f3f4f6;}
 .kbge-root .modalStats div{background:#fff;padding:11px 14px;border-right:1px solid var(--line);}.kbge-root .modalStats div:last-child{border-right:none}
-.kbge-root .modalStats strong{display:block;font-size:18px;font-weight:900;color:#111827;letter-spacing:-.04em;line-height:1;}.kbge-root .modalStats span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:#98a2b3;margin-top:5px;}
+.kbge-root .modalStats strong{display:block;font-size:18px;font-weight:800;color:#111827;letter-spacing:-.04em;line-height:1;}.kbge-root .modalStats span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:#98a2b3;margin-top:5px;}
 .kbge-root .formGrid{padding:15px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .kbge-root .field{display:flex;flex-direction:column;gap:4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#667085;}.kbge-root .field.wide{grid-column:1/-1;}
 .kbge-root .field input,.kbge-root .field select,.kbge-root .field textarea{width:100%;border:1px solid var(--line);border-radius:7px;background:#fff;color:#111827;font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;padding:7px 9px;outline:none;}.kbge-root .field input,.kbge-root .field select{height:32px}.kbge-root .field textarea{resize:vertical;line-height:1.4;}
@@ -1610,5 +1610,5 @@ const KBGE_STYLES = `
 @media(max-width:900px){.kbge-root{padding:7px}.kbge-root .topLine{height:auto;align-items:flex-start;flex-direction:column;padding-left:0}.kbge-root .topControls{width:100%;justify-content:flex-start;flex:1 1 auto}.kbge-root .search{width:100%;flex:1 1 220px}.kbge-root .tableWrap{height:calc(100vh - 168px)}.kbge-root .groupsTable{min-width:0}.kbge-root .titleBlock{width:100%;justify-content:flex-start}.kbge-root .titleBlock span{max-width:75%;}.kbge-root .modalStats{grid-template-columns:repeat(2,1fr)}.kbge-root .formGrid{grid-template-columns:1fr}.kbge-root .modalFoot{height:auto;flex-wrap:wrap}.kbge-root .spacer{display:none}}
 @media(max-width:680px){.kbge-root .groupsTable col:nth-child(3),.kbge-root .groupsTable th:nth-child(3),.kbge-root .groupsTable td:nth-child(3){display:none}.kbge-root .groupsTable col:nth-child(1){width:25%!important}.kbge-root .groupsTable col:nth-child(5){width:31%!important}.kbge-root .groupsTable col:nth-child(9){width:20%!important}.kbge-root td,.kbge-root th{padding-left:5px;padding-right:5px}.kbge-root .rowActions button{padding:0 5px}}
 .kbge-root .fieldError{margin-top:2px;font-size:10.5px;font-weight:700;color:var(--red);text-transform:none;letter-spacing:0;}
-.kbge-root .addGroupBtn{font-weight:850;}
+.kbge-root .addGroupBtn{font-weight:800;}
 `;

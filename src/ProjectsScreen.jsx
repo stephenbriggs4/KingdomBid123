@@ -1212,7 +1212,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
           <div>
             <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:"var(--text-muted)"}}>Suggested vendors for this project</div>
-            <div style={{fontSize:12,color:"var(--text-mid)",marginTop:4,fontWeight:300}}>Skip the wait — invite a strong-fit vendor to review your project directly.</div>
+            <div style={{fontSize:12,color:"var(--text-mid)",marginTop:4,fontWeight:400}}>Skip the wait — invite a strong-fit vendor to review your project directly.</div>
           </div>
         </div>
         {vendors.map(({ vendor: v, score }, i) => {
@@ -1813,27 +1813,6 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
   );
 }
 
-
-function ensureKBMarketplaceRuntimeStyles() {
-  try {
-    if (typeof document === "undefined") return;
-    if (document.getElementById("kb-marketplace-runtime-style")) return;
-    const style = document.createElement("style");
-    style.id = "kb-marketplace-runtime-style";
-    style.textContent = KB_MARKETPLACE_RUNTIME_CSS;
-    document.head.appendChild(style);
-  } catch (err) {
-    logError("marketplace-style-inject", err);
-  }
-}
-
-function KBMarketplaceRuntimeStyles() {
-  const useStyleEffect = React.useInsertionEffect || React.useLayoutEffect || React.useEffect;
-  useStyleEffect(() => {
-    ensureKBMarketplaceRuntimeStyles();
-  }, []);
-  return null;
-}
 
 // V808 NAV PERFORMANCE PATCH — vendor directory fast path.
 // The old Vendors sub-tab entered ProjectBoard first, ran the full live-project
@@ -3564,9 +3543,6 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
   return (
     <div className={`kb-live-marketplace-page${role === 'vendor' ? ' kb-vendor-open-projects-page' : ''} kb-church-projects-marketplace-page kb-mp-mobile-unified-page kb-mp-mobile-unified-churchprojects kb-mp-exact-marketplace-page kb-mp-exact-marketplace-churchprojects`}>
-      
-      <KBMarketplaceRuntimeStyles />
-
       <ChurchProjectsMarketplaceHero
         isVendor={role === 'vendor'}
         onPost={onPost}
@@ -3726,7 +3702,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               className="kb-marketplace-saved-route-link"
               onClick={() => typeof nav === 'function' && nav('saved-projects')}
               title="Open your saved project list"
-              style={{height:34,border:'none',background:'transparent',padding:'0 2px',fontSize:11,fontWeight:950,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A6729',cursor:'pointer',whiteSpace:'nowrap',boxShadow:'none'}}
+              style={{height:34,border:'none',background:'transparent',padding:'0 2px',fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A6729',cursor:'pointer',whiteSpace:'nowrap',boxShadow:'none'}}
             >
               Saved Projects →
             </button>
@@ -3828,7 +3804,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
             aria-label="More filters"
           >
             <div className="kbm2-filter-sheet-head">
-              <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840'}}>Filters</span>
+              <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840'}}>Filters</span>
               <button type="button" onClick={() => setFilterSheetOpen(false)} aria-label="Close filters" style={{marginLeft:'auto',width:32,height:32,borderRadius:999,border:'1px solid rgba(28,40,20,0.12)',background:'#fff',fontSize:16,cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center',color:'#1C2814'}}>×</button>
             </div>
 
@@ -6275,7 +6251,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
           >
             <span aria-hidden="true">←</span> Back to projects
           </button>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 34, padding: "0 13px", borderRadius: 999, border: "1px solid rgba(176,136,64,0.28)", background: "rgba(176,136,64,0.09)", color: "#8a6729", fontSize: 10.5, fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 34, padding: "0 13px", borderRadius: 999, border: "1px solid rgba(176,136,64,0.28)", background: "rgba(176,136,64,0.09)", color: "#8a6729", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>
             <span aria-hidden="true">✦</span> Community example
           </div>
         </div>
@@ -6284,7 +6260,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
           <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(circle at 82% 16%, rgba(176,136,64,0.16), transparent 34%), radial-gradient(circle at 8% 88%, rgba(28,40,20,0.07), transparent 32%)" }} />
           <div style={{ position: "relative", display: "grid", gridTemplateColumns: "minmax(0,1.55fr) minmax(280px,0.9fr)", gap: 24, padding: "34px clamp(22px,4vw,42px)" }}>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: "0.16em", textTransform: "uppercase", color: "#b08840", marginBottom: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase", color: "#b08840", marginBottom: 10 }}>
                 {p.category || "Sample project"}
               </div>
               <h1 style={{ margin: 0, fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: "clamp(31px,5vw,54px)", lineHeight: 0.98, letterSpacing: "-0.045em", fontWeight: 800, color: "#1C2814", maxWidth: 760 }}>
@@ -6292,8 +6268,8 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
               </h1>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 16, color: "#6b6d75", fontSize: 13.5, fontWeight: 600 }}>
                 <span>{churchLine}</span>
-                {p.urgent && <span style={{ display: "inline-flex", alignItems: "center", height: 25, padding: "0 10px", borderRadius: 999, background: "rgba(197,48,48,0.1)", color: "#a43b28", fontSize: 10.5, fontWeight: 900, letterSpacing: "0.09em", textTransform: "uppercase" }}>Urgent</span>}
-                <span style={{ display: "inline-flex", alignItems: "center", height: 25, padding: "0 10px", borderRadius: 999, background: "rgba(28,40,20,0.06)", color: "#556044", fontSize: 10.5, fontWeight: 900, letterSpacing: "0.09em", textTransform: "uppercase" }}>Read-only preview</span>
+                {p.urgent && <span style={{ display: "inline-flex", alignItems: "center", height: 25, padding: "0 10px", borderRadius: 999, background: "rgba(197,48,48,0.1)", color: "#a43b28", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase" }}>Urgent</span>}
+                <span style={{ display: "inline-flex", alignItems: "center", height: 25, padding: "0 10px", borderRadius: 999, background: "rgba(28,40,20,0.06)", color: "#556044", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase" }}>Read-only preview</span>
               </div>
               <p style={{ margin: "22px 0 0", maxWidth: 720, fontSize: 15, lineHeight: 1.78, color: "#565a50", fontWeight: 400 }}>
                 {description}
@@ -6301,7 +6277,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
             </div>
 
             <aside style={{ alignSelf: "stretch", border: "1px solid rgba(223,213,194,0.94)", borderRadius: 22, background: "rgba(255,255,255,0.72)", padding: 18, boxShadow: "0 10px 28px rgba(28,40,20,0.06)", backdropFilter: "blur(8px)" }}>
-              <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: "0.14em", textTransform: "uppercase", color: "#9c8a6a", marginBottom: 12 }}>
+              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#9c8a6a", marginBottom: 12 }}>
                 Project snapshot
               </div>
               <div style={{ display: "grid", gap: 10 }}>
@@ -6313,7 +6289,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
                     title={isVendor ? "Browse open projects" : "Post a similar project"}
                     style={{ width: "100%", textAlign: "left", padding: "13px 14px", borderRadius: 16, border: "1px solid #eadfca", background: "#fffdf8", cursor: "pointer" }}
                   >
-                    <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "0.14em", textTransform: "uppercase", color: "#a09a85", marginBottom: 4 }}>{item.label}</div>
+                    <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#a09a85", marginBottom: 4 }}>{item.label}</div>
                     <div style={{ fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: 19, lineHeight: 1.1, fontWeight: 800, letterSpacing: "-0.02em", color: "#1C2814" }}>{item.value}</div>
                   </button>
                 ))}
@@ -6324,19 +6300,19 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
 
         <div style={{ display: "grid", gridTemplateColumns: skills.length ? "minmax(0,1.25fr) minmax(280px,0.75fr)" : "1fr", gap: 16, alignItems: "stretch" }}>
           <section style={{ border: "1px solid #dfd5c2", borderRadius: 22, background: "#fff", padding: 24, boxShadow: "0 10px 30px rgba(28,40,20,0.055)" }}>
-            <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: "0.14em", textTransform: "uppercase", color: "#b08840", marginBottom: 10 }}>Project description</div>
+            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#b08840", marginBottom: 10 }}>Project description</div>
             <div style={{ fontSize: 14.5, color: "#565a50", lineHeight: 1.82, fontWeight: 400 }}>{description}</div>
-            <div style={{ marginTop: 18, padding: "13px 15px", borderRadius: 16, border: "1px solid #eadfca", background: "#fffaf0", color: "#6a604f", fontSize: 12.5, lineHeight: 1.62, fontWeight: 650 }}>
+            <div style={{ marginTop: 18, padding: "13px 15px", borderRadius: 16, border: "1px solid #eadfca", background: "#fffaf0", color: "#6a604f", fontSize: 12.5, lineHeight: 1.62, fontWeight: 600 }}>
               This sample brief is intentionally read-only. Real projects use the same detail structure, but include live bidding, messaging, and vendor proposal workflows.
             </div>
           </section>
 
           {skills.length > 0 && (
             <section style={{ border: "1px solid #dfd5c2", borderRadius: 22, background: "#fff", padding: 24, boxShadow: "0 10px 30px rgba(28,40,20,0.055)" }}>
-              <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: "0.14em", textTransform: "uppercase", color: "#b08840", marginBottom: 13 }}>Skills needed</div>
+              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#b08840", marginBottom: 13 }}>Skills needed</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {skills.map((s, i) => (
-                  <span key={`${s}-${i}`} style={{ display: "inline-flex", alignItems: "center", minHeight: 30, padding: "6px 12px", borderRadius: 999, border: "1px solid #e5dbc8", background: "#fffdf8", color: "#6a604f", fontSize: 11, fontWeight: 850, letterSpacing: "0.045em", textTransform: "uppercase" }}>{s}</span>
+                  <span key={`${s}-${i}`} style={{ display: "inline-flex", alignItems: "center", minHeight: 30, padding: "6px 12px", borderRadius: 999, border: "1px solid #e5dbc8", background: "#fffdf8", color: "#6a604f", fontSize: 11, fontWeight: 800, letterSpacing: "0.045em", textTransform: "uppercase" }}>{s}</span>
                 ))}
               </div>
             </section>
@@ -6358,7 +6334,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
             <button
               type="button"
               onClick={goPrimary}
-              style={{ height: 46, padding: "0 22px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.14)", background: "linear-gradient(135deg,#c59a46,#a87b2a)", color: "#fff", fontSize: 13, fontWeight: 900, letterSpacing: "0.02em", cursor: "pointer", boxShadow: "0 14px 32px rgba(0,0,0,0.18)", whiteSpace: "nowrap" }}
+              style={{ height: 46, padding: "0 22px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.14)", background: "linear-gradient(135deg,#c59a46,#a87b2a)", color: "#fff", fontSize: 13, fontWeight: 800, letterSpacing: "0.02em", cursor: "pointer", boxShadow: "0 14px 32px rgba(0,0,0,0.18)", whiteSpace: "nowrap" }}
             >
               {isVendor ? "Browse open projects" : "Post a similar project"} <span aria-hidden="true">→</span>
             </button>
@@ -8095,7 +8071,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
             <div className="project-detail-role-parity-rail" style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(3,minmax(0,1fr))',gap:10,marginBottom:18}} aria-label="Project detail shared role architecture">
               {projectDetailRoleParityRail.map(item => (
                 <div key={item.label} style={{padding:'13px 14px',borderRadius:16,background:'rgba(255,253,248,0.82)',border:'1px solid rgba(28,40,20,0.09)',boxShadow:'0 8px 20px rgba(28,40,20,0.04)'}}>
-                  <div style={{fontSize:9.5,fontWeight:900,letterSpacing:'0.12em',textTransform:'uppercase',color:'#B08840',marginBottom:5}}>{item.label}</div>
+                  <div style={{fontSize:9.5,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#B08840',marginBottom:5}}>{item.label}</div>
                   <div style={{fontSize:12.5,lineHeight:1.5,fontWeight:700,color:'#4f5a49'}}>{item.value}</div>
                 </div>
               ))}
@@ -8136,7 +8112,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
                       </div>
                       <div style={{display:'grid',gap:12}}>
                         <div style={{padding:18,borderRadius:18,background:'linear-gradient(180deg,#fffdf8,#fbf5e8)',border:'1px solid #eadfce'}}>
-                          <div style={{fontSize:10,fontWeight:850,letterSpacing:'0.12em',textTransform:'uppercase',color:'#b08840',marginBottom:10}}>Decision readiness</div>
+                          <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#b08840',marginBottom:10}}>Decision readiness</div>
                           <div style={{display:'grid',gap:8}}>
                             {projectDetailReadinessItems.map(([label,val]) => (
                               <div key={label} style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',gap:12}}>
@@ -8187,7 +8163,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
                   <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(3,minmax(0,1fr))',gap:10,marginBottom:20}}>
                     {projectDetailNextSteps.map((item, idx) => (
                       <div key={item+idx} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'13px 14px',borderRadius:16,background:idx===0?'rgba(176,136,64,0.09)':'#fbfaf6',border:idx===0?'1px solid rgba(176,136,64,0.20)':'1px solid #efe7d9'}}>
-                        <div style={{width:22,height:22,borderRadius:999,background:idx===0?'#1C2814':'#fff',border:'1px solid rgba(28,40,20,0.10)',color:idx===0?'#fffdf8':'#8a6729',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:900,flexShrink:0}}>{idx + 1}</div>
+                        <div style={{width:22,height:22,borderRadius:999,background:idx===0?'#1C2814':'#fff',border:'1px solid rgba(28,40,20,0.10)',color:idx===0?'#fffdf8':'#8a6729',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{idx + 1}</div>
                         <div style={{fontSize:12.5,lineHeight:1.5,color:'#4f4a40',fontWeight:700}}>{item}</div>
                       </div>
                     ))}
@@ -8195,7 +8171,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
                   <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(2,minmax(0,1fr))',gap:12,marginBottom:20}}>
                     {projectDetailScopeCards.map(item => (
                       <div key={item.label} style={{padding:16,borderRadius:16,background:'#fbfaf6',border:'1px solid #efe7d9'}}>
-                        <div style={{fontSize:10,fontWeight:850,letterSpacing:'0.1em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>{item.label}</div>
+                        <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>{item.label}</div>
                         <div style={{fontSize:13.5,lineHeight:1.58,color:'#3f4038',fontWeight:500}}>{item.value}</div>
                       </div>
                     ))}
@@ -8345,7 +8321,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               <div style={{position:'absolute',top:-70,right:-52,width:230,height:230,borderRadius:999,background:'radial-gradient(circle,rgba(176,136,64,0.10),transparent 62%)',pointerEvents:'none'}} />
               <div style={{position:'absolute',bottom:-80,left:-70,width:220,height:220,borderRadius:999,background:'radial-gradient(circle,rgba(28,40,20,0.04),transparent 64%)',pointerEvents:'none'}} />
               <div style={{position:'relative',padding:'26px 24px 24px'}}>
-                <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:10}}>{actionModel.eyebrow || 'Action panel'}</div>
+                <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:10}}>{actionModel.eyebrow || 'Action panel'}</div>
                 <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:28,fontWeight:800,color:'#1C2814',letterSpacing:'-0.04em',marginBottom:8,lineHeight:1.05}}>{actionModel.title}</div>
                 <div style={{fontSize:13,color:'#565862',lineHeight:1.62,marginBottom:20}}>{actionModel.body}</div>
                 {!!actionModel.primaryLabel && <button type="button" onClick={runDetailAction(actionModel.primaryAction, projectDetailPrimaryFallback, 'project-detail-primary-action')} style={{width:'100%',height:48,borderRadius:14,border:'none',fontSize:14,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,background:'linear-gradient(135deg,#C4973A,#A87B2A)',color:'#fff',boxShadow:'0 2px 8px rgba(176,136,64,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',marginBottom:10}}>{actionModel.primaryLabel}</button>}
@@ -8548,32 +8524,32 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
   return (
     <main className="kb-saved-projects-fullbleed-page" style={{minHeight:'100vh',width:'100%',maxWidth:'none',margin:0,backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND,backgroundSize:'cover',backgroundPosition:'center top',padding:'34px clamp(18px,4vw,52px) 86px',fontFamily:"'DM Sans',sans-serif"}}>
       <div style={{width:'100%',maxWidth:'none',margin:0}}>
-        <button type="button" onClick={() => nav('projects')} style={{border:'1px solid rgba(28,40,20,0.12)',background:'#fffdf8',borderRadius:999,padding:'9px 14px',fontSize:12,fontWeight:850,color:'#1C2814',cursor:'pointer',marginBottom:20}}>Back to Marketplace</button>
+        <button type="button" onClick={() => nav('projects')} style={{border:'1px solid rgba(28,40,20,0.12)',background:'#fffdf8',borderRadius:999,padding:'9px 14px',fontSize:12,fontWeight:800,color:'#1C2814',cursor:'pointer',marginBottom:20}}>Back to Marketplace</button>
         <section style={{display:'grid',gap:12,marginBottom:24}}>
-          <div style={{fontSize:11,fontWeight:950,letterSpacing:'0.18em',textTransform:'uppercase',color:'#B08840'}}>Workspace / Saved projects</div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.18em',textTransform:'uppercase',color:'#B08840'}}>Workspace / Saved projects</div>
           <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(38px,6vw,76px)',lineHeight:0.95,letterSpacing:'-0.055em',color:'#1C2814',margin:0}}>Saved Projects.</h1>
-          <p style={{maxWidth:720,fontSize:16,lineHeight:1.65,color:'#56614f',fontWeight:650,margin:0}}>A clean bookmark list for projects you want to revisit. Notification-only bidding requests stay separate and do not appear here unless you also saved the project.</p>
+          <p style={{maxWidth:720,fontSize:16,lineHeight:1.65,color:'#56614f',fontWeight:600,margin:0}}>A clean bookmark list for projects you want to revisit. Notification-only bidding requests stay separate and do not appear here unless you also saved the project.</p>
         </section>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,flexWrap:'wrap',marginBottom:18,padding:'14px 16px',border:'1px solid rgba(28,40,20,0.10)',borderRadius:18,background:'rgba(255,253,248,0.76)',boxShadow:'0 12px 34px rgba(28,40,20,0.07)'}}>
-          <div style={{fontSize:13,fontWeight:850,color:'#1C2814'}}>{loading ? 'Loading saved projects...' : `${rows.length} saved project${rows.length === 1 ? '' : 's'}`}</div>
-          <button type="button" onClick={loadSavedProjects} disabled={loading} style={{height:38,borderRadius:12,border:'1px solid rgba(28,40,20,0.14)',background:'#fff',padding:'0 14px',fontSize:12,fontWeight:850,color:'#1C2814',cursor:loading?'wait':'pointer'}}>Refresh</button>
+          <div style={{fontSize:13,fontWeight:800,color:'#1C2814'}}>{loading ? 'Loading saved projects...' : `${rows.length} saved project${rows.length === 1 ? '' : 's'}`}</div>
+          <button type="button" onClick={loadSavedProjects} disabled={loading} style={{height:38,borderRadius:12,border:'1px solid rgba(28,40,20,0.14)',background:'#fff',padding:'0 14px',fontSize:12,fontWeight:800,color:'#1C2814',cursor:loading?'wait':'pointer'}}>Refresh</button>
         </div>
         {error ? (
-          <div style={{padding:24,borderRadius:22,border:'1px solid rgba(185,28,28,0.18)',background:'rgba(254,242,242,0.84)',color:'#7f1d1d',fontWeight:750}}>Saved projects could not load. Retry, then inspect the saved_projects read path if it continues.</div>
+          <div style={{padding:24,borderRadius:22,border:'1px solid rgba(185,28,28,0.18)',background:'rgba(254,242,242,0.84)',color:'#7f1d1d',fontWeight:700}}>Saved projects could not load. Retry, then inspect the saved_projects read path if it continues.</div>
         ) : loading ? (
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:18}}>{[0,1,2].map(i => <div key={i} style={{height:430,borderRadius:18,background:'linear-gradient(90deg,rgba(255,255,255,0.52),rgba(255,255,255,0.86),rgba(255,255,255,0.52))',border:'1px solid rgba(28,40,20,0.08)'}} />)}</div>
         ) : rows.length === 0 ? (
           <div style={{padding:'42px 28px',borderRadius:26,border:'1px solid rgba(28,40,20,0.10)',background:'rgba(255,253,248,0.82)',textAlign:'center',boxShadow:'0 18px 48px rgba(28,40,20,0.08)'}}>
             <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:34,fontWeight:800,color:'#1C2814',marginBottom:8}}>No saved projects yet.</div>
             <p style={{fontSize:14,lineHeight:1.6,color:'#6f7569',margin:'0 auto 20px',maxWidth:520}}>Save a project from the marketplace to track it here. Bidding-open notifications are managed separately so a reminder never pretends to be a bookmark.</p>
-            <button type="button" onClick={() => nav('projects')} style={{height:44,borderRadius:14,border:'1px solid rgba(212,185,120,0.55)',background:'linear-gradient(135deg,#1C2814,#304225)',color:'#fffdf8',padding:'0 18px',fontSize:13,fontWeight:900,cursor:'pointer'}}>Browse Projects</button>
+            <button type="button" onClick={() => nav('projects')} style={{height:44,borderRadius:14,border:'1px solid rgba(212,185,120,0.55)',background:'linear-gradient(135deg,#1C2814,#304225)',color:'#fffdf8',padding:'0 18px',fontSize:13,fontWeight:800,cursor:'pointer'}}>Browse Projects</button>
           </div>
         ) : (
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))',gap:20}}>
             {rows.map(project => (
               <div key={project.id} style={{display:'grid',gap:10}}>
                 <KcProjectCard project={project} role={role} onSelect={openProject} onBid={openProject} actions={[{label:'Open project',onClick:()=>openProject(project)}]} />
-                <button type="button" onClick={(event) => unsaveProject(project, event)} disabled={removingId === project.id} style={{height:40,borderRadius:12,border:'1px solid rgba(28,40,20,0.12)',background:'#fffdf8',color:'#6f5d40',fontSize:12,fontWeight:850,cursor:removingId === project.id ? 'wait' : 'pointer'}}>Remove from saved projects</button>
+                <button type="button" onClick={(event) => unsaveProject(project, event)} disabled={removingId === project.id} style={{height:40,borderRadius:12,border:'1px solid rgba(28,40,20,0.12)',background:'#fffdf8',color:'#6f5d40',fontSize:12,fontWeight:800,cursor:removingId === project.id ? 'wait' : 'pointer'}}>Remove from saved projects</button>
               </div>
             ))}
           </div>
@@ -9131,7 +9107,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           color:#d7a74d;
           font-size:12px;
           line-height:1;
-          font-weight:900;
+          font-weight:800;
           letter-spacing:.24em;
           text-transform:uppercase;
           text-align:left!important;
@@ -9146,7 +9122,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           color:#fffdf8!important;
           font-family:'Playfair Display','Newsreader',Georgia,serif!important;
           font-size:clamp(48px,4vw,60px)!important;
-          font-weight:510!important;
+          font-weight:500!important;
           line-height:1.02!important;
           letter-spacing:-.045em!important;
           text-align:left!important;
@@ -9162,7 +9138,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           padding:0!important;
           color:rgba(255,253,248,.94)!important;
           font-size:15.5px!important;
-          font-weight:540!important;
+          font-weight:500!important;
           line-height:1.4!important;
           text-align:left!important;
           transform:none!important;
@@ -9200,7 +9176,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           border-radius:14px!important;
           font:inherit;
           font-size:13px!important;
-          font-weight:850!important;
+          font-weight:800!important;
           cursor:pointer;
           transform:none;
           transition:transform .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease;
@@ -9234,7 +9210,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           transform:none!important;
           text-align:left!important;
         }
-        .kb-church-marketplace-trust-item{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:11.5px;font-weight:720;text-shadow:0 2px 9px rgba(0,0,0,.34);}
+        .kb-church-marketplace-trust-item{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:11.5px;font-weight:700;text-shadow:0 2px 9px rgba(0,0,0,.34);}
         .kb-church-marketplace-trust-item svg{width:22px;height:22px;fill:none;stroke:#d2a445;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 5px rgba(0,0,0,.28));}
         .kb-church-marketplace-trust-rule{display:block;width:1px;height:20px;background:rgba(255,253,248,.42);}
 
@@ -9286,7 +9262,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           margin:0 2px 12px;
           color:#454d42;
           font-size:13.5px;
-          font-weight:650;
+          font-weight:600;
           line-height:1.4;
         }
         .kb-church-marketplace-context-copy{
@@ -9312,7 +9288,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           color:#1C2814;
           font:inherit;
           font-size:12.5px;
-          font-weight:850;
+          font-weight:800;
           outline:none;
           box-shadow:inset 0 1px 0 rgba(255,255,255,.62),0 2px 6px rgba(28,40,20,.035);
         }
@@ -9330,7 +9306,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           background:rgba(255,253,248,.66);
           color:#6a7166;
           font-size:11px;
-          font-weight:900;
+          font-weight:800;
           line-height:1;
           list-style:none;
           cursor:pointer;
@@ -9350,7 +9326,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           background:#fffdf8;
           color:#4f594c;
           font-size:11.5px;
-          font-weight:650;
+          font-weight:600;
           line-height:1.5;
           box-shadow:0 14px 32px rgba(28,40,20,.13);
         }
@@ -9415,7 +9391,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
             box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
             font-family:'DM Sans',system-ui,sans-serif!important;
             font-size:11.25px!important;
-            font-weight:850!important;
+            font-weight:800!important;
             letter-spacing:.01em!important;
             white-space:nowrap!important;
             cursor:pointer!important;
@@ -9490,28 +9466,28 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         }
         @media(prefers-reduced-motion:reduce){.kb-church-marketplace-hero-actions button{transition:none!important;}}
         .kb-vendor-marketplace-page .kb-live-shell{width:min(100%,1368px);margin:0 auto;padding:0 30px 54px;}
-        .kb-vendor-marketplace-page .kb-live-vendor-kicker{font-size:11px;font-weight:950;letter-spacing:.18em;text-transform:uppercase;color:#9B7A35;margin:0 0 6px;}
+        .kb-vendor-marketplace-page .kb-live-vendor-kicker{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#9B7A35;margin:0 0 6px;}
         .kb-vendor-marketplace-page .kb-live-all-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 12px;padding:0 2px;}
-        .kb-vendor-marketplace-page .kb-live-all-head h2{margin:0;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:clamp(27px,3.1vw,38px);line-height:1;letter-spacing:-.04em;color:#10110f;font-weight:760;}
+        .kb-vendor-marketplace-page .kb-live-all-head h2{margin:0;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:clamp(27px,3.1vw,38px);line-height:1;letter-spacing:-.04em;color:#10110f;font-weight:800;}
         .kb-vendor-head-right{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;}
         .kb-vendor-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-        .kb-vendor-head-action{height:34px;border-radius:999px;border:1px solid rgba(28,40,20,.12);background:rgba(255,253,248,.78);color:#1C2814;padding:0 13px;font-size:10.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:inherit;box-shadow:0 1px 2px rgba(28,40,20,.035);}
+        .kb-vendor-head-action{height:34px;border-radius:999px;border:1px solid rgba(28,40,20,.12);background:rgba(255,253,248,.78);color:#1C2814;padding:0 13px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:inherit;box-shadow:0 1px 2px rgba(28,40,20,.035);}
         .kb-vendor-head-action:hover{border-color:rgba(176,136,64,.32);background:#fffdf8;transform:translateY(-1px);}
         .kb-vendor-head-action.is-gold{background:linear-gradient(180deg,#d9b965,#caa247);border-color:rgba(109,82,29,.16);color:#1C2814;box-shadow:0 8px 18px rgba(176,136,64,.18);}
         .kb-market-mode-switch{display:inline-flex;align-items:center;gap:3px;height:34px;padding:3px;border-radius:999px;border:1px solid rgba(28,40,20,.10);background:rgba(255,253,248,.58);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(28,40,20,.025);}
-        .kb-market-mode-switch button{height:26px;border:0;border-radius:999px;background:transparent;color:#5d6258;padding:0 11px;font:inherit;font-size:9.5px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
+        .kb-market-mode-switch button{height:26px;border:0;border-radius:999px;background:transparent;color:#5d6258;padding:0 11px;font:inherit;font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
         .kb-market-mode-switch button.is-active{background:#1C2814;color:#fffdf8;box-shadow:0 6px 14px rgba(28,40,20,.12);}
         .kb-market-mode-switch button:not(.is-active):hover{background:rgba(28,40,20,.055);color:#1C2814;}
         .kb-vendor-marketplace-page .kb-live-all-count{font-family:'DM Sans',Inter,sans-serif;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#9B7A35;}
         .kb-vendor-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 180px auto;gap:10px;align-items:center;margin:0 0 12px;padding:10px;border:1px solid rgba(176,136,64,.18);border-radius:18px;background:rgba(255,253,248,.78);box-shadow:0 10px 24px rgba(28,40,20,.055);}
-        .kb-vendor-search{height:42px;border:1px solid rgba(28,40,20,.12);border-radius:13px;background:#fffdf8;padding:0 13px;font:inherit;font-size:13px;font-weight:650;color:#1C2814;outline:none;}
+        .kb-vendor-search{height:42px;border:1px solid rgba(28,40,20,.12);border-radius:13px;background:#fffdf8;padding:0 13px;font:inherit;font-size:13px;font-weight:600;color:#1C2814;outline:none;}
         .kb-vendor-search:focus{border-color:rgba(176,136,64,.55);box-shadow:0 0 0 3px rgba(176,136,64,.12);}
-        .kb-vendor-select{height:42px;border:1px solid rgba(28,40,20,.12);border-radius:13px;background:#fffdf8;padding:0 12px;font:inherit;font-size:12px;font-weight:850;color:#1C2814;outline:none;}
-        .kb-vendor-clear{height:42px;border:1px solid rgba(28,40,20,.12);border-radius:13px;background:#fffdf8;color:#4b5246;font:inherit;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:0 13px;cursor:pointer;}
+        .kb-vendor-select{height:42px;border:1px solid rgba(28,40,20,.12);border-radius:13px;background:#fffdf8;padding:0 12px;font:inherit;font-size:12px;font-weight:800;color:#1C2814;outline:none;}
+        .kb-vendor-clear{height:42px;border:1px solid rgba(28,40,20,.12);border-radius:13px;background:#fffdf8;color:#4b5246;font:inherit;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:0 13px;cursor:pointer;}
         .kb-vendor-clear:hover{border-color:rgba(176,136,64,.38);color:#1C2814;}
         .kb-vendor-chips{display:flex;align-items:center;gap:7px;overflow-x:auto;padding:0 2px 10px;margin:0 0 4px;scrollbar-width:none;}
         .kb-vendor-chips::-webkit-scrollbar{display:none;}
-        .kb-vendor-chip{height:32px;border:1px solid rgba(28,40,20,.11);background:rgba(255,253,248,.72);border-radius:999px;padding:0 12px;font:inherit;font-size:11px;font-weight:900;color:#4f594c;white-space:nowrap;cursor:pointer;}
+        .kb-vendor-chip{height:32px;border:1px solid rgba(28,40,20,.11);background:rgba(255,253,248,.72);border-radius:999px;padding:0 12px;font:inherit;font-size:11px;font-weight:800;color:#4f594c;white-space:nowrap;cursor:pointer;}
         .kb-vendor-chip.is-on{background:#1C2814;color:#fffdf8;border-color:#1C2814;box-shadow:0 8px 18px rgba(28,40,20,.12);}
         .kb-vendor-marketplace-page .kb-live-all-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:stretch;}
         .kb-vendor-marketplace-page .kb-live-card-wrap{position:relative;min-width:0;}
@@ -9520,23 +9496,23 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         .kb-vendor-marketplace-page .kb-live-card-img{position:absolute;inset:-1px;background-size:cover;background-position:center;background-repeat:no-repeat;transform:scale(1.01);filter:saturate(1.04) contrast(1.04);}
         .kb-vendor-marketplace-page .kb-live-card-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.03) 28%,rgba(0,0,0,.31) 58%,rgba(0,0,0,.73) 100%);z-index:1;}
         .kb-vendor-marketplace-page .kb-live-card-content{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:0 12px 12px;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;display:flex;flex-direction:column;gap:4px;align-items:stretch;}
-        .kb-vendor-marketplace-page .kb-live-all-category{display:inline-flex;align-self:flex-start;margin:0;padding:0;border:0;background:none;font-size:7.5px;font-weight:900;letter-spacing:.17em;text-transform:uppercase;color:rgba(214,163,62,.94);text-shadow:0 1px 5px rgba(0,0,0,.52);line-height:1;}
+        .kb-vendor-marketplace-page .kb-live-all-category{display:inline-flex;align-self:flex-start;margin:0;padding:0;border:0;background:none;font-size:7.5px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:rgba(214,163,62,.94);text-shadow:0 1px 5px rgba(0,0,0,.52);line-height:1;}
         .kb-vendor-marketplace-page .kb-live-card-content h3{margin:0;padding:0;font-family:'DM Sans',Inter,system-ui,sans-serif;font-size:13.5px;font-weight:800;line-height:1.2;letter-spacing:-.028em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.55);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;text-align:left;}
-        .kb-vendor-marketplace-page .kb-live-all-summary{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-size:9.5px;line-height:1.24;font-weight:650;color:rgba(255,253,248,.82);text-shadow:0 1px 5px rgba(0,0,0,.52);}
-        .kb-vendor-marketplace-page .kb-vendor-match-summary strong{color:#fffdf8;font-weight:950;}
+        .kb-vendor-marketplace-page .kb-live-all-summary{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-size:9.5px;line-height:1.24;font-weight:600;color:rgba(255,253,248,.82);text-shadow:0 1px 5px rgba(0,0,0,.52);}
+        .kb-vendor-marketplace-page .kb-vendor-match-summary strong{color:#fffdf8;font-weight:800;}
         .kb-vendor-marketplace-page .kb-vendor-match-summary{color:rgba(255,253,248,.88)!important;}
         .kb-vendor-marketplace-page .kb-live-brief-facts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px;}
         .kb-vendor-marketplace-page .kb-live-brief-fact{display:flex;flex-direction:column;gap:1px;min-width:0;padding:6px 7px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.105);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);}
-        .kb-vendor-marketplace-page .kb-live-brief-fact-label{font-size:7px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,253,248,.56);line-height:1;}
-        .kb-vendor-marketplace-page .kb-live-brief-fact-value{font-size:10.5px;font-weight:850;line-height:1.08;color:#fffdf8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .kb-vendor-marketplace-page .kb-live-brief-fact-label{font-size:7px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,253,248,.56);line-height:1;}
+        .kb-vendor-marketplace-page .kb-live-brief-fact-value{font-size:10.5px;font-weight:800;line-height:1.08;color:#fffdf8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
         .kb-vendor-marketplace-page .kb-live-save-badge,.kb-vendor-compare-badge{position:absolute;z-index:5;top:9px;width:30px;height:30px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(15,20,13,.42);color:#fffdf8;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(9px);box-shadow:0 7px 16px rgba(0,0,0,.18);}
         .kb-vendor-marketplace-page .kb-live-save-badge{right:9px;}
-        .kb-vendor-compare-badge{right:45px;font-size:12px;font-weight:950;}
+        .kb-vendor-compare-badge{right:45px;font-size:12px;font-weight:800;}
         .kb-vendor-marketplace-page .kb-live-save-badge.is-on{background:rgba(201,164,92,.92);border-color:rgba(255,255,255,.42);color:#1C2814;}
         .kb-vendor-marketplace-page .kb-live-card:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(28,40,20,.18);border-color:rgba(201,164,92,.26);}
         .kb-vendor-empty{grid-column:1/-1;border:1px solid rgba(28,40,20,.10);border-radius:20px;background:rgba(255,253,248,.76);padding:28px;text-align:center;color:rgba(28,40,20,.62);font-size:13px;}
         .kb-vendor-pager{display:flex;justify-content:center;gap:8px;margin-top:18px;}
-        .kb-vendor-pager button{height:34px;border-radius:999px;border:1px solid rgba(28,40,20,.12);background:#fffdf8;color:#1C2814;font:inherit;font-size:11px;font-weight:900;padding:0 12px;cursor:pointer;}
+        .kb-vendor-pager button{height:34px;border-radius:999px;border:1px solid rgba(28,40,20,.12);background:#fffdf8;color:#1C2814;font:inherit;font-size:11px;font-weight:800;padding:0 12px;cursor:pointer;}
         .kb-vendor-pager button.on{background:#1C2814;color:#fffdf8;border-color:#1C2814;}
         .kb-vendor-pager button:disabled{opacity:.42;cursor:not-allowed;}
         @media(max-width:1180px){.kb-vendor-marketplace-page .kb-live-all-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
@@ -9615,7 +9591,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
             box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
             font-family:'DM Sans',system-ui,sans-serif!important;
             font-size:12px!important;
-            font-weight:850!important;
+            font-weight:800!important;
             letter-spacing:.01em!important;
             white-space:nowrap!important;
             cursor:pointer!important;
@@ -9659,14 +9635,14 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                 <div style={{marginBottom:14,padding:"14px 16px",border:"1px solid rgba(176,136,64,0.24)",borderRadius:18,background:"linear-gradient(135deg,rgba(255,247,234,0.94),rgba(255,253,248,0.96))",boxShadow:"0 12px 30px rgba(28,40,20,0.08)"}}>
                   <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
                     <div style={{minWidth:0}}>
-                      <div style={{fontFamily:"DM Mono,monospace",fontSize:10,fontWeight:900,letterSpacing:".14em",textTransform:"uppercase",color:"#9a7434",marginBottom:5}}>Founder coverage context</div>
-                      <div style={{display:"inline-flex",alignItems:"center",gap:6,marginBottom:7,padding:"4px 7px",borderRadius:999,background:"rgba(154,116,52,0.08)",border:"1px solid rgba(154,116,52,0.15)",fontSize:9,fontWeight:900,color:"#9a7434"}}>Opened from Founder Brief</div>
-                      <div style={{fontSize:16,fontWeight:900,color:"#1C2814",lineHeight:1.2,marginBottom:5}}>{founderCoverageContext.projectTitle || founderCoverageContext.title || "Find qualified vendors"}</div>
+                      <div style={{fontFamily:"DM Mono,monospace",fontSize:10,fontWeight:800,letterSpacing:".14em",textTransform:"uppercase",color:"#9a7434",marginBottom:5}}>Founder coverage context</div>
+                      <div style={{display:"inline-flex",alignItems:"center",gap:6,marginBottom:7,padding:"4px 7px",borderRadius:999,background:"rgba(154,116,52,0.08)",border:"1px solid rgba(154,116,52,0.15)",fontSize:9,fontWeight:800,color:"#9a7434"}}>Opened from Founder Brief</div>
+                      <div style={{fontSize:16,fontWeight:800,color:"#1C2814",lineHeight:1.2,marginBottom:5}}>{founderCoverageContext.projectTitle || founderCoverageContext.title || "Find qualified vendors"}</div>
                       <div style={{fontSize:12,color:"rgba(28,40,20,0.64)",lineHeight:1.55,maxWidth:680}}>{founderCoverageContext.reason || "Use this focused vendor directory pass to find qualified coverage for the marketplace gap."}</div>
                     </div>
                     <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"flex-end"}}>
-                      <button type="button" className="kb-live-all-empty-link" style={{fontSize:12,fontWeight:900,whiteSpace:"nowrap"}} onClick={()=>typeof nav === "function" && nav("admin")}>Back to Founder Brief</button>
-                      <button type="button" className="kb-live-all-empty-link" style={{fontSize:12,fontWeight:900,whiteSpace:"nowrap"}} onClick={clearFounderCoverageContext}>Clear context</button>
+                      <button type="button" className="kb-live-all-empty-link" style={{fontSize:12,fontWeight:800,whiteSpace:"nowrap"}} onClick={()=>typeof nav === "function" && nav("admin")}>Back to Founder Brief</button>
+                      <button type="button" className="kb-live-all-empty-link" style={{fontSize:12,fontWeight:800,whiteSpace:"nowrap"}} onClick={clearFounderCoverageContext}>Clear context</button>
                     </div>
                   </div>
                   <div style={{display:"flex",gap:7,flexWrap:"wrap",marginTop:10}}>
@@ -9708,7 +9684,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                     <span>{hasProjectContext ? 'Post a Project' : 'Add Project Context'}</span>
                     <span className="kb-marketplace-below-seam-action-arrow" aria-hidden="true">→</span>
                   </button>
-                  <button type="button" className="kb-marketplace-saved-route-link" onClick={() => typeof nav === 'function' && nav('saved-projects')} title="Open your saved project list" style={{height:34,border:'none',background:'transparent',padding:'0 2px',fontSize:11,fontWeight:950,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A6729',cursor:'pointer',whiteSpace:'nowrap',boxShadow:'none'}}>
+                  <button type="button" className="kb-marketplace-saved-route-link" onClick={() => typeof nav === 'function' && nav('saved-projects')} title="Open your saved project list" style={{height:34,border:'none',background:'transparent',padding:'0 2px',fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A6729',cursor:'pointer',whiteSpace:'nowrap',boxShadow:'none'}}>
                     Saved Projects →
                   </button>
                 </div>
@@ -9769,7 +9745,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                   background: 'rgba(255,253,248,.76)',
                   color: '#4f594c',
                   fontSize: 12,
-                  fontWeight: 650,
+                  fontWeight: 600,
                   lineHeight: 1.55,
                 }}
               >
@@ -9793,10 +9769,10 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                   }}
                 >
                   <div style={{ minWidth: 210 }}>
-                    <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '.12em', textTransform: 'uppercase', color: '#9a7a35' }}>Project context needed</div>
-                    <div style={{ fontSize: 12, fontWeight: 750, color: '#1C2814', marginTop: 2 }}>Post or select a project to score vendors against real scope, budget, service area, and invite readiness.</div>
+                    <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#9a7a35' }}>Project context needed</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1C2814', marginTop: 2 }}>Post or select a project to score vendors against real scope, budget, service area, and invite readiness.</div>
                   </div>
-                  <button type="button" onClick={handleProjectContextRecovery} style={{height:36,padding:'0 14px',borderRadius:999,border:'1px solid rgba(176,136,64,.32)',background:'#1C2814',color:'#fffdf8',fontSize:12,fontWeight:900,cursor:'pointer'}}>Post a project</button>
+                  <button type="button" onClick={handleProjectContextRecovery} style={{height:36,padding:'0 14px',borderRadius:999,border:'1px solid rgba(176,136,64,.32)',background:'#1C2814',color:'#fffdf8',fontSize:12,fontWeight:800,cursor:'pointer'}}>Post a project</button>
                 </div>
               ) : null}
 
@@ -9817,8 +9793,8 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                   }}
                 >
                   <div style={{ minWidth: 190 }}>
-                    <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '.12em', textTransform: 'uppercase', color: '#9a7a35' }}>Project context</div>
-                    <div style={{ fontSize: 12, fontWeight: 750, color: '#1C2814', marginTop: 2 }}>Recommendations and invites are scoped to this project.</div>
+                    <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#9a7a35' }}>Project context</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1C2814', marginTop: 2 }}>Recommendations and invites are scoped to this project.</div>
                   </div>
                   <select
                     value={inviteProjectId}
@@ -10197,149 +10173,6 @@ function EditVendorProfile({ vendor = {}, onBack = () => {}, onSave = async () =
   );
 }
 
-if (typeof document !== "undefined" && !document.getElementById("kb-vendor-profile-premium-style")) {
-  const style = document.createElement("style");
-  style.id = "kb-vendor-profile-premium-style";
-  style.textContent = `
-    .vendor-profile-premium .card {
-      background: #fff !important;
-      border: 1px solid #dfd5c2 !important;
-      border-radius: 18px !important;
-      box-shadow: 0 1px 3px rgba(28,40,20,0.05) !important;
-      overflow: hidden;
-    }
-    .vendor-profile-premium .card-hd {
-      background: #fffdf8 !important;
-      border-bottom: 1px solid #efe7d9 !important;
-      padding: 14px 18px !important;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .vendor-profile-premium .card-hd-title {
-      font-family: 'Playfair Display','Newsreader',Georgia,serif !important;
-      font-size: 17px !important;
-      font-weight: 700 !important;
-      color: #1C2814 !important;
-      letter-spacing: -0.01em;
-      text-transform: none !important;
-    }
-    .vendor-profile-premium .card-body {
-      padding: 18px !important;
-    }
-    .vendor-profile-premium .btn-primary {
-      border: none !important;
-      border-radius: 999px !important;
-      background: linear-gradient(180deg,#c9a45c,#b08840) !important;
-      color: #fff !important;
-      font-size: 12.5px !important;
-      font-weight: 800 !important;
-      min-height: 40px;
-      box-shadow: 0 1px 3px rgba(176,136,64,0.30) !important;
-    }
-    .vendor-profile-premium .btn-secondary {
-      border: 1px solid rgba(28,40,20,0.14) !important;
-      border-radius: 999px !important;
-      background: #fffdf8 !important;
-      color: #1C2814 !important;
-      font-size: 12.5px !important;
-      font-weight: 750 !important;
-      min-height: 38px;
-    }
-    .vendor-profile-premium .skill-tag {
-      background: rgba(176,136,64,0.10) !important;
-      border: 1px solid rgba(176,136,64,0.18) !important;
-      color: #7b612a !important;
-    }
-    .vendor-profile-premium .field input,
-    .vendor-profile-premium .field textarea,
-    .vendor-profile-premium .field select {
-      border-color: #dfd5c2 !important;
-      background: #fffdf8 !important;
-      border-radius: 12px !important;
-      color: #1C2814 !important;
-    }
-    .vendor-profile-premium .field label {
-      color: #7d7363 !important;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-    .vendor-profile-premium .vendor-profile-hero-shell {
-      position: relative;
-      overflow: hidden;
-    }
-    .vendor-profile-premium .vendor-profile-hero-shell::before {
-      content: "";
-      position: absolute;
-      inset: -80px -120px auto auto;
-      width: 260px;
-      height: 260px;
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(176,136,64,0.13), rgba(176,136,64,0));
-      pointer-events: none;
-    }
-    .vendor-profile-premium .vendor-profile-hero-shell > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .vendor-profile-premium .vendor-about-grid {
-      align-items: start !important;
-    }
-    .vendor-profile-premium .vendor-profile-hero-shell {
-      box-shadow: 0 10px 28px rgba(28,40,20,0.055) !important;
-    }
-    .vendor-profile-premium .vendor-profile-signal-grid > div {
-      box-shadow: none !important;
-    }
-    .vendor-profile-premium .vendor-profile-action-rail {
-      box-shadow: 0 8px 24px rgba(28,40,20,0.055) !important;
-    }
-    .vendor-profile-premium .btn-primary {
-      background: linear-gradient(180deg,#203018,#142110) !important;
-      color: #fffdf8 !important;
-      box-shadow: 0 10px 22px rgba(28,40,20,0.14) !important;
-    }
-    .vendor-profile-premium .btn-secondary {
-      background: #fffdf8 !important;
-      border-color: rgba(28,40,20,0.12) !important;
-    }
-    .vendor-profile-premium .vendor-profile-sidebar > div,
-    .vendor-profile-premium .vendor-profile-content .card,
-    .vendor-profile-premium .vendor-profile-content > div > div > div[style*="border: 1px solid"] {
-      box-shadow: 0 1px 3px rgba(28,40,20,0.04) !important;
-    }
-    @media (max-width: 760px) {
-      .vendor-profile-premium .vendor-profile-hero-shell {
-        padding: 16px !important;
-        border-radius: 20px !important;
-      }
-      .vendor-profile-premium .vendor-profile-signal-grid {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 8px !important;
-      }
-      .vendor-profile-premium .vendor-profile-tabbar button {
-        padding: 10px 14px !important;
-      }
-      .vendor-profile-premium .vendor-profile-action-rail {
-        position: static !important;
-      }
-    }
-    @media (max-width: 430px) {
-      .vendor-profile-premium .vendor-profile-signal-grid {
-        grid-template-columns: 1fr !important;
-      }
-      .vendor-profile-premium .vendor-profile-hero-actions {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        width: 100% !important;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-}
-
 const VENDOR_PROFILE_BRAND = {
   ink: "#1C2814",
   muted: "#7d7363",
@@ -10373,7 +10206,7 @@ const VENDOR_PROFILE_PANEL_HD_STYLE = {
 const VENDOR_PROFILE_PANEL_TITLE_STYLE = {
   fontFamily: "'Playfair Display','Newsreader',Georgia,serif",
   fontSize: 16,
-  fontWeight: 750,
+  fontWeight: 700,
   color: "#1C2814",
   letterSpacing: "-0.01em",
 };
@@ -10410,7 +10243,7 @@ const VENDOR_PROFILE_SECONDARY_BUTTON_STYLE = {
   background: "#fffdf8",
   color: "#1C2814",
   fontSize: 12.5,
-  fontWeight: 750,
+  fontWeight: 700,
   cursor: "pointer",
 };
 
@@ -10445,7 +10278,7 @@ function VendorPortfolioTab({ vendor = {}, isOwner = false }) {
   if (!gallery.length && !items.length) {
     return (
       <VendorProfilePanel title="Portfolio notes">
-        <div style={{ fontSize: 13.5, color: "#565862", lineHeight: 1.75, fontWeight: 300 }}>
+        <div style={{ fontSize: 13.5, color: "#565862", lineHeight: 1.75, fontWeight: 400 }}>
           {isOwner ? "Add a few portfolio images or case-study notes to make your public profile feel more credible." : "This vendor has not added portfolio notes yet."}
         </div>
       </VendorProfilePanel>
@@ -10850,7 +10683,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
                 width:58,height:58,borderRadius:16,flexShrink:0,
                 background:"linear-gradient(135deg,#1C2814,#34432b)",
                 display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:20,fontWeight:850,color:"#d5b873",letterSpacing:0.5,
+                fontSize:20,fontWeight:800,color:"#d5b873",letterSpacing:0.5,
                 border:"3px solid #fff",boxShadow:"0 8px 22px rgba(28,40,20,0.13)",
                 overflow:"hidden",
               }}>
@@ -10860,20 +10693,20 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:8}}>
-                  <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:850,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840'}}>Vendor diligence profile</span>
+                  <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840'}}>Vendor diligence profile</span>
                   <span style={{width:4,height:4,borderRadius:999,background:'#d6c08a'}} />
                   <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#7d7363'}}>{v.category || 'Church vendor'}</span>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:7}}>
-                  <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(25px,3.2vw,34px)',fontWeight:750,color:'#1C2814',letterSpacing:'-0.035em',lineHeight:1.02,wordBreak:'break-word',margin:0}}>{firstNonEmpty(v.name, 'Unnamed Vendor')}</h1>
+                  <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(25px,3.2vw,34px)',fontWeight:700,color:'#1C2814',letterSpacing:'-0.035em',lineHeight:1.02,wordBreak:'break-word',margin:0}}>{firstNonEmpty(v.name, 'Unnamed Vendor')}</h1>
                   {identityBadges.length > 0 && <BadgeRow badges={identityBadges} />}
                 </div>
                 <div style={{fontSize:13.5,color:'#565862',lineHeight:1.55,maxWidth:660,marginBottom:10}}>
                   {firstNonEmpty(v.headline, v.bio ? String(v.bio).slice(0, 130) : null, v.category || 'Vendor profile')}{v.city ? ` · ${v.city}` : ''}
                 </div>
                 <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
-                  {hasDeliverySignal && <span style={{padding:'6px 11px',borderRadius:999,background:'rgba(28,40,20,0.045)',border:'1px solid rgba(28,40,20,0.10)',fontSize:10.5,fontWeight:850,color:'#1C2814',letterSpacing:0.04}}>{deliveryBadge.label}</span>}
-                  {hasDeliverySignal && deliveryBadge.radius > 0 && normalizeDeliveryModel(v.delivery_model) !== 'remote' && <span style={{padding:'6px 11px',borderRadius:999,background:'rgba(176,136,64,0.10)',border:'1px solid rgba(176,136,64,0.18)',fontSize:10.5,fontWeight:850,color:'#8a6a2e',letterSpacing:0.04}}>{deliveryBadge.radius} mile radius</span>}
+                  {hasDeliverySignal && <span style={{padding:'6px 11px',borderRadius:999,background:'rgba(28,40,20,0.045)',border:'1px solid rgba(28,40,20,0.10)',fontSize:10.5,fontWeight:800,color:'#1C2814',letterSpacing:0.04}}>{deliveryBadge.label}</span>}
+                  {hasDeliverySignal && deliveryBadge.radius > 0 && normalizeDeliveryModel(v.delivery_model) !== 'remote' && <span style={{padding:'6px 11px',borderRadius:999,background:'rgba(176,136,64,0.10)',border:'1px solid rgba(176,136,64,0.18)',fontSize:10.5,fontWeight:800,color:'#8a6a2e',letterSpacing:0.04}}>{deliveryBadge.radius} mile radius</span>}
                   {profileTags.slice(0,3).map(tag => <span key={tag} style={{padding:'6px 11px',borderRadius:999,background:'#fff',border:'1px solid #e8dfcb',fontSize:10.5,fontWeight:800,color:'#565862'}}>{tag}</span>)}
                 </div>
               </div>
@@ -10892,7 +10725,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
               ].map((item) => (
                 <div key={item.label} style={{padding:'10px 12px',borderRadius:13,background:'rgba(255,255,255,0.72)',border:'1px solid #e8dfcb',boxShadow:'none',minWidth:0}}>
                   <div style={{...VENDOR_PROFILE_KICKER_STYLE,color:'#8a6a2e',marginBottom:5}}>{item.label}</div>
-                  <div style={{fontSize:13.5,fontWeight:850,color:'#1C2814',lineHeight:1.25,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.value}</div>
+                  <div style={{fontSize:13.5,fontWeight:800,color:'#1C2814',lineHeight:1.25,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.value}</div>
                   <div style={{fontSize:11.5,color:'#7d7363',lineHeight:1.45,marginTop:3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.detail}</div>
                 </div>
               ))}
@@ -10936,20 +10769,20 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
             )}
             {profileRecommendedPresentation && (
               <div style={{gridColumn:'1 / -1',display:'grid',gridTemplateColumns:isMobile?'1fr':'96px minmax(0,1fr) auto',alignItems:'center',gap:14,padding:'15px 16px',borderRadius:16,background:'linear-gradient(135deg,#172116,#2f4327)',color:'#fffdf8',boxShadow:'0 12px 30px rgba(23,33,22,0.16)'}}>
-                <div style={{width:76,height:76,borderRadius:20,display:'grid',placeItems:'center',background:'rgba(255,253,248,0.10)',border:'1px solid rgba(255,253,248,0.18)',fontSize:22,fontWeight:900,letterSpacing:'-0.04em'}}>{profileRecommendedPresentation.scoreLabel}</div>
+                <div style={{width:76,height:76,borderRadius:20,display:'grid',placeItems:'center',background:'rgba(255,253,248,0.10)',border:'1px solid rgba(255,253,248,0.18)',fontSize:22,fontWeight:800,letterSpacing:'-0.04em'}}>{profileRecommendedPresentation.scoreLabel}</div>
                 <div style={{minWidth:0}}>
-                  <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.16em',textTransform:'uppercase',color:'#d7b76e',marginBottom:5}}>AI Match for this project</div>
-                  <div style={{fontSize:17,fontWeight:850,lineHeight:1.2,marginBottom:5}}>{profileRecommendedPresentation.headline}</div>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#d7b76e',marginBottom:5}}>AI Match for this project</div>
+                  <div style={{fontSize:17,fontWeight:800,lineHeight:1.2,marginBottom:5}}>{profileRecommendedPresentation.headline}</div>
                   <div style={{fontSize:12.5,lineHeight:1.55,color:'rgba(255,253,248,0.78)',maxWidth:680}}>{profileRecommendedPresentation.summary}</div>
                 </div>
                 <div style={{display:'flex',gap:6,flexWrap:'wrap',justifyContent:isMobile?'flex-start':'flex-end'}}>
-                  {profileRecommendedPresentation.chips.slice(0,4).map(chip => <span key={chip} style={{height:28,display:'inline-flex',alignItems:'center',padding:'0 9px',borderRadius:999,background:'rgba(255,253,248,0.10)',border:'1px solid rgba(255,253,248,0.16)',fontSize:10,fontWeight:850,letterSpacing:'0.08em',textTransform:'uppercase',color:'#fffdf8'}}>{chip}</span>)}
+                  {profileRecommendedPresentation.chips.slice(0,4).map(chip => <span key={chip} style={{height:28,display:'inline-flex',alignItems:'center',padding:'0 9px',borderRadius:999,background:'rgba(255,253,248,0.10)',border:'1px solid rgba(255,253,248,0.16)',fontSize:10,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#fffdf8'}}>{chip}</span>)}
                 </div>
               </div>
             )}
             <div style={{display:"flex",flexDirection:"column",gap:16}}>
               <VendorProfilePanel title="Executive summary" right={<span style={{fontSize:11,fontWeight:800,color:'#8a6a2e',background:'rgba(176,136,64,0.10)',border:'1px solid rgba(176,136,64,0.16)',borderRadius:999,padding:'5px 9px'}}>Diligence memo</span>} bodyStyle={{display:'grid',gap:12}}>
-                <div style={{fontSize:14,color:'#343833',lineHeight:1.75,fontWeight:350}}>
+                <div style={{fontSize:14,color:'#343833',lineHeight:1.75,fontWeight:400}}>
                   {firstNonEmpty(v.bio ? String(v.bio).slice(0, 220) : null, 'No vendor bio has been provided yet. Review the available profile fields and verified signals before making a decision.')}
                 </div>
                 <div className="vendor-profile-signal-grid" style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:10}}>
@@ -10959,8 +10792,8 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
                     ['Recommended action', canProjectContextActions ? 'Message or invite from this project' : 'Contact vendor or compare'],
                   ].map(([label,val]) => (
                     <div key={label} style={{padding:'13px 14px',borderRadius:14,background:'#fffdf8',border:'1px solid #e8dfcb'}}>
-                      <div style={{fontSize:10,fontWeight:850,letterSpacing:1,textTransform:'uppercase',color:'#8a6a2e',marginBottom:5}}>{label}</div>
-                      <div style={{fontSize:13,fontWeight:750,color:'#1C2814',lineHeight:1.45}}>{val}</div>
+                      <div style={{fontSize:10,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'#8a6a2e',marginBottom:5}}>{label}</div>
+                      <div style={{fontSize:13,fontWeight:700,color:'#1C2814',lineHeight:1.45}}>{val}</div>
                     </div>
                   ))}
                 </div>
@@ -10969,11 +10802,11 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
               <div className="card">
                 <div className="card-hd"><div className="card-hd-title">Profile narrative</div></div>
                 <div className="card-body" style={{display:'grid',gap:14}}>
-                  <div style={{fontSize:14,color:"#565862",lineHeight:1.8,fontWeight:300}}>{v.bio || "No bio provided."}</div>
+                  <div style={{fontSize:14,color:"#565862",lineHeight:1.8,fontWeight:400}}>{v.bio || "No bio provided."}</div>
                   {v.faith_statement && (
                     <div style={{padding:'13px 14px',borderRadius:13,background:'#fffdf8',border:'1px solid #e8dfcb'}}>
-                      <div style={{fontSize:10,fontWeight:850,letterSpacing:1,textTransform:'uppercase',color:'#8a6a2e',marginBottom:6}}>Faith statement</div>
-                      <div style={{fontSize:13.5,color:"#565862",lineHeight:1.75,fontStyle:"italic",fontWeight:300}}>"{v.faith_statement}"</div>
+                      <div style={{fontSize:10,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'#8a6a2e',marginBottom:6}}>Faith statement</div>
+                      <div style={{fontSize:13.5,color:"#565862",lineHeight:1.75,fontStyle:"italic",fontWeight:400}}>"{v.faith_statement}"</div>
                     </div>
                   )}
                 </div>
@@ -11135,7 +10968,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
                     </div>
                   ) : (
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{width:30,height:30,borderRadius:10,background:"#fffdf8",border:"1px solid #e8dfcb",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:'#8a6a2e',fontWeight:900}}>◇</div>
+                      <div style={{width:30,height:30,borderRadius:10,background:"#fffdf8",border:"1px solid #e8dfcb",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:'#8a6a2e',fontWeight:800}}>◇</div>
                       <div>
                         <div style={{fontSize:12.5,fontWeight:800,color:"#1C2814"}}>Directory profile</div>
                         <div style={{fontSize:11,color:"#7d7363",lineHeight:1.45}}>Trust signals continue to build over time</div>
@@ -11382,7 +11215,7 @@ function VendorReviews({vendorId, vendor}){
           {[['all','All reviews'],['featured','Featured'],['recent','Recent']].map(([key,label]) => {
             const active = mode === key;
             return (
-              <button key={key} type='button' onClick={()=>setMode(key)} style={{ height:34, padding:'0 14px', borderRadius:999, border:`1px solid ${active ? '#1C2814' : '#dfd5c2'}`, background:active ? '#1C2814' : '#fffdf8', color:active ? '#fff' : '#565862', fontSize:12, fontWeight:750, cursor:'pointer' }}>
+              <button key={key} type='button' onClick={()=>setMode(key)} style={{ height:34, padding:'0 14px', borderRadius:999, border:`1px solid ${active ? '#1C2814' : '#dfd5c2'}`, background:active ? '#1C2814' : '#fffdf8', color:active ? '#fff' : '#565862', fontSize:12, fontWeight:700, cursor:'pointer' }}>
                 {label}
               </button>
             );
@@ -11420,12 +11253,12 @@ function VendorReviews({vendorId, vendor}){
           </div>
 
           <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'5px 10px', borderRadius:999, background:'#fffdf8', border:'1px solid #dfd5c2', color:'#565862', fontSize:11.5, fontWeight:700, marginBottom:10 }}>{r.project}</div>
-          <div style={{ fontSize:14, color:'#343833', lineHeight:1.8, fontWeight:300 }}>{r.body}</div>
+          <div style={{ fontSize:14, color:'#343833', lineHeight:1.8, fontWeight:400 }}>{r.body}</div>
 
           {(r.cats||[]).length>0 && (
             <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginTop:12 }}>
               {r.cats.map((c,i)=>(
-                <div key={c.label||i} style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 10px', borderRadius:999, background:'rgba(176,136,64,0.08)', border:'1px solid rgba(176,136,64,0.16)', fontSize:11.5, color:'#565862', fontWeight:650 }}>
+                <div key={c.label||i} style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 10px', borderRadius:999, background:'rgba(176,136,64,0.08)', border:'1px solid rgba(176,136,64,0.16)', fontSize:11.5, color:'#565862', fontWeight:600 }}>
                   <span style={{ color:'#b08840', fontSize:10 }}>{starFill(c.stars)}</span>{c.label}
                 </div>
               ))}
@@ -11434,13 +11267,13 @@ function VendorReviews({vendorId, vendor}){
 
           {(r.tags||[]).length>0 && (
             <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginTop:10 }}>
-              {r.tags.map((t,i)=><span key={t||i} style={{ padding:'4px 9px', background:'rgba(28,40,20,0.04)', border:'1px solid rgba(28,40,20,0.10)', borderRadius:999, fontSize:10.5, fontWeight:750, color:'#1C2814' }}>{t}</span>)}
+              {r.tags.map((t,i)=><span key={t||i} style={{ padding:'4px 9px', background:'rgba(28,40,20,0.04)', border:'1px solid rgba(28,40,20,0.10)', borderRadius:999, fontSize:10.5, fontWeight:700, color:'#1C2814' }}>{t}</span>)}
             </div>
           )}
 
           <div style={{ display:'flex', gap:7, flexWrap:'wrap', marginTop:12 }}>
-            {r.verified && <span style={{ padding:'5px 9px', borderRadius:999, background:'#fffdf8', border:'1px solid #dfd5c2', fontSize:11, color:'#565862', fontWeight:650 }}>✓ Verified work</span>}
-            <span style={{ padding:'5px 9px', borderRadius:999, background:'#fffdf8', border:'1px solid #dfd5c2', fontSize:11, color:'#565862', fontWeight:650 }}>Church client</span>
+            {r.verified && <span style={{ padding:'5px 9px', borderRadius:999, background:'#fffdf8', border:'1px solid #dfd5c2', fontSize:11, color:'#565862', fontWeight:600 }}>✓ Verified work</span>}
+            <span style={{ padding:'5px 9px', borderRadius:999, background:'#fffdf8', border:'1px solid #dfd5c2', fontSize:11, color:'#565862', fontWeight:600 }}>Church client</span>
             {r.recommend && <span style={{ padding:'5px 9px', borderRadius:999, background:'rgba(39,117,75,0.08)', border:'1px solid rgba(39,117,75,0.16)', fontSize:11, color:'#27754b', fontWeight:700 }}>Would rehire</span>}
             {r.reply && <span style={{ padding:'5px 9px', borderRadius:999, background:'rgba(176,136,64,0.08)', border:'1px solid rgba(176,136,64,0.16)', fontSize:11, color:'#8a6a2e', fontWeight:700 }}>Vendor response on record</span>}
           </div>

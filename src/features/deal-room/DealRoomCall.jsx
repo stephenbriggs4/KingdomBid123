@@ -8,7 +8,7 @@ import {
 
 const DEAL_ROOM_CALL_CSS = `
 .kbdr2-thread-command-main{min-width:0}
-.kbdr2-thread-command-context{display:block;margin-top:2px;color:#8a857c;font-size:9.5px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kbdr2-thread-command-context{display:block;margin-top:2px;color:#8a857c;font-size:9.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kbdr2-call-event-row{width:100%;margin:7px 0 14px}
 .kbdr2-call-card{display:grid;grid-template-columns:42px minmax(0,1fr);gap:11px;width:100%;padding:14px;border:1px solid #d9cfbe;border-radius:16px;background:#fffdf8;color:#263126;box-shadow:0 7px 18px rgba(42,53,32,.055)}
 .kbdr2-call-card.is-muted{background:#f1ede5;color:#6e716a;box-shadow:none}
@@ -17,13 +17,13 @@ const DEAL_ROOM_CALL_CSS = `
 .kbdr2-call-card-copy{min-width:0}
 .kbdr2-call-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .kbdr2-call-card-top strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;line-height:1.25}
-.kbdr2-call-card-top span{flex:0 0 auto;padding:3px 7px;border-radius:999px;background:#def5e8;color:#23714b;font-family:'DM Mono',monospace;font-size:7.5px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
+.kbdr2-call-card-top span{flex:0 0 auto;padding:3px 7px;border-radius:999px;background:#def5e8;color:#23714b;font-family:'DM Mono',monospace;font-size:7.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
 .kbdr2-call-card.is-muted .kbdr2-call-card-top span{background:#e1ddd6;color:#6d6a64}
 .kbdr2-call-card-time{margin-top:5px;color:#35543e;font-size:11.25px;font-weight:800;line-height:1.42}
 .kbdr2-call-card-copy p{margin:7px 0 0;color:#676c63;font-size:11px;line-height:1.45}
 .kbdr2-call-card-provider{margin-top:8px;color:#7d7b74;font-size:9.5px;line-height:1.4;overflow-wrap:anywhere}
 .kbdr2-call-card-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}
-.kbdr2-call-card-actions a,.kbdr2-call-card-actions button{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:31px!important;padding:0 9px!important;border:1px solid #d7ccba!important;border-radius:9px!important;background:#fff!important;color:#36533f!important;font-size:9.5px!important;font-weight:850!important;text-decoration:none!important}
+.kbdr2-call-card-actions a,.kbdr2-call-card-actions button{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:31px!important;padding:0 9px!important;border:1px solid #d7ccba!important;border-radius:9px!important;background:#fff!important;color:#36533f!important;font-size:9.5px!important;font-weight:800!important;text-decoration:none!important}
 .kbdr2-call-card-actions a{border-color:#274a38!important;background:#274a38!important;color:#fff!important}
 .kbdr2-call-card-actions button.danger{color:#9d4f45!important}
 .kbdr2-call-card-actions a:hover,.kbdr2-call-card-actions button:hover:not(:disabled){transform:translateY(-1px)}
@@ -32,12 +32,12 @@ const DEAL_ROOM_CALL_CSS = `
 .kbdr2-call-dialog-backdrop{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:18px;background:rgba(11,16,13,.46);backdrop-filter:blur(4px)}
 .kbdr2-call-dialog{width:min(540px,calc(100vw - 28px));max-height:calc(100vh - 36px);overflow:auto;padding:20px;border:1px solid rgba(155,116,50,.22);border-radius:20px;background:#fffdf8;color:#1c2814;box-shadow:0 28px 80px rgba(14,22,17,.28)}
 .kbdr2-call-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
-.kbdr2-call-dialog-head span{display:block;margin-bottom:4px;color:#9b7432;font-family:'DM Mono',monospace;font-size:8px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.kbdr2-call-dialog-head span{display:block;margin-bottom:4px;color:#9b7432;font-family:'DM Mono',monospace;font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
 .kbdr2-call-dialog-head h2{margin:0;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:25px;line-height:1.05;letter-spacing:-.03em}
 .kbdr2-call-dialog-head button{width:32px;height:32px;border:1px solid #e0d7c8!important;border-radius:9px!important;background:#f7f2e9!important;color:#697066!important;font-size:22px!important;line-height:1!important}
 .kbdr2-call-field{display:grid;gap:6px;margin-top:12px}
-.kbdr2-call-field>span{color:#4b5449;font-size:10px;font-weight:850}
-.kbdr2-call-field>span small{color:#9a958d;font-size:9px;font-weight:650}
+.kbdr2-call-field>span{color:#4b5449;font-size:10px;font-weight:800}
+.kbdr2-call-field>span small{color:#9a958d;font-size:9px;font-weight:600}
 .kbdr2-call-field input,.kbdr2-call-field textarea{width:100%;border:1px solid #dcd3c5!important;border-radius:11px!important;background:#fff!important;color:#243122!important;font-size:12px!important}
 .kbdr2-call-field input{height:42px;padding:0 12px!important}
 .kbdr2-call-field textarea{min-height:78px;padding:11px 12px!important;resize:vertical}
@@ -46,7 +46,7 @@ const DEAL_ROOM_CALL_CSS = `
 .kbdr2-call-dialog-error{margin-top:11px;padding:9px 10px;border:1px solid #efc9c4;border-radius:10px;background:#fff1ef;color:#98463c;font-size:10.5px;line-height:1.45}
 .kbdr2-call-dialog-guardrail{margin-top:13px;padding:10px 11px;border:1px solid #dce6d8;border-radius:10px;background:#f0f6ed;color:#526050;font-size:10px;line-height:1.5}
 .kbdr2-call-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
-.kbdr2-call-dialog-actions button{min-height:38px!important;padding:0 13px!important;border:1px solid #d8cebe!important;border-radius:10px!important;background:#fff!important;color:#5d645b!important;font-size:10.5px!important;font-weight:850!important}
+.kbdr2-call-dialog-actions button{min-height:38px!important;padding:0 13px!important;border:1px solid #d8cebe!important;border-radius:10px!important;background:#fff!important;color:#5d645b!important;font-size:10.5px!important;font-weight:800!important}
 .kbdr2-call-dialog-actions button.primary{border-color:#1f3a2e!important;background:#1f3a2e!important;color:#fff!important}
 .kbdr2-call-dialog-actions button:disabled{opacity:.58;cursor:wait}
 @media(max-width:620px){.kbdr2-call-field-grid{grid-template-columns:1fr}.kbdr2-call-dialog{padding:17px}.kbdr2-call-card{grid-template-columns:36px minmax(0,1fr);padding:12px}.kbdr2-call-card-icon{width:36px;height:36px;border-radius:11px}.kbdr2-call-card-top{flex-direction:column;gap:5px}.kbdr2-call-card-actions{align-items:stretch}.kbdr2-call-card-actions a,.kbdr2-call-card-actions button{flex:1 1 auto!important}}

@@ -20,10 +20,36 @@
 }
 
 /*
- * Controls v1 is intentionally route-scoped. Each route below has been moved
- * onto the same target and type contract without applying a blanket selector
- * to public landing/editorial content.
+ * Controls v2 is the platform-wide interactive contract. Runtime style
+ * injection has been retired, so native controls can now share one minimum
+ * target/type/weight rule. Checkboxes and radios keep their native dimensions;
+ * editorial links and non-interactive status chips are intentionally separate.
  */
+html body #root :where(
+  button,
+  [role="button"],
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  select,
+  textarea
+):not(#kb-control-token-global-anchor) {
+  min-height: var(--kb-control-min-height) !important;
+  min-width: var(--kb-control-min-height) !important;
+  font-size: var(--kb-control-font-size) !important;
+  font-weight: var(--kb-weight-semibold) !important;
+}
+
+html body #root :where(
+  .btn-primary,
+  .primary,
+  [class*="-primary"],
+  [class*="-cta"]
+):not(#kb-control-token-global-primary-anchor) {
+  min-height: var(--kb-control-min-height) !important;
+  font-size: var(--kb-control-primary-font-size) !important;
+  font-weight: var(--kb-weight-bold) !important;
+}
+
+/* Route-specific finish work remains below for radii, colors, and hierarchy. */
 html body #root :is(
   .kb-settings-screen,
   .kb-profile-screen-root,
@@ -33,6 +59,7 @@ html body #root :is(
   .myproj-command-shell,
   .kb-vendor-work-shell,
   .gpi-discovery,
+  .gpi-public-page,
   .gpi-host-portal,
   .gpi-seeker-shell,
   .kbge-root,
@@ -59,6 +86,7 @@ html body #root :is(
   .myproj-command-shell,
   .kb-vendor-work-shell,
   .gpi-discovery,
+  .gpi-public-page,
   .gpi-host-portal,
   .gpi-seeker-shell,
   .kbge-root,
@@ -157,11 +185,11 @@ html body #root :is(.myproj-command-shell, .kb-vendor-work-shell) .kb-lite-page-
 }
 
 /* Get Plugged In */
-:is(.gpi-discovery, .gpi-host-portal, .gpi-seeker-shell)
+:is(.gpi-discovery, .gpi-public-page, .gpi-host-portal, .gpi-seeker-shell)
   :where(button, [role="button"], input, select, textarea) {
   border-radius: var(--kb-control-radius) !important;
 }
-.gpi-discovery :where(.gpi-discovery-cta, .gpi-discovery-host-entry) {
+:is(.gpi-discovery, .gpi-public-page) :where(.gpi-discovery-cta, .gpi-discovery-host-entry, .gpi-viewall-interest-action, .gpi-detail-actions > button:first-child) {
   color: var(--kb-control-paper) !important;
   background: var(--kb-control-forest) !important;
   border-color: var(--kb-control-forest) !important;

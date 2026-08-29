@@ -287,7 +287,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                 <div style={sx.field}>
                   <label style={sx.label} htmlFor="email-input">Current email</label>
                   <input id="email-input" aria-label="you@ministry.org" aria-invalid={!!fieldErrors.email} aria-describedby={fieldErrors.email ? "email-input-error" : undefined} type="email" value={email} onChange={e=>{setEmail(e.target.value);setFieldErrors(errors=>({...errors,email:""}));}} placeholder="you@ministry.org" autoComplete="email" style={{...sx.input,borderColor:fieldErrors.email?"#a23b3b":"#dfd5c2"}} onFocus={e=>{e.currentTarget.style.borderColor="#b08840";e.currentTarget.style.boxShadow="0 0 0 3px rgba(176,136,64,0.12)";}} onBlur={e=>{e.currentTarget.style.borderColor=fieldErrors.email?"#a23b3b":"#dfd5c2";e.currentTarget.style.boxShadow="none";}}/>
-                  {fieldErrors.email && <div id="email-input-error" role="alert" style={{fontSize:12,color:"#a23b3b",marginTop:7,fontWeight:650}}>{fieldErrors.email}</div>}
+                  {fieldErrors.email && <div id="email-input-error" role="alert" style={{fontSize:12,color:"#a23b3b",marginTop:7,fontWeight:600}}>{fieldErrors.email}</div>}
                 </div>
                 <div style={sx.helperText}>Changing your email will require confirmation from the new address.</div>
                 <button type="button" className="kb-settings-primary" style={{...sx.btnPrimary,opacity:(saving||email===currentUser?.email)?0.5:1,cursor:(saving||email===currentUser?.email)?"not-allowed":"pointer"}} onClick={updateEmail} disabled={saving||email===currentUser?.email}>{saving ? "Updating…" : "Update email"}</button>
@@ -332,7 +332,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                 {newPassword && confirmPassword && newPassword !== confirmPassword && (
                   <div style={{fontSize:12,color:"#a23b3b",marginBottom:14,fontWeight:600}}>Passwords don't match</div>
                 )}
-                {fieldErrors.password && <div role="alert" style={{fontSize:12,color:"#a23b3b",marginBottom:14,fontWeight:650}}>{fieldErrors.password}</div>}
+                {fieldErrors.password && <div role="alert" style={{fontSize:12,color:"#a23b3b",marginBottom:14,fontWeight:600}}>{fieldErrors.password}</div>}
                 <button type="button" className="kb-settings-primary" style={{...sx.btnPrimary,opacity:(saving||!currentPassword||!newPassword||!confirmPassword)?0.5:1,cursor:(saving||!currentPassword||!newPassword||!confirmPassword)?"not-allowed":"pointer"}} onClick={updatePassword} disabled={saving||!currentPassword||!newPassword||!confirmPassword}>{saving ? "Updating…" : "Update password"}</button>
               </div>
             </div>

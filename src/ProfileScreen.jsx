@@ -508,7 +508,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                 <div style={{...psx.field,gridColumn:"1 / -1"}}>
                   <label style={psx.label}>How you work with churches</label>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:10}}>
-                    {["onsite","remote","both"].map(key=>{const active=delivery===key;const meta=getDeliveryModelMeta(key);return <button key={key} type="button" onClick={()=>setV("delivery_model",key)} style={{minHeight:46,padding:"10px 12px",borderRadius:12,border:`1.5px solid ${active?"#b08840":"#dfd5c2"}`,background:active?"#fffaf0":"#fff",fontSize:12.5,fontWeight:750,color:active?"#8a6a2e":"#1C2814",cursor:"pointer"}}>{meta.label}</button>;})}
+                    {["onsite","remote","both"].map(key=>{const active=delivery===key;const meta=getDeliveryModelMeta(key);return <button key={key} type="button" onClick={()=>setV("delivery_model",key)} style={{minHeight:46,padding:"10px 12px",borderRadius:12,border:`1.5px solid ${active?"#b08840":"#dfd5c2"}`,background:active?"#fffaf0":"#fff",fontSize:12.5,fontWeight:700,color:active?"#8a6a2e":"#1C2814",cursor:"pointer"}}>{meta.label}</button>;})}
                   </div>
                 </div>
                 <div style={psx.field}><label style={psx.label}>Business / service city</label><input value={vendorForm.city} onChange={e=>setV("city",e.target.value)} placeholder="Dallas" style={firstRunInput} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/></div>
@@ -542,11 +542,11 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
               <div style={psx.field}>
                 <label style={psx.label}>Skills & specialties <span style={psx.labelHelper}>· at least one</span></label>
                 <div style={{display:"flex",flexWrap:"wrap",gap:6,padding:"10px 12px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fff",minHeight:48,alignItems:"center"}}>
-                  {(vendorForm.tags||[]).map(t=><div key={t} style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 7px 5px 10px",borderRadius:999,background:"#fffaf0",border:"1px solid #e9d5a5",fontSize:12,color:"#1C2814",fontWeight:650}}>{t}<button type="button" aria-label={`Remove ${t}`} onClick={()=>removeTag(t)} style={{width:18,height:18,borderRadius:99,border:0,background:"rgba(176,136,64,.16)",cursor:"pointer"}}>×</button></div>)}
+                  {(vendorForm.tags||[]).map(t=><div key={t} style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 7px 5px 10px",borderRadius:999,background:"#fffaf0",border:"1px solid #e9d5a5",fontSize:12,color:"#1C2814",fontWeight:600}}>{t}<button type="button" aria-label={`Remove ${t}`} onClick={()=>removeTag(t)} style={{width:18,height:18,borderRadius:99,border:0,background:"rgba(176,136,64,.16)",cursor:"pointer"}}>×</button></div>)}
                   <input value={tagInput} onChange={e=>setTagInput(e.target.value)} onKeyDown={addTag} placeholder={(vendorForm.tags||[]).length?"Add another…":"Type a skill and press Enter"} style={{flex:1,minWidth:170,border:0,outline:0,background:"transparent",padding:"6px 0",fontSize:13}}/>
                 </div>
               </div>
-              <button type="button" onClick={()=>setCharterOptionalOpen(v=>!v)} style={{width:"100%",padding:"12px 14px",borderRadius:12,border:"1px solid #e2d8c5",background:"#fbf8f1",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:13,fontWeight:750,color:"#1C2814",cursor:"pointer",marginBottom:charterOptionalOpen?14:22}}>
+              <button type="button" onClick={()=>setCharterOptionalOpen(v=>!v)} style={{width:"100%",padding:"12px 14px",borderRadius:12,border:"1px solid #e2d8c5",background:"#fbf8f1",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:13,fontWeight:700,color:"#1C2814",cursor:"pointer",marginBottom:charterOptionalOpen?14:22}}>
                 <span>Improve your matches <span style={{fontWeight:500,color:"#7d7363"}}>· optional</span></span><span>{charterOptionalOpen?"−":"+"}</span>
               </button>
               {charterOptionalOpen && <div style={{padding:"18px",border:"1px solid #e8dfcb",borderRadius:16,background:"#fffaf5",marginBottom:22}}>
@@ -571,8 +571,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
           <StepHeader eyebrow="Step 3 of 3 · Ready" title="Your Charter Vendor profile is ready." body="Your profile is saved, your Charter Vendor status is active, and your Marketplace Approval carried forward from the application FaithBid already reviewed."/>
           <div style={{padding:"32px 34px 36px"}}>
             <div style={{padding:"22px",borderRadius:18,background:"linear-gradient(135deg,#1C2814,#304329)",color:"#fffdf8",marginBottom:24,boxShadow:"0 16px 34px rgba(28,40,20,.18)"}}>
-              <div style={{fontFamily:"DM Mono,monospace",fontSize:10,fontWeight:850,letterSpacing:2,textTransform:"uppercase",color:"#d9bd77",marginBottom:8}}>✦ Charter Vendor</div>
-              <div style={{fontFamily:"Playfair Display,Georgia,serif",fontSize:28,fontWeight:750,lineHeight:1.08,marginBottom:8}}>{vendorForm.name}</div>
+              <div style={{fontFamily:"DM Mono,monospace",fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#d9bd77",marginBottom:8}}>✦ Charter Vendor</div>
+              <div style={{fontFamily:"Playfair Display,Georgia,serif",fontSize:28,fontWeight:700,lineHeight:1.08,marginBottom:8}}>{vendorForm.name}</div>
               <div style={{fontSize:13.5,color:"rgba(255,253,248,.76)",lineHeight:1.6}}>{vendorForm.tagline} · {deliveryMeta.label}{vendorForm.city?` · ${vendorForm.city}, ${vendorForm.service_state}`:""}</div>
             </div>
             <button type="button" onClick={()=>nav("projects")} style={{...psx.btnPrimary,width:"100%",minHeight:52,borderRadius:12,marginBottom:10}}>Enter FaithBid</button>

@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 
 const FONT_LINK_ID = "faithbid-card-11a-fraunces";
-const CARD_LAYOUT_STYLE_ID = "faithbid-card-11a-layout";
-
 function ensureCardFont() {
   if (typeof document === "undefined") return;
   if (!document.getElementById(FONT_LINK_ID)) {
@@ -11,33 +9,6 @@ function ensureCardFont() {
     link.rel = "stylesheet";
     link.href = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap";
     document.head.appendChild(link);
-  }
-  if (!document.getElementById(CARD_LAYOUT_STYLE_ID)) {
-    const style = document.createElement("style");
-    style.id = CARD_LAYOUT_STYLE_ID;
-    style.textContent = `
-      html body #root .kb-live-all-grid,
-      html body #root .kbm-grid.kb-audit-project-grid {
-        grid-template-columns: repeat(auto-fill, 320px) !important;
-        justify-content: start !important;
-        align-items: start !important;
-        gap: 18px !important;
-      }
-      .kb-live-featured-row > .faithbid-card-11a-rail-item {
-        flex: 0 0 320px !important;
-        width: 320px !important;
-        height: auto !important;
-        min-height: 0 !important;
-      }
-      .faithbid-card-11a { box-sizing: border-box; }
-      @media (max-width: 680px) {
-        html body #root .kb-live-all-grid,
-        html body #root .kbm-grid.kb-audit-project-grid {
-          grid-template-columns: minmax(0, 1fr) !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
   }
 }
 

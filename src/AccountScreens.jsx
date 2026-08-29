@@ -43,7 +43,7 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
     .pricing-inner { max-width: 1100px; margin: 0 auto; }
     .pricing-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #C4973A; margin-bottom: 14px; text-align: center; }
     .pricing-headline { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; text-align: center; margin-bottom: 16px; max-width: 760px; margin-left: auto; margin-right: auto; }
-    .pricing-sub { font-size: 16px; color: rgba(255,255,255,0.62); line-height: 1.65; text-align: center; max-width: 580px; margin: 0 auto 40px; font-weight: 300; }
+    .pricing-sub { font-size: 16px; color: rgba(255,255,255,0.62); line-height: 1.65; text-align: center; max-width: 580px; margin: 0 auto 40px; font-weight: 400; }
     .pricing-toggle-wrap { display: flex; justify-content: center; margin-bottom: 48px; }
     .pricing-toggle { display: inline-flex; padding: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; gap: 4px; }
     .pricing-toggle button { background: none; border: none; padding: 9px 22px; border-radius: 999px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.55); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.18s; }
@@ -107,7 +107,7 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
     .pricing-faq-item { padding: 22px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .pricing-faq-item:last-child { border-bottom: none; }
     .pricing-faq-q { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }
-    .pricing-faq-a { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; font-weight: 300; }
+    .pricing-faq-a { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; font-weight: 400; }
 
     .pricing-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: rgba(255,255,255,0.55); font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 0; margin-bottom: 28px; }
     .pricing-back:hover { color: #fff; }
@@ -557,7 +557,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
 
           {/* Heading */}
           <div style={{fontFamily:"Playfair Display,serif",fontSize:36,fontWeight:700,color:"#fff",lineHeight:1.1,letterSpacing:-0.5,marginBottom:10,textAlign:"center"}}>{current.title}</div>
-          <div style={{fontSize:15,color:"var(--atext-2)",fontWeight:300,textAlign:"center",lineHeight:1.6,marginBottom:8}}>{current.sub}</div>
+          <div style={{fontSize:15,color:"var(--atext-2)",fontWeight:400,textAlign:"center",lineHeight:1.6,marginBottom:8}}>{current.sub}</div>
 
           {/* Step content */}
           {current.content}

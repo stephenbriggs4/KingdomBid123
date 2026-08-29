@@ -3587,7 +3587,7 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
       {!discoveryEnabled && (
         <section className="gpi-public-hero">
         <div className="gpi-public-hero-copy">
-          <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"6px 11px",borderRadius:999,background:"rgba(176,136,64,0.10)",border:"1px solid rgba(176,136,64,0.20)",fontSize:10,fontWeight:900,letterSpacing:"0.14em",textTransform:"uppercase",color:"#8A6729",marginBottom:12}}>Get Plugged In</div>
+          <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"6px 11px",borderRadius:999,background:"rgba(176,136,64,0.10)",border:"1px solid rgba(176,136,64,0.20)",fontSize:10,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:"#8A6729",marginBottom:12}}>Get Plugged In</div>
           <h1>Find a faithful next step.</h1>
           <p>Real ways to serve, meet people, and grow near you — organized by location, schedule, and first-step fit.</p>
         </div>

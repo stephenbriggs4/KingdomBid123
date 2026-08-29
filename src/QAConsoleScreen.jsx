@@ -47,7 +47,7 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
             <div style={{fontSize:14,color:'#7d7363',lineHeight:1.7,maxWidth:520,margin:'0 auto 20px'}}>
               This area runs internal schema and platform health checks. It is hidden from normal church and vendor accounts.
             </div>
-            <button type="button" onClick={() => safeNav('projects')} style={{border:'none',borderRadius:999,background:'linear-gradient(135deg,#1C2814,#2b3a22)',color:'#f5ead6',padding:'11px 18px',fontSize:13,fontWeight:850,cursor:'pointer',boxShadow:'0 12px 26px rgba(28,40,20,0.14)'}}>Open marketplace</button>
+            <button type="button" onClick={() => safeNav('projects')} style={{border:'none',borderRadius:999,background:'linear-gradient(135deg,#1C2814,#2b3a22)',color:'#f5ead6',padding:'11px 18px',fontSize:13,fontWeight:800,cursor:'pointer',boxShadow:'0 12px 26px rgba(28,40,20,0.14)'}}>Open marketplace</button>
           </div>
         </div>
       </div>
@@ -150,22 +150,22 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
           <div style={{position:'absolute',inset:0,background:'radial-gradient(circle at 82% 18%,rgba(213,184,115,0.24),transparent 34%),radial-gradient(circle at 10% 100%,rgba(255,253,248,0.08),transparent 28%)',pointerEvents:'none'}} />
           <div style={{position:'relative',padding:'28px 30px 26px',display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:22,alignItems:'end'}}>
             <div>
-              <div style={{display:'inline-flex',alignItems:'center',gap:8,height:26,padding:'0 10px',borderRadius:999,border:'1px solid rgba(239,225,195,0.18)',background:'rgba(255,255,255,0.06)',fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'#d8bd7a',marginBottom:13}}>Workspace QA</div>
+              <div style={{display:'inline-flex',alignItems:'center',gap:8,height:26,padding:'0 10px',borderRadius:999,border:'1px solid rgba(239,225,195,0.18)',background:'rgba(255,255,255,0.06)',fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#d8bd7a',marginBottom:13}}>Workspace QA</div>
               <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:'clamp(34px,5vw,52px)',lineHeight:0.95,letterSpacing:'-0.055em',color:'#fffdf8',fontWeight:700}}>Release gate</div>
               <div style={{fontSize:14,lineHeight:1.7,color:'rgba(255,253,248,0.70)',maxWidth:720,marginTop:12}}>Run a focused smoke check across persistence, local workspace seams, data normalization, launch config, and backend readiness before shipping the next FaithBid pass.</div>
             </div>
             <div style={{display:'grid',gap:10,minWidth:260}}>
               <div style={{border:`1px solid ${statusTheme.border}`,background:statusTheme.bg,borderRadius:22,padding:'16px 17px',color:'#fffdf8'}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:9}}>
-                  <span style={{fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'rgba(255,253,248,0.52)'}}>Current status</span>
-                  <span style={{fontSize:11,fontWeight:900,color:statusTheme.color}}>{statusTheme.label}</span>
+                  <span style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'rgba(255,253,248,0.52)'}}>Current status</span>
+                  <span style={{fontSize:11,fontWeight:800,color:statusTheme.color}}>{statusTheme.label}</span>
                 </div>
-                <div style={{fontSize:34,lineHeight:1,fontWeight:900,letterSpacing:'-0.04em',color:'#fffdf8'}}>{results.length ? `${summary.score}%` : '—'}</div>
+                <div style={{fontSize:34,lineHeight:1,fontWeight:800,letterSpacing:'-0.04em',color:'#fffdf8'}}>{results.length ? `${summary.score}%` : '—'}</div>
                 <div style={{fontSize:12,color:'rgba(255,253,248,0.66)',marginTop:8}}>{results.length ? `${summary.passCount} of ${results.length} checks passing` : 'Run the gate to score this build.'}</div>
               </div>
               <div style={{display:'flex',gap:9,justifyContent:'flex-end',flexWrap:'wrap'}}>
-                <button type='button' onClick={runChecks} disabled={running} style={{height:42,padding:'0 16px',borderRadius:999,border:'none',background:running ? 'rgba(239,225,195,0.42)' : '#efe1c3',fontSize:12,fontWeight:900,color:'#1C2814',cursor:running ? 'default' : 'pointer',boxShadow:'0 12px 26px rgba(0,0,0,0.16)'}}>{running ? 'Running…' : 'Run release gate'}</button>
-                <button type='button' onClick={()=>queueActivityNavigation(nav)} style={{height:42,padding:'0 14px',borderRadius:999,border:'1px solid rgba(239,225,195,0.22)',background:'rgba(255,255,255,0.06)',fontSize:12,fontWeight:850,color:'#fffdf8',cursor:'pointer'}}>Activity</button>
+                <button type='button' onClick={runChecks} disabled={running} style={{height:42,padding:'0 16px',borderRadius:999,border:'none',background:running ? 'rgba(239,225,195,0.42)' : '#efe1c3',fontSize:12,fontWeight:800,color:'#1C2814',cursor:running ? 'default' : 'pointer',boxShadow:'0 12px 26px rgba(0,0,0,0.16)'}}>{running ? 'Running…' : 'Run release gate'}</button>
+                <button type='button' onClick={()=>queueActivityNavigation(nav)} style={{height:42,padding:'0 14px',borderRadius:999,border:'1px solid rgba(239,225,195,0.22)',background:'rgba(255,255,255,0.06)',fontSize:12,fontWeight:800,color:'#fffdf8',cursor:'pointer'}}>Activity</button>
               </div>
             </div>
           </div>
@@ -179,8 +179,8 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
             { label:'Warnings', value: results.length ? summary.warnings : '—', sub: summary.warnings ? 'Review before ship' : 'No warnings flagged' },
           ].map(card => (
             <div key={card.label} style={{background:'#fffdf8',border:'1px solid #dfd5c2',borderRadius:22,padding:'17px 18px',boxShadow:'0 16px 42px rgba(28,40,20,0.055)'}}>
-              <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.13em',textTransform:'uppercase',color:'#9b8f7e',marginBottom:10}}>{card.label}</div>
-              <div style={{fontSize:30,lineHeight:1,fontWeight:900,letterSpacing:'-0.045em',color:'#1C2814'}}>{card.value}</div>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.13em',textTransform:'uppercase',color:'#9b8f7e',marginBottom:10}}>{card.label}</div>
+              <div style={{fontSize:30,lineHeight:1,fontWeight:800,letterSpacing:'-0.045em',color:'#1C2814'}}>{card.value}</div>
               <div style={{fontSize:12,lineHeight:1.5,color:'#6f675a',marginTop:8}}>{card.sub}</div>
             </div>
           ))}
@@ -191,38 +191,38 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
             <div style={{background:'#fffdf8',border:'1px solid #dfd5c2',borderRadius:26,padding:20,boxShadow:'0 18px 46px rgba(28,40,20,0.06)'}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:16,flexWrap:'wrap'}}>
                 <div>
-                  <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Automated checks</div>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Automated checks</div>
                   <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:27,lineHeight:1.05,letterSpacing:'-0.035em',color:'#1C2814'}}>Browser and launch readiness</div>
                 </div>
-                {results.length > 0 ? <div style={{height:34,padding:'0 12px',borderRadius:999,border:`1px solid ${summary.blockers ? 'rgba(197,48,48,0.2)' : summary.warnings ? 'rgba(176,136,64,0.25)' : 'rgba(72,118,82,0.2)'}`,background:summary.blockers ? '#fff5f2' : summary.warnings ? '#fff9ed' : '#f4f8ef',display:'flex',alignItems:'center',fontSize:11,fontWeight:900,letterSpacing:'0.11em',textTransform:'uppercase',color:summary.blockers ? '#b43c2e' : summary.warnings ? '#946d24' : '#2f6d3d'}}>{summary.state}</div> : null}
+                {results.length > 0 ? <div style={{height:34,padding:'0 12px',borderRadius:999,border:`1px solid ${summary.blockers ? 'rgba(197,48,48,0.2)' : summary.warnings ? 'rgba(176,136,64,0.25)' : 'rgba(72,118,82,0.2)'}`,background:summary.blockers ? '#fff5f2' : summary.warnings ? '#fff9ed' : '#f4f8ef',display:'flex',alignItems:'center',fontSize:11,fontWeight:800,letterSpacing:'0.11em',textTransform:'uppercase',color:summary.blockers ? '#b43c2e' : summary.warnings ? '#946d24' : '#2f6d3d'}}>{summary.state}</div> : null}
               </div>
 
               {!results.length ? (
                 <div style={{border:'1px dashed #d8c8ac',borderRadius:22,background:'#fbf5e8',padding:'34px 24px',textAlign:'center'}}>
-                  <div style={{width:50,height:50,borderRadius:18,background:'#1C2814',color:'#efe1c3',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:20,fontWeight:900}}>✓</div>
+                  <div style={{width:50,height:50,borderRadius:18,background:'#1C2814',color:'#efe1c3',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:20,fontWeight:800}}>✓</div>
                   <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:24,fontWeight:700,color:'#1C2814',letterSpacing:'-0.025em',marginBottom:8}}>Ready to run the release gate.</div>
                   <div style={{fontSize:13,lineHeight:1.65,color:'#6f675a',maxWidth:520,margin:'0 auto 18px'}}>This panel will group pass, warning, and blocker results once the automated checks finish.</div>
-                  <button type='button' onClick={runChecks} disabled={running} style={{height:40,padding:'0 16px',borderRadius:999,border:'none',background:'#1C2814',color:'#fffdf8',fontSize:12,fontWeight:900,cursor:running ? 'default' : 'pointer'}}>{running ? 'Running…' : 'Run release gate'}</button>
+                  <button type='button' onClick={runChecks} disabled={running} style={{height:40,padding:'0 16px',borderRadius:999,border:'none',background:'#1C2814',color:'#fffdf8',fontSize:12,fontWeight:800,cursor:running ? 'default' : 'pointer'}}>{running ? 'Running…' : 'Run release gate'}</button>
                 </div>
               ) : (
                 <div style={{display:'grid',gap:13}}>
                   {resultGroups.map(group => (
                     <div key={group.title} style={{border:'1px solid #eadfce',borderRadius:20,background:'#fbfaf7',overflow:'hidden'}}>
                       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'12px 14px',borderBottom:'1px solid #eadfce',background:'#fffdf8'}}>
-                        <span style={{fontSize:11,fontWeight:900,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8c8170'}}>{group.title}</span>
-                        <span style={{fontSize:11,fontWeight:850,color:'#6f675a'}}>{group.items.filter(item => item.ok).length}/{group.items.length} pass</span>
+                        <span style={{fontSize:11,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8c8170'}}>{group.title}</span>
+                        <span style={{fontSize:11,fontWeight:800,color:'#6f675a'}}>{group.items.filter(item => item.ok).length}/{group.items.length} pass</span>
                       </div>
                       <div style={{display:'grid',gap:8,padding:10}}>
                         {group.items.map(item => {
                           const tone = checkTone(item);
                           return (
                             <div key={item.label} style={{display:'grid',gridTemplateColumns:'auto minmax(0,1fr) auto',gap:12,alignItems:'start',padding:'12px 13px',borderRadius:15,border:`1px solid ${tone.border}`,background:tone.bg}}>
-                              <span style={{width:28,height:28,borderRadius:10,background:tone.chipBg,color:tone.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:950,flexShrink:0}}>{tone.mark}</span>
+                              <span style={{width:28,height:28,borderRadius:10,background:tone.chipBg,color:tone.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,flexShrink:0}}>{tone.mark}</span>
                               <span style={{minWidth:0}}>
-                                <span style={{display:'block',fontSize:13,fontWeight:850,color:'#1C2814',lineHeight:1.25}}>{item.label}</span>
+                                <span style={{display:'block',fontSize:13,fontWeight:800,color:'#1C2814',lineHeight:1.25}}>{item.label}</span>
                                 <span style={{display:'block',fontSize:12.5,lineHeight:1.55,color:'#6f675a',marginTop:3}}>{item.detail}</span>
                               </span>
-                              <span style={{height:26,padding:'0 9px',borderRadius:999,background:'#fffdf8',border:`1px solid ${tone.border}`,fontSize:10,fontWeight:950,letterSpacing:'0.10em',textTransform:'uppercase',color:tone.color,display:'flex',alignItems:'center'}}>{tone.label}</span>
+                              <span style={{height:26,padding:'0 9px',borderRadius:999,background:'#fffdf8',border:`1px solid ${tone.border}`,fontSize:10,fontWeight:800,letterSpacing:'0.10em',textTransform:'uppercase',color:tone.color,display:'flex',alignItems:'center'}}>{tone.label}</span>
                             </div>
                           );
                         })}
@@ -236,31 +236,31 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
 
           <div style={{display:'grid',gap:14}}>
             <div style={{background:'#1C2814',border:'1px solid rgba(239,225,195,0.18)',borderRadius:26,padding:20,boxShadow:'0 18px 46px rgba(28,40,20,0.14)',color:'#fffdf8'}}>
-              <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'#d8bd7a',marginBottom:8}}>Ship readout</div>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#d8bd7a',marginBottom:8}}>Ship readout</div>
               <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:26,lineHeight:1.05,letterSpacing:'-0.035em',marginBottom:10}}>Know what is safe before you ship.</div>
               <div style={{fontSize:13,lineHeight:1.7,color:'rgba(255,253,248,0.70)'}}>{results.length ? (summary.blockers ? 'Critical blockers are present. Fix those before installing another app lock.' : summary.warnings ? 'No critical blockers, but warnings need a quick review before calling the pass clean.' : 'Automated checks are clean. Finish the manual checklist before shipping.') : 'Run the release gate, then walk the manual checklist on the right.'}</div>
               <div style={{height:1,background:'rgba(239,225,195,0.14)',margin:'16px 0'}} />
               <div style={{display:'grid',gap:9}}>
                 {[['User', currentUser?.email || 'Admin session'], ['Role', role || 'workspace'], ['Checks', results.length ? `${summary.passCount}/${results.length}` : 'Not run']].map(([label,value]) => (
                   <div key={label} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
-                    <span style={{fontSize:10,fontWeight:900,letterSpacing:'0.12em',textTransform:'uppercase',color:'rgba(255,253,248,0.46)'}}>{label}</span>
-                    <span style={{fontSize:12.5,fontWeight:850,color:'#efe1c3',textAlign:'right',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:180}}>{value}</span>
+                    <span style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'rgba(255,253,248,0.46)'}}>{label}</span>
+                    <span style={{fontSize:12.5,fontWeight:800,color:'#efe1c3',textAlign:'right',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:180}}>{value}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div style={{background:'#fffdf8',border:'1px solid #dfd5c2',borderRadius:26,padding:20,boxShadow:'0 18px 46px rgba(28,40,20,0.06)'}}>
-              <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:8}}>Manual checklist</div>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:8}}>Manual checklist</div>
               <div style={{fontSize:13,lineHeight:1.6,color:'#6f675a',marginBottom:13}}>Short, concrete screens to open before calling the build shippable.</div>
               <div style={{display:'grid',gap:9}}>
                 {manualItems.map((item, idx) => (
                   <div key={`${item.label}-${idx}`} style={{border:'1px solid #eadfce',background:'#fbfaf7',borderRadius:16,padding:12,display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:10,alignItems:'center'}}>
                     <div style={{minWidth:0}}>
-                      <div style={{fontSize:12.5,fontWeight:850,color:'#1C2814',lineHeight:1.25}}>{item.label}</div>
+                      <div style={{fontSize:12.5,fontWeight:800,color:'#1C2814',lineHeight:1.25}}>{item.label}</div>
                       <div style={{fontSize:11.5,lineHeight:1.45,color:'#7d7363',marginTop:3}}>{item.detail}</div>
                     </div>
-                    <button type='button' onClick={item.action} style={{height:31,padding:'0 10px',borderRadius:999,border:'1px solid #dfd5c2',background:'#fffdf8',fontSize:10.5,fontWeight:900,color:'#1C2814',cursor:'pointer'}}>Open</button>
+                    <button type='button' onClick={item.action} style={{height:31,padding:'0 10px',borderRadius:999,border:'1px solid #dfd5c2',background:'#fffdf8',fontSize:10.5,fontWeight:800,color:'#1C2814',cursor:'pointer'}}>Open</button>
                   </div>
                 ))}
               </div>

@@ -176,23 +176,23 @@ export default function AnalyticsScreen({ currentUser, nav, role, dependencies }
           <div style={{position:'absolute',left:-90,bottom:-110,width:250,height:250,borderRadius:'50%',background:'rgba(213,184,115,0.08)'}} />
           <div style={{position:'relative',zIndex:1,display:'grid',gridTemplateColumns:isTablet ? '1fr' : 'minmax(0,1fr) 360px',gap:24,alignItems:'stretch'}}>
             <div>
-              <div style={{fontSize:11,fontWeight:900,letterSpacing:'0.16em',textTransform:'uppercase',color:'#d8bd7a',marginBottom:10}}>{hasAnalyticsAdminAccess ? 'Workspace analytics' : isVendorRole ? 'Vendor workspace' : 'Church workspace'}</div>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#d8bd7a',marginBottom:10}}>{hasAnalyticsAdminAccess ? 'Workspace analytics' : isVendorRole ? 'Vendor workspace' : 'Church workspace'}</div>
               <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:isMobile ? 35 : 54,lineHeight:0.98,letterSpacing:'-0.05em',color:'#fffdf8',maxWidth:760}}>{heroTitle}</div>
               <div style={{fontSize:15,color:'rgba(255,253,248,0.74)',maxWidth:720,lineHeight:1.72,marginTop:14}}>{heroBody}</div>
               <div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:22}}>
-                <button type='button' onClick={()=>nav(primaryRoute)} style={{height:44,padding:'0 18px',borderRadius:999,border:'none',background:'#efe1c3',fontSize:13,fontWeight:900,color:'#162014',cursor:'pointer',boxShadow:'0 14px 28px rgba(0,0,0,0.18)'}}>{primaryCta}</button>
-                <button type='button' onClick={()=>queueActivityNavigation(nav)} style={{height:44,padding:'0 18px',borderRadius:999,border:'1px solid rgba(255,255,255,0.20)',background:'rgba(255,255,255,0.08)',fontSize:13,fontWeight:850,color:'#fffdf8',cursor:'pointer'}}>Open Activity</button>
-                {hasAnalyticsAdminAccess && <button type='button' onClick={()=>nav('admin')} style={{height:44,padding:'0 18px',borderRadius:999,border:'1px solid rgba(255,255,255,0.18)',background:'rgba(255,255,255,0.06)',fontSize:13,fontWeight:850,color:'#fffdf8',cursor:'pointer'}}>Admin</button>}
+                <button type='button' onClick={()=>nav(primaryRoute)} style={{height:44,padding:'0 18px',borderRadius:999,border:'none',background:'#efe1c3',fontSize:13,fontWeight:800,color:'#162014',cursor:'pointer',boxShadow:'0 14px 28px rgba(0,0,0,0.18)'}}>{primaryCta}</button>
+                <button type='button' onClick={()=>queueActivityNavigation(nav)} style={{height:44,padding:'0 18px',borderRadius:999,border:'1px solid rgba(255,255,255,0.20)',background:'rgba(255,255,255,0.08)',fontSize:13,fontWeight:800,color:'#fffdf8',cursor:'pointer'}}>Open Activity</button>
+                {hasAnalyticsAdminAccess && <button type='button' onClick={()=>nav('admin')} style={{height:44,padding:'0 18px',borderRadius:999,border:'1px solid rgba(255,255,255,0.18)',background:'rgba(255,255,255,0.06)',fontSize:13,fontWeight:800,color:'#fffdf8',cursor:'pointer'}}>Admin</button>}
               </div>
             </div>
             <div style={{border:'1px solid rgba(255,255,255,0.14)',borderRadius:24,background:'rgba(255,255,255,0.085)',boxShadow:'inset 0 1px 0 rgba(255,255,255,0.10)',padding:20,display:'grid',gap:14}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
                 <div>
-                  <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'rgba(255,253,248,0.54)'}}>Pipeline pulse</div>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'rgba(255,253,248,0.54)'}}>Pipeline pulse</div>
                   <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:38,lineHeight:1,color:'#fffdf8',marginTop:4}}>{loadingAnalytics ? '—' : formatCount(stats.bids + stats.projectLinks + stats.inboxThreads)}</div>
                 </div>
                 <div style={{width:74,height:74,borderRadius:'50%',border:'1px solid rgba(239,225,195,0.22)',background:'conic-gradient(from 160deg,#d8bd7a 0deg,#d8bd7a 230deg,rgba(255,255,255,0.13) 230deg)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <div style={{width:54,height:54,borderRadius:'50%',background:'#1b2818',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:900,color:'#efe1c3'}}>{verifiedRate || 0}%</div>
+                  <div style={{width:54,height:54,borderRadius:'50%',background:'#1b2818',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:800,color:'#efe1c3'}}>{verifiedRate || 0}%</div>
                 </div>
               </div>
               <div style={{fontSize:13,lineHeight:1.65,color:'rgba(255,253,248,0.72)'}}>Verified vendor coverage, bid volume, links, and conversation movement are now summarized into one clean operating read.</div>
@@ -205,7 +205,7 @@ export default function AnalyticsScreen({ currentUser, nav, role, dependencies }
           {metricCards.map((card) => (
             <div key={card.label} style={{background:'#fffdf8',border:'1px solid #dfd5c2',borderRadius:20,padding:'16px 17px',boxShadow:'0 14px 34px rgba(28,40,20,0.055)'}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:12}}>
-                <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8c8170'}}>{card.label}</div>
+                <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8c8170'}}>{card.label}</div>
                 <span style={{width:9,height:9,borderRadius:'50%',background:card.tone,boxShadow:`0 0 0 4px ${card.tone}18`}} />
               </div>
               <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:32,lineHeight:0.96,letterSpacing:'-0.035em',color:'#1C2814'}}>{loadingAnalytics ? <KBSkeleton width={54} height={28} /> : formatCount(card.value)}</div>
@@ -219,15 +219,15 @@ export default function AnalyticsScreen({ currentUser, nav, role, dependencies }
             <div style={{background:'#fffdf8',border:'1px solid #dfd5c2',borderRadius:26,padding:isMobile ? 18 : 22,boxShadow:'0 18px 46px rgba(28,40,20,0.06)'}}>
               <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',gap:14,flexWrap:'wrap',marginBottom:16}}>
                 <div>
-                  <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Operating signals</div>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Operating signals</div>
                   <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:28,lineHeight:1.04,letterSpacing:'-0.03em',color:'#1C2814'}}>What deserves attention</div>
                 </div>
-                <button type='button' onClick={()=>queueActivityNavigation(nav)} style={{height:38,padding:'0 14px',borderRadius:999,border:'1px solid #dfd5c2',background:'#fff',fontSize:12,fontWeight:850,color:'#1C2814',cursor:'pointer'}}>Review activity</button>
+                <button type='button' onClick={()=>queueActivityNavigation(nav)} style={{height:38,padding:'0 14px',borderRadius:999,border:'1px solid #dfd5c2',background:'#fff',fontSize:12,fontWeight:800,color:'#1C2814',cursor:'pointer'}}>Review activity</button>
               </div>
               <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(3,minmax(0,1fr))',gap:10}}>
                 {pulseCards.map(item => (
                   <div key={item.label} style={{border:'1px solid rgba(176,136,64,0.18)',background:'linear-gradient(180deg,#fffaf1,#fffdf8)',borderRadius:18,padding:16}}>
-                    <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8c8170',marginBottom:8}}>{item.label}</div>
+                    <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8c8170',marginBottom:8}}>{item.label}</div>
                     <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:30,lineHeight:1,color:'#1C2814'}}>{loadingAnalytics ? '—' : item.value}</div>
                     <div style={{fontSize:12,lineHeight:1.58,color:'#6f675a',marginTop:8}}>{item.body}</div>
                   </div>
@@ -238,10 +238,10 @@ export default function AnalyticsScreen({ currentUser, nav, role, dependencies }
             <div style={{background:'#fffdf8',border:'1px solid #dfd5c2',borderRadius:26,padding:isMobile ? 18 : 22,boxShadow:'0 18px 46px rgba(28,40,20,0.06)'}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',marginBottom:14}}>
                 <div>
-                  <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Recent movement</div>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Recent movement</div>
                   <div style={{fontSize:14,color:'#6f675a'}}>Latest scoped events from your marketplace, project, and inbox layer.</div>
                 </div>
-                <span style={{fontSize:11,fontWeight:900,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8c8170'}}>{loadingAnalytics ? 'Loading' : `${feedItems.length} items`}</span>
+                <span style={{fontSize:11,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8c8170'}}>{loadingAnalytics ? 'Loading' : `${feedItems.length} items`}</span>
               </div>
               <div style={{display:'grid',gap:10}}>
                 {loadingAnalytics ? Array.from({length:4}).map((_,idx) => (
@@ -254,13 +254,13 @@ export default function AnalyticsScreen({ currentUser, nav, role, dependencies }
                   const dateLabel = item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : 'Recent';
                   return (
                     <button key={item.id || `${item.title}-${item.created_at}`} type='button' onClick={()=>queueActivityNavigation(nav)} style={{width:'100%',textAlign:'left',display:'grid',gridTemplateColumns:'auto minmax(0,1fr) auto',gap:12,alignItems:'center',padding:'14px 15px',borderRadius:16,border:'1px solid rgba(0,0,0,0.06)',background:'#fbfaf7',cursor:'pointer'}}>
-                      <span style={{width:36,height:36,borderRadius:13,background:'#1C2814',color:'#efe1c3',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:900}}>•</span>
+                      <span style={{width:36,height:36,borderRadius:13,background:'#1C2814',color:'#efe1c3',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:800}}>•</span>
                       <span style={{minWidth:0}}>
-                        <span style={{display:'block',fontSize:13,fontWeight:850,color:'#1C2814',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.title || 'Workspace activity'}</span>
+                        <span style={{display:'block',fontSize:13,fontWeight:800,color:'#1C2814',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.title || 'Workspace activity'}</span>
                         <span style={{display:'block',fontSize:12,lineHeight:1.55,color:'#6f675a',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',marginTop:2}}>{item.body || 'No detail yet'}</span>
                       </span>
                       <span style={{display:'grid',justifyItems:'end',gap:4}}>
-                        <span style={{fontSize:10,fontWeight:900,letterSpacing:'0.10em',textTransform:'uppercase',color:'#b08840'}}>{kind}</span>
+                        <span style={{fontSize:10,fontWeight:800,letterSpacing:'0.10em',textTransform:'uppercase',color:'#b08840'}}>{kind}</span>
                         <span style={{fontSize:11,color:'#8c8170'}}>{dateLabel}</span>
                       </span>
                     </button>
@@ -274,21 +274,21 @@ export default function AnalyticsScreen({ currentUser, nav, role, dependencies }
 
           <div style={{display:'grid',gap:14}}>
             <div style={{background:'#fffdf8',border:'1px solid #dfd5c2',borderRadius:26,padding:20,boxShadow:'0 18px 46px rgba(28,40,20,0.06)'}}>
-              <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:8}}>Next best paths</div>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:8}}>Next best paths</div>
               <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:25,lineHeight:1.05,letterSpacing:'-0.03em',color:'#1C2814',marginBottom:14}}>Move from signal to action.</div>
               <div style={{display:'grid',gap:10}}>
                 {actionCards.map(item => (
                   <div key={item.label} style={{border:'1px solid rgba(0,0,0,0.06)',background:'#fbfaf7',borderRadius:16,padding:14}}>
-                    <div style={{fontSize:13,fontWeight:850,color:'#1C2814',marginBottom:4}}>{item.label}</div>
+                    <div style={{fontSize:13,fontWeight:800,color:'#1C2814',marginBottom:4}}>{item.label}</div>
                     <div style={{fontSize:12,lineHeight:1.55,color:'#6f675a',marginBottom:11}}>{item.body}</div>
-                    <button type='button' onClick={item.action} style={{height:34,padding:'0 12px',borderRadius:999,border:'1px solid #dfd5c2',background:'#fff',fontSize:11,fontWeight:850,color:'#1C2814',cursor:'pointer'}}>{item.cta}</button>
+                    <button type='button' onClick={item.action} style={{height:34,padding:'0 12px',borderRadius:999,border:'1px solid #dfd5c2',background:'#fff',fontSize:11,fontWeight:800,color:'#1C2814',cursor:'pointer'}}>{item.cta}</button>
                   </div>
                 ))}
               </div>
             </div>
 
             <div style={{background:'#1C2814',border:'1px solid rgba(239,225,195,0.18)',borderRadius:26,padding:20,boxShadow:'0 18px 46px rgba(28,40,20,0.16)',color:'#fffdf8'}}>
-              <div style={{fontSize:10,fontWeight:900,letterSpacing:'0.14em',textTransform:'uppercase',color:'#d8bd7a',marginBottom:8}}>Analytics readout</div>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#d8bd7a',marginBottom:8}}>Analytics readout</div>
               <div style={{fontSize:13,lineHeight:1.7,color:'rgba(255,253,248,0.72)'}}>
                 {hasAnalyticsAdminAccess
                   ? `Marketplace supply is at ${formatCount(stats.openProjects)} open projects with ${formatCount(stats.verifiedVendors)} verified vendors supporting trust coverage.`
@@ -301,7 +301,7 @@ export default function AnalyticsScreen({ currentUser, nav, role, dependencies }
                 {[['Verified rate', stats.vendors ? `${verifiedRate}%` : '—'], ['Decision items', formatCount(decisionLoad)], ['Open projects', formatCount(stats.openProjects)]].map(([label,value]) => (
                   <div key={label} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
                     <span style={{fontSize:11,fontWeight:800,letterSpacing:'0.10em',textTransform:'uppercase',color:'rgba(255,253,248,0.48)'}}>{label}</span>
-                    <span style={{fontSize:14,fontWeight:900,color:'#efe1c3'}}>{value}</span>
+                    <span style={{fontSize:14,fontWeight:800,color:'#efe1c3'}}>{value}</span>
                   </div>
                 ))}
               </div>

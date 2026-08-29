@@ -307,7 +307,7 @@ export default function WaitlistInvitationScreen({
 
   const Header = ({ eyebrow = (isVendorInvitation ? "Charter Vendor activation" : "FaithBid invitation"), title, body }) => (
     <>
-      <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: ".16em", textTransform: "uppercase", color: "#9C7130", marginBottom: 14 }}>{eyebrow}</div>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase", color: "#9C7130", marginBottom: 14 }}>{eyebrow}</div>
       <h1 style={{ margin: 0, fontFamily: "Playfair Display,serif", fontSize: "clamp(34px,6vw,52px)", lineHeight: 1.02, letterSpacing: "-.035em", color: "#182116" }}>{title}</h1>
       <p style={{ margin: "18px 0 0", fontSize: 15, lineHeight: 1.75, color: "#5E695B" }}>{body}</p>
     </>

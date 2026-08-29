@@ -5514,7 +5514,7 @@ ${summary}`, 'Milestone approved');
           boxShadow:"0 20px 56px rgba(28,40,20,.10)",
           textAlign:"center"
         }}>
-          <div style={{fontFamily:"'DM Mono',monospace",fontSize:9,fontWeight:850,letterSpacing:".16em",textTransform:"uppercase",color:"#9b7432",marginBottom:10}}>FaithBid workspace</div>
+          <div style={{fontFamily:"'DM Mono',monospace",fontSize:9,fontWeight:800,letterSpacing:".16em",textTransform:"uppercase",color:"#9b7432",marginBottom:10}}>FaithBid workspace</div>
           <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:"clamp(28px,4vw,38px)",fontWeight:700,lineHeight:1.05,letterSpacing:"-.035em"}}>
             {targetLooksLikeDealRoom ? 'Opening Deal Room…' : 'Opening conversation…'}
           </div>
@@ -5555,10 +5555,10 @@ ${summary}`, 'Milestone approved');
         }
         .kbdr2-hub-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,rgba(255,253,248,.25),rgba(255,253,248,.03) 55%,rgba(155,116,50,.07));pointer-events:none}
         .kbdr2-hub-hero>div,.kbdr2-hub-hero>button{position:relative;z-index:1}
-        .kbdr2-hub-kicker{font-family:'DM Mono',monospace;font-size:9px;font-weight:900;letter-spacing:.17em;text-transform:uppercase;color:#916b2e;margin-bottom:6px}
-        .kbdr2-hub-hero h1{margin:0 0 5px;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:clamp(30px,3vw,42px);line-height:1;letter-spacing:-.038em;font-weight:680}
+        .kbdr2-hub-kicker{font-family:'DM Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:#916b2e;margin-bottom:6px}
+        .kbdr2-hub-hero h1{margin:0 0 5px;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:clamp(30px,3vw,42px);line-height:1;letter-spacing:-.038em;font-weight:700}
         .kbdr2-hub-hero p{margin:0;max-width:760px;font-size:12.75px;line-height:1.52;color:#62695d}
-        .kbdr2-hub-primary{flex:0 0 auto;height:40px;padding:0 16px!important;border-radius:11px!important;background:#1F3A2E!important;color:#fffdf8!important;font-size:11.5px!important;font-weight:850!important;box-shadow:0 7px 17px rgba(31,58,46,.12)}
+        .kbdr2-hub-primary{flex:0 0 auto;height:40px;padding:0 16px!important;border-radius:11px!important;background:#1F3A2E!important;color:#fffdf8!important;font-size:11.5px!important;font-weight:800!important;box-shadow:0 7px 17px rgba(31,58,46,.12)}
         .kbdr2-hub-primary:hover{background:#294b3b!important;transform:translateY(-1px)}
         .kbdr2-hub-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 12px}
         .kbdr2-hub-tabs{display:flex;align-items:center;gap:7px;margin:0;padding:5px;border:1px solid rgba(28,40,20,.10);border-radius:15px;background:rgba(255,253,248,.72);width:max-content;max-width:100%;box-shadow:0 5px 18px rgba(28,40,20,.04)}
@@ -5566,7 +5566,7 @@ ${summary}`, 'Milestone approved');
         .kbdr2-hub-tab b{display:inline-flex;min-width:20px;height:20px;padding:0 6px;align-items:center;justify-content:center;border-radius:999px;background:rgba(28,40,20,.06);font-size:9.5px}
         .kbdr2-hub-tab.active{background:#fffdf8!important;color:#1C2814!important;box-shadow:0 3px 10px rgba(28,40,20,.08)}
         .kbdr2-hub-tab.active b{background:#eef2e9;color:#35502d}
-        .kbdr2-hub-needs-me{display:inline-flex!important;align-items:center!important;gap:8px!important;min-height:38px;padding:0 12px!important;border:1px solid rgba(155,116,50,.22)!important;border-radius:12px!important;background:rgba(255,253,248,.76)!important;color:#5f6658!important;font-size:11px!important;font-weight:850!important;box-shadow:0 4px 14px rgba(28,40,20,.035)!important}
+        .kbdr2-hub-needs-me{display:inline-flex!important;align-items:center!important;gap:8px!important;min-height:38px;padding:0 12px!important;border:1px solid rgba(155,116,50,.22)!important;border-radius:12px!important;background:rgba(255,253,248,.76)!important;color:#5f6658!important;font-size:11px!important;font-weight:800!important;box-shadow:0 4px 14px rgba(28,40,20,.035)!important}
         .kbdr2-hub-needs-me:hover{border-color:rgba(155,116,50,.42)!important;background:#fffdf8!important;color:#1F3A2E!important}
         .kbdr2-hub-needs-me.active{background:#1F3A2E!important;border-color:#1F3A2E!important;color:#fffdf8!important;box-shadow:0 7px 18px rgba(31,58,46,.14)!important}
         .kbdr2-hub-needs-me b{display:inline-flex;min-width:20px;height:20px;padding:0 6px;align-items:center;justify-content:center;border-radius:999px;background:rgba(31,58,46,.08);font-size:9px}
@@ -5588,13 +5588,13 @@ ${summary}`, 'Milestone approved');
         .kbdr2-hub-room-card.skeleton{pointer-events:none;gap:15px}
         .kbdr2-hub-room-card.skeleton span{display:block;height:14px;border-radius:999px;background:#f0eadf}
         .kbdr2-hub-room-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
-        .kbdr2-hub-room-eyebrow{font-family:'DM Mono',monospace;font-size:8px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#977337}
-        .kbdr2-hub-status{display:inline-flex;padding:5px 8px;border:1px solid;border-radius:999px;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
-        .kbdr2-hub-room-title{font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:22px;line-height:1.07;font-weight:760;letter-spacing:-.027em;margin-bottom:6px}
-        .kbdr2-hub-room-counterparty{font-size:11px;font-weight:750;color:#766f64;margin-bottom:11px}
+        .kbdr2-hub-room-eyebrow{font-family:'DM Mono',monospace;font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#977337}
+        .kbdr2-hub-status{display:inline-flex;padding:5px 8px;border:1px solid;border-radius:999px;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+        .kbdr2-hub-room-title{font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:22px;line-height:1.07;font-weight:800;letter-spacing:-.027em;margin-bottom:6px}
+        .kbdr2-hub-room-counterparty{font-size:11px;font-weight:700;color:#766f64;margin-bottom:11px}
         .kbdr2-hub-attention{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;padding:9px 10px;border-radius:10px;border:1px solid transparent}
-        .kbdr2-hub-attention-label{flex:0 0 auto;font-family:'DM Mono',monospace;font-size:8px;font-weight:900;letter-spacing:.10em;text-transform:uppercase}
-        .kbdr2-hub-attention-detail{min-width:0;text-align:right;font-size:10.75px;font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .kbdr2-hub-attention-label{flex:0 0 auto;font-family:'DM Mono',monospace;font-size:8px;font-weight:800;letter-spacing:.10em;text-transform:uppercase}
+        .kbdr2-hub-attention-detail{min-width:0;text-align:right;font-size:10.75px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         .kbdr2-hub-attention.is-action{background:#eef3e9;border-color:#ccd9c3;color:#2f512f}
         .kbdr2-hub-attention.is-action .kbdr2-hub-attention-label{color:#315b35}
         .kbdr2-hub-attention.is-waiting{background:#f5f0e7;border-color:#e1d6c5;color:#716a5f}
@@ -5603,18 +5603,18 @@ ${summary}`, 'Milestone approved');
         .kbdr2-hub-attention.is-muted{background:#f4f1eb;border-color:#e4ded2;color:#777166}
         .kbdr2-hub-room-next{font-size:11.75px;line-height:1.48;color:#61675c;max-width:96%;margin-bottom:14px}
         .kbdr2-hub-room-footer{margin-top:auto;padding-top:12px;border-top:1px solid #ece3d5;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:10.25px;color:#7d756a}
-        .kbdr2-hub-open-label{font-weight:850;color:#28432f}
+        .kbdr2-hub-open-label{font-weight:800;color:#28432f}
         .kbdr2-hub-conversation-list{display:grid;gap:9px}
         .kbdr2-hub-conversation-row{display:grid!important;grid-template-columns:42px minmax(0,1fr) auto!important;align-items:center!important;gap:13px!important;width:100%;padding:13px 15px!important;text-align:left!important;border:1px solid rgba(28,40,20,.10)!important;border-radius:16px!important;background:#fffdf8!important;color:#1C2814!important;box-shadow:0 5px 16px rgba(28,40,20,.035)!important}
-        .kbdr2-hub-conversation-avatar{width:42px;height:42px;border-radius:13px;background:#263721;color:#e8cd8c;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:850}
+        .kbdr2-hub-conversation-avatar{width:42px;height:42px;border-radius:13px;background:#263721;color:#e8cd8c;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
         .kbdr2-hub-conversation-copy{min-width:0}.kbdr2-hub-conversation-line{display:flex;align-items:center;gap:10px;min-width:0}
         .kbdr2-hub-conversation-line strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:16px}
-        .kbdr2-hub-conversation-line span{flex:0 0 auto;padding:3px 7px;border-radius:999px;background:#eef4ea;color:#36532d;font-size:8.5px;font-weight:850}
-        .kbdr2-hub-conversation-person{font-size:10.5px;font-weight:750;color:#9a6f2e;margin:2px 0}.kbdr2-hub-conversation-copy p{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px;color:#766f64}
-        .kbdr2-hub-conversation-open{font-size:10.5px;font-weight:850;color:#28432f}
+        .kbdr2-hub-conversation-line span{flex:0 0 auto;padding:3px 7px;border-radius:999px;background:#eef4ea;color:#36532d;font-size:8.5px;font-weight:800}
+        .kbdr2-hub-conversation-person{font-size:10.5px;font-weight:700;color:#9a6f2e;margin:2px 0}.kbdr2-hub-conversation-copy p{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px;color:#766f64}
+        .kbdr2-hub-conversation-open{font-size:10.5px;font-weight:800;color:#28432f}
         .kbdr2-hub-load-more{display:block!important;margin:13px auto 0!important;height:38px;padding:0 15px!important;border:1px solid #d8cbb4!important;border-radius:11px!important;background:#fffdf8!important;color:#28432f!important;font-size:11px!important;font-weight:800!important}
         .kbdr2-hub-empty{padding:54px 28px;text-align:center;border:1px dashed rgba(28,40,20,.14);border-radius:22px;background:rgba(255,253,248,.60)}
-        .kbdr2-hub-empty-kicker{font-family:'DM Mono',monospace;font-size:9px;font-weight:850;letter-spacing:.15em;text-transform:uppercase;color:#a47a34;margin-bottom:9px}
+        .kbdr2-hub-empty-kicker{font-family:'DM Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#a47a34;margin-bottom:9px}
         .kbdr2-hub-empty h2{margin:0 0 8px;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:25px;color:#1C2814}.kbdr2-hub-empty p{max-width:600px;margin:0 auto;font-size:12.5px;line-height:1.65;color:#6f685e}
         @media(max-width:1180px){.kbdr2-hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
         @media(max-width:760px){
@@ -5815,7 +5815,7 @@ ${summary}`, 'Milestone approved');
         .kbdr2-bubble-time{font-size:10.5px;margin-top:5px;opacity:0.62;font-weight:600;display:flex;align-items:center;gap:6px}
         .kbdr2-bubble.me .kbdr2-bubble-time{justify-content:flex-end}
         .kbdr2-bubble-checks{font-size:10.5px}
-        .kbdr2-new-message-pill{position:sticky;bottom:10px;margin:10px auto 4px;display:flex;align-items:center;justify-content:center;gap:7px;height:32px;padding:0 14px;border-radius:999px;background:#fffdf8;border:1px solid rgba(176,136,64,0.24);color:#1F3A2E;font-size:12px;font-weight:850;box-shadow:0 12px 28px rgba(28,40,20,0.12);z-index:4}
+        .kbdr2-new-message-pill{position:sticky;bottom:10px;margin:10px auto 4px;display:flex;align-items:center;justify-content:center;gap:7px;height:32px;padding:0 14px;border-radius:999px;background:#fffdf8;border:1px solid rgba(176,136,64,0.24);color:#1F3A2E;font-size:12px;font-weight:800;box-shadow:0 12px 28px rgba(28,40,20,0.12);z-index:4}
         .kbdr2-new-message-pill:hover{background:#fff8e7}
         .kbdr2-file-card{display:inline-flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:#f3f6ef;border:1px solid rgba(31,58,46,0.06);max-width:320px}
         .kbdr2-bubble.me .kbdr2-file-card{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15);color:#fff}
@@ -5998,7 +5998,7 @@ ${summary}`, 'Milestone approved');
         .kbdr2-work-eyebrow{
           margin-bottom:4px;
           font-size:10px;
-          font-weight:850;
+          font-weight:800;
           letter-spacing:0.15em;
           text-transform:uppercase;
           color:#9a7330;
@@ -6134,7 +6134,7 @@ ${summary}`, 'Milestone approved');
         /* v24 inbox interaction hardening — clarity, read-only states, and priority labels */
         .kbdr2-priority-line{margin-top:7px;display:flex;align-items:flex-start;gap:7px;font-size:11.5px;line-height:1.35;color:#6b6253;}
         .kbdr2-priority-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0;background:var(--priority-color,#8A6729);box-shadow:0 0 0 3px var(--priority-bg,rgba(176,136,64,0.10));}
-        .kbdr2-priority-line strong{color:#1F3A2E;font-weight:850;}
+        .kbdr2-priority-line strong{color:#1F3A2E;font-weight:800;}
         .kbdr2-command-card{margin:10px 22px 0;padding:12px 14px;border-radius:12px;border:1px solid rgba(223,213,194,0.6);background:#fffdf8;display:flex;flex-direction:column;gap:0;}
         .kbdr2-command-copy{min-width:0;padding:2px 2px 2px 4px;display:flex;flex-direction:column;justify-content:center;}
         .kbdr2-command-eyebrow{font-size:9.5px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:#9a7330;margin-bottom:3px;}
@@ -6144,18 +6144,18 @@ ${summary}`, 'Milestone approved');
         .kbdr2-command-actions .kbdr2-primary-btn,.kbdr2-command-actions .kbdr2-secondary-btn{height:36px;padding:0 13px;font-size:12px;}
         .kbdr2-command-metrics{display:none;}
         .kbdr2-command-metric{padding:10px 11px;border-radius:14px;background:rgba(255,255,255,0.72);border:1px solid rgba(223,213,194,0.62);min-width:0;}
-        .kbdr2-command-metric span{display:block;font-size:9.5px;font-weight:850;letter-spacing:0.12em;text-transform:uppercase;color:#9a8a72;margin-bottom:4px;}
+        .kbdr2-command-metric span{display:block;font-size:9.5px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#9a8a72;margin-bottom:4px;}
         .kbdr2-command-metric strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;color:#1F3A2E;line-height:1.25;}
         .kbdr2-composer-meta{display:none !important;}
         .kbdr2-composer-meta span:last-child{text-align:right;}
         .kbdr2-composer-send{width:auto !important;min-width:44px;padding:0 13px !important;gap:8px;}
-        .kbdr2-composer-send-label{font-size:12px;font-weight:850;white-space:nowrap;}
+        .kbdr2-composer-send-label{font-size:12px;font-weight:800;white-space:nowrap;}
         .kbdr2-failed-banner{margin:0 16px 12px;padding:12px 13px;border-radius:16px;background:rgba(197,48,48,0.075);border:1px solid rgba(197,48,48,0.18);display:flex;align-items:center;gap:12px;box-shadow:0 10px 24px rgba(127,29,29,0.06);}
-        .kbdr2-failed-banner-icon{width:28px;height:28px;border-radius:10px;background:rgba(197,48,48,0.12);color:#9b1c1c;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0;}
+        .kbdr2-failed-banner-icon{width:28px;height:28px;border-radius:10px;background:rgba(197,48,48,0.12);color:#9b1c1c;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;}
         .kbdr2-failed-banner-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:#7f1d1d;line-height:1.35;}
         .kbdr2-failed-banner-copy strong{font-size:13px;color:#7f1d1d;}
         .kbdr2-failed-banner-actions{display:flex;align-items:center;gap:7px;flex-shrink:0;}
-        .kbdr2-failed-retry,.kbdr2-failed-dismiss{height:32px;padding:0 11px;border-radius:999px;font-size:11.5px;font-weight:850;}
+        .kbdr2-failed-retry,.kbdr2-failed-dismiss{height:32px;padding:0 11px;border-radius:999px;font-size:11.5px;font-weight:800;}
         .kbdr2-failed-retry{background:#7f1d1d;color:#fff;}
         .kbdr2-failed-dismiss{background:rgba(255,255,255,0.62);color:#7f1d1d;border:1px solid rgba(127,29,29,0.14);}
         .kbdr2-composer-readonly .kbdr2-composer-inner{background:#fbf6ea !important;border-color:rgba(120,99,59,0.18) !important;box-shadow:none !important;}
@@ -6180,12 +6180,12 @@ ${summary}`, 'Milestone approved');
           flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:999px !important;border:1px solid rgba(31,58,46,0.10) !important;background:#fffdf8 !important;color:#4a5547 !important;font-size:12px !important;font-weight:800 !important;white-space:nowrap;box-shadow:0 4px 12px rgba(28,40,20,0.035);
         }
         .kbdr2-mobile-quickview.active{background:#1F3A2E !important;color:#fff !important;border-color:#1F3A2E !important;}
-        .kbdr2-mobile-quickview-count{min-width:18px;height:18px;padding:0 6px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(31,58,46,0.08);font-size:10.5px;font-weight:900;color:currentColor;}
+        .kbdr2-mobile-quickview-count{min-width:18px;height:18px;padding:0 6px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(31,58,46,0.08);font-size:10.5px;font-weight:800;color:currentColor;}
         .kbdr2-mobile-quickview.active .kbdr2-mobile-quickview-count{background:rgba(255,255,255,0.16);}
         .kbdr2-mobile-glance{display:none;}
         .kbdr2-mobile-glance-pill{flex:0 0 auto;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:7px 10px;border-radius:999px;background:#fff;border:1px solid rgba(223,213,194,0.85);font-size:11.5px;font-weight:800;color:#1F3A2E;box-shadow:0 5px 14px rgba(28,40,20,0.045);}
         .kbdr2-load-older-wrap{display:flex;justify-content:center;margin:2px 0 18px;}
-        .kbdr2-load-older-btn{height:34px;padding:0 14px;border-radius:999px !important;background:#fffdf8 !important;border:1px solid rgba(223,213,194,0.88) !important;color:#1F3A2E !important;font-size:12px !important;font-weight:850 !important;box-shadow:0 7px 18px rgba(28,40,20,0.045);}
+        .kbdr2-load-older-btn{height:34px;padding:0 14px;border-radius:999px !important;background:#fffdf8 !important;border:1px solid rgba(223,213,194,0.88) !important;color:#1F3A2E !important;font-size:12px !important;font-weight:800 !important;box-shadow:0 7px 18px rgba(28,40,20,0.045);}
         .kbdr2-load-older-btn:hover:not(:disabled){background:#f3f6ef !important;}
         .kbdr2-load-older-btn:disabled{opacity:0.62;cursor:not-allowed;}
         @media (max-width: 980px){
@@ -6856,7 +6856,7 @@ ${summary}`, 'Milestone approved');
         .kbdr2-canonical-dealroom:not(.kbdr2-work-message-mode) .kbdr2-work-eyebrow{
           display:block !important;
           font-size:9.5px !important;
-          font-weight:850 !important;
+          font-weight:800 !important;
           letter-spacing:.15em !important;
           text-transform:uppercase !important;
           color:#9b7432 !important;
@@ -6881,7 +6881,7 @@ ${summary}`, 'Milestone approved');
         .kbdr2-dealroom-switch::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:999px;background:transparent;}
         .kbdr2-dealroom-switch.active{color:#1F3A2E;}
         .kbdr2-dealroom-switch.active::after{background:#9b7432;}
-        .kbdr2-dealroom-switch-count{min-width:18px;height:18px;padding:0 5px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#f0e7d6;color:#715525;font-size:10px;font-weight:900;}
+        .kbdr2-dealroom-switch-count{min-width:18px;height:18px;padding:0 5px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#f0e7d6;color:#715525;font-size:10px;font-weight:800;}
         .kbdr2-canonical-overview{
           flex:1;min-height:0;overflow-y:auto;padding:clamp(20px,2.6vw,34px);background:linear-gradient(180deg,#fffdf8 0%,#fbf6ea 100%);scrollbar-width:thin;scrollbar-color:rgba(28,40,20,.13) transparent;
         }
@@ -6892,21 +6892,21 @@ ${summary}`, 'Milestone approved');
         }
         .kbdr2-canonical-next::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#c4973a,#8d6929);}
         .kbdr2-canonical-next-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;}
-        .kbdr2-canonical-kicker{display:block;font-size:9.5px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#8a6729;line-height:1.2;}
-        .kbdr2-canonical-status{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid rgba(31,58,46,.10);background:#f3f6ef;color:#355846;font-size:10.5px;font-weight:850;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;}
+        .kbdr2-canonical-kicker{display:block;font-size:9.5px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#8a6729;line-height:1.2;}
+        .kbdr2-canonical-status{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid rgba(31,58,46,.10);background:#f3f6ef;color:#355846;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;}
         .kbdr2-canonical-status.review{background:#fbf1dc;border-color:rgba(177,132,53,.20);color:#7d5c20;}
         .kbdr2-canonical-status.complete{background:#eef3ea;color:#4c654c;}
         .kbdr2-canonical-status.hired{background:#fbf3e4;color:#7f6028;}
-        .kbdr2-canonical-next h2{margin:0;color:#182313;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:clamp(27px,3vw,38px);font-weight:750;letter-spacing:-.035em;line-height:1.04;max-width:760px;}
+        .kbdr2-canonical-next h2{margin:0;color:#182313;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:clamp(27px,3vw,38px);font-weight:700;letter-spacing:-.035em;line-height:1.04;max-width:760px;}
         .kbdr2-canonical-next p{margin:12px 0 0;max-width:720px;color:#625d52;font-size:14px;line-height:1.65;font-weight:500;}
         .kbdr2-canonical-action-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px;}
-        .kbdr2-canonical-action-primary,.kbdr2-canonical-action-secondary{min-height:42px;padding:10px 16px;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:850;letter-spacing:.01em;transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease;cursor:pointer;}
+        .kbdr2-canonical-action-primary,.kbdr2-canonical-action-secondary{min-height:42px;padding:10px 16px;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:800;letter-spacing:.01em;transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease;cursor:pointer;}
         .kbdr2-canonical-action-primary{border:1px solid #1F3A2E;background:#1F3A2E;color:#fff;box-shadow:0 8px 18px rgba(31,58,46,.13);}
         .kbdr2-canonical-action-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 21px rgba(31,58,46,.17);}
         .kbdr2-canonical-action-secondary{border:1px solid rgba(31,58,46,.18);background:rgba(255,253,248,.76);color:#1F3A2E;}
         .kbdr2-canonical-action-secondary:hover:not(:disabled){border-color:rgba(31,58,46,.32);background:#fffdf8;}
         .kbdr2-canonical-action-primary:disabled,.kbdr2-canonical-action-secondary:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
-        .kbdr2-canonical-action-error{margin-top:13px;padding:10px 12px;border-radius:10px;border:1px solid rgba(156,71,58,.20);background:#fff5f1;color:#8b3f34;font-size:11.5px;font-weight:650;line-height:1.45;}
+        .kbdr2-canonical-action-error{margin-top:13px;padding:10px 12px;border-radius:10px;border:1px solid rgba(156,71,58,.20);background:#fff5f1;color:#8b3f34;font-size:11.5px;font-weight:600;line-height:1.45;}
         .kbdr2-canonical-action-panel{margin-top:16px;padding:16px;border:1px solid rgba(155,116,50,.20);border-radius:14px;background:rgba(255,253,248,.88);box-shadow:0 8px 20px rgba(42,53,32,.035);}
         .kbdr2-canonical-action-panel>div:first-child>strong{display:block;color:#1c2814;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:17px;line-height:1.2;}
         .kbdr2-canonical-action-panel>div:first-child>p{margin:6px 0 0;color:#6d665a;font-size:12px;line-height:1.55;}
@@ -6918,22 +6918,22 @@ ${summary}`, 'Milestone approved');
         .kbdr2-canonical-agreement{margin-top:18px;padding:22px;border:1px solid rgba(223,213,194,.90);border-radius:18px;background:rgba(255,255,255,.78);box-shadow:0 7px 22px rgba(42,53,32,.035);}
         .kbdr2-canonical-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:16px;}
         .kbdr2-canonical-section-head h3{margin:5px 0 0;color:#1c2814;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:20px;line-height:1.15;letter-spacing:-.025em;}
-        .kbdr2-canonical-text-link{flex:0 0 auto;padding:6px 0;color:#7d5c20;font-size:12px;font-weight:850;background:transparent;border:0;border-bottom:1px solid rgba(157,116,50,.28);}
+        .kbdr2-canonical-text-link{flex:0 0 auto;padding:6px 0;color:#7d5c20;font-size:12px;font-weight:800;background:transparent;border:0;border-bottom:1px solid rgba(157,116,50,.28);}
         .kbdr2-canonical-text-link:hover{color:#1F3A2E;border-color:#1F3A2E;}
         .kbdr2-canonical-agreement-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;border:1px solid #ebe1cf;border-radius:14px;overflow:hidden;background:#ebe1cf;}
         .kbdr2-canonical-agreement-strip>div{min-width:0;padding:13px 15px;background:#fffdf8;}
-        .kbdr2-canonical-agreement-strip span{display:block;margin-bottom:4px;color:#8a8174;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;}
+        .kbdr2-canonical-agreement-strip span{display:block;margin-bottom:4px;color:#8a8174;font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;}
         .kbdr2-canonical-agreement-strip strong{display:block;color:#1F3A2E;font-size:13.5px;font-weight:800;line-height:1.3;overflow-wrap:anywhere;}
         .kbdr2-canonical-agreement-copy{margin:15px 2px 0;color:#5e5a50;font-size:13px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
         .kbdr2-canonical-support-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px;}
         .kbdr2-canonical-support-card{display:flex;flex-direction:column;min-height:154px;padding:18px;border:1px solid rgba(223,213,194,.82);border-radius:16px;background:#fffdf8;}
         .kbdr2-canonical-support-card>strong{margin-top:8px;color:#1F3A2E;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:19px;line-height:1.18;letter-spacing:-.02em;}
         .kbdr2-canonical-support-card>p{margin:8px 0 14px;color:#706a60;font-size:12.5px;line-height:1.55;}
-        .kbdr2-canonical-support-card>button{align-self:flex-start;margin-top:auto;padding:0 0 3px;background:transparent;border:0;border-bottom:1px solid rgba(31,58,46,.22);color:#1F3A2E;font-size:11.5px;font-weight:850;}
+        .kbdr2-canonical-support-card>button{align-self:flex-start;margin-top:auto;padding:0 0 3px;background:transparent;border:0;border-bottom:1px solid rgba(31,58,46,.22);color:#1F3A2E;font-size:11.5px;font-weight:800;}
         .kbdr2-canonical-conversation-gateway{width:100%;margin-top:14px;padding:15px 17px;display:flex;align-items:center;justify-content:space-between;gap:18px;text-align:left;border:1px solid rgba(31,58,46,.12);border-radius:15px;background:#1F3A2E;color:#fff;box-shadow:0 10px 24px rgba(31,58,46,.13);}
         .kbdr2-canonical-conversation-gateway>span:first-child{min-width:0;display:flex;flex-direction:column;gap:4px;}
-        .kbdr2-canonical-conversation-gateway small{font-size:9px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#d9c28f;}
-        .kbdr2-canonical-conversation-gateway strong{max-width:720px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:650;color:#fff;}
+        .kbdr2-canonical-conversation-gateway small{font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#d9c28f;}
+        .kbdr2-canonical-conversation-gateway strong{max-width:720px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:600;color:#fff;}
         .kbdr2-canonical-conversation-arrow{font-family:Georgia,serif;font-size:22px;color:#e7d29f;}
         @media (max-width:980px){
           .kbdr2-canonical-dealroom:not(.kbdr2-work-message-mode) .kbdr2-work-head{padding:14px 15px 12px !important;}
@@ -6981,13 +6981,13 @@ ${summary}`, 'Milestone approved');
         .kbdr2-canonical-activity-row{display:grid;grid-template-columns:9px minmax(0,1fr);gap:9px;align-items:start;padding:2px 0;}
         .kbdr2-canonical-activity-dot{width:7px;height:7px;margin-top:5px;border-radius:999px;background:#9b7432;box-shadow:0 0 0 3px rgba(155,116,50,.10);}
         .kbdr2-canonical-activity-row>span:last-child{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-width:0;color:#4f4b43;font-size:11.5px;line-height:1.35;}
-        .kbdr2-canonical-activity-row b{font-weight:750;color:#243122;text-transform:none;}
-        .kbdr2-canonical-activity-row small{flex:0 0 auto;color:#91897c;font-size:9.5px;font-weight:750;}
+        .kbdr2-canonical-activity-row b{font-weight:700;color:#243122;text-transform:none;}
+        .kbdr2-canonical-activity-row small{flex:0 0 auto;color:#91897c;font-size:9.5px;font-weight:700;}
         .kbdr2-canonical-activity-empty{margin:2px 0 0 !important;font-size:11.5px !important;}
         .kbdr2-canonical-milestone-list{display:flex;flex-direction:column;gap:1px;margin-top:15px;border:1px solid #ebe1cf;border-radius:13px;overflow:hidden;background:#ebe1cf;}
         .kbdr2-canonical-milestone-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 13px;background:#fffdf8;color:#5c574e;font-size:11.5px;}
         .kbdr2-canonical-milestone-row>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-        .kbdr2-canonical-milestone-row strong{flex:0 0 auto;color:#1F3A2E;font-size:10.5px;font-weight:850;}
+        .kbdr2-canonical-milestone-row strong{flex:0 0 auto;color:#1F3A2E;font-size:10.5px;font-weight:800;}
         @media (min-width:861px){
           .kbdr2-root.kbdr2-has-canonical-dealroom .kbdr2-topbar{display:none !important;}
           .kbdr2-content.kbdr2-canonical-open{display:grid !important;grid-template-columns:minmax(0,1fr) !important;gap:0 !important;padding:14px clamp(14px,2vw,28px) 20px !important;min-height:0 !important;}
@@ -6998,7 +6998,7 @@ ${summary}`, 'Milestone approved');
           .kbdr2-canonical-split>.kbdr2-canonical-overview{grid-column:1;grid-row:2;min-width:0;min-height:0;padding:clamp(22px,2.5vw,34px) !important;background:linear-gradient(180deg,#fffdf8 0%,#faf4e8 100%) !important;}
           .kbdr2-canonical-message-rail{grid-column:2;grid-row:2;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;border-left:1px solid #e7dcc9;background:#f7f1e7;}
           .kbdr2-canonical-message-rail .kbdr2-thread-command-header{flex:0 0 auto;padding:13px 15px 11px !important;border-bottom:1px solid #e5dac7 !important;background:#fffdf8 !important;}
-          .kbdr2-canonical-message-rail .kbdr2-thread-command-title{font-family:'Playfair Display','Newsreader',Georgia,serif !important;font-size:17px !important;font-weight:750 !important;color:#1c2814 !important;}
+          .kbdr2-canonical-message-rail .kbdr2-thread-command-title{font-family:'Playfair Display','Newsreader',Georgia,serif !important;font-size:17px !important;font-weight:700 !important;color:#1c2814 !important;}
           .kbdr2-canonical-message-rail .kbdr2-stream{flex:1 1 auto;min-height:0;padding:16px 13px 18px !important;background:linear-gradient(180deg,#f9f5ed 0%,#f4ede1 100%) !important;}
           .kbdr2-canonical-message-rail .kbdr2-day-label{color:#8b8172 !important;}
           .kbdr2-canonical-message-rail .kbdr2-bubble.them{background:#fffdf8 !important;border:1px solid #e5dac7 !important;color:#263126 !important;box-shadow:0 4px 12px rgba(42,53,32,.035) !important;}
@@ -7555,7 +7555,7 @@ ${summary}`, 'Milestone approved');
           padding:8px 0 9px !important;
           min-height:34px !important;
           font-size:11.5px !important;
-          font-weight:850 !important;
+          font-weight:800 !important;
           letter-spacing:0.015em !important;
           color:#6f6a5f !important;
           gap:5px !important;
@@ -9023,7 +9023,7 @@ ${summary}`, 'Milestone approved');
             color:#876a36 !important;
             font-family:'DM Mono',monospace !important;
             font-size:8.5px !important;
-            font-weight:900 !important;
+            font-weight:800 !important;
             letter-spacing:.16em !important;
             text-transform:uppercase !important;
           }
@@ -9050,7 +9050,7 @@ ${summary}`, 'Milestone approved');
             color:#8a8378 !important;
             font-family:'DM Mono',monospace !important;
             font-size:8px !important;
-            font-weight:900 !important;
+            font-weight:800 !important;
             letter-spacing:.14em !important;
             text-transform:uppercase !important;
           }
@@ -9099,7 +9099,7 @@ ${summary}`, 'Milestone approved');
             color:#22301f !important;
             font-size:11.5px !important;
             line-height:1.2 !important;
-            font-weight:850 !important;
+            font-weight:800 !important;
           }
           html body .kbdr2-root.kb-inbox-dark-shell.kb-inbox-render-polish.kb-inbox-final-qa.kbdr2-has-canonical-dealroom .kbdr2-canonical-split .kbdr2-project-switcher-copy small{
             min-width:0 !important;
@@ -9109,7 +9109,7 @@ ${summary}`, 'Milestone approved');
             color:#817a6f !important;
             font-size:9.5px !important;
             line-height:1.2 !important;
-            font-weight:650 !important;
+            font-weight:600 !important;
           }
           html body .kbdr2-root.kb-inbox-dark-shell.kb-inbox-render-polish.kb-inbox-final-qa.kbdr2-has-canonical-dealroom .kbdr2-canonical-split .kbdr2-project-switcher-unread{
             min-width:20px !important;
@@ -9122,13 +9122,13 @@ ${summary}`, 'Milestone approved');
             background:#b08840 !important;
             color:#fff !important;
             font-size:8.5px !important;
-            font-weight:900 !important;
+            font-weight:800 !important;
           }
           html body .kbdr2-root.kb-inbox-dark-shell.kb-inbox-render-polish.kb-inbox-final-qa.kbdr2-has-canonical-dealroom .kbdr2-canonical-split .kbdr2-project-switcher-current{
             color:#446044 !important;
             font-family:'DM Mono',monospace !important;
             font-size:7.5px !important;
-            font-weight:900 !important;
+            font-weight:800 !important;
             letter-spacing:.08em !important;
             text-transform:uppercase !important;
           }
@@ -9288,7 +9288,7 @@ ${summary}`, 'Milestone approved');
             background:#fbf7ef !important;
             color:#4e574b !important;
             font-size:10.5px !important;
-            font-weight:750 !important;
+            font-weight:700 !important;
           }
           html body .kbdr2-root.kb-inbox-dark-shell.kb-inbox-render-polish.kb-inbox-final-qa.kbdr2-has-canonical-dealroom .kbdr2-canonical-split .kbdr2-canonical-file-preview-row > span:last-child{
             min-width:0 !important;
@@ -9467,7 +9467,7 @@ ${summary}`, 'Milestone approved');
             font-family:'DM Sans',sans-serif !important;
             font-size:8px !important;
             line-height:1 !important;
-            font-weight:900 !important;
+            font-weight:800 !important;
           }
           html body .kbdr2-root.kb-inbox-dark-shell.kb-inbox-render-polish.kb-inbox-final-qa.kbdr2-has-canonical-dealroom .kbdr2-message-dock-chevron{
             width:24px !important;
@@ -9698,7 +9698,7 @@ ${summary}`, 'Milestone approved');
             color:#536451 !important;
             box-shadow:none !important;
             font-size:10.5px !important;
-            font-weight:850 !important;
+            font-weight:800 !important;
             letter-spacing:.01em !important;
           }
           html body .kbdr2-root.kb-inbox-dark-shell.kb-inbox-render-polish.kb-inbox-final-qa.kbdr2-has-canonical-dealroom .kbdr2-canonical-message-rail .kbdr2-load-older-btn:hover:not(:disabled){
