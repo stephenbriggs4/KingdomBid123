@@ -36539,7 +36539,7 @@ export default function App() {
         {screen==="admin"     && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Admin Console…</div>}><AdminScreen showToast={showToast} adminUser={currentUser} adminProfile={userProfile} nav={nav} dependencies={getAdminScreenDependencies()}/></React.Suspense>}
         {screen==="profile"   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Profile...</div>}><ProfileScreen role={role} currentUser={currentUser} userProfile={userProfile} setUserProfile={setUserProfile} showToast={showToast} nav={nav} initialTab="overview" charterFirstRun={isCharterVendorFirstRunProfile(userProfile)} dependencies={getProfileScreenDependencies()}/></React.Suspense>}
         {screen==="verify-profile" && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Profile...</div>}><ProfileScreen role={role} currentUser={currentUser} userProfile={userProfile} setUserProfile={setUserProfile} showToast={showToast} nav={nav} initialTab="verify" dependencies={getProfileScreenDependencies()}/></React.Suspense>}
-        {screen==="settings"  && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Settings...</div>}><SettingsScreen currentUser={currentUser} showToast={showToast} nav={nav} onSignOut={handleSignOut} dependencies={getSettingsScreenDependencies()} /></React.Suspense>}
+        {screen==="settings"  && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Settings...</div>}><SettingsScreen currentUser={currentUser} role={role} showToast={showToast} nav={nav} onSignOut={handleSignOut} dependencies={getSettingsScreenDependencies()} /></React.Suspense>}
         {screen==="about"     && <AboutScreen nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole}/>}
         {screen==="ambassador"&& <AmbassadorScreen nav={nav} showToast={showToast}/>}
         {screen==="partner"   && <PartnerScreen nav={nav}/>}
@@ -36894,7 +36894,7 @@ function ProfileStats({currentUser, role, showToast, nav}){
         const [projRes, convRes, hiredRes, reviewRes, profileRes] = await Promise.all([
           supabase.from("projects").select("id", {count:"exact",head:true}).eq("church_id", currentUser.id),
           supabase.from("conversations").select("id", {count:"exact",head:true}).eq("church_id", currentUser.id),
-          supabase.from("bids").select("id", {count:"exact",head:true}).eq("church_id", currentUser.id).eq("status","hired"),
+          supabase.from("projects").select("id", {count:"exact",head:true}).eq("church_id", currentUser.id).not("hired_vendor_id", "is", null),
           supabase.from("reviews").select("id", {count:"exact",head:true}).eq("church_id", currentUser.id),
           selectProfilesSafe("created_at", "id", query => query.eq("id", currentUser.id).maybeSingle()),
         ]);
@@ -37059,8 +37059,8 @@ function ProfileStats({currentUser, role, showToast, nav}){
       <div style={{display:"flex",gap:0,background:"linear-gradient(180deg,#fffdf8 0%,#fffaf1 100%)",border:"1px solid #dfd5c2",borderRadius:22,overflow:"hidden",marginBottom:20,boxShadow:"0 18px 46px rgba(28,40,20,0.06)"}}>
         {(role==="church" ? [
           {label:"Projects posted",   val:stats.projects},
-          {label:"Vendors hired",     val:stats.hired},
-          {label:"Conversations",     val:stats.conversations},
+          {label:"Projects with vendor", val:stats.hired},
+          {label:"Deal rooms",        val:stats.conversations},
           {label:"Reviews left",      val:stats.reviews},
         ] : [
           {label:"Bids submitted",   val:stats.bids},

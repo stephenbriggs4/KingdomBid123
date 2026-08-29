@@ -168,7 +168,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
           // church account that's hundreds of unnecessary rows on every load.
           const [projRes, hiredRes, convRes, reviewRes] = await runSupabaseWithTimeout(Promise.all([
             supabase.from("projects").select("id", {count:"exact",head:true}).eq("church_id", currentUser.id),
-            supabase.from("bids").select("id", {count:"exact",head:true}).eq("church_id", currentUser.id).eq("status","hired"),
+            supabase.from("projects").select("id", {count:"exact",head:true}).eq("church_id", currentUser.id).not("hired_vendor_id", "is", null),
             supabase.from("conversations").select("id", {count:"exact",head:true}).eq("church_id", currentUser.id),
             supabase.from("reviews").select("id", {count:"exact",head:true}).eq("church_id", currentUser.id),
           ]), "Profile page church stats", 3200).catch(err => {
@@ -772,8 +772,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                             ]
                           : [
                               {label:"Projects Posted", val: overviewStats.projects},
-                              {label:"Vendors Hired",   val: overviewStats.hired},
-                              {label:"Messages",        val: overviewStats.messages},
+                              {label:"Projects With Vendor", val: overviewStats.hired},
+                              {label:"Deal Rooms",      val: overviewStats.messages},
                               {label:"Reviews Left",    val: overviewStats.reviews},
                             ]
                         ).map((s,i)=>(

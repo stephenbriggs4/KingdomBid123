@@ -7,9 +7,19 @@ function applySettingsScreenDependencies(values = {}) {
   ({ BRAND, KB_SETTINGS_NOTIFICATION_OPTIONS, KB_SETTINGS_TABS, LegalProtectionPanel, PAYMENT_STATUS_COPY, PLATFORM_RELEASE, buildSettingsAccountInfoRows, getPlatformCapabilityTone, getPlatformStatusSummary, getReturnNavigationTarget, getTrustSignalSummary, goToLandingFAQ, isValidEmail, logError, passwordStrengthError, readReturnContext } = values || {});
 }
 
-function SettingsScreen({currentUser, showToast, nav, onSignOut}){
+function isNotificationPrefsBackendUnavailable(error) {
+  const code = String(error?.code || "").toUpperCase();
+  const message = String(error?.message || "").toLowerCase();
+  return ["42P01", "42501", "PGRST205"].includes(code)
+    || (message.includes("notification_prefs") && (message.includes("schema cache") || message.includes("does not exist")));
+}
+
+function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
   const settingsReturnTarget = getReturnNavigationTarget(readReturnContext(), "projects");
-  const userRole = currentUser ? (currentUser.user_metadata?.role || "church") : "church";
+  // The hydrated profile role is authoritative. Auth user_metadata can lag a
+  // role correction and previously showed church-only notification options in
+  // a vendor workspace.
+  const userRole = role || currentUser?.user_metadata?.role || "church";
   const readSettingsTab = () => {
     if (typeof window === "undefined") return "account";
     try {
@@ -62,7 +72,7 @@ function SettingsScreen({currentUser, showToast, nav, onSignOut}){
         if (cancelled) return;
         setNotifPrefsChecked(true);
         if (error) {
-          setNotifPrefsAvailable(false);
+          setNotifPrefsAvailable(!isNotificationPrefsBackendUnavailable(error));
           logError("settings-notification-prefs-load", error, { userId: currentUser.id, optionalBackend: true });
           return;
         }
@@ -78,7 +88,7 @@ function SettingsScreen({currentUser, showToast, nav, onSignOut}){
       .catch(err => {
         if (!cancelled) {
           setNotifPrefsChecked(true);
-          setNotifPrefsAvailable(false);
+          setNotifPrefsAvailable(!isNotificationPrefsBackendUnavailable(err));
           logError("settings-notification-prefs-load", err, { userId: currentUser.id, optionalBackend: true });
         }
       });
@@ -104,9 +114,15 @@ function SettingsScreen({currentUser, showToast, nav, onSignOut}){
       setNotifPrefsAvailable(true);
       showToast("✓ Notification preferences saved");
     } catch (err) {
-      setNotifPrefsAvailable(false);
+      const backendUnavailable = isNotificationPrefsBackendUnavailable(err);
+      setNotifPrefsAvailable(!backendUnavailable);
       logError("settings-notification-prefs-save", err, { userId: currentUser.id, optionalBackend: true });
-      showToast("Notification preferences are not configured yet.", "error");
+      showToast(
+        backendUnavailable
+          ? "Notification preferences are not configured yet."
+          : "Couldn't save notification preferences — please try again.",
+        "error"
+      );
     } finally {
       setNotifSaving(false);
     }
