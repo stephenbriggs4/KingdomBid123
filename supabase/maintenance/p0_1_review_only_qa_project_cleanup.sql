@@ -64,7 +64,6 @@ declare
   conversation_count integer;
   message_count integer;
   confirmation_count integer;
-  match_event_count integer;
 begin
   select count(*) into bid_count
   from public.bids
@@ -85,20 +84,19 @@ begin
   from public.hire_confirmations
   where project_id::text in (select id::text from kb_qa_project_cleanup_targets);
 
-  select count(*) into match_event_count
-  from public.match_events
-  where project_id::text in (select id::text from kb_qa_project_cleanup_targets);
-
   if bid_count <> 11
      or conversation_count <> 12
      or message_count <> 31
-     or confirmation_count <> 5
-     or match_event_count <> 32 then
-    raise exception 'P0-1 cleanup aborted: dependency drift (bids %, conversations %, messages %, confirmations %, match events %)',
-      bid_count, conversation_count, message_count, confirmation_count, match_event_count;
+     or confirmation_count <> 5 then
+    raise exception 'P0-1 cleanup aborted: dependency drift (bids %, conversations %, messages %, confirmations %)',
+      bid_count, conversation_count, message_count, confirmation_count;
   end if;
 end
 $$;
+
+-- match_events is disposable view/compare telemetry and legitimately grows
+-- whenever a reviewed QA project is opened. Delete every event attached to
+-- the explicit target UUIDs without using a brittle snapshot count.
 
 -- Hard stop for financial, bench, or file dependencies. Those require a new
 -- cleanup design and must never be silently cascaded.

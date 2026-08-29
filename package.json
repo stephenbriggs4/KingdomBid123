@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:qa": "vite --mode qa",
     "build": "vite build",
     "test:gpi-stage3": "node --test supabase/functions/gpi-occurrence-intent-auth/validation.test.ts",
     "test:gpi-stage4": "node --test supabase/functions/gpi-occurrence-notice-auth/validation.test.ts",

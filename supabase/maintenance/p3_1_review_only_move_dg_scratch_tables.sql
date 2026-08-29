@@ -46,10 +46,10 @@ begin
   select count(*) into dependency_count
   from pg_proc p
   join pg_namespace n on n.oid = p.pronamespace
-  where n.nspname = 'public'
+  where n.nspname not in ('pg_catalog', 'information_schema')
     and (p.prosrc ilike '%_dg_scratch%' or p.prosrc ilike '%_dg_final%');
   if dependency_count <> 0 then
-    raise exception 'P3-1 aborted: public functions now reference scratch tables (%)', dependency_count;
+    raise exception 'P3-1 aborted: database functions now reference scratch tables (%)', dependency_count;
   end if;
 end
 $guard$;
@@ -60,8 +60,8 @@ revoke all on schema scratch from public, anon, authenticated;
 alter table public._dg_scratch set schema scratch;
 alter table public._dg_final set schema scratch;
 
-revoke all on table scratch._dg_scratch from anon, authenticated;
-revoke all on table scratch._dg_final from anon, authenticated;
+revoke all on table scratch._dg_scratch from public, anon, authenticated;
+revoke all on table scratch._dg_final from public, anon, authenticated;
 
 comment on schema scratch is 'Non-application staging and data-reconciliation artifacts; never exposed through browser roles.';
 comment on table scratch._dg_scratch is 'Preserved P3-1 data-reconciliation scratch rows moved out of public.';
@@ -74,6 +74,10 @@ begin
   end if;
   if to_regclass('scratch._dg_scratch') is null or to_regclass('scratch._dg_final') is null then
     raise exception 'P3-1 postcondition failed: preserved scratch tables are missing';
+  end if;
+  if (select count(*) from scratch._dg_scratch) <> 692
+     or (select count(*) from scratch._dg_final) <> 503 then
+    raise exception 'P3-1 postcondition failed: preserved scratch row counts changed';
   end if;
 end
 $postcondition$;

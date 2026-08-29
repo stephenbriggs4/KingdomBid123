@@ -60,10 +60,10 @@ begin
   select count(*) into dependency_count
   from pg_proc p
   join pg_namespace n on n.oid = p.pronamespace
-  where n.nspname = 'public'
+  where n.nspname not in ('pg_catalog', 'information_schema')
     and (p.prosrc ilike '%public."Reviews"%' or p.prosrc ilike '%from "Reviews"%' or p.prosrc ilike '%into "Reviews"%');
   if dependency_count <> 0 then
-    raise exception 'P3-2 aborted: public functions now reference legacy Reviews (%)', dependency_count;
+    raise exception 'P3-2 aborted: database functions now reference legacy Reviews (%)', dependency_count;
   end if;
 
   select count(*) into dependency_count
