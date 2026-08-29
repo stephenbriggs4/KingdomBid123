@@ -11,6 +11,13 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.*
+!.env.example
+
+# Local recovery snapshots; the verified baseline lives in Git.
+src/App.jsx.pre-*
+src/*_before_*.js
 
 # Editor directories and files
 .vscode/*

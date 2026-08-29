@@ -1,0 +1,2 @@
+-- FaithBid local seed placeholder.
+-- Contract tests create and roll back their own isolated fixtures.

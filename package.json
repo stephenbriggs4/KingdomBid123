@@ -6,10 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test:gpi-stage3": "node --test supabase/functions/gpi-occurrence-intent-auth/validation.test.ts",
+    "test:gpi-stage4": "node --test supabase/functions/gpi-occurrence-notice-auth/validation.test.ts",
+    "test:gpi-db": "supabase test db supabase/tests/gpi_stage2_stage3_contract_test.sql",
+    "test:gpi-stage4-db": "supabase test db supabase/tests/gpi_stage4_change_notices_contract_test.sql",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@sentry/react": "^10.51.0",
     "@supabase/supabase-js": "^2.100.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
@@ -23,6 +28,8 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
-    "vite": "^8.0.1"
+    "supabase": "2.115.0",
+    "tailwindcss": "^4.2.2",
+    "vite": "8.2.2"
   }
 }
