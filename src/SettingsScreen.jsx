@@ -290,7 +290,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                   {fieldErrors.email && <div id="email-input-error" role="alert" style={{fontSize:12,color:"#a23b3b",marginTop:7,fontWeight:650}}>{fieldErrors.email}</div>}
                 </div>
                 <div style={sx.helperText}>Changing your email will require confirmation from the new address.</div>
-                <button type="button" style={{...sx.btnPrimary,opacity:(saving||email===currentUser?.email)?0.5:1,cursor:(saving||email===currentUser?.email)?"not-allowed":"pointer"}} onClick={updateEmail} disabled={saving||email===currentUser?.email}>{saving ? "Updating…" : "Update email"}</button>
+                <button type="button" className="kb-settings-primary" style={{...sx.btnPrimary,opacity:(saving||email===currentUser?.email)?0.5:1,cursor:(saving||email===currentUser?.email)?"not-allowed":"pointer"}} onClick={updateEmail} disabled={saving||email===currentUser?.email}>{saving ? "Updating…" : "Update email"}</button>
               </div>
             </div>
 
@@ -333,7 +333,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                   <div style={{fontSize:12,color:"#a23b3b",marginBottom:14,fontWeight:600}}>Passwords don't match</div>
                 )}
                 {fieldErrors.password && <div role="alert" style={{fontSize:12,color:"#a23b3b",marginBottom:14,fontWeight:650}}>{fieldErrors.password}</div>}
-                <button type="button" style={{...sx.btnPrimary,opacity:(saving||!currentPassword||!newPassword||!confirmPassword)?0.5:1,cursor:(saving||!currentPassword||!newPassword||!confirmPassword)?"not-allowed":"pointer"}} onClick={updatePassword} disabled={saving||!currentPassword||!newPassword||!confirmPassword}>{saving ? "Updating…" : "Update password"}</button>
+                <button type="button" className="kb-settings-primary" style={{...sx.btnPrimary,opacity:(saving||!currentPassword||!newPassword||!confirmPassword)?0.5:1,cursor:(saving||!currentPassword||!newPassword||!confirmPassword)?"not-allowed":"pointer"}} onClick={updatePassword} disabled={saving||!currentPassword||!newPassword||!confirmPassword}>{saving ? "Updating…" : "Update password"}</button>
               </div>
             </div>
 
@@ -394,7 +394,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                 <strong style={{color:"#1C2814",fontWeight:700}}>In-app notifications are live.</strong> Email alerts will be added before launch.
               </div>
               <div style={{marginTop:18}}>
-                <button type="button" style={{...sx.btnPrimary,opacity:(notifSaving||!notifPrefsAvailable)?0.6:1,cursor:notifSaving?"wait":(!notifPrefsAvailable?"not-allowed":"pointer")}} onClick={saveNotifs} disabled={notifSaving||!notifPrefsAvailable}>
+                <button type="button" className="kb-settings-primary" style={{...sx.btnPrimary,opacity:(notifSaving||!notifPrefsAvailable)?0.6:1,cursor:notifSaving?"wait":(!notifPrefsAvailable?"not-allowed":"pointer")}} onClick={saveNotifs} disabled={notifSaving||!notifPrefsAvailable}>
                   {notifSaving ? "Saving…" : notifPrefsAvailable ? "Save preferences" : "Preferences unavailable"}
                 </button>
               </div>
@@ -437,7 +437,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                   <>
                     <div style={{fontSize:13.5,color:"#5a5246",lineHeight:1.7,marginBottom:18}}>Churches trust profiles that show real proof: a complete profile, clear review history, and a visible verification path. Faith Verified reflects additional FaithBid review of your faith statement and ministry reference information.</div>
                     <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                      <button type="button" style={sx.btnPrimary} onClick={()=>nav("verify-profile")}>Open verification</button>
+                      <button type="button" className="kb-settings-primary" style={sx.btnPrimary} onClick={()=>nav("verify-profile")}>Open verification</button>
                       <button type="button" style={sx.btnSecondary} onClick={()=>nav("reviews")}>Review reputation</button>
                     </div>
                   </>
@@ -445,7 +445,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                   <>
                     <div style={{fontSize:13.5,color:"#5a5246",lineHeight:1.7,marginBottom:18}}>When you hire through FaithBid, trust should be visible. Review badges, read project-specific feedback, and keep milestone approvals and disputes documented in-platform so every decision is grounded in a real record.</div>
                     <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                      <button type="button" style={sx.btnPrimary} onClick={()=>nav("reviews")}>Review proof</button>
+                      <button type="button" className="kb-settings-primary" style={sx.btnPrimary} onClick={()=>nav("reviews")}>Review proof</button>
                       <button type="button" style={sx.btnSecondary} onClick={()=>nav("vendors")}>Browse verified vendors</button>
                     </div>
                   </>
@@ -462,7 +462,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
               <div style={sx.panelBody}>
                 <div style={{fontSize:13.5,color:"#5a5246",lineHeight:1.7,marginBottom:18}}>If work goes off track, FaithBid keeps the conversation record, deliverables, approvals, and dispute history together. That makes mediation cleaner and protects both sides from "he said / she said" chaos.</div>
                 <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                  <button type="button" style={sx.btnPrimary} onClick={()=>setTab("legal")}>Open legal protections</button>
+                  <button type="button" className="kb-settings-primary" style={sx.btnPrimary} onClick={()=>setTab("legal")}>Open legal protections</button>
                   <button type="button" style={sx.btnSecondary} onClick={()=>goToLandingFAQ(nav)}>Read trust FAQ</button>
                 </div>
               </div>

@@ -1,0 +1,251 @@
+:root {
+  --kb-control-min-height: 44px;
+  --kb-control-font-size: 13px;
+  --kb-control-primary-font-size: 14px;
+  --kb-control-radius: 12px;
+  --kb-control-pill-radius: 999px;
+  --kb-weight-regular: 400;
+  --kb-weight-medium: 500;
+  --kb-weight-semibold: 600;
+  --kb-weight-bold: 700;
+  --kb-weight-heavy: 800;
+  --kb-control-forest: #1c2814;
+  --kb-control-forest-hover: #293923;
+  --kb-control-paper: #fffdf8;
+  --kb-control-linen: #f5efe4;
+  --kb-control-border: #d9cfbd;
+  --kb-control-gold-text-paper: #8a6a2e;
+  --kb-control-gold-text-linen: #75561f;
+  --kb-control-muted: #6f6a60;
+}
+
+/*
+ * Controls v1 is intentionally route-scoped. Each route below has been moved
+ * onto the same target and type contract without applying a blanket selector
+ * to public landing/editorial content.
+ */
+html body #root :is(
+  .kb-settings-screen,
+  .kb-profile-screen-root,
+  .kb-reviews-screen-root,
+  .kbdr2-root,
+  .kb-live-marketplace-page,
+  .myproj-command-shell,
+  .kb-vendor-work-shell,
+  .gpi-discovery,
+  .gpi-host-portal,
+  .gpi-seeker-shell,
+  .kbge-root,
+  .faithbid-admin-v853bl
+) :where(
+  button,
+  [role="button"],
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  select,
+  textarea
+):not(#kb-control-token-anchor) {
+  min-height: var(--kb-control-min-height) !important;
+  min-width: var(--kb-control-min-height) !important;
+  font-size: var(--kb-control-font-size) !important;
+  font-weight: var(--kb-weight-semibold) !important;
+}
+
+html body #root :is(
+  .kb-settings-screen,
+  .kb-profile-screen-root,
+  .kb-reviews-screen-root,
+  .kbdr2-root,
+  .kb-live-marketplace-page,
+  .myproj-command-shell,
+  .kb-vendor-work-shell,
+  .gpi-discovery,
+  .gpi-host-portal,
+  .gpi-seeker-shell,
+  .kbge-root,
+  .faithbid-admin-v853bl
+) :where(
+  .btn-primary,
+  .primary,
+  [class*="-primary"],
+  [class*="-cta"]
+):not(#kb-control-token-primary-anchor) {
+  min-height: var(--kb-control-min-height) !important;
+  font-size: var(--kb-control-primary-font-size) !important;
+  font-weight: var(--kb-weight-bold) !important;
+}
+
+/* Settings */
+.kb-settings-screen :where(button) {
+  border-radius: var(--kb-control-pill-radius) !important;
+}
+.kb-settings-screen .kb-settings-primary:not(:disabled) {
+  color: var(--kb-control-paper) !important;
+  background: var(--kb-control-forest) !important;
+  border-color: var(--kb-control-forest) !important;
+}
+.kb-settings-screen .kb-settings-primary:not(:disabled):hover {
+  background: var(--kb-control-forest-hover) !important;
+}
+
+/* Profile and reviews */
+:is(.kb-profile-screen-root, .kb-reviews-screen-root) :where(button) {
+  border-radius: var(--kb-control-pill-radius) !important;
+}
+:is(.kb-profile-screen-root, .kb-reviews-screen-root) :where(.filter-pill, [role="tab"]) {
+  min-height: var(--kb-control-min-height) !important;
+  padding-inline: 16px !important;
+  font-size: var(--kb-control-font-size) !important;
+  font-weight: var(--kb-weight-semibold) !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* Marketplace, My Projects, and My Work */
+html body #root .kb-live-all-grid,
+html body #root .kbm-grid.kb-audit-project-grid {
+  grid-template-columns: repeat(auto-fill, 320px) !important;
+  justify-content: start !important;
+  align-items: start !important;
+  gap: 18px !important;
+}
+.kb-live-featured-row > .faithbid-card-11a-rail-item {
+  flex: 0 0 320px !important;
+  width: 320px !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+.faithbid-card-11a { box-sizing: border-box; }
+
+:is(.kb-live-marketplace-page, .myproj-command-shell, .kb-vendor-work-shell)
+  :where(button, [role="button"], select, input) {
+  border-radius: var(--kb-control-radius) !important;
+}
+:is(.kb-live-marketplace-page, .myproj-command-shell, .kb-vendor-work-shell)
+  :where(.kb-live-primary-action, .kbm-primary, .kb-lite-action.is-primary, .kb-project-primary-action) {
+  color: var(--kb-control-paper) !important;
+  background: var(--kb-control-forest) !important;
+  border-color: var(--kb-control-forest) !important;
+  font-size: var(--kb-control-primary-font-size) !important;
+  font-weight: var(--kb-weight-bold) !important;
+}
+
+/* Deal Rooms */
+.kbdr2-root :where(button, [role="button"], input, select, textarea) {
+  border-radius: var(--kb-control-radius) !important;
+}
+.kbdr2-root :where(.kbdr2-send, .kbdr2-primary-btn, .kbdr2-deal-primary) {
+  color: var(--kb-control-paper) !important;
+  background: var(--kb-control-forest) !important;
+  font-size: var(--kb-control-primary-font-size) !important;
+  font-weight: var(--kb-weight-bold) !important;
+}
+
+/* Get Plugged In */
+:is(.gpi-discovery, .gpi-host-portal, .gpi-seeker-shell)
+  :where(button, [role="button"], input, select, textarea) {
+  border-radius: var(--kb-control-radius) !important;
+}
+.gpi-discovery :where(.gpi-discovery-cta, .gpi-discovery-host-entry) {
+  color: var(--kb-control-paper) !important;
+  background: var(--kb-control-forest) !important;
+  border-color: var(--kb-control-forest) !important;
+  font-size: var(--kb-control-primary-font-size) !important;
+  font-weight: var(--kb-weight-bold) !important;
+}
+.gpi-discovery-host-entry-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+.gpi-discovery-host-caption {
+  color: var(--kb-control-gold-text-paper);
+  font-size: 12px;
+  font-weight: var(--kb-weight-semibold);
+  line-height: 1.2;
+}
+.gpi-discovery .gpi-discovery-host-entry {
+  gap: 9px !important;
+  min-height: var(--kb-control-min-height) !important;
+  padding: 0 14px !important;
+}
+.gpi-discovery .gpi-discovery-host-entry strong {
+  font-size: var(--kb-control-primary-font-size) !important;
+  font-weight: var(--kb-weight-bold) !important;
+}
+html body #root .gpi-discovery button:not(#kb-gpi-control-anchor) {
+  font-size: var(--kb-control-primary-font-size) !important;
+  font-weight: var(--kb-weight-bold) !important;
+}
+.gpi-discovery .gpi-discovery-host-plus {
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  font-size: 17px !important;
+}
+.gpi-discovery :where(.gpi-discovery-card, .gpi-discovery-search-result-item) {
+  font-weight: var(--kb-weight-semibold) !important;
+}
+
+/* Growth and admin workspaces */
+:is(.kbge-root, .faithbid-admin-v853bl) :where(button, input, select, textarea) {
+  border-radius: var(--kb-control-radius) !important;
+}
+:is(.kbge-root, .faithbid-admin-v853bl) :where(.primaryBtn, .btn-primary, .admin-command-primary) {
+  color: var(--kb-control-paper) !important;
+  background: var(--kb-control-forest) !important;
+  border-color: var(--kb-control-forest) !important;
+  font-size: var(--kb-control-primary-font-size) !important;
+  font-weight: var(--kb-weight-bold) !important;
+}
+
+/* One status-chip contract used by migrated routes. */
+:where(
+  .kb-status-chip,
+  .status-badge,
+  .status-pill,
+  .gpi-pill,
+  .gpi-host-status,
+  .gpi-seeker-status,
+  .kbdr2-canonical-status,
+  .kbdr2-hub-status,
+  .kbdr2-deal-badge,
+  .kbdr2-section-chip
+) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 28px !important;
+  padding: 4px 10px !important;
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent) !important;
+  border-radius: var(--kb-control-pill-radius) !important;
+  font-size: var(--kb-control-font-size) !important;
+  font-weight: var(--kb-weight-semibold) !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+
+.kb-status-chip::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+  opacity: 0.75;
+}
+
+.kb-status-chip.is-good { color: #2f6640; background: #edf6ef; }
+.kb-status-chip.is-warn { color: #7b5b22; background: #fbf2df; }
+.kb-status-chip.is-bad { color: #9a3e2f; background: #fbe9e5; }
+.kb-status-chip.is-neutral { color: #586257; background: #eff2ed; }
+
+@media (max-width: 680px) {
+  html body #root .kb-live-all-grid,
+  html body #root .kbm-grid.kb-audit-project-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}

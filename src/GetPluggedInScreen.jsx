@@ -589,11 +589,14 @@ function GpiDiscoveryStage({
             <button type="button" className="gpi-discovery-seeker-entry" onClick={onMyRequests}>
               <strong>My requests</strong><em aria-hidden="true">→</em>
             </button>
-            <button type="button" className="gpi-discovery-host-entry" onClick={onPostOpportunity}>
-              <span className="gpi-discovery-host-plus" aria-hidden="true">＋</span>
-              <span className="gpi-discovery-host-copy"><small>For churches &amp; ministries</small><strong>Post an opportunity</strong></span>
-              <em aria-hidden="true">→</em>
-            </button>
+            <div className="gpi-discovery-host-entry-wrap">
+              <small className="gpi-discovery-host-caption">For churches &amp; ministries</small>
+              <button type="button" className="gpi-discovery-host-entry" onClick={onPostOpportunity}>
+                <span className="gpi-discovery-host-plus" aria-hidden="true">＋</span>
+                <strong>Post an opportunity</strong>
+                <em aria-hidden="true">→</em>
+              </button>
+            </div>
             {selectionCount > 0 ? (
               <div className="gpi-discovery-selection-count" aria-live="polite" aria-atomic="true">
                 {selectionCount} selected
