@@ -4797,48 +4797,60 @@ function isSchemaMismatchError(error) {
 }
 
 let kbCachedAuthUser = null;
-let kbCachedAuthUserAt = 0;
 let kbCurrentUserPromise = null;
+let kbAuthStateEpoch = 0;
 function rememberCurrentUserSafe(user = null) {
   kbCachedAuthUser = user || null;
-  kbCachedAuthUserAt = Date.now();
+  kbAuthStateEpoch += 1;
   return kbCachedAuthUser;
 }
 function clearCurrentUserSafe() {
   kbCachedAuthUser = null;
-  kbCachedAuthUserAt = 0;
-  kbCurrentUserPromise = null;
+  kbAuthStateEpoch += 1;
 }
-async function getCurrentUserSafe({ fresh = false } = {}) {
-  const now = Date.now();
-  if (!fresh && kbCachedAuthUser && (now - kbCachedAuthUserAt) < 15000) return kbCachedAuthUser;
+function getSessionUserReadSafe() {
   if (kbCurrentUserPromise) return kbCurrentUserPromise;
-  kbCurrentUserPromise = (async () => {
-    try {
-      // Hard timeout: supabase.auth.getSession() can hang indefinitely on
-      // mobile Safari when the cross-tab storage lock is contended. Without
-      // this race the auth watchdog at App() awaits forever and the user is
-      // stranded on "Loading workspace…". Fall back to the last-known cached
-      // user (if any) on timeout — that lets the watchdog progress and the
-      // user reach the app shell. onAuthStateChange will reconcile real
-      // auth state once the lock clears.
-      const sessionPromise = supabase.auth.getSession();
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => {
-          const err = new Error("supabase.auth.getSession timed out");
-          err.code = "KB_AUTH_SESSION_TIMEOUT";
-          reject(err);
-        }, 3500);
-      });
-      const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]);
-      return rememberCurrentUserSafe(session?.user || null);
-    } catch {
-      return kbCachedAuthUser || null;
-    } finally {
-      kbCurrentUserPromise = null;
-    }
-  })();
-  return kbCurrentUserPromise;
+
+  const readEpoch = kbAuthStateEpoch;
+  const sessionRead = supabase.auth.getSession().then(({ data, error }) => {
+    if (error) throw error;
+    return { user: data?.session?.user || null, readEpoch };
+  });
+
+  kbCurrentUserPromise = sessionRead;
+  const release = () => {
+    if (kbCurrentUserPromise === sessionRead) kbCurrentUserPromise = null;
+  };
+  sessionRead.then(release, release);
+  return sessionRead;
+}
+async function getCurrentUserSafe({ fresh = false, timeoutMs = 3500 } = {}) {
+  // onAuthStateChange owns this cache. Once it has supplied a user, ordinary
+  // actions should not repeatedly re-enter Supabase's cross-tab storage lock.
+  if (!fresh && kbCachedAuthUser) return kbCachedAuthUser;
+
+  let timeoutId = null;
+  try {
+    const sessionRead = getSessionUserReadSafe();
+    const timeout = new Promise(resolve => {
+      timeoutId = setTimeout(() => resolve({ timedOut: true }), timeoutMs);
+    });
+    const result = await Promise.race([
+      sessionRead.then(value => ({ value }), error => ({ error })),
+      timeout,
+    ]);
+
+    if (result?.timedOut || result?.error) return kbCachedAuthUser || null;
+    const { user, readEpoch } = result.value || {};
+
+    // A SIGNED_IN, TOKEN_REFRESHED, or SIGNED_OUT event that happened while
+    // this read waited on the lock is newer than its answer. Never resurrect
+    // stale user data after that event.
+    if (readEpoch !== kbAuthStateEpoch) return kbCachedAuthUser || null;
+    return user ? rememberCurrentUserSafe(user) : null;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
 }
 
 function isSupabaseAuthLockAbort(err) {
@@ -23611,14 +23623,6 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
       let user = currentUser || null;
       if (!user) user = await getCurrentUserSafe();
       if (!user) {
-        try {
-          const { data: sessionData } = await supabase.auth.getSession();
-          user = sessionData?.session?.user || null;
-        } catch (sessionErr) {
-          logError("project-post-session-fallback", sessionErr);
-        }
-      }
-      if (!user) {
         showToast("You must be signed in to post a project.");
         return;
       }
@@ -34986,25 +34990,6 @@ export default function App() {
     rememberCurrentUserSafe(user);
   }, []);
 
-  const getSessionUserWithRetry = React.useCallback(async (delays = [0, 200, 800]) => {
-    let recovered = null;
-    for (const delay of delays) {
-      if (delay > 0) {
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          recovered = session.user;
-          break;
-        }
-      } catch (err) {
-        if (!isSupabaseAuthLockAbort(err)) logError('session-recovery-read', err, { delay });
-      }
-    }
-    return recovered;
-  }, []);
-
   useEffect(() => {
     screenRef.current = screen;
   }, [screen]);
@@ -35577,34 +35562,9 @@ export default function App() {
           return;
         }
 
-        // Automatic SIGNED_OUT can be spurious during refresh / tab restore.
-        // Try multiple reads before destroying local auth state.
-        try {
-          const recoveredUser = await getSessionUserWithRetry();
-          if (recoveredUser) {
-            markHealthySession(recoveredUser);
-            setCurrentUser(recoveredUser);
-            if (!currentUserRef.current || currentUserRef.current.id !== recoveredUser.id || !userProfileRef.current) {
-              setAuthReady(false);
-              await loadProfile(recoveredUser, eventSeq);
-            } else {
-              setAuthReady(true);
-            }
-            return;
-          }
-        } catch (e) {
-          logError('session-recovery', e);
-        }
-
-        const recentHealthy = (Date.now() - lastHealthySessionAt.current) < 30000;
-        if (recentHealthy && currentUserRef.current?.id && lastHealthyUserId.current === currentUserRef.current.id) {
-          // Ambiguous logout signal shortly after a confirmed healthy session.
-          // Hold local state and let a future auth event or explicit session read decide.
-          setAuthReady(true);
-          return;
-        }
-
-        // Session is genuinely gone.
+        // The custom patient lock no longer steals a live holder, so a
+        // SIGNED_OUT event is authoritative. Do not issue more getSession()
+        // calls from this event and create a second contention queue.
         setAuthReady(false);
         loadingForUserId.current = null;
         clearLastKnownGoodRole(currentUserRef.current?.id || lastHealthyUserId.current);
@@ -35974,6 +35934,10 @@ export default function App() {
 
     const reconcileSession = async (reason = "focus") => {
       if (inFlight || isSigningIn.current) return;
+      // A hydrated shell is already kept current by onAuthStateChange. Focus
+      // and visibility events used to perform two redundant session reads per
+      // tab, which amplified cross-tab lock contention during rapid navigation.
+      if (currentUserRef.current?.id && userProfileRef.current) return;
       inFlight = true;
       // Track whether we actually changed auth state in this pass. If not, we
       // must NOT force authReady=true in finally — doing so can flip the UI
@@ -35992,58 +35956,10 @@ export default function App() {
           return;
         }
 
-        // ── SESSION APPEARED NULL — VERIFY BEFORE WIPING REACT STATE ─────────
-        // supabase.auth.getSession() can transiently return null even with a
-        // valid session in storage: mid-token-refresh, WebSocket reconnect,
-        // mobile Safari rehydration, cross-tab storage lock. Previously we
-        // trusted a single null read and nuked React state on every focus /
-        // visibilitychange — which produced the "looks logged out after
-        // clicking around" symptom. Mirror the SIGNED_OUT recovery pattern:
-        // do a second, independent read. Only wipe if BOTH reads agree
-        // there is no session. If the first read was a transient miss, the
-        // real onAuthStateChange SIGNED_OUT handler will still fire and clean
-        // up correctly when a sign-out genuinely occurs.
-        let confirmedNoSession = false;
-        try {
-          const { data: { session: verify } } = await supabase.auth.getSession();
-          if (!alive) return;
-          if (verify?.user) {
-            // Transient null from the first read. Restore from the second read
-            // and do a bootstrap if React state is behind.
-            rememberCurrentUserSafe(verify.user);
-            if (!currentUser || currentUser.id !== verify.user.id || !userProfile) {
-              touchedAuthState = true;
-              setAuthReady(false);
-              await completeLoginBootstrap(verify.user);
-            }
-            return;
-          }
-          confirmedNoSession = true;
-        } catch (verifyErr) {
-          // Verification read itself failed — network hiccup, etc. Do NOT wipe
-          // state on an ambiguous signal. Let onAuthStateChange be the single
-          // source of truth for actual sign-outs.
-          if (!isSupabaseAuthLockAbort(verifyErr)) logError('auth-resume-verify', verifyErr, { reason });
-          return;
-        }
-
-        if (!confirmedNoSession) return;
-
-        const recentHealthy = (Date.now() - lastHealthySessionAt.current) < 30000;
-        if (recentHealthy && currentUserRef.current?.id && lastHealthyUserId.current === currentUserRef.current.id) {
-          return;
-        }
-
-        // Both reads agree and the last known-good session is not recent: safe to wipe.
-        clearCurrentUserSafe();
-        if (currentUser) {
-          touchedAuthState = true;
-          setCurrentUser(null);
-          setUserProfile(null);
-          setRole("church");
-          const currentProtectedScreen = screenRef.current === "messages" ? "inbox" : screenRef.current;
-          if (PROTECTED.includes(currentProtectedScreen)) setScreen("landing");
-        }
+        // A null/timeout focus read is ambiguous. Only SIGNED_OUT clears a
+        // hydrated shell; this path exists solely to recover a missed startup
+        // bootstrap when React has no authenticated state yet.
+        return;
       } catch (err) {
         if (!isSupabaseAuthLockAbort(err)) logError('auth-resume-check', err, { reason });
       } finally {
@@ -36066,7 +35982,7 @@ export default function App() {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [completeLoginBootstrap, currentUser?.id, userProfile?.id, getSessionUserWithRetry, markHealthySession]);
+  }, [completeLoginBootstrap, currentUser?.id, userProfile?.id, markHealthySession]);
 
   useEffect(() => {
     if (screen !== "auth" || authReady) return;

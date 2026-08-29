@@ -831,14 +831,6 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
       let user = currentUser || null;
       if (!user) user = await getCurrentUserSafe();
       if (!user) {
-        try {
-          const { data: sessionData } = await supabase.auth.getSession();
-          user = sessionData?.session?.user || null;
-        } catch (sessionErr) {
-          logError("project-post-session-fallback", sessionErr);
-        }
-      }
-      if (!user) {
         showToast("You must be signed in to post a project.");
         return;
       }
