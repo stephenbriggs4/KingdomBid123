@@ -115,6 +115,23 @@ html body #root .kbm-grid.kb-audit-project-grid {
 }
 .faithbid-card-11a { box-sizing: border-box; }
 
+html body #root .kb-marketplace-saved-route-link:not(#kb-saved-route-anchor) {
+  min-height: var(--kb-control-min-height) !important;
+  padding-inline: 10px !important;
+  color: var(--kb-control-forest) !important;
+  font-size: var(--kb-control-font-size) !important;
+  font-weight: var(--kb-weight-bold) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+html body #root :is(.myproj-command-shell, .kb-vendor-work-shell) .kb-lite-page-kicker:not(#kb-page-kicker-anchor) {
+  color: var(--kb-control-forest) !important;
+  font-size: 12px !important;
+  font-weight: var(--kb-weight-bold) !important;
+  letter-spacing: 0.06em !important;
+  text-transform: none !important;
+}
+
 :is(.kb-live-marketplace-page, .myproj-command-shell, .kb-vendor-work-shell)
   :where(button, [role="button"], select, input) {
   border-radius: var(--kb-control-radius) !important;

@@ -3001,6 +3001,39 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
   const detailOrganizationDescription = gpiUsableOrganizationDescription(detailItem?.organization_description);
   const detailNextOccurrence = detailOccurrences[0] || null;
   const detailHasUpcomingSeries = detailOccurrences.length >= 2;
+  const detailDescriptionText = firstNonEmpty(detailItem?.description_text, detailItem?.description, "");
+  const detailFirstVisitText = firstNonEmpty(detailItem?.first_visit_label, detailItem?.first_visit, "");
+  const detailHeroSummary = detailFirstVisitText && detailFirstVisitText.trim().toLowerCase() !== detailDescriptionText.trim().toLowerCase()
+    ? detailFirstVisitText
+    : "";
+  const detailGoodToKnowText = firstNonEmpty(
+    (detailItem?.readiness_labels || []).join(" · "),
+    detailItem?.readiness_fallback_note,
+    ""
+  );
+  const detailScheduleText = firstNonEmpty(
+    detailItem?.schedule_label,
+    detailItem?.recurrence_label,
+    [detailItem?.day_label, detailItem?.time_label].filter(Boolean).join(" · "),
+    ""
+  );
+  const detailWhenText = [detailItem?.day_label, detailItem?.time_label].filter(Boolean).join(" · ");
+  const detailDistinctScheduleText = detailScheduleText.trim().toLowerCase() !== detailWhenText.trim().toLowerCase()
+    ? detailScheduleText
+    : "";
+  const detailCommitmentText = firstNonEmpty(
+    detailItem?.commitment_label,
+    detailItem?.commitment_type ? gpiHostTitleCase(detailItem.commitment_type) : "",
+    ""
+  );
+  const detailBasicFacts = [
+    { label: "Host", value: detailItem?.organization_name },
+    { label: "When", value: detailWhenText },
+    { label: "Near", value: detailItem?.distance_label },
+    { label: "Type", value: firstNonEmpty(detailItem?.category_label, detailItem?.kicker, "") },
+    { label: "Schedule", value: detailDistinctScheduleText },
+    { label: "Commitment", value: detailCommitmentText },
+  ].filter((fact) => String(fact.value || "").trim());
   const openGpiHostPortal = useCallback(() => {
     if (!authReady) {
       showToast?.("Checking your FaithBid account…", "info");
@@ -3833,7 +3866,7 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
                 <div>
                   <div className="gpi-public-modal-eyebrow">{gpiHostTitleCase(detailItem.primary_category || detailItem.goal || "Connect")} · {detailRecurringLabel}</div>
                   <h2>{detailItem.title}</h2>
-                  <p>{detailItem.description_text || detailItem.description || detailItem.first_visit_label || "The host will share more about this gathering."}</p>
+                  {detailHeroSummary ? <p>{detailHeroSummary}</p> : null}
                 </div>
                 <div className="gpi-recurring-next">
                   <span>Next gathering</span>
@@ -3847,17 +3880,16 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
                 {detailOccurrencesLoading ? <div className="gpi-recurring-loading">Loading current gathering dates…</div> : detailOccurrencesError ? <div className="gpi-recurring-error"><span>{detailOccurrencesError}</span><button type="button" onClick={() => setDetailOccurrencesReload((value) => value + 1)}>Retry</button></div> : detailOccurrences.length ? <div className="gpi-recurring-date-list">{detailOccurrences.slice(0, detailHasUpcomingSeries ? 4 : 1).map((occurrence, index) => <div key={occurrence.id || occurrence.starts_at}><span>{index === 0 ? "Next" : "Then"}</span><strong>{gpiFormatOccurrence(occurrence)}</strong></div>)}</div> : <div className="gpi-recurring-loading">The host is refreshing the next eligible date.</div>}
               </section>
               <div className="gpi-recurring-body-grid">
-                <section className="gpi-recurring-section"><div className="gpi-recurring-section-head"><span>About this gathering</span><strong>An ongoing opportunity hosted through FaithBid.</strong></div><p>{detailItem.description_text || detailItem.description || detailItem.first_visit_label || "The host will share more details when they follow up."}</p><div className="gpi-recurring-mini-grid"><div><span>Schedule</span><strong>{detailRecurringLabel}</strong></div><div><span>Near</span><strong>{detailItem.distance_label}</strong></div><div><span>Commitment</span><strong>{detailItem.commitment_type ? gpiHostTitleCase(detailItem.commitment_type) : "Host will confirm"}</strong></div></div></section>
+                <section className="gpi-recurring-section"><div className="gpi-recurring-section-head"><span>About this gathering</span><strong>An ongoing opportunity hosted through FaithBid.</strong></div>{detailDescriptionText ? <p>{detailDescriptionText}</p> : null}<div className="gpi-recurring-mini-grid">{detailRecurringLabel ? <div><span>Schedule</span><strong>{detailRecurringLabel}</strong></div> : null}{detailItem.distance_label ? <div><span>Near</span><strong>{detailItem.distance_label}</strong></div> : null}{detailCommitmentText ? <div><span>Commitment</span><strong>{detailCommitmentText}</strong></div> : null}</div></section>
                 <section className="gpi-recurring-section gpi-recurring-host"><div className="gpi-recurring-section-head"><span>Hosted by</span><strong>{detailItem.organization_name}</strong></div><div className="gpi-recurring-host-badge">FaithBid host</div><p>{detailOrganizationDescription || `This gathering is connected to ${detailItem.organization_name} in ${detailItem.city_label || "the local area"}.`}</p><button type="button" className="gpi-organization-home-link" onClick={() => openOrganizationHome(detailItem)}>View organization <span aria-hidden="true">→</span></button></section>
               </div>
               <div className="gpi-detail-actions"><button type="button" disabled={detailItem.isPreview} onClick={()=>{setInterestItem(detailItem);setDetailItem(null);}}>I'm interested</button><button type="button" onClick={()=>setDetailItem(null)}>Keep exploring</button></div>
             </> : <>
               <div className="gpi-public-modal-eyebrow">{detailItem.kicker}</div>
               <h2>{detailItem.title}</h2>
-              <p>{detailItem.first_visit_label}</p>
-              <div className="gpi-detail-section"><span>What this is</span><p>{detailItem.description_text || detailItem.description || detailItem.footer_note || "The host will share more details when they follow up."}</p></div>
-              <div className="gpi-detail-highlight-row"><div><span>First visit</span><strong>{detailItem.first_visit_label || "Meet the team and see whether this is a fit."}</strong></div><div><span>Good to know</span><strong>{(detailItem.readiness_labels || []).join(" · ") || detailItem.readiness_fallback_note || "Host will confirm fit details."}</strong></div></div>
-              <div className="gpi-public-modal-grid"><div><span>Host</span><strong>{detailItem.organization_name}</strong></div><div><span>When</span><strong>{detailItem.day_label} · {detailItem.time_label}</strong></div><div><span>Near</span><strong>{detailItem.distance_label}</strong></div><div><span>Type</span><strong>{detailItem.category_label || detailItem.kicker || "Opportunity"}</strong></div><div><span>Schedule</span><strong>{detailItem.schedule_label || detailItem.footer_note || "Flexible"}</strong></div><div><span>Commitment</span><strong>{detailItem.footer_note || "Host will confirm details."}</strong></div></div>
+              {detailDescriptionText ? <div className="gpi-detail-section"><span>What this is</span><p>{detailDescriptionText}</p></div> : null}
+              {(detailHeroSummary || detailGoodToKnowText) ? <div className="gpi-detail-highlight-row">{detailHeroSummary ? <div><span>First visit</span><strong>{detailHeroSummary}</strong></div> : null}{detailGoodToKnowText ? <div><span>Good to know</span><strong>{detailGoodToKnowText}</strong></div> : null}</div> : null}
+              {detailBasicFacts.length ? <div className="gpi-public-modal-grid">{detailBasicFacts.map((fact) => <div key={fact.label}><span>{fact.label}</span><strong>{fact.value}</strong></div>)}</div> : null}
               <div className="gpi-detail-actions"><button type="button" disabled={detailItem.isPreview} onClick={()=>{setInterestItem(detailItem);setDetailItem(null);}}>I'm interested</button><button type="button" className="gpi-organization-home-link" onClick={() => openOrganizationHome(detailItem)}>View organization</button><button type="button" onClick={()=>setDetailItem(null)}>Keep exploring</button></div>
             </>}
             {detailItem.isPreview && <small>This is a preview opportunity. Published opportunities will accept interest.</small>}

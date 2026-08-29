@@ -42,6 +42,8 @@ function FaithBidCard11A({
   const safeMatch = matchPercent == null
     ? null
     : (Number.isFinite(Number(matchPercent)) ? Math.max(0, Math.min(100, Math.round(Number(matchPercent)))) : null);
+  const normalizedTopLabel = String(topLabel || "").trim();
+  const isReviewStatus = /^bid under review$/i.test(normalizedTopLabel);
   const topColor = topTone === "green" ? "oklch(0.85 0.13 145)" : "oklch(0.85 0.1 85)";
   const canOpen = typeof onOpen === "function";
   const activate = (event) => {
@@ -86,16 +88,14 @@ function FaithBidCard11A({
       </div>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(20,14,8,.88) 0%, rgba(20,14,8,.02) 50%)", pointerEvents: "none" }} />
 
-      <div style={{ position: "absolute", top: 18, left: 18, right: safeMatch == null ? 58 : 78, font: "700 10px Inter, sans-serif", letterSpacing: ".14em", color: topColor, textTransform: "uppercase", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-        {topLabel}
+      <div className={isReviewStatus ? "kb-card-review-status" : "kb-card-top-label"} style={{ position: "absolute", top: 16, left: 18, right: safeMatch == null ? 58 : 92, minHeight: isReviewStatus ? 28 : undefined, padding: isReviewStatus ? "5px 10px" : 0, borderRadius: isReviewStatus ? 999 : 0, background: isReviewStatus ? "rgba(20,14,8,.78)" : "transparent", border: isReviewStatus ? "1px solid rgba(255,255,255,.22)" : 0, font: isReviewStatus ? "700 13px Inter, sans-serif" : "700 12px Inter, sans-serif", letterSpacing: isReviewStatus ? 0 : ".08em", color: isReviewStatus ? "#fff" : topColor, textTransform: isReviewStatus ? "none" : "uppercase", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", display: "inline-flex", alignItems: "center", width: "fit-content", maxWidth: "calc(100% - 110px)" }}>
+        {normalizedTopLabel}
       </div>
 
       {safeMatch != null ? (
-        <div style={{ position: "absolute", top: 14, right: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-          <div style={{ width: 44, height: 44, borderRadius: "50%", background: `conic-gradient(oklch(0.85 0.13 85) ${safeMatch}%, rgba(255,255,255,.2) 0)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(20,14,8,.85)", display: "flex", alignItems: "center", justifyContent: "center", font: "700 10px Inter, sans-serif", color: "#fff" }}>{safeMatch}%</div>
-          </div>
-          <div style={{ font: "700 8px Inter, sans-serif", letterSpacing: ".08em", color: "rgba(255,255,255,.75)" }}>MATCH</div>
+        <div className="kb-match-chip" aria-label={`${safeMatch}% match`} style={{ position: "absolute", top: 14, right: 14, minHeight: 30, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.25)", background: "rgba(20,14,8,.82)", color: "#fff", font: "700 13px Inter, sans-serif", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+          <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: "oklch(0.85 0.13 85)" }} />
+          {safeMatch}% match
         </div>
       ) : (
         <button
@@ -19788,7 +19788,7 @@ function getBidDeliveryGuidance(project = {}) {
   };
 }
 const PROJECT_TEMPLATES = [
-  {id:"website", icon:"🌐", label:"Website Redesign", category:"Web Design & Development", format:"virtual", title:"Complete Website Redesign for [Church Name]", desc:"We need a full redesign of our church website. Looking for a modern, mobile-friendly site with online giving integration, sermon archive, events calendar, and staff pages.", requirements:"Experience with church websites\nOnline giving integration (Planning Center, Pushpay, or similar)\nMobile-first design\nSEO-optimized", skills:["WordPress","Church CMS","UX Design"], scope:"One-time project", budget:"$2,500-$5,000", timeline:"1-2 months"},
+  {id:"website", icon:"🌐", label:"Website Redesign", category:"Web Design & Development", format:"virtual", title:"Complete Church Website Redesign", desc:"We need a full redesign of our church website. Looking for a modern, mobile-friendly site with online giving integration, sermon archive, events calendar, and staff pages.", requirements:"Experience with church websites\nOnline giving integration (Planning Center, Pushpay, or similar)\nMobile-first design\nSEO-optimized", skills:["WordPress","Church CMS","UX Design"], scope:"One-time project", budget:"$2,500-$5,000", timeline:"1-2 months"},
   {id:"logo", icon:"✏️", label:"Logo & Brand Identity", category:"Graphic Design & Branding", format:"virtual", title:"Logo & Brand Identity Package", desc:"We're looking to refresh our church's visual identity. Need a new logo, color palette, font selection, and basic brand guidelines that reflect our values and community.", requirements:"Faith-aligned design sensibility\nMultiple revision rounds included\nFinal files in all formats (SVG, PNG, PDF)", skills:["Logo Design","Brand Identity","Adobe Illustrator"], scope:"One-time project", budget:"$1,000-$2,500", timeline:"2-4 weeks"},
   {id:"av", icon:"🎙️", label:"AV System Installation", category:"AV & Media Production", format:"in-person", title:"Sanctuary AV System Upgrade", desc:"We need a full audio/visual system upgrade for our main sanctuary — new speakers, mixing board, projectors, and control room setup for our Sunday services and events.", requirements:"Licensed and insured\nExperience with church AV specifically\nPost-installation training for our volunteers\nWarranty on parts and labor", skills:["AV Installation","Sound Engineering","Lighting"], scope:"One-time project", budget:"$10,000-$25,000", timeline:"1-2 months"},
   {id:"social", icon:"📱", label:"Social Media Templates", category:"Marketing & Consulting", format:"virtual", title:"Social Media Content Templates", desc:"We need a set of branded social media templates for our weekly announcements, sermon quotes, event promotions, and holiday posts. Should match our brand colors and feel.", requirements:"Editable Canva or Adobe templates\nAt least 20 template variations\nInstagram, Facebook, and story formats", skills:["Social Media","Graphic Design","Canva"], scope:"One-time project", budget:"$500-$1,000", timeline:"2-4 weeks"},
@@ -28265,7 +28265,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
                 <div style={{width:14,height:14,borderRadius:4,background:accentBg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                   <div style={{width:5,height:5,borderRadius:'50%',background:accentColor}}/>
                 </div>
-                <div style={{fontSize:9.5,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#6a6f7a',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.label}</div>
+                <div className="kb-snapshot-label" style={{fontSize:12,fontWeight:700,letterSpacing:0,textTransform:'none',color:'#1C2814',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.label}</div>
               </div>
               <div style={{fontFamily:"'Newsreader','Playfair Display',serif",fontSize:17,fontWeight:600,letterSpacing:'-0.025em',color:'#1C2814',lineHeight:1,marginLeft:'auto',flexShrink:0,whiteSpace:'nowrap'}}>{item.value}</div>
             </div>
@@ -28321,13 +28321,12 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
           }
         });
 
-        // Severity classification by tone — drives the dot color
+        // Keep severity semantic for ordering, but render one calm chip style.
         const severityFor = (item) => {
           const tone = String(item.tone || '').toLowerCase();
-          // High = red/urgent. Mid = amber/gold. Low = neutral
-          if (tone.includes('b84') || tone.includes('red') || tone.includes('urgent') || /^#[a-f0-9]*[bcd][0-9a-f]/.test(tone)) return { dot:'#b84c30', glow:'rgba(184,76,48,0.18)', tier:'High' };
-          if (tone.includes('a67') || tone.includes('a87') || tone.includes('8a6') || tone.includes('amber') || tone.includes('gold')) return { dot:'#b08840', glow:'rgba(176,136,64,0.18)', tier:'Action' };
-          return { dot:'#3a5a3e', glow:'rgba(58,90,62,0.16)', tier:'Update' };
+          if (tone.includes('b84') || tone.includes('red') || tone.includes('urgent') || /^#[a-f0-9]*[bcd][0-9a-f]/.test(tone)) return { tier:'Urgent' };
+          if (tone.includes('a67') || tone.includes('a87') || tone.includes('8a6') || tone.includes('amber') || tone.includes('gold')) return { tier:'Action' };
+          return { tier:'Update' };
         };
 
         return (
@@ -28335,17 +28334,12 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
             {/* Single panel — looks like a list, not a grid of cards */}
             <div style={{background:'#fff',border:'1px solid #e8dfcb',borderRadius:14,boxShadow:'0 1px 2px rgba(28,40,20,0.03)',overflow:'hidden'}}>
               {/* Panel header */}
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'7px 14px',borderBottom:'1px solid #f4ecdc',background:'#fdfbf6'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'12px 16px',borderBottom:'1px solid #f4ecdc',background:'#fdfbf6'}}>
                 <div style={{display:'inline-flex',alignItems:'center',gap:10}}>
-                  <div style={{position:'relative',width:8,height:8}}>
-                    <div style={{position:'absolute',inset:0,borderRadius:'50%',background:'#b84c30'}}/>
-                    <div style={{position:'absolute',inset:-4,borderRadius:'50%',background:'rgba(184,76,48,0.18)',animation:'kbAttentionPulse 2.4s ease-in-out infinite'}}/>
-                  </div>
-                  <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#1C2814'}}>Needs attention</div>
-                  <div style={{padding:'2px 8px',borderRadius:999,background:'rgba(184,76,48,0.10)',border:'1px solid rgba(184,76,48,0.22)',fontSize:10,fontWeight:800,color:'#b84c30',letterSpacing:'0.05em'}}>{deduped.length}</div>
+                  <div style={{fontSize:14,fontWeight:700,color:'#1C2814'}}>Needs attention</div>
+                  <div style={{padding:'3px 9px',borderRadius:999,background:'#eff2ed',border:'1px solid #d9dfd5',fontSize:12,fontWeight:700,color:'#586257'}}>{deduped.length}</div>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
-                  <div style={{fontSize:11.5,color:'#858792'}}>{attentionCollapsed ? `${deduped.length} item${deduped.length === 1 ? '' : 's'} hidden` : 'Sorted by urgency · Click any row to act'}</div>
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); setAttentionCollapsed(v => !v); }}
@@ -28380,26 +28374,22 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
                         background:'transparent',
                         border:'none',
                         borderBottom: isLast ? 'none' : '1px solid #f4ecdc',
-                        padding:'7px 14px',
+                        padding:'12px 16px',
                         cursor:'pointer',
                         display:'grid',
-                        gridTemplateColumns: isMobile ? 'auto 1fr' : 'auto 1fr auto auto',
+                        gridTemplateColumns: isMobile ? '1fr' : 'auto 1fr auto',
                         gap: isMobile ? 10 : 14,
                         alignItems:'center',
                         transition:'background-color .15s ease',
                       }}
                     >
-                      {/* Severity dot */}
-                      <div style={{position:'relative',width:8,height:8,flexShrink:0}}>
-                        <div style={{position:'absolute',inset:0,borderRadius:'50%',background:sev.dot}}/>
-                        <div style={{position:'absolute',inset:-3,borderRadius:'50%',background:sev.glow}}/>
-                      </div>
+                      <span className="kb-status-chip is-neutral" style={{justifySelf:'start'}}>{sev.tier}</span>
 
                       {/* Signal text + meta — main content */}
                       <div style={{minWidth:0,display:'flex',flexDirection: isMobile ? 'column' : 'row',alignItems: isMobile ? 'stretch' : 'baseline',gap: isMobile ? 3 : 10,flexWrap:'wrap'}}>
                         <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
                           <div style={{fontSize:14,fontWeight:700,color:'#1C2814',lineHeight:1.35,letterSpacing:'-0.003em'}}>
-                            {item.label}
+                            {quickAction?.label || 'Review'}: {item.label}
                           </div>
                           {item.duplicates > 1 && (
                             <div style={{padding:'1px 7px',borderRadius:999,background:'rgba(176,136,64,0.10)',border:'1px solid rgba(176,136,64,0.22)',fontSize:10,fontWeight:700,color:'#8a6a2e',letterSpacing:'0.04em',whiteSpace:'nowrap'}}>×{item.duplicates}</div>
@@ -28420,15 +28410,8 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
                         </div>
                       </div>
 
-                      {/* Severity tier label — desktop only */}
-                      {!isMobile && (
-                        <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.10em',textTransform:'uppercase',color:sev.dot,whiteSpace:'nowrap'}}>
-                          {sev.tier}
-                        </div>
-                      )}
-
                       {/* Action button */}
-                      <div style={{display:'inline-flex',alignItems:'center',gap:5,padding:'7px 13px',borderRadius:999,background:'#1C2814',color:'#fff',fontSize:11,fontWeight:700,whiteSpace:'nowrap',flexShrink:0,letterSpacing:'0.02em',gridColumn: isMobile ? '1 / -1' : 'auto',justifySelf: isMobile ? 'flex-start' : 'auto',marginTop: isMobile ? 4 : 0}}>
+                      <div style={{display:'inline-flex',alignItems:'center',gap:5,minHeight:36,padding:'8px 14px',borderRadius:999,background:'#1C2814',color:'#fff',fontSize:13,fontWeight:700,whiteSpace:'nowrap',flexShrink:0,gridColumn: isMobile ? '1 / -1' : 'auto',justifySelf: isMobile ? 'flex-start' : 'auto',marginTop: isMobile ? 4 : 0}}>
                         {quickAction?.label || 'Open'} <span aria-hidden="true">→</span>
                       </div>
                     </button>

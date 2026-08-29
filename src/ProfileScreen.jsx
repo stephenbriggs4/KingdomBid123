@@ -652,14 +652,17 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
               <div className="profile-overview-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:18}}>
                 {/* Profile completeness banner — brand cream + gold */}
                 {(() => {
+                  const firstFilled = (...values) => values.map(value => String(value ?? "").trim()).find(Boolean) || "";
+                  const vendorCity = firstFilled(vendorForm.city, vendorRow?.service_city, vendorRow?.city, userProfile?.city, form.city);
+                  const vendorState = firstFilled(vendorForm.service_state, vendorRow?.service_state, userProfile?.state_code, form.state_code);
                   const checks = vendorRow ? [
-                    {label:"Business name",    done:!!vendorForm.name,                action:()=>setTab("vendor")},
-                    {label:"City & state",     done:!!vendorForm.city,                action:()=>setTab("vendor")},
-                    {label:"Service category", done:!!vendorForm.category,            action:()=>setTab("vendor")},
-                    {label:"Bio written",      done:vendorForm.bio?.length>30,        action:()=>setTab("vendor")},
-                    {label:"Tagline",          done:vendorForm.tagline?.length>5,     action:()=>setTab("vendor")},
-                    {label:"Budget range",     done:!!vendorForm.min_project_budget,  action:()=>setTab("vendor")},
-                    {label:"Faith statement",  done:!!vendorForm.faith_statement,     action:()=>setTab("vendor")},
+                    {label:"Business name",    done:!!firstFilled(vendorForm.name, vendorRow?.name, userProfile?.org_name), action:()=>setTab("vendor")},
+                    {label:"City & state",     done:!!(vendorCity && vendorState), action:()=>setTab("vendor")},
+                    {label:"Service category", done:!!firstFilled(vendorForm.category, vendorRow?.category, userProfile?.category), action:()=>setTab("vendor")},
+                    {label:"Bio written",      done:firstFilled(vendorForm.bio, vendorRow?.bio).length>30, action:()=>setTab("vendor")},
+                    {label:"Tagline",          done:firstFilled(vendorForm.tagline, vendorRow?.tagline).length>5, action:()=>setTab("vendor")},
+                    {label:"Budget range",     done:!!firstFilled(vendorForm.min_project_budget, vendorRow?.min_project_budget), action:()=>setTab("vendor")},
+                    {label:"Faith statement",  done:!!firstFilled(vendorForm.faith_statement, vendorRow?.faith_statement, userProfile?.faith_statement), action:()=>setTab("vendor")},
                     {label:"Faith Verified",   done:isVerified,                       action:()=>setTab("verify")},
                   ] : [
                     {label:"Church name",      done:!!form.org_name,             action:()=>setTab("account")},

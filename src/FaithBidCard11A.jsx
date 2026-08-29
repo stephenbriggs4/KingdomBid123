@@ -64,6 +64,8 @@ export default function FaithBidCard11A({
   const safeMatch = matchPercent == null
     ? null
     : (Number.isFinite(Number(matchPercent)) ? Math.max(0, Math.min(100, Math.round(Number(matchPercent)))) : null);
+  const normalizedTopLabel = String(topLabel || "").trim();
+  const isReviewStatus = /^bid under review$/i.test(normalizedTopLabel);
   const topColor = topTone === "green" ? "oklch(0.85 0.13 145)" : "oklch(0.85 0.1 85)";
   const canOpen = typeof onOpen === "function";
   const activate = (event) => {
@@ -108,16 +110,14 @@ export default function FaithBidCard11A({
       </div>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(20,14,8,.88) 0%, rgba(20,14,8,.02) 50%)", pointerEvents: "none" }} />
 
-      <div style={{ position: "absolute", top: 18, left: 18, right: safeMatch == null ? 58 : 78, font: "700 10px Inter, sans-serif", letterSpacing: ".14em", color: topColor, textTransform: "uppercase", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-        {topLabel}
+      <div className={isReviewStatus ? "kb-card-review-status" : "kb-card-top-label"} style={{ position: "absolute", top: 16, left: 18, right: safeMatch == null ? 58 : 92, minHeight: isReviewStatus ? 28 : undefined, padding: isReviewStatus ? "5px 10px" : 0, borderRadius: isReviewStatus ? 999 : 0, background: isReviewStatus ? "rgba(20,14,8,.78)" : "transparent", border: isReviewStatus ? "1px solid rgba(255,255,255,.22)" : 0, font: isReviewStatus ? "700 13px Inter, sans-serif" : "700 12px Inter, sans-serif", letterSpacing: isReviewStatus ? 0 : ".08em", color: isReviewStatus ? "#fff" : topColor, textTransform: isReviewStatus ? "none" : "uppercase", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", display: "inline-flex", alignItems: "center", width: "fit-content", maxWidth: "calc(100% - 110px)" }}>
+        {normalizedTopLabel}
       </div>
 
       {safeMatch != null ? (
-        <div style={{ position: "absolute", top: 14, right: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-          <div style={{ width: 44, height: 44, borderRadius: "50%", background: `conic-gradient(oklch(0.85 0.13 85) ${safeMatch}%, rgba(255,255,255,.2) 0)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(20,14,8,.85)", display: "flex", alignItems: "center", justifyContent: "center", font: "700 10px Inter, sans-serif", color: "#fff" }}>{safeMatch}%</div>
-          </div>
-          <div style={{ font: "700 8px Inter, sans-serif", letterSpacing: ".08em", color: "rgba(255,255,255,.75)" }}>MATCH</div>
+        <div className="kb-match-chip" aria-label={`${safeMatch}% match`} style={{ position: "absolute", top: 14, right: 14, minHeight: 30, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.25)", background: "rgba(20,14,8,.82)", color: "#fff", font: "700 13px Inter, sans-serif", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+          <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: "oklch(0.85 0.13 85)" }} />
+          {safeMatch}% match
         </div>
       ) : (
         <button
