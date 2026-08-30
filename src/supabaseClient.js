@@ -30,28 +30,6 @@ if (supabaseQaMode && supabaseProjectRef === FAITHBID_PRODUCTION_PROJECT_REF) {
   )
 }
 
-// Supabase Auth's default browser lock steals ownership after its acquire
-// timeout. Under FaithBid's bursty signed-in startup that can abort the request
-// already holding the lock and discard an otherwise-valid login. Wait for the
-// browser lock instead; the auth-state listener returns synchronously, so the
-// lock holder is no longer able to deadlock on a nested Supabase query.
-let fallbackLockQueue = Promise.resolve()
-const patientAuthLock = async (name, _acquireTimeout, fn) => {
-  if (typeof navigator !== 'undefined' && navigator?.locks?.request) {
-    return navigator.locks.request(name, { mode: 'exclusive' }, fn)
-  }
-
-  const previous = fallbackLockQueue.catch(() => undefined)
-  let releaseCurrent
-  fallbackLockQueue = new Promise(resolve => { releaseCurrent = resolve })
-  await previous
-  try {
-    return await fn()
-  } finally {
-    releaseCurrent()
-  }
-}
-
 const existingBrowserClient = typeof window !== 'undefined'
   ? window.__FAITHBID_SUPABASE_CLIENT__
   : null
@@ -61,9 +39,7 @@ const existingBrowserProjectRef = typeof window !== 'undefined'
 
 export const supabase = existingBrowserClient && existingBrowserProjectRef === supabaseProjectRef
   ? existingBrowserClient
-  : createClient(supabaseUrl, supabaseAnonKey, {
-      auth: { lock: patientAuthLock },
-    })
+  : createClient(supabaseUrl, supabaseAnonKey)
 
 // Vite can re-evaluate this module during hot updates while the prior Auth
 // client is still subscribed. Keep one client per browser page so both clients
