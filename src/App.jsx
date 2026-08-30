@@ -31295,10 +31295,6 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     () => selectedVendorProjectMirrorId ? selectedVendorProjectMirror : readSelectedVendorProject(inviteChurchId),
     [inviteChurchId, selectedVendorProjectMirrorId, selectedVendorProjectMirror]
   );
-  const storedVendorProjectSnapshot = useMemo(
-    () => normalizeProjectEntity(storedVendorProjectSelection?.projectSnapshot || null),
-    [storedVendorProjectSelection]
-  );
   const projectSelectionOptions = useMemo(() => {
     const seen = new Set();
     const add = (project, list) => {
@@ -31310,18 +31306,16 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     };
     const list = [];
     safeArray(normalizedContextProjects).forEach(project => add(project, list));
-    if (storedVendorProjectSnapshot) add(storedVendorProjectSnapshot, list);
     return list;
-  }, [normalizedContextProjects, storedVendorProjectSnapshot]);
+  }, [normalizedContextProjects]);
   const matchContextProject = useMemo(() => {
     const storedProjectId = String(firstNonEmpty(storedVendorProjectSelection?.projectId, storedVendorProjectSelection?.id, '')).trim();
     if (storedProjectId) {
       const validatedProject = projectSelectionOptions.find(p => String(p?.id || '').trim() === storedProjectId);
       if (validatedProject) return validatedProject;
-      if (storedVendorProjectSnapshot && String(storedVendorProjectSnapshot?.id || '').trim() === storedProjectId) return storedVendorProjectSnapshot;
     }
     return projectSelectionOptions.find(p => ['open','review','draft'].includes(String(p.status || 'draft'))) || null;
-  }, [projectSelectionOptions, storedVendorProjectSelection, storedVendorProjectSnapshot]);
+  }, [projectSelectionOptions, storedVendorProjectSelection]);
   const inviteProjectId = String(matchContextProject?.id || '').trim();
   const hasProjectContext = !!inviteProjectId;
   const handleProjectContextRecovery = useCallback((event) => {
