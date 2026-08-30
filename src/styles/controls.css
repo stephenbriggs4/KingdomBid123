@@ -20,96 +20,23 @@
 }
 
 /*
- * Controls v2 is the platform-wide interactive contract. Runtime style
- * injection has been retired, so native controls can now share one minimum
- * target/type/weight rule. Checkboxes and radios keep their native dimensions;
- * editorial links and non-interactive status chips are intentionally separate.
+ * Controls v2 is an opt-in contract. Routes migrate onto these tokens in
+ * deliberate layers; compact tabs, icon buttons, table actions, chips, and
+ * editor utilities keep their authored geometry instead of being globally
+ * inflated by an !important minimum-height rule.
  */
-html body #root :where(
-  button,
-  [role="button"],
-  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
-  select,
-  textarea
-):not(#kb-control-token-global-anchor) {
-  min-height: var(--kb-control-min-height) !important;
-  min-width: var(--kb-control-min-height) !important;
-  font-size: var(--kb-control-font-size) !important;
-  font-weight: var(--kb-weight-semibold) !important;
-}
-
-html body #root :where(
-  .btn-primary,
-  .primary,
-  [class*="-primary"],
-  [class*="-cta"]
-):not(#kb-control-token-global-primary-anchor) {
-  min-height: var(--kb-control-min-height) !important;
-  font-size: var(--kb-control-primary-font-size) !important;
-  font-weight: var(--kb-weight-bold) !important;
-}
-
-/* Route-specific finish work remains below for radii, colors, and hierarchy. */
-html body #root :is(
-  .kb-settings-screen,
-  .kb-profile-screen-root,
-  .kb-reviews-screen-root,
-  .kbdr2-root,
-  .kb-live-marketplace-page,
-  .myproj-command-shell,
-  .kb-vendor-work-shell,
-  .gpi-discovery,
-  .gpi-public-page,
-  .gpi-host-portal,
-  .gpi-seeker-shell,
-  .kbge-root,
-  .faithbid-admin-v853bl
-) :where(
-  button,
-  [role="button"],
-  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
-  select,
-  textarea
-):not(#kb-control-token-anchor) {
-  min-height: var(--kb-control-min-height) !important;
-  min-width: var(--kb-control-min-height) !important;
-  font-size: var(--kb-control-font-size) !important;
-  font-weight: var(--kb-weight-semibold) !important;
-}
-
-html body #root :is(
-  .kb-settings-screen,
-  .kb-profile-screen-root,
-  .kb-reviews-screen-root,
-  .kbdr2-root,
-  .kb-live-marketplace-page,
-  .myproj-command-shell,
-  .kb-vendor-work-shell,
-  .gpi-discovery,
-  .gpi-public-page,
-  .gpi-host-portal,
-  .gpi-seeker-shell,
-  .kbge-root,
-  .faithbid-admin-v853bl
-) :where(
-  .btn-primary,
-  .primary,
-  [class*="-primary"],
-  [class*="-cta"]
-):not(#kb-control-token-primary-anchor) {
-  min-height: var(--kb-control-min-height) !important;
-  font-size: var(--kb-control-primary-font-size) !important;
-  font-weight: var(--kb-weight-bold) !important;
-}
 
 /* Settings */
 .kb-settings-screen :where(button) {
   border-radius: var(--kb-control-pill-radius) !important;
 }
 .kb-settings-screen .kb-settings-primary:not(:disabled) {
+  min-height: var(--kb-control-min-height) !important;
   color: var(--kb-control-paper) !important;
   background: var(--kb-control-forest) !important;
   border-color: var(--kb-control-forest) !important;
+  font-size: var(--kb-control-primary-font-size) !important;
+  font-weight: var(--kb-weight-bold) !important;
 }
 .kb-settings-screen .kb-settings-primary:not(:disabled):hover {
   background: var(--kb-control-forest-hover) !important;
@@ -166,6 +93,7 @@ html body #root :is(.myproj-command-shell, .kb-vendor-work-shell) .kb-lite-page-
 }
 :is(.kb-live-marketplace-page, .myproj-command-shell, .kb-vendor-work-shell)
   :where(.kb-live-primary-action, .kbm-primary, .kb-lite-action.is-primary, .kb-project-primary-action) {
+  min-height: var(--kb-control-min-height) !important;
   color: var(--kb-control-paper) !important;
   background: var(--kb-control-forest) !important;
   border-color: var(--kb-control-forest) !important;
@@ -178,6 +106,7 @@ html body #root :is(.myproj-command-shell, .kb-vendor-work-shell) .kb-lite-page-
   border-radius: var(--kb-control-radius) !important;
 }
 .kbdr2-root :where(.kbdr2-send, .kbdr2-primary-btn, .kbdr2-deal-primary) {
+  min-height: var(--kb-control-min-height) !important;
   color: var(--kb-control-paper) !important;
   background: var(--kb-control-forest) !important;
   font-size: var(--kb-control-primary-font-size) !important;
@@ -190,6 +119,7 @@ html body #root :is(.myproj-command-shell, .kb-vendor-work-shell) .kb-lite-page-
   border-radius: var(--kb-control-radius) !important;
 }
 :is(.gpi-discovery, .gpi-public-page) :where(.gpi-discovery-cta, .gpi-discovery-host-entry, .gpi-viewall-interest-action, .gpi-detail-actions > button:first-child) {
+  min-height: var(--kb-control-min-height) !important;
   color: var(--kb-control-paper) !important;
   background: var(--kb-control-forest) !important;
   border-color: var(--kb-control-forest) !important;
@@ -238,6 +168,7 @@ html body #root .gpi-discovery button:not(#kb-gpi-control-anchor) {
   border-radius: var(--kb-control-radius) !important;
 }
 :is(.kbge-root, .faithbid-admin-v853bl) :where(.primaryBtn, .btn-primary, .admin-command-primary) {
+  min-height: var(--kb-control-min-height) !important;
   color: var(--kb-control-paper) !important;
   background: var(--kb-control-forest) !important;
   border-color: var(--kb-control-forest) !important;

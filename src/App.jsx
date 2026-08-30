@@ -38367,7 +38367,7 @@ function LandingFAQ(){
         </div>
         {KB_LANDING_FAQS.map((f,i)=>(
           <div key={f.q||i} className="faq-item">
-            <button type="button" className="faq-q" onClick={()=>setOpen(open===i?null:i)} aria-expanded={open===i} style={{width:'100%',background:'none',border:'none',padding:0,textAlign:'left'}}>
+            <button type="button" className="faq-q" onClick={()=>setOpen(open===i?null:i)} aria-expanded={open===i} style={{width:'100%',background:'none',border:'none',padding:'18px 0',textAlign:'left'}}>
               <span>{f.q}</span>
               <span style={{fontSize:18,color:"var(--navy)",transition:"transform 0.2s",transform:open===i?"rotate(45deg)":"rotate(0)",flexShrink:0,marginLeft:16,opacity:0.4}}>+</span>
             </button>
@@ -39525,7 +39525,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
           )}
 
           <div className="land-signin-row" style={{textAlign:"center",marginBottom:34,animation:"fadeInUp 0.7s 0.5s ease both"}}>
-            <button type="button" onClick={()=>{setAuthDefaultRole("login");nav("auth");}} className="btn-text-light" style={{letterSpacing:0.2}}>
+            <button type="button" onClick={()=>{setAuthDefaultRole("login");nav("auth");}} className="btn-text-light" style={{minHeight:36,padding:'8px 4px',letterSpacing:0.2}}>
               Already have an account? <span style={{textDecoration:"underline",textUnderlineOffset:3}}>Sign In</span>
             </button>
           </div>
