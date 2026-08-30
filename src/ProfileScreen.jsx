@@ -653,11 +653,20 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                 {/* Profile completeness banner — brand cream + gold */}
                 {(() => {
                   const firstFilled = (...values) => values.map(value => String(value ?? "").trim()).find(Boolean) || "";
+                  const hasCityAndState = (cityValue, stateValue) => {
+                    if (!firstFilled(cityValue)) return false;
+                    if (firstFilled(stateValue)) return true;
+                    // Older profiles stored the full location in `city`
+                    // (for example "Houston, Texas") before state_code was
+                    // captured separately. Treat that canonical display value
+                    // as complete instead of asking the user for it again.
+                    return String(cityValue).split(",").map(part => part.trim()).filter(Boolean).length >= 2;
+                  };
                   const vendorCity = firstFilled(vendorForm.city, vendorRow?.service_city, vendorRow?.city, userProfile?.city, form.city);
                   const vendorState = firstFilled(vendorForm.service_state, vendorRow?.service_state, userProfile?.state_code, form.state_code);
                   const checks = vendorRow ? [
                     {label:"Business name",    done:!!firstFilled(vendorForm.name, vendorRow?.name, userProfile?.org_name), action:()=>setTab("vendor")},
-                    {label:"City & state",     done:!!(vendorCity && vendorState), action:()=>setTab("vendor")},
+                    {label:"City & state",     done:hasCityAndState(vendorCity, vendorState), action:()=>setTab("vendor")},
                     {label:"Service category", done:!!firstFilled(vendorForm.category, vendorRow?.category, userProfile?.category), action:()=>setTab("vendor")},
                     {label:"Bio written",      done:firstFilled(vendorForm.bio, vendorRow?.bio).length>30, action:()=>setTab("vendor")},
                     {label:"Tagline",          done:firstFilled(vendorForm.tagline, vendorRow?.tagline).length>5, action:()=>setTab("vendor")},
@@ -666,7 +675,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                     {label:"Faith Verified",   done:isVerified,                       action:()=>setTab("verify")},
                   ] : [
                     {label:"Church name",      done:!!form.org_name,             action:()=>setTab("account")},
-                    {label:"City & state",     done:!!(form.city && form.state_code), action:()=>setTab("account")},
+                    {label:"City & state",     done:hasCityAndState(form.city, form.state_code), action:()=>setTab("account")},
                     {label:"Denomination",     done:!!form.denomination,         action:()=>setTab("account")},
                     {label:"Faith statement",  done:!!form.faith_statement,      action:()=>setTab("account")},
                   ];
