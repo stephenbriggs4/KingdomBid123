@@ -7244,7 +7244,7 @@ html body .land-hero .land-hero-body{
       display:none!important;
     }
 
-    html body .land-hero .land-role-cta-arrow{
+    html body .land-hero .land-role-arrow{
       display:inline-flex!important;
       align-items:center!important;
       justify-content:center!important;
@@ -7275,7 +7275,7 @@ html body .land-hero .land-hero-body{
       filter:none!important;
     }
 
-    html body .land-hero .land-role-cta-primary:hover .land-role-cta-arrow{
+    html body .land-hero .land-role-cta-primary:hover .land-role-arrow{
       transform:translateX(3px)!important;
       color:#e1b957!important;
     }
@@ -7297,7 +7297,7 @@ html body .land-hero .land-hero-body{
       color:#fffaf0!important;
     }
 
-    html body .land-hero .land-role-cta-secondary:hover .land-role-cta-arrow{
+    html body .land-hero .land-role-cta-secondary:hover .land-role-arrow{
       transform:translateX(3px)!important;
       color:#e1b957!important;
     }

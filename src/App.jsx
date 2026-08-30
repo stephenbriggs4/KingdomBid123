@@ -32440,8 +32440,8 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                   {isHirerMarketplace ? (
                     <>
                       <div className="kb-market-mode-switch" aria-label="Church marketplace views">
-                        <button type="button" className="is-active" aria-pressed="true">Recommended Vendors</button>
-                        <button type="button" onClick={onBack}>Church Projects</button>
+                        <button type="button" className="is-active" aria-label="Recommended Vendors" aria-pressed="true">Vendors</button>
+                        <button type="button" aria-label="Church Projects" onClick={onBack}>Projects</button>
                       </div>
                       <button type="button" className="kb-lite-action is-primary" onClick={onPost}>
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -37476,14 +37476,6 @@ function LandingFaithVerified({nav}){
     if (currentUser) { nav("verify-profile"); return; }
     nav("vendor-signup");
   };
-  const COVENANT = [
-    {num:"01", title:"I serve as unto the Lord.", body:"Every project I take is an act of service — not just to a church, but to the Kingdom. I bring my best work to every ministry I serve."},
-    {num:"02", title:"I operate with integrity.", body:"I am honest about my pricing, my timeline, and my capabilities. I do not overpromise or underdeliver. My word is my bond."},
-    {num:"03", title:"I represent my faith in how I do business.", body:"My conduct, in communication, in conflict, and in completion, reflects Christ. I treat every church as a partner, not a transaction."},
-    {num:"04", title:"I am accountable to my community.", body:"I am an active member of a local church. I welcome a pastoral reference. I understand that my reputation on this platform reflects the broader body of Christ."},
-    {num:"05", title:"I welcome review and accountability.", body:"I agree to FaithBid's community standards. I understand that verified status can be reviewed or revoked if my conduct falls short of these commitments."},
-  ];
-
   const TIERS = [
     {
       name:"Marketplace Approved",
@@ -37505,11 +37497,11 @@ function LandingFaithVerified({nav}){
   ];
 
   return (
-    <div id="faith-verified-section" data-kb-funnel-section="faith_verified" className="land-fv-outer" style={{background:"var(--cream)",padding:"96px 0"}}>
+    <div id="faith-verified-section" data-kb-funnel-section="faith_verified" className="land-fv-outer" style={{background:"var(--cream)",padding:"72px 0"}}>
       <div className="land-fv-inner" style={{maxWidth:1100,margin:"0 auto",padding:"0 48px"}}>
 
         {/* Header */}
-        <div className="land-fv-header" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:64,alignItems:"end",marginBottom:72}}>
+        <div className="land-fv-header" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:64,alignItems:"end",marginBottom:42}}>
           <div>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:16}}>Faith Verified</div>
             <h2 style={{fontFamily:"Playfair Display,serif",fontSize:48,fontWeight:700,color:"var(--navy)",lineHeight:1,letterSpacing:-1,margin:0}}>
@@ -37531,7 +37523,7 @@ function LandingFaithVerified({nav}){
           </div>
         </div>
 
-        <div className="land-fv-proof-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:14,marginBottom:42}}>
+        <div className="land-fv-proof-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:14,marginBottom:34}}>
           {[
             {eyebrow:"Reviewed", title:"Faith statement + reference", body:"Faith Verified vendors submit a faith statement and one ministry reference for team review."},
             {eyebrow:"Visible", title:"Badge status on profile", body:"Churches can distinguish marketplace participation from the additional Faith Verified trust signal."},
@@ -37545,17 +37537,8 @@ function LandingFaithVerified({nav}){
           ))}
         </div>
 
-        {/* What we believe */}
-        <div className="land-fv-belief" style={{backgroundImage:`linear-gradient(rgba(0,0,0,0.58),rgba(0,0,0,0.58)),url(${CLAY_BG})`,backgroundSize:"cover",backgroundPosition:"center",borderRadius:20,padding:"48px",marginBottom:48}}>
-          <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--atext-muted)",marginBottom:12}}>What We Believe</div>
-          <div className="land-fv-belief-quote" style={{fontFamily:"Playfair Display,serif",fontSize:22,fontWeight:600,color:"#fff",lineHeight:1.6,maxWidth:680,marginBottom:0}}>
-            "FaithBid exists to serve the body of Christ by connecting ministries with professionals who share their mission, their values, and their commitment to excellence."
-          </div>
-          <div style={{marginTop:20,fontSize:12,color:"var(--atext-muted)",letterSpacing:0.3}}>Non-denominational. Kingdom-focused. Open to all who follow Christ.</div>
-        </div>
-
         {/* Verification tiers */}
-        <div style={{marginBottom:72}}>
+        <div style={{marginBottom:30}}>
           <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:12,textAlign:"center"}}>Verification Tiers</div>
           <h3 style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"var(--navy)",textAlign:"center",marginBottom:8,letterSpacing:-0.5}}>Two distinct trust signals.</h3>
           <p style={{fontSize:15,color:"var(--text-muted)",textAlign:"center",fontWeight:400,marginBottom:36,maxWidth:520,margin:"0 auto 36px"}}>Marketplace Approved governs participation. Faith Verified is an additional reviewed trust signal; it is not required just to bid.</p>
@@ -37581,30 +37564,13 @@ function LandingFaithVerified({nav}){
           </div>
         </div>
 
-        {/* The Vendor Covenant */}
-        <div>
-          <div style={{textAlign:"center",marginBottom:48}}>
-            <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:12}}>The Vendor Covenant</div>
-            <h3 style={{fontFamily:"Playfair Display,serif",fontSize:36,fontWeight:700,color:"var(--navy)",margin:"0 0 12px",letterSpacing:-0.5}}>Five commitments. One standard.</h3>
-            <p style={{fontSize:15,color:"var(--text-muted)",fontWeight:400,maxWidth:480,margin:"0 auto",lineHeight:1.7}}>The Vendor Covenant is part of FaithBid's verification standards. It is a values commitment, not a substitute for marketplace approval or project due diligence.</p>
+        <div className="land-fv-covenant-footer" style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:20,flexWrap:"wrap",padding:"20px 22px",border:"1px solid var(--border)",borderRadius:18,background:"#fff"}}>
+          <div style={{maxWidth:680}}>
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:7}}>Vendor Covenant</div>
+            <div style={{fontFamily:"Playfair Display,serif",fontSize:21,fontWeight:700,color:"var(--navy)",marginBottom:5}}>Five commitments. One accountable standard.</div>
+            <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.65}}>Faith Verified vendors commit to service, integrity, Christlike conduct, local-church accountability, and ongoing review. One ministry reference is required.</div>
           </div>
-          <div style={{display:"flex",flexDirection:"column",gap:0,border:"none",borderRadius:0,overflow:"visible",background:"transparent"}}>
-            {COVENANT.map((c,i)=>(
-              <div className="land-fv-covenant-row" key={c.num||c.label||i} style={{display:"grid",gridTemplateColumns:"72px 1fr",borderBottom:i<COVENANT.length-1?"1px solid var(--border)":"none"}}>
-                <div className="land-fv-covenant-num" style={{padding:"24px",borderRight:"1px solid var(--border)",display:"flex",alignItems:"flex-start",justifyContent:"center",paddingTop:26}}>
-                  <span style={{fontFamily:"DM Mono,monospace",fontSize:10,color:"var(--text-muted)",letterSpacing:1}}>{c.num}</span>
-                </div>
-                <div className="land-fv-covenant-body" style={{padding:"22px 28px"}}>
-                  <div style={{fontFamily:"Playfair Display,serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:6}}>{c.title}</div>
-                  <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,fontWeight:400}}>{c.body}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="land-fv-covenant-footer" style={{marginTop:24,display:"flex",alignItems:"center",gap:16}}>
-            <button type="button" onClick={handleApply} className="btn-primary" style={{padding:"12px 24px",fontSize:13}}>{currentUser ? "Go to Verification" : "Apply for verification"}</button>
-            <div style={{fontSize:12,color:"var(--text-muted)",fontWeight:400}}>One ministry reference required for Faith Verified status.</div>
-          </div>
+          <button type="button" onClick={handleApply} className="btn-primary" style={{padding:"12px 24px",fontSize:13}}>{currentUser ? "Go to Verification" : "Apply for verification"}</button>
         </div>
 
       </div>
@@ -39526,7 +39492,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
               }}
             >
               <span>{LAUNCHED ? "Post a Project" : "Reserve church access"}</span>
-              <span className="land-role-cta-arrow" aria-hidden="true">→</span>
+              <span className="land-role-arrow" aria-hidden="true">→</span>
             </button>
             <button
               type="button"
@@ -39546,7 +39512,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
               }}
             >
               <span>{LAUNCHED ? "Marketplace" : "Reserve vendor access"}</span>
-              <span className="land-role-cta-arrow" aria-hidden="true">→</span>
+              <span className="land-role-arrow" aria-hidden="true">→</span>
             </button>
           </div>
 
@@ -39610,58 +39576,39 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
       <FirstSessionTrustRail />
 
-      {/* ── COVERAGE MAP ── */}
-      <LandingCoverageMap />
-
       {/* ── FAITH VERIFIED ── */}
       <LandingFaithVerified nav={nav}/>
 
-      {/* ── GET PLUGGED IN REVEAL — "more than a marketplace" moment ── */}
-      <GpiLandingReveal nav={nav}/>
-
-      {/* ── KINGDOM BUILDER TEASER ── */}
-      <KingdomBuilderTeaser nav={nav} grandTotal={stats.founding} setAuthDefaultRole={setAuthDefaultRole} setStartFreeDefaultRole={setStartFreeDefaultRole}/>
+      <section data-kb-funnel-section="ecosystem" style={{background:"#fffdf8",borderTop:"1px solid #dfd5c2",padding:"54px 48px"}}>
+        <style>{`@media (max-width: 760px){ .landing-pathways{padding:38px 20px !important;} .landing-pathways-grid{grid-template-columns:1fr !important;} }`}</style>
+        <div className="landing-pathways" style={{maxWidth:1080,margin:"0 auto"}}>
+          <div style={{textAlign:"center",maxWidth:660,margin:"0 auto 28px"}}>
+            <div style={{fontFamily:"'DM Mono', monospace",fontSize:10,fontWeight:800,letterSpacing:"0.18em",textTransform:"uppercase",color:"#8a6729",marginBottom:10}}>More ways to connect</div>
+            <h2 style={{fontFamily:"'Playfair Display', Georgia, serif",fontSize:"clamp(28px,4vw,40px)",lineHeight:1.06,letterSpacing:"-0.03em",color:"#1C2814",margin:"0 0 10px"}}>The marketplace is the front door—not the whole mission.</h2>
+            <p style={{fontSize:14.5,lineHeight:1.75,color:"#5f6659",margin:0}}>Explore local service opportunities, learn why FaithBid exists, or discuss a ministry partnership without losing the main path to project access.</p>
+          </div>
+          <div className="landing-pathways-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:14}}>
+            {[
+              {eyebrow:"Serve locally",title:"Get Plugged In",body:"Find practical opportunities to serve, connect, and grow near you.",cta:"Explore opportunities",screen:"get-plugged-in"},
+              {eyebrow:"Our mission",title:"Why FaithBid",body:"See the problem FaithBid is built to solve for churches and Christian professionals.",cta:"Read our story",screen:"about"},
+              {eyebrow:"Build together",title:"Partner with us",body:"Connect a church, organization, or network with FaithBid's launch mission.",cta:"Explore partnership",screen:"partner"},
+            ].map(item=>(
+              <article key={item.screen} style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"22px",border:"1px solid #dfd5c2",borderRadius:20,background:"#fff",boxShadow:"0 16px 36px rgba(28,40,20,0.05)"}}>
+                <div style={{fontSize:10,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:"#8a6729",marginBottom:10}}>{item.eyebrow}</div>
+                <h3 style={{fontFamily:"'Playfair Display', Georgia, serif",fontSize:23,lineHeight:1.08,color:"#1C2814",margin:"0 0 9px"}}>{item.title}</h3>
+                <p style={{fontSize:13.5,lineHeight:1.7,color:"#676f62",margin:"0 0 18px",flex:1}}>{item.body}</p>
+                <button type="button" onClick={()=>{trackLandingCta("undecided","ecosystem",item.screen);nav(item.screen);}} className="btn-secondary" style={{padding:"11px 16px",fontSize:12.5}}>{item.cta} →</button>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ── PRICING ── */}
       <LandingPricing nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole}/>
 
-      {/* ── TESTIMONIALS ── */}
-      <LandingTestimonials/>
-
       {/* ── FAQ ── */}
       <LandingFAQ/>
-
-      {/* ── ABOUT / AMBASSADOR / PARTNER STRIP // techy ── */}
-      <div style={{background:"#0a1208",borderTop:"1px solid rgba(255,255,255,0.05)",position:"relative",overflow:"hidden"}}>
-        {/* Grid background texture */}
-        <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px)",backgroundSize:"40px 40px",pointerEvents:"none"}}/>
-        <div className="land-3col-inner" style={{maxWidth:1100,margin:"0 auto",padding:"0 48px",position:"relative",zIndex:1}}>
-          <div className="land-3col-grid" style={{display:"grid",gridTemplateColumns:"1fr 1px 1fr 1px 1fr"}}>
-            {/* Column data */}
-            {[
-              {label:"About FaithBid",tag:"STORY",body:"Built for the Kingdom. Our mission, our values, and why we believe faith-aligned work changes everything.",cta:"Our story",screen:"about"},
-              {label:"Community Network",tag:"PROGRAM",body:"A simple community program for people who want to spread the mission during rollout without distracting from the marketplace itself.",cta:"Apply now",screen:"ambassador"},
-              {label:"Partner with us",tag:"PARTNER",body:"Churches and organizations that want to build the Kingdom alongside us. Let's go further together.",cta:"Learn more",screen:"partner"},
-            ].reduce((acc, col, i) => {
-              // Insert divider between cols
-              acc.push(
-                <div key={`col-${i}`} className="land-3col-col" style={{padding:"52px 40px"}}>
-                  <div style={{fontSize:9,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"rgba(255,255,255,0.2)",marginBottom:18,fontFamily:"DM Mono,monospace"}}>{col.tag}</div>
-                  <div style={{fontFamily:"Playfair Display,serif",fontSize:18,fontWeight:700,color:"#fff",marginBottom:12,lineHeight:1.2}}>{col.label}</div>
-                  <div style={{fontSize:13,color:"rgba(255,255,255,0.32)",lineHeight:1.8,fontWeight:400,marginBottom:20}}>{col.body}</div>
-                  <button type="button" onClick={()=>nav(col.screen)} className="btn-dark-gold">
-                    {col.cta} <span style={{opacity:0.6}}>→</span>
-                  </button>
-                </div>
-              );
-              if (i < 2) acc.push(
-                <div key={`div-${i}`} className="land-3col-divider" style={{background:"linear-gradient(to bottom,transparent,rgba(255,255,255,0.08) 20%,rgba(255,255,255,0.08) 80%,transparent)",width:1}}/>
-              );
-              return acc;
-            }, [])}
-          </div>
-        </div>
-      </div>
 
       <section className="landing-final-proof" style={{background:"#fffdf8",borderTop:"1px solid #dfd5c2",padding:"54px 48px"}}>
         <style>{`@media (max-width: 760px){ .landing-final-proof{padding:38px 20px !important;} .landing-final-proof > div{grid-template-columns:1fr !important;text-align:center;} .landing-final-proof button{width:100%;} }`}</style>
@@ -42983,8 +42930,8 @@ function ChurchMarketplaceHero({ isActive = true, onPost, onBrowse, onChurchProj
         </div>
         <div className="kb-church-marketplace-control-rail">
           <div className="kb-market-mode-switch kb-church-marketplace-mode-switch" aria-label="Church marketplace views">
-            <button type="button" className="is-active" aria-pressed="true">Find Vendors</button>
-            <button type="button" aria-pressed="false" onClick={onChurchProjects}>Church Projects</button>
+            <button type="button" className="is-active" aria-label="Find Vendors" aria-pressed="true">Vendors</button>
+            <button type="button" aria-label="Church Projects" aria-pressed="false" onClick={onChurchProjects}>Projects</button>
           </div>
           <div className="kb-church-marketplace-hero-actions">
             <button type="button" className="kb-church-marketplace-hero-primary" onClick={onPost}>Post a Project</button>
@@ -43557,8 +43504,8 @@ function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors
               </>
             ) : (
               <>
-                <button type="button" aria-pressed="false" onClick={onFindVendors}>Find Vendors</button>
-                <button type="button" className="is-active" aria-pressed="true">Church Projects</button>
+                <button type="button" aria-label="Find Vendors" aria-pressed="false" onClick={onFindVendors}>Vendors</button>
+                <button type="button" className="is-active" aria-label="Church Projects" aria-pressed="true">Projects</button>
               </>
             )}
           </div>

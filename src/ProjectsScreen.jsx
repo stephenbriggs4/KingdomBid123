@@ -9717,8 +9717,8 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                   {isHirerMarketplace ? (
                     <>
                       <div className="kb-market-mode-switch" aria-label="Church marketplace views">
-                        <button type="button" className="is-active" aria-pressed="true">Recommended Vendors</button>
-                        <button type="button" onClick={onBack}>Church Projects</button>
+                        <button type="button" className="is-active" aria-label="Recommended Vendors" aria-pressed="true">Vendors</button>
+                        <button type="button" aria-label="Church Projects" onClick={onBack}>Projects</button>
                       </div>
                       <button type="button" className="kb-lite-action is-primary" onClick={onPost}>
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
