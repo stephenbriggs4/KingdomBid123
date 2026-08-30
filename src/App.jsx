@@ -22633,6 +22633,20 @@ function setPageMeta({ title, description } = {}) {
 }
 
 const PROTECTED_ROUTES = ["projects","inbox","messages","reviews","profile","verify-profile","settings","admin","growth","compare","saved-projects","activity","analytics","qa","my-projects","my-work"];
+const APP_HASH_ROUTES = Object.freeze([
+  "projects","get-plugged-in","inbox","messages","reviews","profile","verify-profile","pricing","admin","settings","about","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","invite",
+]);
+const APP_HASH_ROUTE_SET = new Set(APP_HASH_ROUTES);
+
+function readAppScreenFromHash(hashValue, fallback = "landing") {
+  const hash = String(hashValue || "");
+  if (hash.includes("type=recovery") || hash.includes("access_token")) return "reset-password";
+  const route = hash.replace(/^#\/?/, "").split("/")[0].split("?")[0];
+  // Deal Room links keep the conversation id in the hash (for example
+  // #inbox-<conversation-id>) while the app-level screen remains Inbox.
+  if (route === "inbox" || route.startsWith("inbox-")) return "inbox";
+  return APP_HASH_ROUTE_SET.has(route) ? route : fallback;
+}
 // Route alias and subtab maps — lifted to module level so nav() doesn't
 // recreate them on every invocation (was previously inside the useCallback).
 const NAV_ALIAS = Object.freeze({
@@ -34607,10 +34621,7 @@ function getAdminScreenDependencies() {
 }
 
 export default function App() {
-  const [screen, setScreen] = useState(() => {
-    const hash = String(window.location.hash || '').replace(/^#\/?/, '').split('/')[0].split('?')[0];
-    return ['projects','get-plugged-in','inbox','messages','reviews','profile','verify-profile','pricing','admin','settings','about','activity','analytics','compare','saved-projects','guest-post-project','church-signup','vendor-signup','start-free','auth','reset-password','ambassador','partner','join','qa','growth','invite'].includes(hash) ? hash : 'landing';
-  });
+  const [screen, setScreen] = useState(() => readAppScreenFromHash(window.location.hash));
 
   useEffect(() => {
     const SCREEN_TITLES = {
@@ -35554,6 +35565,38 @@ export default function App() {
     }
     closeNavChrome();
   }, [closeNavChrome, currentUser, userProfile, startFreeDefaultRole, authReady, screen, marketplacePublic, privateMarketplaceAccess]);
+
+  useEffect(() => {
+    // location.hash writes made by nav() already update React state directly.
+    // popstate is the missing path: browser Back/Forward changes the URL
+    // without calling nav(), so synchronize the rendered screen here.
+    const onRouteHistoryNavigation = () => {
+      const target = readAppScreenFromHash(window.location.hash, null);
+      // Ignore in-page anchors such as #kb-main-content rather than treating
+      // them as application routes.
+      if (!target || target === screenRef.current) return;
+
+      if (PROTECTED_ROUTES.includes(target) && !currentUserRef.current) {
+        savePostAuthTarget({ screen:target, navSubTab:null, autoPost:false });
+        if (!authReady) return;
+        setAuthDefaultRole(target === "reviews" ? "vendor" : "login");
+        setScreen("auth");
+        closeNavChrome();
+        return;
+      }
+
+      setScreen(target);
+      setNavSubTab(null);
+      setAutoPost(false);
+      if (target === "projects") {
+        try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch {}
+      }
+      closeNavChrome();
+    };
+
+    window.addEventListener("popstate", onRouteHistoryNavigation);
+    return () => window.removeEventListener("popstate", onRouteHistoryNavigation);
+  }, [authReady, closeNavChrome]);
 
   useEffect(() => {
     kbPerfAfterPaint("screen-painted", { screen, user: currentUser?.id || "anon" });
