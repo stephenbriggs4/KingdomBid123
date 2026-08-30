@@ -383,6 +383,7 @@ function PublicLegalFooter({ compact = false }) {
   return (
     <footer
       className={`fb-public-legal-footer${compact ? " is-compact" : ""}`}
+      role="contentinfo"
       aria-label="FaithBid public disclaimer and contact"
     >
       <style>{`
@@ -37482,22 +37483,22 @@ function LandingFaithVerified({nav}){
       desc:"Approved by FaithBid to participate in the marketplace.",
       steps:["Create your account","Complete your vendor profile","Complete marketplace review"],
       badge:"Marketplace Approved",
-      badgeColor:"rgba(255,255,255,0.66)",
-      badgeBg:"rgba(255,255,255,0.06)",
+      badgeColor:"#4f5f49",
+      badgeBg:"#edf1eb",
     },
     {
       name:"Faith Verified",
       desc:"Additional FaithBid review of your faith statement and ministry reference information.",
       steps:["Submit a faith statement","Provide ministry reference information","FaithBid team review"],
       badge:"Faith Verified",
-      badgeColor:"var(--gold-light)",
-      badgeBg:"rgba(232,224,208,0.12)",
+      badgeColor:"#8a6a2e",
+      badgeBg:"#fbf2df",
       featured:true,
     },
   ];
 
   return (
-    <div id="faith-verified-section" data-kb-funnel-section="faith_verified" className="land-fv-outer" style={{background:"var(--cream)",padding:"72px 0"}}>
+    <div id="faith-verified-section" data-kb-funnel-section="faith_verified" className="land-fv-outer" style={{"--text-muted":"#6f675b",background:"var(--cream)",padding:"72px 0"}}>
       <div className="land-fv-inner" style={{maxWidth:1100,margin:"0 auto",padding:"0 48px"}}>
 
         {/* Header */}
@@ -37505,7 +37506,7 @@ function LandingFaithVerified({nav}){
           <div>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:16}}>Faith Verified</div>
             <h2 style={{fontFamily:"Playfair Display,serif",fontSize:48,fontWeight:700,color:"var(--navy)",lineHeight:1,letterSpacing:-1,margin:0}}>
-              Not just talented.<br/><span style={{color:"rgba(42,53,32,0.25)"}}>Accountable.</span>
+              Not just talented.<br/><span style={{color:"#6f675b"}}>Accountable.</span>
             </h2>
           </div>
           <div style={{paddingBottom:4}}>
@@ -38362,7 +38363,7 @@ function LandingFAQ(){
     <div id="landing-faq-section" data-kb-funnel-section="faq" className="land-faq-outer" style={{background:"#fff",padding:"64px 48px"}}>
       <div style={{maxWidth:720,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:40}}>
-          <div style={{fontSize:11,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:"var(--gold)",marginBottom:10}}>FAQ</div>
+          <div style={{fontSize:11,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:"#8a6a2e",marginBottom:10}}>FAQ</div>
           <h2 style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"var(--navy)"}}>Common Questions</h2>
         </div>
         {KB_LANDING_FAQS.map((f,i)=>(
