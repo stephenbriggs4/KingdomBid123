@@ -2516,11 +2516,11 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
               <div className="admin-two-col" hidden style={{display:"none"}}>
                 <div className="panel">
                   <div className="panel-hd">
-                    <div className="panel-title">Pre-launch fee model</div>
-                    <div style={{fontFamily:"DM Mono,monospace",fontSize:11,color:"var(--green)",fontWeight:600}}>{`Launch model: 10% // cap $${PLATFORM_FEE_CAP}`}</div>
+                    <div className="panel-title">Commercial model</div>
+                    <div style={{fontFamily:"DM Mono,monospace",fontSize:11,color:"var(--green)",fontWeight:600}}>Placement terms // manual invoice</div>
                   </div>
                   <div className="panel-body">
-                    <div style={{fontSize:11,color:"var(--atext-muted)",marginBottom:8,lineHeight:1.5}}>{`Churches and ministries are always free. The launch policy sets a 10% vendor success fee capped at $${PLATFORM_FEE_CAP} per project. Integrated payments are not live.`}</div>
+                    <div style={{fontSize:11,color:"var(--atext-muted)",marginBottom:8,lineHeight:1.5}}>Project payments stay directly between church and vendor. Any separate FaithBid vendor placement fee is agreed before an introduction and invoiced manually.</div>
                     <div style={{fontSize:9,color:feeSignalError?"var(--red)":"var(--atext-muted)",letterSpacing:0.5,textTransform:"uppercase",marginBottom:10,fontWeight:700}}>{feeSignalError?"Fee-signal trend unavailable":"Monthly modeled fee signal · not processed revenue"}</div>
                     {/* Real SVG Sparkline */}
                     {(() => {
@@ -3188,17 +3188,17 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
           {adminView==="revenue" && (
             <>
               <header className="admin-page-heading">
-                <div className="admin-page-eyebrow">Pre-launch finance</div>
-                <h1 className="admin-page-title">Finance & Fee Signals</h1>
-                <p className="admin-page-copy">Modeled from hire confirmations or hired-bid fallbacks. These are operating signals—not processed, collected, or recognized revenue.</p>
+                <div className="admin-page-eyebrow">Commercial record</div>
+                <h1 className="admin-page-title">Concierge Commercial Record</h1>
+                <p className="admin-page-copy">Legacy marketplace fee modeling is paused. Project payments are not processed by FaithBid, and any separate placement fee is handled by manual agreement and invoice.</p>
               </header>
               {feeSignalError && <div className="admin-inline-notice warning" style={{marginBottom:14}}>Fee-signal data is unavailable. Values below are intentionally hidden instead of being reported as zero. <button type="button" className="panel-action" onClick={hydrateFeeSignalSnapshot}>Retry</button></div>}
               <div className="admin-metric-grid" style={{marginBottom:16}}>
                 {[
                   {label:"Faith-Verified vendors",      val:formatAdminKpiValue(trustedVerifiedVendors), color:"var(--gold-light)", note:"Earned trust count · not paid subscribers"},
                   {label:"Recorded hire signals",        val:feeSignalError?"—":feeSignalSnapshot.hireSignals, color:"var(--atext)", note:"Latest up to 5,000 records · not transactions"},
-                  {label:"Modeled platform fees",        val:feeSignalError?"—":formatMoney(feeSignalSnapshot.modeledFees), color:"var(--green)", note:"Pre-launch estimate · not collected"},
-                  {label:"Modeled church rebate",  val:feeSignalError?"—":formatMoney((feeSignalSnapshot.modeledFees || 0) * CHURCH_REBATE_RATE), color:"var(--green)", note:`${CHURCH_REBATE_RATE_LABEL} beta projection · payouts disabled`},
+                  {label:"Legacy marketplace fee model", val:"Paused", color:"var(--green)", note:"Not advertised or collected"},
+                  {label:"Church rebate model", val:"Paused", color:"var(--green)", note:"Not active"},
                 ].map((k)=>(
                   <div key={k.label} style={{background:"var(--abg2)",border:"1px solid var(--aborder)",borderRadius:10,padding:"14px 16px"}}>
                     <div style={{fontSize:9,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:"1px",marginBottom:6,fontWeight:600}}>{k.label}</div>
@@ -3211,7 +3211,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 <div className="panel" style={{marginBottom:0}}>
                   <div className="panel-hd"><div className="panel-title">Vendor Access & Trust Mix</div></div>
                   <div className="panel-body">
-                    <div style={{fontSize:11,color:"var(--atext-muted)",marginBottom:14,lineHeight:1.5}}>Faith-Verified is an earned trust standard, not Vendor Pro and not evidence of subscription revenue. Vendors join and bid free.</div>
+                    <div style={{fontSize:11,color:"var(--atext-muted)",marginBottom:14,lineHeight:1.5}}>Faith-Verified is an earned trust standard, not evidence of a paid plan or subscription revenue.</div>
                     {[
                       {name:"Faith-Verified", price:"Free to apply", count:trustedVerifiedVendors ?? "-",                                  statusLabel:"Trust status", pct:trustedVerifiedVendors == null || getAdminKpiNumber(kpis, "vendors") == null ? 0 : Math.min(100, Math.round((trustedVerifiedVendors / Math.max(1, getAdminKpiNumber(kpis, "vendors"))) * 100))},
                       {name:"Member",         price:"Free to join",  count:trustedVerifiedVendors == null || getAdminKpiNumber(kpis, "vendors") == null ? "-" : Math.max(0,getAdminKpiNumber(kpis, "vendors")-trustedVerifiedVendors),          statusLabel:"Open access",  pct:trustedVerifiedVendors == null || getAdminKpiNumber(kpis, "vendors") == null ? 0 : Math.max(0, 100 - Math.min(100, Math.round((trustedVerifiedVendors / Math.max(1, getAdminKpiNumber(kpis, "vendors"))) * 100)))},
@@ -3223,8 +3223,8 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                       </div>
                     ))}
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 12px",background:"var(--abg)",borderRadius:"var(--r-sm)",marginTop:4}}>
-                      <div style={{fontSize:12,color:"var(--atext-mid)"}}>Launch success-fee policy</div>
-                      <div style={{fontFamily:"DM Mono,monospace",fontSize:17,fontWeight:700,color:"var(--green)"}}>{`10% // cap $${PLATFORM_FEE_CAP}`}</div>
+                      <div style={{fontSize:12,color:"var(--atext-mid)"}}>Placement terms</div>
+                      <div style={{fontFamily:"DM Mono,monospace",fontSize:17,fontWeight:700,color:"var(--green)"}}>Agreed before introduction</div>
                     </div>
                   </div>
                 </div>
@@ -3234,8 +3234,8 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                     <div style={{width:48,height:48,borderRadius:"var(--r-md)",background:"var(--abg3)",border:"1px solid var(--aborder2)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:4}}>
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--atext-muted)" strokeWidth="1.5" strokeLinecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
                     </div>
-                    <div style={{fontSize:13,fontWeight:600,color:"var(--atext)"}}>Payments not live yet</div>
-                    <div style={{fontSize:11,color:"var(--atext-muted)",lineHeight:1.6}}>Integrated platform payments are still being completed. FaithBid already records hires, approvals, and fee signals while payment coordination is handled manually.</div>
+                    <div style={{fontSize:13,fontWeight:600,color:"var(--atext)"}}>Project payments stay off-platform</div>
+                    <div style={{fontSize:11,color:"var(--atext-muted)",lineHeight:1.6}}>Churches pay vendors directly. Any separate FaithBid placement fee is agreed before an introduction and invoiced manually.</div>
                     <button type="button" className="act-btn act-view" style={{marginTop:6,padding:"7px 16px"}} onClick={()=>openAdminView("revenue", {financeSection:"admin-commercial-policy"})}>View fee policy below</button>
                   </div>
                 </div>
@@ -3244,11 +3244,11 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 <div className="panel-hd"><div className="panel-title">Commercial Policy</div><span className="badge badge-muted">Code-controlled</span></div>
                 <div className="panel-body">
                   {[
-                    {label:"Church and ministry access", value:"Always free", note:"No subscription or platform fee."},
-                    {label:"Vendor access", value:"Free to join and bid", note:"Faith-Verified is an earned trust status, not a paid plan."},
-                    {label:"Launch success-fee model", value:`10% · capped at $${PLATFORM_FEE_CAP}`, note:"Beta trigger: first platform payment clears; beta base: actual amount paid through FaithBid."},
-                    {label:"Church rebate beta", value:`${CHURCH_REBATE_RATE_LABEL} of net retained fee`, note:`Monthly cash payout after ${CHURCH_REBATE_FINALITY_WINDOW_DAYS}-day finality and ${CHURCH_REBATE_PAYOUT_THRESHOLD_LABEL} threshold; automation remains disabled.`},
-                    {label:"Integrated payments", value:"Not live", note:"Payments are coordinated manually during prelaunch."},
+                    {label:"Church and ministry access", value:"No active charge", note:"No standard public pricing is currently advertised."},
+                    {label:"Vendor access", value:"No paid plan", note:"Faith-Verified is an earned trust status, not a paid plan."},
+                    {label:"Placement terms", value:"Agreed case by case", note:"Disclosed before an introduction and invoiced manually."},
+                    {label:"Church rebate model", value:"Paused", note:"No automatic rebate program is active."},
+                    {label:"Project payments", value:"Direct", note:"Churches pay vendors directly; FaithBid does not process the project payment."},
                   ].map((item,i)=>(
                     <div key={item.label} style={{padding:"12px 0",borderBottom:i<4?"1px solid var(--aborder)":"none",display:"flex",justifyContent:"space-between",gap:20,alignItems:"flex-start"}}>
                       <div><div style={{fontSize:12,fontWeight:600,color:"var(--atext)",marginBottom:3}}>{item.label}</div><div style={{fontSize:10,color:"var(--atext-muted)",lineHeight:1.5}}>{item.note}</div></div>

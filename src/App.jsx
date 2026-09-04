@@ -152,11 +152,11 @@ const SENTRY_DSN =
   (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SENTRY_DSN)
   || "";
 
-const KB_BUILD_LABEL = "0188-deal-rooms-visual-unification-lock";
+const KB_BUILD_LABEL = "0941-close-the-loop-outcome-recurring-fees-giveback-cumulative";
 // Phase-1 Charter workspace access only: completed Marketplace-Approved Charter Vendors
 // may enter the private Marketplace workspace without a project invitation. Eligibility is
 // re-derived from live profile/vendor reads; project-specific bid authorization is unchanged.
-const KB_BUILD_AT = "2026-08-18";
+const KB_BUILD_AT = "2026-09-01";
 const kbIsDevRuntime = () => {
   try {
     return !!(typeof import.meta !== "undefined" && import.meta.env && import.meta.env.DEV);
@@ -22633,9 +22633,9 @@ function setPageMeta({ title, description } = {}) {
   };
 }
 
-const PROTECTED_ROUTES = ["projects","inbox","messages","reviews","profile","verify-profile","settings","admin","growth","compare","saved-projects","activity","analytics","qa","my-projects","my-work"];
+const PROTECTED_ROUTES = ["projects","inbox","messages","reviews","profile","verify-profile","settings","admin","growth","concierge","compare","saved-projects","activity","analytics","qa","my-projects","my-work"];
 const APP_HASH_ROUTES = Object.freeze([
-  "projects","get-plugged-in","inbox","messages","reviews","profile","verify-profile","pricing","admin","settings","about","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","invite",
+  "projects","get-plugged-in","inbox","messages","reviews","profile","verify-profile","pricing","admin","settings","about","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
 ]);
 const APP_HASH_ROUTE_SET = new Set(APP_HASH_ROUTES);
 
@@ -22706,8 +22706,27 @@ async function getMarketplacePublicOncePerSession() {
   return kbMarketplacePublicSessionPromise;
 }
 
+function kbLazyWithSingleReload(importer, key) {
+  return React.lazy(async () => {
+    const retryKey = "faithbid_lazy_retry_" + key;
+    try {
+      const loaded = await importer();
+      if (typeof window !== "undefined") window.sessionStorage.removeItem(retryKey);
+      return loaded;
+    } catch (error) {
+      if (typeof window !== "undefined" && window.sessionStorage.getItem(retryKey) !== "1") {
+        window.sessionStorage.setItem(retryKey, "1");
+        window.location.reload();
+        return new Promise(() => {});
+      }
+      if (typeof window !== "undefined") window.sessionStorage.removeItem(retryKey);
+      throw error;
+    }
+  });
+}
+
 // Growth is admin-only and large enough to deserve a real route chunk.
-const GrowthEngine = React.lazy(() => import("./GrowthEngine.jsx"));
+const GrowthEngine = kbLazyWithSingleReload(() => import("./GrowthEngine.jsx"), "growth_engine");
 const AnalyticsScreen = React.lazy(() => import("./AnalyticsScreen.jsx"));
 const QAConsoleScreen = React.lazy(() => import("./QAConsoleScreen.jsx"));
 const AdminScreen = React.lazy(() => import("./AdminScreen.jsx"));
@@ -34621,8 +34640,2190 @@ function getAdminScreenDependencies() {
   };
 }
 
+const FB_CONCIERGE_VIEWS = Object.freeze([
+  ["command", "Command center"],
+  ["dallaspilot", "Dallas Pilot"],
+  ["organizations", "Organizations"],
+  ["vendors", "Vendors"],
+  ["needs", "Needs & matches"],
+  ["engagements", "Engagements"],
+  ["fees", "Fees & give-back"],
+]);
+
+const FB_CONCIERGE_SERVICE_CATEGORIES = Object.freeze([
+  ["cleaning_and_janitorial", "Cleaning & janitorial — Dallas pilot"],
+  ["landscaping_and_grounds", "Landscaping & grounds — Dallas pilot"],
+  ["construction_and_trades", "Construction & trades"],
+  ["facilities_and_maintenance", "Facilities, handyman & HVAC — Dallas pilot"],
+  ["av_production_and_worship_technology", "AV, media & livestream — Dallas pilot"],
+  ["it_cybersecurity_and_managed_services", "IT & ChMS — Dallas pilot"],
+  ["web_software_and_digital", "Web, software & digital"],
+  ["marketing_branding_and_communications", "Marketing, branding & communications"],
+  ["finance_accounting_and_payroll", "Bookkeeping, accounting & payroll — Dallas pilot"],
+  ["legal_risk_and_insurance", "Legal, risk & insurance"],
+  ["hr_staffing_and_leadership_search", "HR, staffing & leadership search"],
+  ["consulting_strategy_and_operations", "Consulting, strategy & operations"],
+  ["events_hospitality_and_travel", "Events, hospitality & travel"],
+  ["products_supplies_and_equipment", "Products, supplies & equipment"],
+  ["other_needs_classification", "Other / classify during review"],
+]);
+
+const FB_DALLAS_PILOT_ALLOWED_CATEGORIES = new Set([
+  "cleaning_and_janitorial",
+  "landscaping_and_grounds",
+  "finance_accounting_and_payroll",
+  "it_cybersecurity_and_managed_services",
+  "av_production_and_worship_technology",
+  "facilities_and_maintenance",
+]);
+
+const FB_DALLAS_PILOT_RISK_FLAGS = Object.freeze([
+  ["investment_or_financial_advice", "Investment or financial advice — excluded"],
+  ["insurance_sales", "Insurance sales — excluded"],
+  ["real_estate_brokerage", "Real-estate brokerage — excluded"],
+  ["healthcare_or_medical", "Healthcare or medical work — excluded"],
+  ["private_security", "Private security — excluded"],
+  ["unrestricted_bank_access", "Bookkeeping with unrestricted bank access — excluded"],
+  ["unsupervised_children", "Unsupervised work with children — excluded"],
+  ["sensitive_system_access", "Sensitive IT or ChMS access — security review required"],
+]);
+
+const FB_DALLAS_PILOT_EXCLUDED_FLAGS = new Set(FB_DALLAS_PILOT_RISK_FLAGS.slice(0, 7).map(([value]) => value));
+
+function fbConciergePilotClassification(record) {
+  const category = String(record?.primary_service_category || "").toLowerCase();
+  const flags = Array.isArray(record?.pilot_risk_flags) ? record.pilot_risk_flags : [];
+  const excludedFlag = flags.find((flag) => FB_DALLAS_PILOT_EXCLUDED_FLAGS.has(flag));
+  if (!category) return { eligibility:"review_required", riskTier:record?.risk_tier || "unclassified", complianceGate:record?.compliance_gate || "standard", reason:"Select a Dallas pilot service category before sourcing." };
+  if (category === "legal_risk_and_insurance") return { eligibility:"excluded", riskTier:"tier_3_regulated", complianceGate:"declined", reason:"Legal services and insurance sales are excluded from the Dallas pilot." };
+  if (excludedFlag) return { eligibility:"excluded", riskTier:"tier_3_regulated", complianceGate:"declined", reason:`Excluded Dallas pilot scope: ${fbConciergeLabel(excludedFlag)}.` };
+  if (!FB_DALLAS_PILOT_ALLOWED_CATEGORIES.has(category)) return { eligibility:"excluded", riskTier:"tier_3_regulated", complianceGate:"declined", reason:"This service category is outside the six approved Dallas pilot categories." };
+  if (flags.includes("sensitive_system_access")) return { eligibility:"security_review_required", riskTier:"tier_3_regulated", complianceGate:record?.compliance_gate === "approved" ? "approved" : "legal_compliance_approval_required", reason:"Sensitive IT or ChMS access requires an approved security review before sourcing." };
+  return { eligibility:"eligible", riskTier:record?.risk_tier || "unclassified", complianceGate:record?.compliance_gate || "standard", reason:"Within the six approved Dallas pilot categories." };
+}
+
+const FB_CONCIERGE_EMPTY_INTAKE = Object.freeze({
+  organization_name: "",
+  organization_type: "church",
+  website: "",
+  city: "",
+  state_region: "",
+  country: "United States",
+  pilot_cohort: false,
+  relationship_source: "founder_relationship",
+  relationship_summary: "",
+  contact_first_name: "",
+  contact_last_name: "",
+  contact_title_role: "",
+  contact_decision_role: "unknown",
+  contact_email: "",
+  contact_phone: "",
+  contact_preferred_channel: "email",
+  contact_notes: "",
+  need_title: "",
+  need_origin: "organization_request",
+  need_type: "one_time_project",
+  service_frequency: "unknown",
+  primary_service_category: "",
+  service_detail: "",
+  need_brief: "",
+  desired_outcome: "",
+  must_haves: "",
+  nice_to_haves: "",
+  urgency: "standard",
+  target_decision_on: "",
+  target_start_on: "",
+  budget_status: "unknown",
+  budget_band: "not_disclosed_or_unknown",
+  delivery_requirement: "unknown",
+  service_location: "",
+  faith_alignment_requirement: "unknown",
+  faith_fit_rationale: "",
+  pilot_risk_flags: [],
+  next_action: "",
+  next_action_on: "",
+});
+
+const FB_CONCIERGE_EMPTY_VENDOR = Object.freeze({
+  vendor_name: "",
+  legal_business_name: "",
+  website: "",
+  service_categories: [],
+  capabilities_summary: "",
+  delivery_modes: [],
+  headquarters_city: "",
+  headquarters_state_region: "",
+  typical_project_minimum_dollars: "",
+  typical_project_maximum_dollars: "",
+  church_ministry_experience: "unknown",
+  relationship_status: "discovered",
+  relationship_source: "founder_or_congregation",
+  current_capacity_note: "",
+  capacity_checked_on: "",
+  next_follow_up_on: "",
+  vetting_decision: "not_reviewed",
+  vetting_decision_date: "",
+  vetting_review_due_on: "",
+  vetting_summary: "",
+  proof_level: "not_yet_proven",
+  proven_service_categories: [],
+  proof_decision_date: "",
+  internal_restrictions_concerns: "",
+  consideration_consent_status: "not_requested",
+  consideration_consented_at: "",
+  consideration_consent_source: "",
+  consideration_consent_reference: "",
+  consideration_consent_recorded_by: null,
+});
+
+const FB_CONCIERGE_DELIVERY_MODES = Object.freeze([
+  ["local_on_site", "Local on-site"],
+  ["regional_on_site", "Regional on-site"],
+  ["nationwide_on_site", "Nationwide on-site"],
+  ["remote", "Remote"],
+]);
+
+const FB_CONCIERGE_VETTING_TYPES = Object.freeze([
+  ["business_identity_or_registration", "Business identity / registration"],
+  ["insurance", "Insurance"],
+  ["license_or_certification", "License / certification"],
+  ["references", "References"],
+  ["portfolio_or_work_samples", "Portfolio / work samples"],
+  ["church_or_ministry_experience", "Church / ministry experience"],
+  ["reputation_or_public_record", "Reputation / public record"],
+  ["faith_alignment", "Faith alignment"],
+  ["data_security_or_privacy", "Data security / privacy"],
+  ["financial_or_legal_standing", "Financial / legal standing"],
+  ["safety_or_background_requirement", "Safety / background requirement"],
+  ["category_specific_technical_check", "Category-specific technical check"],
+  ["other", "Other"],
+]);
+
+const FB_CONCIERGE_EVIDENCE_METHODS = Object.freeze([
+  ["public_registry", "Public registry"], ["document_reviewed", "Document reviewed"],
+  ["reference_call", "Reference call"], ["interview", "Interview"],
+  ["portfolio", "Portfolio"], ["public_research", "Public research"], ["other", "Other"],
+]);
+
+const FB_CONCIERGE_CSS = [
+  ".fb-concierge{min-height:calc(100vh - 48px);background:#f7f4ed;color:#1c2814;font-family:DM Sans,sans-serif}",
+  ".fb-concierge *{box-sizing:border-box}",
+  ".fb-concierge-shell{max-width:1520px;margin:0 auto;padding:28px 30px 56px}",
+  ".fb-concierge-eyebrow{font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#947025}",
+  ".fb-concierge-title{font-family:Playfair Display,serif;font-size:34px;line-height:1.08;margin:5px 0 5px;color:#1c2814}",
+  ".fb-concierge-subtitle{font-size:13px;color:#697063;line-height:1.55}",
+  ".fb-concierge-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:20px}",
+  ".fb-concierge-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}",
+  ".fb-concierge-btn{height:38px;padding:0 14px;border-radius:9px;border:1px solid rgba(28,40,20,.15);background:#fffdf8;color:#1c2814;font:800 12px DM Sans,sans-serif;cursor:pointer}",
+  ".fb-concierge-btn:hover{background:#f2eee3}.fb-concierge-btn.primary{background:#1c2814;color:#fffdf8;border-color:#1c2814}.fb-concierge-btn.primary:hover{background:#314126}.fb-concierge-btn:disabled{opacity:.55;cursor:not-allowed}",
+  ".fb-concierge-tabs{display:flex;gap:4px;overflow-x:auto;padding:5px;background:#ebe7dc;border:1px solid rgba(28,40,20,.08);border-radius:12px;margin-bottom:20px}",
+  ".fb-concierge-tab{white-space:nowrap;border:0;background:transparent;border-radius:8px;padding:9px 13px;color:#687061;font:800 11.5px DM Sans,sans-serif;cursor:pointer}",
+  ".fb-concierge-tab.active{background:#fffdf8;color:#1c2814;box-shadow:0 1px 3px rgba(28,40,20,.09)}",
+  ".fb-concierge-search{width:min(360px,100%);height:38px;border:1px solid rgba(28,40,20,.14);border-radius:9px;background:#fffdf8;padding:0 12px;color:#1c2814;font:500 12.5px DM Sans,sans-serif;outline:none}",
+  ".fb-concierge-search:focus,.fb-concierge-field input:focus,.fb-concierge-field select:focus,.fb-concierge-field textarea:focus{border-color:#8a6a22;box-shadow:0 0 0 3px rgba(176,136,64,.13)}",
+  ".fb-concierge-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:18px}",
+  ".fb-concierge-card{background:#fffdf8;border:1px solid rgba(28,40,20,.1);border-radius:15px;box-shadow:0 1px 2px rgba(28,40,20,.035)}",
+  ".fb-concierge-metric{padding:18px}.fb-concierge-metric-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#7b8174}.fb-concierge-metric-value{font-family:Playfair Display,serif;font-size:31px;font-weight:750;margin-top:7px;color:#1c2814}.fb-concierge-metric-note{font-size:11.5px;color:#777d71;margin-top:4px;line-height:1.45}",
+  ".fb-concierge-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px}.fb-concierge-stack{display:grid;gap:18px}",
+  ".fb-concierge-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 18px;border-bottom:1px solid rgba(28,40,20,.09)}",
+  ".fb-concierge-panel-title{font-family:Playfair Display,serif;font-size:18px;font-weight:750}.fb-concierge-panel-note{font-size:11.5px;color:#7b8174;margin-top:3px}",
+  ".fb-concierge-count{display:inline-flex;min-width:25px;height:22px;padding:0 7px;border-radius:99px;align-items:center;justify-content:center;background:#eee7d5;color:#755a1f;font-size:10px;font-weight:900}",
+  ".fb-concierge-table-wrap{overflow:auto}.fb-concierge-table{width:100%;border-collapse:collapse;min-width:700px}.fb-concierge-table th{padding:11px 14px;text-align:left;background:#f3f0e8;color:#73796d;font-size:9.5px;letter-spacing:.085em;text-transform:uppercase}.fb-concierge-table td{padding:13px 14px;border-top:1px solid rgba(28,40,20,.075);font-size:12px;color:#4f574b;vertical-align:top}.fb-concierge-table strong{display:block;color:#1c2814;font-size:12.5px}.fb-concierge-muted{display:block;color:#82877d;font-size:10.5px;margin-top:3px}",
+  ".fb-concierge-badge{display:inline-flex;align-items:center;min-height:23px;padding:3px 8px;border-radius:99px;background:#eee9dc;color:#646b5e;font-size:9.5px;font-weight:900;letter-spacing:.02em}.fb-concierge-badge.green{background:#dff0df;color:#315b35}.fb-concierge-badge.amber{background:#f5e8c6;color:#79591b}.fb-concierge-badge.red{background:#f6dddd;color:#8d3030}.fb-concierge-badge.blue{background:#dfe9f2;color:#31546c}",
+  ".fb-concierge-watch{padding:17px}.fb-concierge-watch h3{font-family:Playfair Display,serif;font-size:18px;margin:0 0 13px}.fb-concierge-watch-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-top:1px solid rgba(28,40,20,.075);font-size:11.5px;color:#687061}.fb-concierge-watch-row:first-of-type{border-top:0}.fb-concierge-watch-row strong{color:#1c2814}",
+  ".fb-concierge-live{display:flex;align-items:center;gap:7px;margin-top:14px;color:#697063;font-size:10.5px}.fb-concierge-live-dot{width:7px;height:7px;border-radius:50%;background:#3d8b56}.fb-concierge-live.error .fb-concierge-live-dot{background:#b64040}",
+  ".fb-concierge-state{padding:52px 22px;text-align:center;color:#6d7468;font-size:12.5px}.fb-concierge-state strong{font-family:Playfair Display,serif;font-size:19px;color:#1c2814;display:block;margin-bottom:5px}",
+  ".fb-concierge-notice{margin-bottom:16px;border:1px solid #bdddbf;background:#edf8ed;color:#315b35;border-radius:11px;padding:12px 14px;font-size:12px;line-height:1.5}.fb-concierge-error{border-color:#edc4c4;background:#fff0f0;color:#8d3030}",
+  ".fb-concierge-modal-backdrop{position:fixed;inset:0;z-index:5000;background:rgba(18,24,15,.58);display:flex;align-items:center;justify-content:center;padding:20px}.fb-concierge-modal{width:min(820px,100%);max-height:min(880px,94vh);overflow:auto;background:#fffdf8;border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.28)}",
+  ".fb-concierge-modal-head{position:sticky;top:0;z-index:2;background:#fffdf8;padding:20px 22px 15px;border-bottom:1px solid rgba(28,40,20,.09)}.fb-concierge-modal-head h2{font-family:Playfair Display,serif;font-size:23px;margin:3px 0 4px}.fb-concierge-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:13px}.fb-concierge-step{height:4px;border-radius:8px;background:#e3dfd4}.fb-concierge-step.active{background:#8a6a22}",
+  ".fb-concierge-form{padding:20px 22px}.fb-concierge-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.fb-concierge-field{display:block;font-size:11px;font-weight:850;color:#313b2b}.fb-concierge-field.wide{grid-column:1/-1}.fb-concierge-field small{font-weight:600;color:#878c82}.fb-concierge-field input,.fb-concierge-field select,.fb-concierge-field textarea{display:block;width:100%;margin-top:6px;border:1px solid rgba(28,40,20,.15);border-radius:8px;background:#fff;padding:9px 10px;color:#1c2814;font:500 12px DM Sans,sans-serif;outline:none}.fb-concierge-field input,.fb-concierge-field select{height:38px}.fb-concierge-field textarea{min-height:76px;resize:vertical}.fb-concierge-checkbox{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;background:#f2eee4;font-size:11.5px;color:#566050}.fb-concierge-checkbox input{margin-top:2px}",
+  ".fb-concierge-safe{grid-column:1/-1;border:1px solid #bdddbf;background:#edf8ed;color:#315b35;border-radius:10px;padding:11px 12px;font-size:11px;line-height:1.5}.fb-concierge-modal-actions{display:flex;justify-content:flex-end;gap:9px;padding:15px 22px;border-top:1px solid rgba(28,40,20,.09);background:#f8f5ee}",
+  ".fb-concierge-review-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.fb-concierge-review-summary{display:grid;gap:10px}.fb-concierge-review-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-review-card strong{display:block;color:#1c2814;font-size:12px;margin-bottom:4px}.fb-concierge-review-card span{color:#687061;font-size:11.5px;line-height:1.45}.fb-concierge-checklist{display:grid;gap:8px}.fb-concierge-check{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(28,40,20,.1);border-radius:9px;background:#fff;padding:9px 10px;color:#4f574b;font-size:11px;line-height:1.35}.fb-concierge-check.good{border-color:#bdddbf;background:#edf8ed;color:#315b35}.fb-concierge-check.bad{border-color:#edc4c4;background:#fff0f0;color:#8d3030}.fb-concierge-check-mark{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;background:rgba(28,40,20,.09)}.fb-concierge-row-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.fb-concierge-mini-btn{height:29px;padding:0 10px;border-radius:7px;border:1px solid rgba(28,40,20,.14);background:#fffdf8;color:#1c2814;font:850 10.5px DM Sans,sans-serif;cursor:pointer}.fb-concierge-mini-btn:hover{background:#f2eee3}",
+  ".fb-concierge-review-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.fb-concierge-review-summary{display:grid;gap:10px}.fb-concierge-review-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-review-card strong{display:block;color:#1c2814;font-size:12px;margin-bottom:4px}.fb-concierge-review-card span{color:#687061;font-size:11.5px;line-height:1.45}.fb-concierge-checklist{display:grid;gap:8px}.fb-concierge-check{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(28,40,20,.1);border-radius:9px;background:#fff;padding:9px 10px;color:#4f574b;font-size:11px;line-height:1.35}.fb-concierge-check.good{border-color:#bdddbf;background:#edf8ed;color:#315b35}.fb-concierge-check.bad{border-color:#edc4c4;background:#fff0f0;color:#8d3030}.fb-concierge-check-mark{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;background:rgba(28,40,20,.09)}.fb-concierge-row-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.fb-concierge-mini-btn{height:29px;padding:0 10px;border-radius:7px;border:1px solid rgba(28,40,20,.14);background:#fffdf8;color:#1c2814;font:850 10.5px DM Sans,sans-serif;cursor:pointer}.fb-concierge-mini-btn:hover{background:#f2eee3}.fb-concierge-mini-btn.primary{background:#1c2814;border-color:#1c2814;color:#fff}.fb-concierge-mini-btn:disabled{opacity:.5;cursor:not-allowed}",
+  ".fb-concierge-queue{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px}.fb-concierge-queue-card{border:1px solid rgba(28,40,20,.1);border-radius:12px;background:#fff;padding:14px;display:grid;gap:11px}.fb-concierge-queue-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.fb-concierge-queue-head strong{font-family:Playfair Display,serif;font-size:16px;color:#1c2814}.fb-concierge-queue-meta{display:flex;gap:7px;flex-wrap:wrap}.fb-concierge-progress{height:7px;background:#e9e4d8;border-radius:99px;overflow:hidden}.fb-concierge-progress span{display:block;height:100%;background:#8a6a22;border-radius:inherit}.fb-concierge-candidates{display:grid;gap:9px}.fb-concierge-candidate{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#fff;padding:11px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.fb-concierge-candidate-main{min-width:0}.fb-concierge-candidate-main strong{color:#1c2814;font-size:12.5px}.fb-concierge-modal.wide{width:min(1040px,100%)}",
+  ".fb-concierge-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:7px}.fb-concierge-choice{display:flex;align-items:flex-start;gap:8px;border:1px solid rgba(28,40,20,.1);border-radius:8px;background:#fff;padding:8px 9px;color:#4f574b;font-size:10.5px;font-weight:650;line-height:1.3}.fb-concierge-choice input{display:inline-block!important;width:14px!important;height:14px!important;min-height:0!important;margin:1px 0 0!important;padding:0!important;box-shadow:none!important;flex:0 0 14px}.fb-concierge-vendor-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px}.fb-concierge-vendor-stat{border:1px solid rgba(28,40,20,.09);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-vendor-stat strong{display:block;font-family:Playfair Display,serif;font-size:22px;color:#1c2814}.fb-concierge-vendor-stat span{display:block;margin-top:3px;color:#747b6f;font-size:10.5px}",
+  ".fb-concierge-evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fb-concierge-evidence-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#fff;padding:11px;display:grid;gap:7px}.fb-concierge-evidence-card strong{font-size:12px;color:#1c2814}.fb-concierge-growth-list{display:grid;gap:9px;padding:16px}.fb-concierge-growth-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;border:1px solid rgba(28,40,20,.1);border-radius:11px;background:#fff;padding:12px}.fb-concierge-section-title{grid-column:1/-1;margin:3px 0 -3px;font-family:Playfair Display,serif;font-size:16px;color:#1c2814}",
+  "@media(max-width:1000px){.fb-concierge-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.fb-concierge-grid{grid-template-columns:1fr}.fb-concierge-shell{padding:22px 18px 45px}}",
+  "@media(max-width:900px){.fb-concierge-queue{grid-template-columns:1fr}}",
+  "@media(max-width:760px){.fb-concierge-review-layout{grid-template-columns:1fr}.fb-concierge-candidate{flex-direction:column}.fb-concierge-vendor-summary,.fb-concierge-evidence-grid{grid-template-columns:1fr}.fb-concierge-growth-row{flex-direction:column}}",
+  "@media(max-width:640px){.fb-concierge-header{align-items:flex-start;flex-direction:column}.fb-concierge-actions,.fb-concierge-search{width:100%}.fb-concierge-metrics{grid-template-columns:1fr}.fb-concierge-fields{grid-template-columns:1fr}.fb-concierge-field.wide,.fb-concierge-checkbox,.fb-concierge-safe{grid-column:auto}.fb-concierge-choice-grid{grid-template-columns:1fr}.fb-concierge-title{font-size:29px}.fb-concierge-shell{padding:18px 12px 38px}.fb-concierge-modal-actions{flex-wrap:wrap}.fb-concierge-modal-actions .fb-concierge-btn{flex:1 1 auto}}",
+].join("");
+
+function fbConciergeLabel(value) {
+  return String(value || "not_set").split("_").map((part) => part ? part.charAt(0).toUpperCase() + part.slice(1) : "").join(" ");
+}
+
+function fbConciergeMoney(cents) {
+  const value = Number(cents || 0) / 100;
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+}
+
+function fbConciergeDate(value) {
+  if (!value) return "Not set";
+  const date = new Date(String(value).slice(0, 10) + "T12:00:00");
+  if (Number.isNaN(date.getTime())) return "Not set";
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
+}
+
+function fbConciergeBudget(value) {
+  const labels = {
+    under_5000: "Under $5,000",
+    "5000_to_24999": "$5,000–$24,999",
+    "25000_to_99999": "$25,000–$99,999",
+    "100000_or_more": "$100,000+",
+    not_disclosed_or_unknown: "Not disclosed",
+  };
+  return labels[value] || fbConciergeLabel(value);
+}
+
+function fbConciergeProvisionalFees(budgetBand) {
+  const introduction = { under_5000:25000, "5000_to_24999":75000, "25000_to_99999":150000 }[budgetBand] ?? null;
+  return { introduction, renewal:introduction == null ? null : Math.round(introduction * 0.5) };
+}
+
+function fbConciergeTone(value) {
+  const normalized = String(value || "");
+  if (["ready_to_source", "shortlist_ready", "vendor_selected", "active", "completed", "paid", "verified", "approved", "approved_with_conditions", "selected"].includes(normalized)) return "green";
+  if (["at_risk", "failed", "declined", "not_approved", "held_or_issue", "error", "blocker"].includes(normalized)) return "red";
+  if (["sourcing", "organization_reviewing", "invoiced", "partially_paid", "in_progress", "interested", "shortlisted"].includes(normalized)) return "blue";
+  return "amber";
+}
+
+function FBConciergeBadge({ value, label }) {
+  return <span className={"fb-concierge-badge " + fbConciergeTone(value)}>{label || fbConciergeLabel(value)}</span>;
+}
+
+function FBConciergeMetric({ label, value, note }) {
+  return <div className="fb-concierge-card fb-concierge-metric"><div className="fb-concierge-metric-label">{label}</div><div className="fb-concierge-metric-value">{value}</div><div className="fb-concierge-metric-note">{note}</div></div>;
+}
+
+function FBConciergeEmpty({ title, copy }) {
+  return <div className="fb-concierge-state"><strong>{title}</strong>{copy}</div>;
+}
+
+function FBConciergePanel({ title, note, count, actions, children }) {
+  return <section className="fb-concierge-card"><div className="fb-concierge-panel-head"><div><div className="fb-concierge-panel-title">{title}</div>{note && <div className="fb-concierge-panel-note">{note}</div>}</div><div className="fb-concierge-row-actions">{actions}{count != null && <span className="fb-concierge-count">{count}</span>}</div></div>{children}</section>;
+}
+
+function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState(() => ({ ...FB_CONCIERGE_EMPTY_INTAKE }));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKeyDown = (event) => { if (event.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, busy, onClose]);
+
+  if (!open) return null;
+
+  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const validate = () => {
+    if (step === 1) {
+      if (!form.organization_name.trim()) return "Organization name is required.";
+      if (!form.organization_type) return "Organization type is required.";
+      if (!form.relationship_source) return "Relationship source is required.";
+    }
+    if (step === 2 && !form.contact_first_name.trim() && !form.contact_last_name.trim()) return "Enter at least a first or last name for the primary contact.";
+    if (step === 3) {
+      if (!form.need_title.trim()) return "Need title is required.";
+      if (!form.primary_service_category) return "Choose a primary service category.";
+      if (!form.service_detail.trim()) return "Describe the requested service or outcome.";
+      if (["recurring_service", "hybrid"].includes(form.need_type) && form.service_frequency === "unknown") return "Choose a service frequency for a recurring or hybrid need.";
+      if (form.budget_band !== "not_disclosed_or_unknown" && !["confirmed", "working_range"].includes(form.budget_status)) return "A church-declared budget band requires Confirmed or Working Range budget status.";
+    }
+    return "";
+  };
+
+  const submit = async (event) => {
+    event.preventDefault();
+    const message = validate();
+    if (message) { setError(message); return; }
+    if (step < 3) { setStep((current) => current + 1); setError(""); return; }
+    setBusy(true);
+    setError("");
+    const payload = Object.fromEntries(Object.entries(form).map(([key, value]) => [key, typeof value === "string" ? value.trim() : value]));
+    const { data, error: rpcError } = await client.rpc("create_intake_bundle", { p_payload: payload });
+    if (rpcError) {
+      setError(rpcError.message || "The intake could not be created.");
+      setBusy(false);
+      return;
+    }
+    const result = Array.isArray(data) ? data[0] : data;
+    setBusy(false);
+    setStep(1);
+    setForm({ ...FB_CONCIERGE_EMPTY_INTAKE });
+    onCreated(result || { organization_name: form.organization_name, need_title: form.need_title });
+  };
+
+  const input = (label, key, props = {}) => <label className={"fb-concierge-field" + (props.wide ? " wide" : "")}>{label}{props.required && " *"}<input value={form[key]} onChange={(event) => update(key, event.target.value)} {...props} wide={undefined} required={undefined}/></label>;
+  const textarea = (label, key, placeholder = "") => <label className="fb-concierge-field wide">{label}<textarea value={form[key]} onChange={(event) => update(key, event.target.value)} placeholder={placeholder}/></label>;
+  const select = (label, key, options, required = false) => <label className="fb-concierge-field">{label}{required && " *"}<select value={form[key]} onChange={(event) => update(key, event.target.value)}>{options.map(([value, optionLabel]) => <option key={value} value={value}>{optionLabel}</option>)}</select></label>;
+
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-intake-title">
+        <div className="fb-concierge-modal-head">
+          <div className="fb-concierge-eyebrow">Step {step} of 3</div>
+          <h2 id="fb-concierge-intake-title">{step === 1 ? "Organization" : step === 2 ? "Primary contact" : "Initial need"}</h2>
+          <div className="fb-concierge-subtitle">{step === 1 ? "Start with the church or ministry requesting help." : step === 2 ? "Add the person FaithBid should coordinate with." : "Capture the church-declared need. Risk and sourcing gates remain locked for review."}</div>
+          <div className="fb-concierge-steps">{[1,2,3].map((item) => <span key={item} className={"fb-concierge-step" + (item <= step ? " active" : "")}/>)}</div>
+        </div>
+        <form onSubmit={submit}>
+          <div className="fb-concierge-form">
+            <div className="fb-concierge-fields">
+              {step === 1 && <>
+                {input("Organization name", "organization_name", { required: true, autoFocus: true, placeholder: "Grace Community Church" })}
+                {select("Organization type", "organization_type", [["church","Church"],["ministry","Ministry"],["christian_nonprofit","Christian nonprofit"],["christian_school","Christian school"],["network_or_denomination","Network or denomination"],["other","Other"]], true)}
+                {input("Website", "website", { type: "url", placeholder: "https://…" })}
+                {select("Relationship source", "relationship_source", [["founder_relationship","Founder relationship"],["organization_referral","Organization referral"],["vendor_referral","Vendor referral"],["network_or_denomination","Network or denomination"],["growth_engine","Growth Engine"],["event","Event"],["inbound","Inbound"],["other","Other"]], true)}
+                {input("City", "city")}
+                {input("State / region", "state_region", { placeholder: "TX" })}
+                {input("Country", "country")}
+                {textarea("Relationship context", "relationship_summary", "What do we already know, and why are they entering concierge discovery?")}
+                <label className="fb-concierge-checkbox"><input type="checkbox" checked={form.pilot_cohort} onChange={(event) => update("pilot_cohort", event.target.checked)}/><span><strong>FaithBid pilot cohort</strong><span className="fb-concierge-muted">Opt in only after the organization has explicitly entered the Dallas Pilot.</span></span></label>
+              </>}
+              {step === 2 && <>
+                {input("First name", "contact_first_name", { autoFocus: true })}
+                {input("Last name", "contact_last_name")}
+                {input("Title or role", "contact_title_role", { placeholder: "Executive Pastor" })}
+                {select("Decision role", "contact_decision_role", [["unknown","Unknown"],["decision_maker","Decision maker"],["influencer","Influencer"],["coordinator","Coordinator"],["finance_or_legal","Finance or legal"],["technical_evaluator","Technical evaluator"],["other","Other"]])}
+                {input("Email", "contact_email", { type: "email" })}
+                {input("Phone", "contact_phone", { type: "tel" })}
+                {select("Preferred contact method", "contact_preferred_channel", [["email","Email"],["phone","Phone"],["text","Text"],["video","Video call"],["other","Other"],["unknown","Unknown"]])}
+                {textarea("Contact notes", "contact_notes", "Availability, communication preferences, or useful context.")}
+                <div className="fb-concierge-safe"><strong>Verification stays honest:</strong> this person begins as Unverified and is reviewed during discovery.</div>
+              </>}
+              {step === 3 && <>
+                {input("Need title", "need_title", { required: true, autoFocus: true, placeholder: "Monthly bookkeeping support" })}
+                {select("How the need surfaced", "need_origin", [["organization_request","Organization request"],["discovery_identified","Identified during discovery"],["recurring_need","Recurring need"],["faithbid_proactive","FaithBid proactive"],["referral","Referral"],["other","Other"]], true)}
+                {select("Need type", "need_type", [["one_time_project","One-time project"],["recurring_service","Recurring service"],["hybrid","Hybrid"],["unknown","Unknown"]], true)}
+                {select("Service frequency", "service_frequency", [["unknown","Unknown / not applicable"],["weekly","Weekly"],["monthly","Monthly"],["quarterly","Quarterly"],["annual","Annual"],["seasonal","Seasonal"],["as_needed","As needed"],["other","Other"]], ["recurring_service","hybrid"].includes(form.need_type))}
+                {select("Primary service category", "primary_service_category", [["","Choose a category"], ...FB_CONCIERGE_SERVICE_CATEGORIES], true)}
+                {select("Urgency", "urgency", [["critical","Critical"],["time_sensitive","Time-sensitive"],["standard","Standard"],["exploratory","Exploratory"]])}
+                {textarea("Service detail *", "service_detail", "What service or outcome is the organization asking for?")}
+                {textarea("Need brief", "need_brief")}
+                {textarea("Desired outcome", "desired_outcome")}
+                {textarea("Must-haves", "must_haves")}
+                {textarea("Nice-to-haves", "nice_to_haves")}
+                {input("Decision target", "target_decision_on", { type: "date" })}
+                {input("Start target", "target_start_on", { type: "date" })}
+                {select("Church budget status", "budget_status", [["unknown","Unknown"],["working_range","Working range"],["confirmed","Confirmed"],["not_set","Not set"],["declined_to_share","Declined to share"]])}
+                {select("Church-declared budget band", "budget_band", [["not_disclosed_or_unknown","Not disclosed or unknown"],["under_5000","Under $5,000"],["5000_to_24999","$5,000–$24,999"],["25000_to_99999","$25,000–$99,999"],["100000_or_more","$100,000+"]])}
+                {select("Delivery requirement", "delivery_requirement", [["unknown","Unknown"],["on_site_local","On-site local"],["on_site_regional","On-site regional"],["on_site_nationwide","On-site nationwide"],["remote","Remote"],["hybrid","Hybrid"]])}
+                {input("Service location", "service_location", { placeholder: "City, campus, or remote" })}
+                {select("Faith alignment", "faith_alignment_requirement", [["unknown","Unknown"],["required","Required"],["strongly_preferred","Strongly preferred"],["preferred","Preferred"],["not_material","Not material"]])}
+                {input("Faith-fit rationale", "faith_fit_rationale")}
+                {input("Next action", "next_action", { placeholder: "Clarify scope with the church" })}
+                {input("Next action date", "next_action_on", { type: "date" })}
+                <div className="fb-concierge-safe"><strong>Safe starting state:</strong> this creates Organization, Primary Contact, and Need atomically. The Need stays in Intake with risk Unclassified until the review gate is completed.</div>
+              </>}
+              {error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{gridColumn:"1/-1",margin:0}}>{error}</div>}
+            </div>
+          </div>
+          <div className="fb-concierge-modal-actions">
+            <button type="button" className="fb-concierge-btn" onClick={step === 1 ? onClose : () => { setStep((current) => current - 1); setError(""); }} disabled={busy}>{step === 1 ? "Cancel" : "Back"}</button>
+            <button type="submit" className="fb-concierge-btn primary" disabled={busy}>{busy ? "Creating safely…" : step < 3 ? "Continue" : "Create intake safely"}</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  );
+}
+
+function fbConciergeReviewChecks(form, operatorId) {
+  const checks = [];
+  const add = (ok, label) => checks.push({ ok: Boolean(ok), label });
+  const pilot = fbConciergePilotClassification(form);
+  add(String(form.need_title || "").trim(), "Need title is clear.");
+  add(form.need_type && form.need_type !== "unknown", "Need type is classified.");
+  add(!["recurring_service", "hybrid"].includes(form.need_type) || (form.service_frequency && form.service_frequency !== "unknown"), "Recurring or hybrid work has a frequency.");
+  add(form.primary_service_category, "Primary service category is selected.");
+  add(String(form.service_detail || "").trim(), "Service detail explains the ask.");
+  add(String(form.need_brief || "").trim(), "Need brief is ready for vendor conversations.");
+  add(String(form.desired_outcome || "").trim(), "Desired outcome is captured.");
+  add(String(form.must_haves || "").trim(), "Must-haves are explicit.");
+  add(["confirmed", "working_range"].includes(form.budget_status), "Budget status is confirmed or a working range.");
+  add(form.budget_band && !["not_disclosed_or_unknown", "unknown"].includes(form.budget_band), "Church-declared budget band is present.");
+  add(["organization_declared_total_project", "organization_declared_first_12_months"].includes(form.budget_band_basis), "Budget basis is church-declared, not vendor-supplied.");
+  add(form.budget_basis, "Budget timing is defined for the declared amount.");
+  add(form.delivery_requirement && form.delivery_requirement !== "unknown", "Delivery requirement is known.");
+  add(!["on_site_local", "on_site_regional", "on_site_nationwide", "hybrid"].includes(form.delivery_requirement) || String(form.service_location || "").trim(), "On-site or hybrid work has a service location.");
+  add(form.faith_alignment_requirement && form.faith_alignment_requirement !== "unknown", "Faith alignment requirement is classified.");
+  add(!["required", "strongly_preferred"].includes(form.faith_alignment_requirement) || String(form.faith_fit_rationale || "").trim(), "Faith-fit rationale supports the classification.");
+  add(form.risk_tier && form.risk_tier !== "unclassified", "Risk tier is classified.");
+  add(form.compliance_gate && form.compliance_gate !== "declined", "Compliance gate is not declined.");
+  add(form.risk_tier !== "tier_3_regulated" || form.compliance_gate === "approved", "Tier 3 regulated needs have approval before sourcing.");
+  add(pilot.eligibility !== "review_required", "Dallas pilot eligibility is classified.");
+  add(pilot.eligibility !== "excluded", pilot.eligibility === "excluded" ? pilot.reason : "The need is inside the approved Dallas pilot scope.");
+  add(pilot.eligibility !== "security_review_required" || pilot.complianceGate === "approved", "Sensitive IT or ChMS access has an approved security review.");
+  add(form.requesting_contact_id, "A requesting church contact is linked.");
+  add(form.owner_id || operatorId, "A FaithBid concierge owner is assigned.");
+  add(Number(form.shortlist_target || 0) >= 1 && Number(form.shortlist_target || 0) <= 20, "Shortlist target is between 1 and 20.");
+  add(String(form.next_action || "").trim(), "Next action is assigned.");
+  add(form.next_action_on, "Next action date is set.");
+  return checks;
+}
+
+function FBConciergeIntakeReviewModal({ client, need, operatorId, onClose, onReviewed }) {
+  const [form, setForm] = useState(() => ({ ...(need || {}) }));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setForm({ ...(need || {}) });
+    setError("");
+  }, [need]);
+
+  useEffect(() => {
+    if (!need) return undefined;
+    const onKeyDown = (event) => { if (event.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [need, busy, onClose]);
+
+  if (!need) return null;
+
+  const relation = Array.isArray(need.organization) ? need.organization[0] : need.organization;
+  const pilot = fbConciergePilotClassification(form);
+  const checks = fbConciergeReviewChecks(form, operatorId);
+  const blockers = checks.filter((item) => !item.ok);
+  const ready = blockers.length === 0;
+  const applyPilotClassification = (record) => {
+    const classification = fbConciergePilotClassification(record);
+    return { ...record, risk_tier:classification.riskTier, compliance_gate:classification.complianceGate, pilot_eligibility:classification.eligibility, pilot_hold_reason:classification.reason };
+  };
+  const update = (key, value) => setForm((current) => applyPilotClassification({ ...current, [key]: value }));
+  const toggleRiskFlag = (value) => setForm((current) => {
+    const flags = new Set(current.pilot_risk_flags || []);
+    if (flags.has(value)) flags.delete(value); else flags.add(value);
+    return applyPilotClassification({ ...current, pilot_risk_flags:Array.from(flags) });
+  });
+  const fieldProps = {
+    need_title: form.need_title || "",
+    service_detail: form.service_detail || "",
+    need_brief: form.need_brief || "",
+    desired_outcome: form.desired_outcome || "",
+    must_haves: form.must_haves || "",
+    nice_to_haves: form.nice_to_haves || "",
+    service_location: form.service_location || "",
+    faith_fit_rationale: form.faith_fit_rationale || "",
+    next_action: form.next_action || "",
+    next_action_on: form.next_action_on || "",
+    target_decision_on: form.target_decision_on || "",
+    target_start_on: form.target_start_on || "",
+    shortlist_target: form.shortlist_target ?? 3,
+  };
+
+  const save = async (approve) => {
+    const currentChecks = fbConciergeReviewChecks(form, operatorId);
+    if (approve && currentChecks.some((item) => !item.ok)) {
+      setError("Resolve the required review items before moving this need to Ready to Source.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    const now = new Date().toISOString();
+    const payload = {
+      need_title: String(form.need_title || "").trim(),
+      need_type: form.need_type || "unknown",
+      service_frequency: form.service_frequency || "unknown",
+      primary_service_category: form.primary_service_category || null,
+      service_detail: String(form.service_detail || "").trim(),
+      need_brief: String(form.need_brief || "").trim() || null,
+      desired_outcome: String(form.desired_outcome || "").trim() || null,
+      must_haves: String(form.must_haves || "").trim() || null,
+      nice_to_haves: String(form.nice_to_haves || "").trim() || null,
+      urgency: form.urgency || "standard",
+      target_decision_on: form.target_decision_on || null,
+      target_start_on: form.target_start_on || null,
+      budget_status: form.budget_status || "unknown",
+      budget_basis: form.budget_basis || null,
+      budget_band: form.budget_band || "not_disclosed_or_unknown",
+      budget_band_basis: form.budget_band_basis || "manual_review",
+      delivery_requirement: form.delivery_requirement || "unknown",
+      service_location: String(form.service_location || "").trim() || null,
+      faith_alignment_requirement: form.faith_alignment_requirement || "unknown",
+      faith_fit_rationale: String(form.faith_fit_rationale || "").trim(),
+      pilot_risk_flags: form.pilot_risk_flags || [],
+      risk_tier: pilot.riskTier,
+      compliance_gate: pilot.complianceGate,
+      owner_id: form.owner_id || operatorId || null,
+      shortlist_target: Number(form.shortlist_target || 3),
+      next_action: String(form.next_action || "").trim() || null,
+      next_action_on: form.next_action_on || null,
+      status: approve ? "ready_to_source" : "clarifying",
+      ready_to_source_at: approve ? now : null,
+    };
+    const { error: updateError } = await client.from("needs").update(payload).eq("id", need.id).select("id").single();
+    setBusy(false);
+    if (updateError) {
+      setError(updateError.message || "The intake review could not be saved.");
+      return;
+    }
+    onReviewed(approve ? "Need approved as Ready to Source." : "Need saved as Clarifying.");
+  };
+
+  const input = (label, key, props = {}) => <label className={"fb-concierge-field" + (props.wide ? " wide" : "")}>{label}<input value={fieldProps[key] ?? form[key] ?? ""} onChange={(event) => update(key, event.target.value)} {...props} wide={undefined}/></label>;
+  const textarea = (label, key) => <label className="fb-concierge-field wide">{label}<textarea value={fieldProps[key] ?? ""} onChange={(event) => update(key, event.target.value)}/></label>;
+  const select = (label, key, options) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(event) => update(key, event.target.value)}>{options.map(([value, optionLabel]) => <option key={value} value={value}>{optionLabel}</option>)}</select></label>;
+
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-review-title">
+        <div className="fb-concierge-modal-head">
+          <div className="fb-concierge-eyebrow">Intake Review</div>
+          <h2 id="fb-concierge-review-title">{form.need_title || "Review submitted need"}</h2>
+          <div className="fb-concierge-subtitle">{relation?.organization_name || "Organization not linked"} - resolve details, classify risk, and approve only when the need is ready for sourcing.</div>
+        </div>
+        <form onSubmit={(event) => { event.preventDefault(); void save(false); }}>
+          <div className="fb-concierge-form">
+            <div className="fb-concierge-review-layout">
+              <div className="fb-concierge-fields">
+                {input("Need title", "need_title", { autoFocus: true, wide: true })}
+                {select("Need type", "need_type", [["unknown","Unknown"],["one_time_project","One-time project"],["recurring_service","Recurring service"],["hybrid","Hybrid"]])}
+                {select("Service frequency", "service_frequency", [["unknown","Unknown / not applicable"],["weekly","Weekly"],["monthly","Monthly"],["quarterly","Quarterly"],["annual","Annual"],["seasonal","Seasonal"],["as_needed","As needed"],["other","Other"]])}
+                {select("Primary service category", "primary_service_category", [["","Choose a category"], ...FB_CONCIERGE_SERVICE_CATEGORIES])}
+                <fieldset className="fb-concierge-field wide" style={{border:0,padding:0,margin:0}}><legend>Pilot exclusions and security flags</legend><div className="fb-concierge-choice-grid">{FB_DALLAS_PILOT_RISK_FLAGS.map(([value,label]) => <label className="fb-concierge-choice" key={value}><input type="checkbox" checked={(form.pilot_risk_flags || []).includes(value)} onChange={() => toggleRiskFlag(value)}/><span>{label}</span></label>)}</div></fieldset>
+                {select("Urgency", "urgency", [["critical","Critical"],["time_sensitive","Time-sensitive"],["standard","Standard"],["exploratory","Exploratory"]])}
+                {textarea("Service detail", "service_detail")}
+                {textarea("Desired outcome", "desired_outcome")}
+                {textarea("Need brief", "need_brief")}
+                {textarea("Must-haves", "must_haves")}
+                {textarea("Nice-to-haves", "nice_to_haves")}
+                {select("Church budget status", "budget_status", [["unknown","Unknown"],["working_range","Working range"],["confirmed","Confirmed"],["not_set","Not set"],["declined_to_share","Declined to share"]])}
+                {select("Church-declared budget band", "budget_band", [["not_disclosed_or_unknown","Not disclosed or unknown"],["under_5000","Under $5,000"],["5000_to_24999","$5,000-$24,999"],["25000_to_99999","$25,000-$99,999"],["100000_or_more","$100,000+"]])}
+                {select("Budget timing", "budget_basis", [["","Choose timing"],["total_project","Total project"],["monthly","Monthly"],["annual","Annual"],["hourly","Hourly"],["per_event","Per event"],["other","Other"]])}
+                {select("Budget band basis", "budget_band_basis", [["manual_review","Manual review"],["organization_declared_total_project","Church-declared total project"],["organization_declared_first_12_months","Church-declared first 12 months"]])}
+                {select("Delivery requirement", "delivery_requirement", [["unknown","Unknown"],["on_site_local","On-site local"],["on_site_regional","On-site regional"],["on_site_nationwide","On-site nationwide"],["remote","Remote"],["hybrid","Hybrid"]])}
+                {input("Service location", "service_location")}
+                {select("Faith alignment", "faith_alignment_requirement", [["unknown","Unknown"],["required","Required"],["strongly_preferred","Strongly preferred"],["preferred","Preferred"],["not_material","Not material"]])}
+                {input("Faith-fit rationale", "faith_fit_rationale", { wide: true })}
+                {select("Risk tier", "risk_tier", [["unclassified","Unclassified"],["tier_1","Tier 1"],["tier_2","Tier 2"],["tier_3_regulated","Tier 3 / regulated"]])}
+                {select("Compliance gate", "compliance_gate", [["standard","Standard"],["category_sop_required","Category SOP required"],["legal_compliance_approval_required","Legal / compliance approval required"],["approved","Approved"],["declined","Declined"]])}
+                {input("Shortlist target", "shortlist_target", { type: "number", min: "1", max: "20" })}
+                {input("Decision target", "target_decision_on", { type: "date" })}
+                {input("Start target", "target_start_on", { type: "date" })}
+                {input("Next action", "next_action", { wide: true })}
+                {input("Next action date", "next_action_on", { type: "date" })}
+              </div>
+              <aside className="fb-concierge-review-summary">
+                <div className="fb-concierge-review-card"><strong>Review status</strong><span>{ready ? "Ready to approve for sourcing." : blockers.length + " item" + (blockers.length === 1 ? "" : "s") + " still need attention."}</span></div>
+                <div className="fb-concierge-review-card"><strong>Dallas pilot: {fbConciergeLabel(pilot.eligibility)}</strong><span>{pilot.reason}</span></div>
+                <div className="fb-concierge-review-card"><strong>Fee mechanics</strong><span>Intro fee tier uses this church-declared budget band only. Vendor estimates do not set the tier.</span></div>
+                <div className="fb-concierge-checklist">{checks.map((item) => <div key={item.label} className={"fb-concierge-check " + (item.ok ? "good" : "bad")}><span className="fb-concierge-check-mark">{item.ok ? "✓" : "!"}</span><span>{item.label}</span></div>)}</div>
+              </aside>
+              {error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{gridColumn:"1/-1",margin:0}}>{error}</div>}
+            </div>
+          </div>
+          <div className="fb-concierge-modal-actions">
+            <button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Close</button>
+            <button type="submit" className="fb-concierge-btn" disabled={busy}>{busy ? "Saving..." : "Save as Clarifying"}</button>
+            <button type="button" className="fb-concierge-btn primary" disabled={busy || !ready} onClick={() => void save(true)}>{busy ? "Approving..." : "Approve Ready to Source"}</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  );
+}
+
+const FB_CONCIERGE_EMPTY_MATCH = Object.freeze({
+  vendor_interest: "unknown",
+  project_availability: "unknown",
+  must_have_fit: "not_assessed",
+  overall_fit: "not_assessed",
+  fit_rationale: "",
+  concerns: "",
+  recommendation_summary: "",
+  shortlist_rank: "",
+});
+
+function FBConciergeSourcingModal({ client, need, vendors, matches, onClose, onChanged }) {
+  const needMatches = useMemo(() => matches.filter((item) => item.need_id === need?.id), [matches, need?.id]);
+  const existingVendorIds = useMemo(() => new Set(needMatches.map((item) => item.vendor_id)), [needMatches]);
+  const availableVendors = useMemo(() => vendors
+    .filter((vendor) => !existingVendorIds.has(vendor.id) && vendor.relationship_status !== "do_not_use")
+    .sort((left, right) => {
+      const leftCategory = (left.service_categories || []).includes(need?.primary_service_category) ? 1 : 0;
+      const rightCategory = (right.service_categories || []).includes(need?.primary_service_category) ? 1 : 0;
+      const leftApproved = ["approved", "approved_with_conditions"].includes(left.vetting_decision) ? 1 : 0;
+      const rightApproved = ["approved", "approved_with_conditions"].includes(right.vetting_decision) ? 1 : 0;
+      return (rightCategory + rightApproved) - (leftCategory + leftApproved) || String(left.vendor_name).localeCompare(String(right.vendor_name));
+    }), [vendors, existingVendorIds, need?.primary_service_category]);
+  const [vendorId, setVendorId] = useState("");
+  const [editingMatch, setEditingMatch] = useState(null);
+  const [form, setForm] = useState(() => ({ ...FB_CONCIERGE_EMPTY_MATCH }));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!need) return undefined;
+    const onKeyDown = (event) => { if (event.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [need, busy, onClose]);
+
+  if (!need) return null;
+
+  const relation = Array.isArray(need.organization) ? need.organization[0] : need.organization;
+  const shortlisted = needMatches.filter((item) => ["shortlisted", "selected"].includes(item.stage));
+  const target = Math.max(1, Number(need.shortlist_target || 3));
+  const selectedVendor = vendors.find((item) => item.id === (editingMatch?.vendor_id || vendorId));
+  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const closeWith = async (message) => {
+    setBusy(false);
+    await onChanged(message);
+  };
+  const fail = (actionError, fallback) => {
+    setBusy(false);
+    setError(actionError?.message || fallback);
+  };
+
+  const startSourcing = async () => {
+    setBusy(true);
+    setError("");
+    const today = new Date().toISOString().slice(0, 10);
+    const { error: updateError } = await client.from("needs").update({
+      status: "sourcing",
+      sourcing_started_at: new Date().toISOString(),
+      next_action: "Identify and evaluate qualified vendors",
+      next_action_on: today,
+    }).eq("id", need.id).select("id").single();
+    if (updateError) { fail(updateError, "Sourcing could not be started."); return; }
+    await closeWith("Sourcing started. The need is now in the vendor matching queue.");
+  };
+
+  const addCandidate = async () => {
+    if (!vendorId) { setError("Choose a vendor from the private bench first."); return; }
+    setBusy(true);
+    setError("");
+    if (need.status === "ready_to_source") {
+      const { error: startError } = await client.from("needs").update({ status: "sourcing", sourcing_started_at: new Date().toISOString() }).eq("id", need.id).select("id").single();
+      if (startError) { fail(startError, "The need could not enter sourcing."); return; }
+    }
+    const { error: insertError } = await client.from("matches").insert({ need_id: need.id, vendor_id: vendorId, stage: "identified" }).select("id").single();
+    if (insertError) { fail(insertError, "The vendor could not be added as a candidate."); return; }
+    await closeWith((selectedVendor?.vendor_name || "Vendor") + " added to the sourcing queue.");
+  };
+
+  const beginEdit = (item) => {
+    setEditingMatch(item);
+    setVendorId(item.vendor_id || "");
+    setForm({
+      vendor_interest: item.vendor_interest || "unknown",
+      project_availability: item.project_availability || "unknown",
+      must_have_fit: item.must_have_fit || "not_assessed",
+      overall_fit: item.overall_fit || "not_assessed",
+      fit_rationale: item.fit_rationale || "",
+      concerns: item.concerns || "",
+      recommendation_summary: item.recommendation_summary || "",
+      shortlist_rank: item.shortlist_rank == null ? "" : String(item.shortlist_rank),
+    });
+    setError("");
+  };
+
+  const saveEvaluation = async (promote) => {
+    if (!editingMatch) return;
+    if (promote) {
+      const blockers = [];
+      if (!["approved", "approved_with_conditions"].includes(selectedVendor?.vetting_decision)) blockers.push("vendor vetting must be approved");
+      if (["inactive", "do_not_use"].includes(selectedVendor?.relationship_status)) blockers.push("vendor must be active");
+      if (!["interested", "maybe"].includes(form.vendor_interest)) blockers.push("vendor interest must be Interested or Maybe");
+      if (form.project_availability === "unavailable" || form.project_availability === "unknown") blockers.push("availability must be confirmed");
+      if (!["meets", "partially_meets"].includes(form.must_have_fit)) blockers.push("must-have fit must be assessed");
+      if (!["strong", "viable"].includes(form.overall_fit)) blockers.push("overall fit must be Strong or Viable");
+      if (!String(form.fit_rationale || "").trim()) blockers.push("fit rationale is required");
+      if (!String(form.recommendation_summary || "").trim()) blockers.push("recommendation summary is required");
+      if (!Number(form.shortlist_rank || 0)) blockers.push("shortlist rank is required");
+      if (blockers.length) { setError("Before shortlisting: " + blockers.join("; ") + "."); return; }
+    }
+    setBusy(true);
+    setError("");
+    const payload = {
+      vendor_interest: form.vendor_interest,
+      project_availability: form.project_availability,
+      must_have_fit: form.must_have_fit,
+      overall_fit: form.overall_fit,
+      fit_rationale: String(form.fit_rationale || "").trim() || null,
+      concerns: String(form.concerns || "").trim() || null,
+      recommendation_summary: String(form.recommendation_summary || "").trim() || null,
+      shortlist_rank: form.shortlist_rank ? Number(form.shortlist_rank) : null,
+      stage: promote ? "shortlisted" : (editingMatch.stage === "shortlisted" ? "shortlisted" : "evaluating"),
+      shortlisted_at: promote ? new Date().toISOString() : editingMatch.shortlisted_at || null,
+    };
+    const { error: updateError } = await client.from("matches").update(payload).eq("id", editingMatch.id).select("id").single();
+    if (updateError) { fail(updateError, "The candidate evaluation could not be saved."); return; }
+    if (promote) {
+      const projectedShortlistCount = needMatches.filter((item) => item.id !== editingMatch.id && ["shortlisted", "selected"].includes(item.stage)).length + 1;
+      if (projectedShortlistCount >= target && !["shortlist_ready", "organization_reviewing", "vendor_selected"].includes(need.status)) {
+        const { error: needError } = await client.from("needs").update({ status: "shortlist_ready", next_action: "Present the qualified shortlist to the church", next_action_on: new Date().toISOString().slice(0, 10) }).eq("id", need.id).select("id").single();
+        if (needError) { fail(needError, "The match was shortlisted, but the need status could not advance."); return; }
+      }
+    }
+    await closeWith(promote ? (selectedVendor?.vendor_name || "Vendor") + " promoted to the qualified shortlist." : "Candidate evaluation saved.");
+  };
+
+  const presentToChurch = async () => {
+    setBusy(true);
+    setError("");
+    const { error: updateError } = await client.from("needs").update({
+      status: "organization_reviewing",
+      shortlist_presented_at: new Date().toISOString(),
+      next_action: "Collect the church's shortlist decision",
+      next_action_on: new Date().toISOString().slice(0, 10),
+    }).eq("id", need.id).select("id").single();
+    if (updateError) { fail(updateError, "The shortlist could not be marked as presented."); return; }
+    await closeWith("Qualified shortlist presented to the church.");
+  };
+
+  const select = (label, key, options) => <label className="fb-concierge-field">{label}<select value={form[key]} onChange={(event) => update(key, event.target.value)}>{options.map(([value, optionLabel]) => <option key={value} value={value}>{optionLabel}</option>)}</select></label>;
+  const textarea = (label, key) => <label className="fb-concierge-field wide">{label}<textarea value={form[key]} onChange={(event) => update(key, event.target.value)}/></label>;
+
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-sourcing-title">
+        <div className="fb-concierge-modal-head">
+          <div className="fb-concierge-eyebrow">Sourcing / Shortlist</div>
+          <h2 id="fb-concierge-sourcing-title">{need.need_title}</h2>
+          <div className="fb-concierge-subtitle">{relation?.organization_name || "Organization not linked"} · {shortlisted.length} of {target} qualified shortlist spots filled.</div>
+        </div>
+        <div className="fb-concierge-form">
+          <div className="fb-concierge-review-layout">
+            <div className="fb-concierge-review-summary">
+              <div className="fb-concierge-review-card"><strong>Need snapshot</strong><span>{fbConciergeLabel(need.primary_service_category)} · {fbConciergeBudget(need.budget_band)} · {fbConciergeLabel(need.delivery_requirement)}</span></div>
+              <div className="fb-concierge-review-card"><strong>Stage</strong><span><FBConciergeBadge value={need.status}/> The introduction fee tier continues to come only from this church-declared budget band.</span></div>
+              {need.status === "ready_to_source" && <button type="button" className="fb-concierge-btn primary" onClick={() => void startSourcing()} disabled={busy}>Start sourcing</button>}
+              {need.status === "shortlist_ready" && shortlisted.length > 0 && <button type="button" className="fb-concierge-btn primary" onClick={() => void presentToChurch()} disabled={busy}>Mark shortlist presented</button>}
+              <div className="fb-concierge-review-card">
+                <strong>Add a bench vendor</strong>
+                <span>Category-aligned and approved vendors are ranked first. Shortlisting remains blocked until the full evaluation is complete.</span>
+                <label className="fb-concierge-field" style={{marginTop:10}}>Vendor<select value={vendorId} onChange={(event) => { setVendorId(event.target.value); setEditingMatch(null); }}><option value="">Choose a vendor</option>{availableVendors.map((vendor) => <option key={vendor.id} value={vendor.id}>{vendor.vendor_name} · {fbConciergeLabel(vendor.vetting_decision)}</option>)}</select></label>
+                <button type="button" className="fb-concierge-btn" style={{marginTop:9}} onClick={() => void addCandidate()} disabled={busy || !vendorId}>Add candidate</button>
+                {!availableVendors.length && <span className="fb-concierge-muted">No additional vendors are on the private bench yet.</span>}
+              </div>
+              <div className="fb-concierge-candidates">
+                {needMatches.map((item) => <div className="fb-concierge-candidate" key={item.id}><div className="fb-concierge-candidate-main"><strong>{item.vendor_name}</strong><span className="fb-concierge-muted">{fbConciergeLabel(item.overall_fit)} fit · {item.shortlist_rank ? "Rank " + item.shortlist_rank : "Not ranked"}</span></div><div className="fb-concierge-row-actions"><FBConciergeBadge value={item.stage}/><button type="button" className="fb-concierge-mini-btn" onClick={() => beginEdit(item)} disabled={busy}>Evaluate</button></div></div>)}
+                {!needMatches.length && <FBConciergeEmpty title="No candidates yet." copy="Start sourcing and add the first qualified bench vendor."/>}
+              </div>
+            </div>
+            <div>
+              {editingMatch ? <div className="fb-concierge-fields">
+                <div className="fb-concierge-safe"><strong>{selectedVendor?.vendor_name || "Candidate"}</strong><br/>{fbConciergeLabel(selectedVendor?.vetting_decision)} vetting · {fbConciergeLabel(selectedVendor?.proof_level)} proof</div>
+                {select("Vendor interest", "vendor_interest", [["unknown","Unknown"],["interested","Interested"],["maybe","Maybe"],["declined","Declined"],["no_response","No response"]])}
+                {select("Availability", "project_availability", [["unknown","Unknown"],["available","Available"],["limited","Limited"],["unavailable","Unavailable"]])}
+                {select("Must-have fit", "must_have_fit", [["not_assessed","Not assessed"],["meets","Meets"],["partially_meets","Partially meets"],["does_not_meet","Does not meet"]])}
+                {select("Overall fit", "overall_fit", [["not_assessed","Not assessed"],["strong","Strong"],["viable","Viable"],["weak","Weak"]])}
+                <label className="fb-concierge-field">Shortlist rank<input type="number" min="1" max="50" value={form.shortlist_rank} onChange={(event) => update("shortlist_rank", event.target.value)}/></label>
+                {textarea("Fit rationale", "fit_rationale")}
+                {textarea("Concerns", "concerns")}
+                {textarea("Recommendation summary", "recommendation_summary")}
+                <div className="fb-concierge-row-actions" style={{gridColumn:"1/-1"}}><button type="button" className="fb-concierge-btn" onClick={() => void saveEvaluation(false)} disabled={busy}>Save evaluation</button><button type="button" className="fb-concierge-btn primary" onClick={() => void saveEvaluation(true)} disabled={busy || editingMatch.stage === "shortlisted"}>{editingMatch.stage === "shortlisted" ? "Already shortlisted" : "Promote to shortlist"}</button></div>
+              </div> : <FBConciergeEmpty title="Select a candidate to evaluate." copy="FaithBid keeps human judgment, vetting, fit rationale, and ranking visible before a vendor reaches the church."/>}
+            </div>
+          </div>
+          {error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{margin:"14px 0 0"}}>{error}</div>}
+        </div>
+        <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Close</button></div>
+      </section>
+    </div>
+  );
+}
+
+function FBConciergeIntroductionModal({ client, match, need, vendor, onClose, onFinalized }) {
+  const provisional = fbConciergeProvisionalFees(need?.budget_band);
+  const recurringByNeed = ["recurring_service","hybrid"].includes(need?.need_type);
+  const [form, setForm] = useState(() => ({
+    organization_feedback:"",
+    placement_agreement_reference:"",
+    agreed_introduction_fee_dollars:provisional.introduction == null ? "" : String(provisional.introduction / 100),
+    renewal_fee_applies:recurringByNeed ? "yes_terms_agreed" : "no",
+    agreed_renewal_fee_dollars:recurringByNeed && provisional.renewal != null ? String(provisional.renewal / 100) : "",
+    renewal_trigger_terms:recurringByNeed ? "Due only after FaithBid's scheduled check-in confirms the church and vendor have continued the engagement beyond the original term." : "",
+    fee_exception_reason:"",
+    planned_start_on:need?.target_start_on || "",
+    agreed_project_service_value_dollars:"",
+    value_basis:need?.budget_basis || "",
+    church_selection_confirmed:false,
+    written_terms_confirmed:false,
+  }));
+  const [busy,setBusy] = useState(false);
+  const [error,setError] = useState("");
+
+  useEffect(() => {
+    const onKeyDown = (event) => { if (event.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [busy,onClose]);
+
+  if (!match || !need || !vendor) return null;
+  const update = (key,value) => setForm((current)=>({ ...current,[key]:value }));
+  const introCents = form.agreed_introduction_fee_dollars === "" ? null : Math.round(Number(form.agreed_introduction_fee_dollars) * 100);
+  const renewalCents = form.agreed_renewal_fee_dollars === "" ? null : Math.round(Number(form.agreed_renewal_fee_dollars) * 100);
+  const renewalApplies = form.renewal_fee_applies !== "no";
+  const manualFee = provisional.introduction == null || introCents !== provisional.introduction || (renewalApplies && provisional.renewal != null && renewalCents !== provisional.renewal);
+  const complianceReady = need.compliance_gate !== "declined" && (need.risk_tier !== "tier_3_regulated" || need.compliance_gate === "approved");
+  const checks = [
+    {ok:match.stage === "shortlisted",label:"The vendor is on the qualified shortlist."},
+    {ok:need.status === "organization_reviewing" && Boolean(need.shortlist_presented_at),label:"The church received the shortlist and is in selection review."},
+    {ok:["approved","approved_with_conditions"].includes(vendor.vetting_decision) && !["inactive","do_not_use"].includes(vendor.relationship_status),label:"Vendor approval and relationship status are current."},
+    {ok:complianceReady,label:need.risk_tier === "tier_3_regulated" ? "Regulated-category compliance is affirmatively approved." : "No compliance gate blocks the introduction."},
+    {ok:form.church_selection_confirmed && String(form.organization_feedback || "").trim(),label:"Church selection confirmation is recorded."},
+    {ok:Number.isFinite(introCents) && introCents >= 0,label:"The introduction fee is disclosed and accepted."},
+    {ok:!renewalApplies || (Number.isFinite(renewalCents) && renewalCents >= 0 && renewalCents < introCents && String(form.renewal_trigger_terms || "").trim()),label:"Any renewal fee is smaller, pre-agreed, and has clear trigger terms."},
+    {ok:!manualFee || String(form.fee_exception_reason || "").trim(),label:"Any manual or modified fee has a founder approval reason."},
+    {ok:form.written_terms_confirmed && String(form.placement_agreement_reference || "").trim(),label:"Written acceptance reference covers introduction and renewal terms."},
+    {ok:form.agreed_project_service_value_dollars === "" || (Number(form.agreed_project_service_value_dollars) >= 0 && Boolean(form.value_basis)),label:"Any recorded service value includes its basis."},
+  ];
+  const ready = checks.every((item)=>Boolean(item.ok));
+
+  const finalize = async () => {
+    if (!ready) { setError("Resolve every placement gate before recording the introduction."); return; }
+    setBusy(true); setError("");
+    const payload = {
+      organization_feedback:String(form.organization_feedback || "").trim(),
+      placement_agreement_reference:String(form.placement_agreement_reference || "").trim(),
+      agreed_introduction_fee_cents:introCents,
+      renewal_fee_applies:form.renewal_fee_applies,
+      agreed_renewal_fee_cents:renewalApplies ? renewalCents : null,
+      renewal_trigger_terms:renewalApplies ? String(form.renewal_trigger_terms || "").trim() : null,
+      fee_exception_reason:manualFee ? String(form.fee_exception_reason || "").trim() : null,
+      planned_start_on:form.planned_start_on || null,
+      agreed_project_service_value_cents:form.agreed_project_service_value_dollars === "" ? null : Math.round(Number(form.agreed_project_service_value_dollars) * 100),
+      value_basis:form.agreed_project_service_value_dollars === "" ? null : form.value_basis,
+    };
+    const { data,error:rpcError } = await client.rpc("finalize_introduction",{ p_match_id:match.id,p_payload:payload });
+    setBusy(false);
+    if (rpcError) { setError(rpcError.message || "The selection and introduction could not be finalized."); return; }
+    await onFinalized(data || {},vendor.vendor_name + " selected and introduced. The Engagement is ready for launch preparation; no payment or completed hire was inferred.");
+  };
+
+  const input = (label,key,props={}) => <label className={"fb-concierge-field"+(props.wide?" wide":"")}>{label}<input value={form[key] ?? ""} onChange={(event)=>update(key,event.target.value)} {...props} wide={undefined}/></label>;
+  const select = (label,key,options) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(event)=>update(key,event.target.value)}>{options.map(([value,text])=><option value={value} key={value}>{text}</option>)}</select></label>;
+  return <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event)=>{if(event.target===event.currentTarget&&!busy)onClose();}}>
+    <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-introduction-title">
+      <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Introduction & Placement Agreement Gate</div><h2 id="fb-concierge-introduction-title">{vendor.vendor_name} for {need.need_title}</h2><div className="fb-concierge-subtitle">Record the church's selection and the already-disclosed fee terms. Finalizing creates a preparing Engagement; it does not claim payment, project start, or successful completion.</div></div>
+      <div className="fb-concierge-form"><div className="fb-concierge-review-layout"><div className="fb-concierge-fields">
+        <div className="fb-concierge-safe"><strong>Church-declared fee source</strong><br/>{fbConciergeBudget(need.budget_band)} · {provisional.introduction == null ? "Founder-reviewed fee required" : fbConciergeMoney(provisional.introduction)+" provisional introduction fee"}. Vendor quotes cannot change this tier.</div>
+        <label className="fb-concierge-field wide">How the church confirmed this selection<textarea value={form.organization_feedback} onChange={(event)=>update("organization_feedback",event.target.value)} placeholder="Example: Pastor Smith confirmed the selection by email on September 2."/></label>
+        <label className="fb-concierge-checkbox"><input type="checkbox" checked={form.church_selection_confirmed} onChange={(event)=>update("church_selection_confirmed",event.target.checked)}/><span>I confirmed the church selected this vendor—not merely that FaithBid recommended it.</span></label>
+        {input("Written agreement reference","placement_agreement_reference",{wide:true,placeholder:"Signed document, email thread, or stored agreement reference"})}
+        {input("Accepted introduction fee ($)","agreed_introduction_fee_dollars",{type:"number",min:"0",step:"1"})}
+        {select("Renewal terms","renewal_fee_applies",[["no","No renewal fee"],["potential_recurring","Potential recurring work—terms agreed"],["yes_terms_agreed","Recurring engagement—terms agreed"]])}
+        {renewalApplies && input("Accepted renewal fee ($)","agreed_renewal_fee_dollars",{type:"number",min:"0",step:"1"})}
+        {renewalApplies && <label className="fb-concierge-field wide">Renewal trigger terms<textarea value={form.renewal_trigger_terms} onChange={(event)=>update("renewal_trigger_terms",event.target.value)}/></label>}
+        {manualFee && <label className="fb-concierge-field wide">Founder approval reason for manual / modified fee<textarea value={form.fee_exception_reason} onChange={(event)=>update("fee_exception_reason",event.target.value)} placeholder="Explain why this agreed amount differs from the provisional tier or required manual calibration."/></label>}
+        <label className="fb-concierge-checkbox"><input type="checkbox" checked={form.written_terms_confirmed} onChange={(event)=>update("written_terms_confirmed",event.target.checked)}/><span>I verified the same pre-introduction writing discloses the introduction fee and any renewal amount and trigger.</span></label>
+        {input("Planned service start","planned_start_on",{type:"date"})}
+        {input("Agreed service value ($, optional)","agreed_project_service_value_dollars",{type:"number",min:"0",step:"1"})}
+        {form.agreed_project_service_value_dollars !== "" && select("Service value basis","value_basis",[["","Choose basis"],["total_project","Total project"],["monthly","Monthly"],["annual","Annual"],["hourly","Hourly"],["per_event","Per event"],["other","Other"]])}
+      </div><aside className="fb-concierge-review-summary">
+        <div className="fb-concierge-review-card"><strong>What happens when finalized</strong><span>The Match becomes Selected, the Need becomes Vendor Selected, the introduction timestamp is frozen, and one Preparing Engagement is created. The introduction fee becomes ready for invoicing, but remains uncollected.</span></div>
+        <div className="fb-concierge-review-card"><strong>Compliance snapshot</strong><span>{fbConciergeLabel(need.risk_tier)} · {fbConciergeLabel(need.compliance_gate)}</span></div>
+        <div className="fb-concierge-checklist">{checks.map((item)=><div key={item.label} className={"fb-concierge-check "+(item.ok?"good":"bad")}><span className="fb-concierge-check-mark">{item.ok?"✓":"!"}</span><span>{item.label}</span></div>)}</div>
+      </aside></div>{error&&<div role="alert" className="fb-concierge-notice fb-concierge-error" style={{margin:"14px 0 0"}}>{error}</div>}</div>
+      <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn primary" onClick={()=>void finalize()} disabled={busy||!ready}>{busy?"Finalizing…":"Record selection & introduction"}</button></div>
+    </section>
+  </div>;
+}
+
+function fbConsiderationConsentReady(record) {
+  const confirmed = record?.consideration_consent_status === "confirmed";
+  const source = String(record?.consideration_consent_source || "").trim();
+  const reference = String(record?.consideration_consent_reference || "").trim();
+  return { confirmed, source, reference, ready:confirmed && Boolean(source) && Boolean(reference) };
+}
+
+function fbConciergeVendorChecks(form, approving, operatorId, evidence = []) {
+  const checks = [];
+  const add = (ok, label) => checks.push({ ok: Boolean(ok), label });
+  const minimum = Number(form.typical_project_minimum_dollars || 0);
+  const maximum = Number(form.typical_project_maximum_dollars || 0);
+  const proofClaimed = ["proven_one_successful_engagement", "proven_repeat_success"].includes(form.proof_level);
+  const consent = fbConsiderationConsentReady(form);
+  add(String(form.vendor_name || "").trim(), "Vendor name is present.");
+  add((form.service_categories || []).length > 0, "At least one service category is classified.");
+  add(String(form.capabilities_summary || "").trim(), "Capabilities are summarized for matching.");
+  add((form.delivery_modes || []).length > 0, "At least one delivery mode is confirmed.");
+  add(form.relationship_source, "Relationship source is recorded.");
+  add(consent.ready, "Vendor explicitly agreed to be considered, with a consent source and evidence reference.");
+  add(form.relationship_status !== "active_bench" || ["approved", "approved_with_conditions"].includes(form.vetting_decision), "Active bench status requires approved vetting.");
+  add(!minimum || !maximum || minimum <= maximum, "Typical project range is internally consistent.");
+  add(!approving || form.church_ministry_experience !== "unknown", "Church or ministry experience is classified.");
+  add(!approving || String(form.current_capacity_note || "").trim(), "Current capacity is documented.");
+  add(!approving || form.capacity_checked_on, "Capacity check date is recorded.");
+  add(!approving || ["approved", "approved_with_conditions"].includes(form.vetting_decision), "Vetting decision is approved or approved with conditions.");
+  add(!approving || String(form.vetting_summary || "").trim(), "Vetting rationale is documented.");
+  const liveEvidence = evidence.filter((item) => !item.archived_at);
+  const completedEvidence = liveEvidence.filter((item) => item.review_status === "complete");
+  const adverseEvidence = completedEvidence.filter((item) => ["concern", "failed"].includes(item.outcome));
+  const expiredEvidence = completedEvidence.filter((item) => item.expires_on && String(item.expires_on).slice(0, 10) < new Date().toISOString().slice(0, 10));
+  add(!approving || completedEvidence.some((item) => item.outcome === "passed"), "At least one completed vetting check has passed.");
+  add(!approving || !liveEvidence.some((item) => item.review_status !== "complete"), "Every recorded vetting check is complete.");
+  add(!approving || adverseEvidence.length === 0, "No vetting evidence has an unresolved concern or failure.");
+  add(!approving || expiredEvidence.length === 0, "No completed vetting evidence is expired.");
+  add(!proofClaimed || (form.proven_service_categories || []).length > 0, "Any proven claim names the proven service categories.");
+  add(!proofClaimed || form.proof_decision_date, "Any proven claim has a decision date.");
+  add(!proofClaimed || operatorId, "Any proven claim has an accountable reviewer.");
+  return checks;
+}
+
+function fbConciergeLaunchChecks(engagement, form) {
+  const checks = [];
+  const add = (ok, label) => checks.push({ ok: Boolean(ok), label });
+  const today = new Date().toISOString().slice(0, 10);
+  const floor = engagement?.agreement_selection_on || null;
+  add(engagement?.status === "preparing", "The Engagement is still in Preparing status.");
+  add(Boolean(form.actual_start_on) && form.actual_start_on <= today, "Actual start date is set and is not in the future.");
+  add(!floor || !form.actual_start_on || form.actual_start_on >= floor, "Actual start does not predate the recorded selection.");
+  add(Boolean(form.church_start_confirmed_on) && form.church_start_confirmed_on <= today, "Church start confirmation date is set and not in the future.");
+  add(Boolean(form.vendor_start_confirmed_on) && form.vendor_start_confirmed_on <= today, "Vendor start confirmation date is set and not in the future.");
+  add(!floor || !form.church_start_confirmed_on || form.church_start_confirmed_on >= floor, "Church confirmation does not predate the recorded selection.");
+  add(!floor || !form.vendor_start_confirmed_on || form.vendor_start_confirmed_on >= floor, "Vendor confirmation does not predate the recorded selection.");
+  add(String(form.launch_confirmation_reference || "").trim(), "A written launch confirmation reference is recorded.");
+  add(String(form.launch_summary || "").trim(), "A factual launch summary is recorded.");
+  add(Boolean(form.next_check_in_on) && form.next_check_in_on >= today, "The first delivery check-in is scheduled for today or later.");
+  return checks;
+}
+
+function FBConciergeLaunchModal({ client, engagement, onClose, onLaunched }) {
+  const [form, setForm] = useState(() => ({
+    actual_start_on: engagement?.planned_start_on || "",
+    church_start_confirmed_on: "",
+    vendor_start_confirmed_on: "",
+    launch_confirmation_reference: "",
+    launch_summary: "",
+    next_check_in_on: "",
+  }));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const onKeyDown = (event) => { if (event.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [busy, onClose]);
+
+  if (!engagement) return null;
+  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const checks = fbConciergeLaunchChecks(engagement, form);
+  const ready = checks.every((item) => item.ok);
+
+  const launch = async () => {
+    if (!ready) { setError("Resolve every launch confirmation gate before recording the start."); return; }
+    setBusy(true); setError("");
+    const payload = {
+      actual_start_on: form.actual_start_on || null,
+      church_start_confirmed_on: form.church_start_confirmed_on || null,
+      vendor_start_confirmed_on: form.vendor_start_confirmed_on || null,
+      launch_confirmation_reference: String(form.launch_confirmation_reference || "").trim(),
+      launch_summary: String(form.launch_summary || "").trim(),
+      next_check_in_on: form.next_check_in_on || null,
+    };
+    const { data, error: rpcError } = await client.rpc("launch_engagement", { p_engagement_id: engagement.id, p_payload: payload });
+    setBusy(false);
+    if (rpcError) { setError(rpcError.message || "The launch could not be recorded."); return; }
+    await onLaunched(data || {}, (engagement.vendor_name || "Vendor") + " confirmed active for " + (engagement.need_title || "the need") + ". No payment or completed hire was inferred.");
+  };
+
+  const input = (label, key, props = {}) => <label className={"fb-concierge-field" + (props.wide ? " wide" : "")}>{label}<input value={form[key] ?? ""} onChange={(event) => update(key, event.target.value)} {...props} wide={undefined}/></label>;
+
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-launch-title">
+        <div className="fb-concierge-modal-head">
+          <div className="fb-concierge-eyebrow">Engagement Launch</div>
+          <h2 id="fb-concierge-launch-title">{engagement.vendor_name} for {engagement.need_title}</h2>
+          <div className="fb-concierge-subtitle">{engagement.organization_name} · Confirm the real, already-happened start—this does not claim payment or a completed engagement.</div>
+        </div>
+        <div className="fb-concierge-form"><div className="fb-concierge-review-layout">
+          <div className="fb-concierge-fields">
+            {input("Actual service start", "actual_start_on", { type: "date" })}
+            {input("Church confirmed start", "church_start_confirmed_on", { type: "date" })}
+            {input("Vendor confirmed start", "vendor_start_confirmed_on", { type: "date" })}
+            {input("Written confirmation reference", "launch_confirmation_reference", { wide: true, placeholder: "Email thread, signed note, or call log reference" })}
+            <label className="fb-concierge-field wide">Launch summary<textarea value={form.launch_summary} onChange={(event) => update("launch_summary", event.target.value)} placeholder="Example: Church facilities director confirmed the vendor began work on-site September 4."/></label>
+            {input("First delivery check-in due", "next_check_in_on", { type: "date" })}
+          </div>
+          <aside className="fb-concierge-review-summary">
+            <div className="fb-concierge-review-card"><strong>Recorded selection</strong><span>Selected {fbConciergeDate(engagement.agreement_selection_on)} · planned start {fbConciergeDate(engagement.planned_start_on)}.</span></div>
+            <div className="fb-concierge-review-card"><strong>What happens when launched</strong><span>The Engagement becomes Active with delivery health On Track, and the first check-in is scheduled. This does not invoice a fee or claim the work is complete.</span></div>
+            <div className="fb-concierge-checklist">{checks.map((item) => <div key={item.label} className={"fb-concierge-check " + (item.ok ? "good" : "bad")}><span className="fb-concierge-check-mark">{item.ok ? "✓" : "!"}</span><span>{item.label}</span></div>)}</div>
+          </aside>
+        </div>{error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{margin:"14px 0 0"}}>{error}</div>}</div>
+        <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn primary" onClick={() => void launch()} disabled={busy || !ready}>{busy ? "Recording…" : "Confirm launch"}</button></div>
+      </section>
+    </div>
+  );
+}
+
+function fbConciergeCheckInChecks(engagement, form) {
+  const checks = [];
+  const add = (ok, label) => checks.push({ ok: Boolean(ok), label });
+  const today = new Date().toISOString().slice(0, 10);
+  const floor = engagement?.actual_start_on || null;
+  const latest = engagement?.latest_check_in_on || null;
+  add(["active", "at_risk"].includes(engagement?.status), "The Engagement is Active or At Risk.");
+  add(Boolean(form.check_in_on) && (!floor || form.check_in_on >= floor) && form.check_in_on <= today, "Check-in date falls between the real start and today.");
+  add(!latest || !form.check_in_on || form.check_in_on >= latest, "This check-in does not predate the latest recorded check-in.");
+  add(["on_track", "watch", "at_risk", "paused"].includes(form.delivery_health), "A delivery health status is chosen.");
+  add(String(form.summary || "").trim(), "A factual delivery summary is recorded.");
+  add(form.milestone_status === "not_set" || String(form.current_milestone || "").trim(), "Named milestone details are given for this milestone status.");
+  const needsIssue = ["at_risk", "paused"].includes(form.delivery_health) || form.milestone_status === "blocked";
+  add(!needsIssue || String(form.issue_summary || "").trim(), "At-risk, paused, or blocked delivery has an issue summary.");
+  add(String(form.next_action || "").trim() && Boolean(form.next_action_on) && (!form.check_in_on || form.next_action_on >= form.check_in_on), "A next action and due date on or after the check-in are recorded.");
+  add(Boolean(form.next_check_in_on) && (!form.check_in_on || form.next_check_in_on >= form.check_in_on), "The next check-in is scheduled on or after this one.");
+  return checks;
+}
+
+function FBConciergeCheckInModal({ client, engagement, onClose, onCheckedIn }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [form, setForm] = useState(() => ({
+    check_in_on: today,
+    delivery_health: engagement?.delivery_health && engagement.delivery_health !== "on_track" ? engagement.delivery_health : "on_track",
+    summary: "",
+    current_milestone: engagement?.current_milestone || "",
+    milestone_status: engagement?.milestone_status || "not_set",
+    milestone_due_on: engagement?.milestone_due_on || "",
+    issue_summary: "",
+    next_action: "",
+    next_action_on: "",
+    next_check_in_on: "",
+  }));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const history = Array.isArray(engagement?.delivery_check_ins) ? [...engagement.delivery_check_ins].reverse().slice(0, 5) : [];
+
+  useEffect(() => {
+    const onKeyDown = (event) => { if (event.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [busy, onClose]);
+
+  if (!engagement) return null;
+  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const needsIssue = ["at_risk", "paused"].includes(form.delivery_health) || form.milestone_status === "blocked";
+  const checks = fbConciergeCheckInChecks(engagement, form);
+  const ready = checks.every((item) => item.ok);
+
+  const save = async () => {
+    if (!ready) { setError("Resolve every check-in gate before recording it."); return; }
+    setBusy(true); setError("");
+    const payload = {
+      check_in_on: form.check_in_on || null,
+      next_check_in_on: form.next_check_in_on || null,
+      next_action_on: form.next_action_on || null,
+      delivery_health: form.delivery_health,
+      summary: String(form.summary || "").trim(),
+      current_milestone: String(form.current_milestone || "").trim() || null,
+      milestone_status: form.milestone_status,
+      milestone_due_on: form.milestone_due_on || null,
+      issue_summary: needsIssue ? String(form.issue_summary || "").trim() : null,
+      next_action: String(form.next_action || "").trim(),
+    };
+    const { data, error: rpcError } = await client.rpc("record_delivery_check_in", { p_engagement_id: engagement.id, p_payload: payload });
+    setBusy(false);
+    if (rpcError) { setError(rpcError.message || "The check-in could not be recorded."); return; }
+    await onCheckedIn(data || {}, "Delivery check-in recorded for " + (engagement.need_title || "the engagement") + ".");
+  };
+
+  const input = (label, key, props = {}) => <label className={"fb-concierge-field" + (props.wide ? " wide" : "")}>{label}<input value={form[key] ?? ""} onChange={(event) => update(key, event.target.value)} {...props} wide={undefined}/></label>;
+  const select = (label, key, options) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(event) => update(key, event.target.value)}>{options.map(([value, text]) => <option value={value} key={value}>{text}</option>)}</select></label>;
+  const textarea = (label, key, props = {}) => <label className="fb-concierge-field wide">{label}<textarea value={form[key] || ""} onChange={(event) => update(key, event.target.value)} {...props}/></label>;
+
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-checkin-title">
+        <div className="fb-concierge-modal-head">
+          <div className="fb-concierge-eyebrow">Delivery Check-in</div>
+          <h2 id="fb-concierge-checkin-title">{engagement.vendor_name} for {engagement.need_title}</h2>
+          <div className="fb-concierge-subtitle">{engagement.organization_name} · This records status only. It never invokes an invoice or a renewal fee by itself.</div>
+        </div>
+        <div className="fb-concierge-form"><div className="fb-concierge-review-layout">
+          <div className="fb-concierge-fields">
+            {input("Check-in date", "check_in_on", { type: "date" })}
+            {select("Delivery health", "delivery_health", [["on_track","On track"],["watch","Watch"],["at_risk","At risk"],["paused","Paused"]])}
+            {textarea("Delivery summary", "summary", { placeholder: "Factual status only—no unearned praise or unverified claims." })}
+            {select("Milestone status", "milestone_status", [["not_set","Not set"],["planned","Planned"],["in_progress","In progress"],["complete","Complete"],["blocked","Blocked"]])}
+            {form.milestone_status !== "not_set" && input("Current milestone", "current_milestone", { wide: true })}
+            {form.milestone_status !== "not_set" && input("Milestone due", "milestone_due_on", { type: "date" })}
+            {needsIssue && textarea("Issue summary", "issue_summary", { placeholder: "Required for at-risk, paused, or blocked delivery." })}
+            {input("Next action", "next_action", { wide: true })}
+            {input("Next action due", "next_action_on", { type: "date" })}
+            {input("Next check-in due", "next_check_in_on", { type: "date" })}
+          </div>
+          <aside className="fb-concierge-review-summary">
+            <div className="fb-concierge-review-card"><strong>Real start</strong><span>{fbConciergeDate(engagement.actual_start_on)} · latest check-in {engagement.latest_check_in_on ? fbConciergeDate(engagement.latest_check_in_on) : "none yet"}.</span></div>
+            <div className="fb-concierge-review-card"><strong>Recent history</strong>{history.map((item) => <span key={item.event_id} style={{display:"block",marginTop:7}}>{fbConciergeDate(item.check_in_on || item.effective_on)} · {fbConciergeLabel(item.event_type)}{item.delivery_health ? " · "+fbConciergeLabel(item.delivery_health) : ""}<br/>{item.summary}</span>)}{!history.length && <span>No prior events recorded.</span>}</div>
+            <div className="fb-concierge-checklist">{checks.map((item) => <div key={item.label} className={"fb-concierge-check " + (item.ok ? "good" : "bad")}><span className="fb-concierge-check-mark">{item.ok ? "✓" : "!"}</span><span>{item.label}</span></div>)}</div>
+          </aside>
+        </div>{error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{margin:"14px 0 0"}}>{error}</div>}</div>
+        <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn primary" onClick={() => void save()} disabled={busy || !ready}>{busy ? "Recording…" : "Record check-in"}</button></div>
+      </section>
+    </div>
+  );
+}
+
+function FBConciergeOutcomeModal({ client, engagement, onClose, onSaved }) {
+  const [form, setForm] = useState(() => ({
+    outcome_review_status: "complete",
+    outcome_assessment: "",
+    would_recommend_again: "",
+    organization_satisfaction: "",
+    vendor_performance: "",
+    outcome_summary: "",
+    lessons_learned: "",
+    proof_disqualifier: "none",
+    issue_escalation_summary: "",
+    mark_completed: engagement?.need_type === "one_time_project",
+    actual_completion_on: engagement?.actual_completion_on || "",
+  }));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    const k = (e) => { if (e.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  }, [busy, onClose]);
+  if (!engagement) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  const update = (key, value) => setForm((c) => ({ ...c, [key]: value }));
+  const complete = form.outcome_review_status === "complete";
+  const disqActive = form.proof_disqualifier !== "none";
+  const checks = [
+    { ok: !complete || (form.outcome_assessment && form.would_recommend_again && String(form.outcome_summary || "").trim()), label: "A complete review names assessment, recommendation, and a summary." },
+    { ok: !complete || (form.organization_satisfaction && form.vendor_performance), label: "A complete review records church satisfaction and vendor performance (1–5)." },
+    { ok: complete || String(form.outcome_summary || "").trim(), label: "An unable-to-complete review explains why in the summary." },
+    { ok: !disqActive || String(form.issue_escalation_summary || "").trim(), label: "Any proof disqualifier has an issue/escalation summary." },
+    { ok: !form.mark_completed || (form.actual_completion_on && form.actual_completion_on <= today && (!engagement.actual_start_on || form.actual_completion_on >= engagement.actual_start_on)), label: "If marking completed, the completion date is real and on/after the start." },
+  ];
+  const ready = checks.every((c) => c.ok);
+  const save = async () => {
+    if (!ready) { setError("Resolve every review gate first."); return; }
+    setBusy(true); setError("");
+    const payload = {
+      outcome_review_status: form.outcome_review_status,
+      outcome_assessment: complete ? form.outcome_assessment : (form.outcome_assessment || null),
+      would_recommend_again: complete ? form.would_recommend_again : (form.would_recommend_again || null),
+      outcome_summary: String(form.outcome_summary || "").trim(),
+      lessons_learned: String(form.lessons_learned || "").trim() || null,
+      organization_satisfaction: form.organization_satisfaction || null,
+      vendor_performance: form.vendor_performance || null,
+      proof_disqualifier: form.proof_disqualifier,
+      issue_escalation_summary: disqActive ? String(form.issue_escalation_summary || "").trim() : null,
+      mark_completed: form.mark_completed,
+      actual_completion_on: form.mark_completed ? form.actual_completion_on : null,
+    };
+    const { data, error: e } = await client.rpc("review_outcome", { p_engagement_id: engagement.id, p_payload: payload });
+    setBusy(false);
+    if (e) { setError(e.message || "The outcome review could not be recorded."); return; }
+    await onSaved(data || {}, "Outcome review recorded for " + (engagement.need_title || "the engagement") + ". Proof is earned separately and never overstated.");
+  };
+  const sel = (label, key, opts) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(e) => update(key, e.target.value)}>{opts.map(([v, t]) => <option value={v} key={v}>{t}</option>)}</select></label>;
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-outcome-title">
+        <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Outcome Review</div><h2 id="fb-concierge-outcome-title">{engagement.vendor_name} for {engagement.need_title}</h2><div className="fb-concierge-subtitle">{engagement.organization_name} · Record the honest result. This does not, by itself, mark the vendor "proven."</div></div>
+        <div className="fb-concierge-form"><div className="fb-concierge-review-layout"><div className="fb-concierge-fields">
+          {sel("Review outcome", "outcome_review_status", [["complete", "Complete"], ["unable_to_complete", "Unable to complete"]])}
+          {complete && sel("Assessment", "outcome_assessment", [["", "Choose"], ["excellent", "Excellent"], ["successful", "Successful"], ["mixed", "Mixed"], ["unsuccessful", "Unsuccessful"]])}
+          {complete && sel("Would recommend again", "would_recommend_again", [["", "Choose"], ["yes", "Yes"], ["with_conditions", "With conditions"], ["no", "No"], ["insufficient_evidence", "Insufficient evidence"]])}
+          {complete && sel("Church satisfaction (1–5)", "organization_satisfaction", [["", "Choose"], ["5", "5"], ["4", "4"], ["3", "3"], ["2", "2"], ["1", "1"]])}
+          {complete && sel("Vendor performance (1–5)", "vendor_performance", [["", "Choose"], ["5", "5"], ["4", "4"], ["3", "3"], ["2", "2"], ["1", "1"]])}
+          <label className="fb-concierge-field wide">Outcome summary<textarea value={form.outcome_summary} onChange={(e) => update("outcome_summary", e.target.value)} placeholder="Factual result. No unearned praise."/></label>
+          <label className="fb-concierge-field wide">Lessons learned (optional)<textarea value={form.lessons_learned} onChange={(e) => update("lessons_learned", e.target.value)}/></label>
+          {sel("Proof disqualifier", "proof_disqualifier", [["none", "None"], ["unresolved_material_complaint", "Unresolved material complaint"], ["vendor_failure_refund", "Vendor failure / refund"], ["fraud_or_misrepresentation", "Fraud / misrepresentation"], ["safety_issue", "Safety issue"], ["other", "Other"]])}
+          {disqActive && <label className="fb-concierge-field wide">Issue / escalation summary<textarea value={form.issue_escalation_summary} onChange={(e) => update("issue_escalation_summary", e.target.value)}/></label>}
+          <label className="fb-concierge-checkbox"><input type="checkbox" checked={form.mark_completed} onChange={(e) => update("mark_completed", e.target.checked)}/><span>Mark this engagement Completed (required for a one-time project to count toward proof).</span></label>
+          {form.mark_completed && <label className="fb-concierge-field">Actual completion date<input type="date" value={form.actual_completion_on} onChange={(e) => update("actual_completion_on", e.target.value)}/></label>}
+        </div><aside className="fb-concierge-review-summary">
+          <div className="fb-concierge-review-card"><strong>Truth boundary</strong><span>A complete, positive review makes this engagement eligible to support a vendor's "proven" status — but a founder still sets proof separately, and it is re-checked automatically if this review ever changes.</span></div>
+          <div className="fb-concierge-checklist">{checks.map((c) => <div key={c.label} className={"fb-concierge-check " + (c.ok ? "good" : "bad")}><span className="fb-concierge-check-mark">{c.ok ? "✓" : "!"}</span><span>{c.label}</span></div>)}</div>
+        </aside></div>{error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{ margin: "14px 0 0" }}>{error}</div>}</div>
+        <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn primary" onClick={() => void save()} disabled={busy || !ready}>{busy ? "Recording…" : "Record outcome review"}</button></div>
+      </section>
+    </div>
+  );
+}
+
+function FBConciergeRecurringModal({ client, engagement, onClose, onSaved }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [form, setForm] = useState(() => ({
+    recurring_confirmation_status: "confirmed_ongoing",
+    recurring_confirmed_on: today,
+    trigger_renewal_fee: false,
+  }));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    const k = (e) => { if (e.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  }, [busy, onClose]);
+  if (!engagement) return null;
+  const update = (key, value) => setForm((c) => ({ ...c, [key]: value }));
+  const ongoing = form.recurring_confirmation_status === "confirmed_ongoing";
+  const renewalEligible = engagement.renewal_fee_applies === "yes_terms_agreed" && engagement.agreed_renewal_fee_cents != null;
+  const alreadyTriggered = Boolean(engagement.renewal_fee_triggered_on);
+  const save = async () => {
+    setBusy(true); setError("");
+    const payload = {
+      recurring_confirmation_status: form.recurring_confirmation_status,
+      recurring_confirmed_on: ongoing ? form.recurring_confirmed_on : null,
+      trigger_renewal_fee: ongoing && renewalEligible && !alreadyTriggered && form.trigger_renewal_fee,
+    };
+    const { data, error: e } = await client.rpc("confirm_recurring", { p_engagement_id: engagement.id, p_payload: payload });
+    setBusy(false);
+    if (e) { setError(e.message || "The recurring confirmation could not be recorded."); return; }
+    await onSaved(data || {}, "Recurring status recorded for " + (engagement.need_title || "the engagement") + ".");
+  };
+  const sel = (label, key, opts) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(e) => update(key, e.target.value)}>{opts.map(([v, t]) => <option value={v} key={v}>{t}</option>)}</select></label>;
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-recurring-title">
+        <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Recurring Confirmation</div><h2 id="fb-concierge-recurring-title">{engagement.vendor_name} for {engagement.need_title}</h2><div className="fb-concierge-subtitle">{engagement.organization_name} · Recorded at the normal check-in — no new touchpoint.</div></div>
+        <div className="fb-concierge-form"><div className="fb-concierge-fields">
+          {sel("Does the engagement continue?", "recurring_confirmation_status", [["confirmed_ongoing", "Confirmed ongoing"], ["ended_or_not_ongoing", "Ended / not ongoing"], ["waived", "Waived"]])}
+          {ongoing && <label className="fb-concierge-field">Confirmed on<input type="date" value={form.recurring_confirmed_on} onChange={(e) => update("recurring_confirmed_on", e.target.value)}/></label>}
+          <div className="fb-concierge-safe" style={{ gridColumn: "1/-1" }}>
+            {alreadyTriggered
+              ? "The renewal fee was already triggered on " + fbConciergeDate(engagement.renewal_fee_triggered_on) + "."
+              : renewalEligible
+                ? "A renewal fee of " + fbConciergeMoney(engagement.agreed_renewal_fee_cents) + " was pre-agreed in writing before introduction. It can be triggered now only if the church confirmed the engagement continues."
+                : "No pre-agreed renewal fee applies to this engagement, so none can be triggered."}
+          </div>
+          {ongoing && renewalEligible && !alreadyTriggered && <label className="fb-concierge-checkbox"><input type="checkbox" checked={form.trigger_renewal_fee} onChange={(e) => update("trigger_renewal_fee", e.target.checked)}/><span>Trigger the pre-agreed renewal fee now (the church has confirmed the ongoing engagement).</span></label>}
+        </div>{error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{ margin: "14px 0 0" }}>{error}</div>}</div>
+        <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn primary" onClick={() => void save()} disabled={busy}>{busy ? "Recording…" : "Record recurring status"}</button></div>
+      </section>
+    </div>
+  );
+}
+
+function FBConciergeFeeCollectionModal({ client, engagement, onClose, onSaved }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const renewalStage = Boolean(engagement?.renewal_fee_triggered_on);
+  const initScope = (engagement?.introduction_invoice_status === "paid" && renewalStage) ? "renewal" : "introduction";
+  const [scope, setScope] = useState(initScope);
+  const [form, setForm] = useState(() => ({
+    invoice_status: "paid",
+    invoice_on: today,
+    gross_collected_dollars: "",
+    refunds_credits_dollars: "",
+    taxes_collected_dollars: "",
+    latest_collection_on: today,
+  }));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    const k = (e) => { if (e.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  }, [busy, onClose]);
+  if (!engagement) return null;
+  const update = (key, value) => setForm((c) => ({ ...c, [key]: value }));
+  const agreed = scope === "introduction" ? engagement.agreed_introduction_fee_cents : engagement.agreed_renewal_fee_cents;
+  const dollars = (cents) => cents == null ? "" : String(Number(cents) / 100);
+  const toCents = (d) => d === "" || d == null ? null : String(Math.round(Number(d) * 100));
+  const save = async () => {
+    setBusy(true); setError("");
+    const payload = {
+      fee_scope: scope,
+      invoice_status: form.invoice_status,
+      invoice_on: form.invoice_on || null,
+      gross_collected_cents: toCents(form.gross_collected_dollars),
+      refunds_credits_cents: toCents(form.refunds_credits_dollars),
+      taxes_collected_cents: toCents(form.taxes_collected_dollars),
+      latest_collection_on: form.latest_collection_on || null,
+    };
+    const { data, error: e } = await client.rpc("record_fee_collection", { p_engagement_id: engagement.id, p_payload: payload });
+    setBusy(false);
+    if (e) { setError(e.message || "The fee collection could not be recorded."); return; }
+    await onSaved(data || {}, fbConciergeLabel(scope) + " fee updated for " + (engagement.need_title || "the engagement") + ".");
+  };
+  const sel = (label, key, opts) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(e) => update(key, e.target.value)}>{opts.map(([v, t]) => <option value={v} key={v}>{t}</option>)}</select></label>;
+  const money = (label, key) => <label className="fb-concierge-field">{label}<input type="number" min="0" step="1" value={form[key]} onChange={(e) => update(key, e.target.value)}/></label>;
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-fee-title">
+        <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Fee Collection</div><h2 id="fb-concierge-fee-title">{engagement.vendor_name} for {engagement.need_title}</h2><div className="fb-concierge-subtitle">{engagement.organization_name} · Invoiced amounts are fixed to the pre-agreed fee. Give-back is calculated only on money actually collected.</div></div>
+        <div className="fb-concierge-form"><div className="fb-concierge-fields">
+          <label className="fb-concierge-field">Fee<select value={scope} onChange={(e) => setScope(e.target.value)}><option value="introduction">Introduction</option>{renewalStage && <option value="renewal">Renewal</option>}</select></label>
+          <div className="fb-concierge-safe" style={{ gridColumn: "1/-1" }}>{scope === "renewal" && !renewalStage ? "The renewal fee must be triggered at a recurring confirmation before it can be invoiced." : "Pre-agreed " + scope + " fee: " + (agreed == null ? "not set" : fbConciergeMoney(agreed)) + ". The invoice is fixed to this amount."}</div>
+          {sel("Invoice status", "invoice_status", [["not_invoiced", "Not invoiced"], ["invoiced", "Invoiced"], ["partially_paid", "Partially paid"], ["paid", "Paid"], ["written_off", "Written off"], ["not_applicable", "Not applicable"]])}
+          <label className="fb-concierge-field">Invoice date<input type="date" value={form.invoice_on} onChange={(e) => update("invoice_on", e.target.value)}/></label>
+          {money("Gross collected ($)", "gross_collected_dollars")}
+          <label className="fb-concierge-field">Latest collection date<input type="date" value={form.latest_collection_on} onChange={(e) => update("latest_collection_on", e.target.value)}/></label>
+          {money("Refunds / credits ($)", "refunds_credits_dollars")}
+          {money("Taxes / pass-through ($)", "taxes_collected_dollars")}
+        </div>{error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{ margin: "14px 0 0" }}>{error}</div>}</div>
+        <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn primary" onClick={() => void save()} disabled={busy}>{busy ? "Recording…" : "Record fee update"}</button></div>
+      </section>
+    </div>
+  );
+}
+
+function FBConciergeGiveBackModal({ client, engagement, onClose, onSaved }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [form, setForm] = useState(() => ({
+    give_back_recipient_type: engagement?.give_back_recipient_type || "buyer_organization",
+    give_back_recipient: engagement?.give_back_recipient || "",
+    recipient_verification_status: engagement?.recipient_verification_status || "not_started",
+    give_back_status: engagement?.give_back_status === "not_eligible_no_collection" ? "awaiting_recipient" : (engagement?.give_back_status || "awaiting_recipient"),
+    actual_give_back_dollars: engagement?.give_back_eligible_cents != null ? String(Number(engagement.give_back_eligible_cents) / 100) : "",
+    give_back_paid_on: today,
+    payment_reference: "",
+    acknowledgment_received_on: "",
+    issue_escalation_summary: "",
+  }));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    const k = (e) => { if (e.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  }, [busy, onClose]);
+  if (!engagement) return null;
+  const update = (key, value) => setForm((c) => ({ ...c, [key]: value }));
+  const eligible = Number(engagement.give_back_eligible_cents || 0);
+  const paying = form.give_back_status === "paid";
+  const held = form.give_back_status === "held_or_issue";
+  const needsVerified = ["ready", "paid"].includes(form.give_back_status);
+  const checks = [
+    { ok: !needsVerified || form.recipient_verification_status === "verified", label: "Ready or paid give-back requires a verified recipient." },
+    { ok: !needsVerified || (form.give_back_recipient_type && String(form.give_back_recipient || "").trim()), label: "Ready or paid give-back names a typed recipient." },
+    { ok: !paying || (Number(form.actual_give_back_dollars) > 0 && Math.round(Number(form.actual_give_back_dollars) * 100) <= eligible), label: "A paid amount is positive and within the eligible cap (" + fbConciergeMoney(eligible) + ")." },
+    { ok: !paying || String(form.payment_reference || "").trim(), label: "A paid give-back has a payment reference." },
+    { ok: !held || String(form.issue_escalation_summary || "").trim(), label: "A held give-back has an issue summary." },
+  ];
+  const ready = checks.every((c) => c.ok);
+  const save = async () => {
+    if (!ready) { setError("Resolve every give-back gate first."); return; }
+    setBusy(true); setError("");
+    const payload = {
+      give_back_recipient_type: form.give_back_recipient_type,
+      give_back_recipient: String(form.give_back_recipient || "").trim() || null,
+      recipient_verification_status: form.recipient_verification_status,
+      give_back_status: form.give_back_status,
+      actual_give_back_cents: paying ? String(Math.round(Number(form.actual_give_back_dollars) * 100)) : null,
+      give_back_paid_on: paying ? form.give_back_paid_on : null,
+      payment_reference: paying ? String(form.payment_reference || "").trim() : null,
+      acknowledgment_received_on: form.acknowledgment_received_on || null,
+      issue_escalation_summary: held ? String(form.issue_escalation_summary || "").trim() : null,
+    };
+    const { data, error: e } = await client.rpc("record_give_back", { p_engagement_id: engagement.id, p_payload: payload });
+    setBusy(false);
+    if (e) { setError(e.message || "The give-back could not be recorded."); return; }
+    await onSaved(data || {}, "Give-back updated for " + (engagement.need_title || "the engagement") + ".");
+  };
+  const sel = (label, key, opts) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(e) => update(key, e.target.value)}>{opts.map(([v, t]) => <option value={v} key={v}>{t}</option>)}</select></label>;
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-giveback-title">
+        <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Give-back</div><h2 id="fb-concierge-giveback-title">{engagement.vendor_name} for {engagement.need_title}</h2><div className="fb-concierge-subtitle">{engagement.organization_name} · Give-back is 10% of net fees actually collected. Eligible now: {fbConciergeMoney(eligible)}.</div></div>
+        <div className="fb-concierge-form"><div className="fb-concierge-review-layout"><div className="fb-concierge-fields">
+          {sel("Recipient type", "give_back_recipient_type", [["buyer_organization", "The church itself"], ["selected_ministry_or_cause", "A verified ministry / cause"]])}
+          <label className="fb-concierge-field">Recipient name<input value={form.give_back_recipient} onChange={(e) => update("give_back_recipient", e.target.value)}/></label>
+          {sel("Recipient verification", "recipient_verification_status", [["not_started", "Not started"], ["pending", "Pending"], ["verified", "Verified"], ["not_eligible", "Not eligible"], ["waived", "Waived"]])}
+          {sel("Give-back status", "give_back_status", [["awaiting_recipient", "Awaiting recipient"], ["ready", "Ready"], ["paid", "Paid"], ["held_or_issue", "Held / issue"], ["not_applicable_no_revenue", "Not applicable (no revenue)"]])}
+          {paying && <label className="fb-concierge-field">Amount paid ($)<input type="number" min="0" step="1" value={form.actual_give_back_dollars} onChange={(e) => update("actual_give_back_dollars", e.target.value)}/></label>}
+          {paying && <label className="fb-concierge-field">Paid on<input type="date" value={form.give_back_paid_on} onChange={(e) => update("give_back_paid_on", e.target.value)}/></label>}
+          {paying && <label className="fb-concierge-field wide">Payment reference<input value={form.payment_reference} onChange={(e) => update("payment_reference", e.target.value)}/></label>}
+          <label className="fb-concierge-field">Acknowledgment received<input type="date" value={form.acknowledgment_received_on} onChange={(e) => update("acknowledgment_received_on", e.target.value)}/></label>
+          {held && <label className="fb-concierge-field wide">Issue summary<textarea value={form.issue_escalation_summary} onChange={(e) => update("issue_escalation_summary", e.target.value)}/></label>}
+        </div><aside className="fb-concierge-review-summary">
+          <div className="fb-concierge-review-card"><strong>Eligible give-back</strong><span>{fbConciergeMoney(eligible)} — the database caps any payment at 10% of net collected fees.</span></div>
+          <div className="fb-concierge-checklist">{checks.map((c) => <div key={c.label} className={"fb-concierge-check " + (c.ok ? "good" : "bad")}><span className="fb-concierge-check-mark">{c.ok ? "✓" : "!"}</span><span>{c.label}</span></div>)}</div>
+        </aside></div>{error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{ margin: "14px 0 0" }}>{error}</div>}</div>
+        <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn primary" onClick={() => void save()} disabled={busy || !ready}>{busy ? "Recording…" : "Record give-back"}</button></div>
+      </section>
+    </div>
+  );
+}
+
+function FBConciergeCloseModal({ client, engagement, onClose, onSaved }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    const k = (e) => { if (e.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  }, [busy, onClose]);
+  if (!engagement) return null;
+  const checks = [
+    { ok: ["complete", "unable_to_complete"].includes(engagement.outcome_review_status), label: "Outcome review is finished." },
+    { ok: engagement.recurring_confirmation_status !== "pending_check_in", label: "Recurring status is resolved at a check-in." },
+    { ok: ["paid", "written_off", "not_applicable"].includes(engagement.introduction_invoice_status), label: "Introduction fee is paid, written off, or not applicable." },
+    { ok: ["paid", "written_off", "not_applicable"].includes(engagement.renewal_invoice_status), label: "Renewal fee is paid, written off, or not applicable." },
+    { ok: ["paid", "held_or_issue", "not_applicable_no_revenue", "not_eligible_no_collection"].includes(engagement.give_back_status), label: "Give-back is resolved." },
+  ];
+  const ready = checks.every((c) => c.ok);
+  const save = async () => {
+    setBusy(true); setError("");
+    const { data, error: e } = await client.rpc("close_engagement", { p_engagement_id: engagement.id, p_payload: {} });
+    setBusy(false);
+    if (e) { setError(e.message || "The engagement could not be closed."); return; }
+    await onSaved(data || {}, (engagement.need_title || "The engagement") + " closed and reconciled.");
+  };
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-close-title">
+        <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Close Engagement</div><h2 id="fb-concierge-close-title">{engagement.vendor_name} for {engagement.need_title}</h2><div className="fb-concierge-subtitle">{engagement.organization_name} · Closing is the terminal reconciliation. Every gate below must be satisfied.</div></div>
+        <div className="fb-concierge-form"><div className="fb-concierge-checklist">{checks.map((c) => <div key={c.label} className={"fb-concierge-check " + (c.ok ? "good" : "bad")}><span className="fb-concierge-check-mark">{c.ok ? "✓" : "!"}</span><span>{c.label}</span></div>)}</div>{error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{ margin: "14px 0 0" }}>{error}</div>}</div>
+        <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn primary" onClick={() => void save()} disabled={busy || !ready}>{busy ? "Closing…" : "Close engagement"}</button></div>
+      </section>
+    </div>
+  );
+}
+
+function FBConciergeVendorModal({ client, vendor, seed, evidence = [], operatorId, onClose, onSaved }) {
+  const source = vendor || seed;
+  const [form, setForm] = useState(() => source ? {
+    ...FB_CONCIERGE_EMPTY_VENDOR,
+    ...source,
+    service_categories: source.service_categories || [],
+    delivery_modes: source.delivery_modes || [],
+    proven_service_categories: source.proven_service_categories || [],
+    typical_project_minimum_dollars: source.typical_project_minimum_cents == null ? "" : String(Number(source.typical_project_minimum_cents) / 100),
+    typical_project_maximum_dollars: source.typical_project_maximum_cents == null ? "" : String(Number(source.typical_project_maximum_cents) / 100),
+  } : { ...FB_CONCIERGE_EMPTY_VENDOR });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const isNew = !vendor;
+
+  useEffect(() => {
+    const onKeyDown = (event) => { if (event.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [busy, onClose]);
+
+  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const toggleArray = (key, value) => setForm((current) => {
+    const values = new Set(current[key] || []);
+    if (values.has(value)) values.delete(value); else values.add(value);
+    return { ...current, [key]: Array.from(values) };
+  });
+  const checks = fbConciergeVendorChecks(form, false, operatorId, evidence);
+  const approvalChecks = fbConciergeVendorChecks(form, true, operatorId, evidence);
+  const approvalReady = approvalChecks.every((item) => item.ok);
+  const finalDecision = ["approved", "approved_with_conditions", "not_approved"].includes(form.vetting_decision);
+  const proofClaimed = ["proven_one_successful_engagement", "proven_repeat_success"].includes(form.proof_level);
+
+  const save = async (approveForBench) => {
+    const currentChecks = fbConciergeVendorChecks(form, approveForBench, operatorId, evidence);
+    if (currentChecks.some((item) => !item.ok)) {
+      setError(approveForBench ? "Resolve every approval item before placing this vendor on the private bench." : "Complete the required vendor intake fields before saving.");
+      return;
+    }
+    if (finalDecision && !String(form.vetting_summary || "").trim()) {
+      setError("A final vetting decision requires a written summary.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    const today = new Date().toISOString().slice(0, 10);
+    const decision = approveForBench
+      ? (["approved", "approved_with_conditions"].includes(form.vetting_decision) ? form.vetting_decision : "approved")
+      : form.vetting_decision;
+    const payload = {
+      vendor_name: String(form.vendor_name || "").trim(),
+      legal_business_name: String(form.legal_business_name || "").trim() || null,
+      website: String(form.website || "").trim() || null,
+      service_categories: form.service_categories || [],
+      capabilities_summary: String(form.capabilities_summary || "").trim() || null,
+      delivery_modes: form.delivery_modes || [],
+      headquarters_city: String(form.headquarters_city || "").trim() || null,
+      headquarters_state_region: String(form.headquarters_state_region || "").trim() || null,
+      typical_project_minimum_cents: form.typical_project_minimum_dollars === "" ? null : Math.round(Number(form.typical_project_minimum_dollars) * 100),
+      typical_project_maximum_cents: form.typical_project_maximum_dollars === "" ? null : Math.round(Number(form.typical_project_maximum_dollars) * 100),
+      church_ministry_experience: form.church_ministry_experience || "unknown",
+      relationship_status: approveForBench ? "active_bench" : form.relationship_status,
+      relationship_source: form.relationship_source,
+      relationship_owner_id: vendor?.relationship_owner_id || operatorId || null,
+      current_capacity_note: String(form.current_capacity_note || "").trim() || null,
+      capacity_checked_on: form.capacity_checked_on || null,
+      next_follow_up_on: form.next_follow_up_on || null,
+      vetting_decision: decision,
+      vetting_decision_date: ["approved", "approved_with_conditions", "not_approved"].includes(decision) ? (form.vetting_decision_date || today) : null,
+      vetting_review_due_on: form.vetting_review_due_on || null,
+      vetting_summary: String(form.vetting_summary || "").trim() || null,
+      proof_level: form.proof_level,
+      proven_service_categories: proofClaimed ? (form.proven_service_categories || []) : [],
+      proof_decision_date: proofClaimed ? (form.proof_decision_date || null) : null,
+      proof_decision_by: proofClaimed ? (operatorId || null) : null,
+      internal_restrictions_concerns: String(form.internal_restrictions_concerns || "").trim() || null,
+      growth_vendor_id: source?.growth_vendor_id || null,
+      consideration_consent_status: form.consideration_consent_status || "not_requested",
+      consideration_consented_at: form.consideration_consent_status === "confirmed" ? (form.consideration_consented_at || new Date().toISOString()) : null,
+      consideration_consent_source: String(form.consideration_consent_source || "").trim() || null,
+      consideration_consent_reference: String(form.consideration_consent_reference || "").trim() || null,
+      consideration_consent_recorded_by: form.consideration_consent_status === "confirmed" ? (form.consideration_consent_recorded_by || operatorId || null) : null,
+    };
+    const request = isNew
+      ? client.from("vendors").insert(payload)
+      : client.from("vendors").update(payload).eq("id", vendor.id);
+    const { error: saveError } = await request.select("id").single();
+    setBusy(false);
+    if (saveError) {
+      setError(saveError.message || "The vendor record could not be saved.");
+      return;
+    }
+    onSaved(approveForBench ? payload.vendor_name + " approved for the private vendor bench." : payload.vendor_name + (isNew ? " saved for vetting." : " review updated."));
+  };
+
+  const input = (label, key, props = {}) => <label className={"fb-concierge-field" + (props.wide ? " wide" : "")}>{label}<input value={form[key] ?? ""} onChange={(event) => update(key, event.target.value)} {...props} wide={undefined}/></label>;
+  const textarea = (label, key) => <label className="fb-concierge-field wide">{label}<textarea value={form[key] || ""} onChange={(event) => update(key, event.target.value)}/></label>;
+  const select = (label, key, options) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(event) => update(key, event.target.value)}>{options.map(([value, optionLabel]) => <option key={value} value={value}>{optionLabel}</option>)}</select></label>;
+  const choices = (label, key, options) => <fieldset className="fb-concierge-field wide" style={{border:0,padding:0,margin:0}}><legend>{label}</legend><div className="fb-concierge-choice-grid">{options.map(([value, optionLabel]) => <label className="fb-concierge-choice" key={value}><input type="checkbox" checked={(form[key] || []).includes(value)} onChange={() => toggleArray(key, value)}/><span>{optionLabel}</span></label>)}</div></fieldset>;
+
+  return (
+    <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
+      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-vendor-title">
+        <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">{isNew ? "Vendor Intake" : "Vendor Vetting"}</div><h2 id="fb-concierge-vendor-title">{form.vendor_name || "Add a vendor"}</h2><div className="fb-concierge-subtitle">Capture real capabilities first. Approval, bench status, and proven performance remain separate decisions.</div></div>
+        <div className="fb-concierge-form">
+          <div className="fb-concierge-review-layout">
+            <div className="fb-concierge-fields">
+              {input("Vendor name", "vendor_name", { autoFocus: true })}
+              {input("Legal business name", "legal_business_name")}
+              {input("Website", "website", { type: "url", wide: true })}
+              {textarea("Capabilities summary", "capabilities_summary")}
+              {choices("Service categories", "service_categories", FB_CONCIERGE_SERVICE_CATEGORIES)}
+              {choices("Delivery modes", "delivery_modes", FB_CONCIERGE_DELIVERY_MODES)}
+              {input("Headquarters city", "headquarters_city")}
+              {input("State / region", "headquarters_state_region")}
+              {input("Typical project minimum ($)", "typical_project_minimum_dollars", { type: "number", min: "0", step: "1" })}
+              {input("Typical project maximum ($)", "typical_project_maximum_dollars", { type: "number", min: "0", step: "1" })}
+              {select("Church / ministry experience", "church_ministry_experience", [["unknown","Unknown"],["none_known","None known"],["some","Some"],["extensive","Extensive"]])}
+              {select("Relationship source", "relationship_source", [["founder_or_congregation","Founder or congregation"],["organization_referral","Organization referral"],["vendor_referral","Vendor referral"],["growth_engine","Growth Engine"],["direct_research","Direct research"],["inbound","Inbound"],["other","Other"]])}
+              {select("Relationship status", "relationship_status", [["discovered","Discovered"],["contacted","Contacted"],["qualified","Qualified"],["active_bench","Active bench"],["inactive","Inactive"],["do_not_use","Do not use"]])}
+              <div className="fb-concierge-section-title">Agreement to be considered</div>
+              {select("Consideration consent", "consideration_consent_status", [["not_requested","Not requested"],["pending","Pending"],["confirmed","Confirmed"],["declined","Declined"],["withdrawn","Withdrawn"]])}
+              {select("Consent source", "consideration_consent_source", [["","Choose source"],["email","Email"],["phone_call","Phone call"],["text_message","Text message"],["meeting","Meeting"],["signed_document","Signed document"],["other","Other"]])}
+              {input("Consent evidence reference", "consideration_consent_reference", { wide:true, placeholder:"Email subject/date, call note, message link, or document reference" })}
+              <div className="fb-concierge-safe"><strong>Required truth gate:</strong> a full Concierge vendor record is created only after the vendor explicitly agrees to be considered. Evidence verification does not substitute for consent.</div>
+              {input("Next follow-up", "next_follow_up_on", { type: "date" })}
+              {textarea("Current capacity", "current_capacity_note")}
+              {input("Capacity checked", "capacity_checked_on", { type: "date" })}
+              {select("Vetting decision", "vetting_decision", [["not_reviewed","Not reviewed"],["in_review","In review"],["approved","Approved"],["approved_with_conditions","Approved with conditions"],["not_approved","Not approved"],["review_expired","Review expired"]])}
+              {input("Vetting decision date", "vetting_decision_date", { type: "date" })}
+              {input("Review due", "vetting_review_due_on", { type: "date" })}
+              {textarea("Vetting summary and rationale", "vetting_summary")}
+              {select("Performance proof", "proof_level", [["not_yet_proven","Not yet proven"],["proven_one_successful_engagement","One successful engagement"],["proven_repeat_success","Repeat success"],["performance_concern","Performance concern"]])}
+              {proofClaimed && choices("Proven service categories", "proven_service_categories", FB_CONCIERGE_SERVICE_CATEGORIES)}
+              {proofClaimed && input("Proof decision date", "proof_decision_date", { type: "date" })}
+              {textarea("Internal restrictions or concerns", "internal_restrictions_concerns")}
+            </div>
+            <aside className="fb-concierge-review-summary">
+              <div className="fb-concierge-review-card"><strong>Truth boundary</strong><span>Vetting approval means FaithBid has reviewed the vendor. It does not mean the vendor has proven performance through a completed FaithBid engagement.</span></div>
+              <div className="fb-concierge-review-card"><strong>Consideration consent</strong><span>{fbConsiderationConsentReady(form).ready ? "Confirmed with an evidence reference." : "Required before this vendor record can be saved."}</span></div>
+              <div className="fb-concierge-review-card"><strong>Bench rule</strong><span>Only approved or conditionally approved vendors with current capacity may enter the active private bench.</span></div>
+              <div className="fb-concierge-checklist">{approvalChecks.map((item) => <div key={item.label} className={"fb-concierge-check " + (item.ok ? "good" : "bad")}><span className="fb-concierge-check-mark">{item.ok ? "✓" : "!"}</span><span>{item.label}</span></div>)}</div>
+            </aside>
+          </div>
+          {error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{margin:"14px 0 0"}}>{error}</div>}
+        </div>
+        <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn" onClick={() => void save(false)} disabled={busy || checks.some((item) => !item.ok)}>{busy ? "Saving…" : isNew ? "Save for vetting" : "Save review"}</button>{!isNew && <button type="button" className="fb-concierge-btn primary" onClick={() => void save(true)} disabled={busy || !approvalReady}>{busy ? "Saving…" : "Approve for private bench"}</button>}</div>
+      </section>
+    </div>
+  );
+}
+
+function FBConciergeVendorEvidenceModal({ client, vendor, contacts, evidence, operatorId, onClose, onChanged }) {
+  const emptyContact = { first_name:"", last_name:"", title_role:"", decision_role:"unknown", email:"", phone:"", preferred_channel:"unknown", contact_status:"unverified", is_primary_contact:false, contact_notes:"" };
+  const emptyCheck = { check_type:"business_identity_or_registration", review_status:"not_started", outcome:"", requested_on:"", completed_on:"", expires_on:"", evidence_method:"document_reviewed", evidence_source:"", evidence_reference:"", evidence_summary:"", concern_exception_notes:"", follow_up_on:"", authoritative_registry_verified:false, registry_verification_on:"" };
+  const [contactForm, setContactForm] = useState(emptyContact);
+  const [checkForm, setCheckForm] = useState(emptyCheck);
+  const [editingContactId, setEditingContactId] = useState(null);
+  const [editingCheckId, setEditingCheckId] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const today = new Date().toISOString().slice(0, 10);
+  const completed = evidence.filter((item) => item.review_status === "complete");
+  const adverse = completed.filter((item) => ["concern","failed"].includes(item.outcome));
+  const expired = completed.filter((item) => item.expires_on && String(item.expires_on).slice(0,10) < today);
+
+  useEffect(() => {
+    const onKeyDown = (event) => { if (event.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [busy, onClose]);
+
+  const updateContact = (key, value) => setContactForm((current) => ({ ...current, [key]: value }));
+  const updateCheck = (key, value) => setCheckForm((current) => ({ ...current, [key]: value }));
+  const editContact = (item) => { setEditingContactId(item.id); setContactForm({ ...emptyContact, ...item }); setError(""); };
+  const editCheck = (item) => { setEditingCheckId(item.id); setCheckForm({ ...emptyCheck, ...item, outcome:item.outcome || "" }); setError(""); };
+
+  const saveContact = async () => {
+    if (!String(contactForm.first_name || "").trim() && !String(contactForm.last_name || "").trim()) { setError("Enter at least a first or last name."); return; }
+    setBusy(true); setError("");
+    const payload = {
+      vendor_id: vendor.id,
+      first_name: String(contactForm.first_name || "").trim() || null,
+      last_name: String(contactForm.last_name || "").trim() || null,
+      title_role: String(contactForm.title_role || "").trim() || null,
+      decision_role: contactForm.decision_role || "unknown",
+      email: String(contactForm.email || "").trim() || null,
+      phone: String(contactForm.phone || "").trim() || null,
+      preferred_channel: contactForm.preferred_channel || "unknown",
+      contact_status: contactForm.contact_status || "unverified",
+      is_primary_contact: Boolean(contactForm.is_primary_contact),
+      contact_notes: String(contactForm.contact_notes || "").trim() || null,
+    };
+    if (payload.is_primary_contact) {
+      const { error: clearError } = await client.from("people").update({ is_primary_contact:false }).eq("vendor_id", vendor.id).is("archived_at", null);
+      if (clearError) { setBusy(false); setError(clearError.message || "Existing primary contact could not be updated."); return; }
+    }
+    const request = editingContactId ? client.from("people").update(payload).eq("id", editingContactId) : client.from("people").insert(payload);
+    const { data, error: saveError } = await request.select("id").single();
+    if (saveError) { setBusy(false); setError(saveError.message || "The contact could not be saved."); return; }
+    if (payload.is_primary_contact) {
+      const { error: vendorError } = await client.from("vendors").update({ primary_contact_id:data.id }).eq("id", vendor.id).select("id").single();
+      if (vendorError) { setBusy(false); setError(vendorError.message || "The contact saved, but could not be assigned as primary."); return; }
+    }
+    setBusy(false);
+    await onChanged((payload.first_name || payload.last_name || "Contact") + " saved to " + vendor.vendor_name + ".");
+  };
+
+  const saveCheck = async () => {
+    const isComplete = checkForm.review_status === "complete";
+    if (isComplete && (!checkForm.outcome || !checkForm.completed_on || !String(checkForm.evidence_summary || "").trim() || !operatorId)) { setError("A completed check needs an outcome, completion date, evidence summary, and accountable reviewer."); return; }
+    if (["concern","failed","not_applicable"].includes(checkForm.outcome) && !String(checkForm.concern_exception_notes || "").trim()) { setError("Explain any concern, failure, or not-applicable result."); return; }
+    if (checkForm.authoritative_registry_verified && !checkForm.registry_verification_on) { setError("Record the registry verification date."); return; }
+    setBusy(true); setError("");
+    const payload = {
+      vendor_id: vendor.id,
+      check_type: checkForm.check_type,
+      review_status: checkForm.review_status,
+      outcome: isComplete ? checkForm.outcome : null,
+      requested_on: checkForm.requested_on || null,
+      completed_on: isComplete ? checkForm.completed_on : null,
+      expires_on: checkForm.expires_on || null,
+      reviewer_id: isComplete ? operatorId : null,
+      evidence_method: checkForm.evidence_method,
+      evidence_source: String(checkForm.evidence_source || "").trim() || null,
+      evidence_reference: String(checkForm.evidence_reference || "").trim() || null,
+      evidence_summary: String(checkForm.evidence_summary || "").trim() || null,
+      concern_exception_notes: String(checkForm.concern_exception_notes || "").trim() || null,
+      follow_up_on: checkForm.follow_up_on || null,
+      authoritative_registry_verified: Boolean(checkForm.authoritative_registry_verified),
+      registry_verification_on: checkForm.authoritative_registry_verified ? checkForm.registry_verification_on : null,
+    };
+    const request = editingCheckId ? client.from("vetting_checks").update(payload).eq("id", editingCheckId) : client.from("vetting_checks").insert(payload);
+    const { error: saveError } = await request.select("id").single();
+    setBusy(false);
+    if (saveError) { setError(saveError.message || "The evidence check could not be saved."); return; }
+    await onChanged(fbConciergeLabel(payload.check_type) + " evidence saved for " + vendor.vendor_name + ".");
+  };
+
+  const field = (label, value, setter, props={}) => <label className={"fb-concierge-field" + (props.wide ? " wide" : "")}>{label}<input value={value ?? ""} onChange={(event) => setter(event.target.value)} {...props} wide={undefined}/></label>;
+  const selectField = (label, value, setter, options) => <label className="fb-concierge-field">{label}<select value={value || ""} onChange={(event) => setter(event.target.value)}>{options.map(([optionValue, optionLabel]) => <option value={optionValue} key={optionValue}>{optionLabel}</option>)}</select></label>;
+  return <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
+    <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-evidence-title">
+      <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Vendor Contacts & Vetting Evidence</div><h2 id="fb-concierge-evidence-title">{vendor.vendor_name}</h2><div className="fb-concierge-subtitle">Contacts, evidence sources, outcomes, expiration dates, and accountable review stay separate from marketplace claims.</div></div>
+      <div className="fb-concierge-form"><div className="fb-concierge-review-layout"><div className="fb-concierge-fields">
+        <div className="fb-concierge-section-title">{editingContactId ? "Edit vendor contact" : "Add vendor contact"}</div>
+        {field("First name",contactForm.first_name,(v)=>updateContact("first_name",v),{autoFocus:true})}{field("Last name",contactForm.last_name,(v)=>updateContact("last_name",v))}
+        {field("Title / role",contactForm.title_role,(v)=>updateContact("title_role",v))}{selectField("Decision role",contactForm.decision_role,(v)=>updateContact("decision_role",v),[["unknown","Unknown"],["decision_maker","Decision maker"],["influencer","Influencer"],["coordinator","Coordinator"],["finance_or_legal","Finance / legal"],["technical_evaluator","Technical evaluator"],["other","Other"]])}
+        {field("Email",contactForm.email,(v)=>updateContact("email",v),{type:"email"})}{field("Phone",contactForm.phone,(v)=>updateContact("phone",v),{type:"tel"})}
+        {selectField("Preferred channel",contactForm.preferred_channel,(v)=>updateContact("preferred_channel",v),[["unknown","Unknown"],["email","Email"],["phone","Phone"],["text","Text"],["video","Video"],["other","Other"]])}{selectField("Contact status",contactForm.contact_status,(v)=>updateContact("contact_status",v),[["unverified","Unverified"],["active","Active"],["former","Former"],["do_not_contact","Do not contact"]])}
+        <label className="fb-concierge-checkbox"><input type="checkbox" checked={Boolean(contactForm.is_primary_contact)} onChange={(event)=>updateContact("is_primary_contact",event.target.checked)}/><span>Primary vendor contact</span></label>
+        <label className="fb-concierge-field wide">Contact notes<textarea value={contactForm.contact_notes || ""} onChange={(event)=>updateContact("contact_notes",event.target.value)}/></label>
+        <div className="fb-concierge-row-actions" style={{gridColumn:"1/-1"}}><button type="button" className="fb-concierge-btn" disabled={busy} onClick={()=>void saveContact()}>{busy ? "Saving…" : editingContactId ? "Update contact" : "Save contact"}</button>{editingContactId && <button type="button" className="fb-concierge-btn" onClick={()=>{setEditingContactId(null);setContactForm(emptyContact);}}>Cancel edit</button>}</div>
+        <div className="fb-concierge-section-title">{editingCheckId ? "Edit vetting check" : "Add vetting evidence"}</div>
+        {selectField("Check type",checkForm.check_type,(v)=>updateCheck("check_type",v),FB_CONCIERGE_VETTING_TYPES)}{selectField("Review status",checkForm.review_status,(v)=>updateCheck("review_status",v),[["not_started","Not started"],["in_progress","In progress"],["complete","Complete"]])}
+        {selectField("Outcome",checkForm.outcome,(v)=>updateCheck("outcome",v),[["","Not decided"],["passed","Passed"],["concern","Concern"],["failed","Failed"],["not_applicable","Not applicable"]])}{selectField("Evidence method",checkForm.evidence_method,(v)=>updateCheck("evidence_method",v),FB_CONCIERGE_EVIDENCE_METHODS)}
+        {field("Requested on",checkForm.requested_on,(v)=>updateCheck("requested_on",v),{type:"date"})}{field("Completed on",checkForm.completed_on,(v)=>updateCheck("completed_on",v),{type:"date"})}
+        {field("Expires on",checkForm.expires_on,(v)=>updateCheck("expires_on",v),{type:"date"})}{field("Follow-up on",checkForm.follow_up_on,(v)=>updateCheck("follow_up_on",v),{type:"date"})}
+        {field("Evidence source",checkForm.evidence_source,(v)=>updateCheck("evidence_source",v))}{field("Evidence reference / URL",checkForm.evidence_reference,(v)=>updateCheck("evidence_reference",v))}
+        <label className="fb-concierge-field wide">Evidence summary<textarea value={checkForm.evidence_summary || ""} onChange={(event)=>updateCheck("evidence_summary",event.target.value)}/></label>
+        <label className="fb-concierge-field wide">Concern / exception notes<textarea value={checkForm.concern_exception_notes || ""} onChange={(event)=>updateCheck("concern_exception_notes",event.target.value)}/></label>
+        <label className="fb-concierge-checkbox"><input type="checkbox" checked={Boolean(checkForm.authoritative_registry_verified)} onChange={(event)=>updateCheck("authoritative_registry_verified",event.target.checked)}/><span>Verified against an authoritative registry</span></label>
+        {checkForm.authoritative_registry_verified && field("Registry verified on",checkForm.registry_verification_on,(v)=>updateCheck("registry_verification_on",v),{type:"date"})}
+        <div className="fb-concierge-row-actions" style={{gridColumn:"1/-1"}}><button type="button" className="fb-concierge-btn primary" disabled={busy} onClick={()=>void saveCheck()}>{busy ? "Saving…" : editingCheckId ? "Update evidence" : "Save evidence"}</button>{editingCheckId && <button type="button" className="fb-concierge-btn" onClick={()=>{setEditingCheckId(null);setCheckForm(emptyCheck);}}>Cancel edit</button>}</div>
+      </div><aside className="fb-concierge-review-summary">
+        <div className="fb-concierge-review-card"><strong>Evidence readiness</strong><span>{completed.length} completed · {adverse.length} adverse · {expired.length} expired. Approval requires at least one passed check and no incomplete, adverse, or expired evidence.</span></div>
+        <div className="fb-concierge-review-card"><strong>Vendor contacts ({contacts.length})</strong>{contacts.map((item)=><span key={item.id} style={{display:"block",marginTop:7}}><b>{item.full_name || [item.first_name,item.last_name].filter(Boolean).join(" ")}</b>{item.is_primary_contact ? " · Primary" : ""}<br/>{item.title_role || fbConciergeLabel(item.decision_role)} · {item.email || item.phone || "No channel recorded"}<br/><button type="button" className="fb-concierge-mini-btn" style={{marginTop:5}} onClick={()=>editContact(item)}>Edit</button></span>)}{!contacts.length && <span>No vendor contacts recorded yet.</span>}</div>
+        <div className="fb-concierge-review-card"><strong>Vetting checks ({evidence.length})</strong>{evidence.map((item)=><span key={item.id} style={{display:"block",marginTop:8}}><b>{fbConciergeLabel(item.check_type)}</b><br/>{fbConciergeLabel(item.review_status)}{item.outcome ? " · "+fbConciergeLabel(item.outcome) : ""}{item.expires_on ? " · expires "+fbConciergeDate(item.expires_on) : ""}<br/><button type="button" className="fb-concierge-mini-btn" style={{marginTop:5}} onClick={()=>editCheck(item)}>Edit</button></span>)}{!evidence.length && <span>No structured evidence recorded yet.</span>}</div>
+      </aside></div>{error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{margin:"14px 0 0"}}>{error}</div>}</div>
+      <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Close</button></div>
+    </section>
+  </div>;
+}
+
+const FB_GROWTH_VENDOR_VERIFICATION_FIELDS = [
+  ["business_identity_status", "Business identity", ["verified"]],
+  ["website_safety_status", "Website safety", ["safe", "not_applicable"]],
+  ["licensing_status", "Licensing", ["verified", "not_applicable"]],
+  ["insurance_status", "Insurance", ["verified"]],
+  ["references_status", "References", ["verified"]],
+  ["commercial_capacity_status", "Commercial capacity", ["verified"]],
+  ["church_fit_status", "Church fit", ["verified"]],
+];
+
+function fbGrowthVendorVerification(vendor) {
+  const checks = FB_GROWTH_VENDOR_VERIFICATION_FIELDS.map(([key, label, passing]) => ({
+    key,
+    label,
+    value: vendor?.[key] || "unverified",
+    ok: passing.includes(vendor?.[key]),
+  }));
+  const researchHold = String(vendor?.status || "").toLowerCase() === "research_hold" || vendor?.website_safety_status === "hold";
+  const passed = checks.filter((item) => item.ok).length;
+  return { checks, passed, total: checks.length, researchHold, ready: !researchHold && checks.every((item) => item.ok) };
+}
+
+function FBGrowthVendorVerificationModal({ vendor, operatorId, onClose, onSaved }) {
+  const [form, setForm] = useState(() => ({ ...vendor }));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const verification = fbGrowthVendorVerification(form);
+  const consent = fbConsiderationConsentReady(form);
+
+  useEffect(() => {
+    const onKeyDown = (event) => { if (event.key === "Escape" && !busy) onClose(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [busy, onClose]);
+
+  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const statusOptions = [["discovered", "Discovered"], ["research_hold", "Research hold"], ["qualified", "Qualified for Concierge intake"]];
+  if (form.status && !statusOptions.some(([value]) => value === form.status)) statusOptions.unshift([form.status, fbConciergeLabel(form.status)]);
+  const select = (label, key, options) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(event) => update(key, event.target.value)}>{options.map(([value, optionLabel]) => <option key={value} value={value}>{optionLabel}</option>)}</select></label>;
+
+  const save = async () => {
+    const requestedQualified = ["qualified", "approved", "ready", "interested", "converted"].includes(String(form.status || "").toLowerCase());
+    if (requestedQualified && (!verification.ready || !consent.ready)) {
+      setError("This vendor cannot be marked qualified until explicit consideration consent is evidenced, every verification gate passes, and all research holds are cleared.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    const payload = {
+      status: form.website_safety_status === "hold" ? "research_hold" : form.status,
+      business_identity_status: form.business_identity_status,
+      website_safety_status: form.website_safety_status,
+      licensing_status: form.licensing_status,
+      insurance_status: form.insurance_status,
+      references_status: form.references_status,
+      commercial_capacity_status: form.commercial_capacity_status,
+      church_fit_status: form.church_fit_status,
+      verification_reviewed_at: new Date().toISOString(),
+      verification_next_action: String(form.verification_next_action || "").trim() || null,
+      notes: String(form.notes || "").trim() || null,
+      consideration_consent_status: form.consideration_consent_status || "not_requested",
+      consideration_consented_at: form.consideration_consent_status === "confirmed" ? (form.consideration_consented_at || new Date().toISOString()) : null,
+      consideration_consent_source: String(form.consideration_consent_source || "").trim() || null,
+      consideration_consent_reference: String(form.consideration_consent_reference || "").trim() || null,
+      consideration_consent_recorded_by: form.consideration_consent_status === "confirmed" ? (form.consideration_consent_recorded_by || operatorId || null) : null,
+    };
+    const { error: saveError } = await supabase.from("growth_vendors").update(payload).eq("id", vendor.id).select("id").single();
+    setBusy(false);
+    if (saveError) { setError(saveError.message || "The verification review could not be saved."); return; }
+    await onSaved(`${vendor.name} verification review saved${payload.status === "research_hold" ? " on research hold" : verification.ready ? " and cleared for qualification" : ""}.`);
+  };
+
+  return <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
+    <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-growth-verification-title">
+      <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Growth Engine Verification</div><h2 id="fb-growth-verification-title">{vendor.name}</h2><div className="fb-concierge-subtitle">Founder-only evidence and consent review before Concierge intake. Saving never contacts, approves, or promotes this vendor.</div></div>
+      <div className="fb-concierge-form"><div className="fb-concierge-review-layout"><div className="fb-concierge-fields">
+        {select("Growth status", "status", statusOptions)}
+        {select("Business identity", "business_identity_status", [["unverified","Unverified"],["verified","Verified"],["concern","Concern"]])}
+        {select("Website safety", "website_safety_status", [["unchecked","Unchecked"],["safe","Safe"],["hold","Research hold"],["not_applicable","Not applicable"]])}
+        {select("Licensing", "licensing_status", [["unverified","Unverified"],["verified","Verified"],["not_applicable","Not applicable"],["expired","Expired"],["concern","Concern"]])}
+        {select("Insurance", "insurance_status", [["unverified","Unverified"],["verified","Verified"],["expired","Expired"],["concern","Concern"]])}
+        {select("References", "references_status", [["not_started","Not started"],["in_progress","In progress"],["verified","Verified"],["concern","Concern"]])}
+        {select("Commercial capacity", "commercial_capacity_status", [["unverified","Unverified"],["verified","Verified"],["limited","Limited"],["concern","Concern"]])}
+        {select("Church fit", "church_fit_status", [["unverified","Unverified"],["verified","Verified"],["not_applicable","Not applicable"],["concern","Concern"]])}
+        <div className="fb-concierge-section-title">Agreement to be considered</div>
+        {select("Consideration consent", "consideration_consent_status", [["not_requested","Not requested"],["pending","Pending"],["confirmed","Confirmed"],["declined","Declined"],["withdrawn","Withdrawn"]])}
+        {select("Consent source", "consideration_consent_source", [["","Choose source"],["email","Email"],["phone_call","Phone call"],["text_message","Text message"],["meeting","Meeting"],["signed_document","Signed document"],["other","Other"]])}
+        <label className="fb-concierge-field wide">Consent evidence reference<input value={form.consideration_consent_reference || ""} onChange={(event) => update("consideration_consent_reference", event.target.value)} placeholder="Email subject/date, call note, message link, or document reference"/></label>
+        <label className="fb-concierge-field wide">Next verification action<textarea value={form.verification_next_action || ""} onChange={(event) => update("verification_next_action", event.target.value)} placeholder="Name the next evidence to obtain or verify."/></label>
+        <label className="fb-concierge-field wide">Research notes<textarea value={form.notes || ""} onChange={(event) => update("notes", event.target.value)} placeholder="Record factual evidence and sources; do not overstate claims."/></label>
+      </div><aside className="fb-concierge-review-summary">
+        <div className="fb-concierge-review-card"><strong>{verification.researchHold ? "RESEARCH HOLD" : verification.ready ? "Evidence gates complete" : `${verification.passed} of ${verification.total} gates complete`}</strong><span>{verification.researchHold ? "Promotion is blocked. Resolve the safety or identity concern before continuing." : verification.ready ? "Evidence is complete; explicit vendor consent is still a separate requirement." : "Incomplete evidence blocks qualification and Concierge promotion."}</span></div>
+        <div className="fb-concierge-review-card"><strong>Consideration consent: {consent.ready ? "confirmed" : fbConciergeLabel(form.consideration_consent_status || "not_requested")}</strong><span>{consent.ready ? "An auditable source and reference are recorded." : "Qualification and promotion remain blocked until the vendor explicitly agrees to be considered."}</span></div>
+        {vendor.website && <div className="fb-concierge-review-card"><strong>Website under review</strong><span>{form.website_safety_status === "hold" ? vendor.website : <a href={vendor.website} target="_blank" rel="noreferrer">{vendor.website}</a>}</span></div>}
+        <div className="fb-concierge-checklist">{verification.checks.map((item) => <div key={item.key} className={"fb-concierge-check " + (item.ok ? "good" : "bad")}><span className="fb-concierge-check-mark">{item.ok ? "✓" : "!"}</span><span>{item.label}: {fbConciergeLabel(item.value)}</span></div>)}</div>
+      </aside></div>{error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{margin:"14px 0 0"}}>{error}</div>}</div>
+      <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn primary" onClick={() => void save()} disabled={busy}>{busy ? "Saving…" : "Save verification review"}</button></div>
+    </section>
+  </div>;
+}
+
+function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, onToggleDallasPilotOnly }) {
+  const client = useMemo(() => supabase.schema("concierge_ops"), []);
+  const [view, setView] = useState("command");
+  const [status, setStatus] = useState("loading");
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [intakeOpen, setIntakeOpen] = useState(false);
+  const [reviewNeed, setReviewNeed] = useState(null);
+  const [sourcingNeed, setSourcingNeed] = useState(null);
+  const [vendorEditor, setVendorEditor] = useState(null);
+  const [vendorEvidenceEditor, setVendorEvidenceEditor] = useState(null);
+  const [growthVendorReview, setGrowthVendorReview] = useState(null);
+  const [placementMatch, setPlacementMatch] = useState(null);
+  const [launchEngagement, setLaunchEngagement] = useState(null);
+  const [checkInEngagement, setCheckInEngagement] = useState(null);
+  const [outcomeEngagement, setOutcomeEngagement] = useState(null);
+  const [recurringEngagement, setRecurringEngagement] = useState(null);
+  const [feeEngagement, setFeeEngagement] = useState(null);
+  const [giveBackEngagement, setGiveBackEngagement] = useState(null);
+  const [closeEngagement, setCloseEngagement] = useState(null);
+  const [success, setSuccess] = useState("");
+  const [records, setRecords] = useState({ organizations: [], needs: [], vendors: [], contacts: [], vettingChecks: [], growthVendors: [], matches: [], engagements: [], issues: [] });
+  const deferredSearch = React.useDeferredValue(search);
+
+  const load = useCallback(async () => {
+    setStatus("loading");
+    setError("");
+    const results = await Promise.all([
+      client.from("organizations").select("id,organization_name,organization_type,lifecycle_stage,city,state_region,pilot_cohort,next_follow_up_on,relationship_source,created_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
+      client.from("needs").select("id,organization_id,requesting_contact_id,owner_id,need_title,status,need_type,service_frequency,primary_service_category,service_detail,need_brief,desired_outcome,must_haves,nice_to_haves,urgency,target_decision_on,target_start_on,budget_status,budget_basis,budget_band,budget_band_basis,delivery_requirement,service_location,faith_alignment_requirement,faith_fit_rationale,risk_tier,compliance_gate,pilot_risk_flags,pilot_eligibility,pilot_hold_reason,shortlist_target,next_action,next_action_on,ready_to_source_at,sourcing_started_at,shortlist_presented_at,selected_at,organization:organizations(organization_name)").is("archived_at", null).order("next_action_on", { ascending: true, nullsFirst: false }).limit(500),
+      client.from("vendors").select("id,vendor_name,legal_business_name,website,growth_vendor_id,primary_contact_id,relationship_status,relationship_source,relationship_owner_id,vetting_decision,vetting_decision_date,vetting_review_due_on,vetting_summary,proof_level,proven_service_categories,proof_decision_date,service_categories,delivery_modes,capabilities_summary,current_capacity_note,capacity_checked_on,internal_restrictions_concerns,typical_project_minimum_cents,typical_project_maximum_cents,church_ministry_experience,headquarters_city,headquarters_state_region,next_follow_up_on,consideration_consent_status,consideration_consented_at,consideration_consent_source,consideration_consent_reference,consideration_consent_recorded_by,created_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
+      client.from("match_details").select("id,need_id,vendor_id,need_title,organization_name,vendor_name,stage,vendor_interest,project_availability,must_have_fit,overall_fit,fit_rationale,concerns,shortlist_rank,recommendation_summary,organization_feedback,shortlisted_at,need_budget_band,introduction_fee_tier,agreed_introduction_fee_cents,renewal_fee_applies,agreed_renewal_fee_cents,renewal_trigger_terms,placement_agreement_status,placement_agreement_reference,introduced_at,updated_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
+      client.from("engagement_details").select("id,selected_match_id,need_id,vendor_id,organization_id,need_title,need_type,organization_name,vendor_name,status,agreement_selection_on,planned_start_on,actual_start_on,actual_completion_on,launch_confirmation_reference,launch_summary,church_start_confirmed_on,vendor_start_confirmed_on,delivery_health,latest_check_in_on,latest_check_in_summary,next_check_in_on,current_milestone,milestone_status,milestone_due_on,delivery_next_action,delivery_next_action_on,delivery_check_ins,delivery_event_count,issue_escalation_summary,outcome_review_status,outcome_assessment,would_recommend_again,organization_satisfaction,vendor_performance,outcome_summary,proof_disqualifier,renewal_fee_applies,agreed_introduction_fee_cents,agreed_renewal_fee_cents,introduction_fee_triggered_on,introduction_invoice_status,introduction_amount_invoiced_cents,introduction_gross_collected_cents,introduction_refunds_credits_cents,introduction_taxes_collected_cents,recurring_confirmation_status,recurring_confirmed_on,renewal_fee_triggered_on,renewal_invoice_status,renewal_amount_invoiced_cents,renewal_gross_collected_cents,renewal_refunds_credits_cents,renewal_taxes_collected_cents,total_net_fees_collected_cents,give_back_status,give_back_recipient_type,give_back_recipient,recipient_verification_status,give_back_eligible_cents,actual_give_back_cents,updated_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
+      client.from("validation_issues").select("issue_code,entity_table,entity_id,severity,detail").limit(500),
+      client.from("people").select("id,vendor_id,first_name,last_name,full_name,title_role,decision_role,email,phone,preferred_channel,contact_status,is_primary_contact,contact_notes,created_at").not("vendor_id", "is", null).is("archived_at", null).order("is_primary_contact", { ascending:false }).order("updated_at", { ascending:false }).limit(1000),
+      client.from("vetting_checks").select("id,vendor_id,check_type,review_status,outcome,requested_on,completed_on,expires_on,reviewer_id,evidence_method,evidence_source,evidence_reference,evidence_summary,concern_exception_notes,follow_up_on,authoritative_registry_verified,registry_verification_on,created_at").is("archived_at", null).order("updated_at", { ascending:false }).limit(1000),
+      supabase.from("growth_vendors").select("id,name,business_type,state,city,email,phone,website,source,source_group_name,notes,status,last_contacted_at,commitment_level,priority_market,business_identity_status,website_safety_status,licensing_status,insurance_status,references_status,commercial_capacity_status,church_fit_status,verification_reviewed_at,verification_next_action,consideration_consent_status,consideration_consented_at,consideration_consent_source,consideration_consent_reference,consideration_consent_recorded_by,created_at").order("created_at", { ascending:false }).limit(500),
+    ]);
+    const firstError = results.map((result) => result.error).find(Boolean);
+    if (firstError) {
+      setError(firstError.message || "The live concierge data could not be loaded.");
+      setStatus("error");
+      return;
+    }
+    setRecords({
+      organizations: results[0].data || [],
+      needs: results[1].data || [],
+      vendors: results[2].data || [],
+      matches: results[3].data || [],
+      engagements: results[4].data || [],
+      issues: results[5].data || [],
+      contacts: results[6].data || [],
+      vettingChecks: results[7].data || [],
+      growthVendors: results[8].data || [],
+    });
+    setStatus("ready");
+  }, [client]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const metrics = useMemo(() => {
+    const activeNeeds = records.needs.filter((item) => !["closed_unfilled", "cancelled"].includes(item.status));
+    const netGiveBackDue = records.engagements.reduce((sum, item) => sum + Math.max(0, Number(item.give_back_eligible_cents || 0) - Number(item.actual_give_back_cents || 0)), 0);
+    return {
+      activeNeeds,
+      vendorsInVetting: records.vendors.filter((item) => ["not_reviewed", "in_review", "review_expired"].includes(item.vetting_decision)).length,
+      awaitingOutcome: records.engagements.filter((item) => !["complete", "unable_to_complete"].includes(item.outcome_review_status)).length,
+      netGiveBackDue,
+      introToInvoice: records.engagements.filter((item) => item.introduction_fee_triggered_on && item.introduction_invoice_status === "not_invoiced").length,
+      renewalCheckIns: records.engagements.filter((item) => item.recurring_confirmation_status === "pending_check_in").length,
+      giveBackReady: records.engagements.filter((item) => item.give_back_status === "ready").length,
+      blockers: records.issues.filter((item) => ["blocker", "error"].includes(item.severity)).length,
+      discoveryComplete: activeNeeds.filter((item) => !["intake", "clarifying"].includes(item.status)).length,
+      shortlistReady: activeNeeds.filter((item) => ["shortlist_ready", "organization_reviewing", "vendor_selected"].includes(item.status)).length,
+      introduced: records.matches.filter((item) => item.introduced_at).length,
+      engaged: records.engagements.filter((item) => ["active", "completed"].includes(item.status)).length,
+    };
+  }, [records]);
+
+  const query = deferredSearch.trim().toLowerCase();
+  const contains = (...values) => !query || values.some((value) => String(value || "").toLowerCase().includes(query));
+  const organizations = records.organizations.filter((item) => (!dallasPilotOnly || item.pilot_cohort) && contains(item.organization_name, item.organization_type, item.city, item.state_region, item.lifecycle_stage));
+  const vendors = records.vendors.filter((item) => contains(item.vendor_name, item.relationship_status, item.vetting_decision, item.proof_level, (item.service_categories || []).join(" ")));
+  const linkedGrowthVendorIds = new Set(records.vendors.map((item) => item.growth_vendor_id).filter(Boolean));
+  const growthVendorVerificationQueue = records.growthVendors.filter((item) => !linkedGrowthVendorIds.has(item.id) && contains(item.name, item.business_type, item.city, item.state, item.status, item.verification_next_action));
+  const promotableGrowthVendors = records.growthVendors.filter((item) => {
+    const statusValue = String(item.status || "").toLowerCase();
+    const qualified = ["qualified","approved","ready","interested","converted"].includes(statusValue);
+    return qualified && fbGrowthVendorVerification(item).ready && fbConsiderationConsentReady(item).ready && !linkedGrowthVendorIds.has(item.id) && contains(item.name, item.business_type, item.city, item.state, item.status, item.commitment_level);
+  });
+  const needs = records.needs.filter((item) => {
+    const relation = Array.isArray(item.organization) ? item.organization[0] : item.organization;
+    return contains(item.need_title, relation?.organization_name, item.status, item.primary_service_category, item.next_action);
+  });
+  const matches = records.matches.filter((item) => contains(item.need_title, item.organization_name, item.vendor_name, item.stage, item.placement_agreement_status));
+  const engagements = records.engagements.filter((item) => contains(item.need_title, item.organization_name, item.vendor_name, item.status, item.give_back_status));
+
+  // Pilot membership is keyed by immutable ids. Organization names are display
+  // labels and can be duplicated or renamed without breaking the pipeline.
+  const allPilotOrganizations = records.organizations.filter((item) => item.pilot_cohort);
+  const allPilotOrgIds = new Set(allPilotOrganizations.map((item) => item.id));
+  const needById = new Map(records.needs.map((item) => [item.id, item]));
+  const allPilotNeeds = records.needs.filter((item) => allPilotOrgIds.has(item.organization_id));
+  const allPilotMatches = records.matches.filter((item) => allPilotOrgIds.has(needById.get(item.need_id)?.organization_id));
+  const allPilotEngagements = records.engagements.filter((item) => allPilotOrgIds.has(item.organization_id));
+  const pilotOrganizationMatchesSearch = (org) => {
+    if (contains(org.organization_name, org.organization_type, org.city, org.state_region, org.lifecycle_stage)) return true;
+    const orgNeeds = allPilotNeeds.filter((item) => item.organization_id === org.id);
+    const needIds = new Set(orgNeeds.map((item) => item.id));
+    return orgNeeds.some((item) => contains(item.need_title, item.status, item.primary_service_category, item.next_action))
+      || allPilotMatches.some((item) => needIds.has(item.need_id) && contains(item.need_title, item.vendor_name, item.stage, item.placement_agreement_status))
+      || allPilotEngagements.some((item) => item.organization_id === org.id && contains(item.need_title, item.vendor_name, item.status, item.give_back_status));
+  };
+  const pilotOrganizations = allPilotOrganizations.filter(pilotOrganizationMatchesSearch);
+  const visiblePilotOrgIds = new Set(pilotOrganizations.map((item) => item.id));
+  const pilotNeeds = allPilotNeeds.filter((item) => visiblePilotOrgIds.has(item.organization_id));
+  const pilotMatches = allPilotMatches.filter((item) => visiblePilotOrgIds.has(needById.get(item.need_id)?.organization_id));
+  const pilotEngagements = allPilotEngagements.filter((item) => visiblePilotOrgIds.has(item.organization_id));
+  const pilotActiveNeeds = allPilotNeeds.filter((item) => !["closed_unfilled", "cancelled"].includes(item.status));
+  const pilotActiveMatches = allPilotMatches.filter((item) => !["declined", "removed"].includes(item.stage));
+  const pilotActiveEngagements = allPilotEngagements.filter((item) => ["active", "at_risk"].includes(item.status));
+  const pilotAttentionDate = (org) => {
+    const candidates = [org.next_follow_up_on];
+    allPilotNeeds.forEach((item) => { if (item.organization_id === org.id && !["closed_unfilled", "cancelled"].includes(item.status)) candidates.push(item.next_action_on); });
+    allPilotEngagements.forEach((item) => { if (item.organization_id === org.id && ["active", "at_risk"].includes(item.status)) candidates.push(item.next_check_in_on); });
+    return candidates.filter(Boolean).map((value) => String(value).slice(0, 10)).sort()[0] || null;
+  };
+  const pilotOrganizationsSorted = [...pilotOrganizations].sort((a, b) => {
+    const aDate = pilotAttentionDate(a) || "9999-99-99";
+    const bDate = pilotAttentionDate(b) || "9999-99-99";
+    return aDate.localeCompare(bDate) || a.organization_name.localeCompare(b.organization_name);
+  });
+
+  const created = async (result) => {
+    const message = (result.organization_name || "Organization") + " · " + (result.need_title || "Need") + " saved as Intake.";
+    setIntakeOpen(false);
+    setSuccess(message);
+    if (showToast) showToast("Concierge intake created safely.", "success");
+    await load();
+  };
+
+  const setPilotMembership = async (organization, pilotCohort) => {
+    const { error: updateError } = await client
+      .from("organizations")
+      .update({ pilot_cohort: pilotCohort })
+      .eq("id", organization.id);
+    if (updateError) {
+      setError(updateError.message || "Pilot membership could not be updated.");
+      if (showToast) showToast("Pilot membership could not be updated.", "error");
+      return;
+    }
+    const message = `${organization.organization_name} ${pilotCohort ? "added to" : "removed from"} the Dallas Pilot.`;
+    setSuccess(message);
+    if (showToast) showToast(message, "success");
+    await load();
+  };
+
+  const reviewed = async (message) => {
+    setReviewNeed(null);
+    setSuccess(message || "Concierge record updated.");
+    if (showToast) showToast("Concierge record updated.", "success");
+    await load();
+  };
+
+  const sourcingChanged = async (message) => {
+    setSourcingNeed(null);
+    setSuccess(message || "Sourcing queue updated.");
+    if (showToast) showToast("Sourcing queue updated.", "success");
+    await load();
+  };
+
+  const vendorSaved = async (message) => {
+    setVendorEditor(null);
+    setSuccess(message || "Vendor record updated.");
+    if (showToast) showToast("Vendor record updated.", "success");
+    await load();
+  };
+
+  const vendorEvidenceChanged = async (message) => {
+    setVendorEvidenceEditor(null);
+    setSuccess(message || "Vendor evidence updated.");
+    if (showToast) showToast("Vendor diligence updated.", "success");
+    await load();
+  };
+
+  const growthVendorReviewed = async (message) => {
+    setGrowthVendorReview(null);
+    setSuccess(message || "Growth vendor verification updated.");
+    if (showToast) showToast("Growth vendor verification updated.", "success");
+    await load();
+  };
+
+  const placementFinalized = async (_result,message) => {
+    setPlacementMatch(null);
+    setSuccess(message || "Selection and introduction recorded.");
+    if (showToast) showToast("Placement gate completed safely.","success");
+    await load();
+  };
+
+  const engagementLaunched = async (_result, message) => {
+    setLaunchEngagement(null);
+    setSuccess(message || "Engagement launch recorded.");
+    if (showToast) showToast("Engagement launch recorded.", "success");
+    await load();
+  };
+
+  const checkInSaved = async (_result, message) => {
+    setCheckInEngagement(null);
+    setSuccess(message || "Delivery check-in recorded.");
+    if (showToast) showToast("Delivery check-in recorded.", "success");
+    await load();
+  };
+
+  const engagementStepSaved = async (_result, message) => {
+    setOutcomeEngagement(null);
+    setRecurringEngagement(null);
+    setFeeEngagement(null);
+    setGiveBackEngagement(null);
+    setCloseEngagement(null);
+    setSuccess(message || "Engagement updated.");
+    if (showToast) showToast("Engagement updated.", "success");
+    await load();
+  };
+
+  const promoteGrowthVendor = (item) => setVendorEditor({
+    isNew: true,
+    growth_vendor_id: item.id,
+    vendor_name: item.name || "",
+    legal_business_name: item.name || "",
+    website: item.website || "",
+    headquarters_city: item.city || "",
+    headquarters_state_region: item.state || "",
+    capabilities_summary: item.notes || (item.business_type ? "Growth Engine classification: " + item.business_type : ""),
+    relationship_source: "growth_engine",
+    relationship_status: "discovered",
+    vetting_decision: "not_reviewed",
+    proof_level: "not_yet_proven",
+    consideration_consent_status: item.consideration_consent_status,
+    consideration_consented_at: item.consideration_consented_at,
+    consideration_consent_source: item.consideration_consent_source,
+    consideration_consent_reference: item.consideration_consent_reference,
+    consideration_consent_recorded_by: item.consideration_consent_recorded_by,
+  });
+
+  const loadingValue = status === "loading" ? "—" : null;
+  const renderEmpty = (title, copy) => status === "loading"
+    ? <FBConciergeEmpty title="Loading live concierge data…" copy="Reading the protected KingdomBid workspace."/>
+    : <FBConciergeEmpty title={title} copy={copy}/>;
+
+  return (
+    <div className="fb-concierge">
+      <style>{FB_CONCIERGE_CSS}</style>
+      <div className="fb-concierge-shell">
+        <header className="fb-concierge-header">
+          <div><div className="fb-concierge-eyebrow">Private founder workspace</div><h1 className="fb-concierge-title">FaithBid Concierge</h1><div className="fb-concierge-subtitle">Every organization, need, introduction, fee, renewal, and give-back—inside the permanent FaithBid app.</div></div>
+          <div className="fb-concierge-actions">
+            <input className="fb-concierge-search" aria-label="Search concierge records" placeholder="Search organizations, vendors, needs…" value={search} onChange={(event) => setSearch(event.target.value)}/>
+            {view === "organizations" && <button type="button" className={"fb-concierge-btn" + (dallasPilotOnly ? " primary" : "")} aria-pressed={dallasPilotOnly} onClick={() => onToggleDallasPilotOnly ? onToggleDallasPilotOnly() : null}>Dallas Pilot only</button>}
+            <button type="button" className="fb-concierge-btn" onClick={() => void load()} disabled={status === "loading"}>{status === "loading" ? "Refreshing…" : "Refresh"}</button>
+            {view === "vendors" && <button type="button" className="fb-concierge-btn" onClick={() => setVendorEditor({ isNew: true })}>Add vendor</button>}
+            <button type="button" className="fb-concierge-btn primary" onClick={() => setIntakeOpen(true)}>Create intake</button>
+          </div>
+        </header>
+
+        <nav className="fb-concierge-tabs" aria-label="Concierge workspace">
+          {FB_CONCIERGE_VIEWS.map(([id, label]) => <button type="button" key={id} className={"fb-concierge-tab" + (view === id ? " active" : "")} aria-current={view === id ? "page" : undefined} onClick={() => setView(id)}>{label}</button>)}
+        </nav>
+
+        {success && <div className="fb-concierge-notice" role="status"><strong>Concierge update saved.</strong> {success} <button type="button" onClick={() => setSuccess("")} style={{marginLeft:8,border:0,background:"transparent",color:"inherit",textDecoration:"underline",cursor:"pointer",fontWeight:800}}>Dismiss</button></div>}
+        {status === "error" && <div className="fb-concierge-notice fb-concierge-error" role="alert"><strong>Live connection needs attention.</strong> {error} <button type="button" onClick={() => void load()} style={{marginLeft:8,border:0,background:"transparent",color:"inherit",textDecoration:"underline",cursor:"pointer",fontWeight:800}}>Retry</button></div>}
+
+        {view === "command" && <>
+          <section className="fb-concierge-metrics" aria-label="Concierge summary">
+            <FBConciergeMetric label="Active needs" value={loadingValue || metrics.activeNeeds.length} note={records.organizations.length + " organizations recorded"}/>
+            <FBConciergeMetric label="Vendors in vetting" value={loadingValue || metrics.vendorsInVetting} note="Not reviewed, in review, or expired"/>
+            <FBConciergeMetric label="Introductions awaiting outcome" value={loadingValue || metrics.awaitingOutcome} note="Outcome review is not complete"/>
+            <FBConciergeMetric label="Give-back earned" value={loadingValue || fbConciergeMoney(metrics.netGiveBackDue)} note="Calculated from collected fees only"/>
+          </section>
+          <div className="fb-concierge-grid">
+            <FBConciergePanel title="Needs requiring attention" note="Ordered by next committed action." count={needs.length}>
+              <div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Organization & need</th><th>Stage</th><th>Church budget</th><th>Next action</th><th>Due</th></tr></thead><tbody>
+                {needs.slice(0, 12).map((item) => { const relation = Array.isArray(item.organization) ? item.organization[0] : item.organization; return <tr key={item.id}><td><strong>{relation?.organization_name || "Organization not linked"}</strong><span className="fb-concierge-muted">{item.need_title}</span></td><td><FBConciergeBadge value={item.status}/></td><td>{fbConciergeBudget(item.budget_band)}</td><td>{item.next_action || "Define the next action"}</td><td>{fbConciergeDate(item.next_action_on)}</td></tr>; })}
+                {!needs.length && <tr><td colSpan={5}>{renderEmpty("The concierge workspace is ready.", "Create the first organization and need to begin the pilot.")}</td></tr>}
+              </tbody></table></div>
+            </FBConciergePanel>
+            <aside className="fb-concierge-stack">
+              <section className="fb-concierge-card fb-concierge-watch"><h3>Pilot pulse</h3><div className="fb-concierge-watch-row"><span>Discovery complete</span><strong>{metrics.discoveryComplete} / {metrics.activeNeeds.length}</strong></div><div className="fb-concierge-watch-row"><span>Qualified shortlist</span><strong>{metrics.shortlistReady}</strong></div><div className="fb-concierge-watch-row"><span>Introduced</span><strong>{metrics.introduced}</strong></div><div className="fb-concierge-watch-row"><span>Engaged</span><strong>{metrics.engaged}</strong></div></section>
+              <section className="fb-concierge-card fb-concierge-watch"><h3>Operational watch</h3><div className="fb-concierge-watch-row"><span>Intro fees to invoice</span><strong>{metrics.introToInvoice}</strong></div><div className="fb-concierge-watch-row"><span>Renewal check-ins</span><strong>{metrics.renewalCheckIns}</strong></div><div className="fb-concierge-watch-row"><span>Give-backs ready</span><strong>{metrics.giveBackReady}</strong></div><div className="fb-concierge-watch-row"><span>Integrity blockers</span><strong>{metrics.blockers}</strong></div></section>
+            </aside>
+          </div>
+        </>}
+
+        {view === "dallaspilot" && <div className="fb-concierge-stack">
+          <section className="fb-concierge-metrics" aria-label="Dallas Pilot summary">
+            <FBConciergeMetric label="Pilot churches" value={loadingValue || allPilotOrganizations.length} note="Marked FaithBid pilot cohort"/>
+            <FBConciergeMetric label="Pilot needs" value={loadingValue || allPilotNeeds.length} note={pilotActiveNeeds.length + " still active"}/>
+            <FBConciergeMetric label="Pilot matches" value={loadingValue || pilotActiveMatches.length} note="In progress or placed"/>
+            <FBConciergeMetric label="Pilot engagements" value={loadingValue || allPilotEngagements.length} note={pilotActiveEngagements.length + " active or at risk"}/>
+          </section>
+          {pilotOrganizationsSorted.map((org) => {
+            const orgNeeds = pilotNeeds.filter((item) => item.organization_id === org.id);
+            const orgNeedIds = new Set(orgNeeds.map((item) => item.id));
+            const orgMatches = pilotMatches.filter((item) => orgNeedIds.has(item.need_id));
+            const orgEngagements = pilotEngagements.filter((item) => item.organization_id === org.id);
+            const attentionDate = pilotAttentionDate(org);
+            return (
+              <FBConciergePanel key={org.id} title={org.organization_name} note={[org.city, org.state_region].filter(Boolean).join(", ") || "Location not set"} count={orgNeeds.length} actions={<button type="button" className="fb-concierge-mini-btn" onClick={() => void setPilotMembership(org, false)}>Remove from pilot</button>}>
+                <div className="fb-concierge-watch-row"><span>Next attention</span><strong>{fbConciergeDate(attentionDate)}</strong></div>
+                <div className="fb-concierge-watch-row"><span>Stage</span><strong><FBConciergeBadge value={org.lifecycle_stage}/></strong></div>
+                <div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Need</th><th>Stage</th><th>Next action</th><th>Due</th></tr></thead><tbody>
+                  {orgNeeds.map((item) => <tr key={item.id}><td><strong>{item.need_title}</strong></td><td><FBConciergeBadge value={item.status}/></td><td>{item.next_action || "Define the next action"}</td><td>{fbConciergeDate(item.next_action_on)}</td></tr>)}
+                  {!orgNeeds.length && <tr><td colSpan={4}><span className="fb-concierge-muted">No needs recorded yet.</span></td></tr>}
+                </tbody></table></div>
+                <div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Match</th><th>Vendor</th><th>Stage</th><th>Agreement</th></tr></thead><tbody>
+                  {orgMatches.map((item) => <tr key={item.id}><td><strong>{item.need_title}</strong></td><td>{item.vendor_name}</td><td><FBConciergeBadge value={item.stage}/></td><td><FBConciergeBadge value={item.placement_agreement_status}/></td></tr>)}
+                  {!orgMatches.length && <tr><td colSpan={4}><span className="fb-concierge-muted">No matches recorded yet.</span></td></tr>}
+                </tbody></table></div>
+                <div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Engagement</th><th>Vendor</th><th>Status</th><th>Next check-in</th></tr></thead><tbody>
+                  {orgEngagements.map((item) => <tr key={item.id}><td><strong>{item.need_title}</strong></td><td>{item.vendor_name}</td><td><FBConciergeBadge value={item.status}/></td><td>{fbConciergeDate(item.next_check_in_on)}</td></tr>)}
+                  {!orgEngagements.length && <tr><td colSpan={4}><span className="fb-concierge-muted">No engagements recorded yet.</span></td></tr>}
+                </tbody></table></div>
+              </FBConciergePanel>
+            );
+          })}
+          {!pilotOrganizations.length && (allPilotOrganizations.length
+            ? <FBConciergePanel title="No pilot results" note="The pilot cohort is intact; this search did not match a church, need, vendor match, or engagement."><FBConciergeEmpty title="No pilot results." copy="Clear or adjust the search to see the full Dallas Pilot cohort."/></FBConciergePanel>
+            : <FBConciergePanel title="No pilot churches yet" note="Add an organization to the pilot from the Organizations tab."><FBConciergeEmpty title="No pilot churches yet." copy="Use the Add button in the Organizations tab when a church has explicitly entered the Dallas Pilot."/></FBConciergePanel>)}
+        </div>}
+
+        {view === "organizations" && <FBConciergePanel title="Organizations" note="Churches, ministries, and Christian organizations in concierge discovery." count={organizations.length}><div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Organization</th><th>Type</th><th>Stage</th><th>Location</th><th>Source</th><th>Follow-up</th><th>Pilot</th></tr></thead><tbody>{organizations.map((item) => <tr key={item.id}><td><strong>{item.organization_name}</strong><span className="fb-concierge-muted">{item.pilot_cohort ? "Pilot cohort" : "Standard record"}</span></td><td>{fbConciergeLabel(item.organization_type)}</td><td><FBConciergeBadge value={item.lifecycle_stage}/></td><td>{[item.city,item.state_region].filter(Boolean).join(", ") || "Not set"}</td><td>{fbConciergeLabel(item.relationship_source)}</td><td>{fbConciergeDate(item.next_follow_up_on)}</td><td><button type="button" className="fb-concierge-mini-btn" onClick={() => void setPilotMembership(item, !item.pilot_cohort)}>{item.pilot_cohort ? "Remove" : "Add"}</button></td></tr>)}{!organizations.length && <tr><td colSpan={7}>{renderEmpty("No organizations match.", "Create an intake or clear the search.")}</td></tr>}</tbody></table></div></FBConciergePanel>}
+
+        {view === "vendors" && <div className="fb-concierge-stack">
+          <FBConciergePanel title="Vendor intake & vetting" note="Build the private bench without overstating approval or performance proof." count={vendors.length}><div className="fb-concierge-vendor-summary"><div className="fb-concierge-vendor-stat"><strong>{vendors.filter((item) => ["not_reviewed","in_review","review_expired"].includes(item.vetting_decision)).length}</strong><span>Awaiting or needing vetting</span></div><div className="fb-concierge-vendor-stat"><strong>{vendors.filter((item) => item.relationship_status === "active_bench" && ["approved","approved_with_conditions"].includes(item.vetting_decision)).length}</strong><span>Approved active-bench vendors</span></div><div className="fb-concierge-vendor-stat"><strong>{records.vettingChecks.filter((item) => item.review_status === "complete" && item.outcome === "passed").length}</strong><span>Completed evidence checks passed</span></div></div></FBConciergePanel>
+          <FBConciergePanel title="Founder verification queue" note="Every Growth Engine lead must separately clear explicit consideration consent plus identity, safety, licensing, insurance, references, capacity, and church fit." count={growthVendorVerificationQueue.length}><div className="fb-concierge-growth-list">{growthVendorVerificationQueue.map((item) => { const verification=fbGrowthVendorVerification(item); const consent=fbConsiderationConsentReady(item); return <div className="fb-concierge-growth-row" key={item.id}><div style={{flex:1}}><strong>{item.name} {verification.researchHold && <span className="fb-concierge-badge" style={{marginLeft:8,color:"#991b1b",background:"#fee2e2"}}>RESEARCH HOLD</span>}</strong><span className="fb-concierge-muted">{[item.business_type,item.city,item.state].filter(Boolean).join(" · ") || "Growth Engine vendor"}</span><span className="fb-concierge-muted">{verification.passed} of {verification.total} evidence gates · consideration consent {consent.ready ? "confirmed" : fbConciergeLabel(item.consideration_consent_status || "not_requested")}</span>{item.verification_next_action && <span className="fb-concierge-muted">Next: {item.verification_next_action}</span>}</div><button type="button" className="fb-concierge-mini-btn primary" onClick={()=>setGrowthVendorReview(item)}>Review evidence & consent</button></div>; })}{!growthVendorVerificationQueue.length && <FBConciergeEmpty title="No Growth Engine vendors need pre-promotion review." copy="New, unlinked vendor leads will appear here automatically."/>}</div></FBConciergePanel>
+          <FBConciergePanel title="Qualified Growth Engine vendors" note="Only vendors with explicit consideration consent and complete evidence appear here. Promotion still requires separate Concierge vetting." count={promotableGrowthVendors.length}><div className="fb-concierge-growth-list">{promotableGrowthVendors.map((item)=><div className="fb-concierge-growth-row" key={item.id}><div><strong>{item.name}</strong><span className="fb-concierge-muted">{[item.business_type,item.city,item.state].filter(Boolean).join(" · ") || "Growth Engine vendor"}</span><span className="fb-concierge-muted">{fbConciergeLabel(item.status)} · consent confirmed</span></div><button type="button" className="fb-concierge-mini-btn primary" onClick={()=>promoteGrowthVendor(item)}>Review & promote</button></div>)}{!promotableGrowthVendors.length && <FBConciergeEmpty title="No consented, qualified Growth Engine vendors are waiting." copy="A vendor appears here only after it agrees to be considered and every evidence gate passes."/>}</div></FBConciergePanel>
+          <FBConciergePanel title="Vendors" note="Private bench intelligence, contacts, structured evidence, capacity, and truth-safe proof status." count={vendors.length}><div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Vendor</th><th>Relationship</th><th>Vetting</th><th>Contacts</th><th>Evidence</th><th>Capacity</th><th>Actions</th></tr></thead><tbody>{vendors.map((item) => { const vendorContacts=records.contacts.filter((contact)=>contact.vendor_id===item.id); const vendorEvidence=records.vettingChecks.filter((check)=>check.vendor_id===item.id); const passed=vendorEvidence.filter((check)=>check.review_status==="complete"&&check.outcome==="passed").length; const adverse=vendorEvidence.filter((check)=>check.review_status==="complete"&&["concern","failed"].includes(check.outcome)).length; return <tr key={item.id}><td><strong>{item.vendor_name}</strong><span className="fb-concierge-muted">{[item.headquarters_city,item.headquarters_state_region].filter(Boolean).join(", ") || "Location not set"}{item.growth_vendor_id ? " · Growth Engine" : ""}</span></td><td><FBConciergeBadge value={item.relationship_status}/></td><td><FBConciergeBadge value={item.vetting_decision}/><span className="fb-concierge-muted">{fbConciergeLabel(item.proof_level)}</span></td><td>{vendorContacts.length}<span className="fb-concierge-muted">{vendorContacts.some((contact)=>contact.is_primary_contact) ? "Primary set" : "Primary needed"}</span></td><td>{passed} passed<span className="fb-concierge-muted">{adverse ? adverse+" adverse" : vendorEvidence.length+" total checks"}</span></td><td>{item.current_capacity_note || "Not checked"}<span className="fb-concierge-muted">{fbConciergeDate(item.capacity_checked_on)}</span></td><td><div className="fb-concierge-row-actions"><button type="button" className="fb-concierge-mini-btn" onClick={() => setVendorEvidenceEditor(item)}>Contacts & evidence</button><button type="button" className="fb-concierge-mini-btn" onClick={() => setVendorEditor(item)}>Review vendor</button></div></td></tr>; })}{!vendors.length && <tr><td colSpan={7}>{renderEmpty("No vendors yet.", "Add the first vendor, then record contacts and evidence before approving the private bench.")}</td></tr>}</tbody></table></div></FBConciergePanel>
+        </div>}
+
+        {view === "needs" && <div className="fb-concierge-stack">
+          <FBConciergePanel title="Sourcing / Shortlist queue" note="Approved intakes move here for deliberate vendor evaluation and a church-ready shortlist." count={needs.filter((item) => ["ready_to_source","sourcing","shortlist_ready","organization_reviewing"].includes(item.status)).length}>
+            <div className="fb-concierge-queue">{needs.filter((item) => ["ready_to_source","sourcing","shortlist_ready","organization_reviewing"].includes(item.status)).map((item) => { const relation = Array.isArray(item.organization) ? item.organization[0] : item.organization; const itemMatches = records.matches.filter((match) => match.need_id === item.id); const shortlistCount = itemMatches.filter((match) => ["shortlisted","selected"].includes(match.stage)).length; const target = Math.max(1, Number(item.shortlist_target || 3)); return <article className="fb-concierge-queue-card" key={item.id}><div className="fb-concierge-queue-head"><div><strong>{item.need_title}</strong><span className="fb-concierge-muted">{relation?.organization_name || "Organization not linked"}</span></div><FBConciergeBadge value={item.status}/></div><div className="fb-concierge-queue-meta"><FBConciergeBadge value={item.risk_tier}/><span className="fb-concierge-badge">{fbConciergeBudget(item.budget_band)}</span><span className="fb-concierge-badge">{itemMatches.length} candidates</span></div><div><span className="fb-concierge-muted" style={{marginBottom:6}}>{shortlistCount} of {target} qualified shortlist spots</span><div className="fb-concierge-progress" aria-label={shortlistCount + " of " + target + " shortlist spots filled"}><span style={{width: Math.min(100, Math.round((shortlistCount / target) * 100)) + "%"}}/></div></div><div className="fb-concierge-row-actions"><span className="fb-concierge-muted" style={{marginTop:0,flex:1}}>{item.next_action || "Begin vendor sourcing"}</span><button type="button" className="fb-concierge-mini-btn primary" onClick={() => setSourcingNeed(item)}>Manage sourcing</button></div></article>; })}{!needs.some((item) => ["ready_to_source","sourcing","shortlist_ready","organization_reviewing"].includes(item.status)) && <div style={{gridColumn:"1/-1"}}>{renderEmpty("No needs are waiting for sourcing.", "Approve an Intake Review and it will appear here automatically.")}</div>}</div>
+          </FBConciergePanel>
+          <FBConciergePanel title="Needs pipeline" note="Dallas pilot eligibility is derived automatically; excluded scope cannot advance to sourcing." count={needs.length}><div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Organization & need</th><th>Type</th><th>Stage</th><th>Pilot & risk</th><th>Budget band</th><th>Review</th></tr></thead><tbody>{needs.map((item) => { const relation = Array.isArray(item.organization) ? item.organization[0] : item.organization; const canReview = ["intake", "clarifying"].includes(item.status); return <tr key={item.id}><td><strong>{relation?.organization_name || "Organization not linked"}</strong><span className="fb-concierge-muted">{item.need_title}</span></td><td>{fbConciergeLabel(item.need_type)}</td><td><FBConciergeBadge value={item.status}/></td><td><FBConciergeBadge value={item.pilot_eligibility}/><span className="fb-concierge-muted">{fbConciergeLabel(item.risk_tier)}{item.pilot_hold_reason ? " · "+item.pilot_hold_reason : ""}</span></td><td>{fbConciergeBudget(item.budget_band)}</td><td><div className="fb-concierge-row-actions"><span className="fb-concierge-muted" style={{marginTop:0}}>{item.next_action || "Not set"}</span>{canReview && <button type="button" className="fb-concierge-mini-btn" onClick={() => setReviewNeed(item)}>Review</button>}</div></td></tr>; })}{!needs.length && <tr><td colSpan={6}>{renderEmpty("No needs match.", "Create an intake or clear the search.")}</td></tr>}</tbody></table></div></FBConciergePanel>
+          <FBConciergePanel title="Vendor matches" note="Church selection, compliance, introduction, and renewal terms must clear one placement gate before an Engagement exists." count={matches.length}><div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Organization & need</th><th>Vendor</th><th>Stage</th><th>Budget tier</th><th>Intro fee</th><th>Renewal</th><th>Agreement & action</th></tr></thead><tbody>{matches.map((item) => { const matchNeed=records.needs.find((need)=>need.id===item.need_id); const canOpen=item.stage==="shortlisted"&&matchNeed?.status==="organization_reviewing"; return <tr key={item.id}><td><strong>{item.organization_name}</strong><span className="fb-concierge-muted">{item.need_title}</span></td><td>{item.vendor_name}</td><td><FBConciergeBadge value={item.stage}/></td><td>{fbConciergeLabel(item.introduction_fee_tier)}</td><td>{item.agreed_introduction_fee_cents == null ? "Provisional" : fbConciergeMoney(item.agreed_introduction_fee_cents)}</td><td>{item.renewal_fee_applies === "no" ? "No" : item.agreed_renewal_fee_cents == null ? "Terms required" : fbConciergeMoney(item.agreed_renewal_fee_cents)}</td><td><div className="fb-concierge-row-actions"><FBConciergeBadge value={item.placement_agreement_status}/>{canOpen&&<button type="button" className="fb-concierge-mini-btn primary" onClick={()=>setPlacementMatch(item)}>Open placement gate</button>}{item.stage==="selected"&&<span className="fb-concierge-muted" style={{marginTop:0}}>Engagement created</span>}</div></td></tr>; })}{!matches.length && <tr><td colSpan={7}>{renderEmpty("No matches yet.", "Qualified vendor matches will appear here.")}</td></tr>}</tbody></table></div></FBConciergePanel>
+        </div>}
+
+        {view === "engagements" && <FBConciergePanel title="Engagements" note="Track delivery, outcome proof, recurring confirmation, and repeat needs." count={engagements.length}><div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Organization & need</th><th>Vendor</th><th>Status</th><th>Start</th><th>Delivery health</th><th>Next check-in</th><th>Action</th></tr></thead><tbody>{engagements.map((item) => <tr key={item.id}><td><strong>{item.organization_name}</strong><span className="fb-concierge-muted">{item.need_title}</span></td><td>{item.vendor_name}</td><td><FBConciergeBadge value={item.status}/></td><td>{item.status === "preparing" ? "Planned " + fbConciergeDate(item.planned_start_on) : fbConciergeDate(item.actual_start_on)}</td><td>{item.delivery_health ? <FBConciergeBadge value={item.delivery_health}/> : <span className="fb-concierge-muted">Not launched</span>}</td><td>{fbConciergeDate(item.next_check_in_on)}</td><td><div className="fb-concierge-row-actions">{item.status === "preparing" && <button type="button" className="fb-concierge-mini-btn primary" onClick={() => setLaunchEngagement(item)}>Launch</button>}{["active","at_risk"].includes(item.status) && <button type="button" className="fb-concierge-mini-btn primary" onClick={() => setCheckInEngagement(item)}>Check in</button>}{["active","at_risk","completed"].includes(item.status) && item.recurring_confirmation_status === "pending_check_in" && <button type="button" className="fb-concierge-mini-btn" onClick={() => setRecurringEngagement(item)}>Recurring</button>}{["active","at_risk","completed"].includes(item.status) && !["complete","unable_to_complete"].includes(item.outcome_review_status) && <button type="button" className="fb-concierge-mini-btn" onClick={() => setOutcomeEngagement(item)}>Review outcome</button>}{["active","at_risk","completed"].includes(item.status) && <button type="button" className="fb-concierge-mini-btn" onClick={() => setCloseEngagement(item)}>Close</button>}{["closed","cancelled"].includes(item.status) && <span className="fb-concierge-muted" style={{marginTop:0}}>{fbConciergeLabel(item.status)}</span>}</div></td></tr>)}{!engagements.length && <tr><td colSpan={7}>{renderEmpty("No engagements yet.", "Selected vendor engagements will appear here.")}</td></tr>}</tbody></table></div></FBConciergePanel>}
+
+        {view === "fees" && <>
+          <section className="fb-concierge-metrics" aria-label="Fee summary"><FBConciergeMetric label="Intro fees to invoice" value={loadingValue || metrics.introToInvoice} note="Triggered introductions not yet invoiced"/><FBConciergeMetric label="Renewal check-ins" value={loadingValue || metrics.renewalCheckIns} note="No new touchpoint is required"/><FBConciergeMetric label="Give-backs ready" value={loadingValue || metrics.giveBackReady} note="Recipient verified and funds collected"/><FBConciergeMetric label="Give-back earned" value={loadingValue || fbConciergeMoney(metrics.netGiveBackDue)} note="Collected fees less completed give-back"/></section>
+          <FBConciergePanel title="Fees and give-back ledger" note="Amounts remain tunable; mechanics preserve the locked policy." count={engagements.length}><div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Engagement</th><th>Intro invoice</th><th>Intro collected</th><th>Renewal invoice</th><th>Renewal collected</th><th>Give-back eligible</th><th>Give-back status</th><th>Manage</th></tr></thead><tbody>{engagements.map((item) => <tr key={item.id}><td><strong>{item.organization_name} · {item.vendor_name}</strong><span className="fb-concierge-muted">{item.need_title}</span></td><td><FBConciergeBadge value={item.introduction_invoice_status}/></td><td>{fbConciergeMoney(item.introduction_gross_collected_cents)}</td><td><FBConciergeBadge value={item.renewal_invoice_status}/></td><td>{fbConciergeMoney(item.renewal_gross_collected_cents)}</td><td>{fbConciergeMoney(item.give_back_eligible_cents)}</td><td><FBConciergeBadge value={item.give_back_status}/></td><td><div className="fb-concierge-row-actions">{item.status !== "preparing" && <button type="button" className="fb-concierge-mini-btn" onClick={() => setFeeEngagement(item)}>Record collection</button>}{item.status !== "preparing" && <button type="button" className="fb-concierge-mini-btn" onClick={() => setGiveBackEngagement(item)}>Give-back</button>}{item.status === "preparing" && <span className="fb-concierge-muted" style={{marginTop:0}}>Not launched</span>}</div></td></tr>)}{!engagements.length && <tr><td colSpan={8}>{renderEmpty("No fee events yet.", "The ledger begins when the first selected engagement triggers a fee.")}</td></tr>}</tbody></table></div></FBConciergePanel>
+        </>}
+
+        <div className={"fb-concierge-live" + (status === "error" ? " error" : "")}><span className="fb-concierge-live-dot"/>{status === "error" ? "Protected concierge connection needs attention." : "Live from the private KingdomBid concierge_ops schema."} {currentUser?.email ? "Signed in as " + currentUser.email + "." : ""}</div>
+      </div>
+      <FBConciergeIntakeModal client={client} open={intakeOpen} onClose={() => setIntakeOpen(false)} onCreated={created}/>
+      <FBConciergeIntakeReviewModal key={reviewNeed?.id || "no-review"} client={client} need={reviewNeed} operatorId={currentUser?.id} onClose={() => setReviewNeed(null)} onReviewed={reviewed}/>
+      <FBConciergeSourcingModal key={sourcingNeed?.id || "no-sourcing"} client={client} need={sourcingNeed} vendors={records.vendors} matches={records.matches} onClose={() => setSourcingNeed(null)} onChanged={sourcingChanged}/>
+      {vendorEditor && <FBConciergeVendorModal key={vendorEditor.isNew ? "new-vendor-"+(vendorEditor.growth_vendor_id || "manual") : vendorEditor.id} client={client} vendor={vendorEditor.isNew ? null : vendorEditor} seed={vendorEditor.isNew ? vendorEditor : null} evidence={vendorEditor.isNew ? [] : records.vettingChecks.filter((item)=>item.vendor_id===vendorEditor.id)} operatorId={currentUser?.id} onClose={() => setVendorEditor(null)} onSaved={vendorSaved}/>}
+      {vendorEvidenceEditor && <FBConciergeVendorEvidenceModal key={vendorEvidenceEditor.id} client={client} vendor={vendorEvidenceEditor} contacts={records.contacts.filter((item)=>item.vendor_id===vendorEvidenceEditor.id)} evidence={records.vettingChecks.filter((item)=>item.vendor_id===vendorEvidenceEditor.id)} operatorId={currentUser?.id} onClose={()=>setVendorEvidenceEditor(null)} onChanged={vendorEvidenceChanged}/>}
+      {growthVendorReview && <FBGrowthVendorVerificationModal key={growthVendorReview.id} vendor={growthVendorReview} operatorId={currentUser?.id} onClose={()=>setGrowthVendorReview(null)} onSaved={growthVendorReviewed}/>}
+      {placementMatch && <FBConciergeIntroductionModal key={placementMatch.id} client={client} match={placementMatch} need={records.needs.find((item)=>item.id===placementMatch.need_id)} vendor={records.vendors.find((item)=>item.id===placementMatch.vendor_id)} onClose={()=>setPlacementMatch(null)} onFinalized={placementFinalized}/>}
+      {launchEngagement && <FBConciergeLaunchModal key={"launch-"+launchEngagement.id} client={client} engagement={launchEngagement} onClose={()=>setLaunchEngagement(null)} onLaunched={engagementLaunched}/>}
+      {checkInEngagement && <FBConciergeCheckInModal key={"checkin-"+checkInEngagement.id} client={client} engagement={checkInEngagement} onClose={()=>setCheckInEngagement(null)} onCheckedIn={checkInSaved}/>}
+      {outcomeEngagement && <FBConciergeOutcomeModal key={"outcome-"+outcomeEngagement.id} client={client} engagement={outcomeEngagement} onClose={()=>setOutcomeEngagement(null)} onSaved={engagementStepSaved}/>}
+      {recurringEngagement && <FBConciergeRecurringModal key={"recurring-"+recurringEngagement.id} client={client} engagement={recurringEngagement} onClose={()=>setRecurringEngagement(null)} onSaved={engagementStepSaved}/>}
+      {feeEngagement && <FBConciergeFeeCollectionModal key={"fee-"+feeEngagement.id} client={client} engagement={feeEngagement} onClose={()=>setFeeEngagement(null)} onSaved={engagementStepSaved}/>}
+      {giveBackEngagement && <FBConciergeGiveBackModal key={"giveback-"+giveBackEngagement.id} client={client} engagement={giveBackEngagement} onClose={()=>setGiveBackEngagement(null)} onSaved={engagementStepSaved}/>}
+      {closeEngagement && <FBConciergeCloseModal key={"close-"+closeEngagement.id} client={client} engagement={closeEngagement} onClose={()=>setCloseEngagement(null)} onSaved={engagementStepSaved}/>}
+    </div>
+  );
+}
+
 export default function App() {
   const [screen, setScreen] = useState(() => readAppScreenFromHash(window.location.hash));
+  const [dallasPilotOnly, setDallasPilotOnly] = useState(false);
 
   useEffect(() => {
     const SCREEN_TITLES = {
@@ -34642,6 +36843,7 @@ export default function App() {
       analytics: 'Analytics — FaithBid',
       admin: 'Admin — FaithBid',
       growth: 'Growth Engine — FaithBid',
+      concierge: 'Concierge Operations — FaithBid',
       qa: 'QA Console — FaithBid',
       ambassador: 'Ambassador — FaithBid',
       partner: 'Partner — FaithBid',
@@ -36056,13 +38258,29 @@ export default function App() {
                           mark:'▥',
                           run:()=>{setToolsMenuOpen(false);nav('analytics');}
                         },
-                        ...(isAdmin ? [{
-                          label:'QA Console',
-                          right:'Admin',
-                          mark:'⚙',
-                          admin:true,
-                          run:()=>{setToolsMenuOpen(false);nav('qa');}
-                        }] : []),
+                        ...(isAdmin ? [
+                          {
+                            label:'Growth Engine',
+                            right:'Admin',
+                            mark:'G',
+                            admin:true,
+                            run:()=>{setToolsMenuOpen(false);nav('growth');}
+                          },
+                          {
+                            label:'Concierge',
+                            right:'Admin',
+                            mark:'C',
+                            admin:true,
+                            run:()=>{setToolsMenuOpen(false);nav('concierge');}
+                          },
+                          {
+                            label:'QA Console',
+                            right:'Admin',
+                            mark:'⚙',
+                            admin:true,
+                            run:()=>{setToolsMenuOpen(false);nav('qa');}
+                          },
+                        ] : []),
                       ].map((item, idx) => (
                         <button
                           type="button"
@@ -36137,7 +38355,10 @@ export default function App() {
                           ...(role==="vendor" ? [{label:"✦ Get Faith Verified", icon:"✦", action:()=>nav("verify-profile")}] : []),
                           {label:"Settings",    icon:"S", action:()=>nav("settings")},
                           {label:"Help & FAQ",  icon:"?", action:()=>{ setShowHelp(true); setMenuOpen(false); }},
-                          ...(isAdminUser(currentUser, userProfile) ? [{label:"Growth Engine", icon:"G", action:()=>nav("growth")}] : []),
+                          ...(isAdminUser(currentUser, userProfile) ? [
+                            {label:"Growth Engine", icon:"G", action:()=>nav("growth")},
+                            {label:"Concierge", icon:"C", action:()=>nav("concierge")},
+                          ] : []),
                         ].map((item)=>(
                           <button type="button" role="menuitem" key={item.label} onClick={()=>{setMenuOpen(false);item.action();}} className="hover-cream kb-topnav-menu-item" style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 12px",border:"none",background:"none",borderRadius:"var(--r-sm)",cursor:"pointer",fontSize:13,color:"var(--text-mid)",fontFamily:"DM Sans,sans-serif",textAlign:"left",fontWeight:500,transition:"background 0.15s"}}>
                             <span className="kb-topnav-menu-item-icon" aria-hidden="true">{item.icon}</span><span>{item.label}</span>
@@ -36205,7 +38426,11 @@ export default function App() {
                 <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('compare');}}><span className="nav-icon">◇</span>Compare Workspace</button>
                 <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('saved-projects');}}><span className="nav-icon">★</span>Saved Projects</button>
                 <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('analytics');}}><span className="nav-icon">▥</span>Analytics</button>
-                {isAdmin && <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('qa');}}><span className="nav-icon">🧪</span>QA</button>}
+                {isAdmin && <>
+                  <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('growth');}}><span className="nav-icon">G</span>Growth Engine</button>
+                  <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('concierge');}}><span className="nav-icon">C</span>Concierge</button>
+                  <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('qa');}}><span className="nav-icon">🧪</span>QA</button>
+                </>}
               </>}
               <div className="mobile-nav-divider"/>
               <div className="mobile-nav-section-label">Account</div>
@@ -36317,12 +38542,13 @@ export default function App() {
         {screen==="ambassador"&& <AmbassadorScreen nav={nav} showToast={showToast}/>}
         {screen==="partner"   && <PartnerScreen nav={nav}/>}
         {screen==="join"      && <JoinScreen nav={nav} setAuthDefaultRole={setAuthDefaultRole}/>}
-        {screen==="growth"    && (isAdmin ? <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Growth Engine…</div>}><GrowthEngine currentUser={currentUser} isAdmin={isAdmin} nav={nav}/></React.Suspense> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>The growth engine is restricted to admins.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
+        {screen==="growth"    && (isAdmin ? <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Growth Engine…</div>}><div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:8,padding:"10px 16px"}}><button type="button" aria-pressed={dallasPilotOnly} onClick={()=>setDallasPilotOnly((value)=>!value)} style={{padding:"6px 12px",borderRadius:6,border:"1px solid var(--navy,#1C2814)",background:dallasPilotOnly?"var(--navy,#1C2814)":"transparent",color:dallasPilotOnly?"#fff":"var(--navy,#1C2814)",fontSize:13,cursor:"pointer"}}>Dallas Pilot only</button></div><GrowthEngine currentUser={currentUser} isAdmin={isAdmin} nav={nav} dallasPilotOnly={dallasPilotOnly}/></React.Suspense> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>The growth engine is restricted to admins.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
+        {screen==="concierge" && (isAdmin ? <ConciergeOpsScreen currentUser={currentUser} showToast={showToast} dallasPilotOnly={dallasPilotOnly} onToggleDallasPilotOnly={()=>setDallasPilotOnly((value)=>!value)}/> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>FaithBid Concierge is restricted to platform administrators.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
         </div>
         </PlatformScreenShell>
         </ScreenBoundary>
         {showPublicLegalFooter && <PublicLegalFooter compact={compactPublicLegalFooter} />}
-        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","projects","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","verify-profile","settings","about","ambassador","partner","join","growth","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
+        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","projects","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","verify-profile","settings","about","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
           <div style={{minHeight:"80vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px",animation:"fadeUp 0.4s ease"}}>
             <div style={{fontFamily:"Playfair Display,serif",fontSize:72,fontWeight:700,color:"var(--navy)",opacity:0.08,lineHeight:1,marginBottom:24}}>404</div>
             <div style={{fontFamily:"Playfair Display,serif",fontSize:22,fontWeight:700,color:"var(--navy)",marginBottom:10}}>Page not found</div>
@@ -49750,4 +51976,3 @@ if (typeof document !== "undefined") {
 /* kb-0213-gpi-stage2-participation-ui-lock: moved to src/styles/legacy-route-patches.css */
 // 0231 — Deal Room message center + call frontend lock.
 /* kb-0231-deal-room-message-center-call-frontend-lock: moved to src/styles/legacy-route-patches.css */
-

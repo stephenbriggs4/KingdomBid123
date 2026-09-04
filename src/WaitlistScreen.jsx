@@ -45,17 +45,17 @@ function getWaitlistRoleMeta() {
   vendor: {
     eyebrow: "Charter Vendor application",
     headline: "Apply for Charter Vendor status.",
-    subhead: `Opening ${LAUNCH_LABEL}. Charter Vendors are the first curated providers invited before public launch. Accepted vendors receive permanent Charter status, launch priority, early profile access, and ${CHARTER_VENDOR_PRO_FREE_MONTHS} months of Vendor Pro free at launch (${CHARTER_VENDOR_PRO_VALUE_LABEL} value).`,
+    subhead: `Opening ${LAUNCH_LABEL}. Charter Vendors are the first curated providers invited before public launch. Accepted vendors receive permanent Charter status, launch priority, and early profile access.`,
     benefits: [
       { title: "Permanent Charter badge", body: "A visible credential on your profile that stays after launch and signals you were part of the first accepted cohort." },
       { title: "Priority placement", body: "Accepted Charter Vendors receive launch priority ahead of vendors who join after the marketplace opens publicly." },
-      { title: "Launch pricing advantage", body: `Accepted Charter Vendors receive ${CHARTER_VENDOR_PRO_FREE_MONTHS} months of Vendor Pro free at launch (${CHARTER_VENDOR_PRO_VALUE_LABEL} value), lowering success fees on early wins.` },
+      { title: "Early network access", body: "Accepted Charter Vendors receive early profile access and priority consideration when their services fit a church need." },
       { title: "Short application first", body: "Apply with the essentials now. Portfolio, references, and Faith Verified steps come after acceptance." },
     ],
     bullets: [
       "Charter Vendor status is selective and reviewed before launch.",
       "Accepted vendors receive permanent launch-era credibility.",
-      `Accepted Charter Vendors receive ${CHARTER_VENDOR_PRO_FREE_MONTHS} months of Vendor Pro free at launch (${CHARTER_VENDOR_PRO_VALUE_LABEL} value).`,
+      "Accepted Charter Vendors receive early profile access and priority consideration for relevant opportunities.",
       "Full profile, proof, and verification are completed after acceptance.",
     ],
     steps: [
@@ -66,7 +66,7 @@ function getWaitlistRoleMeta() {
     primaryLabel: "Submit Charter application →",
     secondaryLabel: "Back to FaithBid",
     requiredSummary: "7 required inputs",
-    microcopy: `Free to apply. Accepted Charter Vendors receive ${CHARTER_VENDOR_PRO_FREE_MONTHS} months of Vendor Pro free at launch (${CHARTER_VENDOR_PRO_VALUE_LABEL} value).`,
+    microcopy: "Apply for Charter Vendor consideration. No paid plan is being offered through this application.",
     doneTitle: "Charter application received.",
     doneBody: "You do not need to create another FaithBid account now. FaithBid reviews each Charter Vendor application first; if accepted, your activation link continues this same onboarding journey.",
     positionLabel: "Charter application spot",
@@ -75,7 +75,7 @@ function getWaitlistRoleMeta() {
     nextSteps: [
       "FaithBid reviews vendor fit by category, city, service area, and church experience.",
       "If accepted, you receive one Charter Vendor activation link — no second signup form and no duplicate business entry.",
-      `After activation, complete your profile and then choose whether to pursue Faith Verification; your ${CHARTER_VENDOR_PRO_FREE_MONTHS}-month Vendor Pro launch credit stays tied to the accepted Charter account.`,
+      "After activation, complete your profile and then choose whether to pursue Faith Verification; your Charter status stays tied to the accepted account.",
     ],
   },
   });
@@ -657,8 +657,8 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
             {isVendor ? (
               <div style={{padding:"15px 17px",borderRadius:16,background:"linear-gradient(135deg, rgba(168,123,42,0.12), rgba(168,123,42,0.055))",border:`1px solid ${isVendor ? "rgba(215,181,109,0.34)" : "rgba(168,123,42,0.20)"}`,marginBottom:16}}>
                 <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.12em",textTransform:"uppercase",color:accent,marginBottom:6}}>Charter Vendor value</div>
-                <div style={{fontSize:14,lineHeight:1.65,color:text,fontWeight:700}}>Accepted Charter Vendors receive {CHARTER_VENDOR_PRO_FREE_MONTHS} months of Vendor Pro free at launch — {CHARTER_VENDOR_PRO_VALUE_LABEL} in included value.</div>
-                <div style={{fontSize:12.5,lineHeight:1.6,color:muted,marginTop:5}}>Pro lowers the success fee from 10% capped at {formatMoney(PLATFORM_FEE_CAP)} to 5% capped at {formatMoney(VENDOR_PRO_FEE_CAP)} on won work.</div>
+                <div style={{fontSize:14,lineHeight:1.65,color:text,fontWeight:700}}>Accepted Charter Vendors receive permanent Charter status, early profile access, and priority consideration for relevant opportunities.</div>
+                <div style={{fontSize:12.5,lineHeight:1.6,color:muted,marginTop:5}}>FaithBid is not currently offering a paid Vendor Pro plan. Any future commercial terms will be published before they apply.</div>
               </div>
             ) : null}
 

@@ -4712,7 +4712,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
               </div>
             </div>
             <textarea rows={2} value={paymentCoordination?.note || ''} onChange={e=>updatePaymentCoordination('note', e.target.value)} placeholder='Payment coordination note, invoice reminder, or payout detail…' style={{width:'100%',padding:'12px 12px',borderRadius:10,border:'1px solid var(--border)',fontFamily:'DM Sans,sans-serif',fontSize:13,outline:'none',resize:'vertical'}} />
-            <div style={{fontSize:11,color:'#7d7363',lineHeight:1.7}}>FaithBid documents the operating record and vendor fee while payment handling is still coordinated directly between both sides. Standard fee: {PLATFORM_FEE_LABEL}.</div>
+            <div style={{fontSize:11,color:'#7d7363',lineHeight:1.7}}>FaithBid documents the operating record. The church and vendor handle invoices and project payments directly; any separate FaithBid placement fee is agreed before an introduction and invoiced manually.</div>
           </div>
 
           <div style={{background:"#fff",border:"1px solid var(--border)",borderRadius:"var(--r-md)",padding:"16px"}}>
@@ -5012,11 +5012,10 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
             ) : normalizedAmount > 0 ? (
               <div style={{marginTop:6, padding:'10px 14px', borderRadius:10, background:'#fbfaf6', border:'1px solid #efe7d9', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap'}}>
                 <div style={{fontSize:12, color:'#6a6f7a'}}>
-                  Platform fee: <strong style={{color:'#1C2814'}}>${computePlatformFee(normalizedAmount).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2})}</strong>
-                  <span style={{color:'#9a9890'}}> ({PLATFORM_FEE_RATE*100}% capped at ${PLATFORM_FEE_CAP})</span>
+                  FaithBid does not calculate or collect a standard platform fee in this preview.
                 </div>
                 <div style={{fontSize:12, fontWeight:700, color:'#2f855a'}}>
-                  You keep ${(normalizedAmount - computePlatformFee(normalizedAmount)).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2})}
+                  Proposal amount: ${normalizedAmount.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2})}
                 </div>
               </div>
             ) : null}

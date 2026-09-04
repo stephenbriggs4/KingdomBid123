@@ -136,7 +136,7 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
   const manualItems = [
     { label:'Admin KPI cards', detail:'Open Admin Overview and confirm the operating cards render without console noise.', action:()=>safeNav('admin') },
     { label:'Application review queues', detail:'Confirm directory, Faith Verification, Charter, Partnership, and Ambassador counts match their pending queues.', action:()=>safeNav('admin') },
-    { label:'Revenue surface', detail:'Confirm success-fee trend and reserve cards look sane.', action:()=>safeNav('admin') },
+    { label:'Commercial truth', detail:'Confirm neutral public pricing and accurate internal direct-payment copy.', action:()=>safeNav('admin') },
     { label:'Disputes flow', detail:'Open Disputes and change a status without breaking state.', action:()=>safeNav('admin') },
     { label:'Church-side workflow', detail:'Save a project, attach a vendor, open Inbox, and request a review.', action:()=>safeNav(role === 'vendor' ? 'marketplace' : 'activity') },
     { label:'Platform status copy', detail:'Open Settings and confirm launch-state copy is still accurate.', action:()=>safeNav('settings') },

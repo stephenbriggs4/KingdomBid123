@@ -105,14 +105,18 @@ function kbgeFormatMembers(value) {
 
 function kbgeFormatDate(value) {
   if (!value) return "Never";
-  const date = new Date(value);
+  const raw = String(value);
+  // Postgres `date` values are calendar dates, not UTC instants. Parsing
+  // YYYY-MM-DD as UTC shifts them to the prior day in US time zones.
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? new Date(`${raw}T12:00:00`) : new Date(raw);
   if (Number.isNaN(date.getTime())) return "—";
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" });
 }
 
 function kbgeDaysSince(value) {
   if (!value) return null;
-  const date = new Date(value);
+  const raw = String(value);
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? new Date(`${raw}T12:00:00`) : new Date(raw);
   if (Number.isNaN(date.getTime())) return null;
   return Math.floor((Date.now() - date.getTime()) / 86400000);
 }
@@ -818,7 +822,7 @@ function KBGEEditModal({ group, mode = "edit", defaultPlatform = "Facebook", def
   );
 }
 
-export default function GrowthEngine() {
+export default function GrowthEngine({ dallasPilotOnly = false }) {
   const [groups, setGroups] = useState([]);
   const [groupsTotal, setGroupsTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -909,7 +913,7 @@ export default function GrowthEngine() {
   }, []);
 
   const loadGroups = useCallback(async () => {
-    const databaseView = engineView === "outreach" || engineView === "general_vendor";
+    const databaseView = ["outreach", "general_vendor", "membership"].includes(engineView);
     if (!databaseView) {
       setGroups([]);
       setGroupsTotal(0);
@@ -931,15 +935,16 @@ export default function GrowthEngine() {
     const audienceValue = { Vendor: "vendor", "Church / Ministry": "church", Both: "both", "Community / Reach": "community" }[audience] || null;
     const safeSearch = debouncedSearch.trim().replace(/[%_,()]/g, " ").replace(/\s+/g, " ").slice(0, 80);
     let query = supabase.from("groups").select("*", { count: "exact" });
-    query = engineView === "general_vendor"
-      ? query.eq("growth_segment", "general_vendor")
-      : query.or("growth_segment.is.null,growth_segment.neq.general_vendor");
+    if (engineView === "general_vendor") query = query.eq("growth_segment", "general_vendor");
+    else if (engineView === "membership") query = query.in("join_status", ["member", "requested"]);
+    else query = query.or("growth_segment.is.null,growth_segment.not.in.(general_vendor,membership_inventory)");
+    if (dallasPilotOnly) query = query.eq("pilot_relevant", true);
     if (platform !== "All") query = query.eq("platform", platform);
     if (audienceValue) query = query.eq("audience_type", audienceValue);
     if (minReach > 0) query = query.gte("member_count", minReach);
     if (safeSearch) {
       const term = `%${safeSearch}%`;
-      query = query.or(["name", "platform", "audience_type", "category", "notes", "access_type", "privacy"].map((column) => `${column}.ilike.${term}`).join(","));
+      query = query.or(["name", "platform", "audience_type", "category", "notes", "privacy", "geographic_scope"].map((column) => `${column}.ilike.${term}`).join(","));
     }
     const { data: pageData, error: loadError, count } = await query
       .order(sortKey, { ascending: sort.dir === "asc", nullsFirst: false })
@@ -997,7 +1002,7 @@ export default function GrowthEngine() {
       setGroups(rows.map((g) => ({ ...g })));
     }
     setLoading(false);
-  }, [audience, currentPage, debouncedSearch, engineView, minReach, pageSize, platform, sort.dir, sort.key]);
+  }, [audience, currentPage, dallasPilotOnly, debouncedSearch, engineView, minReach, pageSize, platform, sort.dir, sort.key]);
 
   useEffect(() => {
     const timer = setTimeout(() => { loadGroups(); }, 0);
@@ -1028,11 +1033,15 @@ export default function GrowthEngine() {
       // is symmetric so isolation holds in both directions regardless of
       // platform, audience_type, category, or name.
       const isGeneralVendor = g.growth_segment === "general_vendor";
+      const isMembershipInventory = g.growth_segment === "membership_inventory";
       if (engineView === "outreach" && (isCatalogRow || isGeneralVendor)) return false;
       if (engineView === "joinable" && (!isCatalogRow || g.catalog_type !== "Joinable Communities")) return false;
       if (engineView === "partners" && (!isCatalogRow || g.catalog_type !== "Partner Pages")) return false;
       if (engineView === "general_vendor" && !isGeneralVendor) return false;
-      if (engineView !== "general_vendor" && isGeneralVendor) return false;
+      if (engineView === "membership" && (isCatalogRow || !["member", "requested"].includes(String(g.join_status || "").toLowerCase()))) return false;
+      if (!["general_vendor", "membership"].includes(engineView) && isGeneralVendor) return false;
+      if (engineView === "outreach" && isMembershipInventory) return false;
+      if (dallasPilotOnly && !g.pilot_relevant) return false;
       if (platform !== "All" && kbgeClean(g.platform, "Other") !== platform) return false;
       if (audience !== "All" && kbgeAudienceLabel(g.audience_type) !== audience) return false;
       if (platform === "Instagram" && instagramType !== "All Instagram") {
@@ -1072,7 +1081,7 @@ export default function GrowthEngine() {
       return 0;
     });
     return rows;
-  }, [allRows, engineView, platform, audience, instagramType, debouncedSearch, sort, minReach]);
+  }, [allRows, dallasPilotOnly, engineView, platform, audience, instagramType, debouncedSearch, sort, minReach]);
 
   // 872b: whenever any filter/search/sort/pageSize changes, snap back to
   // page 1. Without this, a user on page 45 could apply a filter that only
@@ -1087,7 +1096,7 @@ export default function GrowthEngine() {
   const growthReviewDueCount = reviewTrackedRows.filter(row => row.growth_next_review_at && String(row.growth_next_review_at).slice(0,10) <= reviewTodayKey).length;
   const growthReviewScheduledCount = reviewTrackedRows.filter(row => row.growth_next_review_at && String(row.growth_next_review_at).slice(0,10) > reviewTodayKey).length;
   const growthReviewMissingCount = reviewTrackedRows.filter(row => !row.growth_next_review_at && (['member','requested'].includes(String(row.join_status || '').toLowerCase()) || row.posting_rules_reviewed_at || row.growth_priority_tier === 'A')).length;
-  const databaseView = engineView === "outreach" || engineView === "general_vendor";
+  const databaseView = ["outreach", "general_vendor", "membership"].includes(engineView);
   const totalMatchingRows = databaseView ? groupsTotal : filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalMatchingRows / pageSize));
   const safePage = Math.min(currentPage, totalPages);
@@ -1228,6 +1237,7 @@ export default function GrowthEngine() {
             catalog-style tabs, since bulk edit is scoped to Outreach
             Groups only. */}
         <button role="tab" aria-selected={engineView === "general_vendor"} className={`kbge-view-tab ${engineView === "general_vendor" ? "active" : ""}`} onClick={() => { setEngineView("general_vendor"); setPlatform("Facebook"); setBulkMode(false); setSelectedIds(new Set()); }}>General Vendor Groups</button>
+        <button role="tab" aria-selected={engineView === "membership"} className={`kbge-view-tab ${engineView === "membership" ? "active" : ""}`} onClick={() => { setEngineView("membership"); setPlatform("Facebook"); setBulkMode(false); setSelectedIds(new Set()); }}>My Facebook Groups</button>
       </div>
 
       <div className="topLine">
@@ -1237,7 +1247,7 @@ export default function GrowthEngine() {
               counts everything matching the current filters, not just the rows
               visible on this page. Relabeled to "matching" to avoid that
               misread; the reach total still sums the whole matching set. */}
-          <span>{filtered.length} matching · {kbgeFormatMembers(totalReach)} combined reach · {growthReviewDueCount} review due · {growthReviewScheduledCount} scheduled · {growthReviewMissingCount} missing dates</span>
+          <span>{totalMatchingRows} matching · {kbgeFormatMembers(totalReach)} visible-page reach · {growthReviewDueCount} review due · {growthReviewScheduledCount} scheduled · {growthReviewMissingCount} missing dates</span>
         </div>
         <div className="topControls">
           <input className="search" placeholder="Search names, notes, category..." value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -1260,7 +1270,7 @@ export default function GrowthEngine() {
               not the Instagram default used by every other tab. Both the
               visibility check and the reset action branch on engineView so
               existing tabs keep their exact original behavior. */}
-          {engineView === "general_vendor"
+          {["general_vendor", "membership"].includes(engineView)
             ? ((search || platform !== "Facebook" || audience !== "All" || minReach !== 0) ? (
                 <button className="miniBtn" onClick={() => { setSearch(""); setPlatform("Facebook"); setAudience("All"); setMinReach(0); }}>Reset filters</button>
               ) : null)
@@ -1439,7 +1449,7 @@ export default function GrowthEngine() {
       {editing && <KBGEEditModal group={editing} focusContext={editFocusContext} onClose={() => { setEditing(null); setEditFocusContext(null); }} onSaved={applySavedGroup} onDropsChanged={loadGroups} showToast={showToast} />}
       {creating && <KBGEEditModal
         mode="create"
-        defaultPlatform={engineView === "general_vendor" ? "Facebook" : (platform === "All" ? "Facebook" : platform)}
+        defaultPlatform={["general_vendor", "membership"].includes(engineView) ? "Facebook" : (platform === "All" ? "Facebook" : platform)}
         // General Vendor Groups correction: Add Group opened from this tab
         // must produce a row that immediately belongs in it — Facebook
         // platform, vendor audience, and growth_segment='general_vendor' —
@@ -1448,7 +1458,7 @@ export default function GrowthEngine() {
         // neither prop, so defaultAudienceType/defaultGrowthSegment fall
         // back to KBGEEditModal's own defaults ("church" / null),
         // identical to existing behavior before this change.
-        {...(engineView === "general_vendor" ? { defaultAudienceType: "vendor", defaultGrowthSegment: "general_vendor" } : {})}
+        {...(engineView === "general_vendor" ? { defaultAudienceType: "vendor", defaultGrowthSegment: "general_vendor" } : engineView === "membership" ? { defaultAudienceType: "community", defaultGrowthSegment: "membership_inventory" } : {})}
         onClose={() => setCreating(false)}
         onSaved={handleGroupAdded}
         showToast={showToast}

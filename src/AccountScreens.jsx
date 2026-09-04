@@ -12,31 +12,26 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
   const [exampleBid, setExampleBid] = useState(2500);
   const isVendor = role === "vendor";
   const isFounding = !!userProfile?.founding_vendor;
-  const currentTier = userProfile?.vendor_tier === "pro" ? "pro" : "free";
-
-  const exampleFreeFee = computePlatformFee(exampleBid, { tier: "free" });
-  const exampleProFee = computePlatformFee(exampleBid, { tier: "pro" });
-  const exampleSavings = computeProSavings(exampleBid);
-
-  const upgradeToPro = async () => {
-    if (!currentUser) {
-      nav("auth");
-      return;
-    }
-    // Stripe integration not wired yet. For now, mark intent so admin can
-    // see who wants Pro and we can manually onboard them at launch.
-    try {
-      await supabase.from("profiles").update({
-        vendor_pro_intent: true,
-        vendor_pro_intent_at: new Date().toISOString(),
-        vendor_pro_billing: billing,
-      }).eq("id", currentUser.id);
-      showToast && showToast("✓ We'll reach out about Pro at launch.");
-    } catch (e) {
-      logError("pricing-pro-intent", e);
-      showToast && showToast("Couldn't save your interest — try again.");
-    }
-  };
+  const pricingPreviewItems = [
+    {
+      id: "platform-preview",
+      name: "Platform preview",
+      tagline: "Explore the FaithBid product vision",
+      priceMonthly: 0,
+      featured: false,
+      cta: "Back to projects",
+      perks: ["Project and proposal workflow", "Vendor profiles and trust signals", "Deal Room and project records"],
+    },
+    {
+      id: "future-terms",
+      name: "Future access",
+      tagline: "Commercial details are coming soon",
+      priceMonthly: 0,
+      featured: false,
+      cta: "Back to projects",
+      perks: ["No standard platform fee is currently advertised", "No paid vendor plan is currently offered", "Future terms will be published before they apply"],
+    },
+  ];
 
   const css = `
     .pricing-shell { background: #0f1410; min-height: 100vh; padding: 60px 24px 80px; color: #fff; }
@@ -133,18 +128,18 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
             <div className="charter-banner">
               <div className="charter-banner-icon">★</div>
               <div className="charter-banner-text">
-                <strong>You're a Charter Vendor.</strong> You get Vendor Pro <strong>free for {CHARTER_VENDOR_PRO_FREE_MONTHS} months</strong> at launch — that's a {CHARTER_VENDOR_PRO_VALUE_LABEL} value, included with your charter status.
+                <strong>You're a Charter Vendor.</strong> Your permanent Charter status and early profile access remain attached to this account.
               </div>
             </div>
           )}
 
-          <div className="pricing-eyebrow">Vendor pricing</div>
-          <h1 className="pricing-headline">Free to start. Pro when you're ready to win more.</h1>
+          <div className="pricing-eyebrow">Platform access</div>
+          <h1 className="pricing-headline">Pricing information is coming soon.</h1>
           <p className="pricing-sub">
-            Every vendor gets full access free. Subscribe to Pro when you want lower fees, priority placement, and a verified Pro badge.
+            FaithBid is not currently advertising a standard platform fee or offering a paid Vendor Pro plan. Any future pricing will be published before it applies.
           </p>
 
-          <div className="pricing-toggle-wrap">
+          {false && <div className="pricing-toggle-wrap">
             <div className="pricing-toggle">
               <button className={billing === "monthly" ? "on" : ""} onClick={() => setBilling("monthly")}>
                 Monthly
@@ -154,11 +149,11 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
                 <span className="save-pill">Save 17%</span>
               </button>
             </div>
-          </div>
+          </div>}
 
           <div className="pricing-grid">
-            {VENDOR_TIERS.map(tier => {
-              const isCurrent = currentTier === tier.id;
+            {pricingPreviewItems.map(tier => {
+              const isCurrent = false;
               const isFeatured = !!tier.featured;
               const showPrice = tier.id === "pro" ? proPrice : tier.priceMonthly;
               const showSuffix = tier.id === "pro" ? proPriceSuffix : "";
@@ -169,34 +164,14 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
                   <div className="pricing-card-name">{tier.name}</div>
                   <div className="pricing-card-tagline">{tier.tagline}</div>
 
-                  <div className="pricing-price-row">
-                    {tier.priceMonthly === 0 ? (
-                      <span className="pricing-price-amount">Free</span>
-                    ) : (
-                      <>
-                        <span className="pricing-price-amount">${showPrice}</span>
-                        <span className="pricing-price-suffix">{showSuffix}</span>
-                      </>
-                    )}
-                  </div>
+                  <div className="pricing-price-row"><span className="pricing-price-amount">Coming soon</span></div>
                   <div className="pricing-price-note">
-                    {tier.id === "pro"
-                      ? (billing === "yearly"
-                          ? `$${VENDOR_PRO_PRICE_YEARLY}/yr — save 2 months vs monthly`
-                          : `Cancel anytime. No long-term commitment.`)
-                      : `No card required. Beta model: 10% success fee capped at $${PLATFORM_FEE_CAP}, triggered when platform payment clears.`}
+                    No subscription purchase or in-app payment rail is active.
                   </div>
 
                   <button
                     className={`pricing-cta ${isFeatured ? "pricing-cta-pro" : "pricing-cta-free"}`}
-                    onClick={() => {
-                      if (tier.id === "free") {
-                        if (currentUser) nav("projects");
-                        else nav("vendor-signup");
-                      } else {
-                        upgradeToPro();
-                      }
-                    }}
+                    onClick={() => nav("projects")}
                     disabled={isCurrent}
                   >
                     {isCurrent ? "Current plan" : tier.cta}
@@ -214,9 +189,9 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
           {/* Fee calculator */}
           <div className="pricing-calc">
             <div className="pricing-calc-head">
-              <div className="pricing-calc-title">See what Pro saves you</div>
+              <div className="pricing-calc-title">Current commercial status</div>
             </div>
-            <div className="pricing-calc-input-wrap">
+            {false && <div className="pricing-calc-input-wrap">
               <input
                 type="range"
                 min={500}
@@ -227,37 +202,37 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
                 className="pricing-calc-slider"
               />
               <div className="pricing-calc-bidlabel">{formatMoney(exampleBid)}</div>
-            </div>
+            </div>}
             <div className="pricing-calc-grid">
               <div className="pricing-calc-card">
-                <div className="pricing-calc-label">Free vendor fee</div>
-                <div className="pricing-calc-value">{formatMoney(exampleFreeFee)}</div>
-                <div className="pricing-calc-sub">10% capped at ${PLATFORM_FEE_CAP}</div>
+                <div className="pricing-calc-label">Standard platform fee</div>
+                <div className="pricing-calc-value">Not advertised</div>
+                <div className="pricing-calc-sub">No active percentage or cap</div>
               </div>
               <div className="pricing-calc-card">
-                <div className="pricing-calc-label">Pro vendor fee</div>
-                <div className="pricing-calc-value">{formatMoney(exampleProFee)}</div>
-                <div className="pricing-calc-sub">5% capped at ${VENDOR_PRO_FEE_CAP}</div>
+                <div className="pricing-calc-label">Paid vendor plan</div>
+                <div className="pricing-calc-value">Not active</div>
+                <div className="pricing-calc-sub">Vendor Pro is not being offered</div>
               </div>
               <div className="pricing-calc-card savings">
-                <div className="pricing-calc-label">You save</div>
-                <div className="pricing-calc-value">{formatMoney(exampleSavings)}</div>
-                <div className="pricing-calc-sub">per project at this size</div>
+                <div className="pricing-calc-label">Future terms</div>
+                <div className="pricing-calc-value">Published first</div>
+                <div className="pricing-calc-sub">Before they apply</div>
               </div>
             </div>
           </div>
 
           <div className="pricing-giveback">
-            <div className="pricing-giveback-kicker">Church giveback beta policy</div>
-            <div className="pricing-giveback-title">A share of FaithBid's fee returns to the hiring church.</div>
+            <div className="pricing-giveback-kicker">Product status</div>
+            <div className="pricing-giveback-title">Payment and rebate programs are not active.</div>
             <div className="pricing-giveback-copy">
-              Churches still pay no FaithBid platform or access fee for the core marketplace. When FaithBid retains a vendor platform fee, the beta policy sets aside {CHURCH_REBATE_POLICY_SUMMARY} Automatic payouts are not live yet.
+              This screen is part of the future marketplace preview. FaithBid is not collecting project payments, selling a paid vendor plan, or operating an automatic rebate program here.
             </div>
             <div className="pricing-giveback-grid">
-              <div className="pricing-giveback-stat"><b>{CHURCH_REBATE_RATE_LABEL}</b><span>Of net retained FaithBid fee</span></div>
-              <div className="pricing-giveback-stat"><b>{CHURCH_REBATE_FINALITY_WINDOW_DAYS} days</b><span>Finality window after cleared payment</span></div>
-              <div className="pricing-giveback-stat"><b>{CHURCH_REBATE_PAYOUT_FREQUENCY_LABEL}</b><span>Cash payout cadence</span></div>
-              <div className="pricing-giveback-stat"><b>{CHURCH_REBATE_PAYOUT_THRESHOLD_LABEL}</b><span>Minimum payout threshold</span></div>
+              <div className="pricing-giveback-stat"><b>Not active</b><span>Platform payment rail</span></div>
+              <div className="pricing-giveback-stat"><b>Not active</b><span>Standard platform fee</span></div>
+              <div className="pricing-giveback-stat"><b>Not active</b><span>Paid vendor plan</span></div>
+              <div className="pricing-giveback-stat"><b>Not active</b><span>Automatic rebates</span></div>
             </div>
           </div>
           {/* FAQ */}
@@ -265,33 +240,33 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
             <div className="pricing-faq-title">Pricing questions</div>
 
             <div className="pricing-faq-item">
-              <div className="pricing-faq-q">Is there really a free tier forever?</div>
-              <div className="pricing-faq-a">Yes. You can join, build a profile, browse projects, and submit unlimited bids without paying anything. The displayed launch model is a 10% vendor success fee, capped at ${PLATFORM_FEE_CAP}; final trigger and reversal rules are governed by the published payment policy before integrated payment enforcement is enabled.</div>
+              <div className="pricing-faq-q">Is a standard platform fee active?</div>
+              <div className="pricing-faq-a">No standard platform fee is currently being advertised or collected through this preview.</div>
             </div>
 
             <div className="pricing-faq-item">
-              <div className="pricing-faq-q">When does Vendor Pro pay for itself?</div>
-              <div className="pricing-faq-a">If you win 2+ projects per month at $2,000 or higher, Pro typically pays for itself through fee savings alone. Plus you get priority placement, which usually means more wins.</div>
+              <div className="pricing-faq-q">Is Vendor Pro active?</div>
+              <div className="pricing-faq-a">No. FaithBid is not currently offering a paid Vendor Pro plan.</div>
             </div>
 
             <div className="pricing-faq-item">
-              <div className="pricing-faq-q">What does the Pro badge do?</div>
-              <div className="pricing-faq-a">Pro vendors appear higher in search results, get a verified Pro badge on every bid, and are featured in their category. Churches see Pro vendors before free vendors when comparing options.</div>
+              <div className="pricing-faq-q">What does Faith Verified mean?</div>
+              <div className="pricing-faq-a">Faith Verified is a reviewed trust signal. It is not a paid plan or proof that a subscription was purchased.</div>
             </div>
 
             <div className="pricing-faq-item">
-              <div className="pricing-faq-q">Can I cancel anytime?</div>
-              <div className="pricing-faq-a">Yes. Cancel from your account settings — your Pro perks stay active through the end of your billing period, then your account drops to the free tier with no interruption.</div>
+              <div className="pricing-faq-q">When will pricing be available?</div>
+              <div className="pricing-faq-a">Any future pricing will be published clearly before it applies.</div>
             </div>
 
             <div className="pricing-faq-item">
               <div className="pricing-faq-q">Are there any hidden fees?</div>
-              <div className="pricing-faq-a">No. Free vendors are shown at a 10% success fee capped at ${PLATFORM_FEE_CAP}. Pro vendors pay {VENDOR_PRO_PRICE_LABEL} subscription plus a 5% success fee capped at ${VENDOR_PRO_FEE_CAP}. The beta trigger is a cleared platform payment, and churches do not pay a FaithBid platform/access fee.</div>
+              <div className="pricing-faq-a">FaithBid is not currently advertising a standard platform fee, paid vendor plan, or automatic rebate program.</div>
             </div>
 
             <div className="pricing-faq-item">
-              <div className="pricing-faq-q">Do churches pay anything?</div>
-              <div className="pricing-faq-a">No. Posting projects, reviewing bids, hiring, and using the platform is free for churches — always.</div>
+              <div className="pricing-faq-q">Are project payments processed here?</div>
+              <div className="pricing-faq-a">No. FaithBid does not currently collect or process project payments through this preview.</div>
             </div>
           </div>
         </div>
