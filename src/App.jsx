@@ -423,6 +423,7 @@ function PublicLegalFooter({ compact = false }) {
         <div className="fb-public-legal-footer__copy">{cfg.earlyAccessDisclaimer}</div>
         <div className="fb-public-legal-footer__copy">{cfg.marketplaceDisclaimer}</div>
         <div className="fb-public-legal-footer__links">
+          <a className="fb-public-legal-footer__link" href="#get-plugged-in">Get Plugged In</a>
           <a
             className="fb-public-legal-footer__link"
             href={`mailto:${cfg.contactEmail}`}
@@ -3801,6 +3802,14 @@ function safeArray(values = []) {
   return Array.isArray(values) ? values.filter(v => v !== null && v !== undefined && String(v).trim() !== '') : [];
 }
 
+// A numeric marketplace rating is a claim about completed review evidence.
+// Never surface a stored/default aggregate unless at least one review exists.
+function getEvidenceBackedRating(rating, reviewCount) {
+  const count = Number(reviewCount || 0) || 0;
+  const value = Number(rating || 0) || 0;
+  return count > 0 && value >= 1 && value <= 5 ? value : null;
+}
+
 function getInitialsSafe(name = '', fallback = BRAND.initials) {
   const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return fallback;
@@ -3865,6 +3874,7 @@ function normalizeVendorEntity(v = {}, { preserveRaw = true } = {}) {
   const serviceState = firstNonEmpty(v.service_state, '');
   const categoryTags = [...safeArray(v.category_tags), ...safeArray(v.tags)].filter(Boolean);
   const primaryCategory = firstNonEmpty(v.primary_category, v.category, categoryTags[0], '');
+  const reviewsCount = Number(v.reviews_count || v.reviews || 0) || 0;
   const normalized = {
     id: v.id || v.vendor_id || v.user_id || null,
     user_id: v.user_id || null,
@@ -3880,8 +3890,8 @@ function normalizeVendorEntity(v = {}, { preserveRaw = true } = {}) {
     service_radius_miles: Number(v.service_radius_miles || 0) || null,
     verified: !!v.verified,
     tier: firstNonEmpty(v.tier, ''),
-    rating: Number(v.rating || 0) || 0,
-    reviews_count: Number(v.reviews_count || v.reviews || 0) || 0,
+    rating: getEvidenceBackedRating(v.rating, reviewsCount) || 0,
+    reviews_count: reviewsCount,
     projects_count: Number(v.projects_count || v.projects || v.completed_project_count || 0) || 0,
     completed_project_count: Number(v.completed_project_count || v.projects_count || v.projects || 0) || 0,
     church_experience_count: Number(v.church_experience_count || 0) || 0,
@@ -10101,7 +10111,8 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .nav-av-pill-name{font-size:12.5px;font-weight:500;color:#1C2814;letter-spacing:-0.005em;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .nav-av{width:27px;height:27px;border-radius:50%;background:#1C2814;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:#fffdf8;font-family:'Playfair Display',Georgia,serif;border:none;position:relative;flex-shrink:0;}
 .nav-av-online{position:absolute;bottom:-1px;right:-1px;width:8px;height:8px;border-radius:50%;background:#22C55E;border:1.5px solid #fffdf8;}
-.nav-av-pill-role{font-size:9px;color:rgba(28,40,20,0.45);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;line-height:1.2;}
+.nav-av-pill-role{font-size:9px;color:rgba(28,40,20,0.45);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;line-height:1.2;display:flex;align-items:center;gap:5px;}
+.kb-effective-admin-badge{display:inline-flex;align-items:center;padding:2px 5px;border-radius:999px;background:rgba(176,136,64,.12);border:1px solid rgba(176,136,64,.25);color:#80601f;font-family:'DM Mono',monospace;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;line-height:1;}
 .nav-av-caret{font-size:9px;color:rgba(28,40,20,0.45);margin-left:2px;}
 
 /* ── PAGE SHELL ── */
@@ -19418,6 +19429,8 @@ body .nav-av{width:24px!important;height:24px!important;}
    SHARED DATA
 ══════════════════════════════════ */
 const CATEGORIES = [
+  {icon:"✦",label:"Cleaning / Janitorial",count:0,desc:"Commercial cleaning, janitorial service, floor care, deep cleaning"},
+  {icon:"♧",label:"Landscaping / Grounds",count:0,desc:"Grounds care, mowing, landscaping, seasonal cleanup"},
   {icon:"♩",label:"Worship & Music",count:84,desc:"Worship leaders, bands, music directors, songwriters"},
   {icon:"▶",label:"Creative Media",count:74,desc:"Video production, photography, graphic design, branding"},
   {icon:"◇",label:"Children & Youth Ministry",count:53,desc:"Children's directors, curriculum, VBS, teen ministry"},
@@ -19463,6 +19476,8 @@ const REMOTE_FIRST_CATEGORIES = new Set([
   "Creative Media",
 ]);
 const LOCAL_FIRST_CATEGORIES = new Set([
+  "Cleaning / Janitorial",
+  "Landscaping / Grounds",
   "Construction & Renovation",
   "Tech / AV / Production",
   "Children & Youth Ministry",
@@ -23236,7 +23251,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           note: b.cover_letter || "",
           milestones: Array.isArray(b.milestones) ? b.milestones : [],
           submitted_at: b.submitted_at || b.created_at || null,
-          rating: v.rating || 5.0,
+          rating: getEvidenceBackedRating(v.rating, v.reviews_count) || 0,
           verified: !!v.verified,
           reviews: v.reviews_count || 0,
           hired: b.status === "hired",
@@ -33109,7 +33124,6 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const vendorPresentation = getVendorProfilePresentation(v);
   const deliveryBadge = getVendorDeliveryBadge(v);
   const profileTags = vendorPresentation.tags;
-  const stars = "★".repeat(Math.round(v.rating||5));
   const identityBadges = vendorPresentation.identityBadges;
   const bestFitItems = vendorPresentation.bestFitItems;
   const proofPoints = vendorPresentation.proofPoints;
@@ -33117,8 +33131,8 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const profileSnapshot = vendorPresentation.profileSnapshot;
   const reviewCount = Number(v.reviews_count || v.reviews || 0);
   const projectCount = Number(v.projects_count || v.projects || 0);
-  const ratingValue = Number(v.rating || 0) || 0;
-  const ratingLabel = ratingValue > 0 ? `${ratingValue.toFixed(1)} ★` : 'Not rated';
+  const ratingValue = getEvidenceBackedRating(v.rating, reviewCount);
+  const ratingLabel = ratingValue ? `${ratingValue.toFixed(1)} ★` : 'No reviews yet';
   const responseSignal = firstNonEmpty(v.response_sla, v.response_time, '');
   const primaryResponseLabel = responseSignal || 'Not specified';
   const serviceAreaSignal = firstNonEmpty(v.service_area, Array.isArray(v.service_regions) ? v.service_regions.join(', ') : null, v.city, '');
@@ -38335,7 +38349,7 @@ export default function App() {
                     </div>
                     <div className="kb-topnav-account-copy">
                       <div className="nav-av-pill-name">{userProfile?.org_name || "Account"}</div>
-                      <div className="nav-av-pill-role">{role === "vendor" ? "Vendor" : role === "individual" ? "Member" : "Church"}</div>
+                      <div className="nav-av-pill-role">{role === "vendor" ? "Vendor" : role === "individual" ? "Member" : "Church"}{isAdmin && <span className="kb-effective-admin-badge">Admin</span>}</div>
                     </div>
                     <span className="nav-av-caret kb-topnav-trigger-caret" aria-hidden="true">⌄</span>
                   </button>
@@ -38346,7 +38360,7 @@ export default function App() {
                         <div className="kb-topnav-account-head-copy">
                           <span className="kb-topnav-menu-eyebrow">Your account</span>
                           <strong>{userProfile?.org_name || "Your Account"}</strong>
-                          <span>{role === "vendor" ? "Vendor workspace" : role === "individual" ? "Member account" : "Church workspace"}</span>
+                          <span>{role === "vendor" ? "Vendor workspace" : role === "individual" ? "Member account" : "Church workspace"}{isAdmin && <> · <strong>Admin access</strong></>}</span>
                         </div>
                       </div>
                       <div style={{padding:"8px"}}>
@@ -38391,7 +38405,7 @@ export default function App() {
                   <div style={{width:40,height:40,borderRadius:"50%",background:"#1C2814",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:700,color:"#fffdf8",flexShrink:0}}>{userProfile?.org_name?.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase()||"?"}</div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:13,fontWeight:600,color:"#1C2814",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{userProfile?.org_name||"My Account"}</div>
-                    <div style={{fontSize:11,color:"#7a8a74",marginTop:1}}>{role=="vendor"?"Vendor":"Church"} Account</div>
+                    <div style={{fontSize:11,color:"#7a8a74",marginTop:3,display:"flex",alignItems:"center",gap:6}}>{role=="vendor"?"Vendor":"Church"} Account {isAdmin && <span className="kb-effective-admin-badge">Admin</span>}</div>
                   </div>
                 </div>
               )}
@@ -38757,7 +38771,7 @@ function buildVendorProfileSeed(vendor = {}) {
     name,
     category: vendor?.category || primaryTag,
     city,
-    rating: Number(vendor?.rating) || 0,
+    rating: getEvidenceBackedRating(vendor?.rating, reviews) || 0,
     reviews_count: reviews,
     reviews: reviews,
     projects_count: projects,
@@ -39449,7 +39463,7 @@ function getReviewDashboardStats(reviews = [], { pendingCount = 0, role = "churc
       { label: role === "church" ? "Reviews due" : "Response rate", value: role === "church" ? `${pendingCount}` : `${replyRate}%`, sub: role === "church" ? "awaiting your input" : "vendor follow-through" },
     ],
     sidebarSummary: [
-      { label: "Average rating", value: avgRatingNum.toFixed(1), sub: "overall sentiment" },
+      { label: "Average rating", value: safeReviews.length ? avgRatingNum.toFixed(1) : "—", sub: safeReviews.length ? "overall sentiment" : "No reviews yet" },
       { label: "Would rehire", value: `${recommendPct}%`, sub: "confidence signal" },
       { label: "Verified reviews", value: `${verifiedCount}`, sub: "real completed work" },
     ],
@@ -41354,23 +41368,12 @@ function LandingMobileMenu({nav, setAuthDefaultRole, setStartFreeDefaultRole}){
                 <span>Reserve Church Access</span>
                 <span aria-hidden="true">→</span>
               </button>
-              <button
-                type="button"
-                className="land-menu-primary-action is-vendor"
-                onClick={()=>closeAndNav("vendor-signup", ()=>{ if (typeof setStartFreeDefaultRole === "function") setStartFreeDefaultRole("vendor"); })}
-              >
-                <span>Apply as a Charter Vendor</span>
-                <span aria-hidden="true">→</span>
-              </button>
             </div>
 
             <div className="land-menu-section-label">Explore FaithBid</div>
             <nav className="land-menu-links" aria-label="Explore FaithBid">
-              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndScrollTo("faith-verified-section")}>
-                <span>Faith-Verified</span><span aria-hidden="true">→</span>
-              </button>
-              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndNav("get-plugged-in")}>
-                <span>Get Plugged In</span><span aria-hidden="true">→</span>
+              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndNav("vendor-signup", ()=>{ if (typeof setStartFreeDefaultRole === "function") setStartFreeDefaultRole("vendor"); })}>
+                <span>For vendors</span><span aria-hidden="true">→</span>
               </button>
               <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndNav("about")}>
                 <span>About FaithBid</span><span aria-hidden="true">→</span>
@@ -41380,11 +41383,6 @@ function LandingMobileMenu({nav, setAuthDefaultRole, setStartFreeDefaultRole}){
               </button>
             </nav>
 
-            <div className="land-menu-footer">
-              <button type="button" className="land-menu-partner" onClick={()=>closeAndNav("partner")}>
-                Partner with us <span aria-hidden="true">→</span>
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -41536,8 +41534,7 @@ function LandingCoverageMap() {
 
 
 function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, telemetryEnabled = false}){
-  // Placeholder numbers shown immediately // replaced by real data once loaded
-  const [stats, setStats] = useState({ churches:0, vendors:0, projects:0, founding:0, rating:"5.0", loaded:false });
+  const [stats, setStats] = useState({ churches:0, vendors:0, projects:0, founding:0, rating:null, reviewCount:0, loaded:false });
 
   useEffect(() => {
     if (!telemetryEnabled) return;
@@ -41618,15 +41615,11 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
         const projects = projectRes.count || 0;
         const founding = foundingRes.count || 0;
         const reviews = reviewRes.data || [];
-        const avgRating = reviews.length > 0
-          ? (reviews.reduce((a,r) => a + (r.rating||5), 0) / reviews.length).toFixed(1)
-          : "5.0";
-        // Only update if we got real data; otherwise keep placeholders
-        if (churches > 0 || vendors > 0 || projects > 0) {
-          setStats({ churches, vendors, projects, founding, rating: avgRating, loaded:true });
-        } else {
-          setStats(s => ({...s, founding, loaded:true}));
-        }
+        const validRatings = reviews.map(review => Number(review?.rating || 0)).filter(rating => rating >= 1 && rating <= 5);
+        const avgRating = validRatings.length
+          ? (validRatings.reduce((sum, rating) => sum + rating, 0) / validRatings.length).toFixed(1)
+          : null;
+        setStats({ churches, vendors, projects, founding, rating: avgRating, reviewCount:validRatings.length, loaded:true });
       } catch (err) {
         logError("landing-fetch-stats", err);
         if (!cancelled) setStats(s => ({...s, loaded:true}));
@@ -41646,11 +41639,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
             <CrossLogo size={24} variant="home" style={{height:24,maxWidth:122}}/>
           </div>
           <div className="land-nav-links">
-            <button type="button" className="land-nav-btn" onClick={()=>{const el=document.getElementById("faith-verified-section");if(el)el.scrollIntoView({behavior:"smooth"});}}>
-              ✦ Faith-Verified
-            </button>
-            <div className="land-nav-sep"/>
-            <button type="button" className="land-nav-btn" onClick={()=>nav("get-plugged-in")}>Get Plugged In</button>
+            <button type="button" className="land-nav-btn" onClick={()=>{ if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("vendor"); nav("vendor-signup"); }}>For vendors</button>
             <div className="land-nav-sep"/>
             <button type="button" className="land-nav-btn" onClick={()=>nav("about")}>About us</button>
             <div className="land-nav-sep"/>
@@ -41721,35 +41710,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
               <span>{LAUNCHED ? "Post a Project" : "Reserve church access"}</span>
               <span className="land-role-arrow" aria-hidden="true">→</span>
             </button>
-            <button
-              type="button"
-              className="land-role-cta land-role-cta-secondary"
-              onClick={e=>{e.stopPropagation(); trackLandingCta("vendor", "hero", "vendor-signup"); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("vendor"); nav("vendor-signup");}}
-              style={{
-                padding:"13px 22px",
-                borderRadius:10,
-                border:"1px solid rgba(232,205,140,0.4)",
-                background:"transparent",
-                color:"#e8cd8c",
-                fontFamily:"'DM Sans',sans-serif",
-                fontSize:14,
-                fontWeight:500,
-                cursor:"pointer",
-                transition:"background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease"
-              }}
-            >
-              <span>{LAUNCHED ? "Marketplace" : "Reserve vendor access"}</span>
-              <span className="land-role-arrow" aria-hidden="true">→</span>
-            </button>
           </div>
-
-          {!LAUNCHED && (
-            <div className="land-cta-role-note land-animate-in-d3" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,flexWrap:"wrap",margin:"-4px auto 20px",padding:"7px 12px",borderRadius:999,border:"1px solid rgba(232,205,140,0.13)",background:"rgba(255,255,255,0.035)",color:"rgba(255,255,255,0.56)",fontSize:11.2,fontWeight:500,letterSpacing:"0.02em"}}>
-              <span><strong style={{color:"rgba(232,205,140,0.86)",fontWeight:700}}>Churches</strong> reserve access.</span>
-              <span style={{width:3.5,height:3.5,borderRadius:"50%",background:"rgba(232,205,140,0.34)"}} />
-              <span><strong style={{color:"rgba(232,205,140,0.86)",fontWeight:700}}>Vendors</strong> apply for review.</span>
-            </div>
-          )}
 
           <div className="land-signin-row" style={{textAlign:"center",marginBottom:34,animation:"fadeInUp 0.7s 0.5s ease both"}}>
             <button type="button" onClick={()=>{setAuthDefaultRole("login");nav("auth");}} className="btn-text-light" style={{minHeight:36,padding:'8px 4px',letterSpacing:0.2}}>
@@ -41762,16 +41723,18 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
       {/* ── STATS + BROWSE ALL ROW ── */}
       {(()=>{
-        const statData = stats.loaded && (stats.vendors > 0 || stats.churches > 0) ? [
+        const statData = LAUNCHED && stats.loaded && (stats.vendors > 0 || stats.churches > 0) ? [
           {num:fmt(stats.churches), label:"Ministries"},
           {num:fmt(stats.vendors),  label:"Vendors"},
           {num:fmt(stats.projects), label:"Projects"},
-          {num:stats.rating+"★",   label:"Avg rating"},
+          stats.reviewCount > 0 && stats.rating
+            ? {num:stats.rating+"★", label:"Avg rating"}
+            : {num:"New", label:"Reviews forming"},
         ] : [
-          {num:"Local + national",  label:"Vendor reach"},
-          {num:stats.founding > 0 ? stats.founding+"+" : "—", label:"Early access"},
-          {num:"$0",  label:"Churches post"},
-          {num:"Direct",  label:"Church rebate"},
+          {num:"Dallas", label:"First pilot market"},
+          {num:"Forming", label:"Founding cohort"},
+          {num:"Human", label:"Concierge matching"},
+          {num:"Evidence", label:"Trust before claims"},
         ];
         return (
           <div className="lsb-wrap">
@@ -41784,8 +41747,8 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
               </div>
               {/* Center button */}
               <div className="lsb-btn-wrap">
-                <button type="button" className="lsb-btn" onClick={()=>{ trackLandingCta("undecided", "stats_strip", "join"); nav("join"); }}>
-                  Early access
+                <button type="button" className="lsb-btn" onClick={()=>{ trackLandingCta("church", "stats_strip", "church-signup"); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }}>
+                  Reserve church access
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 </button>
               </div>
@@ -41802,34 +41765,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
 
       <FirstSessionTrustRail />
-
-      {/* ── FAITH VERIFIED ── */}
-      <LandingFaithVerified nav={nav}/>
-
-      <section data-kb-funnel-section="ecosystem" style={{background:"#fffdf8",borderTop:"1px solid #dfd5c2",padding:"54px 48px"}}>
-        <style>{`@media (max-width: 760px){ .landing-pathways{padding:38px 20px !important;} .landing-pathways-grid{grid-template-columns:1fr !important;} }`}</style>
-        <div className="landing-pathways" style={{maxWidth:1080,margin:"0 auto"}}>
-          <div style={{textAlign:"center",maxWidth:660,margin:"0 auto 28px"}}>
-            <div style={{fontFamily:"'DM Mono', monospace",fontSize:10,fontWeight:800,letterSpacing:"0.18em",textTransform:"uppercase",color:"#8a6729",marginBottom:10}}>More ways to connect</div>
-            <h2 style={{fontFamily:"'Playfair Display', Georgia, serif",fontSize:"clamp(28px,4vw,40px)",lineHeight:1.06,letterSpacing:"-0.03em",color:"#1C2814",margin:"0 0 10px"}}>The marketplace is the front door—not the whole mission.</h2>
-            <p style={{fontSize:14.5,lineHeight:1.75,color:"#5f6659",margin:0}}>Explore local service opportunities, learn why FaithBid exists, or discuss a ministry partnership without losing the main path to project access.</p>
-          </div>
-          <div className="landing-pathways-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:14}}>
-            {[
-              {eyebrow:"Serve locally",title:"Get Plugged In",body:"Find practical opportunities to serve, connect, and grow near you.",cta:"Explore opportunities",screen:"get-plugged-in"},
-              {eyebrow:"Our mission",title:"Why FaithBid",body:"See the problem FaithBid is built to solve for churches and Christian professionals.",cta:"Read our story",screen:"about"},
-              {eyebrow:"Build together",title:"Partner with us",body:"Connect a church, organization, or network with FaithBid's launch mission.",cta:"Explore partnership",screen:"partner"},
-            ].map(item=>(
-              <article key={item.screen} style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"22px",border:"1px solid #dfd5c2",borderRadius:20,background:"#fff",boxShadow:"0 16px 36px rgba(28,40,20,0.05)"}}>
-                <div style={{fontSize:10,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:"#8a6729",marginBottom:10}}>{item.eyebrow}</div>
-                <h3 style={{fontFamily:"'Playfair Display', Georgia, serif",fontSize:23,lineHeight:1.08,color:"#1C2814",margin:"0 0 9px"}}>{item.title}</h3>
-                <p style={{fontSize:13.5,lineHeight:1.7,color:"#676f62",margin:"0 0 18px",flex:1}}>{item.body}</p>
-                <button type="button" onClick={()=>{trackLandingCta("undecided","ecosystem",item.screen);nav(item.screen);}} className="btn-secondary" style={{padding:"11px 16px",fontSize:12.5}}>{item.cta} →</button>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <LandingChurchTrustStrip />
 
       {/* ── PRICING ── */}
       <LandingPricing nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole}/>
@@ -41843,9 +41779,9 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
           <div>
             <div style={{fontFamily:"'DM Mono', monospace",fontSize:10,fontWeight:800,letterSpacing:"0.18em",textTransform:"uppercase",color:"#8a6729",marginBottom:10}}>Before you sign up</div>
             <h2 style={{fontFamily:"'Playfair Display', Georgia, serif",fontSize:"clamp(26px,4vw,40px)",lineHeight:1.06,letterSpacing:"-0.03em",color:"#1C2814",margin:"0 0 10px"}}>See the kind of work FaithBid is built to organize.</h2>
-            <p style={{fontSize:14.5,lineHeight:1.75,color:"#5f6659",margin:0,fontWeight:400}}>Join the founding church or Charter Vendor waitlist while FaithBid prepares the first private launch markets.</p>
+            <p style={{fontSize:14.5,lineHeight:1.75,color:"#5f6659",margin:0,fontWeight:400}}>Reserve a place for your church in FaithBid's first Dallas pilot cohort. No project is posted until your team is ready.</p>
           </div>
-          <button type="button" onClick={()=>{ trackLandingCta("undecided", "final_proof", "join"); nav("join"); }} style={{border:"1px solid rgba(28,40,20,0.12)",background:"#1C2814",color:"#fff",borderRadius:999,padding:"15px 24px",fontSize:13.5,fontWeight:800,cursor:"pointer",boxShadow:"0 18px 40px rgba(28,40,20,0.18)",whiteSpace:"nowrap"}}>Reserve early access →</button>
+          <button type="button" onClick={()=>{ trackLandingCta("church", "final_proof", "church-signup"); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }} style={{border:"1px solid rgba(28,40,20,0.12)",background:"#1C2814",color:"#fff",borderRadius:999,padding:"15px 24px",fontSize:13.5,fontWeight:800,cursor:"pointer",boxShadow:"0 18px 40px rgba(28,40,20,0.18)",whiteSpace:"nowrap"}}>Reserve church access →</button>
         </div>
       </section>
 
@@ -41853,6 +41789,27 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
   );
 }
 
+
+function LandingChurchTrustStrip() {
+  const items = [
+    { title: "What FaithBid reviews", body: "Marketplace access is reviewed. A Faith Verified badge means FaithBid also reviewed the vendor's faith statement and ministry reference information." },
+    { title: "What the church decides", body: "Your church compares the proposal, references, scope, and fit. FaithBid does not guarantee vendor work or replace project-specific due diligence." },
+    { title: "Who to contact", body: <>Questions or concerns go directly to <a href={`mailto:${BRAND.supportEmail}`} style={{color:"#6f531f",fontWeight:800}}>{BRAND.supportEmail}</a>.</> },
+  ];
+  return (
+    <section data-kb-funnel-section="trust" aria-labelledby="landing-trust-title" style={{background:"#f5f0e6",borderTop:"1px solid #dfd5c2",borderBottom:"1px solid #dfd5c2"}}>
+      <div style={{maxWidth:1120,margin:"0 auto",padding:"38px 48px"}}>
+        <div style={{maxWidth:680,marginBottom:20}}>
+          <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,fontWeight:800,letterSpacing:"0.18em",textTransform:"uppercase",color:"#8a6729",marginBottom:8}}>Trust, in plain language</div>
+          <h2 id="landing-trust-title" style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:"clamp(26px,3.5vw,38px)",lineHeight:1.08,color:"#1C2814",margin:0}}>Clear signals. Your church makes the call.</h2>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:14}}>
+          {items.map(item => <div key={item.title} style={{padding:"18px 20px",background:"rgba(255,255,255,.72)",border:"1px solid #dfd5c2",borderRadius:16}}><strong style={{display:"block",fontSize:14,color:"#1C2814",marginBottom:6}}>{item.title}</strong><span style={{fontSize:13,lineHeight:1.65,color:"#62695d"}}>{item.body}</span></div>)}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function FirstSessionTrustRail() {
   const items = [
