@@ -19,7 +19,7 @@ test('numeric marketplace ratings require underlying review evidence', async () 
 test('public vendor intake exposes both Dallas pilot service categories', async () => {
   const source = await readFile(sourceUrl, 'utf8');
 
-  assert.match(source, /label:["']Cleaning \/ Janitorial["']/);
-  assert.match(source, /label:["']Landscaping \/ Grounds["']/);
+  assert.match(source, /marketplaceLabel:["']Cleaning \/ Janitorial["']/);
+  assert.match(source, /marketplaceLabel:["']Landscaping \/ Grounds["']/);
   assert.match(source, /LOCAL_FIRST_CATEGORIES = new Set\(\[[\s\S]*["']Cleaning \/ Janitorial["'][\s\S]*["']Landscaping \/ Grounds["']/);
 });

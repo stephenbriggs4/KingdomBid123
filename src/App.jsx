@@ -19428,21 +19428,58 @@ body .nav-av{width:24px!important;height:24px!important;}
 /* ══════════════════════════════════
    SHARED DATA
 ══════════════════════════════════ */
-const CATEGORIES = [
-  {icon:"✦",label:"Cleaning / Janitorial",count:0,desc:"Commercial cleaning, janitorial service, floor care, deep cleaning"},
-  {icon:"♧",label:"Landscaping / Grounds",count:0,desc:"Grounds care, mowing, landscaping, seasonal cleanup"},
-  {icon:"♩",label:"Worship & Music",count:84,desc:"Worship leaders, bands, music directors, songwriters"},
-  {icon:"▶",label:"Creative Media",count:74,desc:"Video production, photography, graphic design, branding"},
-  {icon:"◇",label:"Children & Youth Ministry",count:53,desc:"Children's directors, curriculum, VBS, teen ministry"},
-  {icon:"◉",label:"Speaking, Coaching & Consulting",count:61,desc:"Speakers, life coaches, church consultants, leadership"},
-  {icon:"◈",label:"Tech / AV / Production",count:92,desc:"Sound, lighting, livestream, AVL systems, IT"},
-  {icon:"▲",label:"Construction & Renovation",count:48,desc:"Contractors, architects, interior design, facilities"},
-  {icon:"◻",label:"Web & Technology",count:91,desc:"Websites, apps, software, IT support"},
-  {icon:"$",label:"Accounting & Finance",count:37,desc:"CPAs, bookkeeping, audits, 990 filings"},
-  {icon:"§",label:"Legal Services",count:19,desc:"Church law, contracts, HR, compliance"},
-  {icon:"◎",label:"Marketing & Communications",count:55,desc:"Social media, PR, advertising, copywriting"},
-];
-const BUDGETS = ["Under $500","$500-$1,000","$1,000-$2,500","$2,500-$5,000","$5,000-$10,000","$10,000-$25,000","$25,000+"];
+const FB_SERVICE_TAXONOMY = Object.freeze([
+  {key:"cleaning_and_janitorial", marketplaceLabel:"Cleaning / Janitorial", conciergeLabel:"Cleaning & janitorial — Dallas pilot", icon:"✦", count:0, desc:"Commercial cleaning, janitorial service, floor care, deep cleaning", pilotEligible:true},
+  {key:"landscaping_and_grounds", marketplaceLabel:"Landscaping / Grounds", conciergeLabel:"Landscaping & grounds — Dallas pilot", icon:"♧", count:0, desc:"Grounds care, mowing, landscaping, seasonal cleanup", pilotEligible:true},
+  {key:"facilities_and_maintenance", marketplaceLabel:"Facilities / Handyman / HVAC", conciergeLabel:"Facilities, handyman & HVAC — Dallas pilot", icon:"⌂", count:0, desc:"Facility maintenance, handyman work, HVAC service and repairs", pilotEligible:true},
+  {key:"av_production_and_worship_technology", marketplaceLabel:"Tech / AV / Production", conciergeLabel:"AV, media & livestream — Dallas pilot", icon:"◈", count:92, desc:"Sound, lighting, livestream, AVL systems and production", pilotEligible:true},
+  {key:"it_cybersecurity_and_managed_services", marketplaceLabel:"Web & Technology", conciergeLabel:"IT & ChMS — Dallas pilot", icon:"◻", count:91, desc:"Websites, apps, Church Management Systems, cybersecurity and IT support", pilotEligible:true},
+  {key:"finance_accounting_and_payroll", marketplaceLabel:"Accounting & Finance", conciergeLabel:"Bookkeeping, accounting & payroll — Dallas pilot", icon:"$", count:37, desc:"Bookkeeping, accounting, payroll, audits and 990 filings", pilotEligible:true},
+  {key:"worship_and_music", marketplaceLabel:"Worship & Music", conciergeLabel:null, icon:"♩", count:84, desc:"Worship leaders, bands, music directors and songwriters", pilotEligible:false},
+  {key:"creative_media", marketplaceLabel:"Creative Media", conciergeLabel:null, icon:"▶", count:74, desc:"Video production, photography, graphic design and branding", pilotEligible:false},
+  {key:"children_and_youth_ministry", marketplaceLabel:"Children & Youth Ministry", conciergeLabel:null, icon:"◇", count:53, desc:"Children's directors, curriculum, VBS and teen ministry", pilotEligible:false},
+  {key:"speaking_coaching_and_consulting", marketplaceLabel:"Speaking, Coaching & Consulting", conciergeLabel:null, icon:"◉", count:61, desc:"Speakers, life coaches, church consultants and leadership", pilotEligible:false},
+  {key:"construction_and_trades", marketplaceLabel:"Construction & Renovation", conciergeLabel:"Construction & trades", icon:"▲", count:48, desc:"Contractors, architects, interior design and renovation", pilotEligible:false},
+  {key:"legal_risk_and_insurance", marketplaceLabel:"Legal Services", conciergeLabel:"Legal, risk & insurance", icon:"§", count:19, desc:"Church law, contracts, HR and compliance", pilotEligible:false},
+  {key:"marketing_branding_and_communications", marketplaceLabel:"Marketing & Communications", conciergeLabel:"Marketing, branding & communications", icon:"◎", count:55, desc:"Social media, PR, advertising and copywriting", pilotEligible:false},
+  {key:"web_software_and_digital", marketplaceLabel:null, conciergeLabel:"Web, software & digital", pilotEligible:false},
+  {key:"hr_staffing_and_leadership_search", marketplaceLabel:null, conciergeLabel:"HR, staffing & leadership search", pilotEligible:false},
+  {key:"consulting_strategy_and_operations", marketplaceLabel:null, conciergeLabel:"Consulting, strategy & operations", pilotEligible:false},
+  {key:"events_hospitality_and_travel", marketplaceLabel:null, conciergeLabel:"Events, hospitality & travel", pilotEligible:false},
+  {key:"products_supplies_and_equipment", marketplaceLabel:null, conciergeLabel:"Products, supplies & equipment", pilotEligible:false},
+  {key:"other_needs_classification", marketplaceLabel:null, conciergeLabel:"Other / classify during review", pilotEligible:false},
+]);
+
+const CATEGORIES = FB_SERVICE_TAXONOMY
+  .filter((category) => category.marketplaceLabel)
+  .map((category) => ({
+    key:category.key,
+    icon:category.icon,
+    label:category.marketplaceLabel,
+    count:category.count,
+    desc:category.desc,
+    pilotEligible:category.pilotEligible,
+  }));
+
+const FB_MARKETPLACE_BUDGET_BANDS = Object.freeze([
+  {key:"under_500", label:"Under $500", conciergeBand:"under_5000", translation:"automatic"},
+  {key:"500_to_999", label:"$500-$1,000", conciergeBand:"under_5000", translation:"automatic"},
+  {key:"1000_to_2499", label:"$1,000-$2,500", conciergeBand:"under_5000", translation:"automatic"},
+  {key:"2500_to_4999", label:"$2,500-$5,000", conciergeBand:"under_5000", translation:"automatic"},
+  {key:"5000_to_9999", label:"$5,000-$10,000", conciergeBand:"5000_to_24999", translation:"automatic"},
+  {key:"10000_to_24999", label:"$10,000-$25,000", conciergeBand:"5000_to_24999", translation:"automatic"},
+  {key:"25000_or_more", label:"$25,000+", conciergeBand:"not_disclosed_or_unknown", translation:"church_confirmation_required"},
+]);
+const BUDGETS = FB_MARKETPLACE_BUDGET_BANDS.map((band) => band.label);
+
+function fbTranslateMarketplaceBudgetToConcierge(marketplaceBand) {
+  const match = FB_MARKETPLACE_BUDGET_BANDS.find((band) => band.key === marketplaceBand || band.label === marketplaceBand);
+  if (!match) return {budgetBand:"not_disclosed_or_unknown", basis:"manual_review", status:"unmapped"};
+  if (match.translation === "church_confirmation_required") {
+    return {budgetBand:"not_disclosed_or_unknown", basis:"manual_review", status:"church_confirmation_required"};
+  }
+  return {budgetBand:match.conciergeBand, basis:"organization_declared_total_project", status:"translated"};
+}
 const TIMELINES = ["ASAP (within 1 week)","2-4 weeks","1-2 months","3-6 months","6+ months","Flexible"];
 const CHURCH_SIZES = ["Under 100","100-500","500-2,000","2,000-10,000","10,000+"];
 const DELIVERY_MODEL_META = {
@@ -34664,31 +34701,14 @@ const FB_CONCIERGE_VIEWS = Object.freeze([
   ["fees", "Fees & give-back"],
 ]);
 
-const FB_CONCIERGE_SERVICE_CATEGORIES = Object.freeze([
-  ["cleaning_and_janitorial", "Cleaning & janitorial — Dallas pilot"],
-  ["landscaping_and_grounds", "Landscaping & grounds — Dallas pilot"],
-  ["construction_and_trades", "Construction & trades"],
-  ["facilities_and_maintenance", "Facilities, handyman & HVAC — Dallas pilot"],
-  ["av_production_and_worship_technology", "AV, media & livestream — Dallas pilot"],
-  ["it_cybersecurity_and_managed_services", "IT & ChMS — Dallas pilot"],
-  ["web_software_and_digital", "Web, software & digital"],
-  ["marketing_branding_and_communications", "Marketing, branding & communications"],
-  ["finance_accounting_and_payroll", "Bookkeeping, accounting & payroll — Dallas pilot"],
-  ["legal_risk_and_insurance", "Legal, risk & insurance"],
-  ["hr_staffing_and_leadership_search", "HR, staffing & leadership search"],
-  ["consulting_strategy_and_operations", "Consulting, strategy & operations"],
-  ["events_hospitality_and_travel", "Events, hospitality & travel"],
-  ["products_supplies_and_equipment", "Products, supplies & equipment"],
-  ["other_needs_classification", "Other / classify during review"],
-]);
+const FB_CONCIERGE_SERVICE_CATEGORIES = Object.freeze(
+  FB_SERVICE_TAXONOMY
+    .filter((category) => category.conciergeLabel)
+    .map((category) => [category.key, category.conciergeLabel]),
+);
 
 const FB_DALLAS_PILOT_ALLOWED_CATEGORIES = new Set([
-  "cleaning_and_janitorial",
-  "landscaping_and_grounds",
-  "finance_accounting_and_payroll",
-  "it_cybersecurity_and_managed_services",
-  "av_production_and_worship_technology",
-  "facilities_and_maintenance",
+  ...FB_SERVICE_TAXONOMY.filter((category) => category.pilotEligible).map((category) => category.key),
 ]);
 
 const FB_DALLAS_PILOT_RISK_FLAGS = Object.freeze([
@@ -35062,6 +35082,7 @@ function fbConciergeReviewChecks(form, operatorId) {
   add(String(form.must_haves || "").trim(), "Must-haves are explicit.");
   add(["confirmed", "working_range"].includes(form.budget_status), "Budget status is confirmed or a working range.");
   add(form.budget_band && !["not_disclosed_or_unknown", "unknown"].includes(form.budget_band), "Church-declared budget band is present.");
+  add(form.marketplace_budget_band !== "25000_or_more" || form.budget_translation_status === "church_confirmed", "A Marketplace budget of $25,000+ is resolved by direct church confirmation.");
   add(["organization_declared_total_project", "organization_declared_first_12_months"].includes(form.budget_band_basis), "Budget basis is church-declared, not vendor-supplied.");
   add(form.budget_basis, "Budget timing is defined for the declared amount.");
   add(form.delivery_requirement && form.delivery_requirement !== "unknown", "Delivery requirement is known.");
@@ -35110,7 +35131,28 @@ function FBConciergeIntakeReviewModal({ client, need, operatorId, onClose, onRev
     const classification = fbConciergePilotClassification(record);
     return { ...record, risk_tier:classification.riskTier, compliance_gate:classification.complianceGate, pilot_eligibility:classification.eligibility, pilot_hold_reason:classification.reason };
   };
-  const update = (key, value) => setForm((current) => applyPilotClassification({ ...current, [key]: value }));
+  const update = (key, value) => setForm((current) => {
+    let next = { ...current, [key]: value };
+    if (key === "marketplace_budget_band") {
+      const translation = fbTranslateMarketplaceBudgetToConcierge(value);
+      next = {
+        ...next,
+        budget_band:translation.budgetBand,
+        budget_basis:value ? "total_project" : next.budget_basis,
+        budget_band_basis:translation.basis,
+        budget_translation_status:value ? translation.status : "not_applicable",
+      };
+    }
+    if (
+      next.marketplace_budget_band === "25000_or_more"
+      && ["budget_band", "budget_band_basis"].includes(key)
+    ) {
+      const churchConfirmed = ["25000_to_99999", "100000_or_more"].includes(next.budget_band)
+        && ["organization_declared_total_project", "organization_declared_first_12_months"].includes(next.budget_band_basis);
+      next.budget_translation_status = churchConfirmed ? "church_confirmed" : "church_confirmation_required";
+    }
+    return applyPilotClassification(next);
+  });
   const toggleRiskFlag = (value) => setForm((current) => {
     const flags = new Set(current.pilot_risk_flags || []);
     if (flags.has(value)) flags.delete(value); else flags.add(value);
@@ -35158,6 +35200,8 @@ function FBConciergeIntakeReviewModal({ client, need, operatorId, onClose, onRev
       budget_basis: form.budget_basis || null,
       budget_band: form.budget_band || "not_disclosed_or_unknown",
       budget_band_basis: form.budget_band_basis || "manual_review",
+      marketplace_budget_band: form.marketplace_budget_band || null,
+      budget_translation_status: form.budget_translation_status || "not_applicable",
       delivery_requirement: form.delivery_requirement || "unknown",
       service_location: String(form.service_location || "").trim() || null,
       faith_alignment_requirement: form.faith_alignment_requirement || "unknown",
@@ -35209,9 +35253,11 @@ function FBConciergeIntakeReviewModal({ client, need, operatorId, onClose, onRev
                 {textarea("Must-haves", "must_haves")}
                 {textarea("Nice-to-haves", "nice_to_haves")}
                 {select("Church budget status", "budget_status", [["unknown","Unknown"],["working_range","Working range"],["confirmed","Confirmed"],["not_set","Not set"],["declined_to_share","Declined to share"]])}
+                {select("Marketplace source budget (optional)", "marketplace_budget_band", [["","Not carried from Marketplace"], ...FB_MARKETPLACE_BUDGET_BANDS.map((band) => [band.key, band.label])])}
                 {select("Church-declared budget band", "budget_band", [["not_disclosed_or_unknown","Not disclosed or unknown"],["under_5000","Under $5,000"],["5000_to_24999","$5,000-$24,999"],["25000_to_99999","$25,000-$99,999"],["100000_or_more","$100,000+"]])}
                 {select("Budget timing", "budget_basis", [["","Choose timing"],["total_project","Total project"],["monthly","Monthly"],["annual","Annual"],["hourly","Hourly"],["per_event","Per event"],["other","Other"]])}
                 {select("Budget band basis", "budget_band_basis", [["manual_review","Manual review"],["organization_declared_total_project","Church-declared total project"],["organization_declared_first_12_months","Church-declared first 12 months"]])}
+                {form.marketplace_budget_band && <div className="fb-concierge-safe"><strong>Budget translation:</strong> {form.budget_translation_status === "church_confirmation_required" ? "The Marketplace range crosses two Concierge fee bands. Ask the church whether its total is $25,000–$99,999 or $100,000+; do not infer it." : form.budget_translation_status === "church_confirmed" ? "The church directly confirmed the Concierge fee band." : "This Marketplace range maps deterministically to the displayed Concierge band."}</div>}
                 {select("Delivery requirement", "delivery_requirement", [["unknown","Unknown"],["on_site_local","On-site local"],["on_site_regional","On-site regional"],["on_site_nationwide","On-site nationwide"],["remote","Remote"],["hybrid","Hybrid"]])}
                 {input("Service location", "service_location")}
                 {select("Faith alignment", "faith_alignment_requirement", [["unknown","Unknown"],["required","Required"],["strongly_preferred","Strongly preferred"],["preferred","Preferred"],["not_material","Not material"]])}
@@ -36484,6 +36530,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
   const [closeEngagement, setCloseEngagement] = useState(null);
   const [success, setSuccess] = useState("");
   const [records, setRecords] = useState({ organizations: [], needs: [], vendors: [], contacts: [], vettingChecks: [], growthVendors: [], matches: [], engagements: [], issues: [] });
+  const [demandSummary, setDemandSummary] = useState(null);
   const deferredSearch = React.useDeferredValue(search);
 
   const load = useCallback(async () => {
@@ -36491,7 +36538,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
     setError("");
     const results = await Promise.all([
       client.from("organizations").select("id,organization_name,organization_type,lifecycle_stage,city,state_region,pilot_cohort,next_follow_up_on,relationship_source,created_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
-      client.from("needs").select("id,organization_id,requesting_contact_id,owner_id,need_title,status,need_type,service_frequency,primary_service_category,service_detail,need_brief,desired_outcome,must_haves,nice_to_haves,urgency,target_decision_on,target_start_on,budget_status,budget_basis,budget_band,budget_band_basis,delivery_requirement,service_location,faith_alignment_requirement,faith_fit_rationale,risk_tier,compliance_gate,pilot_risk_flags,pilot_eligibility,pilot_hold_reason,shortlist_target,next_action,next_action_on,ready_to_source_at,sourcing_started_at,shortlist_presented_at,selected_at,organization:organizations(organization_name)").is("archived_at", null).order("next_action_on", { ascending: true, nullsFirst: false }).limit(500),
+      client.from("needs").select("id,organization_id,requesting_contact_id,owner_id,need_title,status,need_type,service_frequency,primary_service_category,service_detail,need_brief,desired_outcome,must_haves,nice_to_haves,urgency,target_decision_on,target_start_on,budget_status,budget_basis,budget_band,budget_band_basis,marketplace_budget_band,budget_translation_status,delivery_requirement,service_location,faith_alignment_requirement,faith_fit_rationale,risk_tier,compliance_gate,pilot_risk_flags,pilot_eligibility,pilot_hold_reason,shortlist_target,next_action,next_action_on,ready_to_source_at,sourcing_started_at,shortlist_presented_at,selected_at,organization:organizations(organization_name)").is("archived_at", null).order("next_action_on", { ascending: true, nullsFirst: false }).limit(500),
       client.from("vendors").select("id,vendor_name,legal_business_name,website,growth_vendor_id,primary_contact_id,relationship_status,relationship_source,relationship_owner_id,vetting_decision,vetting_decision_date,vetting_review_due_on,vetting_summary,proof_level,proven_service_categories,proof_decision_date,service_categories,delivery_modes,capabilities_summary,current_capacity_note,capacity_checked_on,internal_restrictions_concerns,typical_project_minimum_cents,typical_project_maximum_cents,church_ministry_experience,headquarters_city,headquarters_state_region,next_follow_up_on,consideration_consent_status,consideration_consented_at,consideration_consent_source,consideration_consent_reference,consideration_consent_recorded_by,created_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
       client.from("match_details").select("id,need_id,vendor_id,need_title,organization_name,vendor_name,stage,vendor_interest,project_availability,must_have_fit,overall_fit,fit_rationale,concerns,shortlist_rank,recommendation_summary,organization_feedback,shortlisted_at,need_budget_band,introduction_fee_tier,agreed_introduction_fee_cents,renewal_fee_applies,agreed_renewal_fee_cents,renewal_trigger_terms,placement_agreement_status,placement_agreement_reference,introduced_at,updated_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
       client.from("engagement_details").select("id,selected_match_id,need_id,vendor_id,organization_id,need_title,need_type,organization_name,vendor_name,status,agreement_selection_on,planned_start_on,actual_start_on,actual_completion_on,launch_confirmation_reference,launch_summary,church_start_confirmed_on,vendor_start_confirmed_on,delivery_health,latest_check_in_on,latest_check_in_summary,next_check_in_on,current_milestone,milestone_status,milestone_due_on,delivery_next_action,delivery_next_action_on,delivery_check_ins,delivery_event_count,issue_escalation_summary,outcome_review_status,outcome_assessment,would_recommend_again,organization_satisfaction,vendor_performance,outcome_summary,proof_disqualifier,renewal_fee_applies,agreed_introduction_fee_cents,agreed_renewal_fee_cents,introduction_fee_triggered_on,introduction_invoice_status,introduction_amount_invoiced_cents,introduction_gross_collected_cents,introduction_refunds_credits_cents,introduction_taxes_collected_cents,recurring_confirmation_status,recurring_confirmed_on,renewal_fee_triggered_on,renewal_invoice_status,renewal_amount_invoiced_cents,renewal_gross_collected_cents,renewal_refunds_credits_cents,renewal_taxes_collected_cents,total_net_fees_collected_cents,give_back_status,give_back_recipient_type,give_back_recipient,recipient_verification_status,give_back_eligible_cents,actual_give_back_cents,updated_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
@@ -36499,6 +36546,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
       client.from("people").select("id,vendor_id,first_name,last_name,full_name,title_role,decision_role,email,phone,preferred_channel,contact_status,is_primary_contact,contact_notes,created_at").not("vendor_id", "is", null).is("archived_at", null).order("is_primary_contact", { ascending:false }).order("updated_at", { ascending:false }).limit(1000),
       client.from("vetting_checks").select("id,vendor_id,check_type,review_status,outcome,requested_on,completed_on,expires_on,reviewer_id,evidence_method,evidence_source,evidence_reference,evidence_summary,concern_exception_notes,follow_up_on,authoritative_registry_verified,registry_verification_on,created_at").is("archived_at", null).order("updated_at", { ascending:false }).limit(1000),
       supabase.from("growth_vendors").select("id,name,business_type,state,city,email,phone,website,source,source_group_name,notes,status,last_contacted_at,commitment_level,priority_market,business_identity_status,website_safety_status,licensing_status,insurance_status,references_status,commercial_capacity_status,church_fit_status,verification_reviewed_at,verification_next_action,consideration_consent_status,consideration_consented_at,consideration_consent_source,consideration_consent_reference,consideration_consent_recorded_by,created_at").order("created_at", { ascending:false }).limit(500),
+      client.rpc("demand_reconciliation_summary"),
     ]);
     const firstError = results.map((result) => result.error).find(Boolean);
     if (firstError) {
@@ -36517,6 +36565,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
       vettingChecks: results[7].data || [],
       growthVendors: results[8].data || [],
     });
+    setDemandSummary(results[9].data || null);
     setStatus("ready");
   }, [client]);
 
@@ -36755,6 +36804,12 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
         </>}
 
         {view === "dallaspilot" && <div className="fb-concierge-stack">
+          <section className="fb-concierge-metrics" aria-label="Reconciled pilot demand">
+            <FBConciergeMetric label="Confirmed pilot churches" value={loadingValue || demandSummary?.confirmed_pilot_churches || 0} note="Active Concierge records explicitly marked for the pilot"/>
+            <FBConciergeMetric label="Unique church demand" value={loadingValue || demandSummary?.church_unique_entities || 0} note={`${demandSummary?.church_raw_rows || 0} source rows reconciled conservatively`}/>
+            <FBConciergeMetric label="Unique vendor demand" value={loadingValue || demandSummary?.vendor_unique_entities || 0} note={`${demandSummary?.vendor_raw_rows || 0} source rows; research leads are not bench vendors`}/>
+            <FBConciergeMetric label="Verified pilot groups" value={loadingValue || demandSummary?.verified_pilot_groups || 0} note="Joined DFW Facebook groups with explicit pilot relevance"/>
+          </section>
           <section className="fb-concierge-metrics" aria-label="Dallas Pilot summary">
             <FBConciergeMetric label="Pilot churches" value={loadingValue || allPilotOrganizations.length} note="Marked FaithBid pilot cohort"/>
             <FBConciergeMetric label="Pilot needs" value={loadingValue || allPilotNeeds.length} note={pilotActiveNeeds.length + " still active"}/>
