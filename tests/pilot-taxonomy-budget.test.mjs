@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 const appUrl = new URL('../src/App.jsx', import.meta.url);
 const migrationUrl = new URL('../supabase/migrations/20260910143000_unify_service_taxonomy_and_budget_translation.sql', import.meta.url);
 const demandMigrationUrl = new URL('../supabase/migrations/20260910151500_admin_demand_reconciliation_summary.sql', import.meta.url);
+const governanceMigrationUrl = new URL('../supabase/migrations/20260910163000_pilot_governance_decision_ledger.sql', import.meta.url);
 
 test('Marketplace and Concierge derive categories from one application taxonomy', async () => {
   const source = await readFile(appUrl, 'utf8');
@@ -64,4 +65,20 @@ test('Dallas Pilot demand counts are reconciled server-side without applicant de
   assert.match(sql, /revoke all on function concierge_ops\.demand_reconciliation_summary\(\)\s+from public, anon/);
   assert.match(source, /label="Confirmed pilot churches"/);
   assert.match(source, /research leads are not bench vendors/);
+});
+
+test('unresolved strategy items stay visible without being silently decided', async () => {
+  const [source, sql] = await Promise.all([
+    readFile(appUrl, 'utf8'),
+    readFile(governanceMigrationUrl, 'utf8'),
+  ]);
+
+  assert.match(sql, /create table if not exists concierge_ops\.pilot_governance_decisions/);
+  assert.match(sql, /'founder_decision_required'/);
+  assert.match(sql, /'external_evidence_required'/);
+  assert.match(sql, /'legal_review_required'/);
+  assert.match(sql, /'waiting_for_real_deal'/);
+  assert.match(sql, /do not edit the locked baseline silently/i);
+  assert.match(source, /title="Founder decision ledger"/);
+  assert.match(source, /never decides them silently/);
 });

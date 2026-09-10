@@ -36529,7 +36529,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
   const [giveBackEngagement, setGiveBackEngagement] = useState(null);
   const [closeEngagement, setCloseEngagement] = useState(null);
   const [success, setSuccess] = useState("");
-  const [records, setRecords] = useState({ organizations: [], needs: [], vendors: [], contacts: [], vettingChecks: [], growthVendors: [], matches: [], engagements: [], issues: [] });
+  const [records, setRecords] = useState({ organizations: [], needs: [], vendors: [], contacts: [], vettingChecks: [], growthVendors: [], matches: [], engagements: [], issues: [], governanceDecisions: [] });
   const [demandSummary, setDemandSummary] = useState(null);
   const deferredSearch = React.useDeferredValue(search);
 
@@ -36547,6 +36547,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
       client.from("vetting_checks").select("id,vendor_id,check_type,review_status,outcome,requested_on,completed_on,expires_on,reviewer_id,evidence_method,evidence_source,evidence_reference,evidence_summary,concern_exception_notes,follow_up_on,authoritative_registry_verified,registry_verification_on,created_at").is("archived_at", null).order("updated_at", { ascending:false }).limit(1000),
       supabase.from("growth_vendors").select("id,name,business_type,state,city,email,phone,website,source,source_group_name,notes,status,last_contacted_at,commitment_level,priority_market,business_identity_status,website_safety_status,licensing_status,insurance_status,references_status,commercial_capacity_status,church_fit_status,verification_reviewed_at,verification_next_action,consideration_consent_status,consideration_consented_at,consideration_consent_source,consideration_consent_reference,consideration_consent_recorded_by,created_at").order("created_at", { ascending:false }).limit(500),
       client.rpc("demand_reconciliation_summary"),
+      client.from("pilot_governance_decisions").select("decision_key,decision_area,decision_title,status,current_truth,next_action,source_reference,blocks_pilot,display_order,decided_value,decided_at").order("display_order", {ascending:true}),
     ]);
     const firstError = results.map((result) => result.error).find(Boolean);
     if (firstError) {
@@ -36564,6 +36565,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
       contacts: results[6].data || [],
       vettingChecks: results[7].data || [],
       growthVendors: results[8].data || [],
+      governanceDecisions: results[10].data || [],
     });
     setDemandSummary(results[9].data || null);
     setStatus("ready");
@@ -36756,6 +36758,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
   });
 
   const loadingValue = status === "loading" ? "—" : null;
+  const unresolvedGovernanceDecisions = records.governanceDecisions.filter((item) => item.status !== "complete");
   const renderEmpty = (title, copy) => status === "loading"
     ? <FBConciergeEmpty title="Loading live concierge data…" copy="Reading the protected KingdomBid workspace."/>
     : <FBConciergeEmpty title={title} copy={copy}/>;
@@ -36816,6 +36819,12 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
             <FBConciergeMetric label="Pilot matches" value={loadingValue || pilotActiveMatches.length} note="In progress or placed"/>
             <FBConciergeMetric label="Pilot engagements" value={loadingValue || allPilotEngagements.length} note={pilotActiveEngagements.length + " active or at risk"}/>
           </section>
+          <FBConciergePanel title="Founder decision ledger" note="The system tracks these dependencies but never decides them silently." count={unresolvedGovernanceDecisions.length}>
+            <div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Decision</th><th>Status</th><th>Current truth</th><th>Next action</th></tr></thead><tbody>
+              {records.governanceDecisions.map((item) => <tr key={item.decision_key}><td><strong>{item.decision_title}</strong><span className="fb-concierge-muted">{item.decision_area}{item.blocks_pilot ? " · Blocks pilot milestone" : ""}</span></td><td><FBConciergeBadge value={item.status}/></td><td>{item.current_truth}</td><td>{item.next_action}</td></tr>)}
+              {!records.governanceDecisions.length && <tr><td colSpan={4}>{renderEmpty("Decision ledger unavailable.", "Refresh after the governance migration is installed.")}</td></tr>}
+            </tbody></table></div>
+          </FBConciergePanel>
           {pilotOrganizationsSorted.map((org) => {
             const orgNeeds = pilotNeeds.filter((item) => item.organization_id === org.id);
             const orgNeedIds = new Set(orgNeeds.map((item) => item.id));
