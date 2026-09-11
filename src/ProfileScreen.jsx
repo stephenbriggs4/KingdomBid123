@@ -104,24 +104,30 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
           category: safeProfile.category || userProfile?.category || "",
           faith_statement: safeProfile.faith_statement || userProfile?.faith_statement || "",
         });
-        // Always try to fetch vendor row; role state can be stale. Use a rich-to-base fallback so optional vendor columns never break profile load.
-        const vendorMinColumns = "id,name,category,city,verified,user_id,created_at";
-        const vendorBaseColumns = "id,name,category,city,verified,tier,founding_vendor,rating,reviews_count,projects_count,response_time,bio,tagline,min_project_budget,max_project_budget,description,website,phone,instagram,user_id,image_url,created_at";
-        const vendorRichColumns = vendorBaseColumns + ",faith_statement,tags,service_model,service_city,service_state,base_place_id,service_radius_miles,vendor_type,verification_status";
-        const { data: vendor } = await runSupabaseWithTimeout(
-          runSupabaseWithFallback(
-            () => supabase.from("vendors").select(vendorRichColumns).eq("user_id", currentUser.id).maybeSingle(),
-            () => runSupabaseWithFallback(
-              () => supabase.from("vendors").select(vendorBaseColumns).eq("user_id", currentUser.id).maybeSingle(),
-              () => supabase.from("vendors").select(vendorMinColumns).eq("user_id", currentUser.id).maybeSingle()
-            )
-          ),
-          "Profile page vendor row read",
-          3200
-        ).catch(err => {
-          logError("profile-screen-vendor-read", err, { userId: currentUser.id });
-          return { data: null, error: err };
-        });
+        // The freshly read profile role is authoritative. Fall back to hydrated role state only when that read is unavailable.
+        const resolvedProfileRole = String(safeProfile?.role || role || "").trim().toLowerCase();
+        const shouldFetchVendorRow = resolvedProfileRole === "vendor";
+        let vendor = null;
+        if (shouldFetchVendorRow) {
+          const vendorMinColumns = "id,name,category,city,verified,user_id,created_at";
+          const vendorBaseColumns = "id,name,category,city,verified,tier,founding_vendor,rating,reviews_count,projects_count,response_time,bio,tagline,min_project_budget,max_project_budget,description,website,phone,instagram,user_id,image_url,created_at";
+          const vendorRichColumns = vendorBaseColumns + ",faith_statement,tags,service_model,service_city,service_state,base_place_id,service_radius_miles,vendor_type,verification_status";
+          const vendorResult = await runSupabaseWithTimeout(
+            runSupabaseWithFallback(
+              () => supabase.from("vendors").select(vendorRichColumns).eq("user_id", currentUser.id).maybeSingle(),
+              () => runSupabaseWithFallback(
+                () => supabase.from("vendors").select(vendorBaseColumns).eq("user_id", currentUser.id).maybeSingle(),
+                () => supabase.from("vendors").select(vendorMinColumns).eq("user_id", currentUser.id).maybeSingle()
+              )
+            ),
+            "Profile page vendor row read",
+            3200
+          ).catch(err => {
+            logError("profile-screen-vendor-read", err, { userId: currentUser.id });
+            return { data: null, error: err };
+          });
+          vendor = vendorResult?.data || null;
+        }
         if (cancelled) return;
         if (vendor) {
           setVendorRow(vendor);
@@ -157,6 +163,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
             setVerificationApplicationStatus(String(verificationRows[0]?.application_status || "").toLowerCase() || null);
           }
         } else {
+          setVendorRow(null);
           setVerificationApplicationStatus(null);
         }
         // Profile page shell is now safe to show. Overview stats hydrate below; they should never keep the profile page in skeleton state.
