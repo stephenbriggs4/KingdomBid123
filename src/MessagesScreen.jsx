@@ -2683,6 +2683,7 @@ function DealRoomsHub({
             type="button"
             className={`kbdr2-hub-needs-me${needsMeOnly ? ' active' : ''}`}
             aria-pressed={needsMeOnly}
+            aria-label={`Show Deal Rooms needing my action (${needsMeCount})`}
             onClick={()=>setNeedsMeOnly(v=>!v)}
           >
             <span className="kbdr2-hub-needs-me-dot" aria-hidden="true"/>
@@ -5623,14 +5624,19 @@ ${summary}`, 'Milestone approved');
           .kbdr2-hub-hero h1{font-size:31px}
           .kbdr2-hub-hero p{font-size:12px;line-height:1.5}
           .kbdr2-hub-primary{width:auto;min-width:132px}
-          .kbdr2-hub-controls{align-items:stretch;flex-direction:column;gap:8px;margin:11px 0 10px}
-          .kbdr2-hub-tabs{width:100%;overflow-x:auto}
+          .kbdr2-hub-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:7px;margin:11px 0 10px}
+          .kbdr2-hub-tabs{width:auto;min-width:0;overflow-x:auto}
           .kbdr2-hub-tab{flex:1 0 auto}
-          .kbdr2-hub-needs-me{align-self:flex-start}
+          .kbdr2-hub-needs-me{align-self:center;white-space:nowrap}
           .kbdr2-hub-grid{grid-template-columns:1fr;gap:9px}
           .kbdr2-hub-room-card{min-height:0;padding:15px!important;border-radius:16px!important}
           .kbdr2-hub-conversation-row{grid-template-columns:38px minmax(0,1fr)}
           .kbdr2-hub-conversation-open{display:none}
+        }
+        @media(max-width:430px){
+          .kbdr2-hub-tab{gap:5px!important;padding:0 10px!important}
+          .kbdr2-hub-needs-me>span:nth-child(2){display:none}
+          .kbdr2-hub-needs-me{gap:7px!important;padding:0 10px!important}
         }
 
         /* ── TOP BAR ────────────────────────────────────────────── */
