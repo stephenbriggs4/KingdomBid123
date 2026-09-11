@@ -36809,8 +36809,8 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
         {view === "dallaspilot" && <div className="fb-concierge-stack">
           <section className="fb-concierge-metrics" aria-label="Reconciled pilot demand">
             <FBConciergeMetric label="Confirmed pilot churches" value={loadingValue || demandSummary?.confirmed_pilot_churches || 0} note="Active Concierge records explicitly marked for the pilot"/>
-            <FBConciergeMetric label="Unique church demand" value={loadingValue || demandSummary?.church_unique_entities || 0} note={`${demandSummary?.church_raw_rows || 0} source rows reconciled conservatively`}/>
-            <FBConciergeMetric label="Unique vendor demand" value={loadingValue || demandSummary?.vendor_unique_entities || 0} note={`${demandSummary?.vendor_raw_rows || 0} source rows; research leads are not bench vendors`}/>
+            <FBConciergeMetric label="Deduplicated church intake" value={loadingValue || demandSummary?.church_unique_entities || 0} note={`${demandSummary?.church_raw_rows || 0} source rows; intake is not qualification or commitment`}/>
+            <FBConciergeMetric label="Deduplicated vendor intake" value={loadingValue || demandSummary?.vendor_unique_entities || 0} note={`${demandSummary?.vendor_raw_rows || 0} source rows; research leads are not bench vendors`}/>
             <FBConciergeMetric label="Verified pilot groups" value={loadingValue || demandSummary?.verified_pilot_groups || 0} note="Joined DFW Facebook groups with explicit pilot relevance"/>
           </section>
           <section className="fb-concierge-metrics" aria-label="Dallas Pilot summary">
