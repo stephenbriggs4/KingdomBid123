@@ -27936,29 +27936,54 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
     };
   }, []);
 
-  const moneyCompact = (value)=>{
-    const n = Number(value || 0);
-    if (!Number.isFinite(n) || n <= 0) return null;
-    if (n >= 1000000) return `${(n/1000000).toFixed(n>=10000000?0:1)}M`;
-    if (n >= 1000) return `${Math.round(n/1000)}k`;
-    return formatMoney(n);
-  };
-
-  const parseBudgetValue = (value)=>{
-    if (typeof value === "number") return value;
-    if (!value) return 0;
-    const str = String(value);
-    const matches = [...str.matchAll(/(\d+(?:\.\d+)?)\s*([kKmM]?)/g)];
-    if (!matches.length) return 0;
+  const parseBudgetBounds = (value, explicitMin, explicitMax)=>{
+    const min = Number(explicitMin);
+    const max = Number(explicitMax);
+    if ((Number.isFinite(min) && min > 0) || (Number.isFinite(max) && max > 0)) {
+      return {
+        min: Number.isFinite(min) && min > 0 ? min : null,
+        max: Number.isFinite(max) && max > 0 ? max : null,
+      };
+    }
+    if (typeof value === 'number') {
+      return Number.isFinite(value) && value > 0 ? { min:value, max:value } : { min:null, max:null };
+    }
+    if (!value) return { min:null, max:null };
+    const matches = [...String(value).matchAll(/(\d[\d,]*(?:\.\d+)?)\s*([kKmM]?)/g)];
     const nums = matches.map(m=>{
-      const base = Number(m[1] || 0);
+      const base = Number(String(m[1] || '').replace(/,/g, ''));
       const suffix = (m[2] || '').toLowerCase();
       if (suffix === 'm') return base * 1000000;
       if (suffix === 'k') return base * 1000;
       return base;
-    }).filter(Boolean);
-    if (!nums.length) return 0;
-    return Math.round(nums.reduce((a,b)=>a+b,0) / nums.length);
+    }).filter(n => Number.isFinite(n) && n > 0);
+    if (!nums.length) return { min:null, max:null };
+    return { min:Math.min(...nums), max:Math.max(...nums) };
+  };
+
+  const formatBudgetDisplay = (project, bounds)=>{
+    const entered = typeof project?.budget === 'string' ? project.budget.trim() : '';
+    if (entered) return entered;
+    if (bounds.min && bounds.max && bounds.min !== bounds.max) return `${formatMoney(bounds.min)}–${formatMoney(bounds.max)}`;
+    if (bounds.min) return bounds.max ? formatMoney(bounds.max) : `From ${formatMoney(bounds.min)}`;
+    if (bounds.max) return `Up to ${formatMoney(bounds.max)}`;
+    return '$—';
+  };
+
+  const formatBudgetAggregate = (projectList)=>{
+    const totals = projectList.reduce((result, project) => {
+      const bounds = project.budgetBounds || { min:null, max:null };
+      if (!bounds.min && !bounds.max) return result;
+      return {
+        count: result.count + 1,
+        min: result.min + (bounds.min || 0),
+        max: result.max + (bounds.max || bounds.min || 0),
+      };
+    }, { count:0, min:0, max:0 });
+    if (!totals.count || !totals.max) return '—';
+    if (!totals.min) return `Up to ${formatMoney(totals.max)}`;
+    if (totals.min === totals.max) return formatMoney(totals.max);
+    return `${formatMoney(totals.min)}–${formatMoney(totals.max)}`;
   };
 
   const normalizedProjects = useMemo(() => (projects || []).map(project => {
@@ -27999,6 +28024,11 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
     const vendorPipeline = summarizeVendorPipeline(vendorLinks);
     const sharedStatus = deriveSharedProjectStatus({ project: normalized, relation, role, workspace });
     const attention = buildInteropAttentionSignals({ project: normalized, relation, role });
+    const budgetBounds = parseBudgetBounds(
+      normalized?.budget || normalized?.amount || 0,
+      normalized?.budget_min,
+      normalized?.budget_max,
+    );
     return {
       ...normalized,
       workspace,
@@ -28016,7 +28046,9 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       sharedStatusTone: sharedStatus.tone,
       sharedStatusKey: sharedStatus.key,
       priorityFlag: relation.priority || null,
-      budgetValue: parseBudgetValue(normalized?.budget || normalized?.amount || 0),
+      budgetBounds,
+      budgetSortValue: budgetBounds.max || budgetBounds.min || 0,
+      budgetDisplay: formatBudgetDisplay(normalized, budgetBounds),
       workspacePhaseLabel: PROJECT_PHASES.find(phase => phase.key === workspace?.phase)?.label || 'Kickoff',
       deliverableCount: Array.isArray(workspace?.deliverables) ? workspace.deliverables.length : 0,
     };
@@ -28096,7 +28128,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
     active: normalizedProjects.filter(p => p.laneKey === 'active').length,
     closeout: normalizedProjects.filter(p => p.laneKey === 'completed').length,
     priority: normalizedProjects.filter(p => p.priorityFlag === 'priority').length,
-    activeBudget: moneyCompact(normalizedProjects.filter(p=>['hired','active'].includes(p.laneKey)).reduce((sum,p)=>sum + (p.budgetValue || 0),0)) || '—',
+    activeBudget: formatBudgetAggregate(normalizedProjects.filter(p=>['hired','active'].includes(p.laneKey))),
   }), [normalizedProjects]);
 
   const activityItems = useMemo(() => normalizedProjects.map(project => {
@@ -28132,7 +28164,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       return base + unread * 30 + (p.bidsCount || 0) * 5 + (p.urgent ? 40 : 0);
     };
     list = [...list].sort((a,b)=>{
-      if (sortBy === 'budget') return (b.budgetValue || 0) - (a.budgetValue || 0);
+      if (sortBy === 'budget') return (b.budgetSortValue || 0) - (a.budgetSortValue || 0);
       if (sortBy === 'bids') return (b.bidsCount || 0) - (a.bidsCount || 0);
       if (sortBy === 'newest') return new Date(b.raw?.posted_at || b.posted || 0) - new Date(a.raw?.posted_at || a.posted || 0);
       return priorityScore(b) - priorityScore(a);
@@ -28538,7 +28570,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
                 topLabel={`${project.health.label}${project.priorityFlag === 'priority' ? ' · Priority' : ''}`}
                 avatarText={getInitialsSafe(project.church || 'FaithBid')}
                 meta={`${project.city || project.church || 'Remote'} · ${project.timeline || 'Flexible'}${unread > 0 ? ` · ${unread} unread` : ''}`}
-                value={moneyCompact(project.budgetValue) || project.budget || '$—'}
+                value={project.budgetDisplay}
                 actionLabel={String(primaryAction.label || 'Open project').replace(/\s*→\s*$/, '')}
                 onOpen={() => onSelect(project)}
                 onAction={primaryAction.onClick}
