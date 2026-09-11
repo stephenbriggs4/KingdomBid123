@@ -1350,7 +1350,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           ← Projects
         </button>
         <div style={{fontFamily:'DM Mono,monospace',fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
-          Project posted
+          Draft saved
         </div>
       </div>
 
@@ -1359,10 +1359,10 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         <div style={{background:'#fff', border:'1px solid #dfd5c2', borderRadius:22, padding:'32px 28px', textAlign:'center', boxShadow:'0 7px 20px rgba(28,40,20,0.06)', marginBottom:20}}>
           <div style={{width:72,height:72,borderRadius:'50%',background:'linear-gradient(135deg,#c9a45c,#b08840)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:30,color:'#fff',margin:'0 auto 18px',boxShadow:'0 8px 24px rgba(176,136,64,0.30)'}}>✦</div>
           <h1 style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 10px'}}>
-            Your project is live.
+            Your project brief is saved.
           </h1>
           <div style={{fontSize:14, color:'#565862', lineHeight:1.65, maxWidth:480, margin:'0 auto'}}>
-            Faith-aligned vendors have been notified. Most projects get their first proposal within a few hours.
+            This project is still a draft. Vendors have not been notified.
           </div>
         </div>
 
@@ -1375,10 +1375,10 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
             <div style={{fontFamily:'DM Mono,monospace', fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>What happens next</div>
           </div>
           {[
-            {num:'01',title:'Vendors review your project',body:'Marketplace Approved vendors in your category can see your posting and prepare bids when bidding is open.'},
-            {num:'02',title:'Bids arrive in your dashboard',body:"You'll get a notification for each new bid. Review amounts, timelines, and cover letters side by side."},
-            {num:'03',title:'Hire the right fit',body:'Message vendors, ask questions, then hit Hire. FaithBid records the deal and milestones.'},
-            {num:'04',title:'Leave a review',body:"When the project wraps, we'll remind you to review your vendor. It helps the whole community."},
+            {num:'01',title:'Review the draft',body:'Confirm the scope, budget, timeline, and category before you move forward.'},
+            {num:'02',title:'Explore potential vendors',body:'Compare Marketplace Approved profiles. Browsing does not notify or contact anyone.'},
+            {num:'03',title:'Choose the next step',body:'Publication and automatic vendor-notification behavior remain under pilot review.'},
+            {num:'04',title:'Keep the record together',body:'Once you hire, the Deal Room keeps messages, milestones, and the closing record with the project.'},
           ].map((s,i,arr)=>(
             <div key={s.num} style={{display:'grid', gridTemplateColumns:'56px 1fr', borderBottom: i < arr.length-1 ? '1px solid #efe7d9' : 'none'}}>
               <div style={{padding:'16px', display:'flex', alignItems:'flex-start', justifyContent:'center', paddingTop:18}}>
@@ -8497,6 +8497,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const [invitedVendorKeys, setInvitedVendorKeys] = useState(() => new Set());
   const [invitingVendorKeys, setInvitingVendorKeys] = useState(() => new Set());
   const [vendorPairSignalMaps, setVendorPairSignalMaps] = useState(() => makeEmptyVendorPairSignalMaps());
+  const [vendorPairSignalsLoading, setVendorPairSignalsLoading] = useState(false);
   const [vendorPairSignalRefreshKey, setVendorPairSignalRefreshKey] = useState(0);
   const [geoFitByVendorId, setGeoFitByVendorId] = useState(() => new Map());
   const refreshVendorPairSignalMaps = useCallback(() => {
@@ -8536,6 +8537,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     return projectSelectionOptions.find(p => ['open','review','draft'].includes(String(p.status || 'draft'))) || null;
   }, [projectSelectionOptions, storedVendorProjectSelection]);
   const inviteProjectId = String(matchContextProject?.id || '').trim();
+  const inviteSignalChurchId = String(firstNonEmpty(matchContextProject?.church_id, matchContextProject?.client_id, inviteChurchId, '')).trim();
   const hasProjectContext = !!inviteProjectId;
   const handleProjectContextRecovery = useCallback((event) => {
     if (event) { event.stopPropagation(); event.preventDefault(); }
@@ -8652,13 +8654,13 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   useEffect(() => { setPage(1); }, [search, category, sortBy]);
 
   useEffect(() => {
-    if (!inviteProjectId || !inviteChurchId) return;
+    if (!inviteProjectId || !inviteSignalChurchId) return;
     let cancelled = false;
     supabase
       .from('vendor_invites')
       .select('vendor_id')
       .eq('project_id', inviteProjectId)
-      .eq('church_id', inviteChurchId)
+      .eq('church_id', inviteSignalChurchId)
       .then(({ data, error }) => {
         if (cancelled || error) return;
         const next = new Set(safeArray(data).map(row => String(row?.vendor_id || '').trim()).filter(Boolean).map(vendorId => `${inviteProjectId}:${vendorId}`));
@@ -8666,24 +8668,32 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [inviteProjectId, inviteChurchId]);
+  }, [inviteProjectId, inviteSignalChurchId]);
 
   useEffect(() => {
     let cancelled = false;
-    if (!inviteProjectId || !inviteChurchId) {
+    if (!inviteProjectId || !inviteSignalChurchId) {
       setVendorPairSignalMaps(makeEmptyVendorPairSignalMaps());
+      setVendorPairSignalsLoading(false);
       return () => { cancelled = true; };
     }
-    fetchVendorPairSignalMaps({ projectId: inviteProjectId, churchId: inviteChurchId })
+    setVendorPairSignalsLoading(true);
+    fetchVendorPairSignalMaps({ projectId: inviteProjectId, churchId: inviteSignalChurchId })
       .then((maps) => {
         if (cancelled) return;
         setVendorPairSignalMaps(maps || makeEmptyVendorPairSignalMaps());
+        setVendorPairSignalsLoading(false);
       })
       .catch(() => {
-        if (!cancelled) setVendorPairSignalMaps(makeEmptyVendorPairSignalMaps());
+        if (!cancelled) {
+          const emptyMaps = makeEmptyVendorPairSignalMaps();
+          emptyMaps.sourceErrors.relationship_lookup = new Error('Relationship lookup failed');
+          setVendorPairSignalMaps(emptyMaps);
+          setVendorPairSignalsLoading(false);
+        }
       });
     return () => { cancelled = true; };
-  }, [inviteProjectId, inviteChurchId, vendorPairSignalRefreshKey]);
+  }, [inviteProjectId, inviteSignalChurchId, vendorPairSignalRefreshKey]);
 
   const toggleSave = (vendor, e) => {
     if (e) { e.stopPropagation(); e.preventDefault(); }
@@ -9768,7 +9778,13 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         ) : (
           <div className="kb-live-all-grid">
             {pagedVendors.length === 0 ? (
-              <div className="kb-vendor-empty">No vendors match those filters. <button type="button" className="kb-live-all-empty-link" onClick={clearVendorFilters}>Clear filters →</button></div>
+              <div className="kb-vendor-empty">
+                {vendors.length === 0
+                  ? 'No vendors are available in the marketplace yet. Approved vendor profiles will appear here as they join.'
+                  : activeFilterCount > 0
+                    ? <>No vendors match those filters. <button type="button" className="kb-live-all-empty-link" onClick={clearVendorFilters}>Clear filters →</button></>
+                    : 'No vendors are available in this view.'}
+              </div>
             ) : pagedVendors.map((vendor, index) => {
               const vendorKey = String(vendor?.id || vendor?.user_id || vendor?.name || index);
               const isSaved = effectiveSavedVendorIds.has(vendorKey);
@@ -9780,12 +9796,24 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               const inviteKey = getInviteKey(vendor);
               const vendorDeal = vendorDealStateByKey.get(vendorKey) || {};
               const displayDealState = vendorDeal.displayDealState || 'not_contacted';
-              const dealStatusLabel = vendorDeal.dealSummary?.statusLabel || getDealStateSummary(displayDealState, { role: 'church' }).statusLabel;
               const hasInviteProject = !!String(matchContextProject?.id || '').trim();
               const hasInviteUser = !!String(currentUser?.id || '').trim();
+              const relationshipUnavailable = displayDealState === 'not_contacted' && Object.keys(vendorPairSignalMaps?.sourceErrors || {}).length > 0;
+              const relationshipUnconfirmed = displayDealState === 'not_contacted' && (vendorPairSignalsLoading || relationshipUnavailable);
+              const dealStatusLabel = !hasInviteProject
+                ? 'Available'
+                : vendorPairSignalsLoading
+                  ? 'Checking relationship'
+                  : relationshipUnavailable
+                    ? 'Relationship unavailable'
+                    : displayDealState === 'not_contacted'
+                      ? 'Available'
+                      : vendorDeal.dealSummary?.statusLabel || getDealStateSummary(displayDealState, { role: 'church' }).statusLabel;
               const isInviting = invitingVendorKeys.has(inviteKey);
-              const inviteDisabled = !hasInviteProject ? false : (!hasInviteUser || isInviting || displayDealState !== 'not_contacted');
-              const inviteLabel = getInviteButtonLabelForDealState(displayDealState, { isInviting, hasProject: hasInviteProject, hasUser: hasInviteUser });
+              const inviteDisabled = !hasInviteProject ? false : (!hasInviteUser || isInviting || relationshipUnconfirmed || displayDealState !== 'not_contacted');
+              const inviteLabel = relationshipUnconfirmed
+                ? (vendorPairSignalsLoading ? 'Checking relationship…' : 'Relationship unavailable')
+                : getInviteButtonLabelForDealState(displayDealState, { isInviting, hasProject: hasInviteProject, hasUser: hasInviteUser });
               const matchPercent = Math.max(0, Math.min(100, Number(
                 recommendedFit?.score
                 ?? recommendedFit?.percent

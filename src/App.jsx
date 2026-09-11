@@ -1355,17 +1355,17 @@ function getSuccessMomentConfig(type, ctx = {}) {
     return {
       type,
       kind: "celebrate-light",
-      eyebrow: "Brief published",
-      title: "Project posted.",
-      subtitle: "Your brief is live and ready for qualified vendors to review.",
-      steps: ["Brief saved", "Vendor category matched", "Project room opened"],
+      eyebrow: "Draft saved",
+      title: "Project brief saved.",
+      subtitle: "Your brief is still a draft. No vendors have been notified.",
+      steps: ["Draft saved", "Project details recorded", "Ready for review"],
       meta: [
         ["Project", projectTitle],
         ["Budget", ctx.budget || ctx.project?.budget || "Shared in brief"],
-        ["Timeline", timelineLabel || "Open for bids"],
+        ["Timeline", timelineLabel || "Draft"],
       ],
       primaryLabel: "Open project",
-      secondaryLabel: "Invite vendors",
+      secondaryLabel: "Browse vendors",
     };
   }
 
@@ -5064,6 +5064,25 @@ function addRowsToVendorPairMap(map, rows = [], kind = '') {
   });
 }
 
+function addVendorPairIdentityAliases(maps, identities = []) {
+  const signalMaps = [
+    maps?.invitesByVendor,
+    maps?.linksByVendor,
+    maps?.conversationsByVendor,
+    maps?.bidsByVendor,
+  ];
+  safeArray(identities).forEach(identity => {
+    const vendorRowId = normalizeVendorPairSignalKey(identity?.id);
+    const vendorUserId = normalizeVendorPairSignalKey(identity?.user_id);
+    if (!vendorRowId || !vendorUserId) return;
+    signalMaps.forEach(map => {
+      if (!(map instanceof Map)) return;
+      const signal = getVendorPairSignalMapEntry(map, vendorUserId, vendorRowId);
+      if (signal) setVendorPairSignalMapEntry(map, signal, [vendorRowId, vendorUserId]);
+    });
+  });
+}
+
 async function runVendorPairSignalSource(label, factory) {
   try {
     const result = await factory();
@@ -5134,6 +5153,25 @@ async function fetchVendorPairSignalMaps({ projectId, churchId } = {}) {
   });
   if (bidResult.error) maps.sourceErrors.bids = bidResult.error;
   addRowsToVendorPairMap(maps.bidsByVendor, bidResult.data, 'bid');
+
+  // Conversations and bids use the vendor's auth user id, while a cached
+  // marketplace card can contain only the public vendors.id. Bridge those two
+  // identities so a real relationship never disappears behind a stale cache.
+  const signalVendorUserIds = Array.from(new Set([
+    ...conversations.map(row => normalizeVendorPairSignalKey(row?.vendor_id)),
+    ...safeArray(bidResult.data).map(row => normalizeVendorPairSignalKey(row?.vendor_user_id || row?.vendor_id)),
+  ].filter(Boolean)));
+  if (signalVendorUserIds.length) {
+    const identityResult = await runVendorPairSignalSource('vendor_identity_aliases', () =>
+      runSupabaseWithTimeout(
+        supabase.from('vendors').select('id,user_id').in('user_id', signalVendorUserIds).limit(500),
+        'Vendor identity aliases',
+        6500
+      )
+    );
+    if (identityResult.error) maps.sourceErrors.vendor_identity_aliases = identityResult.error;
+    addVendorPairIdentityAliases(maps, identityResult.data);
+  }
 
   const conversationIds = conversations.map(row => row?.id).filter(Boolean);
   if (conversationIds.length) {
@@ -20068,7 +20106,7 @@ const PS_MILESTONES = [
 function starFill(n){return "★".repeat(n);}
 function statusBadge(status,urgent){
   if(urgent) return <span className="status-badge sb-urgent"> Urgent</span>;
-  if(status==="open") return <span className="status-badge sb-review">Draft</span>;
+  if(status==="open") return <span className="status-badge sb-open">Open</span>;
   if(status==="review") return <span className="status-badge sb-review">In Review</span>;
   if(status==="hired") return <span className="status-badge sb-hired">Hired</span>;
   return <span className="status-badge sb-review">Draft</span>;
@@ -24118,7 +24156,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           ← Projects
         </button>
         <div style={{fontFamily:'DM Mono,monospace',fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
-          Project posted
+          Draft saved
         </div>
       </div>
 
@@ -24127,10 +24165,10 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         <div style={{background:'#fff', border:'1px solid #dfd5c2', borderRadius:22, padding:'32px 28px', textAlign:'center', boxShadow:'0 7px 20px rgba(28,40,20,0.06)', marginBottom:20}}>
           <div style={{width:72,height:72,borderRadius:'50%',background:'linear-gradient(135deg,#c9a45c,#b08840)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:30,color:'#fff',margin:'0 auto 18px',boxShadow:'0 8px 24px rgba(176,136,64,0.30)'}}>✦</div>
           <h1 style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 10px'}}>
-            Your project is live.
+            Your project brief is saved.
           </h1>
           <div style={{fontSize:14, color:'#565862', lineHeight:1.65, maxWidth:480, margin:'0 auto'}}>
-            Faith-aligned vendors have been notified. Most projects get their first proposal within a few hours.
+            This project is still a draft. Vendors have not been notified.
           </div>
         </div>
 
@@ -24143,10 +24181,10 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
             <div style={{fontFamily:'DM Mono,monospace', fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>What happens next</div>
           </div>
           {[
-            {num:'01',title:'Vendors review your project',body:'Marketplace Approved vendors in your category can see your posting and prepare bids when bidding is open.'},
-            {num:'02',title:'Bids arrive in your dashboard',body:"You'll get a notification for each new bid. Review amounts, timelines, and cover letters side by side."},
-            {num:'03',title:'Hire the right fit',body:'Message vendors, ask questions, then hit Hire. FaithBid records the deal and milestones.'},
-            {num:'04',title:'Leave a review',body:"When the project wraps, we'll remind you to review your vendor. It helps the whole community."},
+            {num:'01',title:'Review the draft',body:'Confirm the scope, budget, timeline, and category before you move forward.'},
+            {num:'02',title:'Explore potential vendors',body:'Compare Marketplace Approved profiles. Browsing does not notify or contact anyone.'},
+            {num:'03',title:'Choose the next step',body:'Publication and automatic vendor-notification behavior remain under pilot review.'},
+            {num:'04',title:'Keep the record together',body:'Once you hire, the Deal Room keeps messages, milestones, and the closing record with the project.'},
           ].map((s,i,arr)=>(
             <div key={s.num} style={{display:'grid', gridTemplateColumns:'56px 1fr', borderBottom: i < arr.length-1 ? '1px solid #efe7d9' : 'none'}}>
               <div style={{padding:'16px', display:'flex', alignItems:'flex-start', justifyContent:'center', paddingTop:18}}>
@@ -31275,6 +31313,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const [invitedVendorKeys, setInvitedVendorKeys] = useState(() => new Set());
   const [invitingVendorKeys, setInvitingVendorKeys] = useState(() => new Set());
   const [vendorPairSignalMaps, setVendorPairSignalMaps] = useState(() => makeEmptyVendorPairSignalMaps());
+  const [vendorPairSignalsLoading, setVendorPairSignalsLoading] = useState(false);
   const [vendorPairSignalRefreshKey, setVendorPairSignalRefreshKey] = useState(0);
   const [geoFitByVendorId, setGeoFitByVendorId] = useState(() => new Map());
   const refreshVendorPairSignalMaps = useCallback(() => {
@@ -31314,6 +31353,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     return projectSelectionOptions.find(p => ['open','review','draft'].includes(String(p.status || 'draft'))) || null;
   }, [projectSelectionOptions, storedVendorProjectSelection]);
   const inviteProjectId = String(matchContextProject?.id || '').trim();
+  const inviteSignalChurchId = String(firstNonEmpty(matchContextProject?.church_id, matchContextProject?.client_id, inviteChurchId, '')).trim();
   const hasProjectContext = !!inviteProjectId;
   const handleProjectContextRecovery = useCallback((event) => {
     if (event) { event.stopPropagation(); event.preventDefault(); }
@@ -31430,13 +31470,13 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   useEffect(() => { setPage(1); }, [search, category, sortBy]);
 
   useEffect(() => {
-    if (!inviteProjectId || !inviteChurchId) return;
+    if (!inviteProjectId || !inviteSignalChurchId) return;
     let cancelled = false;
     supabase
       .from('vendor_invites')
       .select('vendor_id')
       .eq('project_id', inviteProjectId)
-      .eq('church_id', inviteChurchId)
+      .eq('church_id', inviteSignalChurchId)
       .then(({ data, error }) => {
         if (cancelled || error) return;
         const next = new Set(safeArray(data).map(row => String(row?.vendor_id || '').trim()).filter(Boolean).map(vendorId => `${inviteProjectId}:${vendorId}`));
@@ -31444,24 +31484,32 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [inviteProjectId, inviteChurchId]);
+  }, [inviteProjectId, inviteSignalChurchId]);
 
   useEffect(() => {
     let cancelled = false;
-    if (!inviteProjectId || !inviteChurchId) {
+    if (!inviteProjectId || !inviteSignalChurchId) {
       setVendorPairSignalMaps(makeEmptyVendorPairSignalMaps());
+      setVendorPairSignalsLoading(false);
       return () => { cancelled = true; };
     }
-    fetchVendorPairSignalMaps({ projectId: inviteProjectId, churchId: inviteChurchId })
+    setVendorPairSignalsLoading(true);
+    fetchVendorPairSignalMaps({ projectId: inviteProjectId, churchId: inviteSignalChurchId })
       .then((maps) => {
         if (cancelled) return;
         setVendorPairSignalMaps(maps || makeEmptyVendorPairSignalMaps());
+        setVendorPairSignalsLoading(false);
       })
       .catch(() => {
-        if (!cancelled) setVendorPairSignalMaps(makeEmptyVendorPairSignalMaps());
+        if (!cancelled) {
+          const emptyMaps = makeEmptyVendorPairSignalMaps();
+          emptyMaps.sourceErrors.relationship_lookup = new Error('Relationship lookup failed');
+          setVendorPairSignalMaps(emptyMaps);
+          setVendorPairSignalsLoading(false);
+        }
       });
     return () => { cancelled = true; };
-  }, [inviteProjectId, inviteChurchId, vendorPairSignalRefreshKey]);
+  }, [inviteProjectId, inviteSignalChurchId, vendorPairSignalRefreshKey]);
 
   const toggleSave = (vendor, e) => {
     if (e) { e.stopPropagation(); e.preventDefault(); }
@@ -32546,7 +32594,13 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         ) : (
           <div className="kb-live-all-grid">
             {pagedVendors.length === 0 ? (
-              <div className="kb-vendor-empty">No vendors match those filters. <button type="button" className="kb-live-all-empty-link" onClick={clearVendorFilters}>Clear filters →</button></div>
+              <div className="kb-vendor-empty">
+                {vendors.length === 0
+                  ? 'No vendors are available in the marketplace yet. Approved vendor profiles will appear here as they join.'
+                  : activeFilterCount > 0
+                    ? <>No vendors match those filters. <button type="button" className="kb-live-all-empty-link" onClick={clearVendorFilters}>Clear filters →</button></>
+                    : 'No vendors are available in this view.'}
+              </div>
             ) : pagedVendors.map((vendor, index) => {
               const vendorKey = String(vendor?.id || vendor?.user_id || vendor?.name || index);
               const isSaved = effectiveSavedVendorIds.has(vendorKey);
@@ -32558,12 +32612,24 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               const inviteKey = getInviteKey(vendor);
               const vendorDeal = vendorDealStateByKey.get(vendorKey) || {};
               const displayDealState = vendorDeal.displayDealState || 'not_contacted';
-              const dealStatusLabel = vendorDeal.dealSummary?.statusLabel || getDealStateSummary(displayDealState, { role: 'church' }).statusLabel;
               const hasInviteProject = !!String(matchContextProject?.id || '').trim();
               const hasInviteUser = !!String(currentUser?.id || '').trim();
+              const relationshipUnavailable = displayDealState === 'not_contacted' && Object.keys(vendorPairSignalMaps?.sourceErrors || {}).length > 0;
+              const relationshipUnconfirmed = displayDealState === 'not_contacted' && (vendorPairSignalsLoading || relationshipUnavailable);
+              const dealStatusLabel = !hasInviteProject
+                ? 'Available'
+                : vendorPairSignalsLoading
+                  ? 'Checking relationship'
+                  : relationshipUnavailable
+                    ? 'Relationship unavailable'
+                    : displayDealState === 'not_contacted'
+                      ? 'Available'
+                      : vendorDeal.dealSummary?.statusLabel || getDealStateSummary(displayDealState, { role: 'church' }).statusLabel;
               const isInviting = invitingVendorKeys.has(inviteKey);
-              const inviteDisabled = !hasInviteProject ? false : (!hasInviteUser || isInviting || displayDealState !== 'not_contacted');
-              const inviteLabel = getInviteButtonLabelForDealState(displayDealState, { isInviting, hasProject: hasInviteProject, hasUser: hasInviteUser });
+              const inviteDisabled = !hasInviteProject ? false : (!hasInviteUser || isInviting || relationshipUnconfirmed || displayDealState !== 'not_contacted');
+              const inviteLabel = relationshipUnconfirmed
+                ? (vendorPairSignalsLoading ? 'Checking relationship…' : 'Relationship unavailable')
+                : getInviteButtonLabelForDealState(displayDealState, { isInviting, hasProject: hasInviteProject, hasUser: hasInviteUser });
               const matchPercent = Math.max(0, Math.min(100, Number(
                 recommendedFit?.score
                 ?? recommendedFit?.percent
@@ -43851,7 +43917,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     if (normalizeAuthRole(currentRole) !== "church") {
       setResumeState({
         status: "role_mismatch",
-        message: "This is a church project draft, so it can only be published from a church account. The draft has not been deleted.",
+        message: "This is a church project draft, so it can only be saved from a church account. The draft has not been deleted.",
         project: record.project,
       });
       return;
@@ -43860,7 +43926,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     resumeAttemptRef.current = true;
     try {
       if (record.state === "posting" || record.state === "retry_required") {
-        setResumeState({ status: "checking", message: "Checking whether your project already posted…", project: record.project });
+        setResumeState({ status: "checking", message: "Checking whether your project draft was already saved…", project: record.project });
         const match = await findMatchingResumedProject(currentUser, record);
         if (match.error) {
           logError("guest-project-resume-reconcile", match.error, { userId: currentUser.id, state: record.state });
@@ -43877,13 +43943,13 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
           if (typeof setRole === "function") setRole("church");
           setPostedFromResume(true);
           setPosted(true);
-          showToast && showToast("Project restored — it was already posted.");
+          showToast && showToast("Project restored — the draft was already saved.");
           return;
         }
         if (record.state === "retry_required" && !allowRetry) {
           setResumeState({
             status: "retry_required",
-            message: "Your account is ready, but the previous publish attempt did not complete. Your full draft is preserved.",
+            message: "Your account is ready, but the previous save attempt did not complete. Your full draft is preserved.",
             project: record.project,
           });
           return;
@@ -43900,19 +43966,19 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
         return;
       }
 
-      setResumeState({ status: "posting", message: "Restoring and publishing your project…", project: claimed.record.project });
+      setResumeState({ status: "posting", message: "Restoring and saving your project draft…", project: claimed.record.project });
       await postProjectWithUser(currentUser, claimed.record.project);
       clearGuestProjectResumeDraft();
       if (typeof setRole === "function") setRole("church");
       setPostedFromResume(true);
       setPosted(true);
-      showToast && showToast("Project posted!");
+      showToast && showToast("Project draft saved!");
     } catch (err) {
       logError("guest-project-resume-post", err, { userId: currentUser?.id });
       releaseGuestProjectResumeDraftForRetry();
       setResumeState({
         status: "retry_required",
-        message: "We signed you in and kept the complete draft, but publishing did not finish. Nothing was discarded.",
+        message: "We signed you in and kept the complete draft, but saving did not finish. Nothing was discarded.",
         project: record.project,
       });
     } finally {
@@ -43930,7 +43996,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
       try {
         if (typeof setRole === "function") setRole("church");
         await postProjectWithUser(currentUser, data);
-        showToast && showToast("Project posted!");
+        showToast && showToast("Project draft saved!");
         if (typeof setRole === "function") setRole("church");
         nav("projects");
       } catch (err) {
@@ -44024,7 +44090,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
       } catch (err) {
         logError("guest-post-project-insert", err);
         prepareGuestProjectSignInResume({ state: "retry_required" });
-        setAcctErr("Account created, but publishing did not finish. Sign in to retry with your complete project draft preserved.");
+        setAcctErr("Account created, but saving did not finish. Sign in to retry with your complete project draft preserved.");
         setSubmitting(false);
         return;
       }
@@ -44042,11 +44108,11 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     return (
       <div className="page" style={{ maxWidth: 560, margin: "0 auto", padding: "60px 20px", textAlign: "center" }}>
         <div style={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg,var(--gold),var(--gold-light))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, margin: "0 auto 24px", color: "#fff" }}>✦</div>
-        <div style={{ fontFamily: "Playfair Display, serif", fontSize: 28, fontWeight: 700, color: "var(--navy)", marginBottom: 10 }}>Your project is live.</div>
+        <div style={{ fontFamily: "Playfair Display, serif", fontSize: 28, fontWeight: 700, color: "var(--navy)", marginBottom: 10 }}>Your project draft is saved.</div>
         <div style={{ fontSize: 15, color: "var(--text-muted)", lineHeight: 1.7, fontWeight: 400, marginBottom: 28 }}>
           {postedFromResume
-            ? "Your saved project was restored and published once. Faith-aligned vendors are being notified."
-            : "Check your email to confirm your account. Faith-aligned vendors are being notified."}
+            ? "Your saved project was restored once. No vendors have been notified."
+            : "Check your email to confirm your account. No vendors have been notified."}
         </div>
         <button type="button" className="btn-primary" onClick={() => nav("projects")} style={{ padding: "12px 24px" }}>Go to marketplace →</button>
       </div>
@@ -44078,7 +44144,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
         )}
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
           {canRetry && (
-            <button type="button" className="btn-primary" onClick={() => attemptGuestProjectResume({ allowRetry: true })} style={{ padding: "12px 22px" }}>Retry publishing →</button>
+            <button type="button" className="btn-primary" onClick={() => attemptGuestProjectResume({ allowRetry: true })} style={{ padding: "12px 22px" }}>Retry saving →</button>
           )}
           {needsOriginalAccount && (
             <button type="button" className="btn-primary" onClick={() => {

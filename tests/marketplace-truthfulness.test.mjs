@@ -30,3 +30,12 @@ test('public About page defers give-back terms to unresolved governance review',
   assert.doesNotMatch(aboutSource, /CHURCH_REBATE_RATE_LABEL/);
   assert.doesNotMatch(aboutSource, /Beta policy:/);
 });
+
+test('vendor empty state distinguishes zero inventory from zero filter matches', () => {
+  for (const source of [appSource, projectsSource]) {
+    assert.match(source, /vendors\.length === 0/);
+    assert.match(source, /No vendors are available in the marketplace yet/);
+    assert.match(source, /activeFilterCount > 0/);
+    assert.match(source, /No vendors match those filters/);
+  }
+});

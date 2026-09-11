@@ -5528,7 +5528,7 @@ ${summary}`, 'Milestone approved');
 
   return (
     <>
-    <div className={`kbdr2-root kb-inbox-dark-shell kb-inbox-render-polish kb-inbox-final-qa${isCanonicalDealRoom ? ' kbdr2-has-canonical-dealroom' : ''}${dealRoomsHubOpen ? ' kbdr2-dealrooms-hub-mode' : ''}`} style={{height:'calc(100vh - 62px)',background:dealRoomsHubOpen?'#f3ecdf':'#090b10',color:dealRoomsHubOpen?'#1C2814':'#f7f1e7',fontFamily:"'DM Sans',-apple-system,system-ui,sans-serif",overflow:'hidden',display:'flex'}}>
+    <div className={`kbdr2-root${dealRoomsHubOpen ? ' kbdr2-dealrooms-hub-mode' : ' kb-inbox-dark-shell kb-inbox-render-polish kb-inbox-final-qa'}${isCanonicalDealRoom ? ' kbdr2-has-canonical-dealroom' : ''}`} style={{height:'calc(100vh - 62px)',background:dealRoomsHubOpen?'#f3ecdf':'#090b10',color:dealRoomsHubOpen?'#1C2814':'#f7f1e7',fontFamily:"'DM Sans',-apple-system,system-ui,sans-serif",overflow:'hidden',display:'flex'}}>
       <style>{`
         .kbdr2-root *{box-sizing:border-box}
         .kbdr2-root button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
