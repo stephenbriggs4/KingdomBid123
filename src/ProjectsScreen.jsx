@@ -10912,7 +10912,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
                         {canProjectContextActions ? 'Active deal' : 'Contact vendor'}
                       </div>
                       <div style={{display:'inline-block',padding:'3px 10px',borderRadius:100,fontSize:12,fontWeight:600,background:canProjectContextActions?'#f0f7f0':'#f5f5f5',color:canProjectContextActions?'#2a5a2a':'#666'}}>
-                        {canProjectContextActions ? (profileDealSummary?.statusLabel || 'Not contacted') : 'No active project'}
+                        {canProjectContextActions ? (profileDealSummary?.statusLabel || 'No conversation yet') : 'No active project'}
                       </div>
                     </div>
                     <button

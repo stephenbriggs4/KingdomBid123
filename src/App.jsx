@@ -2947,7 +2947,7 @@ const ALLOWED_TRANSITIONS = Object.freeze({
 });
 
 const DEAL_STATE_META = {
-  not_contacted:     { label:"Not contacted",      shortLabel:"Not contacted",      bucket:"open",      color:"var(--text-muted)", bg:"rgba(0,0,0,0.05)",     desc:"No invite, conversation, or bid exists for this vendor-project pair." },
+  not_contacted:     { label:"No conversation yet", shortLabel:"No conversation",    bucket:"open",      color:"var(--text-muted)", bg:"rgba(0,0,0,0.05)",     desc:"No invite, conversation, or bid exists for this vendor-project pair." },
   invited:           { label:"Invited",            shortLabel:"Invited",            bucket:"open",      color:"var(--info)",       bg:"var(--info-bg)",       desc:"The vendor has been invited and has not responded or bid yet." },
   no_response:       { label:"No response yet",    shortLabel:"No response",        bucket:"open",      color:"var(--warn)",       bg:"var(--warn-bg)",       desc:"The invite window has passed without a vendor response or proposal." },
   inquiry:           { label:"Inquiry",            shortLabel:"Inquiry",            bucket:"open",      color:"var(--warn)",       bg:"var(--warn-bg)",       desc:"Early conversation before pricing is locked." },
@@ -3322,7 +3322,7 @@ function getDealStateSummary(state = "inquiry", { moneyLabel = (n) => `${n}`, ne
   switch (state) {
     case "not_contacted":
       return summaryFor({
-        statusLabel: role === "vendor" ? "Open opportunity" : "Not contacted",
+        statusLabel: role === "vendor" ? "Open opportunity" : "No conversation yet",
         body: role === "vendor"
           ? "No direct invite exists for this project yet."
           : "This vendor has not been invited or messaged for this project yet.",
@@ -33709,7 +33709,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
                         {canProjectContextActions ? 'Active deal' : 'Contact vendor'}
                       </div>
                       <div style={{display:'inline-block',padding:'3px 10px',borderRadius:100,fontSize:12,fontWeight:600,background:canProjectContextActions?'#f0f7f0':'#f5f5f5',color:canProjectContextActions?'#2a5a2a':'#666'}}>
-                        {canProjectContextActions ? (profileDealSummary?.statusLabel || 'Not contacted') : 'No active project'}
+                        {canProjectContextActions ? (profileDealSummary?.statusLabel || 'No conversation yet') : 'No active project'}
                       </div>
                     </div>
                     <button
