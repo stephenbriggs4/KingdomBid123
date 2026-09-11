@@ -34866,7 +34866,7 @@ const FB_CONCIERGE_CSS = [
   ".fb-concierge-search:focus,.fb-concierge-field input:focus,.fb-concierge-field select:focus,.fb-concierge-field textarea:focus{border-color:#8a6a22;box-shadow:0 0 0 3px rgba(176,136,64,.13)}",
   ".fb-concierge-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:18px}",
   ".fb-concierge-card{background:#fffdf8;border:1px solid rgba(28,40,20,.1);border-radius:15px;box-shadow:0 1px 2px rgba(28,40,20,.035)}",
-  ".fb-concierge-metric{padding:18px}.fb-concierge-metric-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#7b8174}.fb-concierge-metric-value{font-family:Playfair Display,serif;font-size:31px;font-weight:750;margin-top:7px;color:#1c2814}.fb-concierge-metric-note{font-size:11.5px;color:#777d71;margin-top:4px;line-height:1.45}",
+  ".fb-concierge-metric{padding:18px}.fb-concierge-metric-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#7b8174}.fb-concierge-metric-value{font-family:Playfair Display,serif;font-size:31px;font-weight:750;margin-top:7px;color:#1c2814}.fb-concierge-metric-value.money{font-family:DM Sans,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em}.fb-concierge-metric-note{font-size:11.5px;color:#777d71;margin-top:4px;line-height:1.45}",
   ".fb-concierge-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px}.fb-concierge-stack{display:grid;gap:18px}",
   ".fb-concierge-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 18px;border-bottom:1px solid rgba(28,40,20,.09)}",
   ".fb-concierge-panel-title{font-family:Playfair Display,serif;font-size:18px;font-weight:750}.fb-concierge-panel-note{font-size:11.5px;color:#7b8174;margin-top:3px}",
@@ -34878,8 +34878,8 @@ const FB_CONCIERGE_CSS = [
   ".fb-concierge-state{padding:52px 22px;text-align:center;color:#6d7468;font-size:12.5px}.fb-concierge-state strong{font-family:Playfair Display,serif;font-size:19px;color:#1c2814;display:block;margin-bottom:5px}",
   ".fb-concierge-notice{margin-bottom:16px;border:1px solid #bdddbf;background:#edf8ed;color:#315b35;border-radius:11px;padding:12px 14px;font-size:12px;line-height:1.5}.fb-concierge-error{border-color:#edc4c4;background:#fff0f0;color:#8d3030}",
   ".fb-concierge-modal-backdrop{position:fixed;inset:0;z-index:5000;background:rgba(18,24,15,.58);display:flex;align-items:center;justify-content:center;padding:20px}.fb-concierge-modal{width:min(820px,100%);max-height:min(880px,94vh);overflow:auto;background:#fffdf8;border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.28)}",
-  ".fb-concierge-modal-head{position:sticky;top:0;z-index:2;background:#fffdf8;padding:20px 22px 15px;border-bottom:1px solid rgba(28,40,20,.09)}.fb-concierge-modal-head h2{font-family:Playfair Display,serif;font-size:23px;margin:3px 0 4px}.fb-concierge-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:13px}.fb-concierge-step{height:4px;border-radius:8px;background:#e3dfd4}.fb-concierge-step.active{background:#8a6a22}",
-  ".fb-concierge-form{padding:20px 22px}.fb-concierge-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.fb-concierge-field{display:block;font-size:11px;font-weight:850;color:#313b2b}.fb-concierge-field.wide{grid-column:1/-1}.fb-concierge-field small{font-weight:600;color:#878c82}.fb-concierge-field input,.fb-concierge-field select,.fb-concierge-field textarea{display:block;width:100%;margin-top:6px;border:1px solid rgba(28,40,20,.15);border-radius:8px;background:#fff;padding:9px 10px;color:#1c2814;font:500 12px DM Sans,sans-serif;outline:none}.fb-concierge-field input,.fb-concierge-field select{height:38px}.fb-concierge-field textarea{min-height:76px;resize:vertical}.fb-concierge-checkbox{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;background:#f2eee4;font-size:11.5px;color:#566050}.fb-concierge-checkbox input{margin-top:2px}",
+  ".fb-concierge-modal-head{position:sticky;top:0;z-index:2;background:#fffdf8;padding:20px 22px 15px;border-bottom:1px solid rgba(28,40,20,.09)}.fb-concierge-modal-head h2{font-family:Playfair Display,serif;font-size:23px;margin:3px 0 4px}.fb-concierge-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:13px}.fb-concierge-step{height:4px;border-radius:8px;background:#e3dfd4}.fb-concierge-step.active{background:#8a6a22}",
+  ".fb-concierge-form{padding:20px 22px}.fb-concierge-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.fb-concierge-field{display:block;font-size:11px;font-weight:850;color:#313b2b}.fb-concierge-field.wide{grid-column:1/-1}.fb-concierge-field small{font-weight:600;color:#878c82}.fb-concierge-field input,.fb-concierge-field select,.fb-concierge-field textarea{display:block;width:100%;margin-top:6px;border:1px solid rgba(28,40,20,.15);border-radius:8px;background:#fff;padding:9px 10px;color:#1c2814;font:500 12px DM Sans,sans-serif;outline:none}.fb-concierge-field input::placeholder,.fb-concierge-field textarea::placeholder{color:#969c91;font-style:italic;font-weight:400;opacity:1}.fb-concierge-field input,.fb-concierge-field select{height:38px}.fb-concierge-field textarea{min-height:76px;resize:vertical}.fb-concierge-checkbox{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;background:#f2eee4;font-size:11.5px;color:#566050}.fb-concierge-checkbox input{margin-top:2px}",
   ".fb-concierge-safe{grid-column:1/-1;border:1px solid #bdddbf;background:#edf8ed;color:#315b35;border-radius:10px;padding:11px 12px;font-size:11px;line-height:1.5}.fb-concierge-modal-actions{display:flex;justify-content:flex-end;gap:9px;padding:15px 22px;border-top:1px solid rgba(28,40,20,.09);background:#f8f5ee}",
   ".fb-concierge-review-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.fb-concierge-review-summary{display:grid;gap:10px}.fb-concierge-review-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-review-card strong{display:block;color:#1c2814;font-size:12px;margin-bottom:4px}.fb-concierge-review-card span{color:#687061;font-size:11.5px;line-height:1.45}.fb-concierge-checklist{display:grid;gap:8px}.fb-concierge-check{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(28,40,20,.1);border-radius:9px;background:#fff;padding:9px 10px;color:#4f574b;font-size:11px;line-height:1.35}.fb-concierge-check.good{border-color:#bdddbf;background:#edf8ed;color:#315b35}.fb-concierge-check.bad{border-color:#edc4c4;background:#fff0f0;color:#8d3030}.fb-concierge-check-mark{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;background:rgba(28,40,20,.09)}.fb-concierge-row-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.fb-concierge-mini-btn{height:29px;padding:0 10px;border-radius:7px;border:1px solid rgba(28,40,20,.14);background:#fffdf8;color:#1c2814;font:850 10.5px DM Sans,sans-serif;cursor:pointer}.fb-concierge-mini-btn:hover{background:#f2eee3}",
   ".fb-concierge-review-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.fb-concierge-review-summary{display:grid;gap:10px}.fb-concierge-review-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-review-card strong{display:block;color:#1c2814;font-size:12px;margin-bottom:4px}.fb-concierge-review-card span{color:#687061;font-size:11.5px;line-height:1.45}.fb-concierge-checklist{display:grid;gap:8px}.fb-concierge-check{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(28,40,20,.1);border-radius:9px;background:#fff;padding:9px 10px;color:#4f574b;font-size:11px;line-height:1.35}.fb-concierge-check.good{border-color:#bdddbf;background:#edf8ed;color:#315b35}.fb-concierge-check.bad{border-color:#edc4c4;background:#fff0f0;color:#8d3030}.fb-concierge-check-mark{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;background:rgba(28,40,20,.09)}.fb-concierge-row-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.fb-concierge-mini-btn{height:29px;padding:0 10px;border-radius:7px;border:1px solid rgba(28,40,20,.14);background:#fffdf8;color:#1c2814;font:850 10.5px DM Sans,sans-serif;cursor:pointer}.fb-concierge-mini-btn:hover{background:#f2eee3}.fb-concierge-mini-btn.primary{background:#1c2814;border-color:#1c2814;color:#fff}.fb-concierge-mini-btn:disabled{opacity:.5;cursor:not-allowed}",
@@ -34937,7 +34937,8 @@ function FBConciergeBadge({ value, label }) {
 }
 
 function FBConciergeMetric({ label, value, note }) {
-  return <div className="fb-concierge-card fb-concierge-metric"><div className="fb-concierge-metric-label">{label}</div><div className="fb-concierge-metric-value">{value}</div><div className="fb-concierge-metric-note">{note}</div></div>;
+  const monetary = typeof value === "string" && value.trim().startsWith("$");
+  return <div className="fb-concierge-card fb-concierge-metric"><div className="fb-concierge-metric-label">{label}</div><div className={"fb-concierge-metric-value" + (monetary ? " money" : "")}>{value}</div><div className="fb-concierge-metric-note">{note}</div></div>;
 }
 
 function FBConciergeEmpty({ title, copy }) {
@@ -34976,6 +34977,8 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
       if (!form.primary_service_category) return "Choose a primary service category.";
       if (!form.service_detail.trim()) return "Describe the requested service or outcome.";
       if (["recurring_service", "hybrid"].includes(form.need_type) && form.service_frequency === "unknown") return "Choose a service frequency for a recurring or hybrid need.";
+    }
+    if (step === 4) {
       if (form.budget_band !== "not_disclosed_or_unknown" && !["confirmed", "working_range"].includes(form.budget_status)) return "A church-declared budget band requires Confirmed or Working Range budget status.";
     }
     return "";
@@ -34985,7 +34988,7 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
     event.preventDefault();
     const message = validate();
     if (message) { setError(message); return; }
-    if (step < 3) { setStep((current) => current + 1); setError(""); return; }
+    if (step < 4) { setStep((current) => current + 1); setError(""); return; }
     setBusy(true);
     setError("");
     const payload = Object.fromEntries(Object.entries(form).map(([key, value]) => [key, typeof value === "string" ? value.trim() : value]));
@@ -35010,10 +35013,10 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
       <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-intake-title">
         <div className="fb-concierge-modal-head">
-          <div className="fb-concierge-eyebrow">Step {step} of 3</div>
-          <h2 id="fb-concierge-intake-title">{step === 1 ? "Organization" : step === 2 ? "Primary contact" : "Initial need"}</h2>
-          <div className="fb-concierge-subtitle">{step === 1 ? "Start with the church or ministry requesting help." : step === 2 ? "Add the person FaithBid should coordinate with." : "Capture the church-declared need. Risk and sourcing gates remain locked for review."}</div>
-          <div className="fb-concierge-steps">{[1,2,3].map((item) => <span key={item} className={"fb-concierge-step" + (item <= step ? " active" : "")}/>)}</div>
+          <div className="fb-concierge-eyebrow">Step {step} of 4</div>
+          <h2 id="fb-concierge-intake-title">{step === 1 ? "Organization" : step === 2 ? "Primary contact" : step === 3 ? "Need basics" : "Budget & logistics"}</h2>
+          <div className="fb-concierge-subtitle">{step === 1 ? "Start with the church or ministry requesting help." : step === 2 ? "Add the person FaithBid should coordinate with." : step === 3 ? "Define what the church needs and what a good outcome looks like." : "Capture the church-declared constraints and assign the next action. Risk and sourcing gates remain locked for review."}</div>
+          <div className="fb-concierge-steps">{[1,2,3,4].map((item) => <span key={item} className={"fb-concierge-step" + (item <= step ? " active" : "")}/>)}</div>
         </div>
         <form onSubmit={submit}>
           <div className="fb-concierge-form">
@@ -35054,6 +35057,8 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
                 {textarea("Nice-to-haves", "nice_to_haves")}
                 {input("Decision target", "target_decision_on", { type: "date" })}
                 {input("Start target", "target_start_on", { type: "date" })}
+              </>}
+              {step === 4 && <>
                 {select("Church budget status", "budget_status", [["unknown","Unknown"],["working_range","Working range"],["confirmed","Confirmed"],["not_set","Not set"],["declined_to_share","Declined to share"]])}
                 {select("Church-declared budget band", "budget_band", [["not_disclosed_or_unknown","Not disclosed or unknown"],["under_5000","Under $5,000"],["5000_to_24999","$5,000–$24,999"],["25000_to_99999","$25,000–$99,999"],["100000_or_more","$100,000+"]])}
                 {select("Delivery requirement", "delivery_requirement", [["unknown","Unknown"],["on_site_local","On-site local"],["on_site_regional","On-site regional"],["on_site_nationwide","On-site nationwide"],["remote","Remote"],["hybrid","Hybrid"]])}
@@ -35069,7 +35074,7 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
           </div>
           <div className="fb-concierge-modal-actions">
             <button type="button" className="fb-concierge-btn" onClick={step === 1 ? onClose : () => { setStep((current) => current - 1); setError(""); }} disabled={busy}>{step === 1 ? "Cancel" : "Back"}</button>
-            <button type="submit" className="fb-concierge-btn primary" disabled={busy}>{busy ? "Creating safely…" : step < 3 ? "Continue" : "Create intake safely"}</button>
+            <button type="submit" className="fb-concierge-btn primary" disabled={busy}>{busy ? "Creating safely…" : step < 4 ? "Continue" : "Create intake safely"}</button>
           </div>
         </form>
       </section>
@@ -41670,6 +41675,10 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
   }, []);
 
   useEffect(() => {
+    if (!LAUNCHED) {
+      setStats((current) => ({ ...current, loaded:true }));
+      return undefined;
+    }
     let cancelled = false;
     const fetchStats = async () => {
       try {

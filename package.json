@@ -17,6 +17,8 @@
     "test:reconciliation-regressions": "node tests/reconciliation-regressions.test.mjs",
     "test:budget-truth": "node tests/budget-truth.test.mjs",
     "test:profile-role-reads": "node tests/profile-role-reads.test.mjs",
+    "test:concierge-intake-ux": "node tests/concierge-intake-ux.test.mjs",
+    "test:landing-prelaunch-requests": "node tests/landing-prelaunch-requests.test.mjs",
     "test:gpi-stage3": "node --test supabase/functions/gpi-occurrence-intent-auth/validation.test.ts",
     "test:gpi-stage4": "node --test supabase/functions/gpi-occurrence-notice-auth/validation.test.ts",
     "test:gpi-db": "supabase test db supabase/tests/gpi_stage2_stage3_contract_test.sql",
