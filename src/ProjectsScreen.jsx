@@ -3129,32 +3129,8 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
       seen.add(key);
       pool.push(project);
     };
-    // V830: Hand-picked briefs are curated/editorial and must not react to the
-    // All project briefs search/filter controls below them. Build this pool from
-    // the unfiltered open-project inventory, with samples only as empty-data fallback.
-    [...(openProjects || []), ...(SAMPLE_PROJECTS || [])].forEach(addProject);
-    const pick = (terms = [], fallbackIndex = 0) => {
-      const needles = terms.map(t => String(t || '').toLowerCase()).filter(Boolean);
-      const found = pool.find(project => {
-        const hay = `${project?.title || ''} ${project?.category || ''} ${project?.desc || ''} ${project?.skills?.join?.(' ') || ''}`.toLowerCase();
-        return needles.some(term => hay.includes(term));
-      });
-      return found || pool[fallbackIndex % Math.max(pool.length, 1)] || SAMPLE_PROJECTS?.[0] || openProjects?.[0] || null;
-    };
-    return [
-      pick(['website', 'web design', 'redesign'], 0),
-      pick(['brand', 'logo', 'identity'], 1),
-      pick(['video', 'livestream', 'stream'], 2),
-      pick(['social', 'marketing'], 3),
-      pick(['sermon', 'graphic', 'design'], 4),
-      pick(['audio', 'visual', 'lighting'], 5),
-      pick(['app', 'technology'], 6),
-      pick(['photography', 'photo'], 7),
-      pick(['writing', 'newsletter', 'brochure'], 8),
-      pick(['podcast', 'audio'], 9),
-      pick(['event'], 10),
-      pick(['security', 'system'], 11),
-    ];
+    (openProjects || []).forEach(addProject);
+    return pool.slice(0, 12);
   }, [openProjects]);
 
   /* ╔══ V43 — CARD/PROJECT MAPPING HELPERS ════════════════════════════════════
@@ -3205,15 +3181,13 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   const liveAllProjects = useMemo(() => {
     const seen = new Set();
     const out = [];
-    // V830: the toolbar above this section belongs only to All project briefs.
-    // When a search/filter/sort is active, do not backfill with unfiltered open
-    // projects or samples; an empty match should stay empty and show Clear filters.
+    // The toolbar belongs only to All project briefs. Empty persisted data and
+    // empty filtered results both remain truthful; neither is backfilled.
     const filtered = Array.isArray(filteredProjects) ? filteredProjects : [];
     const open = Array.isArray(openProjects) ? openProjects : [];
-    const samples = Array.isArray(SAMPLE_PROJECTS) ? SAMPLE_PROJECTS : [];
     const sources = hasBrowseRefinements
       ? [filtered]
-      : [filtered.length ? filtered : open, samples];
+      : [filtered.length ? filtered : open];
     for (const source of sources) {
       for (const p of source) {
         if (!p) continue;
@@ -3346,33 +3320,18 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
   const liveVisualDragRef = useRef({ active: false, x: 0, left: 0, moved: false });
   const liveVisualSuppressClickRef = useRef(false);
-  const [activeFeaturedTarget, setActiveFeaturedTarget] = useState(0);
   const liveVisualOpenRef = useRef({ target: null, at: 0 });
 
   // V90 cleanup: removed the old v86 mousemove tilt/parallax effect.
   // The featured rail now relies on native horizontal scroll plus the pointer
   // drag handlers below, which keeps the current look but removes scroll jank.
 
-  const liveFeaturedCards = [
-    { title: 'Brand Identity Design', category: 'Branding', budget: '$3,200', meta: 'Closes in 7 days', image: KB_LIVE_MARKETPLACE_IMAGES.brand, target: 1 },
-    { title: 'Sunday Service Videos', category: 'Video Production', budget: '$4,000', meta: 'Closes in 3 days', image: KB_LIVE_MARKETPLACE_IMAGES.video, target: 2 },
-    { title: 'Church Event Photography', category: 'Photography', budget: '$2,100', meta: 'Closes in 6 days', image: KB_LIVE_MARKETPLACE_IMAGES.photo || KB_LIVE_MARKETPLACE_IMAGES.video, target: 7 },
-    { title: 'Church Brand Refresh', category: 'Branding', budget: '$8,500', meta: 'Closes in 10 days', image: KB_LIVE_MARKETPLACE_IMAGES.strategy || KB_LIVE_MARKETPLACE_IMAGES.brand, target: 1 },
-    { title: 'Worship AVL Upgrade', category: 'AV & Production', budget: '$75,000', meta: 'Closes in 8 days', image: KB_LIVE_MARKETPLACE_IMAGES.livestream || KB_LIVE_MARKETPLACE_IMAGES.video, target: 2 },
-  ];
+  const liveFeaturedCards = marketplaceVisualProjectTargets.slice(1, 6).map((project, index) => ({
+    project,
+    target: index + 1,
+  }));
 
-  const liveFeaturedPreviewCards = [
-    { title: 'Church Website Refresh', category: 'Web Design', budget: '$2,500 budget', meta: 'Closes in 5 days', image: KB_LIVE_MARKETPLACE_IMAGES.lead, target: 0, summary: 'Refresh our church website with a warmer, clearer experience for visitors and members.' },
-    ...liveFeaturedCards.map(card => ({
-      ...card,
-      budget: `${card.budget} budget`,
-      summary: `${card.category} project with ${card.meta.toLowerCase()} already in motion.`,
-    })),
-  ];
-  const activeFeaturedPreview = liveFeaturedPreviewCards.find(card => card.target === activeFeaturedTarget) || liveFeaturedPreviewCards[0];
   const marketplaceIntelligenceStats = useMemo(() => {
-    // V830: Hand-picked briefs and their snapshot stats are editorial; the
-    // All project briefs toolbar below should not mutate this header area.
     const open = Array.isArray(openProjects) ? openProjects : [];
     const source = open;
     const budgets = source.map(p => {
@@ -3381,19 +3340,12 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
       if (!nums.length) return null;
       return Math.round(nums.reduce((sum, n) => sum + n, 0) / nums.length);
     }).filter(n => Number.isFinite(n));
-    const avgBudget = budgets.length ? Math.round(budgets.reduce((sum, n) => sum + n, 0) / budgets.length / 100) * 100 : 2400;
-    const categoryCounts = source.reduce((acc, p) => {
-      const label = String(p?.category || 'Design').trim() || 'Design';
-      acc[label] = (acc[label] || 0) + 1;
-      return acc;
-    }, {});
-    const fastest = Object.entries(categoryCounts).sort((a,b) => b[1] - a[1])[0]?.[0] || 'Design';
-    const closing = source.filter(p => p?.urgent || String(p?.timeline || p?.deadline || '').toLowerCase().includes('day')).length || 5;
+    const avgBudget = budgets.length ? Math.round(budgets.reduce((sum, n) => sum + n, 0) / budgets.length / 100) * 100 : null;
+    const closing = source.filter(p => p?.urgent || String(p?.timeline || p?.deadline || '').toLowerCase().includes('day')).length;
     return {
-      matched: Math.max(source.length || 0, 12),
-      closing: Math.max(closing, 5),
+      open: source.length,
+      closing,
       avgBudget,
-      fastest,
     };
   }, [openProjects]);
 
@@ -3425,34 +3377,6 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
       />
     );
   }
-
-  const liveMissionCards = [
-    { title: 'Website Design', sub: 'Modern websites that reflect your church mission', image: KB_LIVE_MARKETPLACE_IMAGES.website, target: 0 },
-    { title: 'Brand Strategy', sub: 'Identity and strategy that sets your ministry apart', image: KB_LIVE_MARKETPLACE_IMAGES.strategy, target: 1 },
-    { title: 'Video & Livestream', sub: 'Engaging video content and reliable livestreams', image: KB_LIVE_MARKETPLACE_IMAGES.video, target: 2 },
-    { title: 'Social Media', sub: 'Campaigns that connect and inspire', image: KB_LIVE_MARKETPLACE_IMAGES.social, target: 3 },
-    { title: 'Graphic Design', sub: 'Creative designs that communicate your message', image: KB_LIVE_MARKETPLACE_IMAGES.sermon, target: 4 },
-  ];
-  const livePopularCards = [
-    { title: 'Ministry Logo Design', price: '$450', meta: '5 proposals', image: KB_LIVE_MARKETPLACE_IMAGES.logo, target: 1 },
-    { title: 'Sunday Service Video', price: '$750', meta: '12 proposals', image: KB_LIVE_MARKETPLACE_IMAGES.video, target: 2 },
-    { title: 'Church App Setup', price: '$1,200', meta: '8 proposals', image: KB_LIVE_MARKETPLACE_IMAGES.app, target: 6 },
-    { title: 'Easter Sermon Graphics', price: '$350', meta: '6 proposals', image: KB_LIVE_MARKETPLACE_IMAGES.easter, target: 4 },
-    { title: 'Ministry Website Build', price: '$1,800', meta: '15 proposals', image: KB_LIVE_MARKETPLACE_IMAGES.website, target: 0 },
-  ];
-  const liveClosingCards = [
-    { title: 'Website Refresh', price: '$3,200 budget', left: '2 days left', target: 0 },
-    { title: "Mother's Day Campaign", price: '$1,000 budget', left: '3 days left', target: 3 },
-    { title: 'Livestream Upgrade', price: '$2,500 budget', left: '4 days left', target: 2 },
-    { title: 'Youth Ministry Brand', price: '$1,800 budget', left: '5 days left', target: 1 },
-    { title: 'Welcome Video', price: '$900 budget', left: '6 days left', target: 2 },
-  ];
-  const liveAllCards = [
-    { title: 'Church Directory Design', price: '$1,100', image: KB_RENDER_MATCH_CARD_IMAGES.brand, target: 0 },
-    { title: 'Online Giving Integration', price: '$1,500', image: KB_LIVE_MARKETPLACE_IMAGES.app, target: 6 },
-    { title: 'Small Group Guide Design', price: '$350', image: KB_LIVE_MARKETPLACE_IMAGES.writing, target: 8 },
-    { title: 'Custom Sermon Illustrations', price: '$250', image: KB_RENDER_MATCH_CARD_IMAGES.sermon, target: 4 },
-  ];
 
   const openLiveVisualTarget = (target) => {
     const now = Date.now();
@@ -3565,18 +3489,23 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
       <div className="kb-live-shell kb-mp-mobile-unified-shell kb-mp-exact-marketplace-shell">
 
-        {/* V838 — Church Projects ivory boundary: the command basin stops above Hand-picked briefs; curated content sits on the clay workspace. */}
-        {/* V70 — replace the plain Marketplace masthead with the curated Hand-picked briefs header. The card rail is intentionally detached below. */}
-        <header className="kb-live-hero kb-live-handpicked-hero" aria-label="Hand-picked briefs">
+        {/* Church Projects renders persisted inventory only; empty data remains explicit. */}
+        <header className="kb-live-hero kb-live-handpicked-hero" aria-label="Open project briefs">
           <div className="kb-live-section-head kb-live-handpicked-masthead">
             <div className="kb-live-section-headline">
-              <div className="kb-live-section-kicker">— Featured —</div>
-              <h1 className="kb-live-section-title">Hand-picked briefs</h1>
-              <div className="kb-live-feature-stats" aria-label="Featured project snapshot">
-                <span>{liveFeaturedCards.length + 1} curated briefs</span>
-                <span>${marketplaceIntelligenceStats.avgBudget.toLocaleString()} avg. budget</span>
-                <span>{marketplaceIntelligenceStats.closing} closing soon</span>
-              </div>
+              <div className="kb-live-section-kicker">— Church Projects —</div>
+              <h1 className="kb-live-section-title">{marketplaceIntelligenceStats.open ? 'Open project briefs' : 'No open project briefs yet'}</h1>
+              {marketplaceIntelligenceStats.open ? (
+                <div className="kb-live-feature-stats" aria-label="Open project snapshot">
+                  <span>{marketplaceIntelligenceStats.open} open {marketplaceIntelligenceStats.open === 1 ? 'brief' : 'briefs'}</span>
+                  {marketplaceIntelligenceStats.avgBudget !== null ? <span>${marketplaceIntelligenceStats.avgBudget.toLocaleString()} avg. budget</span> : null}
+                  <span>{marketplaceIntelligenceStats.closing} closing soon</span>
+                </div>
+              ) : (
+                <div className="kb-live-feature-stats" aria-label="Empty project marketplace">
+                  <span>Real church projects will appear here as they are posted.</span>
+                </div>
+              )}
             </div>
             <button type="button" className="kb-marketplace-below-seam-action kb-marketplace-below-seam-action--church-projects" onClick={onPost}>
               <span>Post a Project</span>
@@ -3586,13 +3515,13 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
           </div>
         </header>
 
-        <section className="kb-live-featured is-bare kb-live-featured-detached" aria-label="Featured Projects">
+        {marketplaceVisualProjectTargets.length ? <section className="kb-live-featured is-bare kb-live-featured-detached" aria-label="Open projects">
           {/* V71 — barely-visible edge arrows replace the heavy header controls. */}
           <button type="button" className="kb-live-rail-edge-arrow kb-live-rail-edge-arrow-left" onClick={() => scrollLiveRow('.kb-live-featured-row', -1)} aria-label="Previous featured projects">←</button>
           <button type="button" className="kb-live-rail-edge-arrow kb-live-rail-edge-arrow-right" onClick={() => scrollLiveRow('.kb-live-featured-row', 1)} aria-label="Next featured projects">→</button>
           <div className="kb-live-featured-row" onPointerDown={handleLiveRailPointerDown} onPointerMove={handleLiveRailPointerMove} onPointerUp={handleLiveRailPointerUp} onPointerCancel={handleLiveRailPointerUp} onPointerLeave={handleLiveRailPointerUp}>
             {(() => {
-              const leadFallback = { title: 'Church Website Refresh', category: 'Web Design', budget: '$2,500 budget', meta: 'Closes in 5 days', image: KB_LIVE_MARKETPLACE_IMAGES.lead, summary: 'Refresh our church website with a warmer, clearer experience for visitors and members.' };
+              const leadFallback = { title: 'Project brief', category: 'Project', budget: '$—', meta: 'Open' };
               const lead = liveCardData(0, leadFallback);
               const leadProject = lead.project || leadFallback;
               const leadImage = getProjectHeroImage(leadProject) || lead.image || '';
@@ -3616,11 +3545,11 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               );
             })()}
             {liveFeaturedCards.map((card) => {
-              const m = liveCardData(card.target, card);
-              const cardImage = getProjectHeroImage(m.project || card) || m.image || '';
-              const timelineLabel = m.timeline || getProjectCardTimelineLabel(m.project || card);
+              const m = liveCardData(card.target, { title: 'Project brief', category: 'Project', budget: '$—', meta: 'Open' });
+              const cardImage = getProjectHeroImage(m.project || {}) || m.image || '';
+              const timelineLabel = m.timeline || getProjectCardTimelineLabel(m.project || {});
               return (
-                <div key={card.title} className="faithbid-card-11a-rail-item">
+                <div key={m.project?.id || card.target} className="faithbid-card-11a-rail-item">
                   <FaithBidCard11A
                     image={cardImage}
                     imageAlt=""
@@ -3638,7 +3567,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               );
             })}
           </div>
-        </section>
+        </section> : null}
 
         {/* V72 — compact Marketplace utility filter above All Project Briefs. Surgical: same state pipeline, smaller UI surface. */}
         <div className="kbm-mp-toolbar" role="search" aria-label="Filter open briefs">
