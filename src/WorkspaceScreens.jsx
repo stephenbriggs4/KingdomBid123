@@ -26,7 +26,6 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
   }, []);
 
   useEffect(() => {
-    syncWorkspace();
     const handler = () => syncWorkspace();
     window.addEventListener('storage', handler);
     window.addEventListener('kb:storage-sync', handler);
@@ -36,8 +35,8 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
     };
   }, [syncWorkspace]);
 
-  const projects = Array.isArray(workspace?.projects) ? workspace.projects : [];
-  const vendors = Array.isArray(workspace?.vendors) ? workspace.vendors : [];
+  const projects = useMemo(() => Array.isArray(workspace?.projects) ? workspace.projects : [], [workspace]);
+  const vendors = useMemo(() => Array.isArray(workspace?.vendors) ? workspace.vendors : [], [workspace]);
   const criteria = normalizeCompareCriteria(workspace?.criteria || DEFAULT_COMPARE_CRITERIA);
   const selectedProject = projects.find(project => String(project?.id || '') === String(selectedProjectId || '')) || projects[0] || null;
   const hasSavedVendorsWithoutProject = vendors.length > 0 && !selectedProject;
@@ -49,7 +48,9 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
   useEffect(() => {
     let cancelled = false;
     if (!compareProjectId || !currentUser?.id) {
-      setCompareVendorPairSignalMaps(makeEmptyVendorPairSignalMaps());
+      Promise.resolve().then(() => {
+        if (!cancelled) setCompareVendorPairSignalMaps(makeEmptyVendorPairSignalMaps());
+      });
       return () => { cancelled = true; };
     }
     fetchVendorPairSignalMaps({ projectId: compareProjectId, churchId: currentUser?.id })
@@ -115,10 +116,10 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
     };
   });
 
-  const comparePhaseTwoSignals = scoredVendors.slice(0, 3).map(({ vendor, score }) => {
+  const comparePhaseTwoSignals = scoredVendors.slice(0, 3).map(({ vendor, score }, vendorIndex) => {
     const reasons = score?.reasons || {};
     return {
-      id: vendor?.id || vendor?.user_id || vendor?.name || Math.random(),
+      id: vendor?.id || vendor?.user_id || vendor?.name || `compare-signal-${vendorIndex}`,
       name: vendor?.name || 'Vendor',
       scoreLabel: score ? (score.rejected ? 'Needs fit review' : `${Math.round(score.percent || 0)}% fit`) : 'Add project context',
       fit: reasons.fit || 'Add project context to explain service fit.',
@@ -417,8 +418,9 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
                             <div style={{...smallMuted,fontSize:11.7,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{firstNonEmpty(vendor.role, vendor.category, 'Church vendor')} · {firstNonEmpty(vendor.city, 'Remote')} · {firstNonEmpty(vendor.price, 'Custom proposal')}</div>
                             {Array.isArray(vendor.recommendation_snapshot?.reasons) && vendor.recommendation_snapshot.reasons.length ? (
                               <>
-                                <div style={{...smallMuted,fontSize:10.6,lineHeight:1.45,marginTop:3}}>Shortlisted {vendor.recommendation_snapshot.display_date || 'earlier'} because: {vendor.recommendation_snapshot.reasons.join(' · ')}</div>
-                                {String(vendor.recommendation_snapshot.watchout || '').trim() ? <div style={{...smallMuted,fontSize:10.6,lineHeight:1.45,marginTop:2}}>Watchout noted {vendor.recommendation_snapshot.display_date || 'earlier'}: {vendor.recommendation_snapshot.watchout}</div> : null}
+                                <div style={{...smallMuted,fontSize:10.6,lineHeight:1.45,marginTop:3}}>Saved {vendor.recommendation_snapshot.display_date || 'earlier'} with these match signals: {vendor.recommendation_snapshot.reasons.join(' · ')}</div>
+                                {String(vendor.recommendation_snapshot.watchout || '').trim() ? <div style={{...smallMuted,fontSize:10.6,lineHeight:1.45,marginTop:2}}>Saved watchout {vendor.recommendation_snapshot.display_date || 'earlier'}: {vendor.recommendation_snapshot.watchout}</div> : null}
+                                <div style={{...smallMuted,fontSize:10.2,lineHeight:1.45,marginTop:2}}>Snapshot only; current verification and project facts appear above.</div>
                               </>
                             ) : null}
                             {compareVendorDealStateByKey.get(String(vendor?.id || vendor?.user_id || vendor?.name || '').trim())?.dealSummary?.statusLabel ? <div style={{...smallMuted,fontSize:10.6,lineHeight:1.45,marginTop:3}}>Current status: {compareVendorDealStateByKey.get(String(vendor?.id || vendor?.user_id || vendor?.name || '').trim())?.dealSummary?.statusLabel}</div> : null}
@@ -492,7 +494,6 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
   const [notifications, setNotifications] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [projects, setProjects] = useState([]);
-  const [compareState, setCompareState] = useState(() => loadCompareWorkspaceState());
   const [opsState, setOpsState] = useState(() => readLocalJson(KB_PROJECT_OPS_KEY, {}));
   const [interopState, setInteropState] = useState(() => listProjectInteropEntries());
   const [feedFilter, setFeedFilter] = useState('all');
@@ -528,7 +529,6 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
       }
     })();
     const sync = () => {
-      setCompareState(loadCompareWorkspaceState());
       setOpsState(readLocalJson(KB_PROJECT_OPS_KEY, {}));
       setInteropState(listProjectInteropEntries());
     };
