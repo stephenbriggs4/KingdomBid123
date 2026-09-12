@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sql = fs.readFileSync(
-  path.join(root, "supabase", "migrations", "20260912195217_repair_orphaned_hires_and_harden_fixture_cleanup.sql"),
+  path.join(root, "supabase", "migrations", "20260912195814_repair_orphaned_hires_and_harden_fixture_cleanup.sql"),
   "utf8",
 );
 
