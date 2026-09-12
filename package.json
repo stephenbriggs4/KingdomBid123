@@ -20,6 +20,7 @@
     "test:concierge-intake-ux": "node tests/concierge-intake-ux.test.mjs",
     "test:landing-prelaunch-requests": "node tests/landing-prelaunch-requests.test.mjs",
     "test:dealrooms-mobile-layout": "node tests/dealrooms-mobile-layout.test.mjs",
+    "test:concierge-command-hierarchy": "node tests/concierge-command-hierarchy.test.mjs",
     "test:gpi-stage3": "node --test supabase/functions/gpi-occurrence-intent-auth/validation.test.ts",
     "test:gpi-stage4": "node --test supabase/functions/gpi-occurrence-notice-auth/validation.test.ts",
     "test:gpi-db": "supabase test db supabase/tests/gpi_stage2_stage3_contract_test.sql",

@@ -34877,11 +34877,13 @@ const FB_CONCIERGE_CSS = [
   ".fb-concierge-live{display:flex;align-items:center;gap:7px;margin-top:14px;color:#697063;font-size:10.5px}.fb-concierge-live-dot{width:7px;height:7px;border-radius:50%;background:#3d8b56}.fb-concierge-live.error .fb-concierge-live-dot{background:#b64040}",
   ".fb-concierge-state{padding:52px 22px;text-align:center;color:#6d7468;font-size:12.5px}.fb-concierge-state strong{font-family:Playfair Display,serif;font-size:19px;color:#1c2814;display:block;margin-bottom:5px}",
   ".fb-concierge-notice{margin-bottom:16px;border:1px solid #bdddbf;background:#edf8ed;color:#315b35;border-radius:11px;padding:12px 14px;font-size:12px;line-height:1.5}.fb-concierge-error{border-color:#edc4c4;background:#fff0f0;color:#8d3030}",
+  ".fb-concierge-cold-start{position:relative;overflow:hidden;padding:34px;border:1px solid rgba(155,116,50,.20);border-radius:18px;background:linear-gradient(135deg,#fffdf8 0%,#f3ecde 100%);box-shadow:0 12px 34px rgba(42,53,32,.06)}.fb-concierge-cold-start:after{content:'';position:absolute;width:240px;height:240px;border-radius:50%;right:-110px;top:-130px;background:rgba(176,136,64,.10)}.fb-concierge-cold-start>*{position:relative;z-index:1}.fb-concierge-cold-start h2{margin:5px 0 9px;font-family:Playfair Display,serif;font-size:28px;color:#1c2814}.fb-concierge-cold-start p{max-width:720px;margin:0;color:#687061;font-size:12.5px;line-height:1.65}.fb-concierge-cold-start-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}",
   ".fb-concierge-modal-backdrop{position:fixed;inset:0;z-index:5000;background:rgba(18,24,15,.58);display:flex;align-items:center;justify-content:center;padding:20px}.fb-concierge-modal{width:min(820px,100%);max-height:min(880px,94vh);overflow:auto;background:#fffdf8;border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.28)}",
   ".fb-concierge-modal-head{position:sticky;top:0;z-index:2;background:#fffdf8;padding:20px 22px 15px;border-bottom:1px solid rgba(28,40,20,.09)}.fb-concierge-modal-head h2{font-family:Playfair Display,serif;font-size:23px;margin:3px 0 4px}.fb-concierge-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:13px}.fb-concierge-step{height:4px;border-radius:8px;background:#e3dfd4}.fb-concierge-step.active{background:#8a6a22}",
   ".fb-concierge-form{padding:20px 22px}.fb-concierge-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.fb-concierge-field{display:block;font-size:11px;font-weight:850;color:#313b2b}.fb-concierge-field.wide{grid-column:1/-1}.fb-concierge-field small{font-weight:600;color:#878c82}.fb-concierge-field input,.fb-concierge-field select,.fb-concierge-field textarea{display:block;width:100%;margin-top:6px;border:1px solid rgba(28,40,20,.15);border-radius:8px;background:#fff;padding:9px 10px;color:#1c2814;font:500 12px DM Sans,sans-serif;outline:none}.fb-concierge-field input::placeholder,.fb-concierge-field textarea::placeholder{color:#969c91;font-style:italic;font-weight:400;opacity:1}.fb-concierge-field input,.fb-concierge-field select{height:38px}.fb-concierge-field textarea{min-height:76px;resize:vertical}.fb-concierge-checkbox{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;background:#f2eee4;font-size:11.5px;color:#566050}.fb-concierge-checkbox input{margin-top:2px}",
   ".fb-concierge-safe{grid-column:1/-1;border:1px solid #bdddbf;background:#edf8ed;color:#315b35;border-radius:10px;padding:11px 12px;font-size:11px;line-height:1.5}.fb-concierge-modal-actions{display:flex;justify-content:flex-end;gap:9px;padding:15px 22px;border-top:1px solid rgba(28,40,20,.09);background:#f8f5ee}",
   ".fb-concierge-review-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.fb-concierge-review-summary{display:grid;gap:10px}.fb-concierge-review-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-review-card strong{display:block;color:#1c2814;font-size:12px;margin-bottom:4px}.fb-concierge-review-card span{color:#687061;font-size:11.5px;line-height:1.45}.fb-concierge-checklist{display:grid;gap:8px}.fb-concierge-check{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(28,40,20,.1);border-radius:9px;background:#fff;padding:9px 10px;color:#4f574b;font-size:11px;line-height:1.35}.fb-concierge-check.good{border-color:#bdddbf;background:#edf8ed;color:#315b35}.fb-concierge-check.bad{border-color:#edc4c4;background:#fff0f0;color:#8d3030}.fb-concierge-check-mark{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;background:rgba(28,40,20,.09)}.fb-concierge-row-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.fb-concierge-mini-btn{height:29px;padding:0 10px;border-radius:7px;border:1px solid rgba(28,40,20,.14);background:#fffdf8;color:#1c2814;font:850 10.5px DM Sans,sans-serif;cursor:pointer}.fb-concierge-mini-btn:hover{background:#f2eee3}",
+  ".fb-concierge-governance-groups{display:grid;gap:14px;padding:16px}.fb-concierge-governance-group{overflow:hidden;border:1px solid rgba(28,40,20,.10);border-radius:12px;background:#fff}.fb-concierge-governance-group.blocking{border-color:rgba(141,48,48,.20)}.fb-concierge-governance-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#f8f5ee;border-bottom:1px solid rgba(28,40,20,.08)}.fb-concierge-governance-group.blocking .fb-concierge-governance-group-head{background:#fff6f3}.fb-concierge-governance-group-title{font-size:12px;font-weight:900;color:#1c2814}.fb-concierge-governance-group-note{margin-top:2px;font-size:10.5px;color:#7b8174}.fb-concierge-governance-group-count{display:inline-flex;min-width:24px;height:24px;padding:0 7px;align-items:center;justify-content:center;border-radius:999px;background:rgba(28,40,20,.07);font-size:10px;font-weight:900;color:#4f574b}",
   ".fb-concierge-review-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.fb-concierge-review-summary{display:grid;gap:10px}.fb-concierge-review-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-review-card strong{display:block;color:#1c2814;font-size:12px;margin-bottom:4px}.fb-concierge-review-card span{color:#687061;font-size:11.5px;line-height:1.45}.fb-concierge-checklist{display:grid;gap:8px}.fb-concierge-check{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(28,40,20,.1);border-radius:9px;background:#fff;padding:9px 10px;color:#4f574b;font-size:11px;line-height:1.35}.fb-concierge-check.good{border-color:#bdddbf;background:#edf8ed;color:#315b35}.fb-concierge-check.bad{border-color:#edc4c4;background:#fff0f0;color:#8d3030}.fb-concierge-check-mark{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;background:rgba(28,40,20,.09)}.fb-concierge-row-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.fb-concierge-mini-btn{height:29px;padding:0 10px;border-radius:7px;border:1px solid rgba(28,40,20,.14);background:#fffdf8;color:#1c2814;font:850 10.5px DM Sans,sans-serif;cursor:pointer}.fb-concierge-mini-btn:hover{background:#f2eee3}.fb-concierge-mini-btn.primary{background:#1c2814;border-color:#1c2814;color:#fff}.fb-concierge-mini-btn:disabled{opacity:.5;cursor:not-allowed}",
   ".fb-concierge-queue{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px}.fb-concierge-queue-card{border:1px solid rgba(28,40,20,.1);border-radius:12px;background:#fff;padding:14px;display:grid;gap:11px}.fb-concierge-queue-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.fb-concierge-queue-head strong{font-family:Playfair Display,serif;font-size:16px;color:#1c2814}.fb-concierge-queue-meta{display:flex;gap:7px;flex-wrap:wrap}.fb-concierge-progress{height:7px;background:#e9e4d8;border-radius:99px;overflow:hidden}.fb-concierge-progress span{display:block;height:100%;background:#8a6a22;border-radius:inherit}.fb-concierge-candidates{display:grid;gap:9px}.fb-concierge-candidate{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#fff;padding:11px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.fb-concierge-candidate-main{min-width:0}.fb-concierge-candidate-main strong{color:#1c2814;font-size:12.5px}.fb-concierge-modal.wide{width:min(1040px,100%)}",
   ".fb-concierge-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:7px}.fb-concierge-choice{display:flex;align-items:flex-start;gap:8px;border:1px solid rgba(28,40,20,.1);border-radius:8px;background:#fff;padding:8px 9px;color:#4f574b;font-size:10.5px;font-weight:650;line-height:1.3}.fb-concierge-choice input{display:inline-block!important;width:14px!important;height:14px!important;min-height:0!important;margin:1px 0 0!important;padding:0!important;box-shadow:none!important;flex:0 0 14px}.fb-concierge-vendor-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px}.fb-concierge-vendor-stat{border:1px solid rgba(28,40,20,.09);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-vendor-stat strong{display:block;font-family:Playfair Display,serif;font-size:22px;color:#1c2814}.fb-concierge-vendor-stat span{display:block;margin-top:3px;color:#747b6f;font-size:10.5px}",
@@ -34947,6 +34949,16 @@ function FBConciergeEmpty({ title, copy }) {
 
 function FBConciergePanel({ title, note, count, actions, children }) {
   return <section className="fb-concierge-card"><div className="fb-concierge-panel-head"><div><div className="fb-concierge-panel-title">{title}</div>{note && <div className="fb-concierge-panel-note">{note}</div>}</div><div className="fb-concierge-row-actions">{actions}{count != null && <span className="fb-concierge-count">{count}</span>}</div></div>{children}</section>;
+}
+
+function FBConciergeGovernanceGroup({ title, note, items, tone = "open" }) {
+  if (!items.length) return null;
+  return <section className={`fb-concierge-governance-group ${tone}`} aria-label={`${title}: ${items.length}`}>
+    <div className="fb-concierge-governance-group-head"><div><div className="fb-concierge-governance-group-title">{title}</div><div className="fb-concierge-governance-group-note">{note}</div></div><span className="fb-concierge-governance-group-count">{items.length}</span></div>
+    <div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Decision</th><th>Status</th><th>Current truth</th><th>Next action</th></tr></thead><tbody>
+      {items.map((item) => <tr key={item.decision_key}><td><strong>{item.decision_title}</strong><span className="fb-concierge-muted">{item.decision_area}</span></td><td><FBConciergeBadge value={item.status}/></td><td>{item.current_truth}</td><td>{item.next_action}</td></tr>)}
+    </tbody></table></div>
+  </section>;
 }
 
 function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
@@ -36773,6 +36785,14 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
 
   const loadingValue = status === "loading" ? "—" : null;
   const unresolvedGovernanceDecisions = records.governanceDecisions.filter((item) => item.status !== "complete");
+  const hasConciergePipelineActivity = records.organizations.length > 0
+    || records.needs.length > 0
+    || records.vendors.length > 0
+    || records.matches.length > 0
+    || records.engagements.length > 0;
+  const blockingGovernanceDecisions = records.governanceDecisions.filter((item) => item.status !== "complete" && item.blocks_pilot);
+  const nonBlockingGovernanceDecisions = records.governanceDecisions.filter((item) => item.status !== "complete" && !item.blocks_pilot);
+  const completedGovernanceDecisions = records.governanceDecisions.filter((item) => item.status === "complete");
   const renderEmpty = (title, copy) => status === "loading"
     ? <FBConciergeEmpty title="Loading live concierge data…" copy="Reading the protected KingdomBid workspace."/>
     : <FBConciergeEmpty title={title} copy={copy}/>;
@@ -36799,7 +36819,17 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
         {success && <div className="fb-concierge-notice" role="status"><strong>Concierge update saved.</strong> {success} <button type="button" onClick={() => setSuccess("")} style={{marginLeft:8,border:0,background:"transparent",color:"inherit",textDecoration:"underline",cursor:"pointer",fontWeight:800}}>Dismiss</button></div>}
         {status === "error" && <div className="fb-concierge-notice fb-concierge-error" role="alert"><strong>Live connection needs attention.</strong> {error} <button type="button" onClick={() => void load()} style={{marginLeft:8,border:0,background:"transparent",color:"inherit",textDecoration:"underline",cursor:"pointer",fontWeight:800}}>Retry</button></div>}
 
-        {view === "command" && <>
+        {view === "command" && status === "ready" && !hasConciergePipelineActivity ? (
+          <section className="fb-concierge-cold-start" aria-labelledby="fb-concierge-cold-start-title">
+            <div className="fb-concierge-eyebrow">Dallas pilot · operating readiness</div>
+            <h2 id="fb-concierge-cold-start-title">The workspace is ready for Church #1.</h2>
+            <p>No Concierge organization, need, vetted bench vendor, match, or engagement has been recorded yet. {records.growthVendors.length ? `${records.growthVendors.length} Growth Engine vendor lead${records.growthVendors.length === 1 ? " is" : "s are"} still in evidence and consent review; ${records.growthVendors.length === 1 ? "it is" : "they are"} not represented as approved bench vendors.` : "New vendor leads will remain separate until evidence, consent, and Concierge vetting are complete."}</p>
+            <div className="fb-concierge-cold-start-actions">
+              <button type="button" className="fb-concierge-btn primary" onClick={() => setIntakeOpen(true)}>Create first intake</button>
+              <button type="button" className="fb-concierge-btn" onClick={() => setView("vendors")}>Review vendor evidence</button>
+            </div>
+          </section>
+        ) : view === "command" ? <>
           <section className="fb-concierge-metrics" aria-label="Concierge summary">
             <FBConciergeMetric label="Active needs" value={loadingValue || metrics.activeNeeds.length} note={records.organizations.length + " organizations recorded"}/>
             <FBConciergeMetric label="Vendors in vetting" value={loadingValue || metrics.vendorsInVetting} note="Not reviewed, in review, or expired"/>
@@ -36818,7 +36848,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
               <section className="fb-concierge-card fb-concierge-watch"><h3>Operational watch</h3><div className="fb-concierge-watch-row"><span>Intro fees to invoice</span><strong>{metrics.introToInvoice}</strong></div><div className="fb-concierge-watch-row"><span>Renewal check-ins</span><strong>{metrics.renewalCheckIns}</strong></div><div className="fb-concierge-watch-row"><span>Give-backs ready</span><strong>{metrics.giveBackReady}</strong></div><div className="fb-concierge-watch-row"><span>Integrity blockers</span><strong>{metrics.blockers}</strong></div></section>
             </aside>
           </div>
-        </>}
+        </> : null}
 
         {view === "dallaspilot" && <div className="fb-concierge-stack">
           <section className="fb-concierge-metrics" aria-label="Reconciled pilot demand">
@@ -36834,10 +36864,11 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
             <FBConciergeMetric label="Pilot engagements" value={loadingValue || allPilotEngagements.length} note={pilotActiveEngagements.length + " active or at risk"}/>
           </section>
           <FBConciergePanel title="Founder decision ledger" note="The system tracks these dependencies but never decides them silently." count={unresolvedGovernanceDecisions.length}>
-            <div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Decision</th><th>Status</th><th>Current truth</th><th>Next action</th></tr></thead><tbody>
-              {records.governanceDecisions.map((item) => <tr key={item.decision_key}><td><strong>{item.decision_title}</strong><span className="fb-concierge-muted">{item.decision_area}{item.blocks_pilot ? " · Blocks pilot milestone" : ""}</span></td><td><FBConciergeBadge value={item.status}/></td><td>{item.current_truth}</td><td>{item.next_action}</td></tr>)}
-              {!records.governanceDecisions.length && <tr><td colSpan={4}>{renderEmpty("Decision ledger unavailable.", "Refresh after the governance migration is installed.")}</td></tr>}
-            </tbody></table></div>
+            {records.governanceDecisions.length ? <div className="fb-concierge-governance-groups">
+              <FBConciergeGovernanceGroup title="Blocks pilot milestone" note="These dependencies remain unresolved and prevent a named pilot milestone." items={blockingGovernanceDecisions} tone="blocking"/>
+              <FBConciergeGovernanceGroup title="Open, not blocking" note="Tracked decisions that do not currently block the next pilot milestone." items={nonBlockingGovernanceDecisions}/>
+              <FBConciergeGovernanceGroup title="Completed" note="Resolved ledger entries retained as an audit trail." items={completedGovernanceDecisions} tone="complete"/>
+            </div> : renderEmpty("Decision ledger unavailable.", "Refresh after the governance migration is installed.")}
           </FBConciergePanel>
           {pilotOrganizationsSorted.map((org) => {
             const orgNeeds = pilotNeeds.filter((item) => item.organization_id === org.id);
