@@ -16,6 +16,7 @@
     "test:fixture-cleanup-contract": "node tests/fixture-cleanup-contract.test.mjs",
     "test:contrast-tokens": "node tests/contrast-tokens.test.mjs",
     "test:production-scratch-cleanup": "node tests/production-scratch-cleanup.test.mjs",
+    "test:pg-net-relocation": "node tests/pg-net-relocation.test.mjs",
     "test:marketplace-truthfulness": "node tests/marketplace-truthfulness.test.mjs",
     "test:migration-update-safety": "node tests/migration-update-safety.test.mjs",
     "test:reconciliation-regressions": "node tests/reconciliation-regressions.test.mjs",
