@@ -12,6 +12,7 @@
     "test:pilot-contract": "node tests/pilot-taxonomy-budget.test.mjs",
     "test:workspace-truth": "node tests/workspace-truth.test.mjs",
     "test:vendor-stage-language": "node tests/vendor-stage-language.test.mjs",
+    "test:vendor-directory-boundary": "node tests/vendor-directory-boundary.test.mjs",
     "test:marketplace-truthfulness": "node tests/marketplace-truthfulness.test.mjs",
     "test:migration-update-safety": "node tests/migration-update-safety.test.mjs",
     "test:reconciliation-regressions": "node tests/reconciliation-regressions.test.mjs",

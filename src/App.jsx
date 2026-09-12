@@ -4848,10 +4848,15 @@ const normalizeVendorAdmissionStatus = (value) => {
   return Object.values(KB_VENDOR_ADMISSION_STATUS).includes(status) ? status : KB_VENDOR_ADMISSION_STATUS.PENDING;
 };
 const isVendorAdmittedToDirectory = (vendor) => {
-  const status = normalizeVendorAdmissionStatus(vendor?.verification_status ?? vendor?.admissionStatus);
+  if (vendor?.suspended === true) return false;
+  const rawStatus = vendor?.verification_status ?? vendor?.admissionStatus;
+  const status = normalizeVendorAdmissionStatus(rawStatus);
+  if (status === KB_VENDOR_ADMISSION_STATUS.REJECTED) return false;
   // Existing pre-contract vendors received verified=true when admitted. Keep
-  // those rows visible while every new decision uses verification_status.
-  return status === KB_VENDOR_ADMISSION_STATUS.APPROVED || vendor?.verified === true;
+  // those rows visible only when they predate verification_status. Every new
+  // admission or rejection decision uses the explicit status.
+  return status === KB_VENDOR_ADMISSION_STATUS.APPROVED
+    || (rawStatus == null && vendor?.verified === true);
 };
 const KB_VENDOR_DIRECTORY_BASE_COLUMNS = "id,name,category,primary_category,category_tags,city,service_city,service_state,base_place_id,service_radius_miles,service_model,min_project_budget,max_project_budget,church_experience_count,completed_project_count,reference_count,response_speed_label,verified,verification_status,tier,founding_vendor,rating,reviews_count,projects_count,response_time,bio,tagline,user_id,image_url,created_at";
 const KB_VENDOR_DIRECTORY_MIN_COLUMNS = "id,name,category,city,verified,verification_status,user_id,created_at";
@@ -4886,7 +4891,8 @@ async function selectVendorDirectorySafe({ limit = 200, verifiedOnly = false, ti
   const apply = (query, columns, { ordering = true } = {}) => {
     let q = query
       .select(columns)
-      .or(`verification_status.eq.${KB_VENDOR_ADMISSION_STATUS.APPROVED},verified.eq.true`);
+      .or(`verification_status.eq.${KB_VENDOR_ADMISSION_STATUS.APPROVED},and(verification_status.is.null,verified.eq.true)`)
+      .eq('suspended', false);
     if (verifiedOnly) q = q.eq('verified', true);
     if (ordering) q = q.order('verified', { ascending: false }).order('created_at', { ascending: false });
     return q.limit(limit);
