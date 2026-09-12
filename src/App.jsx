@@ -39515,7 +39515,7 @@ const KB_LEGAL_DOC_CONTENT = {
     sections: [
       { heading: "1. Contractor Status", body: "The vendor (Contractor) is an independent contractor and not an employee, agent, partner, or joint venturer of the church (Client) or FaithBid. Nothing in this agreement shall create an employer-employee relationship. The Contractor shall be solely responsible for all taxes, withholdings, insurance, and other statutory requirements." },
       { heading: "2. Scope of Services", body: "The Contractor agrees to perform the specific services outlined in the project posting and accepted bid. Any scope changes must be agreed upon in writing by both parties through the FaithBid platform messaging system." },
-      { heading: "3. Payment Terms", body: `FaithBid maintains the project record — milestones, approvals, deliverables, and dispute history — inside the platform. Payment terms are still coordinated directly between the Church and Contractor while integrated payments are being completed. The platform record remains the source of truth for what was approved, delivered, and disputed. FaithBid's displayed launch model is a vendor success fee capped at $${PLATFORM_FEE_CAP}; exact fee trigger, payment timing, refund handling, and reversal rules are governed by FaithBid's then-current published payment policy before integrated payment enforcement is enabled.` },
+      { heading: "3. Payment Terms", body: "FaithBid maintains the project record — milestones, approvals, deliverables, and dispute history — inside the platform. Payment terms are still coordinated directly between the Church and Contractor while integrated payments are being completed. The platform record remains the source of truth for what was approved, delivered, and disputed. FaithBid is not currently advertising a standard platform fee. Any future platform charge will apply only under separately published terms accepted before that charge is incurred." },
       { heading: "4. Intellectual Property", body: "Upon full payment, all work product and intellectual property created under this agreement shall be assigned to the Client, unless otherwise specified in the project agreement. The Contractor retains the right to display the completed work in a portfolio." },
       { heading: "5. Confidentiality", body: "Both parties agree to keep confidential any proprietary information shared during the project. If an optional NDA has been enabled for this engagement, its terms supersede this general clause." },
       { heading: "6. Termination", body: "Either party may terminate this agreement with 7 days written notice through the platform. In the event of termination, the Client shall pay for all work completed up to the termination date. Disputes arising from termination will follow FaithBid's Dispute Resolution Process." },
@@ -39977,8 +39977,7 @@ function LandingPricing({nav, setStartFreeDefaultRole}){
     "Build a full vendor profile",
     "Built-in messaging and project threads",
     "Access to every open project",
-    `Accepted Charter Vendors get ${CHARTER_VENDOR_PRO_FREE_MONTHS} months of Vendor Pro free (${CHARTER_VENDOR_PRO_VALUE_LABEL} value)`,
-    `One-time 10% fee on hire, capped at $${PLATFORM_FEE_CAP}`,
+    "Any future paid terms will be published before they apply",
   ];
   const verifiedFeatures = [
     "Everything in Join free",
@@ -39988,24 +39987,13 @@ function LandingPricing({nav, setStartFreeDefaultRole}){
     "Early notification on new projects",
     `Reviewed ${VERIFICATION_REVIEW_WINDOW}. Free to apply.`,
   ];
-  const competitorRows = [
-    { name:"FaithBid", fee:"10% fee", max:`Max $${PLATFORM_FEE_CAP}`, note:"Cheaper on larger projects" },
-    { name:"Upwork", fee:"Up to 20%", max:"No hard cap", note:"Fee grows with project size" },
-    { name:"Fiverr", fee:"20%", max:"No hard cap", note:"High take rate" },
-    { name:"Angi", fee:"15–20%", max:"No hard cap", note:"Can be materially higher" },
-  ];
-  const proPreviewBid = 4000;
-  const proPreviewFreeFee = computePlatformFee(proPreviewBid, { tier: "free" });
-  const proPreviewProFee = computePlatformFee(proPreviewBid, { tier: "pro" });
-  const proPreviewSavings = computeProSavings(proPreviewBid);
-
   return (
     <div id="pricing-section" data-kb-funnel-section="pricing" className="land-pricing-outer" style={withBrandTexture({padding:"80px 48px"})}>
       <div style={{maxWidth:1120,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:18}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(232,224,208,0.54)",marginBottom:12}}>Pricing</div>
-          <h2 style={{fontFamily:"Playfair Display,serif",fontSize:40,fontWeight:700,color:"#fff",marginBottom:10,letterSpacing:-0.5}}>Honest pricing. Mission-first economics.</h2>
-          <p style={{fontSize:16,color:"var(--atext-2)",fontWeight:400,maxWidth:680,lineHeight:1.65,margin:"0 auto 28px"}}>Churches are free during early access and remain free to post. Vendors join free, bid free, and only pay when they win work.</p>
+          <h2 style={{fontFamily:"Playfair Display,serif",fontSize:40,fontWeight:700,color:"#fff",marginBottom:10,letterSpacing:-0.5}}>Pricing is under review.</h2>
+          <p style={{fontSize:16,color:"var(--atext-2)",fontWeight:400,maxWidth:680,lineHeight:1.65,margin:"0 auto 28px"}}>FaithBid is not currently advertising a standard platform fee, paid vendor plan, or automatic church give-back. Any future terms will be published before they apply.</p>
           <div style={{display:"flex",justifyContent:"center",marginBottom:48}}>
             <div className="role-toggle" style={{background:"rgba(255,255,255,0.08)"}}>
               <button type="button" className={`role-toggle-btn${view==="church"?" active":""}`} onClick={()=>setView("church")} style={view==="church"?{background:"linear-gradient(135deg,var(--gold),var(--gold-light))",color:"var(--navy)"}:{color:"var(--atext-mid)"}}>Churches & ministry</button>
@@ -40017,11 +40005,11 @@ function LandingPricing({nav, setStartFreeDefaultRole}){
         {view==="church" && (
           <div style={{maxWidth:560,margin:"0 auto"}}>
             <div className="pricing-card featured" style={{background:"rgba(245,240,232,0.07)",border:"2px solid rgba(232,224,208,0.42)",boxShadow:"0 20px 60px rgba(0,0,0,0.16)"}}>
-              <div className="pricing-card-badge" style={{background:"linear-gradient(135deg,var(--gold),var(--gold-light))"}}>Always free</div>
+              <div className="pricing-card-badge" style={{background:"linear-gradient(135deg,var(--gold),var(--gold-light))"}}>Early access</div>
               <div className="pricing-role" style={{marginTop:16,color:"var(--gold-light)"}}>Churches & ministry</div>
-              <div className="pricing-name" style={{color:"#fff"}}>Always free.</div>
-              <div className="pricing-price" style={{color:"#fff"}}>$0 <span style={{color:"var(--atext-2)"}}>forever</span></div>
-              <div className="pricing-desc" style={{color:"var(--atext-mid)",lineHeight:1.7}}>We believe in empowering ministries, not charging them. Post a need, compare aligned proposals, run the deal in the deal room, and hire — all at zero cost.</div>
+              <div className="pricing-name" style={{color:"#fff"}}>No posting fee today.</div>
+              <div className="pricing-price" style={{color:"#fff"}}>$0 <span style={{color:"var(--atext-2)"}}>during this preview</span></div>
+              <div className="pricing-desc" style={{color:"var(--atext-mid)",lineHeight:1.7}}>Churches can post a need, compare aligned proposals, use the deal room, and hire without a posting fee during the current preview.</div>
               <ul className="pricing-features" style={{marginBottom:20}}>
                 {churchFeatures.map((feature)=>(
                   <li key={feature} className="pricing-feature">
@@ -40032,7 +40020,7 @@ function LandingPricing({nav, setStartFreeDefaultRole}){
               </ul>
               <button type="button" className="land-cta-primary" style={{width:"100%",justifyContent:"center",fontSize:15}} onClick={()=>{ if (typeof setStartFreeDefaultRole === "function") setStartFreeDefaultRole("church"); nav("church-signup"); }}>{LAUNCHED ? "Post your first project — free" : "Reserve church access"}</button>
               <div style={{marginTop:14,padding:"12px 14px",background:"rgba(245,240,232,0.06)",border:"1px solid rgba(245,240,232,0.12)",borderRadius:"var(--r-sm)",fontSize:12,color:"var(--atext-2)",textAlign:"center",lineHeight:1.6}}>
-                FaithBid is infrastructure for ministry — not a tax on it.
+                Future church-side terms, if any, will be published before they apply.
               </div>
             </div>
           </div>
@@ -40055,7 +40043,7 @@ function LandingPricing({nav, setStartFreeDefaultRole}){
                   ))}
                 </ul>
                 <button type="button" className="land-cta-secondary" style={{width:"100%",justifyContent:"center",borderColor:"rgba(255,255,255,0.2)",color:"rgba(255,255,255,0.86)"}} onClick={()=>{ if (typeof setStartFreeDefaultRole === "function") setStartFreeDefaultRole("vendor"); nav("vendor-signup"); }}>{LAUNCHED ? "Create your vendor profile" : "Apply as a vendor"}</button>
-                <div style={{marginTop:12,fontSize:12,color:"var(--atext-muted)",lineHeight:1.6,textAlign:"center"}}>No monthly fee. No bid limits. No paywall to compete.</div>
+                <div style={{marginTop:12,fontSize:12,color:"var(--atext-muted)",lineHeight:1.6,textAlign:"center"}}>No paid vendor plan is currently being offered in this preview.</div>
               </div>
 
               <div className="pricing-card featured" style={{background:"rgba(245,240,232,0.08)",border:"2px solid rgba(232,224,208,0.52)",boxShadow:"0 22px 60px rgba(0,0,0,0.18)"}}>
@@ -40078,59 +40066,9 @@ function LandingPricing({nav, setStartFreeDefaultRole}){
             </div>
 
             <div className="land-pricing-explainer" style={{marginTop:28,padding:"24px 24px 22px",background:"linear-gradient(180deg, rgba(232,224,208,0.10) 0%, rgba(245,240,232,0.07) 100%)",border:"1px solid rgba(232,224,208,0.22)",borderRadius:22,boxShadow:"0 20px 60px rgba(0,0,0,0.12)"}}>
-              <div style={{display:"flex",justifyContent:"space-between",gap:20,alignItems:"flex-start",flexWrap:"wrap",marginBottom:18}}>
-                <div className="land-pricing-explainer-copy" style={{maxWidth:580}}>
-                  <div style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-light)",marginBottom:8}}>Platform fee explainer</div>
-                  <div style={{fontFamily:"Playfair Display,serif",fontSize:30,lineHeight:1.08,color:"#fff",marginBottom:10}}>We only make money when you do.</div>
-                  <div style={{fontSize:14,color:"var(--atext-mid)",lineHeight:1.8}}>Vendors pay nothing to join, nothing to bid, and nothing until they win work. The displayed launch model is a vendor success fee of <strong style={{color:"rgba(255,255,255,0.9)"}}>10%, capped hard at $${PLATFORM_FEE_CAP}</strong>. The cap is the story — we never punish vendors for winning big work.</div>
-                </div>
-                <div className="land-pricing-explainer-example" style={{minWidth:220,padding:"16px 18px",background:"rgba(20,24,31,0.26)",border:"1px solid rgba(232,224,208,0.16)",borderRadius:18}}>
-                  <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:"rgba(232,224,208,0.6)",marginBottom:8}}>Example</div>
-                  <div style={{fontSize:22,fontWeight:800,color:"#fff",marginBottom:4}}>Win a $4,000 project, pay $400.</div>
-                  <div style={{fontSize:13,color:"var(--atext-mid)",lineHeight:1.7}}>Keep $3,600. Bigger wins? You still cap at ${PLATFORM_FEE_CAP}.</div>
-                </div>
-              </div>
-
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:12,marginBottom:18}}>
-                {[
-                  {label:"$1,000 project", value:"$100 fee"},
-                  {label:"$5,000 project", value:`$${PLATFORM_FEE_CAP} fee`},
-                  {label:"$20,000 project", value:`Max $${PLATFORM_FEE_CAP}`},
-                ].map((item, i)=>(
-                  <div key={item.label} style={{padding:"14px 16px",borderRadius:16,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(232,224,208,0.14)"}}>
-                    <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:"rgba(232,224,208,0.58)",marginBottom:6}}>{item.label}</div>
-                    <div style={{fontSize:17,fontWeight:800,color:"#fff"}}>{item.value}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{marginBottom:18,padding:"16px 18px",borderRadius:18,background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.24)",display:"flex",justifyContent:"space-between",gap:16,alignItems:"center",flexWrap:"wrap"}}>
-                <div style={{minWidth:220}}>
-                  <div style={{fontSize:11,fontWeight:800,letterSpacing:1.6,textTransform:"uppercase",color:"#86EFAC",marginBottom:6}}>Vendor Pro preview</div>
-                  <div style={{fontSize:14,color:"rgba(255,255,255,0.82)",lineHeight:1.7}}>On a {formatMoney(proPreviewBid)} win, Pro lowers the fee from {formatMoney(proPreviewFreeFee)} to {formatMoney(proPreviewProFee)}.</div>
-                </div>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:26,fontWeight:800,color:"#86EFAC",letterSpacing:"-0.02em"}}>Save {formatMoney(proPreviewSavings)}</div>
-              </div>
-
-              <div style={{overflowX:"auto",borderRadius:18,border:"1px solid rgba(232,224,208,0.16)",background:"rgba(255,255,255,0.035)"}}>
-                <div style={{display:"grid",gridTemplateColumns:"1.25fr 1fr 1fr 1.15fr",minWidth:640}}>
-                  {[
-                    {head:true, platform:"Platform", fee:"Fee model", max:"Cap", note:"What that means"},
-                    ...competitorRows.map(row=>({ platform:row.name, fee:row.fee, max:row.max, note:row.note })),
-                  ].map((row, idx)=>(
-                    <React.Fragment key={idx}>
-                      {[row.platform, row.fee, row.max, row.note].map((cell, cellIdx)=>(
-                        <div key={cellIdx} style={{padding:"14px 16px",borderBottom:idx===competitorRows.length?"none":"1px solid rgba(232,224,208,0.12)",background:row.head?"rgba(255,255,255,0.05)":row.platform==="FaithBid"?"rgba(232,224,208,0.08)":"transparent",fontSize:13,lineHeight:1.6,color:row.head?"rgba(232,224,208,0.66)":"rgba(255,255,255,0.82)",fontWeight:row.head?700:row.platform==="FaithBid"&&cellIdx===0?800:500}}>{cell}</div>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{display:"flex",justifyContent:"space-between",gap:16,alignItems:"center",flexWrap:"wrap",marginTop:16}}>
-                <div style={{fontSize:13,color:"var(--atext-mid)",lineHeight:1.75,maxWidth:700}}>FaithBid is cheaper and fairer than the major alternatives because our incentive is aligned with yours. Vendors keep more of the work they win, and churches never get taxed for posting ministry needs.</div>
-                <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"8px 14px",background:"rgba(34,197,94,0.10)",border:"1px solid rgba(34,197,94,0.22)",borderRadius:999,fontSize:11,fontWeight:700,color:"#86EFAC"}}>A share of FaithBid's retained fee returns to the hiring church</div>
-              </div>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-light)",marginBottom:8}}>Program under review</div>
+              <div style={{fontFamily:"Playfair Display,serif",fontSize:30,lineHeight:1.08,color:"#fff",marginBottom:10}}>No standard fee, paid plan, or give-back promise is being advertised.</div>
+              <div style={{fontSize:14,color:"var(--atext-mid)",lineHeight:1.8,maxWidth:760}}>FaithBid is testing the marketplace and concierge experience before finalizing cross-phase pricing. Exact rates, caps, triggers, payment timing, refunds, reversals, vendor-plan benefits, and any church give-back program remain subject to founder decision and legal review. The published terms in effect at the time will control before any charge or benefit applies.</div>
             </div>
           </div>
         )}
@@ -40269,7 +40207,7 @@ function HelpModal({onClose, role}){
   const FAQ = {
     general: [
       {q:"What is FaithBid?", a:"FaithBid is a faith-based marketplace connecting Christian-owned businesses with churches, ministries, and community members who need their services. Marketplace Approved vendors can participate in the marketplace, and Faith Verified adds an additional reviewed trust signal."},
-      {q:"Is it free to use?", a:`For churches and ministries, posting projects is free. Vendors pay a standard 10% platform fee, capped at $${PLATFORM_FEE_CAP}, only when they win a project. There is no cost to browse or bid.`},
+      {q:"Is it free to use?", a:"Churches are not charged a posting fee in the current preview, and vendors can join and bid without charge. FaithBid is not currently advertising a standard success fee or paid vendor plan; any future terms will be published before they apply."},
       {q:"How do I get started?", a:"Create your account and complete your profile. Vendors must be Marketplace Approved before bidding; Faith Verified is an additional trust signal, not the bidding gate."},
       {q:"What is the Faith Covenant?", a:"The Vendor Covenant is a conduct commitment used in FaithBid's verification standards. It does not replace Marketplace Approval or project-specific due diligence."},
       {q:"What is Faith Verification?", a:"Faith Verification is our credentialing process for vendors. Verified vendors have submitted documentation confirming their Christian faith and business integrity. They appear higher in search results, receive more bids, and display a verified badge on their profile."},
@@ -40285,9 +40223,9 @@ function HelpModal({onClose, role}){
     ],
     vendors: [
       {q:"How do I start winning projects?", a:"Complete your profile and Marketplace Approval first, then browse open projects and submit tailored bids. Faith Verified can strengthen trust, but it is not required to bid. Churches read cover letters carefully, so be personal and reference their ministry specifically."},
-      {q:"How much does it cost to bid?", a:`Nothing. Vendors can join, build a full profile, browse every project, and submit bids at no cost. FaithBid's displayed launch model is a 10% vendor success fee, capped at $${PLATFORM_FEE_CAP}. Vendor Pro subscribers are shown at 5%, capped at $${VENDOR_PRO_FEE_CAP}.`},
-      {q:"What is the platform fee?", a:`FaithBid's displayed launch model is a 10% vendor success fee capped at $${PLATFORM_FEE_CAP}. This supports platform operations, dispute support, and payment coordination. Final fee timing and reversal rules are governed by the published payment policy before integrated payment enforcement is enabled.`},
-      {q:"What is Vendor Pro?", a:`Vendor Pro is our subscription tier at ${VENDOR_PRO_PRICE_LABEL}. Pro vendors get 5% platform fees (capped at $${VENDOR_PRO_FEE_CAP}), a verified Pro badge, priority placement in church searches, featured listing in your category, and project analytics. If you win 2+ projects per month, Pro pays for itself.`},
+      {q:"How much does it cost to bid?", a:"Nothing in the current preview. Vendors can join, build a profile, browse projects, and submit bids without a bid charge. FaithBid is not currently advertising a standard success fee or paid vendor plan."},
+      {q:"What is the platform fee?", a:"Program under review. FaithBid has not published a standard platform fee for this preview. Any future rate, cap, trigger, timing, refund, and reversal terms will be published before they apply."},
+      {q:"What is Vendor Pro?", a:"Vendor Pro is a future-plan concept, not a paid offer currently available in this preview. Price, benefits, eligibility, and any fee treatment will be published only after the program is approved."},
       {q:"How do I get Faith Verified?", a:"Go to your profile and click 'Get Faith Verified.' Submit a short application with your faith statement. Our team reviews it and responds within 48 hours."},
       {q:"Can I withdraw a bid?", a:"Yes. Go to My Work → Pending bids and click Withdraw next to the bid. Once a bid has been accepted by a church, it cannot be withdrawn."},
       {q:"How do reviews work?", a:"After a project is marked complete, the church is prompted to leave a review. Reviews are public on your profile and affect your ranking. Respond to reviews professionally because churches read them carefully before hiring."},
@@ -40345,10 +40283,10 @@ function HelpModal({onClose, role}){
 
 
 const KB_LANDING_FAQS = [
-  {q:"Is it really free for churches?", a:"Yes. Churches can post unlimited projects, receive bids, message vendors, and hire at no cost. We believe in empowering ministries, not charging them."},
-  {q:"How does the platform fee work for vendors?", a:`FaithBid's displayed launch model is a 10% vendor success fee capped at $${PLATFORM_FEE_CAP}. On a $5,000 project, the displayed fee is ${formatMoney(computePlatformFee(5000))}, and Vendor Pro would reduce that to ${formatMoney(computePlatformFee(5000, { tier: "pro" }))}. Payment is still coordinated manually while in-platform payments are completed.`},
+  {q:"Is there a church posting fee?", a:"No posting fee is charged to churches in the current preview. Any future church-side terms, if introduced, will be published before they apply."},
+  {q:"How does pricing work for vendors?", a:"Vendors can join and bid without charge in the current preview. Standard success-fee and paid-plan pricing remain under review. Any future rate, cap, trigger, payment timing, refund, or reversal terms will be published before they apply."},
   {q:"What does 'Faith Verified' mean?", a:"Faith Verified means FaithBid completed an additional review of the vendor's faith statement and ministry reference information. It is an added trust signal, but it is not a guarantee of project fit. Churches should still read reviews, compare bids, and use the deal record to make a responsible hiring decision."},
-  {q:"How is this different from Upwork or Thumbtack?", a:"We're built exclusively for the faith community. Every church and vendor here is specifically here to serve or work with ministries. That shared mission changes the quality of relationships, communication, and work. We also never charge churches."},
+  {q:"How is this different from Upwork or Thumbtack?", a:"We're built exclusively for the faith community. Every church and vendor here is specifically here to serve or work with ministries. That shared mission changes the quality of relationships, communication, and work."},
 ];
 
 const KB_START_FREE_ROLE_META = {
@@ -42010,8 +41948,8 @@ function AboutScreen({nav, setStartFreeDefaultRole}){
     {step:"04", title:"Manage the work", body:"The deal room keeps files, approvals, updates, and handoff in one place after the hire."},
   ];
   const IMPACT = [
-    {label:"Churches & ministries", value:"Always free"},
-    {label:"Vendor pricing", value:`10% capped at $${PLATFORM_FEE_CAP}`},
+    {label:"Church posting fee", value:"$0 in current preview"},
+    {label:"Vendor pricing", value:"Program under review"},
     {label:"Church give-back", value:"Program under review"},
   ];
   return (
@@ -42049,7 +41987,7 @@ function AboutScreen({nav, setStartFreeDefaultRole}){
                 ))}
               </div>
               <div style={{marginTop:18,padding:"14px 16px",borderRadius:18,background:"rgba(176,136,64,0.08)",border:"1px solid rgba(176,136,64,0.14)",fontSize:13,color:"var(--navy)",lineHeight:1.7}}>
-                <strong style={{color:"var(--gold-text)"}}>The model is simple:</strong> churches stay free and vendors only pay when they win work. A church give-back program is being evaluated; final eligibility, rates, timing, and terms will be published after legal and policy review.
+                <strong style={{color:"var(--gold-text)"}}>The current preview is simple:</strong> churches are not charged a posting fee, and vendors can join and bid without charge. Standard platform fees, paid vendor plans, and any church give-back program remain under review; final terms will be published before they apply.
               </div>
             </div>
           </div>
