@@ -39566,16 +39566,6 @@ function getReviewDashboardStats(reviews = [], { pendingCount = 0, role = "churc
       {label:"Would rehire", value: safeReviews.length ? `${recommendPct}%` : "—", sub:"Trust signal after delivery"},
       {label:"Work record", value:"Files + approvals", sub:"Documented in-platform"},
     ],
-    heroCards: [
-      { label: "Would rehire", value: safeReviews.length ? `${recommendPct}%` : "—", sub: "confidence signal" },
-      { label: "Verified reviews", value: `${verifiedCount}`, sub: "tied to real work" },
-      { label: role === "church" ? "Reviews due" : "Response rate", value: role === "church" ? `${pendingCount}` : `${replyRate}%`, sub: role === "church" ? "awaiting your input" : "vendor follow-through" },
-    ],
-    sidebarSummary: [
-      { label: "Average rating", value: safeReviews.length ? avgRatingNum.toFixed(1) : "—", sub: safeReviews.length ? "overall sentiment" : "No reviews yet" },
-      { label: "Would rehire", value: `${recommendPct}%`, sub: "confidence signal" },
-      { label: "Verified reviews", value: `${verifiedCount}`, sub: "real completed work" },
-    ],
   };
 }
 

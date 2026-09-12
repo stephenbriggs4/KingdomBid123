@@ -312,7 +312,7 @@ function ReviewsScreen({role, showToast, nav}){
               <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:38, lineHeight:1.05, color:"#1C2814", letterSpacing:-0.9, marginBottom:12, fontWeight:700 }}>{introTitle}</div>
               <div style={{ fontSize:14.5, lineHeight:1.7, color:"#5a5246", maxWidth:680, marginBottom:18 }}>{introCopy}</div>
 
-              <div className="reviews-page-hero-stats" style={{ display:"grid", gridTemplateColumns:"220px repeat(3,minmax(0,1fr))", gap:12 }}>
+              <div className="reviews-page-hero-stats" style={{ display:"grid", gridTemplateColumns:"minmax(220px,360px)", gap:12 }}>
                 <div style={{ background:"#fffaf0", border:"1px solid #e9d5a5", borderRadius:18, padding:"18px 18px 16px", position:"relative", overflow:"hidden" }}>
                   <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:"linear-gradient(180deg,#c9a45c,#b08840)"}}/>
                   <div style={{paddingLeft:8}}>
@@ -324,13 +324,6 @@ function ReviewsScreen({role, showToast, nav}){
                     <div style={{ fontSize:18, color:"#b08840", letterSpacing:1 }}>{starFill(Math.round(reviewStats.avgRatingNum || 0))}</div>
                   </div>
                 </div>
-                {reviewStats.heroCards.map((item, i) => (
-                  <div key={item.label} style={{ background:"#fff", border:"1px solid #dfd5c2", borderRadius:18, padding:"18px 18px 16px" }}>
-                    <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:30, color:"#1C2814", letterSpacing:-0.7, marginBottom:6, lineHeight:1, fontWeight:700 }}>{item.value}</div>
-                    <div style={{ fontFamily:"'DM Mono',monospace", fontSize:9.5, fontWeight:700, letterSpacing:1.6, textTransform:"uppercase", color:"#b08840", marginBottom:5 }}>{item.label}</div>
-                    <div style={{ fontSize:11.5, color:"#7d7363", lineHeight:1.5 }}>{item.sub}</div>
-                  </div>
-                ))}
               </div>
             </div>
 
@@ -619,21 +612,6 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
 
       {/* Sidebar */}
       <div className="reviews-sidebar desktop-stress-rail" style={{ display:"flex", flexDirection:"column", gap:16 }}>
-        <div style={{ ...rdx.panel, padding:20 }}>
-          <div style={{ ...rdx.eyebrow, marginBottom:14 }}>Reputation summary</div>
-          <div style={{ display:"grid", gap:12 }}>
-            {(stats?.sidebarSummary || []).map((row, i, arr) => (
-              <div key={item.label || i} style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:10, alignItems:"center", paddingBottom:12, borderBottom: i < arr.length-1 ? "1px solid #f0e9d9" : "none" }}>
-                <div>
-                  <div style={{ fontSize:12.5, fontWeight:700, color:"#1C2814", marginBottom:3, fontFamily:"'DM Sans',sans-serif" }}>{row.label}</div>
-                  <div style={{ fontSize:11.5, color:"#7d7363", lineHeight:1.45 }}>{row.sub}</div>
-                </div>
-                <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:24, color:"#1C2814", fontWeight:700, letterSpacing:-0.4 }}>{row.value}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div style={{ ...rdx.panel, padding:20 }}>
           <div style={{ ...rdx.eyebrow, marginBottom:14 }}>Common themes</div>
           {(stats?.topTags || []).length > 0 ? (
