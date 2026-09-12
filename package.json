@@ -22,6 +22,7 @@
     "test:dealrooms-mobile-layout": "node tests/dealrooms-mobile-layout.test.mjs",
     "test:concierge-command-hierarchy": "node tests/concierge-command-hierarchy.test.mjs",
     "test:reviews-hierarchy": "node tests/reviews-hierarchy.test.mjs",
+    "test:my-projects-routing": "node tests/my-projects-routing.test.mjs",
     "test:gpi-stage3": "node --test supabase/functions/gpi-occurrence-intent-auth/validation.test.ts",
     "test:gpi-stage4": "node --test supabase/functions/gpi-occurrence-notice-auth/validation.test.ts",
     "test:gpi-db": "supabase test db supabase/tests/gpi_stage2_stage3_contract_test.sql",

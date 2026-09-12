@@ -5707,7 +5707,7 @@ async function selectAuthProfileShared(user, { force = false, timeoutMs = 9000 }
     try {
       const result = await runSupabaseWithTimeout(
         selectProfilesSafe(
-          'id,role,founding_vendor,onboarding_complete',
+          'id,role,founding_vendor,onboarding_complete,account_status,access_status',
           'id,role',
           query => query.eq('id', userId).maybeSingle()
         ),
@@ -20176,6 +20176,15 @@ function isAdminUser(user, _profileUnused){
   return false;
 }
 
+const KB_DENIED_ACCOUNT_ACCESS_STATUSES = new Set(["blocked", "disabled", "inactive", "rejected", "revoked", "suspended"]);
+
+function hasActiveChurchWorkspaceAccess(profile) {
+  if (normalizeAuthRole(profile?.role) !== "church") return false;
+  const accountStatus = String(profile?.account_status || "active").trim().toLowerCase();
+  const accessStatus = String(profile?.access_status || "active").trim().toLowerCase();
+  return !KB_DENIED_ACCOUNT_ACCESS_STATUSES.has(accountStatus) && !KB_DENIED_ACCOUNT_ACCESS_STATUSES.has(accessStatus);
+}
+
 const KB_INBOX_TARGET_KEY = KB_SESSION_TARGET_KEYS.inbox;
 const KB_PROJECT_TARGET_KEY = KB_SESSION_TARGET_KEYS.project;
 const KB_VENDOR_TARGET_KEY = KB_SESSION_TARGET_KEYS.vendor;
@@ -22708,8 +22717,13 @@ function setPageMeta({ title, description } = {}) {
 }
 
 const PROTECTED_ROUTES = ["projects","inbox","messages","reviews","profile","verify-profile","settings","admin","growth","concierge","compare","saved-projects","activity","analytics","qa","my-projects","my-work"];
+const APP_PROJECT_SUBTAB_BY_ROUTE = Object.freeze({
+  "my-projects": "mine",
+  "my-work": "work",
+  "vendors": "vendors",
+});
 const APP_HASH_ROUTES = Object.freeze([
-  "projects","get-plugged-in","inbox","messages","reviews","profile","verify-profile","pricing","admin","settings","about","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
+  "projects","my-projects","my-work","vendors","get-plugged-in","inbox","messages","reviews","profile","verify-profile","pricing","admin","settings","about","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
 ]);
 const APP_HASH_ROUTE_SET = new Set(APP_HASH_ROUTES);
 
@@ -22720,7 +22734,17 @@ function readAppScreenFromHash(hashValue, fallback = "landing") {
   // Deal Room links keep the conversation id in the hash (for example
   // #inbox-<conversation-id>) while the app-level screen remains Inbox.
   if (route === "inbox" || route.startsWith("inbox-")) return "inbox";
+  if (APP_PROJECT_SUBTAB_BY_ROUTE[route]) return "projects";
   return APP_HASH_ROUTE_SET.has(route) ? route : fallback;
+}
+
+function readProjectSubTabFromHash(hashValue) {
+  const route = String(hashValue || "").replace(/^#\/?/, "").split("/")[0].split("?")[0];
+  return APP_PROJECT_SUBTAB_BY_ROUTE[route] || null;
+}
+
+function getProjectSubTabRoute(subTab) {
+  return Object.entries(APP_PROJECT_SUBTAB_BY_ROUTE).find(([, value]) => value === subTab)?.[0] || "projects";
 }
 // Route alias and subtab maps — lifted to module level so nav() doesn't
 // recreate them on every invocation (was previously inside the useCallback).
@@ -22730,9 +22754,7 @@ const NAV_ALIAS = Object.freeze({
   "find-work":   "projects",  // vendor browse
 });
 const NAV_SUBTAB = Object.freeze({
-  "my-projects": "mine",      // church My Projects tab
-  "my-work":     "work",      // vendor My Work tab
-  "vendors":     "vendors",   // vendor intelligence layer inside marketplace
+  ...APP_PROJECT_SUBTAB_BY_ROUTE,
   "discover":    "vendors",   // legacy Discover route → Marketplace vendors mode
   "matches":     "vendors",   // old Matches route → Marketplace vendors mode
   "shortlist":   "browse",    // legacy shortlist route now returns to marketplace browse
@@ -36993,7 +37015,7 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [autoPost, setAutoPost] = useState(false);
-  const [navSubTab, setNavSubTab] = useState(null);
+  const [navSubTab, setNavSubTab] = useState(() => readProjectSubTabFromHash(window.location.hash));
   const [vendorWinModal, setVendorWinModal] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
   const [unreadMsgs, setUnreadMsgs] = useState(0);
@@ -37003,6 +37025,7 @@ export default function App() {
   const [marketplacePublic, setMarketplacePublic] = useState(false);
   const [marketplaceGateLoaded, setMarketplaceGateLoaded] = useState(false);
   const [privateMarketplaceAccess, setPrivateMarketplaceAccess] = useState(false);
+  const marketplaceGateUserIdRef = useRef(undefined);
   const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
   const [compareCount, setCompareCount] = useState(() => getCompareWorkspaceCount());
   const [refSurveyToken, setRefSurveyToken] = useState(() => {
@@ -37021,6 +37044,7 @@ export default function App() {
   }, []);
   const persistenceHydratedFor = React.useRef(null);
   const screenRef = React.useRef(screen);
+  const navSubTabRef = React.useRef(navSubTab);
   const currentUserRef = React.useRef(currentUser);
   const userProfileRef = React.useRef(userProfile);
   const roleRef = React.useRef(role);
@@ -37061,6 +37085,10 @@ export default function App() {
   }, [screen]);
 
   useEffect(() => {
+    navSubTabRef.current = navSubTab;
+  }, [navSubTab]);
+
+  useEffect(() => {
     currentUserRef.current = currentUser;
   }, [currentUser]);
 
@@ -37075,8 +37103,12 @@ export default function App() {
   useEffect(() => {
     let active = true;
     const userId = currentUser?.id || null;
-    setMarketplaceGateLoaded(false);
-    setPrivateMarketplaceAccess(false);
+    const gateIdentityChanged = marketplaceGateUserIdRef.current !== userId;
+    marketplaceGateUserIdRef.current = userId;
+    if (gateIdentityChanged) {
+      setMarketplaceGateLoaded(false);
+      setPrivateMarketplaceAccess(false);
+    }
 
     const loadGate = async () => {
       const publicEnabled = await getMarketplacePublicOncePerSession();
@@ -37094,7 +37126,7 @@ export default function App() {
           supabase.from("vendor_invites").select("id").eq("vendor_user_id", userId).eq("status", "invited").limit(1),
           supabase.from("vendor_invites").select("id").eq("vendor_id", userId).eq("status", "invited").limit(1),
           supabase.from("project_vendor_links").select("project_id").eq("vendor_user_id", userId).eq("stage", "invited").limit(1),
-          supabase.from("profiles").select("id,role,onboarding_complete").eq("id", userId).maybeSingle(),
+          supabase.from("profiles").select("id,role,onboarding_complete,account_status,access_status").eq("id", userId).maybeSingle(),
           supabase.from("vendors").select("user_id,founding_vendor,verification_status,suspended").eq("user_id", userId).maybeSingle(),
         ]);
         if (!active) return;
@@ -37110,7 +37142,8 @@ export default function App() {
           && charterVendor.data?.founding_vendor === true
           && normalizeVendorAdmissionStatus(charterVendor.data?.verification_status) === "approved"
           && charterVendor.data?.suspended !== true;
-        setPrivateMarketplaceAccess(hasExplicitAccess || hasCharterWorkspaceAccess);
+        const hasChurchWorkspaceAccess = !charterProfile.error && hasActiveChurchWorkspaceAccess(charterProfile.data);
+        setPrivateMarketplaceAccess(hasExplicitAccess || hasCharterWorkspaceAccess || hasChurchWorkspaceAccess);
       } catch (error) {
         logError("private-marketplace-access-read", error, { userId });
         if (active) setPrivateMarketplaceAccess(false);
@@ -37195,7 +37228,10 @@ export default function App() {
     if (pending?.screen) {
       const safeScreen = ["inbox","messages"].includes(String(pending.screen)) ? fallbackScreen : pending.screen;
       setScreen(safeScreen);
-      try { window.location.hash = safeScreen; } catch {}
+      const destinationHash = safeScreen === "projects" && pending?.navSubTab
+        ? getProjectSubTabRoute(pending.navSubTab)
+        : safeScreen;
+      try { window.location.hash = destinationHash; } catch {}
       return true;
     }
     if (["landing","start-free","auth","vendor-signup","church-signup"].includes(screenRef.current)) {
@@ -37794,8 +37830,9 @@ export default function App() {
       marketplacePublic ||
       isAdminUser(currentUser, userProfile) ||
       privateMarketplaceAccess;
+    const marketplaceAccessPending = !authReady || !marketplaceGateLoaded;
 
-    if (resolvedMarketplaceTarget && !marketplaceAccessAllowed) {
+    if (resolvedMarketplaceTarget && !marketplaceAccessPending && !marketplaceAccessAllowed) {
       setAutoPost(false);
       setNavSubTab(null);
       if (!currentUser) {
@@ -37864,7 +37901,7 @@ export default function App() {
       if (!currentUser) { savePostAuthTarget({ screen:"projects", navSubTab:NAV_SUBTAB[navTarget], autoPost:false }); setAuthDefaultRole(NAV_SUBTAB[navTarget] === "work" ? "vendor" : "church"); setScreen("auth"); try { window.location.hash = "auth"; } catch {} closeNavChrome(); return; }
       setScreen("projects");
       setNavSubTab(NAV_SUBTAB[navTarget]);
-      try { window.location.hash = "projects"; } catch {}
+      try { window.location.hash = getProjectSubTabRoute(NAV_SUBTAB[navTarget]); } catch {}
       // 852am: switching top-level Marketplace/My Projects/My Work CTAs must
       // clear any stale detail/vendor/chat-return surface without touching data.
       try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch {}
@@ -37890,7 +37927,13 @@ export default function App() {
       try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch {}
     }
     closeNavChrome();
-  }, [closeNavChrome, currentUser, userProfile, startFreeDefaultRole, authReady, screen, marketplacePublic, privateMarketplaceAccess]);
+  }, [closeNavChrome, currentUser, userProfile, startFreeDefaultRole, authReady, marketplaceGateLoaded, screen, marketplacePublic, privateMarketplaceAccess]);
+
+  const handleMarketplaceSubTabChange = React.useCallback((nextSubTab) => {
+    const normalizedSubTab = nextSubTab || null;
+    setNavSubTab(normalizedSubTab);
+    try { window.location.hash = getProjectSubTabRoute(normalizedSubTab); } catch {}
+  }, []);
 
   useEffect(() => {
     // location.hash writes made by nav() already update React state directly.
@@ -37898,12 +37941,13 @@ export default function App() {
     // without calling nav(), so synchronize the rendered screen here.
     const onRouteHistoryNavigation = () => {
       const target = readAppScreenFromHash(window.location.hash, null);
+      const targetSubTab = readProjectSubTabFromHash(window.location.hash);
       // Ignore in-page anchors such as #kb-main-content rather than treating
       // them as application routes.
-      if (!target || target === screenRef.current) return;
+      if (!target || (target === screenRef.current && targetSubTab === navSubTabRef.current)) return;
 
       if (PROTECTED_ROUTES.includes(target) && !currentUserRef.current) {
-        savePostAuthTarget({ screen:target, navSubTab:null, autoPost:false });
+        savePostAuthTarget({ screen:target, navSubTab:targetSubTab, autoPost:false });
         if (!authReady) return;
         setAuthDefaultRole(target === "reviews" ? "vendor" : "login");
         setScreen("auth");
@@ -37912,7 +37956,7 @@ export default function App() {
       }
 
       setScreen(target);
-      setNavSubTab(null);
+      setNavSubTab(target === "projects" ? targetSubTab : null);
       setAutoPost(false);
       if (target === "projects") {
         try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch {}
@@ -37952,6 +37996,7 @@ export default function App() {
   );
 
   const canAccessMarketplace = marketplacePublic || isAdmin || privateMarketplaceAccess;
+  const marketplaceWorkspaceReady = authReady && marketplaceGateLoaded && canAccessMarketplace;
 
   useEffect(() => {
     if (screen !== "projects" || !marketplaceGateLoaded || !authReady) return;
@@ -38257,12 +38302,7 @@ export default function App() {
                   : ((t.activeOn||[t.id]).includes(screen) && (t.activeSubTabs ? t.activeSubTabs.includes(navSubTab ?? null) : !navSubTab));
                 const handleClick = () => {
                   if (t.subTab) {
-                    if (!currentUser) { savePostAuthTarget({ screen:"projects", navSubTab:t.subTab, autoPost:false }); setAuthDefaultRole(t.subTab === "work" ? "vendor" : "church"); nav("auth"); return; }
-                    const runSubTabNav = () => {
-                      setNavSubTab(t.subTab);
-                      setScreen("projects");
-                      setMenuOpen(false); setMobileNavOpen(false);
-                    };
+                    const runSubTabNav = () => nav(getProjectSubTabRoute(t.subTab));
                     if (typeof React.startTransition === "function") React.startTransition(runSubTabNav);
                     else runSubTabNav();
                   } else {
@@ -38526,9 +38566,7 @@ export default function App() {
                 const handleClick = () => {
                   setMobileNavOpen(false);
                   if (t.subTab) {
-                    if (!currentUser) { savePostAuthTarget({ screen:"projects", navSubTab:t.subTab, autoPost:false }); setAuthDefaultRole(t.subTab === "work" ? "vendor" : "church"); nav("auth"); return; }
-                    setNavSubTab(t.subTab);
-                    setScreen("projects");
+                    nav(getProjectSubTabRoute(t.subTab));
                   } else {
                     setNavSubTab(null);
                     if(t.id === 'inbox') queueDealRoomsHubNavigation(nav);
@@ -38619,7 +38657,7 @@ export default function App() {
         {screen==="onboarding"     && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Onboarding...</div>}><OnboardingScreen role={role} currentUser={currentUser} userProfile={userProfile} nav={nav} showToast={showToast} dependencies={getAccountScreenDependencies()} /></React.Suspense>}
         {screen==="reset-password" && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Password Reset...</div>}><ResetPasswordScreen nav={nav} showToast={showToast} dependencies={getAccountScreenDependencies()} /></React.Suspense>}
         {screen==="get-plugged-in" && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Get Plugged In...</div>}><GetPluggedInRoute nav={nav} showToast={showToast} currentUser={currentUser} authReady={authReady} dependencies={getGetPluggedInDependencies()} /></React.Suspense>}
-        {(screen==="projects" && (!authReady || !marketplaceGateLoaded || !canAccessMarketplace)) && (
+        {(screen==="projects" && !marketplaceWorkspaceReady) && (
           <div
             role="status"
             aria-live="polite"
@@ -38648,7 +38686,7 @@ export default function App() {
             </div>
           </div>
         )}
-        {(screen==="projects" && canAccessMarketplace) && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Marketplace...</div>}><ProjectsScreen role={role} currentUser={currentUser} showToast={showToast} nav={nav} initialView={autoPost?"post":"board"} onMounted={()=>setAutoPost(false)} navSubTab={navSubTab} onSubTabChange={setNavSubTab} forceProjectTab={null} privateMarketplaceAccess={privateMarketplaceAccess} isAdmin={isAdmin} dependencies={getProjectsScreenDependencies()}/></React.Suspense>}
+        {(screen==="projects" && marketplaceWorkspaceReady) && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Marketplace...</div>}><ProjectsScreen role={role} currentUser={currentUser} showToast={showToast} nav={nav} initialView={autoPost?"post":"board"} onMounted={()=>setAutoPost(false)} navSubTab={navSubTab} onSubTabChange={handleMarketplaceSubTabChange} forceProjectTab={null} privateMarketplaceAccess={privateMarketplaceAccess} isAdmin={isAdmin} dependencies={getProjectsScreenDependencies()}/></React.Suspense>}
         {(screen==="inbox"||screen==="messages")   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Deal Rooms...</div>}><MessagesScreen role={role} currentUser={currentUser} nav={nav} normalizeProjectEntity={normalizeProjectEntity} mergeProjectWorkspaceSnapshots={mergeProjectWorkspaceSnapshots} isWorkspaceAffectingMessageText={isWorkspaceAffectingMessageText} fetchLatestProjectWorkspaceSync={fetchLatestProjectWorkspaceSync} getPendingInboxTarget={getPendingInboxTarget} clearPendingInboxTarget={clearPendingInboxTarget} setPendingProjectTarget={setPendingProjectTarget} onClearUnreadBadge={()=>setUnreadMsgs(0)} dependencies={getMessagesScreenDependencies()}/></React.Suspense>}
         {screen==="compare"   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Compare Workspace...</div>}><CompareWorkspaceScreen nav={nav} role={role} showToast={showToast} currentUser={currentUser} dependencies={getWorkspaceScreenDependencies()} /></React.Suspense>}
         {screen==="saved-projects" && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Saved Projects...</div>}><SavedProjectsScreen nav={nav} role={role} currentUser={currentUser} showToast={showToast} dependencies={getProjectsScreenDependencies()} /></React.Suspense>}
@@ -38728,7 +38766,7 @@ export default function App() {
               : screen===t.id && (t.activeSubTabs ? t.activeSubTabs.includes(navSubTab ?? null) : !navSubTab && !(t.id==="projects" && navSubTab));
             return (
               <button type="button" key={t.label} className={`mob-nav-btn${isActive?" active":""}`} aria-current={isActive ? "page" : undefined} onClick={()=>{
-                if(t.subTab){ setNavSubTab(t.subTab); setScreen("projects"); }
+                if(t.subTab){ nav(getProjectSubTabRoute(t.subTab)); }
                 else { setNavSubTab(null); if(t.id === 'inbox') queueDealRoomsHubNavigation(nav); else nav(t.id); }
               }}>
                 {t.badge && <span className="mob-nav-badge"/>}
