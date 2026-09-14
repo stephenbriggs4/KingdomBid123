@@ -35218,6 +35218,11 @@ function fbConciergeReviewChecks(form, operatorId) {
   add(form.requesting_contact_id, "A requesting church contact is linked.");
   add(form.owner_id || operatorId, "A FaithBid concierge owner is assigned.");
   add(Number(form.shortlist_target || 0) >= 1 && Number(form.shortlist_target || 0) <= 20, "Shortlist target is between 1 and 20.");
+  const today = new Date().toISOString().slice(0, 10);
+  add(form.target_decision_on, "Target decision date is set.");
+  add(form.target_start_on, "Target start date is set.");
+  add(!form.target_decision_on || form.target_decision_on >= today, "Target decision date is not in the past.");
+  add(!form.target_decision_on || !form.target_start_on || form.target_start_on >= form.target_decision_on, "Target start date is on or after the decision date.");
   add(String(form.next_action || "").trim(), "Next action is assigned.");
   add(form.next_action_on, "Next action date is set.");
   return checks;
@@ -35403,8 +35408,8 @@ function FBConciergeIntakeReviewModal({ client, need, operatorId, onClose, onRev
                 {select("Risk tier", "risk_tier", [["unclassified","Unclassified"],["tier_1","Tier 1"],["tier_2","Tier 2"],["tier_3_regulated","Tier 3 / regulated"]])}
                 {select("Compliance gate", "compliance_gate", [["standard","Standard"],["category_sop_required","Category SOP required"],["legal_compliance_approval_required","Legal / compliance approval required"],["approved","Approved"],["declined","Declined"]])}
                 {input("Shortlist target", "shortlist_target", { type: "number", min: "1", max: "20" })}
-                {input("Decision target", "target_decision_on", { type: "date" })}
-                {input("Start target", "target_start_on", { type: "date" })}
+                {input("Decision target", "target_decision_on", { type: "date", min: new Date().toISOString().slice(0, 10) })}
+                {input("Start target", "target_start_on", { type: "date", min: form.target_decision_on || new Date().toISOString().slice(0, 10) })}
                 {input("Next action", "next_action", { wide: true })}
                 {input("Next action date", "next_action_on", { type: "date" })}
               </div>
