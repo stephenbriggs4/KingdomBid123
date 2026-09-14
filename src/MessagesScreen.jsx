@@ -5634,9 +5634,9 @@ ${summary}`, 'Milestone approved');
           .kbdr2-hub-conversation-open{display:none}
         }
         @media(max-width:430px){
+          .kbdr2-hub-controls{grid-template-columns:minmax(0,1fr)}
           .kbdr2-hub-tab{gap:5px!important;padding:0 10px!important}
-          .kbdr2-hub-needs-me>span:nth-child(2){display:none}
-          .kbdr2-hub-needs-me{gap:7px!important;padding:0 10px!important}
+          .kbdr2-hub-needs-me{gap:7px!important;padding:0 11px!important;justify-self:start}
         }
 
         /* ── TOP BAR ────────────────────────────────────────────── */

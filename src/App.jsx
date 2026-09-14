@@ -38303,8 +38303,8 @@ export default function App() {
         )}
         {/* ── SKIP NAV (accessibility) ── */}
         <a href="#kb-main-content" style={{position:'absolute',top:'-100px',left:'16px',padding:'8px 16px',background:'#1C2814',color:'#fffdf8',borderRadius:8,fontSize:13,fontWeight:700,zIndex:10000,textDecoration:'none',transition:'top 0.15s'}} onFocus={e=>{e.target.style.top='8px'}} onBlur={e=>{e.target.style.top='-100px'}}>Skip to content</a>
-        {/* ── TOP NAV // always visible except landing/auth ── */}
-        {screen !== "landing" && screen !== "auth" && screen !== "invite" && (
+        {/* ── TOP NAV // public About owns its own sticky page header ── */}
+        {screen !== "landing" && screen !== "auth" && screen !== "invite" && screen !== "about" && (
           <nav className={`topnav${(screen==="inbox"||screen==="messages")?" topnav-inbox-dark":""}${(screen==="profile"||screen==="verify-profile")?" topnav-profile-normal-flow":""}`} aria-label="Main navigation" style={{height:48,minHeight:48,padding:"0 18px",background:"rgba(255,250,242,0.98)",borderBottom:"1px solid rgba(28,40,20,0.10)",boxShadow:"none"}}>
             <div className="logo" onClick={()=>nav("landing")} title="Go to Home" role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))} style={{height:34,minWidth:146,width:146,paddingRight:14,borderRight:"1px solid rgba(28,40,20,0.10)",gap:7,display:"flex",alignItems:"center"}}>
               <CrossLogo size={30} variant={(screen==="inbox"||screen==="messages") ? "dark" : "full"} />
