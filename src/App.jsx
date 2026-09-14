@@ -35047,7 +35047,12 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
       if (!form.organization_type) return "Organization type is required.";
       if (!form.relationship_source) return "Relationship source is required.";
     }
-    if (step === 2 && !form.contact_first_name.trim() && !form.contact_last_name.trim()) return "Enter at least a first or last name for the primary contact.";
+    if (step === 2) {
+      if (!form.contact_first_name.trim() && !form.contact_last_name.trim()) return "Enter at least a first or last name for the primary contact.";
+      if (!form.contact_email.trim() && !form.contact_phone.trim()) return "Enter an email address or phone number so FaithBid can reach the primary contact.";
+      if (form.contact_preferred_channel === "email" && !form.contact_email.trim()) return "Enter the email address selected as this contact's preferred method.";
+      if (["phone", "text"].includes(form.contact_preferred_channel) && !form.contact_phone.trim()) return "Enter the phone number selected as this contact's preferred method.";
+    }
     if (step === 3) {
       if (!form.need_title.trim()) return "Need title is required.";
       if (!form.primary_service_category) return "Choose a primary service category.";
