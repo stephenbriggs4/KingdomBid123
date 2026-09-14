@@ -35065,6 +35065,9 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
       const anyPermissionGranted = form.church_sourcing_permission_status === "granted" || specificPermissionGranted;
       if (specificPermissionGranted && form.church_sourcing_permission_status !== "granted") return "Specific outreach or disclosure permission requires church permission to source this need.";
       if (anyPermissionGranted && (!form.church_sourcing_permission_recorded_at || !form.church_sourcing_permission_source || !form.church_sourcing_permission_reference.trim())) return "Record when, how, and where the church's permission was captured.";
+      if (!form.next_action.trim()) return "Assign the concrete next action before saving this intake.";
+      if (!form.next_action_on) return "Set the next action date before saving this intake.";
+      if (form.next_action_on < new Date().toISOString().slice(0, 10)) return "The next action date cannot be in the past.";
     }
     return "";
   };
@@ -35158,8 +35161,8 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
                 {select("Permission captured by", "church_sourcing_permission_source", FB_CONCIERGE_PERMISSION_SOURCES)}
                 {input("Permission record reference", "church_sourcing_permission_reference", { wide: true, placeholder: "Meeting note, email subject, message link, or file reference" })}
                 <div className="fb-concierge-safe"><strong>Permission stays scoped:</strong> approval to source does not permit FaithBid to name the church, contact a referred vendor, or post publicly unless each permission above is separately Granted.</div>
-                {input("Next action", "next_action", { placeholder: "Clarify scope with the church" })}
-                {input("Next action date", "next_action_on", { type: "date" })}
+                {input("Next action", "next_action", { required: true, placeholder: "Clarify scope with the church" })}
+                {input("Next action date", "next_action_on", { required: true, type: "date", min: new Date().toISOString().slice(0, 10) })}
                 <div className="fb-concierge-safe"><strong>Safe starting state:</strong> this creates Organization, Primary Contact, and Need atomically. The Need stays in Intake with risk Unclassified until the review gate is completed.</div>
               </>}
               {error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{gridColumn:"1/-1",margin:0}}>{error}</div>}

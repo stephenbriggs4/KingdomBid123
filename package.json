@@ -33,6 +33,7 @@
     "test:church-sourcing-permissions": "node tests/church-sourcing-permissions.test.mjs",
     "test:concierge-primary-contact": "node tests/concierge-primary-contact.test.mjs",
     "test:pilot-cohort-entry": "node tests/pilot-cohort-entry.test.mjs",
+    "test:intake-follow-up": "node tests/intake-follow-up.test.mjs",
     "test:landing-prelaunch-requests": "node tests/landing-prelaunch-requests.test.mjs",
     "test:dealrooms-mobile-layout": "node tests/dealrooms-mobile-layout.test.mjs",
     "test:concierge-command-hierarchy": "node tests/concierge-command-hierarchy.test.mjs",
