@@ -8324,14 +8324,14 @@ html body .gpi-discovery-header-copy{
       border-color:rgba(28,40,20,.34)!important;background:#f4efe4!important;box-shadow:0 0 0 2px rgba(28,40,20,.045),0 8px 20px rgba(28,40,20,.075)!important;
     }
     html body .topnav .kb-topnav-workspace-trigger{
-      width:132px!important;min-width:132px!important;padding:0 9px!important;display:grid!important;grid-template-columns:26px minmax(0,1fr) 12px!important;
+      width:148px!important;min-width:148px!important;padding:0 9px!important;display:grid!important;grid-template-columns:26px max-content 12px!important;
       align-items:center!important;gap:7px!important;font-size:11.5px!important;font-weight:800!important;letter-spacing:.01em!important;
     }
     html body .kb-topnav-trigger-icon{
       width:26px!important;height:26px!important;border-radius:8px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
       background:rgba(28,40,20,.06)!important;color:#52604c!important;border:1px solid rgba(28,40,20,.06)!important;
     }
-    html body .kb-topnav-trigger-label{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;text-align:left!important;}
+    html body .kb-topnav-trigger-label{overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;text-align:left!important;}
     html body .kb-topnav-trigger-caret{font-size:13px!important;line-height:1!important;color:rgba(28,40,20,.46)!important;justify-self:end!important;transform:translateY(-1px)!important;}
     html body .topnav .kb-topnav-account-trigger{
       width:184px!important;min-width:184px!important;max-width:204px!important;padding:4px 9px 4px 5px!important;display:grid!important;

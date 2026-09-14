@@ -19,6 +19,7 @@
     "test:header-surface-contract": "node tests/header-surface-contract.test.mjs",
     "test:workspace-empty-states": "node tests/workspace-empty-states.test.mjs",
     "test:admin-navigation-contract": "node tests/admin-navigation-contract.test.mjs",
+    "test:workspace-nav-label": "node tests/workspace-nav-label.test.mjs",
     "test:production-scratch-cleanup": "node tests/production-scratch-cleanup.test.mjs",
     "test:pg-net-relocation": "node tests/pg-net-relocation.test.mjs",
     "test:messages-supersedes-index": "node tests/messages-supersedes-index.test.mjs",
