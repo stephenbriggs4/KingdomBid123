@@ -16,6 +16,7 @@
     "test:fixture-cleanup-contract": "node tests/fixture-cleanup-contract.test.mjs",
     "test:contrast-tokens": "node tests/contrast-tokens.test.mjs",
     "test:typography-system": "node tests/typography-system.test.mjs",
+    "test:header-surface-contract": "node tests/header-surface-contract.test.mjs",
     "test:production-scratch-cleanup": "node tests/production-scratch-cleanup.test.mjs",
     "test:pg-net-relocation": "node tests/pg-net-relocation.test.mjs",
     "test:messages-supersedes-index": "node tests/messages-supersedes-index.test.mjs",

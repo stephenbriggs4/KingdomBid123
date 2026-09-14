@@ -8025,7 +8025,12 @@ html.platform-shell-host-active body #kb-main-content>*>*{
 }
 .platform-fullscreen-shell-inbox,
 .platform-fullscreen-shell-messages{
-  background:#090b10;
+  background:#fffdf8;
+}
+.kb-header-surface-work{
+  min-height:calc(100dvh - 52px);
+  background:#fffdf8;
+  color:#1C2814;
 }
 
 /* 913 — Marketplace / My Projects fullscreen shell.
@@ -38621,7 +38626,12 @@ export default function App() {
         <main id="kb-main-content" role="main">
         <ScreenBoundary resetKey={`${screen}-${currentUser?.id||"anon"}`} onRecover={(target)=>{ nav(target || "projects"); }}>
         <PlatformScreenShell screen={screen} navSubTab={navSubTab}>
-        <div key={`${screen}`} style={{animation:'fadeUp 0.10s ease', ...((screen==='inbox'||screen==='messages') && {background:'#090b10'})}}>
+        <div
+          key={`${screen}`}
+          className={`kb-header-surface kb-header-surface-${getHeaderSurfaceMode(screen, navSubTab)}`}
+          data-kb-header-mode={getHeaderSurfaceMode(screen, navSubTab)}
+          style={{animation:'fadeUp 0.10s ease'}}
+        >
         {screen==="landing"        && <LandingScreen nav={nav} setAuthDefaultRole={setAuthDefaultRole} setStartFreeDefaultRole={setStartFreeDefaultRole} telemetryEnabled={authReady && !currentUser}/> }
         {/* 853aq P0.1 fix: StartFreeScreen contains real supabase.auth.signUp,
             profile creation, and vendor-record creation. It was previously
@@ -51204,6 +51214,25 @@ const DETAIL_VENDOR_MATCHES = {
 
 function injectMarketplaceDetailFonts(){
   // Typography is loaded once by the shared FaithBid type system.
+}
+
+const KB_HEADER_SURFACE_MODE = Object.freeze({
+  BROWSE: "browse",
+  WORK: "work",
+  STANDARD: "standard",
+});
+
+function getHeaderSurfaceMode(screen, navSubTab) {
+  if (screen === "get-plugged-in") return KB_HEADER_SURFACE_MODE.BROWSE;
+  if (screen === "projects") {
+    return ["mine", "work"].includes(navSubTab)
+      ? KB_HEADER_SURFACE_MODE.WORK
+      : KB_HEADER_SURFACE_MODE.BROWSE;
+  }
+  if (["inbox", "messages", "reviews", "profile", "verify-profile", "concierge"].includes(screen)) {
+    return KB_HEADER_SURFACE_MODE.WORK;
+  }
+  return KB_HEADER_SURFACE_MODE.STANDARD;
 }
 
 function detailBudgetParts(rawBudget) {
