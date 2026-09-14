@@ -38029,7 +38029,7 @@ export default function App() {
         {id:"projects",  label:"My Work",     icon:"⚡", activeOn:["projects"], subTab:"work"},
         {id:"inbox",     label:"Deal Rooms",       icon:"💬", activeOn:["inbox"]},
         {id:"reviews",   label:"Reviews",     icon:"⭐", activeOn:["reviews"]},
-        ...(isAdmin ? [{id:"admin", label:"Admin", icon:"⚙️", activeOn:["admin"]}] : []),
+        ...(isAdmin ? [{id:"admin", label:"Admin Review", icon:"⚙️", activeOn:["admin"]}] : []),
       ]
     : [
         {id:"projects",  label:"Marketplace", icon:"▦", activeOn:["projects"], activeSubTabs:[null,"vendors","browse"]},
@@ -38037,7 +38037,7 @@ export default function App() {
         {id:"projects",  label:"My Projects", icon:"📋", activeOn:["projects"], subTab:"mine"},
         {id:"inbox",     label:"Deal Rooms",       icon:"💬", activeOn:["inbox"]},
         {id:"reviews",   label:"Reviews",     icon:"⭐", activeOn:["reviews"]},
-        ...(isAdmin ? [{id:"admin", label:"Admin", icon:"⚙️", activeOn:["admin"]}] : []),
+        ...(isAdmin ? [{id:"admin", label:"Admin Review", icon:"⚙️", activeOn:["admin"]}] : []),
       ], [role, isAdmin]);
 
   const completeLoginBootstrap = React.useCallback(async (user) => {
@@ -38437,28 +38437,33 @@ export default function App() {
                         },
                         ...(isAdmin ? [
                           {
-                            label:'Growth Engine',
-                            right:'Admin',
-                            mark:'G',
-                            admin:true,
-                            run:()=>{setToolsMenuOpen(false);nav('growth');}
+                            section:'Admin operations'
                           },
                           {
-                            label:'Concierge',
-                            right:'Admin',
+                            label:'Concierge Pilot Operations',
+                            right:'Pilot ops',
                             mark:'C',
                             admin:true,
                             run:()=>{setToolsMenuOpen(false);nav('concierge');}
                           },
                           {
+                            label:'Growth Engine',
+                            right:'Research',
+                            mark:'G',
+                            admin:true,
+                            run:()=>{setToolsMenuOpen(false);nav('growth');}
+                          },
+                          {
                             label:'QA Console',
-                            right:'Admin',
+                            right:'Release',
                             mark:'⚙',
                             admin:true,
                             run:()=>{setToolsMenuOpen(false);nav('qa');}
                           },
                         ] : []),
-                      ].map((item, idx) => (
+                      ].map((item, idx) => item.section ? (
+                        <div key={item.section} className="kb-topnav-menu-section-label" role="presentation" style={{margin:'8px 8px 3px',paddingTop:8,borderTop:'1px solid rgba(28,40,20,0.08)',fontSize:9.5,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a6729'}}>{item.section}</div>
+                      ) : (
                         <button
                           type="button"
                           role="menuitem"
@@ -38469,9 +38474,8 @@ export default function App() {
                             width:'100%',
                             height:38,
                             padding:'0 8px',
-                            marginTop:item.admin ? 5 : 0,
+                            marginTop:0,
                             border:'none',
-                            borderTop:item.admin ? '1px solid rgba(28,40,20,0.07)' : 'none',
                             background:'transparent',
                             borderRadius:10,
                             display:'grid',
@@ -38532,10 +38536,6 @@ export default function App() {
                           ...(role==="vendor" ? [{label:"✦ Get Faith Verified", icon:"✦", action:()=>nav("verify-profile")}] : []),
                           {label:"Settings",    icon:"S", action:()=>nav("settings")},
                           {label:"Help & FAQ",  icon:"?", action:()=>{ setShowHelp(true); setMenuOpen(false); }},
-                          ...(isAdminUser(currentUser, userProfile) ? [
-                            {label:"Growth Engine", icon:"G", action:()=>nav("growth")},
-                            {label:"Concierge", icon:"C", action:()=>nav("concierge")},
-                          ] : []),
                         ].map((item)=>(
                           <button type="button" role="menuitem" key={item.label} onClick={()=>{setMenuOpen(false);item.action();}} className="hover-cream kb-topnav-menu-item" style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 12px",border:"none",background:"none",borderRadius:"var(--r-sm)",cursor:"pointer",fontSize:13,color:"var(--text-mid)",fontFamily:"var(--font-sans),sans-serif",textAlign:"left",fontWeight:500,transition:"background 0.15s"}}>
                             <span className="kb-topnav-menu-item-icon" aria-hidden="true">{item.icon}</span><span>{item.label}</span>
@@ -38601,11 +38601,13 @@ export default function App() {
                 <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('compare');}}><span className="nav-icon">◇</span>Compare Workspace</button>
                 <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('saved-projects');}}><span className="nav-icon">★</span>Saved Projects</button>
                 <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('analytics');}}><span className="nav-icon">▥</span>Analytics</button>
-                {isAdmin && <>
-                  <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('growth');}}><span className="nav-icon">G</span>Growth Engine</button>
-                  <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('concierge');}}><span className="nav-icon">C</span>Concierge</button>
-                  <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('qa');}}><span className="nav-icon">🧪</span>QA</button>
-                </>}
+              </>}
+              {currentUser && isAdmin && <>
+                <div className="mobile-nav-divider"/>
+                <div className="mobile-nav-section-label">Admin operations</div>
+                <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('concierge');}}><span className="nav-icon">C</span>Concierge Pilot Operations</button>
+                <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('growth');}}><span className="nav-icon">G</span>Growth Engine</button>
+                <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('qa');}}><span className="nav-icon">🧪</span>QA Console</button>
               </>}
               <div className="mobile-nav-divider"/>
               <div className="mobile-nav-section-label">Account</div>
