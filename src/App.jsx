@@ -35115,7 +35115,7 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
                 {input("State / region", "state_region", { placeholder: "TX" })}
                 {input("Country", "country")}
                 {textarea("Relationship context", "relationship_summary", "What do we already know, and why are they entering concierge discovery?")}
-                <label className="fb-concierge-checkbox"><input type="checkbox" checked={form.pilot_cohort} onChange={(event) => update("pilot_cohort", event.target.checked)}/><span><strong>FaithBid pilot cohort</strong><span className="fb-concierge-muted">Opt in only after the organization has explicitly entered the Dallas Pilot.</span></span></label>
+                <div className="fb-concierge-safe"><strong>Pilot entry is separate:</strong> create the intake first, then add the organization to the Dallas Pilot from Organizations only after explicit opt-in evidence is recorded.</div>
               </>}
               {step === 2 && <>
                 {input("First name", "contact_first_name", { autoFocus: true })}
@@ -36643,6 +36643,45 @@ function FBGrowthVendorVerificationModal({ vendor, operatorId, onClose, onSaved 
   </div>;
 }
 
+function FBConciergePilotEntryModal({ organization, operatorId, onClose, onConfirm }) {
+  const [enteredOn, setEnteredOn] = useState(() => new Date().toISOString().slice(0, 10));
+  const [source, setSource] = useState("");
+  const [reference, setReference] = useState("");
+  const [error, setError] = useState("");
+
+  const submit = async (event) => {
+    event.preventDefault();
+    if (!operatorId) return setError("A signed-in operator is required to record pilot entry.");
+    if (!enteredOn || !source || !reference.trim()) return setError("Record when, how, and where the church explicitly entered the Dallas Pilot.");
+    setError("");
+    await onConfirm({
+      enteredAt: `${enteredOn}T12:00:00.000Z`,
+      source,
+      reference: reference.trim(),
+    });
+  };
+
+  return <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-pilot-entry-title">
+      <div className="fb-concierge-modal-head">
+        <div className="fb-concierge-eyebrow">Dallas Pilot entry</div>
+        <h2 id="fb-pilot-entry-title">{organization.organization_name}</h2>
+        <div className="fb-concierge-subtitle">Count this organization only after it explicitly agrees to participate. Research, outreach, intake, and general interest are not pilot entry.</div>
+      </div>
+      <form onSubmit={submit}>
+        <div className="fb-concierge-form"><div className="fb-concierge-fields">
+          <label className="fb-concierge-field">Entry date<input type="date" value={enteredOn} onChange={(event) => setEnteredOn(event.target.value)}/></label>
+          <label className="fb-concierge-field">Evidence source<select value={source} onChange={(event) => setSource(event.target.value)}>{FB_CONCIERGE_PERMISSION_SOURCES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <label className="fb-concierge-field wide">Entry evidence reference<input value={reference} onChange={(event) => setReference(event.target.value)} placeholder="Meeting note, email subject, message link, or signed document"/></label>
+          <div className="fb-concierge-safe"><strong>Truth boundary:</strong> saving records that the church entered the pilot. It does not grant sourcing, referral-contact, identity-disclosure, or public-posting permission for any need.</div>
+          {error && <div role="alert" className="fb-concierge-notice fb-concierge-error">{error}</div>}
+        </div></div>
+        <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose}>Cancel</button><button type="submit" className="fb-concierge-btn primary">Record explicit pilot entry</button></div>
+      </form>
+    </section>
+  </div>;
+}
+
 function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, onToggleDallasPilotOnly }) {
   const client = useMemo(() => supabase.schema("concierge_ops"), []);
   const [view, setView] = useState("command");
@@ -36650,6 +36689,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [intakeOpen, setIntakeOpen] = useState(false);
+  const [pilotMembershipEditor, setPilotMembershipEditor] = useState(null);
   const [reviewNeed, setReviewNeed] = useState(null);
   const [sourcingNeed, setSourcingNeed] = useState(null);
   const [vendorEditor, setVendorEditor] = useState(null);
@@ -36672,7 +36712,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
     setStatus("loading");
     setError("");
     const results = await Promise.all([
-      client.from("organizations").select("id,organization_name,organization_type,lifecycle_stage,city,state_region,pilot_cohort,next_follow_up_on,relationship_source,created_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
+      client.from("organizations").select("id,organization_name,organization_type,lifecycle_stage,city,state_region,pilot_cohort,pilot_cohort_entered_at,pilot_cohort_entry_source,pilot_cohort_entry_reference,pilot_cohort_recorded_by,next_follow_up_on,relationship_source,created_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
       client.from("needs").select("id,organization_id,requesting_contact_id,owner_id,need_title,status,need_type,service_frequency,primary_service_category,service_detail,need_brief,desired_outcome,must_haves,nice_to_haves,urgency,target_decision_on,target_start_on,budget_status,budget_basis,budget_band,budget_band_basis,marketplace_budget_band,budget_translation_status,delivery_requirement,service_location,faith_alignment_requirement,faith_fit_rationale,church_sourcing_permission_status,referral_contact_permission_status,church_identity_permission_status,public_sourcing_permission_status,church_sourcing_permission_recorded_at,church_sourcing_permission_source,church_sourcing_permission_reference,church_sourcing_permission_recorded_by,risk_tier,compliance_gate,pilot_risk_flags,pilot_eligibility,pilot_hold_reason,shortlist_target,next_action,next_action_on,ready_to_source_at,sourcing_started_at,shortlist_presented_at,selected_at,organization:organizations(organization_name)").is("archived_at", null).order("next_action_on", { ascending: true, nullsFirst: false }).limit(500),
       client.from("vendors").select("id,vendor_name,legal_business_name,website,growth_vendor_id,primary_contact_id,relationship_status,relationship_source,relationship_owner_id,vetting_decision,vetting_decision_date,vetting_review_due_on,vetting_summary,proof_level,proven_service_categories,proof_decision_date,service_categories,delivery_modes,capabilities_summary,current_capacity_note,capacity_checked_on,internal_restrictions_concerns,typical_project_minimum_cents,typical_project_maximum_cents,church_ministry_experience,headquarters_city,headquarters_state_region,next_follow_up_on,consideration_consent_status,consideration_consented_at,consideration_consent_source,consideration_consent_reference,consideration_consent_recorded_by,created_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
       client.from("match_details").select("id,need_id,vendor_id,need_title,organization_name,vendor_name,stage,vendor_interest,project_availability,must_have_fit,overall_fit,fit_rationale,concerns,shortlist_rank,recommendation_summary,organization_feedback,shortlisted_at,need_budget_band,introduction_fee_tier,agreed_introduction_fee_cents,renewal_fee_applies,agreed_renewal_fee_cents,renewal_trigger_terms,placement_agreement_status,placement_agreement_reference,introduced_at,updated_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
@@ -36789,10 +36829,17 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
     await load();
   };
 
-  const setPilotMembership = async (organization, pilotCohort) => {
+  const setPilotMembership = async (organization, pilotCohort, evidence = {}) => {
+    const payload = pilotCohort ? {
+      pilot_cohort: true,
+      pilot_cohort_entered_at: evidence.enteredAt,
+      pilot_cohort_entry_source: evidence.source,
+      pilot_cohort_entry_reference: evidence.reference,
+      pilot_cohort_recorded_by: currentUser?.id || null,
+    } : { pilot_cohort: false };
     const { error: updateError } = await client
       .from("organizations")
-      .update({ pilot_cohort: pilotCohort })
+      .update(payload)
       .eq("id", organization.id);
     if (updateError) {
       setError(updateError.message || "Pilot membership could not be updated.");
@@ -36800,6 +36847,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
       return;
     }
     const message = `${organization.organization_name} ${pilotCohort ? "added to" : "removed from"} the Dallas Pilot.`;
+    setPilotMembershipEditor(null);
     setSuccess(message);
     if (showToast) showToast(message, "success");
     await load();
@@ -37010,7 +37058,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
             : <FBConciergePanel title="No pilot churches yet" note="Add an organization to the pilot from the Organizations tab."><FBConciergeEmpty title="No pilot churches yet." copy="Use the Add button in the Organizations tab when a church has explicitly entered the Dallas Pilot."/></FBConciergePanel>)}
         </div>}
 
-        {view === "organizations" && <FBConciergePanel title="Organizations" note="Churches, ministries, and Christian organizations in concierge discovery." count={organizations.length}><div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Organization</th><th>Type</th><th>Stage</th><th>Location</th><th>Source</th><th>Follow-up</th><th>Pilot</th></tr></thead><tbody>{organizations.map((item) => <tr key={item.id}><td><strong>{item.organization_name}</strong><span className="fb-concierge-muted">{item.pilot_cohort ? "Pilot cohort" : "Standard record"}</span></td><td>{fbConciergeLabel(item.organization_type)}</td><td><FBConciergeBadge value={item.lifecycle_stage}/></td><td>{[item.city,item.state_region].filter(Boolean).join(", ") || "Not set"}</td><td>{fbConciergeLabel(item.relationship_source)}</td><td>{fbConciergeDate(item.next_follow_up_on)}</td><td><button type="button" className="fb-concierge-mini-btn" onClick={() => void setPilotMembership(item, !item.pilot_cohort)}>{item.pilot_cohort ? "Remove" : "Add"}</button></td></tr>)}{!organizations.length && <tr><td colSpan={7}>{renderEmpty("No organizations match.", "Create an intake or clear the search.")}</td></tr>}</tbody></table></div></FBConciergePanel>}
+        {view === "organizations" && <FBConciergePanel title="Organizations" note="Churches, ministries, and Christian organizations in concierge discovery." count={organizations.length}><div className="fb-concierge-table-wrap"><table className="fb-concierge-table"><thead><tr><th>Organization</th><th>Type</th><th>Stage</th><th>Location</th><th>Source</th><th>Follow-up</th><th>Pilot</th></tr></thead><tbody>{organizations.map((item) => <tr key={item.id}><td><strong>{item.organization_name}</strong><span className="fb-concierge-muted">{item.pilot_cohort ? `Pilot entered ${fbConciergeDate(item.pilot_cohort_entered_at)}` : "Standard record"}</span></td><td>{fbConciergeLabel(item.organization_type)}</td><td><FBConciergeBadge value={item.lifecycle_stage}/></td><td>{[item.city,item.state_region].filter(Boolean).join(", ") || "Not set"}</td><td>{fbConciergeLabel(item.relationship_source)}</td><td>{fbConciergeDate(item.next_follow_up_on)}</td><td><button type="button" className="fb-concierge-mini-btn" onClick={() => item.pilot_cohort ? void setPilotMembership(item, false) : setPilotMembershipEditor(item)}>{item.pilot_cohort ? "Remove" : "Record entry"}</button></td></tr>)}{!organizations.length && <tr><td colSpan={7}>{renderEmpty("No organizations match.", "Create an intake or clear the search.")}</td></tr>}</tbody></table></div></FBConciergePanel>}
 
         {view === "vendors" && <div className="fb-concierge-stack">
           <FBConciergePanel title="Vendor intake & vetting" note="Build the private bench without overstating approval or performance proof." count={vendors.length}><div className="fb-concierge-vendor-summary"><div className="fb-concierge-vendor-stat"><strong>{vendors.filter((item) => ["not_reviewed","in_review","review_expired"].includes(item.vetting_decision)).length}</strong><span>Awaiting or needing vetting</span></div><div className="fb-concierge-vendor-stat"><strong>{vendors.filter((item) => item.relationship_status === "active_bench" && ["approved","approved_with_conditions"].includes(item.vetting_decision)).length}</strong><span>Approved active-bench vendors</span></div><div className="fb-concierge-vendor-stat"><strong>{records.vettingChecks.filter((item) => item.review_status === "complete" && item.outcome === "passed").length}</strong><span>Completed evidence checks passed</span></div></div></FBConciergePanel>
@@ -37037,6 +37085,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
         <div className={"fb-concierge-live" + (status === "error" ? " error" : "")}><span className="fb-concierge-live-dot"/>{status === "error" ? "Protected concierge connection needs attention." : "Live from the private KingdomBid concierge_ops schema."} {currentUser?.email ? "Signed in as " + currentUser.email + "." : ""}</div>
       </div>
       <FBConciergeIntakeModal client={client} open={intakeOpen} onClose={() => setIntakeOpen(false)} onCreated={created}/>
+      {pilotMembershipEditor && <FBConciergePilotEntryModal key={pilotMembershipEditor.id} organization={pilotMembershipEditor} operatorId={currentUser?.id} onClose={() => setPilotMembershipEditor(null)} onConfirm={(evidence) => setPilotMembership(pilotMembershipEditor, true, evidence)}/>}
       <FBConciergeIntakeReviewModal key={reviewNeed?.id || "no-review"} client={client} need={reviewNeed} operatorId={currentUser?.id} onClose={() => setReviewNeed(null)} onReviewed={reviewed}/>
       <FBConciergeSourcingModal key={sourcingNeed?.id || "no-sourcing"} client={client} need={sourcingNeed} vendors={records.vendors} matches={records.matches} onClose={() => setSourcingNeed(null)} onChanged={sourcingChanged}/>
       {vendorEditor && <FBConciergeVendorModal key={vendorEditor.isNew ? "new-vendor-"+(vendorEditor.growth_vendor_id || "manual") : vendorEditor.id} client={client} vendor={vendorEditor.isNew ? null : vendorEditor} seed={vendorEditor.isNew ? vendorEditor : null} evidence={vendorEditor.isNew ? [] : records.vettingChecks.filter((item)=>item.vendor_id===vendorEditor.id)} operatorId={currentUser?.id} onClose={() => setVendorEditor(null)} onSaved={vendorSaved}/>}
