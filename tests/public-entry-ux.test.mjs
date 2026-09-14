@@ -12,8 +12,10 @@ test('the prelaunch homepage is church-first and truth-first', async () => {
   const landing = source.slice(landingStart, landingEnd);
 
   assert.ok(landingStart >= 0 && landingEnd > landingStart);
-  assert.match(landing, /One Marketplace Built for Churches/);
-  assert.match(landing, /Reserve church access/);
+  assert.match(landing, /Dallas pilot access now forming/);
+  assert.match(landing, /Request Church Access/);
+  assert.match(landing, /Apply as a Vendor/);
+  assert.ok(landing.indexOf('Request Church Access') < landing.indexOf('Apply as a Vendor'), 'church access must remain the primary CTA');
   assert.doesNotMatch(landing, /Reserve vendor access/);
   assert.doesNotMatch(landing, /<LandingFaithVerified/);
   assert.equal((landing.match(/<LandingChurchTrustStrip\s*\/>/g) || []).length, 1);

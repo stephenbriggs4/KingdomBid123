@@ -5,6 +5,7 @@ import { loadPendingWaitlistInvitationContext, normalizeWaitlistInvitationRole, 
 import KBWorkspaceEmptyState from "./KBWorkspaceEmptyState";
 import "./styles/marketplace.css";
 import "./styles/legacy-route-patches.css";
+import "./styles/landing-v2.css";
 import "./styles/controls.css";
 // Inlined 11A card implementation — cumulative single-file delivery.
 
@@ -41862,95 +41863,51 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
   const fmt = (n) => n >= 1000 ? `${(n/1000).toFixed(1)}K+` : n > 0 ? `${n}+` : "—";
 
+  const scrollToHowItWorks = () => {
+    if (typeof document === "undefined") return;
+    document.getElementById("how-faithbid-works")?.scrollIntoView({ behavior:"smooth", block:"start" });
+  };
+
+  const enterAccessFlow = (role, surface = "hero") => {
+    const destination = role === "vendor" ? "vendor-signup" : "church-signup";
+    trackLandingCta(role, surface, destination);
+    if (typeof setStartFreeDefaultRole === "function") setStartFreeDefaultRole(role);
+    nav(destination);
+  };
+
   return (
-    <div>
-      <div className="land-hero">
-        <nav className="land-nav">
-          <div className="land-logo land-logo-home" style={{cursor:"pointer"}} onClick={()=>nav("landing")} role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))}>
-            <CrossLogo size={24} variant="home" style={{height:24,maxWidth:122}}/>
+    <div className="fb-landing-v2">
+      <section className="land-hero fb-landing-hero" aria-labelledby="faithbid-landing-title">
+        <nav className="land-nav fb-landing-nav" aria-label="FaithBid home navigation">
+          <button type="button" className="fb-landing-nav-brand" onClick={()=>nav("landing")} aria-label="FaithBid home">FaithBid</button>
+          <div className="land-nav-links fb-landing-nav-links">
+            <button type="button" className="land-nav-btn" onClick={()=>enterAccessFlow("church", "navigation")}>For Churches</button>
+            <button type="button" className="land-nav-btn" onClick={()=>enterAccessFlow("vendor", "navigation")}>For Vendors</button>
+            <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>How It Works</button>
           </div>
-          <div className="land-nav-links">
-            <button type="button" className="land-nav-btn" onClick={()=>{ if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("vendor"); nav("vendor-signup"); }}>For vendors</button>
-            <div className="land-nav-sep"/>
-            <button type="button" className="land-nav-btn" onClick={()=>nav("about")}>About us</button>
-            <div className="land-nav-sep"/>
-            <button type="button" className="land-nav-btn land-nav-signup" onClick={e=>{e.stopPropagation(); setAuthDefaultRole("login"); nav("auth");}}>Log in</button>
+          <div className="fb-landing-nav-actions">
+            <button type="button" className="fb-landing-signin" onClick={()=>{setAuthDefaultRole("login");nav("auth");}}>Sign In</button>
+            <button type="button" className="fb-landing-request" onClick={()=>enterAccessFlow("church", "navigation")}>Request Access</button>
           </div>
-          {/* Mobile hamburger for landing page */}
           <LandingMobileMenu nav={nav} setAuthDefaultRole={setAuthDefaultRole} setStartFreeDefaultRole={setStartFreeDefaultRole}/>
         </nav>
-        {/* Ambient glow orbs */}
-        <div className="glow-orb hero-glow-1"/>
-        <div className="glow-orb hero-glow-2"/>
-        <div className="glow-orb hero-glow-3"/>
-        <div className="land-hero-body" style={{gap:0,alignItems:"center",textAlign:"center"}}>
 
-          {/* Eyebrow — cross icon + brandline, tightened letter-spacing for premium feel */}
-          <div className="land-mobile-eyebrow" style={{display:"inline-flex",alignItems:"center",gap:0,fontSize:10,fontWeight:600,letterSpacing:"0.22em",textTransform:"uppercase",color:"rgba(232,224,208,0.62)",marginBottom:16,animation:"fadeInUp 0.7s ease both"}}>
-            <span className="cross-animate cross-glow" style={{display:"inline-flex",alignItems:"center",lineHeight:1,marginRight:"0.4em"}}>
-              <svg viewBox="0 0 60 90" style={{width:"0.95em",height:"1.4em",verticalAlign:"middle"}} xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <filter id="roughEdge2">
-                    <feTurbulence type="turbulence" baseFrequency="0.04 0.12" numOctaves="3" seed="5" result="noise"/>
-                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
-                  </filter>
-                </defs>
-                <path d="M27,1 C26.5,1 25.8,0.8 25.5,2 L24.8,18 L23.5,85 C23.4,87 24.2,89.5 25.8,89.8 C27.2,90.1 28.8,90.1 30.2,89.8 C31.8,89.4 32.8,88 33.2,86 L34,70 L35.2,22 L35.5,4 C35.5,2 34.8,0.9 33.5,0.7 C31.5,0.4 28.8,0.6 27,1 Z" fill="#D4C9B0" filter="url(#roughEdge2)" opacity="0.97"/>
-                <path d="M1,26 C0.5,26.5 0.2,27.5 0.8,28.8 C1.2,29.8 2.5,31 4,31.2 L22,32 L38,31.8 L56,31.2 C58,31 59.5,30 59.8,28.5 C60.1,27 59.5,25.8 58,25 C56.5,24.2 54,23.8 52,24 L38,24.5 L22,24.2 L6,23.8 C3.5,23.6 1.5,24.5 1,26 Z" fill="#D4C9B0" filter="url(#roughEdge2)" opacity="0.97"/>
-                <line x1="26" y1="2" x2="25.5" y2="88" stroke="rgba(212,201,176,0.3)" strokeWidth="0.7" strokeLinecap="round"/>
-                <line x1="30" y1="1" x2="30" y2="89" stroke="rgba(212,201,176,0.25)" strokeWidth="0.6" strokeLinecap="round"/>
-                <line x1="33.5" y1="3" x2="34" y2="87" stroke="rgba(212,201,176,0.2)" strokeWidth="0.5" strokeLinecap="round"/>
-                <line x1="1" y1="27.5" x2="59" y2="27" stroke="rgba(212,201,176,0.25)" strokeWidth="0.6" strokeLinecap="round"/>
-                <line x1="2" y1="30" x2="58" y2="30.5" stroke="rgba(212,201,176,0.2)" strokeWidth="0.5" strokeLinecap="round"/>
-                <rect x="23.5" y="24" width="12" height="8" fill="rgba(180,110,10,0.18)" rx="1"/>
-              </svg>
-            </span>
-            One Marketplace Built for Churches
+        <div className="land-hero-body fb-landing-hero-body">
+          <div className="fb-landing-pilot-note">Dallas pilot access now forming</div>
+          <div className="fb-landing-hero-mark" aria-label="FaithBid — Faith in every bid">
+            <div className="fb-landing-hero-wordmark">FaithBid</div>
+            <div className="fb-landing-hero-rule" aria-hidden="true"><span/></div>
+            <div className="fb-landing-tagline">Faith in every bid</div>
           </div>
-
-          {/* Headline — three lines with the third as a gold serif climax */}
-          <h1 className="land-h1 land-animate-in-d1" style={{marginBottom:16}}>
-            Post Your Project.<br/>
-            Compare Aligned Proposals.<br/>
-            <span style={{fontFamily:"var(--font-display),serif",fontStyle:"italic",fontWeight:400,background:"linear-gradient(135deg,#E8D49A 0%,#C4973A 50%,#D4B978 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",letterSpacing:"-0.015em"}}>Hire with Confidence.</span>
-          </h1>
-
-          {/* Subheadline — tighter color, slightly tighter line-height */}
-          <p className="land-sub land-animate-in-d2" style={{marginBottom:24,color:"rgba(255,255,255,0.64)",maxWidth:610,lineHeight:1.52}}>Faith-aligned vendors who already know church work — local for on-site, nationwide for everything else.</p>
-
-          {/* CTAs — primary dominates, secondary becomes a ghost link */}
-          <div className="land-ctas land-animate-in-d3" style={{marginBottom:20,justifyContent:"center",alignItems:"center",gap:14,flexWrap:"wrap"}}>
-            <button
-              type="button"
-              className="land-role-cta land-role-cta-primary"
-              onClick={e=>{e.stopPropagation(); trackLandingCta("church", "hero", "church-signup"); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup");}}
-              style={{
-                position:"relative",
-                padding:"13px 22px",
-                borderRadius:10,
-                border:"1px solid rgba(232,205,140,0.18)",
-                background:"#354B2C",
-                color:"#fdf8ec",
-                fontFamily:"var(--font-sans),sans-serif",
-                fontSize:14,
-                fontWeight:500,
-                cursor:"pointer",
-                transition:"transform 0.18s cubic-bezier(0.23,1,0.32,1), box-shadow 0.18s ease"
-              }}
-            >
-              <span>{LAUNCHED ? "Post a Project" : "Reserve church access"}</span>
-              <span className="land-role-arrow" aria-hidden="true">→</span>
-            </button>
+          <h1 id="faithbid-landing-title" className="land-h1 fb-landing-title">Find the right people.<br/>Build with shared purpose.</h1>
+          <p className="land-sub fb-landing-subtitle">FaithBid is forming its first Dallas pilot to help churches connect with trusted Christian professionals and businesses who understand their mission.</p>
+          <div className="land-ctas fb-landing-ctas">
+            <button type="button" className="fb-landing-cta fb-landing-cta-primary" onClick={()=>enterAccessFlow("church")}><span>{LAUNCHED ? "For Churches" : "Request Church Access"}</span><span aria-hidden="true">→</span></button>
+            <button type="button" className="fb-landing-cta fb-landing-cta-secondary" onClick={()=>enterAccessFlow("vendor")}><span>{LAUNCHED ? "For Vendors" : "Apply as a Vendor"}</span><span aria-hidden="true">→</span></button>
           </div>
-
-          <div className="land-signin-row" style={{textAlign:"center",marginBottom:34,animation:"fadeInUp 0.7s 0.5s ease both"}}>
-            <button type="button" onClick={()=>{setAuthDefaultRole("login");nav("auth");}} className="btn-text-light" style={{minHeight:36,padding:'8px 4px',letterSpacing:0.2}}>
-              Already have an account? <span style={{textDecoration:"underline",textUnderlineOffset:3}}>Sign In</span>
-            </button>
-          </div>
-
+          <button type="button" className="fb-landing-scroll" onClick={scrollToHowItWorks} aria-label="Scroll to how FaithBid works"><span aria-hidden="true"/></button>
         </div>
-      </div>
+      </section>
 
       {/* ── STATS + BROWSE ALL ROW ── */}
       {(()=>{
@@ -42044,32 +42001,22 @@ function LandingChurchTrustStrip() {
 
 function FirstSessionTrustRail() {
   const items = [
-    { num: "01", title: "Post your project", body: "Turn the ministry need into one clean brief with scope, budget, timeline, attachments, and the context vendors need to respond well." },
-    { num: "02", title: "Review the right bids", body: "Compare pricing, timing, trust signals, references, and faith-fit context without losing the details in scattered emails." },
-    { num: "03", title: "Hire with confidence", body: "Keep messages, files, milestones, approvals, and closeout tied to the same project record from first click to final handoff." },
+    { num: "01", icon: "brief", title: "Post your need", body: "Tell us what your church needs, including the scope, timing, budget, and context." },
+    { num: "02", icon: "people", title: "Meet trusted vendors", body: "Review aligned professionals, proposals, references, and the details that matter." },
+    { num: "03", icon: "handshake", title: "Move forward confidently", body: "Compare, communicate, choose, and keep the work organized through handoff." },
   ];
   return (
-    <section data-kb-funnel-section="how_it_works" style={{ background: "#fffdf8", borderTop: "1px solid #dfd5c2", borderBottom: "1px solid #dfd5c2", position: "relative", overflow: "hidden" }}>
-      <style>{`@media (max-width: 860px){ .fs-trust-grid{grid-template-columns:1fr !important;} .fs-trust-head{grid-template-columns:1fr !important;} }`}</style>
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 12% 20%, rgba(176,136,64,0.09), transparent 30%), radial-gradient(circle at 90% 10%, rgba(28,40,20,0.06), transparent 32%)", pointerEvents: "none" }} />
-      <div style={{ maxWidth: 1120, margin: "0 auto", padding: "46px 48px", position: "relative", zIndex: 1 }}>
-        <div className="fs-trust-head" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.05fr) minmax(280px,0.95fr)", gap: 28, alignItems: "end", marginBottom: 24 }}>
-          <div>
-            <div style={{ fontFamily: "var(--font-sans), monospace", fontSize: 10, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "#8a6729", marginBottom: 10 }}>How FaithBid works</div>
-            <h2 style={{ fontFamily: "var(--font-display), serif", fontSize: "clamp(28px, 4.2vw, 44px)", lineHeight: 1.04, letterSpacing: "-0.035em", color: "#1C2814", margin: 0 }}>One marketplace built for church projects.</h2>
-          </div>
-          <div>
-            <p style={{ fontSize: 14.5, lineHeight: 1.75, color: "#5f6659", margin: 0, fontWeight: 400 }}>FaithBid is built to help churches post clearly, compare faith-aligned bids, and move from first message to final handoff without losing control of the project.</p>
-          </div>
-        </div>
-        <div className="fs-trust-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 }}>
+    <section id="how-faithbid-works" data-kb-funnel-section="how_it_works" className="fb-how-it-works" aria-labelledby="how-faithbid-works-title">
+      <div className="fb-how-it-works-inner">
+        <h2 id="how-faithbid-works-title">How It Works</h2>
+        <div className="fs-trust-grid fb-how-it-works-grid">
           {items.map(item => (
-            <div key={item.num} style={{ background: "rgba(255,255,255,0.78)", border: "1px solid #dfd5c2", borderRadius: 22, padding: "20px 20px 22px", boxShadow: "0 18px 44px rgba(28,40,20,0.055)", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: 0, left: 20, right: 20, height: 2, background: "linear-gradient(90deg, #b08840, rgba(176,136,64,0))" }} />
-              <div style={{ fontFamily: "var(--font-sans), monospace", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", color: "#b08840", marginBottom: 12 }}>{item.num}</div>
-              <div style={{ fontFamily: "var(--font-display), serif", fontSize: 21, fontWeight: 700, color: "#1C2814", marginBottom: 8, letterSpacing: "-0.015em" }}>{item.title}</div>
-              <div style={{ fontSize: 13.5, lineHeight: 1.7, color: "#6d7468", fontWeight: 400 }}>{item.body}</div>
-            </div>
+            <article key={item.num} className="fb-how-step">
+              <div className="fb-how-step-number">{item.num}</div>
+              <div className={`fb-how-step-icon is-${item.icon}`} aria-hidden="true"><span/><i/><b/></div>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </article>
           ))}
         </div>
       </div>
