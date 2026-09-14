@@ -1349,7 +1349,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         >
           ← Projects
         </button>
-        <div style={{fontFamily:'DM Mono,monospace',fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
+        <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
           Draft saved
         </div>
       </div>
@@ -1358,7 +1358,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         {/* Hero banner */}
         <div style={{background:'#fff', border:'1px solid #dfd5c2', borderRadius:22, padding:'32px 28px', textAlign:'center', boxShadow:'0 7px 20px rgba(28,40,20,0.06)', marginBottom:20}}>
           <div style={{width:72,height:72,borderRadius:'50%',background:'linear-gradient(135deg,#c9a45c,#b08840)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:30,color:'#fff',margin:'0 auto 18px',boxShadow:'0 8px 24px rgba(176,136,64,0.30)'}}>✦</div>
-          <h1 style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 10px'}}>
+          <h1 style={{fontFamily:"var(--font-display),serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 10px'}}>
             Your project brief is saved.
           </h1>
           <div style={{fontSize:14, color:'#565862', lineHeight:1.65, maxWidth:480, margin:'0 auto'}}>
@@ -1372,7 +1372,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         {/* What happens next */}
         <div style={{background:'#fff', border:'1px solid #dfd5c2', borderRadius:22, overflow:'hidden', marginBottom:20, boxShadow:'0 7px 20px rgba(28,40,20,0.06)'}}>
           <div style={{padding:'14px 22px', borderBottom:'1px solid #efe7d9', background:'#fffdf8'}}>
-            <div style={{fontFamily:'DM Mono,monospace', fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>What happens next</div>
+            <div style={{fontFamily:"var(--font-sans),monospace", fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>What happens next</div>
           </div>
           {[
             {num:'01',title:'Review the draft',body:'Confirm the scope, budget, timeline, and category before you move forward.'},
@@ -1382,10 +1382,10 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           ].map((s,i,arr)=>(
             <div key={s.num} style={{display:'grid', gridTemplateColumns:'56px 1fr', borderBottom: i < arr.length-1 ? '1px solid #efe7d9' : 'none'}}>
               <div style={{padding:'16px', display:'flex', alignItems:'flex-start', justifyContent:'center', paddingTop:18}}>
-                <span style={{fontFamily:'DM Mono,monospace', fontSize:11, color:'#b08840', letterSpacing:'0.10em', fontWeight:700}}>{s.num}</span>
+                <span style={{fontFamily:"var(--font-sans),monospace", fontSize:11, color:'#b08840', letterSpacing:'0.10em', fontWeight:700}}>{s.num}</span>
               </div>
               <div style={{padding:'16px 22px 16px 0'}}>
-                <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif", fontSize:15.5, fontWeight:700, color:'#1C2814', marginBottom:4, letterSpacing:'-0.015em'}}>{s.title}</div>
+                <div style={{fontFamily:"var(--font-display),serif", fontSize:15.5, fontWeight:700, color:'#1C2814', marginBottom:4, letterSpacing:'-0.015em'}}>{s.title}</div>
                 <div style={{fontSize:13, color:'#565862', lineHeight:1.6}}>{s.body}</div>
               </div>
             </div>
@@ -1524,7 +1524,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
                 showToast('Confirmation email sent — check your inbox.');
                 setTimeout(() => setResendCooldown(false), 60000);
               }
-            }} style={{flexShrink:0, padding:'8px 14px', borderRadius:8, border:'1px solid rgba(220,38,38,0.3)', background:resendCooldown ? 'rgba(220,38,38,0.03)' : 'rgba(220,38,38,0.08)', color:resendCooldown ? 'rgba(177,52,42,0.45)' : '#b1342a', fontSize:12, fontWeight:700, cursor:resendCooldown ? 'not-allowed' : 'pointer', fontFamily:'DM Sans,sans-serif', whiteSpace:'nowrap', transition:'all 0.18s'}}>
+            }} style={{flexShrink:0, padding:'8px 14px', borderRadius:8, border:'1px solid rgba(220,38,38,0.3)', background:resendCooldown ? 'rgba(220,38,38,0.03)' : 'rgba(220,38,38,0.08)', color:resendCooldown ? 'rgba(177,52,42,0.45)' : '#b1342a', fontSize:12, fontWeight:700, cursor:resendCooldown ? 'not-allowed' : 'pointer', fontFamily:"var(--font-sans),sans-serif", whiteSpace:'nowrap', transition:'all 0.18s'}}>
               {resendCooldown ? 'Email sent — check your inbox' : 'Resend confirmation email →'}
             </button>
           </div>
@@ -1545,7 +1545,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         >
           ← Projects
         </button>
-        <div style={{fontFamily:'DM Mono,monospace',fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
+        <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
           Proposal submitted
         </div>
       </div>
@@ -1558,7 +1558,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
               <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:7,height:7,borderRadius:'50%',background:'#c4973a'}}/>
             </div>
           </div>
-          <h1 style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 10px'}}>
+          <h1 style={{fontFamily:"var(--font-display),serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 10px'}}>
             Proposal submitted.
           </h1>
           <div style={{fontSize:14, color:'#565862', lineHeight:1.65, maxWidth:440, margin:'0 auto'}}>
@@ -1568,7 +1568,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
 
         {/* Tips while you wait — retained dark navy card, refined */}
         <div style={{background:'linear-gradient(135deg,#1C2814,#2a3520)', borderRadius:22, padding:'24px 26px', marginBottom:20, textAlign:'left', color:'#fff', boxShadow:'0 7px 20px rgba(28,40,20,0.20)'}}>
-          <div style={{fontFamily:'DM Mono,monospace', fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#c4973a', marginBottom:14}}>While you wait</div>
+          <div style={{fontFamily:"var(--font-sans),monospace", fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#c4973a', marginBottom:14}}>While you wait</div>
           {[
             'Complete your Faith Verification to stand out above unverified vendors.',
             'Add a bio and portfolio to your profile — churches review it before hiring.',
@@ -3733,7 +3733,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
             aria-label="More filters"
           >
             <div className="kbm2-filter-sheet-head">
-              <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840'}}>Filters</span>
+              <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840'}}>Filters</span>
               <button type="button" onClick={() => setFilterSheetOpen(false)} aria-label="Close filters" style={{marginLeft:'auto',width:32,height:32,borderRadius:999,border:'1px solid rgba(28,40,20,0.12)',background:'#fff',fontSize:16,cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center',color:'#1C2814'}}>×</button>
             </div>
 
@@ -3762,7 +3762,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                 <select
                   value={locationFilter}
                   onChange={e => setLocationFilter(e.target.value)}
-                  style={{height:42,padding:'0 14px',borderRadius:10,border:'1px solid rgba(28,40,20,0.14)',background:'#fff',fontSize:13,fontFamily:'DM Sans,sans-serif',color:'#1C2814',cursor:'pointer',outline:'none'}}
+                  style={{height:42,padding:'0 14px',borderRadius:10,border:'1px solid rgba(28,40,20,0.14)',background:'#fff',fontSize:13,fontFamily:"var(--font-sans),sans-serif",color:'#1C2814',cursor:'pointer',outline:'none'}}
                 >
                   <option value="All Locations">All locations</option>
                   <option value="Remote">Remote</option>
@@ -4467,7 +4467,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
                     fontSize:11,
                     fontWeight:700,
                     cursor:"pointer",
-                    fontFamily:"DM Sans,sans-serif",
+                    fontFamily:"var(--font-sans),sans-serif",
                   }}
                 >
                   {phase.label}
@@ -4560,7 +4560,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
               value={workspace.nextAction || ""}
               onChange={e => updateWorkspace({ nextAction: e.target.value })}
               placeholder={isVendor ? "Example: Send homepage mockups by Friday" : "Example: Review revised scope and approve milestone 2"}
-              style={{width:"100%",padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"DM Sans,sans-serif",fontSize:13,outline:"none",background:"#fff",marginBottom:10}}
+              style={{width:"100%",padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"var(--font-sans),sans-serif",fontSize:13,outline:"none",background:"#fff",marginBottom:10}}
             />
             <div style={{fontSize:11,color:"var(--text-muted)",lineHeight:1.6}}>
               Use this as the single source of truth for what needs to happen next on the project.
@@ -4640,7 +4640,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
                 <div style={{fontSize:18,fontWeight:800,color:'#1C2814'}}>{moneyLabel(paymentCoordination?.lastCoordinatedAmount)}</div>
               </div>
             </div>
-            <textarea rows={2} value={paymentCoordination?.note || ''} onChange={e=>updatePaymentCoordination('note', e.target.value)} placeholder='Payment coordination note, invoice reminder, or payout detail…' style={{width:'100%',padding:'12px 12px',borderRadius:10,border:'1px solid var(--border)',fontFamily:'DM Sans,sans-serif',fontSize:13,outline:'none',resize:'vertical'}} />
+            <textarea rows={2} value={paymentCoordination?.note || ''} onChange={e=>updatePaymentCoordination('note', e.target.value)} placeholder='Payment coordination note, invoice reminder, or payout detail…' style={{width:'100%',padding:'12px 12px',borderRadius:10,border:'1px solid var(--border)',fontFamily:"var(--font-sans),sans-serif",fontSize:13,outline:'none',resize:'vertical'}} />
             <div style={{fontSize:11,color:'#7d7363',lineHeight:1.7}}>FaithBid documents the operating record. The church and vendor handle invoices and project payments directly; any separate FaithBid placement fee is agreed before an introduction and invoiced manually.</div>
           </div>
 
@@ -4652,7 +4652,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
                 onChange={e=>setDeliverableInput(e.target.value)}
                 onKeyDown={e=>{ if (e.key === "Enter") { e.preventDefault(); addDeliverable(); } }}
                 placeholder="Add a deliverable or handoff item"
-                style={{flex:1,padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"DM Sans,sans-serif",fontSize:13,outline:"none"}}
+                style={{flex:1,padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"var(--font-sans),sans-serif",fontSize:13,outline:"none"}}
               />
               <button type="button" onClick={addDeliverable} className="btn-secondary" style={{padding:"0 14px"}}>Add</button>
             </div>
@@ -4692,7 +4692,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
             value={updateText}
             onChange={e=>setUpdateText(e.target.value)}
             placeholder={isVendor ? "Example: Mockups are ready for your review and I uploaded the PDF in the thread." : "Example: We reviewed the latest draft and are ready to approve milestone two."}
-            style={{width:"100%",padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"DM Sans,sans-serif",fontSize:13,outline:"none",resize:"vertical",marginBottom:10}}
+            style={{width:"100%",padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"var(--font-sans),sans-serif",fontSize:13,outline:"none",resize:"vertical",marginBottom:10}}
           />
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             <button type="button" onClick={sendProjectUpdate} disabled={!updateText.trim() || sending} className="btn-primary" style={{padding:"10px 16px"}}>
@@ -4750,7 +4750,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
               return <button key={field} type='button' onClick={()=>updateCloseout(field, complete ? 'pending' : (field === 'finalPayout' ? 'released' : 'done'))} style={{padding:'12px 14px',borderRadius:12,border:'1px solid var(--border)',background:'#fff',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,cursor:'pointer'}}><span style={{fontSize:13,color:'#1C2814',fontWeight:600}}>{label}</span><span style={{fontSize:11,fontWeight:700,color:complete?'var(--success)':'var(--warn)',textTransform:'uppercase'}}>{String(value || 'pending').replace('_',' ')}</span></button>;
             }) : <div style={{gridColumn:'1 / -1',padding:'13px 14px',borderRadius:12,background:'#fff',border:'1px solid var(--border)',fontSize:12,color:'#7d7363',lineHeight:1.65}}>No closeout checklist has been documented for this project yet.</div>}
           </div>
-          <textarea rows={2} value={opsState?.closeout?.closeoutNote || ''} onChange={e=>updateCloseout('closeoutNote', e.target.value)} placeholder='Handoff summary, archive notes, or any final coordination details…' style={{width:'100%',padding:'12px 12px',borderRadius:10,border:'1px solid var(--border)',fontFamily:'DM Sans,sans-serif',fontSize:13,outline:'none',resize:'vertical'}} />
+          <textarea rows={2} value={opsState?.closeout?.closeoutNote || ''} onChange={e=>updateCloseout('closeoutNote', e.target.value)} placeholder='Handoff summary, archive notes, or any final coordination details…' style={{width:'100%',padding:'12px 12px',borderRadius:10,border:'1px solid var(--border)',fontFamily:"var(--font-sans),sans-serif",fontSize:13,outline:'none',resize:'vertical'}} />
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
             <button type='button' className='btn-secondary' style={{padding:'10px 14px'}} onClick={requestReview}>Request review</button>
             <button type='button' className='btn-secondary' style={{padding:'10px 14px'}} onClick={()=>{
@@ -4855,7 +4855,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
         >
           ← Back
         </button>
-        <div style={{fontFamily:'DM Mono,monospace',fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
+        <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
           Submit Proposal
         </div>
       </div>
@@ -4864,7 +4864,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
         <div style={{fontSize:11, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'#b08840', marginBottom:8}}>
           {churchName}
         </div>
-        <h1 style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif", fontSize:'clamp(24px,3.6vw,34px)', fontWeight:500, lineHeight:1.15, color:'#1C2814', margin:'0 0 6px'}}>
+        <h1 style={{fontFamily:"var(--font-display),serif", fontSize:'clamp(24px,3.6vw,34px)', fontWeight:500, lineHeight:1.15, color:'#1C2814', margin:'0 0 6px'}}>
           {projectTitle}
         </h1>
         <div style={{fontSize:13, color:'#565862', marginBottom:20}}>{contextMeta || budgetLabel}</div>
@@ -4932,7 +4932,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
               value={amount}
               onChange={e => setAmount(e.target.value)}
               placeholder="e.g. 12500"
-              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:'DM Sans, sans-serif'}}
+              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:"var(--font-sans), sans-serif"}}
             />
             {amountTooHigh ? (
               <div style={{marginTop:6, padding:'8px 12px', borderRadius:10, background:'rgba(220,38,38,0.06)', border:'1px solid rgba(220,38,38,0.18)', fontSize:12, color:'#b1342a'}}>
@@ -4957,7 +4957,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
               value={timeline}
               onChange={e => setTimeline(e.target.value)}
               placeholder="e.g. 4 weeks from kickoff"
-              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:'DM Sans, sans-serif'}}
+              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:"var(--font-sans), sans-serif"}}
             />
           </label>
 
@@ -4969,7 +4969,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
               rows={5}
               maxLength={1500}
               placeholder="How would you approach this project? What makes you a strong fit? Anything you'd need from the church to get started."
-              style={{padding:'12px 14px', borderRadius:12, border:`1px solid ${note.length > 1350 ? 'rgba(220,38,38,0.35)' : 'rgba(0,0,0,0.12)'}`, background:'#fff', fontSize:14, lineHeight:1.55, fontFamily:'DM Sans, sans-serif', resize:'vertical', transition:'border-color 0.15s'}}
+              style={{padding:'12px 14px', borderRadius:12, border:`1px solid ${note.length > 1350 ? 'rgba(220,38,38,0.35)' : 'rgba(0,0,0,0.12)'}`, background:'#fff', fontSize:14, lineHeight:1.55, fontFamily:"var(--font-sans), sans-serif", resize:'vertical', transition:'border-color 0.15s'}}
             />
             <div style={{display:'flex', justifyContent:'space-between', gap:10, alignItems:'center', marginTop:2, flexWrap:'wrap'}}>
               <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
@@ -4985,7 +4985,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
                   </button>
                 ))}
               </div>
-              <span style={{fontSize:11, fontFamily:'DM Mono,monospace', color: note.length > 1350 ? '#b1342a' : note.length > 1100 ? '#8a6729' : 'rgba(28,40,20,0.28)', letterSpacing:'0.04em'}}>
+              <span style={{fontSize:11, fontFamily:"var(--font-sans),monospace", color: note.length > 1350 ? '#b1342a' : note.length > 1100 ? '#8a6729' : 'rgba(28,40,20,0.28)', letterSpacing:'0.04em'}}>
                 {note.length}/1500
               </span>
             </div>
@@ -5001,7 +5001,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
               </button>
               {coachingOpen && (
                 <div style={{marginTop:8, padding:'12px 14px', borderRadius:12, background:'#fffdf8', border:'1px solid #efe7d9'}}>
-                  <div style={{fontFamily:'DM Mono,monospace', fontSize:9.5, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840', marginBottom:8}}>What churches look for</div>
+                  <div style={{fontFamily:"var(--font-sans),monospace", fontSize:9.5, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840', marginBottom:8}}>What churches look for</div>
                   <ul style={{margin:0, padding:0, listStyle:'none', display:'flex', flexDirection:'column', gap:6}}>
                     <li style={{display:'flex', gap:8, alignItems:'flex-start', fontSize:12.5, color:'#565862', lineHeight:1.5}}>
                       <span style={{width:5, height:5, borderRadius:999, background:'#b08840', flexShrink:0, marginTop:7}}/>
@@ -5508,7 +5508,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
                 </div>
                 <div className="kb-snapshot-label" style={{fontSize:12,fontWeight:700,letterSpacing:0,textTransform:'none',color:'#1C2814',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.label}</div>
               </div>
-              <div style={{fontFamily:"'Newsreader','Playfair Display',serif",fontSize:17,fontWeight:600,letterSpacing:'-0.025em',color:'#1C2814',lineHeight:1,marginLeft:'auto',flexShrink:0,whiteSpace:'nowrap'}}>{item.value}</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:600,letterSpacing:'-0.025em',color:'#1C2814',lineHeight:1,marginLeft:'auto',flexShrink:0,whiteSpace:'nowrap'}}>{item.value}</div>
             </div>
           );
         })}
@@ -5661,7 +5661,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
               </div>
               {activityItemsTotal > activityItemsVisible.length ? (
                 <div style={{padding:'10px 18px',borderTop:'1px solid #f4ecdc',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <button type="button" onClick={()=>{setLane('all');setSearch('');}} style={{fontSize:12,fontWeight:700,color:'#8a6729',background:'none',border:'none',cursor:'pointer',padding:'4px 12px',fontFamily:"'DM Sans',sans-serif"}}>
+                  <button type="button" onClick={()=>{setLane('all');setSearch('');}} style={{fontSize:12,fontWeight:700,color:'#8a6729',background:'none',border:'none',cursor:'pointer',padding:'4px 12px',fontFamily:"var(--font-sans),sans-serif"}}>
                     {activityItemsTotal - activityItemsVisible.length} more item{activityItemsTotal - activityItemsVisible.length === 1 ? '' : 's'} — view all projects →
                   </button>
                 </div>
@@ -5702,12 +5702,12 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       ) : myProjectsFetchError ? (
         <div style={{padding:'48px 24px',textAlign:'center',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
           <div style={{width:52,height:52,borderRadius:'50%',background:'rgba(220,38,38,0.07)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24}}>⚠</div>
-          <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em'}}>Couldn't load your projects</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em'}}>Couldn't load your projects</div>
           <div style={{fontSize:13,color:'#858792',maxWidth:340,lineHeight:1.6}}>There was a problem fetching your projects. Check your connection and try again.</div>
           <button
             type="button"
             onClick={typeof onRetryMyProjects === 'function' ? onRetryMyProjects : undefined}
-            style={{height:42,padding:'0 22px',borderRadius:11,border:'none',background:'linear-gradient(180deg,#1C2814,#0e1808)',color:'#fffdf8',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",letterSpacing:'0.02em',boxShadow:'0 4px 14px rgba(28,40,20,0.20)'}}
+            style={{height:42,padding:'0 22px',borderRadius:11,border:'none',background:'linear-gradient(180deg,#1C2814,#0e1808)',color:'#fffdf8',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif",letterSpacing:'0.02em',boxShadow:'0 4px 14px rgba(28,40,20,0.20)'}}
           >
             Try again
           </button>
@@ -5772,8 +5772,8 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       {vendorPickModal && (
         <div style={{position:'fixed',inset:0,background:'rgba(28,40,20,0.50)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:16,backdropFilter:'blur(4px)'}} role="dialog" aria-modal="true">
           <div style={{background:'#fff',borderRadius:22,padding:'24px 26px',maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(28,40,20,0.30)',border:'1px solid #dfd5c2'}}>
-            <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Vendor selection</div>
-            <h3 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:'0 0 4px'}}>Update which vendor?</h3>
+            <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Vendor selection</div>
+            <h3 style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:'0 0 4px'}}>Update which vendor?</h3>
             <p style={{margin:'0 0 18px',fontSize:13,color:'#565862'}}>{vendorPickModal.project?.title}</p>
             <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:18}}>
               {vendorPickModal.links.map((v) => (
@@ -5797,7 +5797,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       {normalizedProjects.filter(p => p.laneKey === 'cancelled').length > 0 && (
         <div style={{maxWidth:1400,margin:'32px auto 0',padding:'0 24px'}}>
           <details style={{borderRadius:14,border:'1px solid #ece4d2',background:'#fffdf8',overflow:'hidden'}}>
-            <summary style={{padding:'13px 20px',cursor:'pointer',fontSize:12,fontWeight:700,color:'#8a8579',letterSpacing:'0.08em',textTransform:'uppercase',fontFamily:"'DM Mono',monospace",userSelect:'none',listStyle:'none',display:'flex',alignItems:'center',gap:8}}>
+            <summary style={{padding:'13px 20px',cursor:'pointer',fontSize:12,fontWeight:700,color:'#8a8579',letterSpacing:'0.08em',textTransform:'uppercase',fontFamily:"var(--font-sans),monospace",userSelect:'none',listStyle:'none',display:'flex',alignItems:'center',gap:8}}>
               <span style={{flex:1}}>Closed projects · {normalizedProjects.filter(p=>p.laneKey==='cancelled').length}</span>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
             </summary>
@@ -5805,7 +5805,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
               {normalizedProjects.filter(p=>p.laneKey==='cancelled').map(p=>(
                 <div key={p.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 20px',gap:12}}>
                   <span style={{fontSize:13,color:'#7d7363',lineHeight:1.4}}>{p.title}</span>
-                  <span style={{fontSize:10.5,fontFamily:"'DM Mono',monospace",color:'#c4bdb4',fontWeight:600,letterSpacing:'0.06em',textTransform:'uppercase',flexShrink:0}}>Closed</span>
+                  <span style={{fontSize:10.5,fontFamily:"var(--font-sans),monospace",color:'#c4bdb4',fontWeight:600,letterSpacing:'0.06em',textTransform:'uppercase',flexShrink:0}}>Closed</span>
                 </div>
               ))}
             </div>
@@ -5816,8 +5816,8 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       {stagePickModal && (
         <div style={{position:'fixed',inset:0,background:'rgba(28,40,20,0.50)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:16,backdropFilter:'blur(4px)'}} role="dialog" aria-modal="true">
           <div style={{background:'#fff',borderRadius:22,padding:'24px 26px',maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(28,40,20,0.30)',border:'1px solid #dfd5c2'}}>
-            <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Vendor stage</div>
-            <h3 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:'0 0 4px'}}>Set stage for {stagePickModal.vendor?.name}</h3>
+            <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Vendor stage</div>
+            <h3 style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:'0 0 4px'}}>Set stage for {stagePickModal.vendor?.name}</h3>
             <p style={{margin:'0 0 18px',fontSize:13,color:'#565862'}}>Current: <strong style={{color:'#1C2814',fontWeight:700}}>{PROJECT_VENDOR_STAGE_META[stagePickModal.vendor?.stage]?.label || 'Watching'}</strong></p>
             <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:18}}>
               {PROJECT_VENDOR_PIPELINE.map((item) => {
@@ -5990,8 +5990,8 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
           </div>
         ) : won.length===0 ? (
           <div style={{background:'linear-gradient(135deg,#1C2814,#2a3520)',borderRadius:22,padding:'64px 40px',textAlign:'center',color:'#fff',boxShadow:'0 7px 20px rgba(28,40,20,0.20)'}}>
-            <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#c4973a',marginBottom:14}}>Your work</div>
-            <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(24px,3.4vw,30px)',fontWeight:700,marginBottom:10,letterSpacing:'-0.025em',color:'#fff',lineHeight:1.05}}>No active projects yet.</div>
+            <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#c4973a',marginBottom:14}}>Your work</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(24px,3.4vw,30px)',fontWeight:700,marginBottom:10,letterSpacing:'-0.025em',color:'#fff',lineHeight:1.05}}>No active projects yet.</div>
             <div style={{fontSize:14,color:'rgba(255,255,255,0.72)',marginBottom:28,lineHeight:1.65,maxWidth:420,margin:'0 auto 28px'}}>
               Submit bids on open projects and win your first ministry client.
             </div>
@@ -6068,7 +6068,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
                       onClick={()=>setWithdrawWorkPanelConfirm(b.id)}
                       disabled={withdrawingBid===b.id}
                       aria-label={`Withdraw bid on ${proj.title||'project'}`}
-                      style={{padding:'5px 12px',borderRadius:999,border:'1px solid rgba(220,38,38,0.22)',background:'rgba(220,38,38,0.06)',color:'#b1342a',fontSize:10.5,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",letterSpacing:'0.04em',opacity:withdrawingBid===b.id?0.5:1}}
+                      style={{padding:'5px 12px',borderRadius:999,border:'1px solid rgba(220,38,38,0.22)',background:'rgba(220,38,38,0.06)',color:'#b1342a',fontSize:10.5,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif",letterSpacing:'0.04em',opacity:withdrawingBid===b.id?0.5:1}}
                     >
                       {withdrawingBid===b.id ? 'Withdrawing…' : 'Withdraw bid'}
                     </button>
@@ -6077,16 +6077,16 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
                     <div style={{marginTop:4, padding:'16px 18px', borderRadius:14, background:'#fffdf8', border:'1px solid #efe7d9', display:'flex', flexDirection:'column', gap:14}}>
                       <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
                         <div style={{padding:'10px 12px',borderRadius:12,background:'#fff',border:'1px solid #e5dcc8',minWidth:110}}>
-                          <div style={{fontFamily:'DM Mono,monospace',fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Your bid</div>
-                          <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{formatMoney(Number(b.amount))}</div>
+                          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Your bid</div>
+                          <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{formatMoney(Number(b.amount))}</div>
                         </div>
                         <div style={{padding:'10px 12px',borderRadius:12,background:'#fff',border:'1px solid #e5dcc8',minWidth:110}}>
-                          <div style={{fontFamily:'DM Mono,monospace',fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Timeline</div>
-                          <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{b.timeline || '—'}</div>
+                          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Timeline</div>
+                          <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{b.timeline || '—'}</div>
                         </div>
                         <div style={{padding:'10px 12px',borderRadius:12,background:'#fff',border:'1px solid #e5dcc8',minWidth:110}}>
-                          <div style={{fontFamily:'DM Mono,monospace',fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Submitted</div>
-                          <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{days === 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days}d ago`}</div>
+                          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Submitted</div>
+                          <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{days === 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days}d ago`}</div>
                         </div>
                       </div>
                       {(b.cover_letter || b.note) && (
@@ -6104,7 +6104,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
                               inputMode="decimal"
                               value={editingBid.amount}
                               onChange={e => setEditingBid(prev => ({...prev, amount: e.target.value}))}
-                              style={{height:38, padding:'0 12px', borderRadius:8, border:'1.5px solid #dfd5c2', background:'#fff', fontSize:14, fontFamily:'DM Sans,sans-serif', outline:'none'}}
+                              style={{height:38, padding:'0 12px', borderRadius:8, border:'1.5px solid #dfd5c2', background:'#fff', fontSize:14, fontFamily:"var(--font-sans),sans-serif", outline:'none'}}
                             />
                           </label>
                           <div style={{display:'flex', alignItems:'flex-end', gap:8}}>
@@ -6201,7 +6201,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
   const description = p.desc || p.description || "This representative project shows how a complete ministry brief can look once a church posts work to the marketplace.";
 
   return (
-    <div style={{ minHeight: "100vh", backgroundImage: KB_WORKSPACE_CLAY_BACKGROUND, backgroundSize: "cover", backgroundPosition: "center top", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed", backgroundColor: "#f6efe4", padding: "22px 24px 52px", fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundImage: KB_WORKSPACE_CLAY_BACKGROUND, backgroundSize: "cover", backgroundPosition: "center top", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed", backgroundColor: "#f6efe4", padding: "22px 24px 52px", fontFamily: "var(--font-sans), sans-serif" }}>
       <div style={{ maxWidth: 1120, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginBottom: 18, flexWrap: "wrap" }}>
           <button
@@ -6223,7 +6223,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase", color: "#b08840", marginBottom: 10 }}>
                 {p.category || "Sample project"}
               </div>
-              <h1 style={{ margin: 0, fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: "clamp(31px,5vw,54px)", lineHeight: 0.98, letterSpacing: "-0.045em", fontWeight: 800, color: "#1C2814", maxWidth: 760 }}>
+              <h1 style={{ margin: 0, fontFamily: "var(--font-display),serif", fontSize: "clamp(31px,5vw,54px)", lineHeight: 0.98, letterSpacing: "-0.045em", fontWeight: 800, color: "#1C2814", maxWidth: 760 }}>
                 {p.title || "Sample ministry project"}
               </h1>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 16, color: "#6b6d75", fontSize: 13.5, fontWeight: 600 }}>
@@ -6250,7 +6250,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
                     style={{ width: "100%", textAlign: "left", padding: "13px 14px", borderRadius: 16, border: "1px solid #eadfca", background: "#fffdf8", cursor: "pointer" }}
                   >
                     <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#a09a85", marginBottom: 4 }}>{item.label}</div>
-                    <div style={{ fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: 19, lineHeight: 1.1, fontWeight: 800, letterSpacing: "-0.02em", color: "#1C2814" }}>{item.value}</div>
+                    <div style={{ fontFamily: "var(--font-display),serif", fontSize: 19, lineHeight: 1.1, fontWeight: 800, letterSpacing: "-0.02em", color: "#1C2814" }}>{item.value}</div>
                   </button>
                 ))}
               </div>
@@ -6282,7 +6282,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
         <section style={{ marginTop: 16, borderRadius: 24, overflow: "hidden", background: "linear-gradient(135deg,#1C2814,#28371d)", border: "1px solid rgba(28,40,20,0.22)", boxShadow: "0 18px 42px rgba(28,40,20,0.16)" }}>
           <div style={{ padding: "28px clamp(22px,4vw,38px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 22, flexWrap: "wrap" }}>
             <div style={{ minWidth: 0, maxWidth: 660 }}>
-              <div style={{ fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: "clamp(22px,3vw,32px)", fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.035em", color: "#fff", marginBottom: 8 }}>
+              <div style={{ fontFamily: "var(--font-display),serif", fontSize: "clamp(22px,3vw,32px)", fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.035em", color: "#fff", marginBottom: 8 }}>
                 {isVendor ? "Projects like this are waiting for you." : "Ready to post a project like this?"}
               </div>
               <div style={{ fontSize: 13.5, lineHeight: 1.7, color: "rgba(255,255,255,0.68)", maxWidth: 600 }}>
@@ -6539,8 +6539,8 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
       {/* Cream headline section */}
       <div className="kb755-bid-review-hero" style={{padding:'22px 24px 20px',background:'#fffdf8',borderBottom:'1px solid #efe7d9'}}>
         <div style={{maxWidth:1400,margin:'0 auto'}}>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>Bid review · {error ? 'Unable to load proposals' : `${bids.length} ${bids.length===1?'proposal':'proposals'}`}</div>
-          <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(26px,3.6vw,34px)',fontWeight:700,lineHeight:1.04,letterSpacing:'-0.025em',color:'#1C2814',margin:'0 0 6px',overflow:'hidden',textOverflow:'ellipsis'}}>{p.title}</h1>
+          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>Bid review · {error ? 'Unable to load proposals' : `${bids.length} ${bids.length===1?'proposal':'proposals'}`}</div>
+          <h1 style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(26px,3.6vw,34px)',fontWeight:700,lineHeight:1.04,letterSpacing:'-0.025em',color:'#1C2814',margin:'0 0 6px',overflow:'hidden',textOverflow:'ellipsis'}}>{p.title}</h1>
           <div style={{fontSize:13,color:'#565862'}}>{p.church_name||p.church}{p.city?` · ${p.city}`:""}{p.budget?` · ${p.budget}`:''}</div>
 
           {/* Stat strip */}
@@ -6551,8 +6551,8 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
               {label:'Avg bid',    val:error?'—':(bids.length>0?formatMoney(avgBid):'—')},
             ].map((s,i)=>(
               <div key={s.label} style={{padding:'14px 18px',borderRight:i<2?'1px solid #efe7d9':'none'}}>
-                <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{s.val}</div>
-                <div style={{fontFamily:'DM Mono,monospace',fontSize:9.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',marginTop:5}}>{s.label}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{s.val}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',marginTop:5}}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -6581,7 +6581,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
 
       {!loading && error && (
         <div style={{background:"#fff",borderRadius:"var(--r-lg)",border:"1.5px solid var(--border)",padding:"48px 40px",textAlign:"center"}}>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:8}}>We couldn't load the bids</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:8}}>We couldn't load the bids</div>
           <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,maxWidth:420,margin:"0 auto 18px"}}>The project may still have proposals. Nothing has been changed. Try loading the bid review again.</div>
           <button type="button" onClick={()=>{ if (typeof onRetry === 'function') onRetry(); }} className="btn-secondary" style={{padding:"10px 16px",fontSize:12}}>Try again</button>
         </div>
@@ -6592,7 +6592,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
           <div style={{width:48,height:48,borderRadius:"var(--r-md)",background:"var(--cream-dark)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
           </div>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Waiting for bids</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Waiting for bids</div>
           <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,maxWidth:360,margin:"0 auto"}}>Most projects receive their first bid within a few hours. Make sure your description is clear and your budget is realistic.</div>
         </div>
       )}
@@ -6603,8 +6603,8 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
             <div className="kb755-bid-review-recommendation" style={{background:'linear-gradient(135deg,#fffdf8,#f7f1e4)',borderRadius:'var(--r-lg)',border:'1.5px solid rgba(176,136,64,0.16)',padding:'18px 20px',marginBottom:14,boxShadow:'0 12px 36px rgba(20,21,24,0.05)'}}>
               <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:16,flexWrap:'wrap'}}>
                 <div style={{maxWidth:660}}>
-                  <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#8a6a2e',marginBottom:8,fontFamily:'DM Mono,monospace'}}>Recommended now</div>
-                  <div style={{fontFamily:'Playfair Display,serif',fontSize:28,fontWeight:700,color:'#1C2814',letterSpacing:-0.5,lineHeight:1.05,marginBottom:6}}>{decisionLeader.bid.vendor || decisionLeader.bid.vendor_name || 'Vendor'}</div>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#8a6a2e',marginBottom:8,fontFamily:"var(--font-sans),monospace"}}>Recommended now</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:700,color:'#1C2814',letterSpacing:-0.5,lineHeight:1.05,marginBottom:6}}>{decisionLeader.bid.vendor || decisionLeader.bid.vendor_name || 'Vendor'}</div>
                   <div style={{fontSize:13,color:'var(--text-mid)',lineHeight:1.75,marginBottom:10,maxWidth:600}}>{decisionLeader.profile.body}</div>
                   <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:12}}>
                     {decisionLeader.profile.reasons.map(reason => <span key={reason} style={{padding:'6px 10px',borderRadius:999,border:'1px solid rgba(20,21,24,0.08)',background:'#fff',fontSize:11,fontWeight:700,color:'var(--text-mid)'}}>{reason}</span>)}
@@ -6619,7 +6619,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   </div>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:10,minWidth:280,flex:'1 1 320px',maxWidth:360}}>
-                  {decisionSnapshot.map(item => <div key={item.label} style={{padding:'12px 13px',borderRadius:14,background:'#fff',border:'1px solid rgba(20,21,24,0.06)'}}><div style={{fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#7d7363',marginBottom:5,fontFamily:'DM Mono,monospace'}}>{item.label}</div><div style={{fontSize:13,fontWeight:700,color:'#1C2814',lineHeight:1.45}}>{item.value}</div></div>)}
+                  {decisionSnapshot.map(item => <div key={item.label} style={{padding:'12px 13px',borderRadius:14,background:'#fff',border:'1px solid rgba(20,21,24,0.06)'}}><div style={{fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#7d7363',marginBottom:5,fontFamily:"var(--font-sans),monospace"}}>{item.label}</div><div style={{fontSize:13,fontWeight:700,color:'#1C2814',lineHeight:1.45}}>{item.value}</div></div>)}
                 </div>
               </div>
             </div>
@@ -6628,7 +6628,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
             <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:14,flexWrap:"wrap",marginBottom:14}}>
               <div>
                 <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--text-muted)",marginBottom:6}}>Decision workspace</div>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,color:"var(--navy)",letterSpacing:-0.5,marginBottom:5}}>Review every bid in one place</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",letterSpacing:-0.5,marginBottom:5}}>Review every bid in one place</div>
                 <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,maxWidth:560}}>Review price, trust signals, cover letters, and bid status before you hire. Use the filters to quickly narrow the field.</div>
               </div>
               <div style={{display:"flex",gap:0,background:"var(--cream)",borderRadius:"var(--r-md)",border:"1px solid var(--border)",overflow:"hidden"}}>
@@ -6639,7 +6639,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   {label:"Hired", val:hired?1:0},
                 ].map((s,i)=>(
                   <div key={s.label} style={{padding:"10px 14px",borderRight:i<3?"1px solid var(--border)":"none",minWidth:86,textAlign:"center"}}>
-                    <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--navy)",lineHeight:1}}>{s.val}</div>
+                    <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",lineHeight:1}}>{s.val}</div>
                     <div style={{fontSize:9,fontWeight:700,letterSpacing:1.3,textTransform:"uppercase",color:"var(--text-muted)",marginTop:4}}>{s.label}</div>
                   </div>
                 ))}
@@ -6658,7 +6658,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                     key={filter.key}
                     type="button"
                     onClick={()=>setStageFilter(filter.key)}
-                    style={{padding:"7px 12px",borderRadius:999,border:stageFilter===filter.key?"1px solid var(--navy)":"1px solid var(--border)",background:stageFilter===filter.key?"var(--navy)":"#fff",color:stageFilter===filter.key?"#fff":"var(--text-mid)",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif",letterSpacing:0.2,display:"inline-flex",alignItems:"center",gap:6,transition:"all 0.15s"}}
+                    style={{padding:"7px 12px",borderRadius:999,border:stageFilter===filter.key?"1px solid var(--navy)":"1px solid var(--border)",background:stageFilter===filter.key?"var(--navy)":"#fff",color:stageFilter===filter.key?"#fff":"var(--text-mid)",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,display:"inline-flex",alignItems:"center",gap:6,transition:"all 0.15s"}}
                   >
                     <span>{filter.label}</span>
                     <span style={{padding:"2px 6px",borderRadius:999,background:stageFilter===filter.key?"rgba(255,255,255,0.14)":"var(--cream)",color:"inherit",fontSize:10}}>{filter.count}</span>
@@ -6669,7 +6669,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                     type="button"
                     onClick={()=>setConfirmDeclineAll(true)}
                     disabled={decliningAll}
-                    style={{padding:"7px 12px",background:"var(--danger-bg)",color:"var(--danger)",border:"1px solid var(--danger-border)",borderRadius:999,fontSize:11,fontWeight:700,cursor:decliningAll?"not-allowed":"pointer",fontFamily:"DM Sans,sans-serif",opacity:decliningAll?0.6:1,letterSpacing:0.2}}
+                    style={{padding:"7px 12px",background:"var(--danger-bg)",color:"var(--danger)",border:"1px solid var(--danger-border)",borderRadius:999,fontSize:11,fontWeight:700,cursor:decliningAll?"not-allowed":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:decliningAll?0.6:1,letterSpacing:0.2}}
                   >
                     {decliningAll ? "Declining…" : `Decline remaining (${pendingCount})`}
                   </button>
@@ -6679,7 +6679,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                 <div style={{display:"flex",gap:0,background:"#fff",borderRadius:"var(--r-sm)",border:"1.5px solid var(--border)",overflow:"hidden"}}>
                   {[{key:"amount",label:"Price"},{key:"rating",label:"Rating"},{key:"recent",label:"Recent"}].map((s,i)=>(
                     <button key={s.key} type="button" onClick={()=>setSortBy(s.key)}
-                      style={{padding:"7px 12px",background:sortBy===s.key?"var(--navy)":"#fff",color:sortBy===s.key?"#fff":"var(--text-mid)",border:"none",borderRight:i<2?"1.5px solid var(--border)":"none",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif",transition:"all 0.15s"}}>
+                      style={{padding:"7px 12px",background:sortBy===s.key?"var(--navy)":"#fff",color:sortBy===s.key?"#fff":"var(--text-mid)",border:"none",borderRight:i<2?"1.5px solid var(--border)":"none",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"}}>
                       {s.label}
                     </button>
                   ))}
@@ -6688,7 +6688,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   <div style={{display:"flex",gap:0,background:"#fff",borderRadius:"var(--r-sm)",border:"1.5px solid var(--border)",overflow:"hidden"}}>
                     {[{key:"list",label:"List"},{key:"compare",label:"Side-by-side"}].map((m,i)=>(
                       <button key={m.key} type="button" onClick={()=>setViewMode(m.key)}
-                        style={{padding:"7px 12px",background:viewMode===m.key?"#1C2814":"#fff",color:viewMode===m.key?"#fff":"#1C2814",border:"none",borderRight:i<1?"1.5px solid var(--border)":"none",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif",transition:"all 0.15s",display:"inline-flex",alignItems:"center",gap:6}}>
+                        style={{padding:"7px 12px",background:viewMode===m.key?"#1C2814":"#fff",color:viewMode===m.key?"#fff":"#1C2814",border:"none",borderRight:i<1?"1.5px solid var(--border)":"none",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s",display:"inline-flex",alignItems:"center",gap:6}}>
                         {m.key==="compare" && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>}
                         {m.label}
                       </button>
@@ -6704,7 +6704,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
             <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:18,boxShadow:'0 7px 20px rgba(28,40,20,0.06)',overflow:'hidden'}}>
               <div style={{padding:'14px 18px',background:'#fffdf8',borderBottom:'1px solid #efe7d9',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,flexWrap:'wrap'}}>
                 <div>
-                  <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:3}}>Side-by-side</div>
+                  <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:3}}>Side-by-side</div>
                   <div style={{fontSize:13,color:'#565862'}}>Comparing {stageFiltered.length} {stageFiltered.length===1?'bid':'bids'} · sorted by {sortBy === 'amount' ? 'price' : sortBy === 'rating' ? 'rating' : 'most recent'}</div>
                 </div>
                 <button type="button" onClick={()=>setViewMode('list')} style={{height:32,padding:'0 12px',borderRadius:999,border:'1px solid rgba(28,40,20,0.12)',background:'#fff',fontSize:12,fontWeight:700,color:'#1C2814',cursor:'pointer'}}>Back to list</button>
@@ -6724,7 +6724,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
                           <div style={{width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,#5b7a5e,#3d5940)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0,letterSpacing:0.5}}>{initials}</div>
                           <div style={{minWidth:0,flex:1}}>
-                            <div style={{fontFamily:'DM Sans,sans-serif',fontSize:13,fontWeight:800,color:'#1C2814',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{b.vendor||b.vendor_name||'Vendor'}</div>
+                            <div style={{fontFamily:"var(--font-sans),sans-serif",fontSize:13,fontWeight:800,color:'#1C2814',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{b.vendor||b.vendor_name||'Vendor'}</div>
                             <div style={{fontSize:11,color:'#74756d'}}>{b.city || 'Location'}</div>
                           </div>
                         </div>
@@ -6742,10 +6742,10 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   })}
 
                   {/* Amount row */}
-                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:'DM Mono,monospace',fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Bid amount</div>
+                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Bid amount</div>
                   {stageFiltered.map(b => (
                     <div key={`amt-${b.id}`} style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',borderLeft:'1px solid #efe7d9',background:'#fff'}}>
-                      <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{b.amount ? formatMoney(Number(b.amount)) : '—'}</div>
+                      <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{b.amount ? formatMoney(Number(b.amount)) : '—'}</div>
                       {Number(b.amount) > 0 && avgBid > 0 && (
                         <div style={{fontSize:10.5,color: Number(b.amount) < avgBid ? '#2F855A' : '#74756d',marginTop:4,fontWeight:600}}>{Number(b.amount) < avgBid ? `${formatMoney(avgBid - Number(b.amount))} below avg` : Number(b.amount) > avgBid ? `${formatMoney(Number(b.amount) - avgBid)} above avg` : 'At average'}</div>
                       )}
@@ -6753,13 +6753,13 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   ))}
 
                   {/* Timeline row */}
-                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:'DM Mono,monospace',fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Timeline</div>
+                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Timeline</div>
                   {stageFiltered.map(b => (
                     <div key={`tl-${b.id}`} style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',borderLeft:'1px solid #efe7d9',background:'#fff',fontSize:13,color:'#1C2814',fontWeight:600}}>{b.timeline || b.delivery_window || '—'}</div>
                   ))}
 
                   {/* Rating row */}
-                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:'DM Mono,monospace',fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Rating</div>
+                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Rating</div>
                   {stageFiltered.map(b => (
                     <div key={`rt-${b.id}`} style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',borderLeft:'1px solid #efe7d9',background:'#fff'}}>
                       {Number(b.rating) > 0 ? (
@@ -6773,7 +6773,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   ))}
 
                   {/* Cover letter row */}
-                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:'DM Mono,monospace',fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Cover letter</div>
+                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Cover letter</div>
                   {stageFiltered.map(b => (
                     <div key={`cl-${b.id}`} style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',borderLeft:'1px solid #efe7d9',background:'#fff',fontSize:12.5,color:'#565862',lineHeight:1.5,maxHeight:140,overflowY:'auto'}}>
                       {b.cover_letter || b.note || b.message || <span style={{color:'#a8aab4',fontStyle:'italic'}}>No cover letter provided</span>}
@@ -6839,7 +6839,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                           {isHiredCard && <span style={{fontSize:"8px",fontWeight:700,padding:"1px 6px",borderRadius:3,background:"var(--success-bg)",color:"var(--success)",border:"1px solid var(--success-border)",letterSpacing:0.5,textTransform:"uppercase"}}>Hired</span>}
                           {b.status==="under_review" && !isHiredCard && <span style={{fontSize:"8px",fontWeight:700,padding:"1px 6px",borderRadius:3,background:"#FFFBEB",color:"#D97706",border:"1px solid #FDE68A",letterSpacing:0.5,textTransform:"uppercase"}}>Under review</span>}
                         </div>
-                        <div style={{fontSize:10,color:"var(--text-muted)",fontFamily:"DM Mono,monospace",marginBottom:6}}>{b.category||"//"}{b.rating?" · "+Number(b.rating).toFixed(1)+"★":""}</div>
+                        <div style={{fontSize:10,color:"var(--text-muted)",fontFamily:"var(--font-sans),monospace",marginBottom:6}}>{b.category||"//"}{b.rating?" · "+Number(b.rating).toFixed(1)+"★":""}</div>
                         {/* One-line cover letter preview */}
                         {(b.note||b.cover_letter) && (
                           <div style={{fontSize:11,color:"var(--text-muted)",fontStyle:"italic",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>
@@ -6848,9 +6848,9 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                         )}
                       </div>
                       <div style={{textAlign:"right",flexShrink:0}}>
-                        <div style={{fontFamily:"Playfair Display,serif",fontSize:17,fontWeight:700,color:"var(--navy)",letterSpacing:-0.5,lineHeight:1}}>{formatMoney(Number(b.amount||0))}</div>
+                        <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:"var(--navy)",letterSpacing:-0.5,lineHeight:1}}>{formatMoney(Number(b.amount||0))}</div>
                         <div style={{display:"inline-flex",alignItems:"center",justifyContent:"center",marginTop:5,padding:"3px 8px",borderRadius:999,background:decisionProfile.tone==='clear'?'rgba(22,163,74,0.1)':decisionProfile.tone==='strong'?'rgba(176,136,64,0.1)':'rgba(43,108,176,0.1)',color:decisionProfile.tone==='clear'?'#15803d':decisionProfile.tone==='strong'?'#8a6a2e':'#2b6cb0',fontSize:10,fontWeight:700,letterSpacing:0.4}}>{bidFitLabel}</div>
-                        {b.timeline && <div style={{fontSize:9,color:"var(--text-muted)",marginTop:4,fontFamily:"DM Mono,monospace"}}>{b.timeline}</div>}
+                        {b.timeline && <div style={{fontSize:9,color:"var(--text-muted)",marginTop:4,fontFamily:"var(--font-sans),monospace"}}>{b.timeline}</div>}
                       </div>
                     </div>
                     <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:10}}>
@@ -7011,8 +7011,8 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
       {/* Cream headline section */}
       <div style={{padding:'22px 24px 18px',background:'#fffdf8',borderBottom:'1px solid #efe7d9'}}>
         <div style={{maxWidth:1400,margin:'0 auto'}}>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>Your activity</div>
-          <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(26px,3.6vw,34px)',fontWeight:700,lineHeight:1.04,letterSpacing:'-0.025em',color:'#1C2814',margin:'0 0 6px'}}>My bids</h1>
+          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>Your activity</div>
+          <h1 style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(26px,3.6vw,34px)',fontWeight:700,lineHeight:1.04,letterSpacing:'-0.025em',color:'#1C2814',margin:'0 0 6px'}}>My bids</h1>
           <div style={{fontSize:13,color:'#565862'}}>Every proposal submitted and your win rate.</div>
 
           {/* Stat strip */}
@@ -7024,8 +7024,8 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
               {label:'Win rate', val:bids.length>0?Math.round(won.length/bids.length*100)+'%':'—'},
             ].map((s,i)=>(
               <div key={s.label} style={{padding:'14px 18px',borderRight:i<3?'1px solid #efe7d9':'none'}}>
-                <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{s.val}</div>
-                <div style={{fontFamily:'DM Mono,monospace',fontSize:9.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',marginTop:5}}>{s.label}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{s.val}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',marginTop:5}}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -7040,7 +7040,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
         <div style={{background:"linear-gradient(135deg,var(--navy),var(--navy-light))",borderRadius:"var(--r-md)",padding:"16px 20px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
           <div>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:"var(--atext-2)",marginBottom:6}}>Revenue via FaithBid</div>
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:28,fontWeight:700,color:"#fff",lineHeight:1}}>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:700,color:"#fff",lineHeight:1}}>
               {formatMoney(won.reduce((sum,b)=>sum+(Number(b.amount)||0),0))}
             </div>
             <div style={{fontSize:11,color:"var(--atext-2)",marginTop:4}}>Across {won.length} won project{won.length!==1?"s":""}</div>
@@ -7053,7 +7053,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
             for(const b of sorted){ if(b.status==="hired") streak++; else break; }
             return streak > 1 ? (
               <div style={{textAlign:"center",padding:"12px 20px",background:"rgba(245,240,232,0.08)",borderRadius:10,border:"1px solid rgba(245,240,232,0.15)"}}>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"var(--gold-light)",lineHeight:1}}>{streak}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"var(--gold-light)",lineHeight:1}}>{streak}</div>
                 <div style={{fontSize:10,color:"var(--atext-2)",marginTop:4,fontWeight:600,letterSpacing:0.5}}>WIN STREAK</div>
               </div>
             ) : null;
@@ -7067,7 +7067,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
           <div style={{fontSize:12,fontWeight:700,color:"#fff",marginBottom:2}}>Help build FaithBid's founding community</div>
           <div style={{fontSize:11,color:"var(--atext-mid)"}}>Invite a church or Christian business. One qualified activation before public launch earns permanent Founding Connector recognition.</div>
         </div>
-        <button type="button" style={{background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:"var(--r-sm)",padding:"7px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif",whiteSpace:"nowrap"}} onClick={async(e)=>{
+        <button type="button" style={{background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:"var(--r-sm)",padding:"7px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",whiteSpace:"nowrap"}} onClick={async(e)=>{
           const btn = e.currentTarget;
           try {
             const userId = currentUser?.id || (await getCurrentUserSafe())?.id;
@@ -7095,7 +7095,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
       ) : localBids.length === 0 ? (
         <div style={{background:"linear-gradient(135deg,var(--navy),var(--navy-light))",borderRadius:"var(--r-lg)",padding:"48px 40px",textAlign:"center",color:"#fff"}}>
           <div style={{width:52,height:2,background:"rgba(255,255,255,0.15)",borderRadius:2,margin:"0 auto 18px"}}></div>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,marginBottom:10}}>Your first bid is the hardest one</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,marginBottom:10}}>Your first bid is the hardest one</div>
           <div style={{fontSize:14,color:"var(--atext-mid)",marginBottom:28,lineHeight:1.8,maxWidth:440,margin:"0 auto 28px"}}>
             Browse open projects, find one that fits your skills, and write a personal cover letter. Churches here are actively looking to hire Christian vendors // they're rooting for you.
           </div>
@@ -7120,7 +7120,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
               <React.Fragment key={b.id}>
               <div style={{background:"#fff",borderRadius:"var(--r-md)",border:"1px solid rgba(42,53,32,0.09)",padding:"18px 20px",boxShadow:"0 1px 3px rgba(42,53,32,0.04)",display:"flex",gap:16,alignItems:"flex-start",flexWrap:"wrap"}}>
                 <div style={{flex:1,minWidth:200}}>
-                  <div style={{fontFamily:"Playfair Display,serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:4}}>{proj.title || "Project"}</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:4}}>{proj.title || "Project"}</div>
                   <div style={{fontSize:12,color:"var(--text-muted)",marginBottom:8}}>{proj.church_name || "//"} ·  {proj.city || "//"}</div>
                   <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
                     <div style={{fontSize:12,color:"var(--text-mid)"}}>Your bid: <strong style={{color:"var(--navy)"}}>{formatMoney(Number(b.amount))}</strong></div>
@@ -7132,10 +7132,10 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
                   <span style={{padding:"5px 12px",borderRadius:100,fontSize:11,fontWeight:600,background:sc.bg,color:sc.color,border:`1px solid ${sc.border}`}}>{sc.label}</span>
                   {b.status==="pending" && (
                     <>
-                      <button type="button" onClick={()=>setEditingBid({id:b.id, amount:String(b.amount||''), note:b.cover_letter||''})} style={{padding:"5px 11px",borderRadius:"var(--r-sm)",border:"1px solid var(--border)",background:"#fff",color:"var(--navy)",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>
+                      <button type="button" onClick={()=>setEditingBid({id:b.id, amount:String(b.amount||''), note:b.cover_letter||''})} style={{padding:"5px 11px",borderRadius:"var(--r-sm)",border:"1px solid var(--border)",background:"#fff",color:"var(--navy)",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>
                         Edit
                       </button>
-                      <button type="button" onClick={()=>handleWithdraw(b.id)} disabled={withdrawing===b.id} style={{padding:"5px 11px",borderRadius:"var(--r-sm)",border:"1px solid var(--border)",background:"#fff",color:"var(--text-muted)",fontSize:11,fontWeight:500,cursor:"pointer",fontFamily:"DM Sans,sans-serif",opacity:withdrawing===b.id?0.5:1}}>
+                      <button type="button" onClick={()=>handleWithdraw(b.id)} disabled={withdrawing===b.id} style={{padding:"5px 11px",borderRadius:"var(--r-sm)",border:"1px solid var(--border)",background:"#fff",color:"var(--text-muted)",fontSize:11,fontWeight:500,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:withdrawing===b.id?0.5:1}}>
                         {withdrawing===b.id?"…":"Withdraw"}
                       </button>
                     </>
@@ -7153,14 +7153,14 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
                         inputMode="decimal"
                         value={editingBid.amount}
                         onChange={e=>setEditingBid(prev=>({...prev,amount:e.target.value}))}
-                        style={{height:40,padding:"0 12px",borderRadius:10,border:"1.5px solid #dfd5c2",background:"#fff",fontSize:14,fontFamily:"DM Sans,sans-serif",outline:"none"}}
+                        style={{height:40,padding:"0 12px",borderRadius:10,border:"1.5px solid #dfd5c2",background:"#fff",fontSize:14,fontFamily:"var(--font-sans),sans-serif",outline:"none"}}
                       />
                     </label>
                     <div style={{display:"flex",alignItems:"flex-end",gap:8}}>
-                      <button type="button" onClick={doEditBid} disabled={editSaving} aria-busy={editSaving} style={{height:40,padding:"0 16px",borderRadius:10,border:"none",background:editSaving?"#e5e7eb":"linear-gradient(180deg,#c9a45c,#b08840)",color:editSaving?"#9ca3af":"#fff",fontSize:12,fontWeight:700,cursor:editSaving?"not-allowed":"pointer",fontFamily:"DM Sans,sans-serif",display:"inline-flex",alignItems:"center",gap:6}}>
+                      <button type="button" onClick={doEditBid} disabled={editSaving} aria-busy={editSaving} style={{height:40,padding:"0 16px",borderRadius:10,border:"none",background:editSaving?"#e5e7eb":"linear-gradient(180deg,#c9a45c,#b08840)",color:editSaving?"#9ca3af":"#fff",fontSize:12,fontWeight:700,cursor:editSaving?"not-allowed":"pointer",fontFamily:"var(--font-sans),sans-serif",display:"inline-flex",alignItems:"center",gap:6}}>
                         {editSaving ? <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" style={{animation:"spin 0.7s linear infinite"}} aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Saving…</> : "Save changes"}
                       </button>
-                      <button type="button" onClick={()=>setEditingBid(null)} style={{height:40,padding:"0 14px",borderRadius:10,border:"1px solid #dfd5c2",background:"#fff",color:"#5a5246",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Cancel</button>
+                      <button type="button" onClick={()=>setEditingBid(null)} style={{height:40,padding:"0 14px",borderRadius:10,border:"1px solid #dfd5c2",background:"#fff",color:"#5a5246",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Cancel</button>
                     </div>
                   </div>
                   <label style={{display:"grid",gap:5}}>
@@ -7170,7 +7170,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
                       onChange={e=>setEditingBid(prev=>({...prev,note:e.target.value.slice(0,1500)}))}
                       rows={3}
                       maxLength={1500}
-                      style={{padding:"10px 12px",borderRadius:10,border:"1.5px solid #dfd5c2",background:"#fff",fontSize:13,fontFamily:"DM Sans,sans-serif",outline:"none",resize:"vertical",lineHeight:1.5}}
+                      style={{padding:"10px 12px",borderRadius:10,border:"1.5px solid #dfd5c2",background:"#fff",fontSize:13,fontFamily:"var(--font-sans),sans-serif",outline:"none",resize:"vertical",lineHeight:1.5}}
                     />
                   </label>
                 </div>
@@ -7928,7 +7928,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   }, [desc]);
 
   return (
-    <div className="project-detail-shell" style={{backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND, backgroundSize:'cover', backgroundPosition:'center top', backgroundRepeat:'no-repeat', backgroundAttachment:'fixed', backgroundColor:'#f6efe4', minHeight:'100vh', color:'#1C2814', fontFamily:"'General Sans','DM Sans',-apple-system,BlinkMacSystemFont,sans-serif"}}>
+    <div className="project-detail-shell" style={{backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND, backgroundSize:'cover', backgroundPosition:'center top', backgroundRepeat:'no-repeat', backgroundAttachment:'fixed', backgroundColor:'#f6efe4', minHeight:'100vh', color:'#1C2814', fontFamily:"var(--font-sans),-apple-system,BlinkMacSystemFont,sans-serif"}}>
       <div style={{position:'sticky', top:58, left:0, right:0, zIndex:300, background:scrolled ? 'rgba(255,253,248,0.92)' : 'rgba(255,253,248,0.72)', backdropFilter:'blur(28px) saturate(1.6)', WebkitBackdropFilter:'blur(28px) saturate(1.6)', borderBottom:'1px solid rgba(28,40,20,0.08)', boxShadow:scrolled ? '0 14px 34px rgba(28,40,20,0.08)' : 'none', transition:'all 0.3s cubic-bezier(0.23,1,0.32,1)'}}>
         <div className="project-detail-topbar" style={{display:'flex',alignItems:'center',justifyContent:'space-between',minHeight:isMobile ? 62 : 54,maxWidth:1400,margin:'0 auto',padding:isMobile ? '8px 18px' : '0 48px',gap:16,flexWrap:isMobile ? 'wrap' : 'nowrap'}}>
           <div style={{display:'flex',alignItems:'center',gap:14,minWidth:0,flex:isMobile ? '1 1 100%' : '0 1 auto'}}>
@@ -7960,7 +7960,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
             {project?.status === 'open' ? 'Actively Hiring' : String(project?.status || 'Project').replace(/_/g,' ')}
           </div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.14em',textTransform:'uppercase',color:'#c9a45c',marginBottom:12}}>{category}</div>
-          <h1 className="project-detail-hero-title" style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(30px,3.6vw,46px)',fontWeight:700,lineHeight:1.02,letterSpacing:'-0.04em',color:'#fff',maxWidth:860,margin:'0 0 14px',overflowWrap:'anywhere',textShadow:'0 18px 42px rgba(0,0,0,0.36)'}}>{headline}</h1>
+          <h1 className="project-detail-hero-title" style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(30px,3.6vw,46px)',fontWeight:700,lineHeight:1.02,letterSpacing:'-0.04em',color:'#fff',maxWidth:860,margin:'0 0 14px',overflowWrap:'anywhere',textShadow:'0 18px 42px rgba(0,0,0,0.36)'}}>{headline}</h1>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:14,color:'rgba(255,255,255,0.65)',marginBottom:6}}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             {city}
@@ -8003,7 +8003,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               ].map((item, idx)=>(
                 <div key={item.label} style={{padding:isMobile ? '16px 14px' : '18px 18px',position:'relative',background:'#fff',minWidth:0}}>
                   {idx>0 && !isCompactMobile && <div style={{position:'absolute',left:0,top:'16%',height:'68%',width:1,background:'rgba(0,0,0,0.06)'}} />}
-                  <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:isMobile ? 21 : 23,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1,marginBottom:5,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.value}</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:isMobile ? 21 : 23,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1,marginBottom:5,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.value}</div>
                   <div style={{fontSize:10.5,fontWeight:700,color:'#a8aab4',letterSpacing:'0.06em',textTransform:'uppercase',whiteSpace:'nowrap'}}>{item.label}</div>
                 </div>
               ))}
@@ -8045,7 +8045,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
                 </div>
                 <div style={{padding:'16px 16px 14px',borderRadius:18,background:'#fff',border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 2px rgba(0,0,0,0.04)'}}>
                   <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:6}}>Approvals</div>
-                  <div style={{fontSize:24,fontFamily:"'Newsreader', Georgia, serif",fontWeight:500,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1,marginBottom:6}}>{workflowSummary.pendingApprovals.length}</div>
+                  <div style={{fontSize:24,fontFamily:"var(--font-display), serif",fontWeight:500,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1,marginBottom:6}}>{workflowSummary.pendingApprovals.length}</div>
                   <div style={{fontSize:12,color:'#858792',lineHeight:1.65}}>{workflowSummary.pendingApprovals.length ? 'Pending approvals need a response before work can move cleanly.' : 'No approval requests are documented right now.'}</div>
                 </div>
                 <div style={{padding:'16px 16px 14px',borderRadius:18,background:'#fff',border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 2px rgba(0,0,0,0.04)'}}>
@@ -8118,7 +8118,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)',marginBottom:24}}>
                 <div style={{padding:isMobile ? '20px 18px 18px' : '28px 28px 24px'}}>
                   <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:10}}>Scope of Work</div>
-                  <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:isMobile ? 24 : 30,fontWeight:700,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:10}}>What this project needs</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:isMobile ? 24 : 30,fontWeight:700,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:10}}>What this project needs</div>
                   <div style={{fontSize:14,lineHeight:1.7,color:'#565862',maxWidth:760,marginBottom:18}}>A cleaner brief view for vendors and churches: scope, deliverables, timing, and fit are separated so the next action is easier to understand.</div>
                   <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(3,minmax(0,1fr))',gap:10,marginBottom:20}}>
                     {projectDetailNextSteps.map((item, idx) => (
@@ -8282,7 +8282,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               <div style={{position:'absolute',bottom:-80,left:-70,width:220,height:220,borderRadius:999,background:'radial-gradient(circle,rgba(28,40,20,0.04),transparent 64%)',pointerEvents:'none'}} />
               <div style={{position:'relative',padding:'26px 24px 24px'}}>
                 <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:10}}>{actionModel.eyebrow || 'Action panel'}</div>
-                <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:28,fontWeight:800,color:'#1C2814',letterSpacing:'-0.04em',marginBottom:8,lineHeight:1.05}}>{actionModel.title}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:800,color:'#1C2814',letterSpacing:'-0.04em',marginBottom:8,lineHeight:1.05}}>{actionModel.title}</div>
                 <div style={{fontSize:13,color:'#565862',lineHeight:1.62,marginBottom:20}}>{actionModel.body}</div>
                 {!!actionModel.primaryLabel && <button type="button" onClick={runDetailAction(actionModel.primaryAction, projectDetailPrimaryFallback, 'project-detail-primary-action')} style={{width:'100%',height:48,borderRadius:14,border:'none',fontSize:14,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,background:'linear-gradient(135deg,#C4973A,#A87B2A)',color:'#fff',boxShadow:'0 2px 8px rgba(176,136,64,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',marginBottom:10}}>{actionModel.primaryLabel}</button>}
                 {!!actionModel.secondaryLabel && (
@@ -8321,7 +8321,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
                 <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:10}}>
                   {posterStats.map(([val,label])=>(
                     <div key={label} style={{padding:12,borderRadius:10,background:'#fbfaf6',border:'1px solid #efe7d9',textAlign:'center'}}>
-                      <div style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif",fontSize:18,fontWeight:500,color:'#1C2814',lineHeight:1}}>{val}</div>
+                      <div style={{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:500,color:'#1C2814',lineHeight:1}}>{val}</div>
                       <div style={{fontSize:10,fontWeight:600,color:'#a8aab4',letterSpacing:'0.04em',textTransform:'uppercase',marginTop:3}}>{label}</div>
                     </div>
                   ))}
@@ -8333,7 +8333,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)'}}>
                 <div style={{padding:'18px 22px',borderBottom:'1px solid rgba(0,0,0,0.06)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div style={{fontSize:13,fontWeight:700,color:'#1C2814',letterSpacing:'-0.01em'}}>Saved Projects</div>
-                  <span style={{fontFamily:"'JetBrains Mono','DM Mono',monospace",fontSize:10,fontWeight:600,color:'#a8aab4',padding:'3px 8px',borderRadius:999,background:'rgba(20,21,24,0.04)'}}>{savedProjectReferences.length}</span>
+                  <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:600,color:'#a8aab4',padding:'3px 8px',borderRadius:999,background:'rgba(20,21,24,0.04)'}}>{savedProjectReferences.length}</span>
                 </div>
                 <div style={{padding:'10px 14px'}}>
                   {savedProjectReferences.map(item => (
@@ -8482,12 +8482,12 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
   };
 
   return (
-    <main className="kb-saved-projects-fullbleed-page" style={{minHeight:'100vh',width:'100%',maxWidth:'none',margin:0,backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND,backgroundSize:'cover',backgroundPosition:'center top',padding:'34px clamp(18px,4vw,52px) 86px',fontFamily:"'DM Sans',sans-serif"}}>
+    <main className="kb-saved-projects-fullbleed-page" style={{minHeight:'100vh',width:'100%',maxWidth:'none',margin:0,backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND,backgroundSize:'cover',backgroundPosition:'center top',padding:'34px clamp(18px,4vw,52px) 86px',fontFamily:"var(--font-sans),sans-serif"}}>
       <div style={{width:'100%',maxWidth:'none',margin:0}}>
         <button type="button" onClick={() => nav('projects')} style={{border:'1px solid rgba(28,40,20,0.12)',background:'#fffdf8',borderRadius:999,padding:'9px 14px',fontSize:12,fontWeight:800,color:'#1C2814',cursor:'pointer',marginBottom:20}}>Back to Marketplace</button>
         <section style={{display:'grid',gap:12,marginBottom:24}}>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.18em',textTransform:'uppercase',color:'#B08840'}}>Workspace / Saved projects</div>
-          <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(38px,6vw,76px)',lineHeight:0.95,letterSpacing:'-0.055em',color:'#1C2814',margin:0}}>Saved Projects.</h1>
+          <h1 style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(38px,6vw,76px)',lineHeight:0.95,letterSpacing:'-0.055em',color:'#1C2814',margin:0}}>Saved Projects.</h1>
           <p style={{maxWidth:720,fontSize:16,lineHeight:1.65,color:'#56614f',fontWeight:600,margin:0}}>A clean bookmark list for projects you want to revisit. Notification-only bidding requests stay separate and do not appear here unless you also saved the project.</p>
         </section>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,flexWrap:'wrap',marginBottom:18,padding:'14px 16px',border:'1px solid rgba(28,40,20,0.10)',borderRadius:18,background:'rgba(255,253,248,0.76)',boxShadow:'0 12px 34px rgba(28,40,20,0.07)'}}>
@@ -8500,7 +8500,7 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:18}}>{[0,1,2].map(i => <div key={i} style={{height:430,borderRadius:18,background:'linear-gradient(90deg,rgba(255,255,255,0.52),rgba(255,255,255,0.86),rgba(255,255,255,0.52))',border:'1px solid rgba(28,40,20,0.08)'}} />)}</div>
         ) : rows.length === 0 ? (
           <div style={{padding:'42px 28px',borderRadius:26,border:'1px solid rgba(28,40,20,0.10)',background:'rgba(255,253,248,0.82)',textAlign:'center',boxShadow:'0 18px 48px rgba(28,40,20,0.08)'}}>
-            <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:34,fontWeight:800,color:'#1C2814',marginBottom:8}}>No saved projects yet.</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:34,fontWeight:800,color:'#1C2814',marginBottom:8}}>No saved projects yet.</div>
             <p style={{fontSize:14,lineHeight:1.6,color:'#6f7569',margin:'0 auto 20px',maxWidth:520}}>Save a project from the marketplace to track it here. Bidding-open notifications are managed separately so a reminder never pretends to be a bookmark.</p>
             <button type="button" onClick={() => nav('projects')} style={{height:44,borderRadius:14,border:'1px solid rgba(212,185,120,0.55)',background:'linear-gradient(135deg,#1C2814,#304225)',color:'#fffdf8',padding:'0 18px',fontSize:13,fontWeight:800,cursor:'pointer'}}>Browse Projects</button>
           </div>
@@ -8984,7 +8984,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   return (
     <div className={`kb-live-marketplace-page kb-vendor-marketplace-page${isHirerMarketplace ? ' kb-hirer-vendor-directory-page' : ' kb-vendor-directory-standalone-page'}${isChurchMarketplace ? ' kb-church-marketplace-page' : ''}`}>
       <style>{`
-        .kb-vendor-marketplace-page{background:transparent!important;min-height:auto!important;color:#171814;font-family:'DM Sans',Inter,system-ui,-apple-system,BlinkMacSystemFont,sans-serif;}
+        .kb-vendor-marketplace-page{background:transparent!important;min-height:auto!important;color:#171814;font-family:var(--font-sans),system-ui,-apple-system,BlinkMacSystemFont,sans-serif;}
         .kb-vendor-marketplace-page *{box-sizing:border-box;}
         .kb-vendor-marketplace-page.kb-church-marketplace-page{overflow-x:clip!important;}
 
@@ -9084,7 +9084,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           margin:0!important;
           padding:0!important;
           color:#fffdf8!important;
-          font-family:'Playfair Display','Newsreader',Georgia,serif!important;
+          font-family:var(--font-display),serif!important;
           font-size:clamp(48px,4vw,60px)!important;
           font-weight:500!important;
           line-height:1.02!important;
@@ -9353,7 +9353,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
             background:linear-gradient(180deg,rgba(40,71,37,.98),rgba(24,48,27,.98))!important;
             color:#fffdf8!important;
             box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
-            font-family:'DM Sans',system-ui,sans-serif!important;
+            font-family:var(--font-sans),system-ui,sans-serif!important;
             font-size:11.25px!important;
             font-weight:800!important;
             letter-spacing:.01em!important;
@@ -9432,7 +9432,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         .kb-vendor-marketplace-page .kb-live-shell{width:min(100%,1368px);margin:0 auto;padding:0 30px 54px;}
         .kb-vendor-marketplace-page .kb-live-vendor-kicker{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#9B7A35;margin:0 0 6px;}
         .kb-vendor-marketplace-page .kb-live-all-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 12px;padding:0 2px;}
-        .kb-vendor-marketplace-page .kb-live-all-head h2{margin:0;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:clamp(27px,3.1vw,38px);line-height:1;letter-spacing:-.04em;color:#10110f;font-weight:800;}
+        .kb-vendor-marketplace-page .kb-live-all-head h2{margin:0;font-family:var(--font-display),serif;font-size:clamp(27px,3.1vw,38px);line-height:1;letter-spacing:-.04em;color:#10110f;font-weight:800;}
         .kb-vendor-head-right{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;}
         .kb-vendor-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
         .kb-vendor-head-action{height:34px;border-radius:999px;border:1px solid rgba(28,40,20,.12);background:rgba(255,253,248,.78);color:#1C2814;padding:0 13px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:inherit;box-shadow:0 1px 2px rgba(28,40,20,.035);}
@@ -9442,7 +9442,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         .kb-market-mode-switch button{height:26px;border:0;border-radius:999px;background:transparent;color:#5d6258;padding:0 11px;font:inherit;font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
         .kb-market-mode-switch button.is-active{background:#1C2814;color:#fffdf8;box-shadow:0 6px 14px rgba(28,40,20,.12);}
         .kb-market-mode-switch button:not(.is-active):hover{background:rgba(28,40,20,.055);color:#1C2814;}
-        .kb-vendor-marketplace-page .kb-live-all-count{font-family:'DM Sans',Inter,sans-serif;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#9B7A35;}
+        .kb-vendor-marketplace-page .kb-live-all-count{font-family:var(--font-sans),sans-serif;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#9B7A35;}
         .kb-vendor-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 180px auto;gap:10px;align-items:center;margin:0 0 12px;padding:10px;border:1px solid rgba(176,136,64,.18);border-radius:18px;background:rgba(255,253,248,.78);box-shadow:0 10px 24px rgba(28,40,20,.055);}
         .kb-vendor-search{height:42px;border:1px solid rgba(28,40,20,.12);border-radius:13px;background:#fffdf8;padding:0 13px;font:inherit;font-size:13px;font-weight:600;color:#1C2814;outline:none;}
         .kb-vendor-search:focus{border-color:rgba(176,136,64,.55);box-shadow:0 0 0 3px rgba(176,136,64,.12);}
@@ -9461,7 +9461,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         .kb-vendor-marketplace-page .kb-live-card-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.03) 28%,rgba(0,0,0,.31) 58%,rgba(0,0,0,.73) 100%);z-index:1;}
         .kb-vendor-marketplace-page .kb-live-card-content{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:0 12px 12px;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;display:flex;flex-direction:column;gap:4px;align-items:stretch;}
         .kb-vendor-marketplace-page .kb-live-all-category{display:inline-flex;align-self:flex-start;margin:0;padding:0;border:0;background:none;font-size:7.5px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:rgba(214,163,62,.94);text-shadow:0 1px 5px rgba(0,0,0,.52);line-height:1;}
-        .kb-vendor-marketplace-page .kb-live-card-content h3{margin:0;padding:0;font-family:'DM Sans',Inter,system-ui,sans-serif;font-size:13.5px;font-weight:800;line-height:1.2;letter-spacing:-.028em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.55);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;text-align:left;}
+        .kb-vendor-marketplace-page .kb-live-card-content h3{margin:0;padding:0;font-family:var(--font-sans),system-ui,sans-serif;font-size:13.5px;font-weight:800;line-height:1.2;letter-spacing:-.028em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.55);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;text-align:left;}
         .kb-vendor-marketplace-page .kb-live-all-summary{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-size:9.5px;line-height:1.24;font-weight:600;color:rgba(255,253,248,.82);text-shadow:0 1px 5px rgba(0,0,0,.52);}
         .kb-vendor-marketplace-page .kb-vendor-match-summary strong{color:#fffdf8;font-weight:800;}
         .kb-vendor-marketplace-page .kb-vendor-match-summary{color:rgba(255,253,248,.88)!important;}
@@ -9553,7 +9553,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
             background:linear-gradient(180deg,rgba(40,71,37,.98),rgba(24,48,27,.98))!important;
             color:#fffdf8!important;
             box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
-            font-family:'DM Sans',system-ui,sans-serif!important;
+            font-family:var(--font-sans),system-ui,sans-serif!important;
             font-size:12px!important;
             font-weight:800!important;
             letter-spacing:.01em!important;
@@ -9599,7 +9599,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                 <div style={{marginBottom:14,padding:"14px 16px",border:"1px solid rgba(176,136,64,0.24)",borderRadius:18,background:"linear-gradient(135deg,rgba(255,247,234,0.94),rgba(255,253,248,0.96))",boxShadow:"0 12px 30px rgba(28,40,20,0.08)"}}>
                   <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
                     <div style={{minWidth:0}}>
-                      <div style={{fontFamily:"DM Mono,monospace",fontSize:10,fontWeight:800,letterSpacing:".14em",textTransform:"uppercase",color:"#9a7434",marginBottom:5}}>Founder coverage context</div>
+                      <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:".14em",textTransform:"uppercase",color:"#9a7434",marginBottom:5}}>Founder coverage context</div>
                       <div style={{display:"inline-flex",alignItems:"center",gap:6,marginBottom:7,padding:"4px 7px",borderRadius:999,background:"rgba(154,116,52,0.08)",border:"1px solid rgba(154,116,52,0.15)",fontSize:9,fontWeight:800,color:"#9a7434"}}>Opened from Founder Brief</div>
                       <div style={{fontSize:16,fontWeight:800,color:"#1C2814",lineHeight:1.2,marginBottom:5}}>{founderCoverageContext.projectTitle || founderCoverageContext.title || "Find qualified vendors"}</div>
                       <div style={{fontSize:12,color:"rgba(28,40,20,0.64)",lineHeight:1.55,maxWidth:680}}>{founderCoverageContext.reason || "Use this focused vendor directory pass to find qualified coverage for the marketplace gap."}</div>
@@ -9982,23 +9982,23 @@ function EditVendorProfile({ vendor = {}, onBack = () => {}, onSave = async () =
   const evx = {
     shell:{background:"#faf8f4",minHeight:"100vh",paddingBottom:60},
     topbar:{maxWidth:980,margin:"0 auto",padding:"22px 28px 0",display:"flex",alignItems:"center",gap:12},
-    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
-    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"'DM Mono',monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
+    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"var(--font-sans),sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
+    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"var(--font-sans),monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
     headWrap:{maxWidth:980,margin:"0 auto",padding:"22px 28px 22px"},
     headPanel:{background:"#fffdf8",border:"1px solid #dfd5c2",borderRadius:22,padding:"28px 30px 26px",boxShadow:"0 7px 20px rgba(28,40,20,0.045)"},
-    eyebrow:{fontFamily:"'DM Mono',monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
-    headline:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:36,fontWeight:700,color:"#1C2814",letterSpacing:-0.7,lineHeight:1.05,margin:0},
+    eyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
+    headline:{fontFamily:"var(--font-display),serif",fontSize:36,fontWeight:700,color:"#1C2814",letterSpacing:-0.7,lineHeight:1.05,margin:0},
     sub:{fontSize:14,color:"#5a5246",lineHeight:1.55,maxWidth:560,marginTop:8},
     panel:{background:"#fff",border:"1px solid #dfd5c2",borderRadius:18,boxShadow:"0 6px 18px rgba(28,40,20,0.04)",overflow:"hidden",marginBottom:18},
     panelHd:{padding:"16px 22px 14px",background:"#fffdf8",borderBottom:"1px solid #ece4d2"},
-    panelEyebrow:{fontFamily:"'DM Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
-    panelTitle:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
+    panelEyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
+    panelTitle:{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
     panelBody:{padding:"22px"},
-    label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"'DM Sans',sans-serif"},
-    input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"'DM Sans',sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box"},
-    textarea:{width:"100%",padding:"12px 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"'DM Sans',sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box",resize:"vertical",lineHeight:1.55},
-    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
-    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s"},
+    label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"var(--font-sans),sans-serif"},
+    input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box"},
+    textarea:{width:"100%",padding:"12px 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box",resize:"vertical",lineHeight:1.55},
+    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
+    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
     onFocus:(e)=>{e.currentTarget.style.borderColor="#b08840";e.currentTarget.style.boxShadow="0 0 0 3px rgba(176,136,64,0.12)";},
     onBlur:(e)=>{e.currentTarget.style.borderColor="#dfd5c2";e.currentTarget.style.boxShadow="none";},
   };
@@ -10067,7 +10067,7 @@ function EditVendorProfile({ vendor = {}, onBack = () => {}, onSave = async () =
                   type="button"
                   onClick={()=>photoInputRef.current?.click()}
                   disabled={photoUploading}
-                  style={{height:38,padding:'0 16px',borderRadius:11,border:'1.5px solid #dfd5c2',background:'#fffdf8',color:'#1C2814',fontSize:12.5,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",display:'inline-flex',alignItems:'center',gap:7}}
+                  style={{height:38,padding:'0 16px',borderRadius:11,border:'1.5px solid #dfd5c2',background:'#fffdf8',color:'#1C2814',fontSize:12.5,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif",display:'inline-flex',alignItems:'center',gap:7}}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                   {photoPreview ? 'Change photo' : 'Upload photo'}
@@ -10076,7 +10076,7 @@ function EditVendorProfile({ vendor = {}, onBack = () => {}, onSave = async () =
                   <button
                     type="button"
                     onClick={()=>{ setPhotoPreview(null); setPhotoFile(null); if(photoInputRef.current) photoInputRef.current.value=''; }}
-                    style={{height:38,padding:'0 14px',borderRadius:11,border:'1px solid rgba(220,38,38,0.22)',background:'rgba(220,38,38,0.04)',color:'#b1342a',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}
+                    style={{height:38,padding:'0 14px',borderRadius:11,border:'1px solid rgba(220,38,38,0.22)',background:'rgba(220,38,38,0.04)',color:'#b1342a',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}
                   >
                     Remove
                   </button>
@@ -10139,7 +10139,7 @@ function EditVendorProfile({ vendor = {}, onBack = () => {}, onSave = async () =
           </div>
         </div>
         <div style={{display:'flex',gap:10,justifyContent:'flex-end',marginTop:8,flexWrap:'wrap',alignItems:'center'}}>
-          {saveError && <div role="alert" style={{flex:1,fontSize:12.5,color:'#a23b3b',fontWeight:600,fontFamily:"'DM Sans',sans-serif"}}>{saveError}</div>}
+          {saveError && <div role="alert" style={{flex:1,fontSize:12.5,color:'#a23b3b',fontWeight:600,fontFamily:"var(--font-sans),sans-serif"}}>{saveError}</div>}
           <button type="button" style={evx.btnSecondary} onClick={onBack}>Cancel</button>
           <button type="button" style={{...evx.btnPrimary,opacity:(saving || !String(form.name || '').trim())?0.5:1,cursor:(saving || !String(form.name || '').trim())?"not-allowed":"pointer",display:'inline-flex',alignItems:'center',gap:6}} onClick={submit} disabled={saving || !String(form.name || '').trim()} aria-busy={saving}>
             {saving ? (
@@ -10186,7 +10186,7 @@ const VENDOR_PROFILE_PANEL_HD_STYLE = {
 };
 
 const VENDOR_PROFILE_PANEL_TITLE_STYLE = {
-  fontFamily: "'Playfair Display','Newsreader',Georgia,serif",
+  fontFamily: "var(--font-display),serif",
   fontSize: 16,
   fontWeight: 700,
   color: "#1C2814",
@@ -10196,7 +10196,7 @@ const VENDOR_PROFILE_PANEL_TITLE_STYLE = {
 const VENDOR_PROFILE_PANEL_BODY_STYLE = { padding: 16 };
 
 const VENDOR_PROFILE_KICKER_STYLE = {
-  fontFamily: "'DM Mono', monospace",
+  fontFamily: "var(--font-sans), monospace",
   fontSize: 10,
   fontWeight: 800,
   letterSpacing: "0.13em",
@@ -10247,7 +10247,7 @@ function VendorProfileStatTile({ label, value, hint = null, accent = false }) {
   return (
     <div style={{ padding: "14px 15px", borderRadius: 14, border: "1px solid #dfd5c2", background: accent ? "linear-gradient(135deg,#fffdf8,#faf6ed)" : "#fffdf8" }}>
       <div style={{ ...VENDOR_PROFILE_KICKER_STYLE, color: accent ? "#8a6a2e" : "#7d7363", marginBottom: 6 }}>{label}</div>
-      <div style={{ fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: 24, fontWeight: 700, color: "#1C2814", lineHeight: 1.05 }}>{value}</div>
+      <div style={{ fontFamily: "var(--font-display),serif", fontSize: 24, fontWeight: 700, color: "#1C2814", lineHeight: 1.05 }}>{value}</div>
       {hint && <div style={{ marginTop: 6, fontSize: 12, color: "#565862", lineHeight: 1.5 }}>{hint}</div>}
     </div>
   );
@@ -10675,12 +10675,12 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:8}}>
-                  <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840'}}>Vendor diligence profile</span>
+                  <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840'}}>Vendor diligence profile</span>
                   <span style={{width:4,height:4,borderRadius:999,background:'#d6c08a'}} />
-                  <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#7d7363'}}>{v.category || 'Church vendor'}</span>
+                  <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#7d7363'}}>{v.category || 'Church vendor'}</span>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:7}}>
-                  <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(25px,3.2vw,34px)',fontWeight:700,color:'#1C2814',letterSpacing:'-0.035em',lineHeight:1.02,wordBreak:'break-word',margin:0}}>{firstNonEmpty(v.name, 'Unnamed Vendor')}</h1>
+                  <h1 style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(25px,3.2vw,34px)',fontWeight:700,color:'#1C2814',letterSpacing:'-0.035em',lineHeight:1.02,wordBreak:'break-word',margin:0}}>{firstNonEmpty(v.name, 'Unnamed Vendor')}</h1>
                   {identityBadges.length > 0 && <BadgeRow badges={identityBadges} />}
                 </div>
                 <div style={{fontSize:13.5,color:'#565862',lineHeight:1.55,maxWidth:660,marginBottom:10}}>

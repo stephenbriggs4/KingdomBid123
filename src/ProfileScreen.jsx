@@ -414,14 +414,14 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
   const psx = {
     shell:{background:"#faf8f4",minHeight:"100vh",paddingBottom:60},
     topbar:{maxWidth:1100,margin:"0 auto",padding:"22px 28px 0",display:"flex",alignItems:"center",gap:12},
-    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
-    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"'DM Mono',monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
+    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"var(--font-sans),sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
+    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"var(--font-sans),monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
     headWrap:{maxWidth:1100,margin:"0 auto",padding:"22px 28px 22px"},
     headPanel:{background:"#fffdf8",border:"1px solid #dfd5c2",borderRadius:22,padding:"26px 30px 24px",boxShadow:"0 7px 20px rgba(28,40,20,0.045)"},
     headRow:{display:"flex",alignItems:"center",gap:18,flexWrap:"wrap"},
-    avatar:{width:56,height:56,borderRadius:14,background:"linear-gradient(135deg,#fffaf0,#f0e6d0)",border:"1px solid #dfd5c2",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,fontWeight:800,color:"#1C2814",flexShrink:0,letterSpacing:0.3,fontFamily:"'Playfair Display',Georgia,serif"},
-    eyebrow:{fontFamily:"'DM Mono',monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:8},
-    headline:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:30,fontWeight:700,color:"#1C2814",letterSpacing:-0.6,lineHeight:1.06,margin:0},
+    avatar:{width:56,height:56,borderRadius:14,background:"linear-gradient(135deg,#fffaf0,#f0e6d0)",border:"1px solid #dfd5c2",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,fontWeight:800,color:"#1C2814",flexShrink:0,letterSpacing:0.3,fontFamily:"var(--font-display),serif"},
+    eyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:8},
+    headline:{fontFamily:"var(--font-display),serif",fontSize:30,fontWeight:700,color:"#1C2814",letterSpacing:-0.6,lineHeight:1.06,margin:0},
     sub:{fontSize:13.5,color:"#5a5246",lineHeight:1.5,marginTop:6},
     badgeRow:{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginTop:10},
     badge:(tone)=>{
@@ -430,24 +430,24 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
         : tone==="pending"
           ? {bg:"#fcf2dd",border:"#e9d5a5",color:"#8a6a1f"}
           : {bg:"#fffaf0",border:"#e9d5a5",color:"#8a6a1f"};
-      return {padding:"3px 10px",borderRadius:999,background:palette.bg,border:`1px solid ${palette.border}`,fontSize:9.5,fontWeight:800,color:palette.color,letterSpacing:0.6,fontFamily:"'DM Mono',monospace"};
+      return {padding:"3px 10px",borderRadius:999,background:palette.bg,border:`1px solid ${palette.border}`,fontSize:9.5,fontWeight:800,color:palette.color,letterSpacing:0.6,fontFamily:"var(--font-sans),monospace"};
     },
     tabsWrap:{maxWidth:1100,margin:"0 auto",padding:"0 28px",borderBottom:"1px solid #ece4d2",display:"flex",gap:24,overflowX:"auto"},
-    tab:(active)=>({padding:"12px 0 14px",fontSize:13,fontWeight:active?700:600,color:active?"#1C2814":"#7d7363",position:"relative",background:"none",border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"color 0.15s",whiteSpace:"nowrap"}),
+    tab:(active)=>({padding:"12px 0 14px",fontSize:13,fontWeight:active?700:600,color:active?"#1C2814":"#7d7363",position:"relative",background:"none",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"color 0.15s",whiteSpace:"nowrap"}),
     tabBar:{position:"absolute",left:0,right:0,bottom:-1,height:2.5,background:"linear-gradient(90deg,#c9a45c,#b08840)",borderRadius:2},
     tabDot:{position:"absolute",top:9,right:-9,width:6,height:6,borderRadius:"50%",background:"#b08840"},
     panel:{background:"#fff",border:"1px solid #dfd5c2",borderRadius:18,marginBottom:18,boxShadow:"0 6px 18px rgba(28,40,20,0.04)",overflow:"hidden"},
     panelHd:{padding:"16px 22px 14px",background:"#fffdf8",borderBottom:"1px solid #ece4d2",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"},
-    panelEyebrow:{fontFamily:"'DM Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
-    panelTitle:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
+    panelEyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
+    panelTitle:{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
     panelBody:{padding:"22px"},
-    label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"'DM Sans',sans-serif"},
+    label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"var(--font-sans),sans-serif"},
     labelHelper:{fontSize:11,fontWeight:500,color:"#9c917f",letterSpacing:0,textTransform:"none",marginLeft:6},
-    input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"'DM Sans',sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box"},
-    textarea:{width:"100%",padding:"12px 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"'DM Sans',sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box",resize:"vertical",lineHeight:1.55},
+    input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box"},
+    textarea:{width:"100%",padding:"12px 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box",resize:"vertical",lineHeight:1.55},
     field:{marginBottom:18},
-    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
-    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s"},
+    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
+    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
     inputFocus:(e)=>{e.currentTarget.style.borderColor="#b08840";e.currentTarget.style.boxShadow="0 0 0 3px rgba(176,136,64,0.12)";},
     inputBlur:(e)=>{e.currentTarget.style.borderColor="#dfd5c2";e.currentTarget.style.boxShadow="none";},
   };
@@ -470,8 +470,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
           <CrossLogo size={32} color="#22301B" wordmarkColor="#22301B"/>
           <div style={{display:"flex",gap:6}}>{[1,2,3].map(n=><span key={n} style={{width:n===charterStep?30:18,height:4,borderRadius:999,background:n<=charterStep?"#b08840":"#ddd4c3",transition:"all .2s ease"}}/>)}</div>
         </div>
-        <div style={{fontFamily:"DM Mono,monospace",fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#9b7331",marginBottom:10}}>{eyebrow}</div>
-        <h1 style={{fontFamily:"Playfair Display,Georgia,serif",fontSize:"clamp(32px,5vw,46px)",lineHeight:1.02,letterSpacing:"-.035em",margin:0,color:"#1C2814"}}>{title}</h1>
+        <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#9b7331",marginBottom:10}}>{eyebrow}</div>
+        <h1 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(32px,5vw,46px)",lineHeight:1.02,letterSpacing:"-.035em",margin:0,color:"#1C2814"}}>{title}</h1>
         <p style={{fontSize:14.5,lineHeight:1.7,color:"#625a4e",margin:"14px 0 0",maxWidth:690}}>{body}</p>
       </div>
     );
@@ -578,8 +578,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
           <StepHeader eyebrow="Step 3 of 3 · Ready" title="Your Charter Vendor profile is ready." body="Your profile is saved, your Charter Vendor status is active, and your Marketplace Approval carried forward from the application FaithBid already reviewed."/>
           <div style={{padding:"32px 34px 36px"}}>
             <div style={{padding:"22px",borderRadius:18,background:"linear-gradient(135deg,#1C2814,#304329)",color:"#fffdf8",marginBottom:24,boxShadow:"0 16px 34px rgba(28,40,20,.18)"}}>
-              <div style={{fontFamily:"DM Mono,monospace",fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#d9bd77",marginBottom:8}}>✦ Charter Vendor</div>
-              <div style={{fontFamily:"Playfair Display,Georgia,serif",fontSize:28,fontWeight:700,lineHeight:1.08,marginBottom:8}}>{vendorForm.name}</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#d9bd77",marginBottom:8}}>✦ Charter Vendor</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:700,lineHeight:1.08,marginBottom:8}}>{vendorForm.name}</div>
               <div style={{fontSize:13.5,color:"rgba(255,253,248,.76)",lineHeight:1.6}}>{vendorForm.tagline} · {deliveryMeta.label}{vendorForm.city?` · ${vendorForm.city}, ${vendorForm.service_state}`:""}</div>
             </div>
             <button type="button" onClick={()=>nav("projects")} style={{...psx.btnPrimary,width:"100%",minHeight:52,borderRadius:12,marginBottom:10}}>Enter FaithBid</button>
@@ -695,7 +695,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:18,flexWrap:"wrap",paddingLeft:8}}>
                         <div style={{flex:1,minWidth:220}}>
                           <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:10}}>
-                            <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:22,fontWeight:700,color:"#1C2814",letterSpacing:-0.4}}>{pct}% complete</div>
+                            <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"#1C2814",letterSpacing:-0.4}}>{pct}% complete</div>
                             <div style={{fontSize:12,color:"#7a6c4f"}}>· {checks.filter(c=>!c.done).length} step{checks.filter(c=>!c.done).length!==1?"s":""} remaining</div>
                           </div>
                           <div style={{height:5,background:"rgba(176,136,64,0.18)",borderRadius:3,overflow:"hidden",marginBottom:10}}>
@@ -719,7 +719,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                           <div style={psx.panelEyebrow}>Verification</div>
                           <div style={psx.panelTitle}>Faith verification</div>
                         </div>
-                        <button type="button" onClick={()=>setTab("verify")} style={{fontSize:12,color:"#b08840",fontWeight:700,background:"none",border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Manage →</button>
+                        <button type="button" onClick={()=>setTab("verify")} style={{fontSize:12,color:"#b08840",fontWeight:700,background:"none",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Manage →</button>
                       </div>
                       <div style={psx.panelBody}>
                         {isVerified ? (
@@ -727,12 +727,12 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                             <div style={{width:44,height:44,borderRadius:12,background:"#eef5e9",border:"1px solid #cfe1c4",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 10l4 4 8-8" stroke="#2f5a31" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             </div>
-                            <div><div style={{fontSize:14,fontWeight:700,color:"#1C2814",fontFamily:"'DM Sans',sans-serif"}}>Faith Verified</div><div style={{fontSize:12,color:"#7d7363",marginTop:3}}>Badge live on your public profile</div></div>
+                            <div><div style={{fontSize:14,fontWeight:700,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif"}}>Faith Verified</div><div style={{fontSize:12,color:"#7d7363",marginTop:3}}>Badge live on your public profile</div></div>
                           </div>
                         ) : isPending ? (
                           <div style={{display:"flex",alignItems:"center",gap:14}}>
                             <div style={{width:44,height:44,borderRadius:12,background:"#fcf2dd",border:"1px solid #e9d5a5",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8a6a1f" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-                            <div><div style={{fontSize:14,fontWeight:700,color:"#1C2814",fontFamily:"'DM Sans',sans-serif"}}>Under review</div><div style={{fontSize:12,color:"#7d7363",marginTop:3}}>We'll notify you within 48 hours</div></div>
+                            <div><div style={{fontSize:14,fontWeight:700,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif"}}>Under review</div><div style={{fontSize:12,color:"#7d7363",marginTop:3}}>We'll notify you within 48 hours</div></div>
                           </div>
                         ) : (
                           <div>
@@ -751,7 +751,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                         <div style={psx.panelEyebrow}>Identity</div>
                         <div style={psx.panelTitle}>Profile info</div>
                       </div>
-                      <button type="button" onClick={()=>setTab("account")} style={{fontSize:12,color:"#b08840",fontWeight:700,background:"none",border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Edit →</button>
+                      <button type="button" onClick={()=>setTab("account")} style={{fontSize:12,color:"#b08840",fontWeight:700,background:"none",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Edit →</button>
                     </div>
                     <div style={psx.panelBody}>
                       {[
@@ -761,8 +761,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                         {label:"Member since", val:fullProfile?.created_at?new Date(fullProfile.created_at).toLocaleDateString("en-US",{month:"long",year:"numeric"}):"—"},
                       ].map((item,i,arr)=>(
                         <div key={item.label} style={{display:"flex",justifyContent:"space-between",padding:"10px 0",borderBottom:i<arr.length-1?"1px solid #f0e9d9":"none",gap:12}}>
-                          <span style={{fontSize:12.5,color:"#7d7363",fontFamily:"'DM Sans',sans-serif"}}>{item.label}</span>
-                          <span style={{fontSize:12.5,fontWeight:700,color:"#1C2814",textAlign:"right",fontFamily:"'DM Mono',monospace"}}>{item.val}</span>
+                          <span style={{fontSize:12.5,color:"#7d7363",fontFamily:"var(--font-sans),sans-serif"}}>{item.label}</span>
+                          <span style={{fontSize:12.5,fontWeight:700,color:"#1C2814",textAlign:"right",fontFamily:"var(--font-sans),monospace"}}>{item.val}</span>
                         </div>
                       ))}
                     </div>
@@ -778,7 +778,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                         <div style={psx.panelEyebrow}>Activity</div>
                         <div style={psx.panelTitle}>{vendorRow?"Vendor activity":"Account activity"}</div>
                       </div>
-                      <button type="button" onClick={()=>setTab("stats")} style={{fontSize:12,color:"#b08840",fontWeight:700,background:"none",border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>Full stats →</button>
+                      <button type="button" onClick={()=>setTab("stats")} style={{fontSize:12,color:"#b08840",fontWeight:700,background:"none",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Full stats →</button>
                     </div>
                     <div style={psx.panelBody}>
                       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
@@ -799,8 +799,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                           <div key={s.label} style={{padding:"14px 14px",background:"#fffdf8",border:"1px solid #ece4d2",borderRadius:14,textAlign:"left",position:"relative",overflow:"hidden"}}>
                             <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:"linear-gradient(180deg,#c9a45c,#b08840)"}}/>
                             <div style={{paddingLeft:8}}>
-                              <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:24,fontWeight:700,color:"#1C2814",marginBottom:4,letterSpacing:-0.4,lineHeight:1}}>{s.val}</div>
-                              <div style={{fontSize:9.5,color:"#7d7363",fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",fontFamily:"'DM Mono',monospace"}}>{s.label}</div>
+                              <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"#1C2814",marginBottom:4,letterSpacing:-0.4,lineHeight:1}}>{s.val}</div>
+                              <div style={{fontSize:9.5,color:"#7d7363",fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",fontFamily:"var(--font-sans),monospace"}}>{s.label}</div>
                             </div>
                           </div>
                         ))}
@@ -813,8 +813,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                     <div style={{background:"linear-gradient(135deg,#fffdf8,#f9f1de)",border:"1px solid #e9d5a5",borderRadius:18,padding:"20px 22px",boxShadow:"0 6px 18px rgba(176,136,64,0.06)",position:"relative",overflow:"hidden"}}>
                       <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:"linear-gradient(180deg,#c9a45c,#b08840)"}}/>
                       <div style={{paddingLeft:8}}>
-                        <div style={{fontFamily:"'DM Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.6,textTransform:"uppercase",color:"#b08840",marginBottom:10}}>Faith statement</div>
-                        <div style={{fontFamily:"'Newsreader',Georgia,serif",fontSize:14.5,color:"#1C2814",fontStyle:"italic",lineHeight:1.7,fontWeight:400}}>"{(vendorForm.faith_statement||form.faith_statement).slice(0,180)}{(vendorForm.faith_statement||form.faith_statement).length>180?"…":""}"</div>
+                        <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.6,textTransform:"uppercase",color:"#b08840",marginBottom:10}}>Faith statement</div>
+                        <div style={{fontFamily:"var(--font-display),serif",fontSize:14.5,color:"#1C2814",fontStyle:"italic",lineHeight:1.7,fontWeight:400}}>"{(vendorForm.faith_statement||form.faith_statement).slice(0,180)}{(vendorForm.faith_statement||form.faith_statement).length>180?"…":""}"</div>
                       </div>
                     </div>
                   )}
@@ -876,8 +876,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                   <button type="button" onClick={()=>setTab("verify")} style={{width:"100%",background:"linear-gradient(135deg,#fffaf0,#f7ecd5)",border:"1px solid #e9d5a5",borderRadius:18,padding:"18px 22px",marginBottom:18,cursor:"pointer",display:"flex",alignItems:"center",gap:16,textAlign:"left",boxShadow:"0 6px 18px rgba(176,136,64,0.06)",position:"relative",overflow:"hidden"}}>
                     <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:"linear-gradient(180deg,#c9a45c,#b08840)"}}/>
                     <div style={{flex:1,paddingLeft:6}}>
-                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.6,textTransform:"uppercase",color:"#b08840",marginBottom:5}}>Build trust</div>
-                      <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:18,fontWeight:700,color:"#1C2814",marginBottom:4,letterSpacing:-0.3}}>Get Faith Verified</div>
+                      <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.6,textTransform:"uppercase",color:"#b08840",marginBottom:5}}>Build trust</div>
+                      <div style={{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"#1C2814",marginBottom:4,letterSpacing:-0.3}}>Get Faith Verified</div>
                       <div style={{fontSize:12.5,color:"#5a5246",lineHeight:1.5}}>Shows churches your faith statement and ministry reference have been reviewed. Takes about 3 minutes.</div>
                     </div>
                     <div style={{...psx.btnPrimary,flexShrink:0,padding:"9px 18px"}}>Apply →</div>
@@ -906,7 +906,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                           const active = normalizeDeliveryModel(vendorForm.delivery_model)===key;
                           const meta=getDeliveryModelMeta(key);
                           return (
-                            <button key={key} type="button" onClick={()=>setV('delivery_model', key)} style={{minHeight:46,padding:'10px 12px',borderRadius:12,border:`1.5px solid ${active ? '#b08840' : '#dfd5c2'}`,background:active?'#fffaf0':'#fffdf8',fontSize:12.5,fontWeight:700,color:active?'#b08840':'#1C2814',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s",boxShadow:active?"0 0 0 3px rgba(176,136,64,0.12)":"none"}}>{meta.label}</button>
+                            <button key={key} type="button" onClick={()=>setV('delivery_model', key)} style={{minHeight:46,padding:'10px 12px',borderRadius:12,border:`1.5px solid ${active ? '#b08840' : '#dfd5c2'}`,background:active?'#fffaf0':'#fffdf8',fontSize:12.5,fontWeight:700,color:active?'#b08840':'#1C2814',cursor:'pointer',fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s",boxShadow:active?"0 0 0 3px rgba(176,136,64,0.12)":"none"}}>{meta.label}</button>
                           );
                         })}
                       </div>
@@ -930,7 +930,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                     <div style={psx.field}>
                       <label style={psx.label} htmlFor="vf-bio">Bio<span style={psx.labelHelper}>· public profile</span></label>
                       <textarea id="vf-bio" rows={4} value={vendorForm.bio} onChange={e=>setV("bio",e.target.value)} maxLength={500} placeholder="Describe your services and how you serve ministries…" style={psx.textarea} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>
-                      <div style={{fontSize:11,color:"#9c917f",marginTop:4,textAlign:"right",fontFamily:"'DM Mono',monospace"}}>{vendorForm.bio.length}/500</div>
+                      <div style={{fontSize:11,color:"#9c917f",marginTop:4,textAlign:"right",fontFamily:"var(--font-sans),monospace"}}>{vendorForm.bio.length}/500</div>
                     </div>
                     <div style={psx.field}>
                       <label style={psx.label} htmlFor="vf-tagline">Tagline<span style={psx.labelHelper}>· one line shown on your marketplace card</span></label>
@@ -950,18 +950,18 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                     <div style={psx.field}>
                       <label style={psx.label} htmlFor="vf-faith">Faith statement<span style={psx.labelHelper}>· public</span></label>
                       <textarea id="vf-faith" rows={3} value={vendorForm.faith_statement} onChange={e=>setV("faith_statement",e.target.value)} maxLength={300} placeholder="How does your faith shape your work?" style={psx.textarea} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>
-                      <div style={{fontSize:11,color:"#9c917f",marginTop:4,textAlign:"right",fontFamily:"'DM Mono',monospace"}}>{vendorForm.faith_statement.length}/300</div>
+                      <div style={{fontSize:11,color:"#9c917f",marginTop:4,textAlign:"right",fontFamily:"var(--font-sans),monospace"}}>{vendorForm.faith_statement.length}/300</div>
                     </div>
                     <div style={{...psx.field,marginBottom:0}}>
                       <label style={psx.label} htmlFor="vf-tags">Skills / tags<span style={psx.labelHelper}>· press Enter to add</span></label>
                       <div style={{display:"flex",flexWrap:"wrap",gap:6,padding:"10px 12px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",minHeight:46,alignItems:"center"}}>
                         {(vendorForm.tags||[]).map(t=>(
-                          <div key={t} style={{display:"inline-flex",alignItems:"center",gap:6,padding:"4px 6px 4px 10px",borderRadius:999,background:"#fffaf0",border:"1px solid #e9d5a5",fontSize:12,color:"#1C2814",fontWeight:600,fontFamily:"'DM Sans',sans-serif"}}>
+                          <div key={t} style={{display:"inline-flex",alignItems:"center",gap:6,padding:"4px 6px 4px 10px",borderRadius:999,background:"#fffaf0",border:"1px solid #e9d5a5",fontSize:12,color:"#1C2814",fontWeight:600,fontFamily:"var(--font-sans),sans-serif"}}>
                             {t}
                             <button type="button" aria-label={`Remove tag ${t}`} onClick={()=>removeTag(t)} style={{width:18,height:18,borderRadius:"50%",background:"rgba(176,136,64,0.18)",color:"#7a5a25",border:"none",cursor:"pointer",fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",justifyContent:"center",lineHeight:1}}>×</button>
                           </div>
                         ))}
-                        <input aria-label="Add a skill or tag, press Enter to confirm" value={tagInput} onChange={e=>setTagInput(e.target.value)} onKeyDown={addTag} placeholder={(vendorForm.tags||[]).length?"":"e.g. Audio engineering, Live sound…"} style={{flex:1,minWidth:120,border:"none",outline:"none",background:"transparent",fontSize:13,color:"#1C2814",fontFamily:"'DM Sans',sans-serif",padding:"4px 0"}}/>
+                        <input aria-label="Add a skill or tag, press Enter to confirm" value={tagInput} onChange={e=>setTagInput(e.target.value)} onKeyDown={addTag} placeholder={(vendorForm.tags||[]).length?"":"e.g. Audio engineering, Live sound…"} style={{flex:1,minWidth:120,border:"none",outline:"none",background:"transparent",fontSize:13,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",padding:"4px 0"}}/>
                       </div>
                     </div>
                   </div>
@@ -992,7 +992,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                     {isVerified && (
                       <div style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:999,background:"#eef5e9",border:"1px solid #cfe1c4",flexShrink:0}}>
                         <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M4 10l4 4 8-8" stroke="#2f5a31" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        <span style={{fontSize:11,fontWeight:800,color:"#2f5a31",letterSpacing:0.4,fontFamily:"'DM Mono',monospace"}}>FAITH VERIFIED</span>
+                        <span style={{fontSize:11,fontWeight:800,color:"#2f5a31",letterSpacing:0.4,fontFamily:"var(--font-sans),monospace"}}>FAITH VERIFIED</span>
                       </div>
                     )}
                   </div>

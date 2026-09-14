@@ -1,16 +1,4 @@
-import React, { useEffect } from "react";
-
-const FONT_LINK_ID = "faithbid-card-11a-fraunces";
-function ensureCardFont() {
-  if (typeof document === "undefined") return;
-  if (!document.getElementById(FONT_LINK_ID)) {
-    const link = document.createElement("link");
-    link.id = FONT_LINK_ID;
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap";
-    document.head.appendChild(link);
-  }
-}
+import React from "react";
 
 export default function FaithBidCard11A({
   image,
@@ -31,7 +19,6 @@ export default function FaithBidCard11A({
   ariaLabel,
   className = "",
 }) {
-  useEffect(ensureCardFont, []);
   const safeMatch = matchPercent == null
     ? null
     : (Number.isFinite(Number(matchPercent)) ? Math.max(0, Math.min(100, Math.round(Number(matchPercent)))) : null);
@@ -81,12 +68,12 @@ export default function FaithBidCard11A({
       </div>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(20,14,8,.88) 0%, rgba(20,14,8,.02) 50%)", pointerEvents: "none" }} />
 
-      <div className={isReviewStatus ? "kb-card-review-status" : "kb-card-top-label"} style={{ position: "absolute", top: 16, left: 18, right: safeMatch == null ? 58 : 92, minHeight: isReviewStatus ? 28 : undefined, padding: isReviewStatus ? "5px 10px" : 0, borderRadius: isReviewStatus ? 999 : 0, background: isReviewStatus ? "rgba(20,14,8,.78)" : "transparent", border: isReviewStatus ? "1px solid rgba(255,255,255,.22)" : 0, font: isReviewStatus ? "700 13px Inter, sans-serif" : "700 12px Inter, sans-serif", letterSpacing: isReviewStatus ? 0 : ".08em", color: isReviewStatus ? "#fff" : topColor, textTransform: isReviewStatus ? "none" : "uppercase", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", display: "inline-flex", alignItems: "center", width: "fit-content", maxWidth: "calc(100% - 110px)" }}>
+      <div className={isReviewStatus ? "kb-card-review-status" : "kb-card-top-label"} style={{ position: "absolute", top: 16, left: 18, right: safeMatch == null ? 58 : 92, minHeight: isReviewStatus ? 28 : undefined, padding: isReviewStatus ? "5px 10px" : 0, borderRadius: isReviewStatus ? 999 : 0, background: isReviewStatus ? "rgba(20,14,8,.78)" : "transparent", border: isReviewStatus ? "1px solid rgba(255,255,255,.22)" : 0, font: isReviewStatus ? "700 13px var(--font-sans), sans-serif" : "700 12px var(--font-sans), sans-serif", letterSpacing: isReviewStatus ? 0 : ".08em", color: isReviewStatus ? "#fff" : topColor, textTransform: isReviewStatus ? "none" : "uppercase", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", display: "inline-flex", alignItems: "center", width: "fit-content", maxWidth: "calc(100% - 110px)" }}>
         {normalizedTopLabel}
       </div>
 
       {safeMatch != null ? (
-        <div className="kb-match-chip" aria-label={`${safeMatch}% match`} style={{ position: "absolute", top: 14, right: 14, minHeight: 30, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.25)", background: "rgba(20,14,8,.82)", color: "#fff", font: "700 13px Inter, sans-serif", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+        <div className="kb-match-chip" aria-label={`${safeMatch}% match`} style={{ position: "absolute", top: 14, right: 14, minHeight: 30, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.25)", background: "rgba(20,14,8,.82)", color: "#fff", font: "700 13px var(--font-sans), sans-serif", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
           <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: "oklch(0.85 0.13 85)" }} />
           {safeMatch}% match
         </div>
@@ -106,13 +93,13 @@ export default function FaithBidCard11A({
       )}
 
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: 28 }}>
-        <div style={{ font: "600 19px/1.3 Fraunces, Georgia, serif", color: "#fff", marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</div>
+        <div style={{ font: "600 19px/1.3 var(--font-display), serif", color: "#fff", marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 18, minWidth: 0 }}>
-          <div style={{ width: 20, height: 20, flex: "0 0 20px", borderRadius: "50%", background: "oklch(0.85 0.1 85)", font: "700 9px Inter, sans-serif", color: "#1a1712", display: "flex", alignItems: "center", justifyContent: "center" }}>{String(avatarText || "FB").slice(0, 2).toUpperCase()}</div>
-          <div style={{ minWidth: 0, font: "13px Inter, sans-serif", color: "rgba(255,255,255,.6)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{meta}</div>
+          <div style={{ width: 20, height: 20, flex: "0 0 20px", borderRadius: "50%", background: "oklch(0.85 0.1 85)", font: "700 9px var(--font-sans), sans-serif", color: "#1a1712", display: "flex", alignItems: "center", justifyContent: "center" }}>{String(avatarText || "FB").slice(0, 2).toUpperCase()}</div>
+          <div style={{ minWidth: 0, font: "13px var(--font-sans), sans-serif", color: "rgba(255,255,255,.6)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{meta}</div>
         </div>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
-          <div style={{ minWidth: 0, font: "700 24px Fraunces, Georgia, serif", color: "oklch(0.85 0.13 85)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
+          <div style={{ minWidth: 0, font: "700 24px var(--font-display), serif", color: "oklch(0.85 0.13 85)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
           <button
             type="button"
             disabled={actionDisabled}
@@ -120,7 +107,7 @@ export default function FaithBidCard11A({
               event.stopPropagation();
               if (!actionDisabled && typeof onAction === "function") onAction(event);
             }}
-            style={{ flexShrink: 0, border: 0, padding: 0, background: "transparent", color: actionDisabled ? "rgba(255,255,255,.42)" : "#fff", font: "600 13px Inter, sans-serif", cursor: actionDisabled ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}
+            style={{ flexShrink: 0, border: 0, padding: 0, background: "transparent", color: actionDisabled ? "rgba(255,255,255,.42)" : "#fff", font: "600 13px var(--font-sans), sans-serif", cursor: actionDisabled ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}
           >
             {actionLabel} <span aria-hidden="true">→</span>
           </button>

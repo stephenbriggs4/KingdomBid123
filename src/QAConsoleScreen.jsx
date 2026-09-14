@@ -43,7 +43,7 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
         <div style={{maxWidth:720,margin:'40px auto',border:'1px solid rgba(197,48,48,0.16)',background:'#fffdf8',borderRadius:24,boxShadow:'0 22px 70px rgba(28,40,20,0.08)'}}>
           <div style={{padding:32,textAlign:'center'}}>
             <div style={{width:52,height:52,borderRadius:18,background:'rgba(197,48,48,0.08)',color:'#C53030',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:24}}>!</div>
-            <div style={{fontFamily:'Playfair Display,serif',fontSize:24,fontWeight:800,color:'#1C2814',marginBottom:8}}>QA Console is admin-only</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:800,color:'#1C2814',marginBottom:8}}>QA Console is admin-only</div>
             <div style={{fontSize:14,color:'#7d7363',lineHeight:1.7,maxWidth:520,margin:'0 auto 20px'}}>
               This area runs internal schema and platform health checks. It is hidden from normal church and vendor accounts.
             </div>
@@ -151,7 +151,7 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
           <div style={{position:'relative',padding:'28px 30px 26px',display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:22,alignItems:'end'}}>
             <div>
               <div style={{display:'inline-flex',alignItems:'center',gap:8,height:26,padding:'0 10px',borderRadius:999,border:'1px solid rgba(239,225,195,0.18)',background:'rgba(255,255,255,0.06)',fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#d8bd7a',marginBottom:13}}>Workspace QA</div>
-              <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:'clamp(34px,5vw,52px)',lineHeight:0.95,letterSpacing:'-0.055em',color:'#fffdf8',fontWeight:700}}>Release gate</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(34px,5vw,52px)',lineHeight:0.95,letterSpacing:'-0.055em',color:'#fffdf8',fontWeight:700}}>Release gate</div>
               <div style={{fontSize:14,lineHeight:1.7,color:'rgba(255,253,248,0.70)',maxWidth:720,marginTop:12}}>Run a focused smoke check across persistence, local workspace seams, data normalization, launch config, and backend readiness before shipping the next FaithBid pass.</div>
             </div>
             <div style={{display:'grid',gap:10,minWidth:260}}>
@@ -192,7 +192,7 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:16,flexWrap:'wrap'}}>
                 <div>
                   <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Automated checks</div>
-                  <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:27,lineHeight:1.05,letterSpacing:'-0.035em',color:'#1C2814'}}>Browser and launch readiness</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:27,lineHeight:1.05,letterSpacing:'-0.035em',color:'#1C2814'}}>Browser and launch readiness</div>
                 </div>
                 {results.length > 0 ? <div style={{height:34,padding:'0 12px',borderRadius:999,border:`1px solid ${summary.blockers ? 'rgba(197,48,48,0.2)' : summary.warnings ? 'rgba(176,136,64,0.25)' : 'rgba(72,118,82,0.2)'}`,background:summary.blockers ? '#fff5f2' : summary.warnings ? '#fff9ed' : '#f4f8ef',display:'flex',alignItems:'center',fontSize:11,fontWeight:800,letterSpacing:'0.11em',textTransform:'uppercase',color:summary.blockers ? '#b43c2e' : summary.warnings ? '#946d24' : '#2f6d3d'}}>{summary.state}</div> : null}
               </div>
@@ -200,7 +200,7 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
               {!results.length ? (
                 <div style={{border:'1px dashed #d8c8ac',borderRadius:22,background:'#fbf5e8',padding:'34px 24px',textAlign:'center'}}>
                   <div style={{width:50,height:50,borderRadius:18,background:'#1C2814',color:'#efe1c3',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:20,fontWeight:800}}>✓</div>
-                  <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:24,fontWeight:700,color:'#1C2814',letterSpacing:'-0.025em',marginBottom:8}}>Ready to run the release gate.</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:'#1C2814',letterSpacing:'-0.025em',marginBottom:8}}>Ready to run the release gate.</div>
                   <div style={{fontSize:13,lineHeight:1.65,color:'#6f675a',maxWidth:520,margin:'0 auto 18px'}}>This panel will group pass, warning, and blocker results once the automated checks finish.</div>
                   <button type='button' onClick={runChecks} disabled={running} style={{height:40,padding:'0 16px',borderRadius:999,border:'none',background:'#1C2814',color:'#fffdf8',fontSize:12,fontWeight:800,cursor:running ? 'default' : 'pointer'}}>{running ? 'Running…' : 'Run release gate'}</button>
                 </div>
@@ -237,7 +237,7 @@ export default function QAConsoleScreen({ currentUser, userProfile, nav, role, d
           <div style={{display:'grid',gap:14}}>
             <div style={{background:'#1C2814',border:'1px solid rgba(239,225,195,0.18)',borderRadius:26,padding:20,boxShadow:'0 18px 46px rgba(28,40,20,0.14)',color:'#fffdf8'}}>
               <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#d8bd7a',marginBottom:8}}>Ship readout</div>
-              <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:26,lineHeight:1.05,letterSpacing:'-0.035em',marginBottom:10}}>Know what is safe before you ship.</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:26,lineHeight:1.05,letterSpacing:'-0.035em',marginBottom:10}}>Know what is safe before you ship.</div>
               <div style={{fontSize:13,lineHeight:1.7,color:'rgba(255,253,248,0.70)'}}>{results.length ? (summary.blockers ? 'Critical blockers are present. Fix those before installing another app lock.' : summary.warnings ? 'No critical blockers, but warnings need a quick review before calling the pass clean.' : 'Automated checks are clean. Finish the manual checklist before shipping.') : 'Run the release gate, then walk the manual checklist on the right.'}</div>
               <div style={{height:1,background:'rgba(239,225,195,0.14)',margin:'16px 0'}} />
               <div style={{display:'grid',gap:9}}>

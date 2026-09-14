@@ -17,7 +17,7 @@ const DEAL_ROOM_CALL_CSS = `
 .kbdr2-call-card-copy{min-width:0}
 .kbdr2-call-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .kbdr2-call-card-top strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;line-height:1.25}
-.kbdr2-call-card-top span{flex:0 0 auto;padding:3px 7px;border-radius:999px;background:#def5e8;color:#23714b;font-family:'DM Mono',monospace;font-size:7.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.kbdr2-call-card-top span{flex:0 0 auto;padding:3px 7px;border-radius:999px;background:#def5e8;color:#23714b;font-family:var(--font-sans),monospace;font-size:7.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
 .kbdr2-call-card.is-muted .kbdr2-call-card-top span{background:#e1ddd6;color:#6d6a64}
 .kbdr2-call-card-time{margin-top:5px;color:#35543e;font-size:11.25px;font-weight:800;line-height:1.42}
 .kbdr2-call-card-copy p{margin:7px 0 0;color:#676c63;font-size:11px;line-height:1.45}
@@ -32,8 +32,8 @@ const DEAL_ROOM_CALL_CSS = `
 .kbdr2-call-dialog-backdrop{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:18px;background:rgba(11,16,13,.46);backdrop-filter:blur(4px)}
 .kbdr2-call-dialog{width:min(540px,calc(100vw - 28px));max-height:calc(100vh - 36px);overflow:auto;padding:20px;border:1px solid rgba(155,116,50,.22);border-radius:20px;background:#fffdf8;color:#1c2814;box-shadow:0 28px 80px rgba(14,22,17,.28)}
 .kbdr2-call-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
-.kbdr2-call-dialog-head span{display:block;margin-bottom:4px;color:#9b7432;font-family:'DM Mono',monospace;font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
-.kbdr2-call-dialog-head h2{margin:0;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:25px;line-height:1.05;letter-spacing:-.03em}
+.kbdr2-call-dialog-head span{display:block;margin-bottom:4px;color:#9b7432;font-family:var(--font-sans),monospace;font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.kbdr2-call-dialog-head h2{margin:0;font-family:var(--font-display),serif;font-size:25px;line-height:1.05;letter-spacing:-.03em}
 .kbdr2-call-dialog-head button{width:32px;height:32px;border:1px solid #e0d7c8!important;border-radius:9px!important;background:#f7f2e9!important;color:#697066!important;font-size:22px!important;line-height:1!important}
 .kbdr2-call-field{display:grid;gap:6px;margin-top:12px}
 .kbdr2-call-field>span{color:#4b5449;font-size:10px;font-weight:800}

@@ -178,7 +178,7 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
     minHeight:'calc(100vh - 48px)',
     padding:isCompact ? '20px 16px 42px' : '28px clamp(28px,4vw,56px) 56px',
     background:'radial-gradient(circle at top left, rgba(201,164,92,0.13), transparent 30%), linear-gradient(180deg,#f7efe2 0%,#efe4d3 100%)',
-    fontFamily:'DM Sans, system-ui, sans-serif',
+    fontFamily:"var(--font-sans), system-ui, sans-serif",
     color:'#172116',
   };
   const cardStyle = {
@@ -206,7 +206,7 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
     <div style={{...cardStyle,padding:isCompact ? 26 : 34,textAlign:'center'}}>
       <div style={{width:56,height:56,borderRadius:18,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',background:'rgba(176,136,64,0.11)',border:'1px solid rgba(176,136,64,0.20)',fontWeight:800,color:'#9a6a1f'}}>◇</div>
       <div style={{...eyebrowStyle,marginBottom:8}}>Compare workspace</div>
-      <div style={{fontFamily:'Playfair Display, Georgia, serif',fontSize:30,lineHeight:1.05,fontWeight:800,letterSpacing:'-0.035em',marginBottom:10}}>No saved items yet.</div>
+      <div style={{fontFamily:"var(--font-display), serif",fontSize:30,lineHeight:1.05,fontWeight:800,letterSpacing:'-0.035em',marginBottom:10}}>No saved items yet.</div>
       <div style={{...smallMuted,maxWidth:520,margin:'0 auto 20px'}}>Save projects from Marketplace or vendors from the directory and they will appear here as a focused decision board.</div>
       <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
         <button type="button" style={actionButton(true)} onClick={() => nav(role === 'vendor' ? 'projects' : 'projects')}>Browse projects</button>
@@ -219,7 +219,7 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
     <div style={{minHeight:isCompact ? '48vh' : '54vh',display:'flex',alignItems:'center',justifyContent:'center',padding:isCompact ? '34px 4px 54px' : '48px 20px 72px'}}>
       <div style={{width:'100%',maxWidth:760,textAlign:'center'}}>
         <div style={{...eyebrowStyle,marginBottom:10}}>Compare workspace</div>
-        <div style={{fontFamily:'Playfair Display, Georgia, serif',fontSize:isCompact ? 34 : 44,lineHeight:0.98,fontWeight:800,letterSpacing:'-0.055em',color:'#172116',marginBottom:12}}>Which project are you scoring vendors against?</div>
+        <div style={{fontFamily:"var(--font-display), serif",fontSize:isCompact ? 34 : 44,lineHeight:0.98,fontWeight:800,letterSpacing:'-0.055em',color:'#172116',marginBottom:12}}>Which project are you scoring vendors against?</div>
         <div style={{...smallMuted,fontSize:14,maxWidth:560,margin:'0 auto'}}>Scoring, deal status, and fit signals all sharpen once you pick a project.</div>
         {projects.length > 0 ? (
           <div style={{display:'grid',gap:10,maxWidth:640,margin:'26px auto 0',textAlign:'left'}}>
@@ -248,7 +248,7 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
             <div>
               <button type="button" onClick={openBack} style={{border:'1px solid rgba(255,255,255,0.16)',background:'rgba(255,255,255,0.08)',color:'rgba(255,253,248,0.86)',height:32,borderRadius:999,padding:'0 12px',fontSize:11.5,fontWeight:800,cursor:'pointer',marginBottom:16}}>{returnTarget?.label || 'Back'}</button>
               <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.18em',textTransform:'uppercase',color:'#d5b873',marginBottom:8}}>Workspace / Compare</div>
-              <h1 style={{fontFamily:'Playfair Display, Georgia, serif',fontSize:isCompact ? 36 : 48,lineHeight:0.96,letterSpacing:'-0.055em',margin:'0 0 12px'}}>Decision board for projects and vendors.</h1>
+              <h1 style={{fontFamily:"var(--font-display), serif",fontSize:isCompact ? 36 : 48,lineHeight:0.96,letterSpacing:'-0.055em',margin:'0 0 12px'}}>Decision board for projects and vendors.</h1>
               <div style={{fontSize:14,lineHeight:1.65,color:'rgba(255,253,248,0.76)',maxWidth:720}}>Keep saved opportunities, vendor options, scoring criteria, and decision notes in one clean workspace before you message, invite, shortlist, or hire.</div>
             </div>
             <div style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:20,padding:18,display:'flex',flexDirection:'column',justifyContent:'space-between',gap:16}}>
@@ -399,7 +399,7 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
                         <tr key={vendor.id || vendor.name}>
                           <td style={{padding:'12px',borderBottom:'1px solid rgba(28,40,20,0.08)',fontSize:13,fontWeight:800}}>{vendor.name || 'Vendor'}</td>
                           <td style={{padding:'12px',borderBottom:'1px solid rgba(28,40,20,0.08)',fontSize:13,fontWeight:800,color:score?.rejected ? '#8a3324' : '#2e5f34'}}>{fmtScore(score)}</td>
-                          {criteria.map(key => <td key={key} style={{padding:'12px',borderBottom:'1px solid rgba(28,40,20,0.08)',fontFamily:'DM Mono, monospace',fontSize:12,color:'#172116'}}>{score?.checks?.[key] ?? '—'}/10</td>)}
+                          {criteria.map(key => <td key={key} style={{padding:'12px',borderBottom:'1px solid rgba(28,40,20,0.08)',fontFamily:"var(--font-sans), monospace",fontSize:12,color:'#172116'}}>{score?.checks?.[key] ?? '—'}/10</td>)}
                           <td style={{padding:'12px',borderBottom:'1px solid rgba(28,40,20,0.08)'}}><button type="button" style={{...actionButton(false),height:30,padding:'0 10px',fontSize:11}} onClick={() => openVendor(vendor)}>Open</button></td>
                         </tr>
                       ))}
@@ -459,7 +459,7 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
 
               <section style={{...cardStyle,padding:16}}>
                 <div style={eyebrowStyle}>Decision notes</div>
-                <textarea value={draftNotes} onChange={e => setDraftNotes(e.target.value)} placeholder="Capture why a vendor is leading, what to ask next, or what still needs clarification..." style={{width:'100%',minHeight:156,resize:'vertical',boxSizing:'border-box',marginTop:10,border:'1px solid rgba(28,40,20,0.12)',borderRadius:16,padding:12,background:'rgba(255,253,248,0.78)',fontFamily:'DM Sans, system-ui, sans-serif',fontSize:12.5,lineHeight:1.55,color:'#172116',outline:'none'}} />
+                <textarea value={draftNotes} onChange={e => setDraftNotes(e.target.value)} placeholder="Capture why a vendor is leading, what to ask next, or what still needs clarification..." style={{width:'100%',minHeight:156,resize:'vertical',boxSizing:'border-box',marginTop:10,border:'1px solid rgba(28,40,20,0.12)',borderRadius:16,padding:12,background:'rgba(255,253,248,0.78)',fontFamily:"var(--font-sans), system-ui, sans-serif",fontSize:12.5,lineHeight:1.55,color:'#172116',outline:'none'}} />
                 <button type="button" style={{...actionButton(true),width:'100%',marginTop:10}} onClick={saveNotes}>Save notes</button>
               </section>
 
@@ -690,13 +690,13 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
           <div style={{position:'absolute',right:-120,top:-140,width:340,height:340,borderRadius:'50%',background:'radial-gradient(circle,rgba(176,136,64,0.18),rgba(176,136,64,0) 66%)',pointerEvents:'none'}} />
           <div style={{display:'grid',gridTemplateColumns:heroGrid,gap:24,padding:isPhone ? '24px 20px' : '30px 32px',alignItems:'end',position:'relative'}}>
             <div>
-              <div style={{display:'inline-flex',alignItems:'center',gap:8,height:30,padding:'0 11px',borderRadius:999,border:'1px solid rgba(176,136,64,0.22)',background:'rgba(176,136,64,0.10)',fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#9a6a1f',marginBottom:14}}>Workspace signal desk</div>
-              <h1 style={{fontFamily:"'Newsreader', Georgia, serif",fontSize:'clamp(36px,4.7vw,62px)',fontWeight:400,letterSpacing:'-0.045em',lineHeight:0.97,color:'#1C2814',margin:'0 0 12px'}}>Activity without the noise.</h1>
+              <div style={{display:'inline-flex',alignItems:'center',gap:8,height:30,padding:'0 11px',borderRadius:999,border:'1px solid rgba(176,136,64,0.22)',background:'rgba(176,136,64,0.10)',fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#9a6a1f',marginBottom:14}}>Workspace signal desk</div>
+              <h1 style={{fontFamily:"var(--font-display), serif",fontSize:'clamp(36px,4.7vw,62px)',fontWeight:400,letterSpacing:'-0.045em',lineHeight:0.97,color:'#1C2814',margin:'0 0 12px'}}>Activity without the noise.</h1>
               <p style={{fontSize:15.5,color:'rgba(28,40,20,0.64)',maxWidth:700,lineHeight:1.72,margin:0}}>A cleaner command layer for unread deal-room messages, project signals, active milestones, saved decisions, and execution alerts.</p>
             </div>
             <div style={{background:'rgba(28,40,20,0.94)',border:'1px solid rgba(255,255,255,0.10)',borderRadius:22,padding:20,color:'#fffdf8',boxShadow:'0 16px 38px rgba(28,40,20,0.18)'}}>
-              <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#d2ad62',marginBottom:10}}>Next best action</div>
-              <div style={{fontFamily:"'Newsreader', Georgia, serif",fontSize:27,fontWeight:500,letterSpacing:'-0.025em',lineHeight:1.04,marginBottom:9}}>{nextSignalText}</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#d2ad62',marginBottom:10}}>Next best action</div>
+              <div style={{fontFamily:"var(--font-display), serif",fontSize:27,fontWeight:500,letterSpacing:'-0.025em',lineHeight:1.04,marginBottom:9}}>{nextSignalText}</div>
               <div style={{fontSize:13,color:'rgba(255,253,248,0.68)',lineHeight:1.58,marginBottom:16}}>{strongestSignal?.body || 'Open the feed when something needs attention, or jump straight into your latest inbox thread.'}</div>
               <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
                 <button type='button' onClick={openInbox} style={{height:40,padding:'0 15px',borderRadius:12,border:'none',background:'linear-gradient(180deg,#c9a45c,#a97827)',color:'#fff',fontSize:12.5,fontWeight:800,cursor:'pointer'}}>Open inbox →</button>
@@ -715,10 +715,10 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
                 onMouseLeave={e=>{ e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='0 8px 24px rgba(28,40,20,0.055)'; }}>
                 <div style={{position:'absolute',right:-28,top:-28,width:92,height:92,borderRadius:'50%',background:meta.soft}} />
                 <div style={{position:'relative',display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:14}}>
-                  <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:meta.accent}}>{card.label}</div>
+                  <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:meta.accent}}>{card.label}</div>
                   <span style={{width:28,height:28,borderRadius:10,background:meta.soft,border:`1px solid ${meta.border}`,display:'inline-flex',alignItems:'center',justifyContent:'center',color:meta.accent,fontWeight:800}}>→</span>
                 </div>
-                <div style={{position:'relative',fontFamily:"'Newsreader', Georgia, serif",fontSize:34,fontWeight:500,letterSpacing:'-0.04em',lineHeight:1,color:'#1C2814',marginBottom:8}}>{card.value}</div>
+                <div style={{position:'relative',fontFamily:"var(--font-display), serif",fontSize:34,fontWeight:500,letterSpacing:'-0.04em',lineHeight:1,color:'#1C2814',marginBottom:8}}>{card.value}</div>
                 <div style={{position:'relative',fontSize:12.5,color:'rgba(28,40,20,0.58)',lineHeight:1.5}}>{card.body}</div>
               </button>
             );
@@ -730,8 +730,8 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
             <div style={{padding:isPhone ? '18px 18px 14px' : '20px 22px 16px',borderBottom:'1px solid rgba(28,40,20,0.08)',background:'linear-gradient(180deg,#fffdf8,#fbf5eb)'}}>
               <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:16,flexWrap:'wrap',marginBottom:14}}>
                 <div>
-                  <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Priority feed</div>
-                  <div style={{fontFamily:"'Newsreader', Georgia, serif",fontSize:28,fontWeight:500,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1}}>What moved recently</div>
+                  <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Priority feed</div>
+                  <div style={{fontFamily:"var(--font-display), serif",fontSize:28,fontWeight:500,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1}}>What moved recently</div>
                 </div>
                 <button type='button' disabled={!unreadNotifs || markingAllRead} onClick={markAllRead} style={{height:34,padding:'0 13px',borderRadius:999,border:'1px solid rgba(28,40,20,0.12)',background:'#fff',color:!unreadNotifs?'#aaa49a':'#1C2814',fontSize:11.5,fontWeight:800,cursor:!unreadNotifs?'not-allowed':'pointer'}}>{markingAllRead ? 'Marking…' : 'Mark all read'}</button>
               </div>
@@ -739,7 +739,7 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
                 {feedFilters.map(([key,label,count]) => (
                   <button key={key} type='button' onClick={()=>setFeedFilter(key)} style={{height:32,padding:'0 12px',borderRadius:999,border:`1px solid ${feedFilter===key?'#1C2814':'rgba(28,40,20,0.12)'}`,background:feedFilter===key?'#1C2814':'#fffdf8',color:feedFilter===key?'#fffdf8':'rgba(28,40,20,0.66)',fontSize:11.5,fontWeight:800,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:7}}>
                     <span>{label}</span>
-                    <span style={{minWidth:20,height:20,padding:'0 6px',borderRadius:999,display:'inline-flex',alignItems:'center',justifyContent:'center',background:feedFilter===key?'rgba(255,255,255,0.12)':'rgba(28,40,20,0.055)',fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800}}>{count}</span>
+                    <span style={{minWidth:20,height:20,padding:'0 6px',borderRadius:999,display:'inline-flex',alignItems:'center',justifyContent:'center',background:feedFilter===key?'rgba(255,255,255,0.12)':'rgba(28,40,20,0.055)',fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800}}>{count}</span>
                   </button>
                 ))}
               </div>
@@ -756,7 +756,7 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
                         <span style={{width:40,height:40,borderRadius:14,display:'inline-flex',alignItems:'center',justifyContent:'center',background:`${meta.accent}12`,border:`1px solid ${meta.accent}24`,color:meta.accent,fontSize:15,fontWeight:800,marginTop:1}}>{meta.icon}</span>
                         <span style={{minWidth:0}}>
                           <span style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:6}}>
-                            <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:meta.accent}}>{item.kind}</span>
+                            <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:meta.accent}}>{item.kind}</span>
                             {item.unread ? <span style={{height:20,padding:'0 7px',borderRadius:999,background:'rgba(176,136,64,0.10)',border:'1px solid rgba(176,136,64,0.18)',display:'inline-flex',alignItems:'center',fontSize:10,fontWeight:800,color:'#9a6a1f'}}>Unread</span> : null}
                           </span>
                           <span style={{display:'block',fontSize:15,fontWeight:800,color:'#1C2814',lineHeight:1.35,letterSpacing:'-0.01em',marginBottom:4,wordBreak:'break-word'}}>{item.title}</span>
@@ -770,7 +770,7 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
               ) : (
                 <div style={{padding:'54px 24px',textAlign:'center',border:'1px dashed rgba(28,40,20,0.14)',borderRadius:22,background:'rgba(255,253,248,0.62)'}}>
                   <div style={{width:56,height:56,borderRadius:18,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',background:'rgba(176,136,64,0.10)',border:'1px solid rgba(176,136,64,0.18)',color:'#9a6a1f',fontSize:22,fontWeight:800}}>✓</div>
-                  <div style={{fontFamily:"'Newsreader', Georgia, serif",fontSize:24,fontWeight:500,color:'#1C2814',letterSpacing:'-0.02em',marginBottom:7}}>Nothing in this lane.</div>
+                  <div style={{fontFamily:"var(--font-display), serif",fontSize:24,fontWeight:500,color:'#1C2814',letterSpacing:'-0.02em',marginBottom:7}}>Nothing in this lane.</div>
                   <div style={{fontSize:13,color:'rgba(28,40,20,0.58)',lineHeight:1.65,maxWidth:420,margin:'0 auto 18px'}}>Change the filter, open your inbox, or browse the marketplace to keep work moving.</div>
                   <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap'}}>
                     <button type='button' onClick={()=>setFeedFilter('all')} style={{height:40,padding:'0 16px',borderRadius:12,border:'none',background:'linear-gradient(180deg,#c9a45c,#b08840)',color:'#fff',fontSize:12.5,fontWeight:800,cursor:'pointer'}}>Show all activity</button>
@@ -783,15 +783,15 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
 
           <aside style={{display:'grid',gap:14,position:isTablet ? 'relative' : 'sticky',top:82}}>
             <section style={{background:'#fffdf8',border:'1px solid rgba(28,40,20,0.12)',borderRadius:22,padding:20,boxShadow:'0 12px 34px rgba(28,40,20,0.07)'}}>
-              <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:8}}>Execution stack</div>
-              <div style={{fontFamily:"'Newsreader', Georgia, serif",fontSize:25,fontWeight:500,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1.04,marginBottom:8}}>What needs action?</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:8}}>Execution stack</div>
+              <div style={{fontFamily:"var(--font-display), serif",fontSize:25,fontWeight:500,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1.04,marginBottom:8}}>What needs action?</div>
               <div style={{fontSize:13,color:'rgba(28,40,20,0.58)',lineHeight:1.6,marginBottom:14}}>Approvals, payment coordination, disputes, and closeout steps are separated from passive notifications.</div>
               <OperationalAlertList alerts={operationalAlerts} max={4} compact onOpen={(alert)=>alert?.projectId ? queueProjectNavigation(nav, { projectId:alert.projectId, screen:KB_NAV_SCREENS.projects }) : openWork()} emptyLabel='No execution alerts are stacked right now.' />
             </section>
 
             <section style={{background:'linear-gradient(135deg,#1C2814,#2b3621)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:22,padding:22,color:'#fffdf8',boxShadow:'0 18px 44px rgba(28,40,20,0.22)'}}>
-              <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#d2ad62',marginBottom:10}}>Decision context</div>
-              <div style={{fontFamily:"'Newsreader', Georgia, serif",fontSize:25,fontWeight:500,letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:10}}>Where should you look next?</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#d2ad62',marginBottom:10}}>Decision context</div>
+              <div style={{fontFamily:"var(--font-display), serif",fontSize:25,fontWeight:500,letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:10}}>Where should you look next?</div>
               <div style={{fontSize:13,color:'rgba(255,253,248,0.68)',lineHeight:1.65,marginBottom:16}}>Keep this page focused: unread, execution, saved decisions, and live delivery signals.</div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
                 {[
@@ -802,14 +802,14 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
                 ].map(row => (
                   <div key={row.label} style={{borderRadius:14,background:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.10)',padding:'12px 12px'}}>
                     <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'rgba(255,253,248,0.54)',marginBottom:5}}>{row.label}</div>
-                    <div style={{fontFamily:"'Newsreader', Georgia, serif",fontSize:25,fontWeight:600,color:'#d2ad62',lineHeight:1}}>{row.value}</div>
+                    <div style={{fontFamily:"var(--font-display), serif",fontSize:25,fontWeight:600,color:'#d2ad62',lineHeight:1}}>{row.value}</div>
                   </div>
                 ))}
               </div>
             </section>
 
             <section style={{background:'#fffdf8',border:'1px solid rgba(28,40,20,0.12)',borderRadius:22,padding:20,boxShadow:'0 12px 34px rgba(28,40,20,0.06)'}}>
-              <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:12}}>Shortcuts</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:12}}>Shortcuts</div>
               <div style={{display:'grid',gap:8}}>
                 {[
                   { label: role === 'vendor' ? 'Open My Work' : 'Open My Projects', run:openWork },

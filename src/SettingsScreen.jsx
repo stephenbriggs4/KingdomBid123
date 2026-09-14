@@ -211,34 +211,34 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
   const sx = {
     shell:{background:"#faf8f4",minHeight:"100vh",paddingBottom:60},
     topbar:{maxWidth:1100,margin:"0 auto",padding:"22px 28px 0",display:"flex",alignItems:"center",gap:12},
-    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
-    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"'DM Mono',monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
+    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"var(--font-sans),sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
+    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"var(--font-sans),monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
     headWrap:{maxWidth:1100,margin:"0 auto",padding:"22px 28px 28px"},
     headPanel:{background:"#fffdf8",border:"1px solid #dfd5c2",borderRadius:22,padding:"28px 30px 26px",boxShadow:"0 7px 20px rgba(28,40,20,0.045)"},
-    eyebrow:{fontFamily:"'DM Mono',monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
-    headline:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:36,fontWeight:700,color:"#1C2814",letterSpacing:-0.7,lineHeight:1.05,marginBottom:6},
+    eyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
+    headline:{fontFamily:"var(--font-display),serif",fontSize:36,fontWeight:700,color:"#1C2814",letterSpacing:-0.7,lineHeight:1.05,marginBottom:6},
     sub:{fontSize:14,color:"#5a5246",lineHeight:1.55,maxWidth:560},
     tabsWrap:{maxWidth:1100,margin:"0 auto",padding:"0 28px",borderBottom:"1px solid #ece4d2",display:"flex",gap:24,overflowX:"auto"},
-    tab:(active)=>({padding:"12px 0 14px",fontSize:13,fontWeight:active?700:600,color:active?"#1C2814":"#7d7363",position:"relative",background:"none",border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"color 0.15s",whiteSpace:"nowrap"}),
+    tab:(active)=>({padding:"12px 0 14px",fontSize:13,fontWeight:active?700:600,color:active?"#1C2814":"#7d7363",position:"relative",background:"none",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"color 0.15s",whiteSpace:"nowrap"}),
     tabBar:{position:"absolute",left:0,right:0,bottom:-1,height:2.5,background:"linear-gradient(90deg,#c9a45c,#b08840)",borderRadius:2},
     body:{maxWidth:760,margin:"0 auto",padding:"24px 28px 0"},
     panel:{background:"#fff",border:"1px solid #dfd5c2",borderRadius:18,marginBottom:18,boxShadow:"0 6px 18px rgba(28,40,20,0.04)",overflow:"hidden"},
     panelHd:{padding:"16px 22px 14px",background:"#fffdf8",borderBottom:"1px solid #ece4d2",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"},
-    panelEyebrow:{fontFamily:"'DM Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
-    panelTitle:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
+    panelEyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
+    panelTitle:{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
     panelMeta:{fontSize:11.5,color:"#7d7363"},
     panelBody:{padding:"22px"},
-    label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"'DM Sans',sans-serif"},
-    input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"'DM Sans',sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s"},
+    label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"var(--font-sans),sans-serif"},
+    input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s"},
     field:{marginBottom:18},
     helperText:{fontSize:12,color:"#7d7363",marginBottom:14,lineHeight:1.5},
-    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
-    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s"},
-    btnDanger:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#a23b3b",fontSize:13,fontWeight:600,border:"1px solid #e6c4c4",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s"},
+    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
+    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
+    btnDanger:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#a23b3b",fontSize:13,fontWeight:600,border:"1px solid #e6c4c4",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
     infoBlock:{padding:"12px 14px",background:"#fffdf8",border:"1px solid #ece4d2",borderRadius:12,fontSize:12.5,color:"#5a5246",lineHeight:1.6,marginBottom:14},
     rowDivider:{padding:"12px 0",borderBottom:"1px solid #f0e9d9",display:"flex",alignItems:"center",justifyContent:"space-between",gap:14},
-    rowLabel:{fontSize:13,color:"#5a5246",fontFamily:"'DM Sans',sans-serif"},
-    rowVal:{fontSize:13,fontWeight:600,color:"#1C2814",fontFamily:"'DM Mono',monospace",textAlign:"right"},
+    rowLabel:{fontSize:13,color:"#5a5246",fontFamily:"var(--font-sans),sans-serif"},
+    rowVal:{fontSize:13,fontWeight:600,color:"#1C2814",fontFamily:"var(--font-sans),monospace",textAlign:"right"},
   };
 
   return (
@@ -321,7 +321,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                       <div style={{height:3,borderRadius:999,background:'#f0e9d9',overflow:'hidden'}}>
                         <div style={{height:'100%',width,background:color,transition:'width 0.3s,background 0.3s',borderRadius:999}}/>
                       </div>
-                      <div style={{fontSize:11,color,marginTop:5,fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>{label}</div>
+                      <div style={{fontSize:11,color,marginTop:5,fontWeight:700,fontFamily:"var(--font-sans),sans-serif"}}>{label}</div>
                     </div>;
                   })()}
                 </div>
@@ -375,7 +375,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
               {visibleNotificationOptions.map((item,i,arr)=>(
                 <div key={item.key} style={{...sx.rowDivider,padding:"14px 0",borderBottom:i===arr.length-1?"none":"1px solid #f0e9d9",opacity:notifPrefsAvailable?1:0.58}}>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:13.5,fontWeight:600,color:"#1C2814",fontFamily:"'DM Sans',sans-serif"}}>{item.label}</div>
+                    <div style={{fontSize:13.5,fontWeight:600,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif"}}>{item.label}</div>
                     <div style={{fontSize:12,color:"#7d7363",marginTop:3,lineHeight:1.45}}>{item.sub}</div>
                   </div>
                   <button
@@ -417,8 +417,8 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                   {trustSignals.map((item)=>(
                     <div key={item.label} style={{padding:"16px 17px",borderRadius:14,border:"1px solid #dfd5c2",background:"#fffdf8",position:"relative",overflow:"hidden"}}>
                       <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:"linear-gradient(180deg,#c9a45c,#b08840)"}}/>
-                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.4,textTransform:"uppercase",color:"#b08840",marginBottom:8}}>{item.label}</div>
-                      <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:24,fontWeight:700,color:item.tone || "#1C2814",lineHeight:1.05,letterSpacing:-0.4}}>{item.value}</div>
+                      <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.4,textTransform:"uppercase",color:"#b08840",marginBottom:8}}>{item.label}</div>
+                      <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:item.tone || "#1C2814",lineHeight:1.05,letterSpacing:-0.4}}>{item.value}</div>
                     </div>
                   ))}
                 </div>
@@ -488,8 +488,8 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                     return (
                       <div key={item.key} style={{padding:"15px 16px",borderRadius:14,border:`1px solid ${tone.border}`,background:tone.bg}}>
                         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:6,flexWrap:"wrap"}}>
-                          <div style={{fontSize:13.5,fontWeight:700,color:"#1C2814",fontFamily:"'DM Sans',sans-serif"}}>{item.label}</div>
-                          <span style={{padding:"4px 11px",borderRadius:999,fontSize:9.5,fontWeight:800,letterSpacing:0.8,textTransform:"uppercase",color:tone.color,background:"rgba(255,255,255,0.78)",border:`1px solid ${tone.border}`,fontFamily:"'DM Mono',monospace"}}>{tone.label}</span>
+                          <div style={{fontSize:13.5,fontWeight:700,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif"}}>{item.label}</div>
+                          <span style={{padding:"4px 11px",borderRadius:999,fontSize:9.5,fontWeight:800,letterSpacing:0.8,textTransform:"uppercase",color:tone.color,background:"rgba(255,255,255,0.78)",border:`1px solid ${tone.border}`,fontFamily:"var(--font-sans),monospace"}}>{tone.label}</span>
                         </div>
                         <div style={{fontSize:12.5,color:"#5a5246",lineHeight:1.65}}>{item.detail}</div>
                       </div>
@@ -539,12 +539,12 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
             </div>
             <div style={sx.panelBody}>
               <div style={{marginBottom:24}}>
-                <div style={{fontSize:14,fontWeight:700,color:"#1C2814",marginBottom:6,fontFamily:"'DM Sans',sans-serif"}}>Sign out</div>
+                <div style={{fontSize:14,fontWeight:700,color:"#1C2814",marginBottom:6,fontFamily:"var(--font-sans),sans-serif"}}>Sign out</div>
                 <div style={{fontSize:13,color:"#5a5246",marginBottom:14,lineHeight:1.55}}>Sign out of your account on this device.</div>
                 <button type="button" style={sx.btnDanger} onClick={onSignOut}>Sign out</button>
               </div>
               <div style={{borderTop:"1px solid #f0e9d9",paddingTop:24}}>
-                <div style={{fontSize:14,fontWeight:700,color:"#1C2814",marginBottom:6,fontFamily:"'DM Sans',sans-serif"}}>Delete account</div>
+                <div style={{fontSize:14,fontWeight:700,color:"#1C2814",marginBottom:6,fontFamily:"var(--font-sans),sans-serif"}}>Delete account</div>
                 <div style={{fontSize:13,color:"#5a5246",marginBottom:14,lineHeight:1.55}}>Account deletion is handled by FaithBid support so ownership can be verified before any data is removed.</div>
                 <button
                   type="button"

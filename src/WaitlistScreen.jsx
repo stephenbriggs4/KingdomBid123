@@ -506,7 +506,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
   const inputBg = "#FFFFFF";
   const inputBorder = "rgba(34,48,27,0.14)";
 
-  const fieldStyle = { width: "100%", padding: "13px 14px", borderRadius: 10, border: `1px solid ${inputBorder}`, fontSize: 14, fontFamily: "DM Sans, sans-serif", boxSizing: "border-box", outline: "none", background: inputBg, color: formText, transition: "border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease" };
+  const fieldStyle = { width: "100%", padding: "13px 14px", borderRadius: 10, border: `1px solid ${inputBorder}`, fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none", background: inputBg, color: formText, transition: "border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease" };
   const labelStyle = { fontSize: 11, fontWeight: 700, color: formText, display: "block", marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" };
   const requiredMark = <span style={{ color: "#B45309", marginLeft: 2 }}>*</span>;
 
@@ -581,7 +581,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
     backgroundRepeat: "no-repeat",
     backgroundAttachment: "fixed",
     color: text,
-    fontFamily: "DM Sans, sans-serif",
+    fontFamily: "var(--font-sans), sans-serif",
   };
   const pageWrapStyle = { maxWidth: 760, margin: "0 auto", padding: "22px 24px 64px" };
   const sectionCardStyle = { background: cardBg, borderRadius: 18, border: `1px solid ${formBorder}`, boxShadow: "0 18px 48px rgba(21,28,24,0.075), inset 0 1px 0 rgba(255,255,255,0.78)" };
@@ -615,7 +615,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                 fontSize: 12.5,
                 fontWeight: 700,
                 cursor: "pointer",
-                fontFamily: "DM Sans, sans-serif",
+                fontFamily: "var(--font-sans), sans-serif",
                 boxShadow: "0 10px 24px rgba(21,28,24,0.055)",
               }}
             >
@@ -626,7 +626,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           <div style={{ ...sectionCardStyle, padding: "34px 28px 26px", position: "relative", overflow: "hidden" }}>
             <div style={{ textAlign: "center", marginBottom: 24 }}>
               <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 56, height: 56, borderRadius: 999, background: "#172116", color: "#f5efe2", fontSize: 24, fontWeight: 800, marginBottom: 18, boxShadow: "0 0 0 1px rgba(213,184,115,0.45)" }}>✓</div>
-              <div style={{ fontFamily: "Playfair Display, Georgia, serif", fontSize: 32, fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.03em", marginBottom: 0 }}>{meta.doneTitle}</div>
+              <div style={{ fontFamily: "var(--font-display), serif", fontSize: 32, fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.03em", marginBottom: 0 }}>{meta.doneTitle}</div>
               <div style={{ width: 40, height: 1, background: "#d5b873", margin: "16px auto 16px" }} />
               <div style={{ fontSize: 15, lineHeight: 1.75, color: muted, maxWidth: 520, margin: "0 auto 10px" }}>{meta.doneBody}</div>
               <div style={{ fontSize: 13, color: text, fontWeight: 700 }}>{result.email}</div>
@@ -635,7 +635,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
             {result.referralValidated ? (
               <div style={{padding:"16px 18px",borderRadius:16,background:"linear-gradient(135deg, rgba(34,48,27,0.075), rgba(168,123,42,0.065))",border:"1px solid rgba(168,123,42,0.24)",marginBottom:16}}>
                 <div style={{fontSize:10.5,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:accent,marginBottom:6}}>Founding Invite confirmed</div>
-                <div style={{fontFamily:"'Playfair Display', Georgia, serif",fontSize:19,fontWeight:700,lineHeight:1.25,color:text,marginBottom:7}}>Your {isVendor ? "business" : "church"} application came through a validated FaithBid invite.</div>
+                <div style={{fontFamily:"var(--font-display), serif",fontSize:19,fontWeight:700,lineHeight:1.25,color:text,marginBottom:7}}>Your {isVendor ? "business" : "church"} application came through a validated FaithBid invite.</div>
                 <div style={{fontSize:12.5,lineHeight:1.65,color:muted}}>It is placed in the referred-applicant priority review group. Priority changes review order only; it does not change FaithBid's admission standards, guarantee approval, or guarantee a review time.</div>
               </div>
             ) : null}
@@ -692,7 +692,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
 
             {canShareReferral ? (
               <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 20 }} className="waitlist-share-row">
-                <div style={{ flex: 1, padding: "12px 12px", borderRadius: 12, background: softBg, border: `1px solid ${border}`, fontFamily: "DM Mono, monospace", fontSize: 12, color: text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{shareUrl}</div>
+                <div style={{ flex: 1, padding: "12px 12px", borderRadius: 12, background: softBg, border: `1px solid ${border}`, fontFamily: "var(--font-sans), monospace", fontSize: 12, color: text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{shareUrl}</div>
                 <button type="button" onClick={async () => { try { await navigator.clipboard.writeText(shareUrl); showToast && showToast("Link copied"); } catch { showToast && showToast("Couldn't copy — long-press to copy.", "error"); } }} style={{ padding: "12px 14px", borderRadius: 12, border: "none", background: primaryBg, color: primaryText, fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>Copy</button>
               </div>
             ) : null}
@@ -705,7 +705,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
             </div>
             {result.resumed ? (
               <div style={{ textAlign: "center", marginTop: 14 }}>
-                <button type="button" onClick={() => { kbSafeLocalRemove(WAITLIST_RECEIPT_KEY(mode)); setResult(null); setErr(""); }} style={{ background: "none", border: "none", color: muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3, fontFamily: "DM Sans, sans-serif" }}>
+                <button type="button" onClick={() => { kbSafeLocalRemove(WAITLIST_RECEIPT_KEY(mode)); setResult(null); setErr(""); }} style={{ background: "none", border: "none", color: muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3, fontFamily: "var(--font-sans), sans-serif" }}>
                   Use a different email
                 </button>
               </div>
@@ -836,7 +836,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
               fontSize: 12.5,
               fontWeight: 700,
               cursor: "pointer",
-              fontFamily: "DM Sans, sans-serif",
+              fontFamily: "var(--font-sans), sans-serif",
               boxShadow: "0 10px 24px rgba(21,28,24,0.055)",
             }}
           >
@@ -845,7 +845,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           <button
             type="button"
             onClick={() => { if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("login"); nav("auth"); }}
-            style={{ background: "none", border: "none", color: muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: "DM Sans, sans-serif", letterSpacing: 0.1 }}
+            style={{ background: "none", border: "none", color: muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-sans), sans-serif", letterSpacing: 0.1 }}
           >
             Sign in <span aria-hidden="true">&rarr;</span>
           </button>
@@ -868,12 +868,12 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
               const lead = splitIdx > 0 ? raw.slice(0, splitIdx) : raw;
               const climax = splitIdx > 0 ? raw.slice(splitIdx + 1) : "";
               return (
-                <h1 className="kb-waitlist-hero-title" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(32px, 4.35vw, 48px)", lineHeight: 1.02, letterSpacing: "-0.026em", margin: "0 0 12px", fontWeight: 700, color: text, overflowWrap: "normal" }}>
+                <h1 className="kb-waitlist-hero-title" style={{ fontFamily: "var(--font-display), serif", fontSize: "clamp(32px, 4.35vw, 48px)", lineHeight: 1.02, letterSpacing: "-0.026em", margin: "0 0 12px", fontWeight: 700, color: text, overflowWrap: "normal" }}>
                   {lead}
                   {climax ? (
                     <>
                       {" "}
-                      <span style={{ fontFamily: "'Newsreader','Playfair Display',Georgia,serif", fontStyle: "italic", fontWeight: 400, background: "linear-gradient(135deg,#C4973A 0%,#A87B2A 50%,#8C6420 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", letterSpacing: "-0.012em" }}>
+                      <span style={{ fontFamily: "var(--font-display),serif", fontStyle: "italic", fontWeight: 400, background: "linear-gradient(135deg,#C4973A 0%,#A87B2A 50%,#8C6420 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", letterSpacing: "-0.012em" }}>
                         {climax}
                       </span>
                     </>
@@ -913,7 +913,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:16,marginBottom:16,paddingBottom:14,borderBottom:`1px solid ${formBorder}`}}>
             <div>
               <div style={{fontSize:10.5,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:formAccent,marginBottom:5}}>{isVendor ? "Charter review" : "Access reservation"}</div>
-              <div style={{fontFamily:"'Playfair Display', Georgia, serif",fontSize:20,fontWeight:700,lineHeight:1.08,letterSpacing:"-0.02em",color:formText}}>{isVendor ? "Submit the essentials." : "Reserve your church's spot."}</div>
+              <div style={{fontFamily:"var(--font-display), serif",fontSize:20,fontWeight:700,lineHeight:1.08,letterSpacing:"-0.02em",color:formText}}>{isVendor ? "Submit the essentials." : "Reserve your church's spot."}</div>
             </div>
             <div style={{padding:"7px 10px",borderRadius:999,background:softBg,border:`1px solid ${formBorder}`,color:formMuted,fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>{meta.requiredSummary}</div>
           </div>
@@ -1140,7 +1140,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                             fontSize: 13,
                             fontWeight: active ? 600 : 500,
                             cursor: "pointer",
-                            fontFamily: "DM Sans, sans-serif",
+                            fontFamily: "var(--font-sans), sans-serif",
                           }}
                         >
                           {opt.label}
@@ -1186,7 +1186,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                 fontSize: 14.5,
                 fontWeight: 700,
                 cursor: (canSubmit && !submitting) ? "pointer" : "not-allowed",
-                fontFamily: "DM Sans, sans-serif",
+                fontFamily: "var(--font-sans), sans-serif",
                 marginTop: 10,
                 letterSpacing: 0.2,
                 boxShadow: (canSubmit && !submitting) ? "0 4px 20px rgba(196,151,58,0.35)" : "none",
@@ -1221,7 +1221,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
               fontSize: 13,
               fontWeight: 500,
               cursor: "pointer",
-              fontFamily: "DM Sans, sans-serif",
+              fontFamily: "var(--font-sans), sans-serif",
               padding: "6px 10px",
               borderRadius: 6,
             }}

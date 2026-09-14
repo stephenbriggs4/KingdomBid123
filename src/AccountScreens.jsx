@@ -37,11 +37,11 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
     .pricing-shell { background: #0f1410; min-height: 100vh; padding: 60px 24px 80px; color: #fff; }
     .pricing-inner { max-width: 1100px; margin: 0 auto; }
     .pricing-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #C4973A; margin-bottom: 14px; text-align: center; }
-    .pricing-headline { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; text-align: center; margin-bottom: 16px; max-width: 760px; margin-left: auto; margin-right: auto; }
+    .pricing-headline { font-family: var(--font-display), serif; font-size: 52px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; text-align: center; margin-bottom: 16px; max-width: 760px; margin-left: auto; margin-right: auto; }
     .pricing-sub { font-size: 16px; color: rgba(255,255,255,0.62); line-height: 1.65; text-align: center; max-width: 580px; margin: 0 auto 40px; font-weight: 400; }
     .pricing-toggle-wrap { display: flex; justify-content: center; margin-bottom: 48px; }
     .pricing-toggle { display: inline-flex; padding: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; gap: 4px; }
-    .pricing-toggle button { background: none; border: none; padding: 9px 22px; border-radius: 999px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.55); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.18s; }
+    .pricing-toggle button { background: none; border: none; padding: 9px 22px; border-radius: 999px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.55); cursor: pointer; font-family: var(--font-sans), sans-serif; transition: all 0.18s; }
     .pricing-toggle button.on { background: #C4973A; color: #1C2814; }
     .pricing-toggle .save-pill { font-size: 10px; font-weight: 800; padding: 2px 7px; background: #2f855a; color: #fff; border-radius: 999px; margin-left: 6px; letter-spacing: 0.06em; }
     .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 56px; }
@@ -51,12 +51,12 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
     .pricing-featured-tag { position: absolute; top: -12px; left: 32px; padding: 5px 12px; background: #C4973A; color: #1C2814; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 999px; }
     .pricing-card-name { font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 10px; }
     .pricing-card.featured .pricing-card-name { color: #C4973A; }
-    .pricing-card-tagline { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; line-height: 1.25; color: #fff; margin-bottom: 22px; letter-spacing: -0.01em; }
+    .pricing-card-tagline { font-family: var(--font-display), serif; font-size: 24px; font-weight: 600; line-height: 1.25; color: #fff; margin-bottom: 22px; letter-spacing: -0.01em; }
     .pricing-price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
-    .pricing-price-amount { font-family: 'Playfair Display', serif; font-size: 60px; font-weight: 700; color: #fff; letter-spacing: -0.03em; line-height: 1; }
+    .pricing-price-amount { font-family: var(--font-display), serif; font-size: 60px; font-weight: 700; color: #fff; letter-spacing: -0.03em; line-height: 1; }
     .pricing-price-suffix { font-size: 15px; color: rgba(255,255,255,0.5); font-weight: 400; }
     .pricing-price-note { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 28px; line-height: 1.6; min-height: 32px; }
-    .pricing-cta { display: block; width: 100%; padding: 14px 24px; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.18s; letter-spacing: 0.02em; margin-bottom: 28px; }
+    .pricing-cta { display: block; width: 100%; padding: 14px 24px; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: var(--font-sans), sans-serif; cursor: pointer; transition: all 0.18s; letter-spacing: 0.02em; margin-bottom: 28px; }
     .pricing-cta-free { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #fff; }
     .pricing-cta-free:hover { background: rgba(255,255,255,0.1); }
     .pricing-cta-pro { background: linear-gradient(135deg, #C4973A, #A87B2A); color: #1C2814; box-shadow: 0 8px 24px rgba(196,151,58,0.28); }
@@ -72,23 +72,23 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
     /* Calculator */
     .pricing-calc { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 22px; padding: 32px 36px; margin-bottom: 48px; }
     .pricing-calc-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 14px; }
-    .pricing-calc-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; color: #fff; letter-spacing: -0.01em; }
+    .pricing-calc-title { font-family: var(--font-display), serif; font-size: 24px; font-weight: 600; color: #fff; letter-spacing: -0.01em; }
     .pricing-calc-input-wrap { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
     .pricing-calc-slider { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: rgba(255,255,255,0.12); border-radius: 999px; outline: none; }
     .pricing-calc-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #C4973A; cursor: pointer; box-shadow: 0 2px 8px rgba(196,151,58,0.4); }
     .pricing-calc-slider::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #C4973A; cursor: pointer; border: none; box-shadow: 0 2px 8px rgba(196,151,58,0.4); }
-    .pricing-calc-bidlabel { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: #fff; min-width: 130px; text-align: right; letter-spacing: -0.01em; }
+    .pricing-calc-bidlabel { font-family: var(--font-display), serif; font-size: 32px; font-weight: 700; color: #fff; min-width: 130px; text-align: right; letter-spacing: -0.01em; }
     .pricing-calc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
     @media (max-width: 700px) { .pricing-calc-grid { grid-template-columns: 1fr; } }
     .pricing-calc-card { padding: 18px 20px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; }
     .pricing-calc-card.savings { background: rgba(47,133,90,0.08); border-color: rgba(47,133,90,0.3); }
     .pricing-calc-label { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
-    .pricing-calc-value { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.01em; line-height: 1; margin-bottom: 4px; }
+    .pricing-calc-value { font-family: var(--font-display), serif; font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.01em; line-height: 1; margin-bottom: 4px; }
     .pricing-calc-card.savings .pricing-calc-value { color: #6dc991; }
     .pricing-calc-sub { font-size: 11px; color: rgba(255,255,255,0.5); }
     .pricing-giveback { background: linear-gradient(135deg, rgba(47,133,90,0.11), rgba(196,151,58,0.07)); border: 1px solid rgba(196,151,58,0.22); border-radius: 22px; padding: 26px 28px; margin: -24px 0 48px; box-shadow: 0 18px 60px rgba(0,0,0,0.18); }
     .pricing-giveback-kicker { font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #C4973A; margin-bottom: 8px; }
-    .pricing-giveback-title { font-family: 'Playfair Display', serif; font-size: 28px; line-height: 1.15; color: #fff; margin-bottom: 8px; }
+    .pricing-giveback-title { font-family: var(--font-display), serif; font-size: 28px; line-height: 1.15; color: #fff; margin-bottom: 8px; }
     .pricing-giveback-copy { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.68); max-width: 760px; margin-bottom: 18px; }
     .pricing-giveback-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
     @media (max-width: 760px) { .pricing-giveback-grid { grid-template-columns: 1fr 1fr; } }
@@ -98,13 +98,13 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
 
     /* FAQ */
     .pricing-faq { max-width: 720px; margin: 0 auto; }
-    .pricing-faq-title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 32px; letter-spacing: -0.02em; }
+    .pricing-faq-title { font-family: var(--font-display), serif; font-size: 32px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 32px; letter-spacing: -0.02em; }
     .pricing-faq-item { padding: 22px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .pricing-faq-item:last-child { border-bottom: none; }
     .pricing-faq-q { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }
     .pricing-faq-a { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; font-weight: 400; }
 
-    .pricing-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: rgba(255,255,255,0.55); font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 0; margin-bottom: 28px; }
+    .pricing-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: rgba(255,255,255,0.55); font-size: 13px; cursor: pointer; font-family: var(--font-sans), sans-serif; padding: 0; margin-bottom: 28px; }
     .pricing-back:hover { color: #fff; }
 
     .charter-banner { background: rgba(196,151,58,0.08); border: 1px solid rgba(196,151,58,0.3); border-radius: 16px; padding: 18px 22px; margin-bottom: 32px; display: flex; gap: 14px; align-items: center; }
@@ -322,7 +322,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:16,marginTop:32}}>
           {KB_ONBOARDING_CONTENT.churchIntro.map((c,i)=>(
             <div key={i} style={{display:"flex",gap:14,padding:"16px 18px",background:"rgba(245,240,232,0.08)",borderRadius:"var(--r-md)",border:"1px solid rgba(255,255,255,0.08)"}}>
-              <div style={{fontFamily:"DM Mono,monospace",fontSize:10,color:"var(--atext-muted)",paddingTop:3,flexShrink:0,letterSpacing:1}}>{c.num}</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"var(--atext-muted)",paddingTop:3,flexShrink:0,letterSpacing:1}}>{c.num}</div>
               <div><div style={{fontSize:14,fontWeight:700,color:"#fff",marginBottom:4}}>{c.title}</div><div style={{fontSize:13,color:"var(--atext-mid)",lineHeight:1.6}}>{c.body}</div></div>
             </div>
           ))}
@@ -356,7 +356,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             {KB_ONBOARDING_CONTENT.churchProjectFlow.map((s,i)=>(
               <div key={i} style={{display:"grid",gridTemplateColumns:"36px 1fr",gap:12,padding:"14px 16px",background:"rgba(245,240,232,0.07)",borderRadius:10,border:"1px solid rgba(255,255,255,0.07)"}}>
-                <div style={{fontFamily:"DM Mono,monospace",fontSize:10,color:"rgba(255,255,255,0.2)",paddingTop:3}}>{s.num}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"rgba(255,255,255,0.2)",paddingTop:3}}>{s.num}</div>
                 <div><div style={{fontSize:13,fontWeight:700,color:"#fff",marginBottom:3}}>{s.label}</div><div style={{fontSize:12,color:"var(--atext-2)",lineHeight:1.5}}>{s.body}</div></div>
               </div>
             ))}
@@ -388,7 +388,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:16,marginTop:32}}>
           {KB_ONBOARDING_CONTENT.individualIntro.map((c,i)=>(
             <div key={i} style={{display:"flex",gap:14,padding:"16px 18px",background:"rgba(245,240,232,0.08)",borderRadius:"var(--r-md)",border:"1px solid rgba(255,255,255,0.08)"}}>
-              <div style={{fontFamily:"DM Mono,monospace",fontSize:10,color:"var(--atext-muted)",paddingTop:3,flexShrink:0,letterSpacing:1}}>{c.num}</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"var(--atext-muted)",paddingTop:3,flexShrink:0,letterSpacing:1}}>{c.num}</div>
               <div><div style={{fontSize:14,fontWeight:700,color:"#fff",marginBottom:4}}>{c.title}</div><div style={{fontSize:13,color:"var(--atext-mid)",lineHeight:1.6}}>{c.body}</div></div>
             </div>
           ))}
@@ -414,7 +414,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:16,marginTop:32}}>
           {KB_ONBOARDING_CONTENT.vendorIntro.map((c,i)=>(
             <div key={i} style={{display:"flex",gap:14,padding:"16px 18px",background:"rgba(245,240,232,0.08)",borderRadius:"var(--r-md)",border:"1px solid rgba(255,255,255,0.08)"}}>
-              <div style={{fontFamily:"DM Mono,monospace",fontSize:10,color:"var(--atext-muted)",paddingTop:3,flexShrink:0,letterSpacing:1}}>{c.num}</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"var(--atext-muted)",paddingTop:3,flexShrink:0,letterSpacing:1}}>{c.num}</div>
               <div><div style={{fontSize:14,fontWeight:700,color:"#fff",marginBottom:4}}>{c.title}</div><div style={{fontSize:13,color:"var(--atext-mid)",lineHeight:1.6}}>{c.body}</div></div>
             </div>
           ))}
@@ -437,7 +437,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
               ))}
             </div>
           </div>
-          <button type="button" onClick={()=>{markComplete();nav("verify-profile");}} style={{width:"100%",padding:"14px",background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>
+          <button type="button" onClick={()=>{markComplete();nav("verify-profile");}} style={{width:"100%",padding:"14px",background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>
             Apply for Faith Verification →
           </button>
           <div style={{textAlign:"center",marginTop:10,fontSize:12,color:"var(--atext-muted)"}}>Takes about 5 minutes · Reviewed within 48 hours</div>
@@ -456,7 +456,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
             {rank:"#3",label:"Social proof",body:"Reviews, completed projects, and badges. The more you build up, the more bids you win."},
           ].map((t,i)=>(
             <div key={i} style={{display:"grid",gridTemplateColumns:"44px 1fr",gap:12,padding:"16px 16px",background:"rgba(245,240,232,0.07)",borderRadius:10,border:"1px solid rgba(255,255,255,0.07)",marginBottom:10}}>
-              <div style={{fontFamily:"Playfair Display,serif",fontSize:22,fontWeight:700,color:"var(--gold-light)",lineHeight:1}}>{t.rank}</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"var(--gold-light)",lineHeight:1}}>{t.rank}</div>
               <div><div style={{fontSize:13,fontWeight:700,color:"#fff",marginBottom:3}}>{t.label}</div><div style={{fontSize:12,color:"var(--atext-2)",lineHeight:1.6}}>{t.body}</div></div>
             </div>
           ))}
@@ -521,7 +521,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
             <div key={i} style={{height:3,width:i===step?32:i<step?24:16,borderRadius:2,background:i<step?"var(--gold-light)":i===step?"rgba(245,240,232,0.7)":"rgba(255,255,255,0.1)",transition:"all 0.4s ease"}}/>
           ))}
         </div>
-        <button type="button" onClick={()=>{markComplete();nav(role === "vendor" ? "projects" : "projects:post");}} style={{background:"none",border:"none",fontSize:12,color:"var(--atext-muted)",cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>{role === "vendor" ? "Skip to projects →" : "Skip to project post →"}</button>
+        <button type="button" onClick={()=>{markComplete();nav(role === "vendor" ? "projects" : "projects:post");}} style={{background:"none",border:"none",fontSize:12,color:"var(--atext-muted)",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>{role === "vendor" ? "Skip to projects →" : "Skip to project post →"}</button>
       </div>
 
       {/* Content */}
@@ -531,7 +531,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
           <div style={{width:48,height:3,background:"rgba(245,240,232,0.3)",borderRadius:2,margin:"0 auto 20px"}}></div>
 
           {/* Heading */}
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:36,fontWeight:700,color:"#fff",lineHeight:1.1,letterSpacing:-0.5,marginBottom:10,textAlign:"center"}}>{current.title}</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:36,fontWeight:700,color:"#fff",lineHeight:1.1,letterSpacing:-0.5,marginBottom:10,textAlign:"center"}}>{current.title}</div>
           <div style={{fontSize:15,color:"var(--atext-2)",fontWeight:400,textAlign:"center",lineHeight:1.6,marginBottom:8}}>{current.sub}</div>
 
           {/* Step content */}
@@ -541,9 +541,9 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
           {!isLast && (
             <div style={{marginTop:32,display:"flex",gap:10,alignItems:"center"}}>
               {step > 0 && (
-                <button type="button" onClick={()=>setStep(s=>s-1)} style={{padding:"12px 20px",background:"rgba(245,240,232,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:10,color:"rgba(255,255,255,0.6)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>← Back</button>
+                <button type="button" onClick={()=>setStep(s=>s-1)} style={{padding:"12px 20px",background:"rgba(245,240,232,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:10,color:"rgba(255,255,255,0.6)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back</button>
               )}
-              <button type="button" onClick={goNext} style={{flex:1,padding:"14px",background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif",transition:"all 0.18s"}}>
+              <button type="button" onClick={goNext} style={{flex:1,padding:"14px",background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.18s"}}>
                 {step === steps.length - 2 ? "See what's next →" : "Continue"}
               </button>
             </div>
@@ -592,7 +592,7 @@ function ResetPasswordScreen({nav, showToast}){
       <div style={{width:"100%",maxWidth:500,animation:"fadeUp 0.4s ease"}}>
         <div style={{textAlign:"center",marginBottom:40}}>
           <div style={{display:"flex",justifyContent:"center",marginBottom:0}}><CrossLogo size={44}/></div>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"#fff",marginTop:16,marginBottom:8}}>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"#fff",marginTop:16,marginBottom:8}}>
             {done ? "Password updated." : "Set a new password."}
           </div>
           <div style={{fontSize:14,color:"var(--atext-2)"}}>
@@ -605,18 +605,18 @@ function ResetPasswordScreen({nav, showToast}){
             {error && <div style={{padding:"12px 16px",background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"var(--r-sm)",fontSize:13,color:"#FCA5A5",marginBottom:20}}>Error: {error}</div>}
             <div style={{position:"relative",marginBottom:28}}>
               <label style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--atext-muted)",display:"block",marginBottom:8}}>New Password</label>
-              <input aria-label="At least 8 characters" type="password" autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters" style={{width:"100%",padding:"14px 16px",background:"rgba(245,240,232,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:10,fontSize:15,color:"#fff",fontFamily:"DM Sans,sans-serif",outline:"none",boxSizing:"border-box"}}/>
+              <input aria-label="At least 8 characters" type="password" autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters" style={{width:"100%",padding:"14px 16px",background:"rgba(245,240,232,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:10,fontSize:15,color:"#fff",fontFamily:"var(--font-sans),sans-serif",outline:"none",boxSizing:"border-box"}}/>
             </div>
             <div style={{position:"relative",marginBottom:28}}>
               <label style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--atext-muted)",display:"block",marginBottom:8}}>Confirm Password</label>
-              <input aria-label="Repeat new password" type="password" autoComplete="new-password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Repeat new password" style={{width:"100%",padding:"14px 16px",background:"rgba(245,240,232,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:10,fontSize:15,color:"#fff",fontFamily:"DM Sans,sans-serif",outline:"none",boxSizing:"border-box"}}
+              <input aria-label="Repeat new password" type="password" autoComplete="new-password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Repeat new password" style={{width:"100%",padding:"14px 16px",background:"rgba(245,240,232,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:10,fontSize:15,color:"#fff",fontFamily:"var(--font-sans),sans-serif",outline:"none",boxSizing:"border-box"}}
                 onKeyDown={e=>e.key==="Enter"&&handleReset()}/>
             </div>
-            <button type="button" onClick={handleReset} disabled={loading||!password||!confirm} style={{width:"100%",padding:"16px",background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:10,fontSize:15,fontWeight:700,cursor:loading?"not-allowed":"pointer",fontFamily:"DM Sans,sans-serif",opacity:loading||!password||!confirm?0.6:1,transition:"all 0.18s"}}>
+            <button type="button" onClick={handleReset} disabled={loading||!password||!confirm} style={{width:"100%",padding:"16px",background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:10,fontSize:15,fontWeight:700,cursor:loading?"not-allowed":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:loading||!password||!confirm?0.6:1,transition:"all 0.18s"}}>
               {loading ? "Updating…" : "Update Password →"}
             </button>
             <div style={{textAlign:"center",marginTop:16}}>
-              <button type="button" onClick={()=>{setAuthDefaultRole("login");nav("auth");}} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>← Back to Sign in</button>
+              <button type="button" onClick={()=>{setAuthDefaultRole("login");nav("auth");}} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back to Sign in</button>
             </div>
           </>
         )}

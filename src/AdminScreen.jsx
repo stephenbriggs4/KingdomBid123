@@ -1960,7 +1960,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     <div className="page-shell-onboard">
       <div style={{textAlign:"center",padding:"48px 40px",background:"var(--abg2)",borderRadius:16,border:"1px solid var(--aborder)",maxWidth:380}}>
         <div style={{fontSize:32,marginBottom:16}}>🔒</div>
-        <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--atext)",marginBottom:8}}>Access Denied</div>
+        <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--atext)",marginBottom:8}}>Access Denied</div>
         <div style={{fontSize:13,color:"var(--atext-mid)"}}>This area is restricted to platform administrators only.</div>
       </div>
     </div>
@@ -2195,7 +2195,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                       </div>
                       <strong style={{fontSize:13,color:"var(--atext)"}}>Marketplace liquidity snapshot</strong>
                       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:7}}>
-                        {[["Demand",aiMarketplaceLiquidity.demand],["Supply",aiMarketplaceLiquidity.supply],["Bids",aiMarketplaceLiquidity.bids]].map(([label,value]) => <span key={label} style={{border:"1px solid rgba(239,225,195,0.14)",borderRadius:10,padding:"7px 8px",background:"var(--abg3)"}}><b style={{display:"block",fontFamily:"DM Mono,monospace",fontSize:15,color:"var(--atext)"}}>{Number(value || 0).toLocaleString()}</b><em style={{fontStyle:"normal",fontSize:8.5,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:".6px"}}>{label}</em></span>)}
+                        {[["Demand",aiMarketplaceLiquidity.demand],["Supply",aiMarketplaceLiquidity.supply],["Bids",aiMarketplaceLiquidity.bids]].map(([label,value]) => <span key={label} style={{border:"1px solid rgba(239,225,195,0.14)",borderRadius:10,padding:"7px 8px",background:"var(--abg3)"}}><b style={{display:"block",fontFamily:"var(--font-sans),monospace",fontSize:15,color:"var(--atext)"}}>{Number(value || 0).toLocaleString()}</b><em style={{fontStyle:"normal",fontSize:8.5,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:".6px"}}>{label}</em></span>)}
                       </div>
                       <div style={{fontSize:10.5,lineHeight:1.5,color:"var(--atext-mid)"}}>{aiMarketplaceLiquidity.headline}</div>
                     </div>
@@ -2339,7 +2339,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                         {founderMetricCards.map(({key,label,metric}) => (
                           <div key={key} style={{background:"var(--abg3)",border:"1px solid var(--aborder)",borderRadius:10,padding:"12px 14px"}}>
                             <div style={{fontSize:9,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:"1px",marginBottom:7,fontWeight:600}}>{label}</div>
-                            <div style={{fontFamily:"DM Mono,monospace",fontSize:21,fontWeight:700,color:metric?.status === "available" ? "var(--atext)" : "var(--amber)",lineHeight:1}}>{displayFounderMetric(metric)}</div>
+                            <div style={{fontFamily:"var(--font-sans),monospace",fontSize:21,fontWeight:700,color:metric?.status === "available" ? "var(--atext)" : "var(--amber)",lineHeight:1}}>{displayFounderMetric(metric)}</div>
                           </div>
                         ))}
                       </div>
@@ -2353,7 +2353,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                             <>
                               {founderActions.length === 0 ? <div style={{padding:16,fontSize:11,color:"var(--atext-muted)"}}>All generated founder actions are handled or snoozed.</div> : founderActions.map(({action,feedbackKey,feedback},visibleIndex) => { const noteDraft = founderActionNoteDrafts?.[feedbackKey] ?? founderActionFeedback?.[feedbackKey]?.note ?? ""; const destinationMeta = getFounderActionDestinationMeta(action); const contextChips = getFounderActionContextChips(action); const noteComposerOpen = activeFounderNoteKey === feedbackKey || !!noteDraft || !!founderActionFeedback?.[feedbackKey]?.note; return (
                                 <div key={feedbackKey} style={{display:"grid",gridTemplateColumns:"36px minmax(0,1fr) auto",gap:10,alignItems:"start",padding:"11px 12px",borderBottom:(visibleIndex===founderActions.length-1 && hiddenFounderActionCount===0)?0:"1px solid var(--aborder)"}}>
-                                  <div style={{width:32,height:32,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",background:Number(action.priority)>=90?"var(--red-bg)":Number(action.priority)>=80?"var(--amber-bg)":"var(--abg4)",color:Number(action.priority)>=90?"var(--red)":Number(action.priority)>=80?"var(--amber)":"var(--atext-mid)",fontFamily:"DM Mono,monospace",fontSize:10,fontWeight:800}}>{action.priority}</div>
+                                  <div style={{width:32,height:32,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",background:Number(action.priority)>=90?"var(--red-bg)":Number(action.priority)>=80?"var(--amber-bg)":"var(--abg4)",color:Number(action.priority)>=90?"var(--red)":Number(action.priority)>=80?"var(--amber)":"var(--atext-mid)",fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800}}>{action.priority}</div>
                                   <div style={{minWidth:0}}>
                                     <div style={{fontSize:11,fontWeight:700,color:"var(--atext)",marginBottom:3}}>{action.title}</div>
                                     <div style={{fontSize:10,color:"var(--atext-muted)",lineHeight:1.45,marginBottom:8}}>{action.reason}</div>                                    <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",marginBottom:8}}>
@@ -2508,7 +2508,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 {overviewSecondaryCards.map((s)=>(
                   <button type="button" key={s.label} onClick={s.action} style={{background:"var(--abg3)",border:"1px solid var(--aborder)",borderRadius:10,padding:"12px 16px",cursor:"pointer",textAlign:"left"}}>
                     <div style={{fontSize:9,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:"1px",marginBottom:6,fontWeight:600}}>{s.label}</div>
-                    <div style={{fontFamily:"DM Mono,monospace",fontSize:22,fontWeight:700,color:s.color,lineHeight:1}}>{s.val}</div>
+                    <div style={{fontFamily:"var(--font-sans),monospace",fontSize:22,fontWeight:700,color:s.color,lineHeight:1}}>{s.val}</div>
                   </button>
                 ))}
               </div>
@@ -2517,7 +2517,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 <div className="panel">
                   <div className="panel-hd">
                     <div className="panel-title">Commercial model</div>
-                    <div style={{fontFamily:"DM Mono,monospace",fontSize:11,color:"var(--green)",fontWeight:600}}>Placement terms // manual invoice</div>
+                    <div style={{fontFamily:"var(--font-sans),monospace",fontSize:11,color:"var(--green)",fontWeight:600}}>Placement terms // manual invoice</div>
                   </div>
                   <div className="panel-body">
                     <div style={{fontSize:11,color:"var(--atext-muted)",marginBottom:8,lineHeight:1.5}}>Project payments stay directly between church and vendor. Any separate FaithBid vendor placement fee is agreed before an introduction and invoiced manually.</div>
@@ -2537,7 +2537,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                             })}
                           </svg>
                           <div style={{display:"flex",justifyContent:"space-between"}}>
-                            {sourceBars.map((b)=><div key={b.label} style={{fontSize:8,color:"var(--atext-muted)",fontFamily:"DM Mono,monospace"}}>{b.label}</div>)}
+                            {sourceBars.map((b)=><div key={b.label} style={{fontSize:8,color:"var(--atext-muted)",fontFamily:"var(--font-sans),monospace"}}>{b.label}</div>)}
                           </div>
                         </div>
                       );
@@ -2587,7 +2587,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                             <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8}}>
                               <div style={{minWidth:0}}>
                                 <div style={{fontSize:11,fontWeight:600,color:d.urgent?"var(--red)":"var(--atext)",marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{d.title}</div>
-                                <div style={{display:"flex",justifyContent:"space-between",gap:8}}><span style={{fontSize:10,color:"var(--atext-muted)"}}>{d.church}</span><span style={{fontFamily:"DM Mono,monospace",fontSize:10,color:"var(--amber)"}}>{d.amount}</span></div>
+                                <div style={{display:"flex",justifyContent:"space-between",gap:8}}><span style={{fontSize:10,color:"var(--atext-muted)"}}>{d.church}</span><span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"var(--amber)"}}>{d.amount}</span></div>
                               </div>
                               <button type="button" className="act-btn act-view" style={{fontSize:9,padding:"3px 8px",flexShrink:0}} onClick={()=>openDisputeReview(d)}>Open</button>
                             </div>
@@ -2670,14 +2670,14 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                     <div style={{border:"1px solid var(--aborder)",borderRadius:12,background:"var(--abg3)",padding:"12px 13px"}}><div style={{fontSize:9,fontWeight:800,letterSpacing:".8px",textTransform:"uppercase",color:"var(--atext-muted)",marginBottom:5}}>Shadow use case</div><div style={{fontSize:13,fontWeight:800,color:"var(--atext)",marginBottom:4}}>{aiShadowModeUseCase.name}</div><div style={{fontSize:10.5,color:"var(--atext-muted)",lineHeight:1.55}}>Input: {aiShadowModeUseCase.input}</div></div>
                     <div style={{border:"1px solid var(--aborder)",borderRadius:12,background:"var(--abg3)",padding:"12px 13px"}}><div style={{fontSize:9,fontWeight:800,letterSpacing:".8px",textTransform:"uppercase",color:"var(--atext-muted)",marginBottom:5}}>Recommended output</div><div style={{fontSize:13,fontWeight:800,color:"var(--atext)",marginBottom:4}}>{aiShadowModeUseCase.output}</div><div style={{fontSize:10.5,color:"var(--atext-muted)",lineHeight:1.55}}>{aiShadowModeUseCase.decision}</div></div>
                   </div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(5,minmax(0,1fr))",gap:8,marginBottom:12}}>{aiShadowModeUseCase.evidence.map(item => <div key={item.label} style={{border:"1px solid var(--aborder)",borderRadius:10,background:"var(--abg2)",padding:"10px 10px"}}><div style={{fontSize:9,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:".7px",fontWeight:800,marginBottom:5}}>{item.label}</div><div style={{fontFamily:"DM Mono,monospace",fontSize:18,fontWeight:800,color:"var(--atext)",marginBottom:3}}>{item.value}</div><div style={{fontSize:9.5,color:"var(--atext-muted)",lineHeight:1.4}}>{item.note}</div></div>)}</div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(5,minmax(0,1fr))",gap:8,marginBottom:12}}>{aiShadowModeUseCase.evidence.map(item => <div key={item.label} style={{border:"1px solid var(--aborder)",borderRadius:10,background:"var(--abg2)",padding:"10px 10px"}}><div style={{fontSize:9,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:".7px",fontWeight:800,marginBottom:5}}>{item.label}</div><div style={{fontFamily:"var(--font-sans),monospace",fontSize:18,fontWeight:800,color:"var(--atext)",marginBottom:3}}>{item.value}</div><div style={{fontSize:9.5,color:"var(--atext-muted)",lineHeight:1.4}}>{item.note}</div></div>)}</div>
                   <div style={{border:"1px solid var(--amber-border)",borderRadius:12,background:"var(--amber-bg)",padding:"10px 12px"}}><div style={{fontSize:10,fontWeight:800,color:"var(--amber)",marginBottom:6}}>Bypass tests</div><div style={{display:"grid",gap:5}}>{aiShadowModeUseCase.bypassTests.map(test => <div key={test} style={{fontSize:10,color:"var(--atext-mid)",lineHeight:1.45}}>• {test}</div>)}</div></div>
                 </div>
               </div>
 
               <div className="panel" hidden={adminInsightLane!=="marketplace"}>
                 <div className="panel-hd"><div className="panel-title">Marketplace Liquidity Detail <span className={`badge ${aiMarketplaceLiquidity.status === "balanced" ? "badge-green" : aiMarketplaceLiquidity.status === "coverage_watch" ? "badge-amber" : "badge-red"}`} style={{marginLeft:6}}>{aiMarketplaceLiquidity.statusLabel}</span></div></div>
-                <div className="panel-body"><div style={{fontSize:11,color:"var(--atext-muted)",lineHeight:1.55,marginBottom:12}}>{aiMarketplaceLiquidity.headline}</div><div style={{display:"grid",gap:8}}>{aiLiquidityDetailRows.map(row => <div key={row.label} style={{display:"grid",gridTemplateColumns:"150px 90px minmax(0,1fr) minmax(0,1fr)",gap:10,alignItems:"start",border:"1px solid var(--aborder)",borderRadius:11,background:"var(--abg2)",padding:"10px 12px"}}><div><div style={{fontSize:10,fontWeight:800,color:"var(--atext)",marginBottom:3}}>{row.label}</div><span className={`badge ${row.tone === "attention" ? "badge-red" : row.tone === "checking" ? "badge-amber" : "badge-green"}`}>{row.tone}</span></div><div style={{fontFamily:"DM Mono,monospace",fontSize:18,fontWeight:800,color:"var(--atext)"}}>{row.value}</div><div style={{fontSize:10,color:"var(--atext-muted)",lineHeight:1.45}}>{row.evidence}</div><div style={{fontSize:10,color:"var(--atext-mid)",lineHeight:1.45}}>Next: {row.next}</div></div>)}</div></div>
+                <div className="panel-body"><div style={{fontSize:11,color:"var(--atext-muted)",lineHeight:1.55,marginBottom:12}}>{aiMarketplaceLiquidity.headline}</div><div style={{display:"grid",gap:8}}>{aiLiquidityDetailRows.map(row => <div key={row.label} style={{display:"grid",gridTemplateColumns:"150px 90px minmax(0,1fr) minmax(0,1fr)",gap:10,alignItems:"start",border:"1px solid var(--aborder)",borderRadius:11,background:"var(--abg2)",padding:"10px 12px"}}><div><div style={{fontSize:10,fontWeight:800,color:"var(--atext)",marginBottom:3}}>{row.label}</div><span className={`badge ${row.tone === "attention" ? "badge-red" : row.tone === "checking" ? "badge-amber" : "badge-green"}`}>{row.tone}</span></div><div style={{fontFamily:"var(--font-sans),monospace",fontSize:18,fontWeight:800,color:"var(--atext)"}}>{row.value}</div><div style={{fontSize:10,color:"var(--atext-muted)",lineHeight:1.45}}>{row.evidence}</div><div style={{fontSize:10,color:"var(--atext-mid)",lineHeight:1.45}}>Next: {row.next}</div></div>)}</div></div>
               </div>
 
               <div className="panel" hidden={adminInsightLane!=="operations"}>
@@ -2685,7 +2685,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 <div className="panel-body"><div style={{fontSize:11,color:"var(--atext-muted)",lineHeight:1.55,marginBottom:12}}>Every Founder Brief priority explains why it matters, which live data supports it, what changed or degraded, and what the next human action is.</div><div style={{display:"grid",gap:8}}>{founderBriefEvidenceTraceRows.map(row => <div key={row.label} style={{display:"grid",gridTemplateColumns:"150px 160px minmax(0,1fr) minmax(0,1fr)",gap:10,alignItems:"start",border:"1px solid var(--aborder)",borderRadius:11,background:"var(--abg2)",padding:"10px 12px"}}><div><div style={{fontSize:10,fontWeight:800,color:"var(--atext)",marginBottom:3}}>{row.label}</div><span className={`badge ${row.tone === "attention" ? "badge-red" : row.tone === "checking" ? "badge-amber" : "badge-green"}`}>{row.tone}</span></div><div style={{fontSize:11,fontWeight:800,color:"var(--atext)",lineHeight:1.35,overflow:"hidden",textOverflow:"ellipsis"}}>{row.value}</div><div style={{fontSize:10,color:"var(--atext-muted)",lineHeight:1.45}}>{row.evidence}</div><div style={{fontSize:10,color:"var(--atext-mid)",lineHeight:1.45}}>Next: {row.next}</div></div>)}</div></div>
               </div>
 
-              <div className="panel" hidden={adminInsightLane!=="growth"}><div className="panel-hd"><div className="panel-title">Growth Engine Signal Quality</div><button type="button" className="panel-action" onClick={()=>typeof nav === "function" && nav("growth")}>Open Growth</button></div><div className="panel-body"><div style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:8}}>{growthSignalQualityRows.map(row => <div key={row.label} style={{border:"1px solid var(--aborder)",borderRadius:11,background:"var(--abg2)",padding:"11px 12px"}}><div style={{fontSize:10,fontWeight:800,color:"var(--atext)",marginBottom:5}}>{row.label}</div><div style={{fontFamily:"DM Mono,monospace",fontSize:20,fontWeight:800,color:row.score>=85?"var(--green)":row.score>=70?"var(--amber)":"var(--atext-mid)",marginBottom:5}}>{row.score}</div><div style={{fontSize:9.5,color:"var(--atext-muted)",lineHeight:1.45,marginBottom:5}}>{row.evidence}</div><div style={{fontSize:9.5,color:"var(--atext-mid)",lineHeight:1.45}}>Next: {row.next}</div></div>)}</div></div></div>
+              <div className="panel" hidden={adminInsightLane!=="growth"}><div className="panel-hd"><div className="panel-title">Growth Engine Signal Quality</div><button type="button" className="panel-action" onClick={()=>typeof nav === "function" && nav("growth")}>Open Growth</button></div><div className="panel-body"><div style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:8}}>{growthSignalQualityRows.map(row => <div key={row.label} style={{border:"1px solid var(--aborder)",borderRadius:11,background:"var(--abg2)",padding:"11px 12px"}}><div style={{fontSize:10,fontWeight:800,color:"var(--atext)",marginBottom:5}}>{row.label}</div><div style={{fontFamily:"var(--font-sans),monospace",fontSize:20,fontWeight:800,color:row.score>=85?"var(--green)":row.score>=70?"var(--amber)":"var(--atext-mid)",marginBottom:5}}>{row.score}</div><div style={{fontSize:9.5,color:"var(--atext-muted)",lineHeight:1.45,marginBottom:5}}>{row.evidence}</div><div style={{fontSize:9.5,color:"var(--atext-mid)",lineHeight:1.45}}>Next: {row.next}</div></div>)}</div></div></div>
 
               <div className="panel" hidden={adminInsightLane!=="growth"}><div className="panel-hd"><div className="panel-title">Launch Readiness Drilldown</div><span className={`badge ${aiLaunchSentinel.status === "ready" ? "badge-green" : "badge-amber"}`}>{aiLaunchSentinel.label}</span></div><div className="panel-body"><div style={{display:"grid",gap:8}}>{launchReadinessDrilldownRows.map(row => <div key={row.label} style={{display:"grid",gridTemplateColumns:"150px 130px minmax(0,1fr) minmax(0,1fr)",gap:10,border:"1px solid var(--aborder)",borderRadius:11,background:"var(--abg2)",padding:"10px 12px"}}><div style={{fontSize:10,fontWeight:800,color:"var(--atext)"}}>{row.label}</div><span className={`badge ${row.tone === "attention" ? "badge-red" : row.tone === "checking" ? "badge-amber" : "badge-green"}`}>{row.state}</span><div style={{fontSize:10,color:"var(--atext-muted)",lineHeight:1.45}}>{row.evidence}</div><div style={{fontSize:10,color:"var(--atext-mid)",lineHeight:1.45}}>Next: {row.next}</div></div>)}</div></div></div>
 
@@ -2772,7 +2772,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 ].map((s,i)=>(
                   <div key={s.label || i} style={{flex:1,minWidth:110,background:"var(--abg2)",border:"1px solid var(--aborder)",borderRadius:"var(--r-sm)",padding:"12px 14px"}}>
                     <div style={{fontSize:9,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:"0.8px",marginBottom:3}}>{s.label}</div>
-                    <div style={{fontFamily:"DM Mono,monospace",fontSize:20,fontWeight:700,color:s.color}}>{s.val}</div>
+                    <div style={{fontFamily:"var(--font-sans),monospace",fontSize:20,fontWeight:700,color:s.color}}>{s.val}</div>
                   </div>
                 ))}
               </div>
@@ -2854,7 +2854,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 <div style={{marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                   <div>
                     <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-light)",opacity:0.7,marginBottom:6}}>Faith Verification</div>
-                    <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--atext)"}}>Verification Applications</div>
+                    <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--atext)"}}>Verification Applications</div>
                     <div style={{fontSize:12,color:"var(--atext-muted)",marginTop:2}}>Vendors who have completed the 5-step faith verification flow.</div>
                   </div>
                   {verificationTotal > 0 && (
@@ -3041,17 +3041,17 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                   {key:"all",label:"Full list",count:allUsers.length,copy:"Every loaded account on this page."},
                 ].map(item => (
                   <button type="button" key={item.key} onClick={()=>setUserTriageMode(item.key)} style={{minHeight:78,padding:"13px 14px",borderRadius:16,border:`1px solid ${userTriageMode===item.key?"rgba(216,193,143,0.42)":"var(--aborder2)"}`,background:userTriageMode===item.key?"rgba(232,224,208,0.08)":"var(--abg2)",textAlign:"left",cursor:"pointer",boxShadow:userTriageMode===item.key?"0 0 0 1px rgba(216,193,143,0.14) inset":"none"}}>
-                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:6}}><span style={{fontSize:12,fontWeight:800,color:"var(--atext)"}}>{item.label}</span><strong style={{fontFamily:"DM Mono,monospace",fontSize:16,color:userTriageMode===item.key?"var(--gold-light)":"var(--atext-mid)"}}>{item.count}</strong></div>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:6}}><span style={{fontSize:12,fontWeight:800,color:"var(--atext)"}}>{item.label}</span><strong style={{fontFamily:"var(--font-sans),monospace",fontSize:16,color:userTriageMode===item.key?"var(--gold-light)":"var(--atext-mid)"}}>{item.count}</strong></div>
                     <div style={{fontSize:10.5,lineHeight:1.45,color:"var(--atext-muted)"}}>{item.copy}</div>
                   </button>
                 ))}
               </div>
               <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
                 <input aria-label="Search by name or category…" value={userSearch} onChange={e=>setUserSearch(e.target.value)} placeholder="Search by name or category…"
-                  style={{flex:1,minWidth:200,padding:"8px 12px",background:"var(--abg3)",border:"1px solid var(--aborder2)",borderRadius:"var(--r-sm)",color:"var(--atext)",fontFamily:"DM Sans,sans-serif",fontSize:12,outline:"none"}}/>
+                  style={{flex:1,minWidth:200,padding:"8px 12px",background:"var(--abg3)",border:"1px solid var(--aborder2)",borderRadius:"var(--r-sm)",color:"var(--atext)",fontFamily:"var(--font-sans),sans-serif",fontSize:12,outline:"none"}}/>
                 {["all","church","vendor"].map(t=>(
                   <button type="button" key={t} onClick={()=>setUserTypeFilter(t)}
-                    style={{padding:"7px 14px",borderRadius:"var(--r-sm)",border:"1px solid",borderColor:userTypeFilter===t?"var(--gold)":"var(--aborder2)",background:userTypeFilter===t?"rgba(232,224,208,0.08)":"none",color:userTypeFilter===t?"var(--gold-light)":"var(--atext-muted)",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif",textTransform:"capitalize"}}>
+                    style={{padding:"7px 14px",borderRadius:"var(--r-sm)",border:"1px solid",borderColor:userTypeFilter===t?"var(--gold)":"var(--aborder2)",background:userTypeFilter===t?"rgba(232,224,208,0.08)":"none",color:userTypeFilter===t?"var(--gold-light)":"var(--atext-muted)",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",textTransform:"capitalize"}}>
                     {t==="all"?"All Types":t}
                   </button>
                 ))}
@@ -3062,7 +3062,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 <div className="admin-table-wrap" style={{marginBottom:0}}>
                   <div className="panel-hd">
                     <div className="panel-title">{userTriageMode === "attention" ? "Needs Review" : userTriageMode === "recent" ? "New This Week" : "Users"}</div>
-                    <div style={{fontFamily:"DM Mono,monospace",fontSize:10,color:"var(--atext-muted)"}}>
+                    <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"var(--atext-muted)"}}>
                       {filteredUsers.length} shown
                     </div>
                   </div>
@@ -3108,7 +3108,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                                 {(() => { const pill = getAdminUserStatusPill(u); return <span style={pill.style}>{pill.label}</span>; })()}
                               </td>
                               <td style={{padding:"10px 8px",fontSize:11,color:"var(--atext-muted)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}} title={u.city}>{u.city}</td>
-                              <td style={{padding:"10px 8px",fontSize:10,color:"var(--atext-muted)",fontFamily:"DM Mono,monospace",whiteSpace:"nowrap"}}>{u.joined}</td>
+                              <td style={{padding:"10px 8px",fontSize:10,color:"var(--atext-muted)",fontFamily:"var(--font-sans),monospace",whiteSpace:"nowrap"}}>{u.joined}</td>
                               <td style={{padding:"10px 14px"}}>
                                 <button type="button" className="act-btn act-view" style={{fontSize:10}} onClick={e=>{e.stopPropagation();setSelectedUser(selectedUser?.id===u.id?null:u);}}>Details</button>
                               </td>
@@ -3145,7 +3145,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                     ].map((row,i)=>(
                       <div key={row.label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:i<5?"1px solid var(--aborder)":"none"}}>
                         <span style={{fontSize:10,color:"var(--atext-muted)",fontWeight:600,textTransform:"uppercase",letterSpacing:0.5}}>{row.label}</span>
-                        <span style={{fontSize:11,color:"var(--atext)",fontFamily:"DM Mono,monospace"}}>{row.val}</span>
+                        <span style={{fontSize:11,color:"var(--atext)",fontFamily:"var(--font-sans),monospace"}}>{row.val}</span>
                       </div>
                     ))}
                     <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:14}}>
@@ -3202,7 +3202,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 ].map((k)=>(
                   <div key={k.label} style={{background:"var(--abg2)",border:"1px solid var(--aborder)",borderRadius:10,padding:"14px 16px"}}>
                     <div style={{fontSize:9,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:"1px",marginBottom:6,fontWeight:600}}>{k.label}</div>
-                    <div style={{fontFamily:"DM Mono,monospace",fontSize:22,fontWeight:700,color:k.color,lineHeight:1,marginBottom:4}}>{k.val}</div>
+                    <div style={{fontFamily:"var(--font-sans),monospace",fontSize:22,fontWeight:700,color:k.color,lineHeight:1,marginBottom:4}}>{k.val}</div>
                     <div style={{fontSize:10,color:"var(--atext-muted)"}}>{k.note}</div>
                   </div>
                 ))}
@@ -3219,12 +3219,12 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                       <div key={t.name} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 12px",background:"var(--abg3)",borderRadius:"var(--r-sm)",marginBottom:7}}>
                         <div><div style={{fontSize:12,fontWeight:600,color:"var(--atext)"}}>{t.name}</div><div style={{fontSize:10,color:"var(--atext-muted)"}}>{t.count} vendors</div></div>
                         <div style={{flex:1,margin:"0 14px"}}><div style={{height:4,background:"var(--abg4)",borderRadius:2,overflow:"hidden"}}><div style={{width:`${t.pct}%`,height:"100%",background:"linear-gradient(90deg,var(--gold),var(--gold-light))",borderRadius:2}}/></div></div>
-                        <div style={{textAlign:"right"}}><div style={{fontFamily:"DM Mono,monospace",fontSize:11,color:"var(--gold-light)"}}>{t.price}</div><div style={{fontFamily:"DM Mono,monospace",fontSize:13,fontWeight:600,color:"var(--green)"}}>{t.statusLabel}</div></div>
+                        <div style={{textAlign:"right"}}><div style={{fontFamily:"var(--font-sans),monospace",fontSize:11,color:"var(--gold-light)"}}>{t.price}</div><div style={{fontFamily:"var(--font-sans),monospace",fontSize:13,fontWeight:600,color:"var(--green)"}}>{t.statusLabel}</div></div>
                       </div>
                     ))}
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 12px",background:"var(--abg)",borderRadius:"var(--r-sm)",marginTop:4}}>
                       <div style={{fontSize:12,color:"var(--atext-mid)"}}>Placement terms</div>
-                      <div style={{fontFamily:"DM Mono,monospace",fontSize:17,fontWeight:700,color:"var(--green)"}}>Agreed before introduction</div>
+                      <div style={{fontFamily:"var(--font-sans),monospace",fontSize:17,fontWeight:700,color:"var(--green)"}}>Agreed before introduction</div>
                     </div>
                   </div>
                 </div>
@@ -3252,7 +3252,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                   ].map((item,i)=>(
                     <div key={item.label} style={{padding:"12px 0",borderBottom:i<4?"1px solid var(--aborder)":"none",display:"flex",justifyContent:"space-between",gap:20,alignItems:"flex-start"}}>
                       <div><div style={{fontSize:12,fontWeight:600,color:"var(--atext)",marginBottom:3}}>{item.label}</div><div style={{fontSize:10,color:"var(--atext-muted)",lineHeight:1.5}}>{item.note}</div></div>
-                      <div style={{fontFamily:"DM Mono,monospace",fontSize:11,color:"var(--gold-light)",textAlign:"right",flexShrink:0}}>{item.value}</div>
+                      <div style={{fontFamily:"var(--font-sans),monospace",fontSize:11,color:"var(--gold-light)",textAlign:"right",flexShrink:0}}>{item.value}</div>
                     </div>
                   ))}
                   <div className="admin-inline-notice warning" style={{marginTop:14}}>Policy version: {CHURCH_REBATE_POLICY_VERSION}. These values are configurable for future transactions, but should not be changed retroactively after a transaction commits.</div>
@@ -3288,7 +3288,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 ].map((s)=>(
                   <div key={s.label} style={{background:"var(--abg2)",border:"1px solid var(--aborder)",borderRadius:"var(--r-sm)",padding:"12px 16px"}}>
                     <div style={{fontSize:9,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:"1px",marginBottom:5,fontWeight:600}}>{s.label}</div>
-                    <div style={{fontFamily:"DM Mono,monospace",fontSize:26,fontWeight:700,color:s.color}}>{s.val}</div>
+                    <div style={{fontFamily:"var(--font-sans),monospace",fontSize:26,fontWeight:700,color:s.color}}>{s.val}</div>
                   </div>
                 ))}
               </div>
@@ -3319,12 +3319,12 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                   <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8,gap:10}}>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontSize:12,fontWeight:700,color:d.urgent?"var(--red)":"var(--atext)",marginBottom:3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{d.title}</div>
-                      <div style={{fontSize:10,color:"var(--atext-muted)"}}>Opened {d.opened} · <span style={{color:"var(--amber)",fontFamily:"DM Mono,monospace"}}>{d.amount}</span> · <span style={{color:d.openedAt && (Date.now()-new Date(d.openedAt).getTime()) >= 1000*60*60*24 ? "var(--red)" : "var(--atext-muted)"}}>Age {formatQueueAgeLabel(Date.now()-new Date(d.openedAt).getTime())}</span></div>
+                      <div style={{fontSize:10,color:"var(--atext-muted)"}}>Opened {d.opened} · <span style={{color:"var(--amber)",fontFamily:"var(--font-sans),monospace"}}>{d.amount}</span> · <span style={{color:d.openedAt && (Date.now()-new Date(d.openedAt).getTime()) >= 1000*60*60*24 ? "var(--red)" : "var(--atext-muted)"}}>Age {formatQueueAgeLabel(Date.now()-new Date(d.openedAt).getTime())}</span></div>
                     </div>
                     <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
                       {d.status!=="resolved" && (
                         <select aria-label={`Status for ${d.title}`} value={d.status} onChange={e=>updateDisputeStatus(d.id,e.target.value)}
-                          style={{fontSize:10,padding:"4px 8px",borderRadius:"var(--r-sm)",border:"1px solid var(--aborder2)",background:"var(--abg3)",color:"var(--atext)",fontFamily:"DM Sans,sans-serif",cursor:"pointer"}}>
+                          style={{fontSize:10,padding:"4px 8px",borderRadius:"var(--r-sm)",border:"1px solid var(--aborder2)",background:"var(--abg3)",color:"var(--atext)",fontFamily:"var(--font-sans),sans-serif",cursor:"pointer"}}>
                           <option value="open">Open</option>
                           <option value="investigating">Investigating</option>
                           <option value="mediation">Mediation</option>
@@ -3378,7 +3378,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 maxLength={1000}
                 rows={4}
                 placeholder={rejectModal.type === "verification" ? "Summarize why FaithBid could not approve Faith Verification without quoting the private respondent." : "e.g. Service category does not match our marketplace focus…"}
-                style={{width:"100%",padding:"10px 12px",borderRadius:"var(--r-sm)",border:"1px solid var(--aborder2)",background:"var(--abg3)",color:"var(--atext)",fontFamily:"DM Sans,sans-serif",fontSize:13,resize:"none",boxSizing:"border-box",outline:"none"}}
+                style={{width:"100%",padding:"10px 12px",borderRadius:"var(--r-sm)",border:"1px solid var(--aborder2)",background:"var(--abg3)",color:"var(--atext)",fontFamily:"var(--font-sans),sans-serif",fontSize:13,resize:"none",boxSizing:"border-box",outline:"none"}}
               />
               <div style={{fontSize:11,color:"var(--atext-muted)",marginTop:4}}>
                 {rejectModal.type === "verification" ? `${rejectReason.trim().length}/20 minimum · 1000 max` : "Required for rejection"}

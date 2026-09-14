@@ -276,10 +276,10 @@ function ReviewsScreen({role, showToast, nav}){
   const rsx = {
     shell:{backgroundColor:"#f6efe4",backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND,backgroundSize:"cover",backgroundPosition:"center top",backgroundRepeat:"no-repeat",backgroundAttachment:"fixed",minHeight:"100vh",paddingBottom:60},
     topbar:{maxWidth:1240,margin:"0 auto",padding:"22px 28px 0",display:"flex",alignItems:"center",gap:12},
-    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
-    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"'DM Mono',monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
-    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
-    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s"},
+    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"var(--font-sans),sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
+    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"var(--font-sans),monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
+    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
+    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
   };
   return (
     <div className="kb-reviews-screen-root" style={rsx.shell}>
@@ -299,8 +299,8 @@ function ReviewsScreen({role, showToast, nav}){
           <div className="reviews-stats-strip" style={{display:"flex",gap:0,marginBottom:22,border:"1px solid #ece4d2",borderRadius:16,overflow:"hidden",background:"#fff"}}>
             {reviewStats.heroStrip.map((item,i)=>(
               <div key={item.label} style={{flex:1,padding:"16px 18px",borderRight:i<3?"1px solid #ece4d2":"none"}}>
-                <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:28,color:"#1C2814",letterSpacing:-0.7,marginBottom:5,lineHeight:1,fontWeight:700}}>{item.value}</div>
-                <div style={{fontFamily:"'DM Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.6,textTransform:"uppercase",color:"#b08840",marginBottom:5}}>{item.label}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:28,color:"#1C2814",letterSpacing:-0.7,marginBottom:5,lineHeight:1,fontWeight:700}}>{item.value}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.6,textTransform:"uppercase",color:"#b08840",marginBottom:5}}>{item.label}</div>
                 <div style={{fontSize:11.5,color:"#7d7363",lineHeight:1.5}}>{item.sub}</div>
               </div>
             ))}
@@ -308,17 +308,17 @@ function ReviewsScreen({role, showToast, nav}){
           {/* Headline + sidebar */}
           <div className="reviews-page-hero-grid" style={{ display:"grid", gridTemplateColumns:"minmax(0,1.25fr) 320px", gap:22, alignItems:"stretch" }}>
             <div>
-              <div style={{ fontFamily:"'DM Mono',monospace", fontSize:10.5, fontWeight:700, letterSpacing:2.4, textTransform:"uppercase", color:"#b08840", marginBottom:10 }}>Reputation</div>
-              <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:38, lineHeight:1.05, color:"#1C2814", letterSpacing:-0.9, marginBottom:12, fontWeight:700 }}>{introTitle}</div>
+              <div style={{ fontFamily:"var(--font-sans),monospace", fontSize:10.5, fontWeight:700, letterSpacing:2.4, textTransform:"uppercase", color:"#b08840", marginBottom:10 }}>Reputation</div>
+              <div style={{ fontFamily:"var(--font-display),serif", fontSize:38, lineHeight:1.05, color:"#1C2814", letterSpacing:-0.9, marginBottom:12, fontWeight:700 }}>{introTitle}</div>
               <div style={{ fontSize:14.5, lineHeight:1.7, color:"#5a5246", maxWidth:680, marginBottom:18 }}>{introCopy}</div>
 
               <div className="reviews-page-hero-stats" style={{ display:"grid", gridTemplateColumns:"minmax(220px,360px)", gap:12 }}>
                 <div style={{ background:"#fffaf0", border:"1px solid #e9d5a5", borderRadius:18, padding:"18px 18px 16px", position:"relative", overflow:"hidden" }}>
                   <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:"linear-gradient(180deg,#c9a45c,#b08840)"}}/>
                   <div style={{paddingLeft:8}}>
-                    <div style={{ fontFamily:"'DM Mono',monospace", fontSize:9.5, fontWeight:700, letterSpacing:1.6, textTransform:"uppercase", color:"#b08840", marginBottom:8 }}>Overall rating</div>
+                    <div style={{ fontFamily:"var(--font-sans),monospace", fontSize:9.5, fontWeight:700, letterSpacing:1.6, textTransform:"uppercase", color:"#b08840", marginBottom:8 }}>Overall rating</div>
                     <div style={{ display:"flex", alignItems:"flex-end", gap:10, marginBottom:8 }}>
-                      <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:38, lineHeight:1, color:"#1C2814", letterSpacing:-1, fontWeight:700 }}>{reviews.length ? reviewStats.avgRatingNum.toFixed(1) : "—"}</div>
+                      <div style={{ fontFamily:"var(--font-display),serif", fontSize:38, lineHeight:1, color:"#1C2814", letterSpacing:-1, fontWeight:700 }}>{reviews.length ? reviewStats.avgRatingNum.toFixed(1) : "—"}</div>
                       <div style={{ fontSize:12, color:"#7d7363", paddingBottom:6 }}>{reviews.length ? `${reviews.length} total` : "No ratings yet"}</div>
                     </div>
                     <div style={{ fontSize:18, color:"#b08840", letterSpacing:1 }}>{starFill(Math.round(reviewStats.avgRatingNum || 0))}</div>
@@ -331,8 +331,8 @@ function ReviewsScreen({role, showToast, nav}){
             <div style={{ background:"linear-gradient(135deg,#fffaf0,#f7ecd5)", border:"1px solid #e9d5a5", borderRadius:18, padding:"20px 22px", display:"flex", flexDirection:"column", justifyContent:"space-between", gap:16, position:"relative", overflow:"hidden", boxShadow:"0 6px 18px rgba(176,136,64,0.06)" }}>
               <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:"linear-gradient(180deg,#c9a45c,#b08840)"}}/>
               <div style={{paddingLeft:6}}>
-                <div style={{ fontFamily:"'DM Mono',monospace", fontSize:9.5, fontWeight:700, letterSpacing:1.6, textTransform:"uppercase", color:"#b08840", marginBottom:10 }}>{role === "church" ? "Next review step" : "Reputation note"}</div>
-                <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:22, lineHeight:1.15, color:"#1C2814", letterSpacing:-0.4, marginBottom:10, fontWeight:700 }}>
+                <div style={{ fontFamily:"var(--font-sans),monospace", fontSize:9.5, fontWeight:700, letterSpacing:1.6, textTransform:"uppercase", color:"#b08840", marginBottom:10 }}>{role === "church" ? "Next review step" : "Reputation note"}</div>
+                <div style={{ fontFamily:"var(--font-display),serif", fontSize:22, lineHeight:1.15, color:"#1C2814", letterSpacing:-0.4, marginBottom:10, fontWeight:700 }}>
                   {role === "church" ? (pending.length ? `You still have ${pending.length} ${pending.length === 1 ? "review" : "reviews"} waiting.` : "Your review record is up to date.") : "Keep this page disciplined and proof-first."}
                 </div>
                 <div style={{ fontSize:13, lineHeight:1.65, color:"#5a5246" }}>
@@ -344,7 +344,7 @@ function ReviewsScreen({role, showToast, nav}){
               <div style={{ display:"flex", gap:10, flexWrap:"wrap", paddingLeft:6 }}>
                 {role === "church" && pending.length > 0 && <button type="button" style={rsx.btnPrimary} onClick={() => setView("pending")}>Review pending work →</button>}
                 {role === "church" && <button type="button" style={rsx.btnSecondary} onClick={beginReviewFlow}>{pending.length ? "Choose a vendor" : "Write a review"}</button>}
-                {role === "vendor" && <span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:999,background:"#fff",border:"1px solid #e9d5a5",fontSize:11.5,fontWeight:700,color:"#b08840",fontFamily:"'DM Mono',monospace",letterSpacing:0.4}}>Responses on record · {reviews.filter(r => r.reply).length}</span>}
+                {role === "vendor" && <span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:999,background:"#fff",border:"1px solid #e9d5a5",fontSize:11.5,fontWeight:700,color:"#b08840",fontFamily:"var(--font-sans),monospace",letterSpacing:0.4}}>Responses on record · {reviews.filter(r => r.reply).length}</span>}
               </div>
             </div>
           </div>
@@ -381,11 +381,11 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
   // Brand tokens shared across this component
   const rdx = {
     panel:{background:"#fff",border:"1px solid #dfd5c2",borderRadius:18,boxShadow:"0 6px 18px rgba(28,40,20,0.04)"},
-    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
-    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s"},
-    btnGhost:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px",borderRadius:999,background:"transparent",color:"#5a5246",fontSize:12.5,fontWeight:600,border:"1px solid #ece4d2",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s"},
-    eyebrow:{fontFamily:"'DM Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.6,textTransform:"uppercase",color:"#b08840"},
-    chipBase:{display:"inline-flex",alignItems:"center",padding:"3px 10px",borderRadius:999,fontSize:11,fontWeight:700,fontFamily:"'DM Mono',monospace",letterSpacing:0.4},
+    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
+    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
+    btnGhost:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px",borderRadius:999,background:"transparent",color:"#5a5246",fontSize:12.5,fontWeight:600,border:"1px solid #ece4d2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
+    eyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.6,textTransform:"uppercase",color:"#b08840"},
+    chipBase:{display:"inline-flex",alignItems:"center",padding:"3px 10px",borderRadius:999,fontSize:11,fontWeight:700,fontFamily:"var(--font-sans),monospace",letterSpacing:0.4},
   };
   const chipTone = (tone) => {
     if (tone === "green") return {...rdx.chipBase,background:"#eef5e9",border:"1px solid #cfe1c4",color:"#2f5a31"};
@@ -406,7 +406,7 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#b08840" strokeWidth="1.6" strokeLinecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       </div>
       <div style={{ ...rdx.eyebrow, marginBottom:10 }}>Review ledger</div>
-      <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:28, color:"#1C2814", fontWeight:700, marginBottom:10, letterSpacing:-0.5 }}>
+      <div style={{ fontFamily:"var(--font-display),serif", fontSize:28, color:"#1C2814", fontWeight:700, marginBottom:10, letterSpacing:-0.5 }}>
         {role === "vendor" ? "No published reviews yet" : "No reviews in your record yet"}
       </div>
       <div style={{ fontSize:14, color:"#5a5246", lineHeight:1.7, maxWidth:480, margin:"0 auto 24px" }}>
@@ -433,7 +433,7 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
         <div className="reviews-results-bar" style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:14,flexWrap:"wrap"}}>
           <div>
             <div style={{...rdx.eyebrow,marginBottom:4}}>Review ledger</div>
-            <div style={{ fontSize:13.5, fontWeight:700, color:"#1C2814", fontFamily:"'DM Sans',sans-serif" }}>{resultSummary}</div>
+            <div style={{ fontSize:13.5, fontWeight:700, color:"#1C2814", fontFamily:"var(--font-sans),sans-serif" }}>{resultSummary}</div>
           </div>
           <div className="reviews-results-meta" style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             <span style={chipTone("muted")}>{filterCountLabel}</span>
@@ -446,7 +446,7 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
         <div style={{ ...rdx.panel, padding:22, marginBottom:14 }}>
           <div className="reviews-rating-hero" style={{ display:"grid", gridTemplateColumns:"220px minmax(0,1fr)", gap:24, alignItems:"center" }}>
             <div style={{ textAlign:"center", padding:"8px 0" }}>
-              <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:62, color:"#1C2814", lineHeight:1, letterSpacing:-1.4, fontWeight:700 }}>{(stats?.avgRatingNum || 0).toFixed(1)}</div>
+              <div style={{ fontFamily:"var(--font-display),serif", fontSize:62, color:"#1C2814", lineHeight:1, letterSpacing:-1.4, fontWeight:700 }}>{(stats?.avgRatingNum || 0).toFixed(1)}</div>
               <div style={{ fontSize:22, color:"#b08840", margin:"10px 0 6px", letterSpacing:1 }}>{starFill(Math.round(stats?.avgRatingNum || 0))}</div>
               <div style={{ fontSize:12, color:"#7d7363", lineHeight:1.5 }}>{strongestSignal}</div>
             </div>
@@ -458,7 +458,7 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
                   <div style={{ height:8, background:"#f0e9d9", borderRadius:999, overflow:"hidden" }}>
                     <div style={{ width:`${row.pct}%`, height:"100%", background:"linear-gradient(90deg,#c9a45c,#b08840)", borderRadius:999 }} />
                   </div>
-                  <div style={{ fontSize:11, color:"#7d7363", textAlign:"right", fontFamily:"'DM Mono',monospace" }}>{row.count} · {row.pct}%</div>
+                  <div style={{ fontSize:11, color:"#7d7363", textAlign:"right", fontFamily:"var(--font-sans),monospace" }}>{row.count} · {row.pct}%</div>
                 </div>
               ))}
             </div>
@@ -470,13 +470,13 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
           {KB_REVIEW_FILTER_OPTIONS.map(f => {
             const active = filter === f;
             return (
-              <button key={f} type="button" onClick={() => setFilter(f)} style={{padding:"7px 14px",borderRadius:999,background:active?"linear-gradient(180deg,#1C2814,#2a3520)":"#fffdf8",color:active?"#fff":"#1C2814",fontSize:12.5,fontWeight:active?700:600,border:active?"1px solid #1C2814":"1px solid #dfd5c2",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s",boxShadow:active?"0 4px 12px rgba(28,40,20,0.18)":"none"}}>
+              <button key={f} type="button" onClick={() => setFilter(f)} style={{padding:"7px 14px",borderRadius:999,background:active?"linear-gradient(180deg,#1C2814,#2a3520)":"#fffdf8",color:active?"#fff":"#1C2814",fontSize:12.5,fontWeight:active?700:600,border:active?"1px solid #1C2814":"1px solid #dfd5c2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s",boxShadow:active?"0 4px 12px rgba(28,40,20,0.18)":"none"}}>
                 {f}
               </button>
             );
           })}
           <select
-            style={{ padding:"8px 12px", borderRadius:999, border:"1px solid #dfd5c2", background:"#fffdf8", fontFamily:"'DM Sans',sans-serif", fontSize:12.5, color:"#1C2814", outline:"none", marginLeft:"auto", cursor:"pointer", fontWeight:600 }}
+            style={{ padding:"8px 12px", borderRadius:999, border:"1px solid #dfd5c2", background:"#fffdf8", fontFamily:"var(--font-sans),sans-serif", fontSize:12.5, color:"#1C2814", outline:"none", marginLeft:"auto", cursor:"pointer", fontWeight:600 }}
             value={sort}
             onChange={e => setSort(e.target.value)}
           >
@@ -492,10 +492,10 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
               <div style={{ padding:24 }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:16, marginBottom:18, flexWrap:"wrap" }}>
                   <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-                    <div style={{width:46,height:46,borderRadius:14,background:"linear-gradient(135deg,#fffaf0,#f0e6d0)",border:"1px solid #e9d5a5",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Playfair Display',Georgia,serif",fontSize:18,fontWeight:700,color:"#1C2814",flexShrink:0}}>{r.avatar}</div>
+                    <div style={{width:46,height:46,borderRadius:14,background:"linear-gradient(135deg,#fffaf0,#f0e6d0)",border:"1px solid #e9d5a5",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"#1C2814",flexShrink:0}}>{r.avatar}</div>
                     <div>
                       <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom:4 }}>
-                        <div style={{ fontSize:15, fontWeight:700, color:"#1C2814", fontFamily:"'DM Sans',sans-serif" }}>{r.author}</div>
+                        <div style={{ fontSize:15, fontWeight:700, color:"#1C2814", fontFamily:"var(--font-sans),sans-serif" }}>{r.author}</div>
                         {r.verified && <span style={chipTone("green")}>Verified project</span>}
                         {r.recommend && <span style={chipTone("gold")}>Would rehire</span>}
                       </div>
@@ -504,12 +504,12 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
                   </div>
                   <div style={{ textAlign:"right" }}>
                     <div style={{ fontSize:18, color:"#b08840", lineHeight:1, letterSpacing:1 }}>{starFill(r.rating)}</div>
-                    <div style={{ fontSize:11, color:"#7d7363", marginTop:6, fontFamily:"'DM Mono',monospace" }}>{r.date}</div>
+                    <div style={{ fontSize:11, color:"#7d7363", marginTop:6, fontFamily:"var(--font-sans),monospace" }}>{r.date}</div>
                   </div>
                 </div>
 
-                {r.title && <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:22, lineHeight:1.2, color:"#1C2814", marginBottom:12, fontWeight:700, letterSpacing:-0.4 }}>{r.title}</div>}
-                <div style={{ fontSize:14, color:"#3d3528", lineHeight:1.78, marginBottom:14, fontFamily:"'Newsreader',Georgia,serif" }}>{r.body}</div>
+                {r.title && <div style={{ fontFamily:"var(--font-display),serif", fontSize:22, lineHeight:1.2, color:"#1C2814", marginBottom:12, fontWeight:700, letterSpacing:-0.4 }}>{r.title}</div>}
+                <div style={{ fontSize:14, color:"#3d3528", lineHeight:1.78, marginBottom:14, fontFamily:"var(--font-display),serif" }}>{r.body}</div>
 
                 {!!r.cats?.length && (
                   <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:12 }}>
@@ -537,13 +537,13 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
                       onChange={(e)=>setReplyText(e.target.value.slice(0, 1200))}
                       rows={4}
                       maxLength={1200}
-                      style={{ width:"100%", padding:"12px 14px", borderRadius:12, border:`1.5px solid ${replyText.length > 1080 ? 'rgba(220,38,38,0.40)' : '#dfd5c2'}`, resize:"vertical", fontFamily:"'DM Sans',sans-serif", fontSize:13.5, outline:"none", marginBottom:6, background:"#fff", color:"#1C2814", lineHeight:1.5, boxSizing:"border-box" }}
+                      style={{ width:"100%", padding:"12px 14px", borderRadius:12, border:`1.5px solid ${replyText.length > 1080 ? 'rgba(220,38,38,0.40)' : '#dfd5c2'}`, resize:"vertical", fontFamily:"var(--font-sans),sans-serif", fontSize:13.5, outline:"none", marginBottom:6, background:"#fff", color:"#1C2814", lineHeight:1.5, boxSizing:"border-box" }}
                       onFocus={e=>{e.currentTarget.style.borderColor="#b08840";e.currentTarget.style.boxShadow="0 0 0 3px rgba(176,136,64,0.12)";}}
                       onBlur={e=>{e.currentTarget.style.borderColor=replyText.length>1080?"rgba(220,38,38,0.40)":"#dfd5c2";e.currentTarget.style.boxShadow="none";}}
                       placeholder="Thank the church, add context if helpful, and keep the tone gracious and professional."
                     />
                     <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10}}>
-                      <span style={{fontSize:11, fontFamily:"'DM Mono',monospace", color: replyText.length > 1080 ? '#b1342a' : 'rgba(28,40,20,0.30)', letterSpacing:'0.04em'}}>{replyText.length}/1200</span>
+                      <span style={{fontSize:11, fontFamily:"var(--font-sans),monospace", color: replyText.length > 1080 ? '#b1342a' : 'rgba(28,40,20,0.30)', letterSpacing:'0.04em'}}>{replyText.length}/1200</span>
                     </div>
                     <div style={{ display:"flex", gap:8, justifyContent:"flex-end" }}>
                       <button type="button" style={rdx.btnGhost} disabled={replySubmitting} onClick={() => { setReplyingTo(null); setReplyText(""); }}>Cancel</button>
@@ -646,15 +646,15 @@ function PendingReviews({pending, role, onSelect, onBack, onOpenProject}){
   const prx = {
     shell:{background:"#faf8f4",minHeight:"100vh",paddingBottom:60},
     topbar:{maxWidth:980,margin:"0 auto",padding:"22px 28px 0",display:"flex",alignItems:"center",gap:12},
-    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
-    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"'DM Mono',monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
+    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"var(--font-sans),sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
+    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"var(--font-sans),monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
     headWrap:{maxWidth:980,margin:"0 auto",padding:"22px 28px 22px"},
     headPanel:{background:"#fffdf8",border:"1px solid #dfd5c2",borderRadius:22,padding:"26px 30px 24px",boxShadow:"0 7px 20px rgba(28,40,20,0.045)"},
-    eyebrow:{fontFamily:"'DM Mono',monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
-    headline:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:34,fontWeight:700,color:"#1C2814",letterSpacing:-0.7,lineHeight:1.05,margin:0},
+    eyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
+    headline:{fontFamily:"var(--font-display),serif",fontSize:34,fontWeight:700,color:"#1C2814",letterSpacing:-0.7,lineHeight:1.05,margin:0},
     sub:{fontSize:14,color:"#5a5246",lineHeight:1.55,maxWidth:580,marginTop:8},
-    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"8px 16px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:12.5,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
-    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"7px 14px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:12,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s"},
+    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"8px 16px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:12.5,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
+    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"7px 14px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:12,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
   };
   return (
     <div style={prx.shell}>
@@ -684,26 +684,26 @@ function PendingReviews({pending, role, onSelect, onBack, onOpenProject}){
               <svg width="22" height="22" viewBox="0 0 20 20" fill="none"><path d="M4 10l4 4 8-8" stroke="#2f5a31" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
             <div style={{...prx.eyebrow,marginBottom:8}}>All clear</div>
-            <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:22,fontWeight:700,color:"#1C2814",letterSpacing:-0.4,marginBottom:6}}>All caught up!</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"#1C2814",letterSpacing:-0.4,marginBottom:6}}>All caught up!</div>
             <div style={{fontSize:13.5,color:"#5a5246",lineHeight:1.6,maxWidth:380,margin:"0 auto"}}>Every vendor you've hired has been reviewed. New ones will show up here when their work is done.</div>
           </div>
         ) : (
           <>
             <div style={{display:"flex",alignItems:"center",gap:10,padding:"12px 16px",background:"linear-gradient(135deg,#fffaf0,#f7ecd5)",border:"1px solid #e9d5a5",borderRadius:14,fontSize:13,color:"#7a5a25",marginBottom:18,fontWeight:600,position:"relative",overflow:"hidden"}}>
               <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:"linear-gradient(180deg,#c9a45c,#b08840)"}}/>
-              <span style={{paddingLeft:6,fontFamily:"'DM Sans',sans-serif"}}>Reviews help Christian vendors get more ministry clients. Takes about two minutes each.</span>
+              <span style={{paddingLeft:6,fontFamily:"var(--font-sans),sans-serif"}}>Reviews help Christian vendors get more ministry clients. Takes about two minutes each.</span>
             </div>
             <div style={{display:"grid",gap:14}}>
               {pending.map(p=>(
                 <div key={p.id} onClick={()=>onSelect(p)} role="button" tabIndex={0} onKeyDown={activateOnKey(()=>onSelect(p))} style={{display:"flex",alignItems:"center",gap:16,padding:"18px 20px",background:"#fff",border:"1px solid #dfd5c2",borderRadius:18,boxShadow:"0 6px 18px rgba(28,40,20,0.04)",cursor:"pointer",transition:"all 0.15s",flexWrap:"wrap"}} onMouseOver={e=>{e.currentTarget.style.borderColor="#c9a45c";e.currentTarget.style.boxShadow="0 8px 22px rgba(176,136,64,0.10)";}} onMouseOut={e=>{e.currentTarget.style.borderColor="#dfd5c2";e.currentTarget.style.boxShadow="0 6px 18px rgba(28,40,20,0.04)";}}>
                   <div style={{width:52,height:52,borderRadius:14,background:"linear-gradient(135deg,#fffaf0,#f0e6d0)",border:"1px solid #e9d5a5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{p.emoji || "✦"}</div>
                   <div style={{flex:1,minWidth:200}}>
-                    <div style={{fontSize:15,fontWeight:700,color:"#1C2814",marginBottom:4,fontFamily:"'DM Sans',sans-serif"}}>{p.name}</div>
+                    <div style={{fontSize:15,fontWeight:700,color:"#1C2814",marginBottom:4,fontFamily:"var(--font-sans),sans-serif"}}>{p.name}</div>
                     <div style={{fontSize:13,color:"#5a5246",marginBottom:3}}>{p.project}</div>
-                    <div style={{fontSize:11.5,color:"#7d7363",fontFamily:"'DM Mono',monospace"}}>Completed {p.completed}</div>
+                    <div style={{fontSize:11.5,color:"#7d7363",fontFamily:"var(--font-sans),monospace"}}>Completed {p.completed}</div>
                   </div>
                   <div style={{display:"flex",flexDirection:"column",gap:8,alignItems:"flex-end"}}>
-                    <span style={{padding:"3px 10px",background:"#fffaf0",border:"1px solid #e9d5a5",borderRadius:999,fontSize:10,fontWeight:800,color:"#8a6a1f",fontFamily:"'DM Mono',monospace",letterSpacing:0.6}}>REVIEW DUE</span>
+                    <span style={{padding:"3px 10px",background:"#fffaf0",border:"1px solid #e9d5a5",borderRadius:999,fontSize:10,fontWeight:800,color:"#8a6a1f",fontFamily:"var(--font-sans),monospace",letterSpacing:0.6}}>REVIEW DUE</span>
                     <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap',justifyContent:'flex-end'}}>
                       {onOpenProject && p.project_id ? <button type="button" style={prx.btnSecondary} onClick={(e)=>{ e.stopPropagation(); onOpenProject(p); }}>Open project</button> : null}
                       <button type="button" style={prx.btnPrimary} onClick={(e)=>{ e.stopPropagation(); onSelect(p); }}>Write review →</button>
@@ -734,24 +734,24 @@ function WriteReview({vendor, onSubmit, onBack, onOpenProject, submitting = fals
   const wrx = {
     shell:{background:"#faf8f4",minHeight:"100vh",paddingBottom:60},
     topbar:{maxWidth:880,margin:"0 auto",padding:"22px 28px 0",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"},
-    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
-    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"'DM Mono',monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
+    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"var(--font-sans),sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
+    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"var(--font-sans),monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
     headWrap:{maxWidth:880,margin:"0 auto",padding:"22px 28px 22px"},
     headPanel:{background:"#fffdf8",border:"1px solid #dfd5c2",borderRadius:22,padding:"26px 30px 24px",boxShadow:"0 7px 20px rgba(28,40,20,0.045)"},
-    eyebrow:{fontFamily:"'DM Mono',monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
-    headline:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:32,fontWeight:700,color:"#1C2814",letterSpacing:-0.6,lineHeight:1.05,margin:0},
-    sub:{fontSize:14,color:"#5a5246",lineHeight:1.55,maxWidth:560,marginTop:8,fontFamily:"'Newsreader',Georgia,serif",fontStyle:"italic"},
+    eyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
+    headline:{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"#1C2814",letterSpacing:-0.6,lineHeight:1.05,margin:0},
+    sub:{fontSize:14,color:"#5a5246",lineHeight:1.55,maxWidth:560,marginTop:8,fontFamily:"var(--font-display),serif",fontStyle:"italic"},
     panel:{background:"#fff",border:"1px solid #dfd5c2",borderRadius:18,marginBottom:16,boxShadow:"0 6px 18px rgba(28,40,20,0.04)",overflow:"hidden"},
     panelHd:{padding:"16px 22px 14px",background:"#fffdf8",borderBottom:"1px solid #ece4d2",display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,flexWrap:"wrap"},
-    panelEyebrow:{fontFamily:"'DM Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
-    panelTitle:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
-    panelMeta:{fontSize:11.5,color:"#7d7363",fontFamily:"'DM Mono',monospace"},
+    panelEyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
+    panelTitle:{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
+    panelMeta:{fontSize:11.5,color:"#7d7363",fontFamily:"var(--font-sans),monospace"},
     panelBody:{padding:"22px"},
-    label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"'DM Sans',sans-serif"},
-    input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"'DM Sans',sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box"},
-    textarea:{width:"100%",padding:"12px 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"'DM Sans',sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box",resize:"vertical",lineHeight:1.55},
-    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
-    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s"},
+    label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"var(--font-sans),sans-serif"},
+    input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box"},
+    textarea:{width:"100%",padding:"12px 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box",resize:"vertical",lineHeight:1.55},
+    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
+    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
     onFocus:(e)=>{e.currentTarget.style.borderColor="#b08840";e.currentTarget.style.boxShadow="0 0 0 3px rgba(176,136,64,0.12)";},
     onBlur:(e)=>{e.currentTarget.style.borderColor="#dfd5c2";e.currentTarget.style.boxShadow="none";},
   };
@@ -791,7 +791,7 @@ function WriteReview({vendor, onSubmit, onBack, onOpenProject, submitting = fals
             <div className="star-picker" style={{display:"flex",gap:6,marginBottom:8}}>
               {[1,2,3,4,5].map(n=><button type="button" key={n} aria-label={`Rate ${n} star${n>1?"s":""}`} aria-pressed={rating===n} className={`star-btn${display>=n?" lit":""}`} onClick={()=>setRating(n)} onMouseEnter={()=>setHover(n)} onMouseLeave={()=>setHover(0)}>★</button>)}
             </div>
-            <div style={{fontSize:13,color:"#7d7363",height:20,fontFamily:"'DM Sans',sans-serif"}}>{display>0?STAR_LABELS[display]:"Tap a star to rate"}</div>
+            <div style={{fontSize:13,color:"#7d7363",height:20,fontFamily:"var(--font-sans),sans-serif"}}>{display>0?STAR_LABELS[display]:"Tap a star to rate"}</div>
           </div>
         </div>
 
@@ -807,7 +807,7 @@ function WriteReview({vendor, onSubmit, onBack, onOpenProject, submitting = fals
           <div style={wrx.panelBody}>
             {Object.keys(subRatings).map((cat,i,arr)=>(
               <div key={cat} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:14,paddingBottom:12,marginBottom:i===arr.length-1?0:12,borderBottom:i===arr.length-1?"none":"1px solid #f0e9d9"}}>
-                <div style={{fontSize:13.5,color:"#1C2814",fontWeight:600,fontFamily:"'DM Sans',sans-serif"}}>{cat}</div>
+                <div style={{fontSize:13.5,color:"#1C2814",fontWeight:600,fontFamily:"var(--font-sans),sans-serif"}}>{cat}</div>
                 <div className="sub-stars" style={{display:"flex",gap:3}}>
                   {[1,2,3,4,5].map(n=><button type="button" key={n} aria-label={`Rate ${cat} ${n} star${n>1?"s":""}`} aria-pressed={subRatings[cat]===n} className={`sub-star${(hoverSub[cat]||subRatings[cat])>=n?" lit":""}`} onClick={()=>setSubRatings(s=>({...s,[cat]:n}))} onMouseEnter={()=>setHoverSub(h=>({...h,[cat]:n}))} onMouseLeave={()=>setHoverSub(h=>({...h,[cat]:0}))}>★</button>)}
                 </div>
@@ -833,8 +833,8 @@ function WriteReview({vendor, onSubmit, onBack, onOpenProject, submitting = fals
               <label style={wrx.label} htmlFor="rv-body">Detailed review <span style={{color:"#a23b3b",fontWeight:700}}>·</span> required</label>
               <textarea id="rv-body" value={body} onChange={e=>setBody(e.target.value)} rows={6} placeholder="Share your honest experience. What did they do well? How did their faith show up in their work?" style={wrx.textarea} onFocus={wrx.onFocus} onBlur={wrx.onBlur}/>
               <div style={{display:"flex",justifyContent:"space-between",marginTop:6,gap:10,flexWrap:"wrap"}}>
-                <div style={{fontSize:11.5,color:body.length<30?"#a23b3b":"#3d8049",fontWeight:700,fontFamily:"'DM Sans',sans-serif"}}>{body.length<30?`${30-body.length} more characters required`:"✓ Minimum length met"}</div>
-                <div style={{fontSize:11,color:"#9c917f",fontFamily:"'DM Mono',monospace"}}>{body.length}/1000</div>
+                <div style={{fontSize:11.5,color:body.length<30?"#a23b3b":"#3d8049",fontWeight:700,fontFamily:"var(--font-sans),sans-serif"}}>{body.length<30?`${30-body.length} more characters required`:"✓ Minimum length met"}</div>
+                <div style={{fontSize:11,color:"#9c917f",fontFamily:"var(--font-sans),monospace"}}>{body.length}/1000</div>
               </div>
             </div>
           </div>
@@ -854,7 +854,7 @@ function WriteReview({vendor, onSubmit, onBack, onOpenProject, submitting = fals
               {HIGHLIGHT_TAGS.map(t=>{
                 const sel = tags.includes(t);
                 return (
-                  <button type="button" key={t} onClick={()=>setTags(ts=>ts.includes(t)?ts.filter(x=>x!==t):[...ts,t])} style={{padding:"6px 14px",borderRadius:999,border:sel?"1.5px solid #b08840":"1.5px solid #dfd5c2",background:sel?"#fffaf0":"#fffdf8",fontSize:12,fontWeight:sel?700:600,color:sel?"#7a5a25":"#5a5246",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s",boxShadow:sel?"0 0 0 3px rgba(176,136,64,0.12)":"none"}}>{sel?"✓ ":""}{t}</button>
+                  <button type="button" key={t} onClick={()=>setTags(ts=>ts.includes(t)?ts.filter(x=>x!==t):[...ts,t])} style={{padding:"6px 14px",borderRadius:999,border:sel?"1.5px solid #b08840":"1.5px solid #dfd5c2",background:sel?"#fffaf0":"#fffdf8",fontSize:12,fontWeight:sel?700:600,color:sel?"#7a5a25":"#5a5246",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s",boxShadow:sel?"0 0 0 3px rgba(176,136,64,0.12)":"none"}}>{sel?"✓ ":""}{t}</button>
                 );
               })}
             </div>
@@ -877,7 +877,7 @@ function WriteReview({vendor, onSubmit, onBack, onOpenProject, submitting = fals
               ].map(opt=>{
                 const sel = recommend===opt.val;
                 return (
-                  <button type="button" key={String(opt.val)} onClick={()=>setRecommend(opt.val)} style={{flex:1,minWidth:200,padding:"16px 18px",borderRadius:14,border:sel?`2px solid ${opt.toneColor}`:"1.5px solid #dfd5c2",background:sel?opt.toneBg:"#fffdf8",cursor:"pointer",transition:"all 0.15s",textAlign:"center",fontSize:13.5,fontWeight:700,color:sel?opt.toneColor:"#5a5246",fontFamily:"'DM Sans',sans-serif",boxShadow:sel?`0 0 0 4px ${opt.toneBorder}`:"none"}}>
+                  <button type="button" key={String(opt.val)} onClick={()=>setRecommend(opt.val)} style={{flex:1,minWidth:200,padding:"16px 18px",borderRadius:14,border:sel?`2px solid ${opt.toneColor}`:"1.5px solid #dfd5c2",background:sel?opt.toneBg:"#fffdf8",cursor:"pointer",transition:"all 0.15s",textAlign:"center",fontSize:13.5,fontWeight:700,color:sel?opt.toneColor:"#5a5246",fontFamily:"var(--font-sans),sans-serif",boxShadow:sel?`0 0 0 4px ${opt.toneBorder}`:"none"}}>
                     {opt.label}
                   </button>
                 );
@@ -903,7 +903,7 @@ function WriteReview({vendor, onSubmit, onBack, onOpenProject, submitting = fals
             ) : 'Publish review →'}
           </button>
           <button type="button" style={wrx.btnSecondary} onClick={onBack}>Cancel</button>
-          {!canSubmit&&<span style={{fontSize:12,color:"#7d7363",fontFamily:"'DM Sans',sans-serif"}}>{rating===0?"Add a star rating":body.length<30?"Write at least 30 characters":"Select rehire preference"}</span>}
+          {!canSubmit&&<span style={{fontSize:12,color:"#7d7363",fontFamily:"var(--font-sans),sans-serif"}}>{rating===0?"Add a star rating":body.length<30?"Write at least 30 characters":"Select rehire preference"}</span>}
         </div>
       </div>
     </div>

@@ -6,18 +6,6 @@ import "./styles/marketplace.css";
 import "./styles/legacy-route-patches.css";
 import "./styles/controls.css";
 // Inlined 11A card implementation — cumulative single-file delivery.
-const FONT_LINK_ID = "faithbid-card-11a-fraunces";
-
-function ensureCardFont() {
-  if (typeof document === "undefined") return;
-  if (!document.getElementById(FONT_LINK_ID)) {
-    const link = document.createElement("link");
-    link.id = FONT_LINK_ID;
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap";
-    document.head.appendChild(link);
-  }
-}
 
 function FaithBidCard11A({
   image,
@@ -38,7 +26,6 @@ function FaithBidCard11A({
   ariaLabel,
   className = "",
 }) {
-  useEffect(ensureCardFont, []);
   const safeMatch = matchPercent == null
     ? null
     : (Number.isFinite(Number(matchPercent)) ? Math.max(0, Math.min(100, Math.round(Number(matchPercent)))) : null);
@@ -88,12 +75,12 @@ function FaithBidCard11A({
       </div>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(20,14,8,.88) 0%, rgba(20,14,8,.02) 50%)", pointerEvents: "none" }} />
 
-      <div className={isReviewStatus ? "kb-card-review-status" : "kb-card-top-label"} style={{ position: "absolute", top: 16, left: 18, right: safeMatch == null ? 58 : 92, minHeight: isReviewStatus ? 28 : undefined, padding: isReviewStatus ? "5px 10px" : 0, borderRadius: isReviewStatus ? 999 : 0, background: isReviewStatus ? "rgba(20,14,8,.78)" : "transparent", border: isReviewStatus ? "1px solid rgba(255,255,255,.22)" : 0, font: isReviewStatus ? "700 13px Inter, sans-serif" : "700 12px Inter, sans-serif", letterSpacing: isReviewStatus ? 0 : ".08em", color: isReviewStatus ? "#fff" : topColor, textTransform: isReviewStatus ? "none" : "uppercase", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", display: "inline-flex", alignItems: "center", width: "fit-content", maxWidth: "calc(100% - 110px)" }}>
+      <div className={isReviewStatus ? "kb-card-review-status" : "kb-card-top-label"} style={{ position: "absolute", top: 16, left: 18, right: safeMatch == null ? 58 : 92, minHeight: isReviewStatus ? 28 : undefined, padding: isReviewStatus ? "5px 10px" : 0, borderRadius: isReviewStatus ? 999 : 0, background: isReviewStatus ? "rgba(20,14,8,.78)" : "transparent", border: isReviewStatus ? "1px solid rgba(255,255,255,.22)" : 0, font: isReviewStatus ? "700 13px var(--font-sans), sans-serif" : "700 12px var(--font-sans), sans-serif", letterSpacing: isReviewStatus ? 0 : ".08em", color: isReviewStatus ? "#fff" : topColor, textTransform: isReviewStatus ? "none" : "uppercase", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", display: "inline-flex", alignItems: "center", width: "fit-content", maxWidth: "calc(100% - 110px)" }}>
         {normalizedTopLabel}
       </div>
 
       {safeMatch != null ? (
-        <div className="kb-match-chip" aria-label={`${safeMatch}% match`} style={{ position: "absolute", top: 14, right: 14, minHeight: 30, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.25)", background: "rgba(20,14,8,.82)", color: "#fff", font: "700 13px Inter, sans-serif", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+        <div className="kb-match-chip" aria-label={`${safeMatch}% match`} style={{ position: "absolute", top: 14, right: 14, minHeight: 30, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.25)", background: "rgba(20,14,8,.82)", color: "#fff", font: "700 13px var(--font-sans), sans-serif", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
           <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: "oklch(0.85 0.13 85)" }} />
           {safeMatch}% match
         </div>
@@ -113,13 +100,13 @@ function FaithBidCard11A({
       )}
 
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: 28 }}>
-        <div style={{ font: "600 19px/1.3 Fraunces, Georgia, serif", color: "#fff", marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</div>
+        <div style={{ font: "600 19px/1.3 var(--font-display), serif", color: "#fff", marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 18, minWidth: 0 }}>
-          <div style={{ width: 20, height: 20, flex: "0 0 20px", borderRadius: "50%", background: "oklch(0.85 0.1 85)", font: "700 9px Inter, sans-serif", color: "#1a1712", display: "flex", alignItems: "center", justifyContent: "center" }}>{String(avatarText || "FB").slice(0, 2).toUpperCase()}</div>
-          <div style={{ minWidth: 0, font: "13px Inter, sans-serif", color: "rgba(255,255,255,.6)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{meta}</div>
+          <div style={{ width: 20, height: 20, flex: "0 0 20px", borderRadius: "50%", background: "oklch(0.85 0.1 85)", font: "700 9px var(--font-sans), sans-serif", color: "#1a1712", display: "flex", alignItems: "center", justifyContent: "center" }}>{String(avatarText || "FB").slice(0, 2).toUpperCase()}</div>
+          <div style={{ minWidth: 0, font: "13px var(--font-sans), sans-serif", color: "rgba(255,255,255,.6)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{meta}</div>
         </div>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
-          <div style={{ minWidth: 0, font: "700 24px Fraunces, Georgia, serif", color: "oklch(0.85 0.13 85)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
+          <div style={{ minWidth: 0, font: "700 24px var(--font-display), serif", color: "oklch(0.85 0.13 85)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
           <button
             type="button"
             disabled={actionDisabled}
@@ -127,7 +114,7 @@ function FaithBidCard11A({
               event.stopPropagation();
               if (!actionDisabled && typeof onAction === "function") onAction(event);
             }}
-            style={{ flexShrink: 0, border: 0, padding: 0, background: "transparent", color: actionDisabled ? "rgba(255,255,255,.42)" : "#fff", font: "600 13px Inter, sans-serif", cursor: actionDisabled ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}
+            style={{ flexShrink: 0, border: 0, padding: 0, background: "transparent", color: actionDisabled ? "rgba(255,255,255,.42)" : "#fff", font: "600 13px var(--font-sans), sans-serif", cursor: actionDisabled ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}
           >
             {actionLabel} <span aria-hidden="true">→</span>
           </button>
@@ -332,7 +319,7 @@ function recordPublicFunnelEvent(eventName, attributes = {}) {
 
 /* Inlined shared modules for single-file drop-in build */
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');`;
 
 // 853c — single source of truth for the public-facing FaithBid brand.
 // Internal KB/kb technical namespaces remain unchanged for persistence, RPC,
@@ -398,7 +385,7 @@ function PublicLegalFooter({ compact = false }) {
           border-top:1px solid rgba(255,255,255,.10);
           color:rgba(255,255,255,.72);
           padding:30px 48px max(30px, env(safe-area-inset-bottom));
-          font-family:"DM Sans",sans-serif;
+          font-family:var(--font-sans),sans-serif;
         }
         .fb-public-legal-footer.is-compact{padding-top:24px;padding-bottom:max(24px, env(safe-area-inset-bottom));}
         .fb-public-legal-footer__inner{width:min(1040px,100%);margin:0 auto;display:grid;gap:8px;}
@@ -1173,7 +1160,7 @@ function KBEmptyState({
         </div>
       )}
       <div style={{
-        fontFamily: "'Playfair Display', Georgia, serif",
+        fontFamily: "var(--font-display), serif",
         fontSize: compact ? 18 : 22,
         fontWeight: 700,
         color: textColor,
@@ -1260,8 +1247,8 @@ function KBIntentionalState({
       <div style={{ width: compact ? 46 : 60, height: compact ? 46 : 60, borderRadius: compact ? 16 : 20, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: iconBg, border: iconBorder, color: eyebrowColor, fontSize: compact ? 19 : 24, fontWeight: 800 }}>
         {loading ? <KBSkeleton variant="avatar" width={compact ? 28 : 34} dark={dark} /> : icon}
       </div>
-      <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase", color: eyebrowColor, marginBottom: 10 }}>{eyebrow}</div>
-      <div style={{ fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: compact ? "clamp(20px,3vw,24px)" : "clamp(24px,3.4vw,30px)", fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1.06, marginBottom: 10, color: shell.color }}>{title}</div>
+      <div style={{ fontFamily: "var(--font-sans),monospace", fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase", color: eyebrowColor, marginBottom: 10 }}>{eyebrow}</div>
+      <div style={{ fontFamily: "var(--font-display),serif", fontSize: compact ? "clamp(20px,3vw,24px)" : "clamp(24px,3.4vw,30px)", fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1.06, marginBottom: 10, color: shell.color }}>{title}</div>
       {body ? <div style={{ fontSize: compact ? 13 : 14, color: muted, lineHeight: 1.7, maxWidth: 520, margin: (actionLabel || secondaryLabel) ? "0 auto 24px" : "0 auto" }}>{body}</div> : null}
       {(actionLabel || secondaryLabel) ? (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
@@ -1507,7 +1494,7 @@ function SuccessMomentModal({ moment, onClose, onPrimary, onSecondary }) {
     <div className="kbm-overlay" role="dialog" aria-modal="true" aria-label={cfg.title}>
       <style>{`
         .kbm-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 20%,rgba(213,184,115,.18),transparent 34%),rgba(9,18,13,.66);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
-        .kbm-card{position:relative;width:min(620px,100%);max-height:calc(100vh - 36px);overflow:hidden auto;background:linear-gradient(180deg,#fffdf7 0%,#fbf3e4 100%);border:1px solid rgba(190,169,132,.72);border-radius:28px;box-shadow:0 34px 94px rgba(0,0,0,.36),0 0 0 1px rgba(255,255,255,.55) inset,0 18px 44px rgba(120,86,34,.14);animation:kbmCardIn .38s cubic-bezier(.22,1,.36,1) both;color:#172116;font-family:"DM Sans",Inter,system-ui,sans-serif;}
+        .kbm-card{position:relative;width:min(620px,100%);max-height:calc(100vh - 36px);overflow:hidden auto;background:linear-gradient(180deg,#fffdf7 0%,#fbf3e4 100%);border:1px solid rgba(190,169,132,.72);border-radius:28px;box-shadow:0 34px 94px rgba(0,0,0,.36),0 0 0 1px rgba(255,255,255,.55) inset,0 18px 44px rgba(120,86,34,.14);animation:kbmCardIn .38s cubic-bezier(.22,1,.36,1) both;color:#172116;font-family:var(--font-sans),system-ui,sans-serif;}
         .kbm-card.is-celebration,.kbm-card.is-celebrate-light{box-shadow:0 36px 98px rgba(0,0,0,.40),0 0 0 1px rgba(201,164,92,.20),0 0 58px rgba(201,164,92,.20),0 0 0 1px rgba(255,255,255,.55) inset;animation:kbmCelebrationCardIn .42s cubic-bezier(.22,1,.36,1) both;}
         .kbm-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,#d5b873 0%,#b98a3b 48%,#7f5b25 100%);} .kbm-card:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 0%,rgba(213,184,115,.18),transparent 34%),linear-gradient(180deg,rgba(255,255,255,.36),transparent 24%);}
         .kbm-sweep{position:absolute;left:-40%;top:0;width:40%;height:3px;background:linear-gradient(90deg,transparent,#fff4cc,#d5b873,transparent);animation:kbmSweep 1.05s .22s ease-in-out both;z-index:2;}
@@ -1523,7 +1510,7 @@ function SuccessMomentModal({ moment, onClose, onPrimary, onSecondary }) {
         .kbm-check{width:24px;height:24px;overflow:visible;}
         .kbm-check path{stroke-dasharray:36;stroke-dashoffset:36;animation:kbmDraw .42s .34s ease-out forwards;}
         .kbm-eyebrow{font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#a1772e;margin-bottom:6px;}
-        .kbm-title{font-family:"Playfair Display","Newsreader",Georgia,serif;font-size:36px;line-height:1;font-weight:700;letter-spacing:-.04em;color:#172116;margin:0;animation:kbmFadeUp .32s .28s both;}
+        .kbm-title{font-family:var(--font-display),serif;font-size:36px;line-height:1;font-weight:700;letter-spacing:-.04em;color:#172116;margin:0;animation:kbmFadeUp .32s .28s both;}
         .kbm-card.is-celebration .kbm-title,.kbm-card.is-celebrate-light .kbm-title{font-size:39px;letter-spacing:-.047em;}
         .kbm-desc{font-size:14.5px;line-height:1.58;color:#5e584d;margin:9px 0 0;animation:kbmFadeUp .32s .38s both;}
         .kbm-steps{display:grid;gap:10px;margin:20px 0 20px 34px;}
@@ -2001,7 +1988,7 @@ function VendorReferencesTrustBadge({ vendorUserId }) {
       <div style={{ padding: "14px 18px", borderBottom: "1px solid rgba(223,213,194,0.85)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
         <div>
           <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", color: "#8a6729", marginBottom: 4 }}>Reference signal</div>
-          <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: "#1C2814", lineHeight: 1.12 }}>Past-client proof</div>
+          <div style={{ fontFamily: "var(--font-display), serif", fontSize: 18, fontWeight: 700, color: "#1C2814", lineHeight: 1.12 }}>Past-client proof</div>
         </div>
         <span style={{ padding: "5px 10px", borderRadius: 999, background: tone.bg, color: tone.fg, border: `1px solid ${tone.border}`, fontSize: 11, fontWeight: 800, whiteSpace: "nowrap" }}>
           {s.completed}/{s.total} verified
@@ -2036,14 +2023,14 @@ function VendorReferencesTab({ currentUser, vendorProfile, showToast }) {
     mid: "#5d5548",
     panel: { border: "1px solid #dfd5c2", borderRadius: 20, background: "#fffdf8", boxShadow: "0 18px 50px rgba(28,40,20,0.06)", overflow: "hidden" },
     panelHead: { padding: "18px 22px", borderBottom: "1px solid #eadfce", background: "linear-gradient(180deg,#fffdf8 0%,#fbf5e8 100%)" },
-    panelTitle: { fontFamily: "'Playfair Display', Georgia, serif", fontSize: 21, fontWeight: 700, color: "#1C2814", letterSpacing: "-0.01em", lineHeight: 1.12 },
+    panelTitle: { fontFamily: "var(--font-display), serif", fontSize: 21, fontWeight: 700, color: "#1C2814", letterSpacing: "-0.01em", lineHeight: 1.12 },
     panelEyebrow: { fontSize: 10, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", color: "#8a6729", marginBottom: 5 },
     body: { padding: "20px 22px" },
     stat: { padding: "14px 15px", borderRadius: 16, background: "#fbf5e8", border: "1px solid #eadfce" },
     statLabel: { fontSize: 10, fontWeight: 800, letterSpacing: 1.1, textTransform: "uppercase", color: "#7d7363", marginBottom: 6 },
-    statValue: { fontFamily: "'Playfair Display', Georgia, serif", fontSize: 24, fontWeight: 700, color: "#1C2814", lineHeight: 1.05 },
+    statValue: { fontFamily: "var(--font-display), serif", fontSize: 24, fontWeight: 700, color: "#1C2814", lineHeight: 1.05 },
     label: { fontSize: 12, fontWeight: 700, color: "#1C2814", display: "block", marginBottom: 6 },
-    input: { width: "100%", padding: "12px 13px", borderRadius: 12, border: "1.5px solid #dfd5c2", background: "#fff", fontSize: 13, fontFamily: "DM Sans, sans-serif", color: "#1C2814", boxSizing: "border-box", outline: "none" },
+    input: { width: "100%", padding: "12px 13px", borderRadius: 12, border: "1.5px solid #dfd5c2", background: "#fff", fontSize: 13, fontFamily: "var(--font-sans), sans-serif", color: "#1C2814", boxSizing: "border-box", outline: "none" },
     primaryBtn: { padding: "9px 15px", borderRadius: 999, border: "1px solid #b08840", background: "linear-gradient(180deg,#c9a45c,#b08840)", color: "#fff", fontSize: 12, fontWeight: 800, cursor: "pointer", boxShadow: "0 10px 20px rgba(176,136,64,0.16)" },
     secondaryBtn: { padding: "9px 14px", borderRadius: 999, border: "1px solid #dfd5c2", background: "#fffdf8", color: "#1C2814", fontSize: 12, fontWeight: 800, cursor: "pointer" },
     dangerBtn: { padding: "6px 11px", borderRadius: 999, border: "1px solid rgba(197,48,48,0.18)", background: "rgba(197,48,48,0.06)", color: "#C53030", fontSize: 11, fontWeight: 800, cursor: "pointer" },
@@ -2294,7 +2281,7 @@ function VendorReferencesTab({ currentUser, vendorProfile, showToast }) {
                   </div>
                   {!completed && (
                     <div style={{ display: "grid", gap: 8 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 12px", borderRadius: 12, background: "#fff", border: "1px solid #eadfce", fontFamily: "DM Mono, monospace", fontSize: 11, color: rx.mid, wordBreak: "break-all" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 12px", borderRadius: 12, background: "#fff", border: "1px solid #eadfce", fontFamily: "var(--font-sans), monospace", fontSize: 11, color: rx.mid, wordBreak: "break-all" }}>
                         {url}
                       </div>
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -2454,14 +2441,14 @@ function VendorReferenceSurveyPage({ token, onDone }) {
     }
   };
 
-  const pageWrap = { minHeight: "100vh", background: "var(--cream, #f6f1e3)", padding: "40px 20px", fontFamily: "DM Sans, sans-serif" };
+  const pageWrap = { minHeight: "100vh", background: "var(--cream, #f6f1e3)", padding: "40px 20px", fontFamily: "var(--font-sans), sans-serif" };
   const cardWrap = { maxWidth: 640, margin: "0 auto", background: "#fff", borderRadius: 14, border: "1px solid var(--border, #e5e1d4)", overflow: "hidden", boxShadow: "0 4px 24px rgba(20,21,24,0.06)" };
 
   if (state.loading) return <div style={pageWrap}><div style={cardWrap}><div style={{ padding: 32 }}><KBSkeleton variant="card" /></div></div></div>;
   if (state.error) return (
     <div style={pageWrap}><div style={cardWrap}>
       <div style={{ padding: 32, textAlign: "center" }}>
-        <div style={{ fontFamily: "Playfair Display, serif", fontSize: 22, fontWeight: 700, color: "var(--navy)", marginBottom: 8 }}>Link unavailable</div>
+        <div style={{ fontFamily: "var(--font-display), serif", fontSize: 22, fontWeight: 700, color: "var(--navy)", marginBottom: 8 }}>Link unavailable</div>
         <div style={{ fontSize: 14, color: "var(--text-mid)", lineHeight: 1.6 }}>{state.error}</div>
       </div>
     </div></div>
@@ -2473,7 +2460,7 @@ function VendorReferenceSurveyPage({ token, onDone }) {
     <div style={pageWrap}><div style={cardWrap}>
       <div style={{ padding: 40, textAlign: "center" }}>
         <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, var(--gold), var(--gold-light))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 20px", color: "#fff" }}>✓</div>
-        <div style={{ fontFamily: "Playfair Display, serif", fontSize: 24, fontWeight: 700, color: "var(--navy)", marginBottom: 10 }}>Thank you</div>
+        <div style={{ fontFamily: "var(--font-display), serif", fontSize: 24, fontWeight: 700, color: "var(--navy)", marginBottom: 10 }}>Thank you</div>
         <div style={{ fontSize: 14, color: "var(--text-mid)", lineHeight: 1.7 }}>{isFaith ? "Your private Christian-community reference has been recorded for FaithBid's review." : "Your reference has been recorded. It helps FaithBid maintain a stronger trust record for churches."}</div>
         {onDone && <button type="button" onClick={onDone} style={{ marginTop: 24, padding: "10px 22px", borderRadius: 8, border: "none", background: "var(--gold-light)", color: "var(--navy)", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Close</button>}
       </div>
@@ -2482,7 +2469,7 @@ function VendorReferenceSurveyPage({ token, onDone }) {
   if (state.alreadySubmitted) return (
     <div style={pageWrap}><div style={cardWrap}>
       <div style={{ padding: 40, textAlign: "center" }}>
-        <div style={{ fontFamily: "Playfair Display, serif", fontSize: 22, fontWeight: 700, color: "var(--navy)", marginBottom: 10 }}>Already submitted</div>
+        <div style={{ fontFamily: "var(--font-display), serif", fontSize: 22, fontWeight: 700, color: "var(--navy)", marginBottom: 10 }}>Already submitted</div>
         <div style={{ fontSize: 14, color: "var(--text-mid)", lineHeight: 1.7 }}>A response has already been submitted for this reference. Thank you for your time.</div>
       </div>
     </div></div>
@@ -2495,7 +2482,7 @@ function VendorReferenceSurveyPage({ token, onDone }) {
       <div style={cardWrap}>
         <div style={{ padding: "28px 32px 24px", borderBottom: "1px solid var(--border)", background: "linear-gradient(135deg, #fffdf7, #faf6ed)" }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", color: "var(--gold-text)", marginBottom: 6 }}>FaithBid · {isFaith ? "Private Christian-community reference" : "Reference survey"}</div>
-          <div style={{ fontFamily: "Playfair Display, serif", fontSize: 24, fontWeight: 700, color: "var(--navy)", lineHeight: 1.3 }}>{isFaith ? `Share what you know about ${vendorLabel}` : `Share your experience with ${vendorLabel}`}</div>
+          <div style={{ fontFamily: "var(--font-display), serif", fontSize: 24, fontWeight: 700, color: "var(--navy)", lineHeight: 1.3 }}>{isFaith ? `Share what you know about ${vendorLabel}` : `Share your experience with ${vendorLabel}`}</div>
           <div style={{ fontSize: 13, color: "var(--text-mid)", marginTop: 8, lineHeight: 1.65 }}>
             {isFaith
               ? <>Hi {ref.client_name}, {vendorLabel} listed you as a Christian-community reference for Faith Verified review. FaithBid is asking for your independent perspective on their Christian-community connection, character, and integrity.{ref.reference_context ? ` Applicant context: ${ref.reference_context}.` : ""}</>
@@ -2507,7 +2494,7 @@ function VendorReferenceSurveyPage({ token, onDone }) {
             <>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 700, color: "var(--navy)", display: "block", marginBottom: 6 }}>How do you know {vendorLabel}? <span style={{ color: "#DC2626" }}>*</span></label>
-                <textarea value={form.relationship_context} onChange={e => setForm(f => ({ ...f, relationship_context: e.target.value }))} rows={3} placeholder="Your church, ministry, leadership, friendship, or community relationship…" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "DM Sans, sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
+                <textarea value={form.relationship_context} onChange={e => setForm(f => ({ ...f, relationship_context: e.target.value }))} rows={3} placeholder="Your church, ministry, leadership, friendship, or community relationship…" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "var(--font-sans), sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
                 <div style={{ marginTop: 4, fontSize: 11, color: form.relationship_context.trim().length >= 20 ? "var(--success)" : "var(--text-muted)" }}>Minimum 20 characters</div>
               </div>
               <div>
@@ -2526,11 +2513,11 @@ function VendorReferenceSurveyPage({ token, onDone }) {
               </div>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 700, color: "var(--navy)", display: "block", marginBottom: 6 }}>What should FaithBid understand about their faith, character, or integrity? <span style={{ color: "#DC2626" }}>*</span></label>
-                <textarea value={form.faith_alignment} onChange={e => setForm(f => ({ ...f, faith_alignment: e.target.value }))} rows={4} placeholder="Share the context you think FaithBid should know…" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "DM Sans, sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
+                <textarea value={form.faith_alignment} onChange={e => setForm(f => ({ ...f, faith_alignment: e.target.value }))} rows={4} placeholder="Share the context you think FaithBid should know…" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "var(--font-sans), sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
               </div>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 700, color: "var(--navy)", display: "block", marginBottom: 6 }}>Any concerns FaithBid should consider?</label>
-                <textarea value={form.concerns} onChange={e => setForm(f => ({ ...f, concerns: e.target.value }))} rows={3} placeholder="Optional. Share any concern or context that would help FaithBid review fairly." style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "DM Sans, sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
+                <textarea value={form.concerns} onChange={e => setForm(f => ({ ...f, concerns: e.target.value }))} rows={3} placeholder="Optional. Share any concern or context that would help FaithBid review fairly." style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "var(--font-sans), sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
               </div>
             </>
           ) : (
@@ -2552,15 +2539,15 @@ function VendorReferenceSurveyPage({ token, onDone }) {
               </div>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 700, color: "var(--navy)", display: "block", marginBottom: 6 }}>What did they do well?</label>
-                <textarea value={form.strengths} onChange={e => setForm(f => ({ ...f, strengths: e.target.value }))} rows={3} placeholder="Quality of work, communication, timeliness…" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "DM Sans, sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
+                <textarea value={form.strengths} onChange={e => setForm(f => ({ ...f, strengths: e.target.value }))} rows={3} placeholder="Quality of work, communication, timeliness…" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "var(--font-sans), sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
               </div>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 700, color: "var(--navy)", display: "block", marginBottom: 6 }}>Anything a future church should know?</label>
-                <textarea value={form.concerns} onChange={e => setForm(f => ({ ...f, concerns: e.target.value }))} rows={3} placeholder="Honest concerns, surprises, or things you'd want to know up front" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "DM Sans, sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
+                <textarea value={form.concerns} onChange={e => setForm(f => ({ ...f, concerns: e.target.value }))} rows={3} placeholder="Honest concerns, surprises, or things you'd want to know up front" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "var(--font-sans), sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
               </div>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 700, color: "var(--navy)", display: "block", marginBottom: 6 }}>How was their faith alignment / ministry posture?</label>
-                <textarea value={form.faith_alignment} onChange={e => setForm(f => ({ ...f, faith_alignment: e.target.value }))} rows={3} placeholder="How did they handle spiritual, pastoral, or ministry-specific aspects of the work?" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "DM Sans, sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
+                <textarea value={form.faith_alignment} onChange={e => setForm(f => ({ ...f, faith_alignment: e.target.value }))} rows={3} placeholder="How did they handle spiritual, pastoral, or ministry-specific aspects of the work?" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 13, fontFamily: "var(--font-sans), sans-serif", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
               </div>
             </>
           )}
@@ -8221,7 +8208,7 @@ html.platform-shell-host-active body #kb-main-content>*>*{
 }
 /* ── Design-system normalisation ── */
 .btn-primary,.btn-secondary,.btn-cta,.land-cta-primary,.land-cta-secondary{
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
   font-weight:700;
   letter-spacing:0.01em;
   transition:opacity var(--transition-fast),background var(--transition-fast),box-shadow var(--transition-fast);
@@ -8238,7 +8225,7 @@ html.platform-shell-host-active body #kb-main-content>*>*{
   border:1px solid var(--border2);
   font-size:13px;
   padding:10px 12px;
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
   width:100%;
   outline:none;
   transition:border-color var(--transition-fast),box-shadow var(--transition-fast);
@@ -8248,7 +8235,7 @@ html.platform-shell-host-active body #kb-main-content>*>*{
   box-shadow:0 0 0 2px rgba(42,53,32,0.08);
 }
 
-body{font-family:'DM Sans',sans-serif;background:#F7F6F4;color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-sans),sans-serif;background:#F7F6F4;color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased;}
 
 /* 869 — Landing-only host reset. The public Landing route now owns the same
    host/root reset contract already proven by Get Plugged In. This is scoped to
@@ -8365,7 +8352,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 }
 .gpi-public-page *{ box-sizing: border-box; }
 .gpi-public-page button,.gpi-public-page input,.gpi-public-page select{
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
 }
 
 /* ---- Hero ---- */
@@ -8475,7 +8462,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .gpi-discovery-header h1{
   margin:0;
   color:#182315;
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
   font-size:42px;
   line-height:1.05;
   letter-spacing:-.045em;
@@ -8837,7 +8824,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .gpi-public-hero-copy{ min-width:0; text-align:left; }
 .gpi-public-hero h1{
   margin:0 0 7px;
-  font-family:'Playfair Display',Georgia,serif;
+  font-family:var(--font-display),serif;
   font-size: clamp(30px, 3.03vw, 48px);
   line-height:1;
   font-weight:700;
@@ -9135,7 +9122,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   text-align:center;
   color:#172116;
 }
-.gpi-public-empty strong{font-family:'Playfair Display',Georgia,serif;font-size:20px;}
+.gpi-public-empty strong{font-family:var(--font-display),serif;font-size:20px;}
 .gpi-public-empty span{font-size:12px;line-height:1.45;color:#6a5943;}
 .gpi-public-empty button{min-height:38px;padding:0 14px;border:1px solid rgba(28,40,20,.16);border-radius:999px;background:#1c2814;color:#fff;font-size:12px;font-weight:800;cursor:pointer;}
 .gpi-public-error button{
@@ -9371,7 +9358,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .gpi-card-kicker{
   position:relative;
   z-index:1;
-  font-family:'DM Mono',monospace;
+  font-family:var(--font-sans),monospace;
   text-transform:uppercase;
   font-size:clamp(8px,0.69vw,11px);
   letter-spacing:0.42em;
@@ -9416,7 +9403,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   overflow:visible;
 }
 .gpi-card-word-svg text{
-  font-family:'Bebas Neue','Arial Narrow',Impact,sans-serif;
+  font-family:var(--font-display),'Arial Narrow',Impact,sans-serif;
   font-size: 52px;
   font-weight:400;
   letter-spacing:0;
@@ -9449,7 +9436,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .gpi-card-title{
   position:relative;
   z-index:1;
-  font-family:'Playfair Display',Georgia,serif;
+  font-family:var(--font-display),serif;
   font-size: clamp(17px, 1.7vw, 27px);
   line-height:1.08;
   font-weight:700;
@@ -9533,7 +9520,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   border-radius:4px;
   background:#06231e;
   color:#fffdf8;
-  font-family:'Playfair Display',Georgia,serif!important;
+  font-family:var(--font-display),serif!important;
   font-size: clamp(14px, 1.26vw, 20px);
   font-weight:700;
   display:flex;
@@ -9638,7 +9625,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   border-radius:4px;
   background:#06231e;
   color:#fffdf8;
-  font-family:'Playfair Display',Georgia,serif;
+  font-family:var(--font-display),serif;
   font-size:clamp(13px,1.135vw,18px);
   font-weight:700;
   display:inline-flex;
@@ -9669,7 +9656,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .gpi-mobile-sheet-polish{overscroll-behavior:contain;}
 .gpi-public-modal-card{max-height:min(760px,calc(100dvh - 48px));overflow:auto;}
 .gpi-interest-success{text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 4px 4px;}
-.gpi-interest-success h2{font-family:Georgia,serif;font-size:clamp(34px,4vw,48px);line-height:1;color:#172116;margin:0;}
+.gpi-interest-success h2{font-family:var(--font-display),serif;font-size:clamp(34px,4vw,48px);line-height:1;color:#172116;margin:0;}
 .gpi-interest-success p{max-width:42ch;margin:0 auto;color:#5f6359;}
 .gpi-interest-success-card{width:100%;border:1px solid rgba(28,40,20,.1);background:#fffaf0;border-radius:22px;padding:16px;text-align:left;}
 .gpi-interest-success-card span{display:block;text-transform:uppercase;letter-spacing:.14em;font-size:10px;font-weight:800;color:#8a7b65;margin-bottom:6px;}
@@ -9715,14 +9702,14 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   cursor:pointer;
 }
 .gpi-public-modal-eyebrow{
-  font-family:'DM Mono',monospace;
+  font-family:var(--font-sans),monospace;
   text-transform:uppercase;
   font-size:11px;
   letter-spacing:0.3em;
   color:#9d5e21;
 }
 .gpi-public-modal-card h2{
-  font-family:'Playfair Display',Georgia,serif;
+  font-family:var(--font-display),serif;
   font-size:24px;
   color:#142019;
 }
@@ -10100,18 +10087,18 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .chip-dark-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
 
 /* ── DARK-SCREEN BUTTON VARIANTS ── */
-.btn-dark{padding:9px 18px;background:rgba(255,255,255,0.07);color:var(--atext);border:1px solid rgba(255,255,255,0.12);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.btn-dark{padding:9px 18px;background:rgba(255,255,255,0.07);color:var(--atext);border:1px solid rgba(255,255,255,0.12);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
 .btn-dark:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2);}
 .btn-dark:disabled{opacity:0.35;cursor:not-allowed;}
-.btn-dark-gold{padding:9px 18px;background:rgba(232,224,208,0.1);color:var(--gold-light);border:1px solid rgba(232,224,208,0.2);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.btn-dark-gold{padding:9px 18px;background:rgba(232,224,208,0.1);color:var(--gold-light);border:1px solid rgba(232,224,208,0.2);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
 .btn-dark-gold:hover{background:rgba(232,224,208,0.18);border-color:rgba(232,224,208,0.35);}
-.btn-dark-danger{padding:9px 18px;background:rgba(239,68,68,0.08);color:var(--red);border:1px solid rgba(239,68,68,0.2);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;}
+.btn-dark-danger{padding:9px 18px;background:rgba(239,68,68,0.08);color:var(--red);border:1px solid rgba(239,68,68,0.2);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;}
 .btn-dark-danger:hover{background:rgba(239,68,68,0.14);border-color:rgba(239,68,68,0.35);}
-.btn-dark-success{padding:9px 18px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.22);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;}
+.btn-dark-success{padding:9px 18px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.22);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;}
 .btn-dark-success:hover{background:rgba(34,197,94,0.18);border-color:rgba(34,197,94,0.35);}
-.btn-text{background:none;border:none;padding:0;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--text-muted);transition:color 0.18s;}
+.btn-text{background:none;border:none;padding:0;cursor:pointer;font-family:var(--font-sans),sans-serif;font-size:12px;font-weight:500;color:var(--text-muted);transition:color 0.18s;}
 .btn-text:hover{color:var(--navy);}
-.btn-text-light{background:none;border:none;padding:0;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--atext-muted);transition:color 0.18s;}
+.btn-text-light{background:none;border:none;padding:0;cursor:pointer;font-family:var(--font-sans),sans-serif;font-size:12px;font-weight:500;color:var(--atext-muted);transition:color 0.18s;}
 .btn-text-light:hover{color:var(--atext);}
 .btn-icon{width:32px;height:32px;border-radius:var(--r-sm);border:1px solid var(--aborder2);background:rgba(255,255,255,0.05);color:var(--atext-mid);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s;font-size:14px;flex-shrink:0;}
 .btn-icon:hover{background:rgba(255,255,255,0.1);color:var(--atext);}
@@ -10131,39 +10118,39 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .logo{display:flex;align-items:center;gap:9px;cursor:pointer;text-decoration:none;flex-shrink:0;padding-right:18px;border-right:1px solid rgba(28,40,20,0.06);height:34px;}
 .topnav .logo img{filter:brightness(0) saturate(100%) invert(11%) sepia(22%) saturate(842%) hue-rotate(70deg) brightness(94%) contrast(94%);}
 .topnav-brand{position:relative;display:inline-flex;align-items:center;line-height:1;user-select:none;}
-.topnav-brand-wordmark{font-family:'Playfair Display',Georgia,serif;font-size:19px;font-weight:600;letter-spacing:-0.018em;color:#1C2814;line-height:1;display:block;}
+.topnav-brand-wordmark{font-family:var(--font-display),serif;font-size:19px;font-weight:600;letter-spacing:-0.018em;color:#1C2814;line-height:1;display:block;}
 .topnav-brand-crown{position:absolute;left:1px;top:-8px;width:30px;height:18px;color:#C4973A;overflow:visible;opacity:0.85;}
 .topnav-brand-swoosh{display:none;}
 .nav-tabs{display:flex;align-items:center;gap:3px;flex:1;min-width:0;margin:0 14px 0 18px;height:58px;}
 .nav-tab-sep{display:none;}
-.nav-tab{display:flex;align-items:center;gap:6px;padding:0 11px;height:58px;border-radius:0;font-size:12.25px;font-weight:600;color:rgba(28,40,20,0.50);border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color 0.18s,background 0.18s;white-space:nowrap;letter-spacing:-0.003em;position:relative;}
+.nav-tab{display:flex;align-items:center;gap:6px;padding:0 11px;height:58px;border-radius:0;font-size:12.25px;font-weight:600;color:rgba(28,40,20,0.50);border:none;background:none;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:color 0.18s,background 0.18s;white-space:nowrap;letter-spacing:-0.003em;position:relative;}
 .nav-tab svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;transition:stroke 0.18s;}
 .nav-tab:hover{color:#1C2814;background:none;}
 .nav-tab.active{color:#1C2814;font-weight:800;background:rgba(196,151,58,0.075);border:none;box-shadow:none;}
 .nav-tab.active::after{content:'';position:absolute;left:11px;right:11px;bottom:0;height:2px;background:linear-gradient(90deg,#1C2814,#C4973A);border-radius:2px 2px 0 0;}
 .nav-tab.active svg{stroke:#1C2814;}
 .nav-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
-.topnav-utility-btn{height:30px;padding:0 10px;border-radius:999px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px;color:rgba(28,40,20,0.52);font-size:11.75px;font-weight:600;font-family:'DM Sans',sans-serif;transition:color 0.18s,background 0.18s;}
+.topnav-utility-btn{height:30px;padding:0 10px;border-radius:999px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px;color:rgba(28,40,20,0.52);font-size:11.75px;font-weight:600;font-family:var(--font-sans),sans-serif;transition:color 0.18s,background 0.18s;}
 .topnav-utility-btn:hover{background:rgba(28,40,20,0.04);color:#1C2814;}
-.topnav-utility-btn .utility-kbd{font-family:'DM Mono',monospace;font-size:10px;color:rgba(138,103,41,0.7);}
-.topnav-utility-btn .utility-count{padding:1px 6px;border-radius:999px;background:rgba(196,151,58,0.14);font-family:'DM Mono',monospace;font-size:10px;line-height:1.4;color:#8a6729;font-weight:600;}
-.topnav-menu-item{width:100%;height:38px;padding:0 12px;border:none;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#1C2814;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;}
+.topnav-utility-btn .utility-kbd{font-family:var(--font-sans),monospace;font-size:10px;color:rgba(138,103,41,0.7);}
+.topnav-utility-btn .utility-count{padding:1px 6px;border-radius:999px;background:rgba(196,151,58,0.14);font-family:var(--font-sans),monospace;font-size:10px;line-height:1.4;color:#8a6729;font-weight:600;}
+.topnav-menu-item{width:100%;height:38px;padding:0 12px;border:none;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#1C2814;font-size:13px;font-weight:500;font-family:var(--font-sans),sans-serif;cursor:pointer;text-align:left;}
 .topnav-menu-item:hover{background:rgba(28,40,20,0.05);color:#0f2f24;}
-.role-btn{padding:4px 12px;border-radius:8px;border:1px solid rgba(20,21,24,0.08);background:#fff;color:#22301B;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.role-btn{padding:4px 12px;border-radius:8px;border:1px solid rgba(20,21,24,0.08);background:#fff;color:#22301B;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.2s;}
 .role-btn:hover{border-color:rgba(176,136,64,0.4);color:#22301B;}
 .nav-av-pill{display:flex;align-items:center;gap:7px;padding:2px 10px 2px 2px;border:1px solid rgba(28,40,20,0.10);border-radius:999px;cursor:pointer;background:rgba(255,255,255,0.58);transition:border-color 0.18s,background 0.18s;}
 .nav-av-pill:hover{border-color:rgba(28,40,20,0.22);background:#fff;}
 .nav-av-pill-name{font-size:12.5px;font-weight:500;color:#1C2814;letter-spacing:-0.005em;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.nav-av{width:27px;height:27px;border-radius:50%;background:#1C2814;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:#fffdf8;font-family:'Playfair Display',Georgia,serif;border:none;position:relative;flex-shrink:0;}
+.nav-av{width:27px;height:27px;border-radius:50%;background:#1C2814;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:#fffdf8;font-family:var(--font-display),serif;border:none;position:relative;flex-shrink:0;}
 .nav-av-online{position:absolute;bottom:-1px;right:-1px;width:8px;height:8px;border-radius:50%;background:#22C55E;border:1.5px solid #fffdf8;}
 .nav-av-pill-role{font-size:9px;color:rgba(28,40,20,0.45);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;line-height:1.2;display:flex;align-items:center;gap:5px;}
-.kb-effective-admin-badge{display:inline-flex;align-items:center;padding:2px 5px;border-radius:999px;background:rgba(176,136,64,.12);border:1px solid rgba(176,136,64,.25);color:#80601f;font-family:'DM Mono',monospace;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;line-height:1;}
+.kb-effective-admin-badge{display:inline-flex;align-items:center;padding:2px 5px;border-radius:999px;background:rgba(176,136,64,.12);border:1px solid rgba(176,136,64,.25);color:#80601f;font-family:var(--font-sans),monospace;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;line-height:1;}
 .nav-av-caret{font-size:9px;color:rgba(28,40,20,0.45);margin-left:2px;}
 
 /* ── PAGE SHELL ── */
 .page-hd{margin-bottom:32px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
 .eyebrow{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold-text);margin-bottom:8px;}
-.page-title{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;line-height:1.1;}
+.page-title{font-family:var(--font-display),serif;font-size:34px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;line-height:1.1;}
 .page-sub{font-size:15px;color:var(--text-muted);margin-top:5px;font-weight:400;line-height:1.6;}
 
 /* ── CARDS ── */
@@ -10173,30 +10160,30 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .card-body{padding:20px;}
 
 /* ── BUTTONS ── */
-.btn-primary{padding:10px 22px;background:var(--navy);color:#fff;border-radius:var(--r-sm);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;letter-spacing:0.1px;}
+.btn-primary{padding:10px 22px;background:var(--navy);color:#fff;border-radius:var(--r-sm);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:7px;font-family:var(--font-sans),sans-serif;letter-spacing:0.1px;}
 .btn-primary:hover{background:#1A2114;box-shadow:0 4px 16px rgba(42,53,32,0.25);}
 .btn-primary:active{transform:scale(0.98);}
 .btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
-.btn-secondary{padding:9px 18px;background:white;color:var(--text-mid);border-radius:var(--r-sm);font-size:13px;font-weight:500;border:1.5px solid var(--border);cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;}
+.btn-secondary{padding:9px 18px;background:white;color:var(--text-mid);border-radius:var(--r-sm);font-size:13px;font-weight:500;border:1.5px solid var(--border);cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:7px;font-family:var(--font-sans),sans-serif;}
 .btn-secondary:hover{border-color:var(--navy);color:var(--navy);}
 .btn-secondary:active{transform:scale(0.98);}
 /* Light variants // for use inside navy screen-headers */
-.btn-header{padding:7px 16px;background:rgba(232,224,208,0.1);color:var(--gold-light);border-radius:var(--r-sm);font-size:11px;font-weight:600;border:1px solid rgba(232,224,208,0.18);cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;letter-spacing:0.3px;}
+.btn-header{padding:7px 16px;background:rgba(232,224,208,0.1);color:var(--gold-light);border-radius:var(--r-sm);font-size:11px;font-weight:600;border:1px solid rgba(232,224,208,0.18);cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-sans),sans-serif;letter-spacing:0.3px;}
 .btn-header:hover{background:rgba(232,224,208,0.18);border-color:rgba(232,224,208,0.32);}
-.btn-ghost{padding:6px 13px;background:none;color:var(--text-muted);border-radius:var(--r-sm);font-size:11px;font-weight:500;border:1px solid var(--border);cursor:pointer;transition:all 0.18s;font-family:'DM Sans',sans-serif;}
+.btn-ghost{padding:6px 13px;background:none;color:var(--text-muted);border-radius:var(--r-sm);font-size:11px;font-weight:500;border:1px solid var(--border);cursor:pointer;transition:all 0.18s;font-family:var(--font-sans),sans-serif;}
 .btn-ghost:hover{border-color:var(--navy);color:var(--navy);}
-.btn-back{background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;padding:0;margin-bottom:16px;transition:color 0.18s;}
+.btn-back{background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:var(--font-sans),sans-serif;padding:0;margin-bottom:16px;transition:color 0.18s;}
 .btn-back:hover{color:var(--navy);}
 /* Back button variant for use inside navy screen-headers */
-.btn-back-light{background:none;border:none;color:rgba(255,255,255,0.38);font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;padding:0;margin-bottom:14px;transition:color 0.18s;letter-spacing:0.2px;}
+.btn-back-light{background:none;border:none;color:rgba(255,255,255,0.38);font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:var(--font-sans),sans-serif;padding:0;margin-bottom:14px;transition:color 0.18s;letter-spacing:0.2px;}
 .btn-back-light:hover{color:var(--gold-light);}
-.btn-cta{padding:9px 20px;background:var(--gold-light);color:var(--navy);border-radius:var(--r-sm);font-size:12px;font-weight:700;border:none;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;}
+.btn-cta{padding:9px 20px;background:var(--gold-light);color:var(--navy);border-radius:var(--r-sm);font-size:12px;font-weight:700;border:none;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:7px;font-family:var(--font-sans),sans-serif;}
 .btn-cta:hover{box-shadow:0 4px 16px rgba(232,224,208,0.35);}
 .btn-cta:active{transform:scale(0.98);}
 .btn-cta:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
 
 /* ── PROJECT ACTION SYSTEM ── */
-.project-action-btn{height:40px;padding:0 18px;border:none;border-radius:12px;background:linear-gradient(180deg,#21282A 0%,#14191B 100%);color:#F8F6F1;box-shadow:0 10px 24px rgba(17,24,39,0.18),inset 0 1px 0 rgba(255,255,255,0.08);font-size:12px;font-weight:700;letter-spacing:0.15px;cursor:pointer;transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0;}
+.project-action-btn{height:40px;padding:0 18px;border:none;border-radius:12px;background:linear-gradient(180deg,#21282A 0%,#14191B 100%);color:#F8F6F1;box-shadow:0 10px 24px rgba(17,24,39,0.18),inset 0 1px 0 rgba(255,255,255,0.08);font-size:12px;font-weight:700;letter-spacing:0.15px;cursor:pointer;transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--font-sans),sans-serif;white-space:nowrap;flex-shrink:0;}
 .project-action-btn:hover{transform:translateY(-1px);box-shadow:0 14px 30px rgba(17,24,39,0.22),inset 0 1px 0 rgba(255,255,255,0.1);filter:brightness(1.02);}
 .project-action-btn:active{transform:translateY(0) scale(0.985);}
 .project-action-btn:disabled{opacity:0.45;cursor:not-allowed;transform:none;box-shadow:none;filter:none;}
@@ -10205,7 +10192,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .project-empty-state{background:linear-gradient(180deg,#fff 0%,#FBFAF7 100%);border:1px solid rgba(17,24,39,0.08);border-radius:20px;padding:40px 32px;text-align:center;box-shadow:0 12px 34px rgba(17,24,39,0.04);}
 .project-empty-state.compact{padding:34px 28px;}
 .project-empty-eyebrow{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;background:rgba(20,25,27,0.04);border:1px solid rgba(20,25,27,0.06);font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#5F6772;margin-bottom:16px;}
-.project-empty-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;line-height:1.12;letter-spacing:-0.4px;color:#172027;margin-bottom:10px;}
+.project-empty-title{font-family:var(--font-display),serif;font-size:24px;font-weight:700;line-height:1.12;letter-spacing:-0.4px;color:#172027;margin-bottom:10px;}
 .project-empty-sub{max-width:520px;margin:0 auto;font-size:14px;line-height:1.75;color:#6B7280;font-weight:400;}
 .project-empty-actions{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:24px;flex-wrap:wrap;}
 .project-empty-note{font-size:12px;color:#8B93A1;margin-top:14px;}
@@ -10213,7 +10200,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 /* ── FORM FIELDS ── */
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
 .field label{font-size:13px;font-weight:600;color:var(--text-mid);letter-spacing:0px;}
-.field input,.field select,.field textarea{padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:white;outline:none;resize:vertical;transition:border-color 0.2s,box-shadow 0.2s;}
+.field input,.field select,.field textarea{padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:var(--font-sans),sans-serif;font-size:14px;color:var(--text);background:white;outline:none;resize:vertical;transition:border-color 0.2s,box-shadow 0.2s;}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(42,53,32,0.07);}
 .char-count{font-size:12px;color:var(--text-muted);text-align:right;margin-top:2px;}
 
@@ -10247,7 +10234,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .land-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 42px;position:relative;z-index:2;}
 .land-logo{display:flex;align-items:center;gap:10px;}
 .land-nav-links{display:flex;align-items:center;gap:0;}
-.land-nav-btn{padding:8px 16px;border-radius:0;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-style:normal;transition:all 0.2s;background:none;border:none;color:rgba(255,255,255,0.47);letter-spacing:0.18px;}
+.land-nav-btn{padding:8px 16px;border-radius:0;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;font-style:normal;transition:all 0.2s;background:none;border:none;color:rgba(255,255,255,0.47);letter-spacing:0.18px;}
 .land-nav-btn:hover{color:#fff;}
 .land-nav-sep{width:1px;height:16px;background:rgba(255,255,255,0.15);flex-shrink:0;}
 .land-nav-login{color:rgba(255,255,255,0.6);}
@@ -10256,27 +10243,27 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .land-nav-signup:hover{color:#fff;}
 .land-hero-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:52px 40px 70px;position:relative;z-index:2;}
 .land-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:6px 16px;background:rgba(232,224,208,0.12);border:1px solid rgba(232,224,208,0.25);border-radius:100px;font-size:12px;font-weight:600;color:var(--gold-light);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
-.land-h1{font-family:'Playfair Display',serif;font-size:clamp(34px,5.15vw,62px);font-weight:800;color:#fff;line-height:1.045;letter-spacing:-1.08px;margin-bottom:16px;}
-.land-h1 span{font-family:'Cormorant Garamond',serif;color:var(--gold);font-style:italic;font-weight:400;}
+.land-h1{font-family:var(--font-display),serif;font-size:clamp(34px,5.15vw,62px);font-weight:800;color:#fff;line-height:1.045;letter-spacing:-1.08px;margin-bottom:16px;}
+.land-h1 span{font-family:var(--font-display),serif;color:var(--gold);font-style:italic;font-weight:400;}
 .land-sub{font-size:16.5px;color:rgba(255,255,255,0.55);font-weight:400;max-width:560px;line-height:1.55;margin-bottom:30px;}
 .land-ctas{display:flex;align-items:center;gap:0;flex-wrap:nowrap;justify-content:center;}
 .land-cta-sep{width:1px;height:22px;background:rgba(255,255,255,0.2);flex-shrink:0;}
-.land-cta-primary{padding:16px 36px;background:none;border:none;font-family:'Playfair Display',serif;font-size:32px;font-weight:700;font-style:normal;color:#fff;cursor:pointer;transition:opacity 0.2s;letter-spacing:-0.5px;}
+.land-cta-primary{padding:16px 36px;background:none;border:none;font-family:var(--font-display),serif;font-size:32px;font-weight:700;font-style:normal;color:#fff;cursor:pointer;transition:opacity 0.2s;letter-spacing:-0.5px;}
 .land-cta-primary:hover{opacity:0.8;}
-.land-cta-secondary{padding:16px 36px;background:none;border:none;font-family:'Playfair Display',serif;font-size:32px;font-weight:400;font-style:normal;color:rgba(255,255,255,0.38);cursor:pointer;transition:color 0.2s;letter-spacing:-0.4px;}
+.land-cta-secondary{padding:16px 36px;background:none;border:none;font-family:var(--font-display),serif;font-size:32px;font-weight:400;font-style:normal;color:rgba(255,255,255,0.38);cursor:pointer;transition:color 0.2s;letter-spacing:-0.4px;}
 .land-cta-secondary:hover{color:rgba(255,255,255,0.75);}
 .land-stats{display:flex;gap:48px;margin-top:56px;flex-wrap:wrap;justify-content:center;}
-.land-stat-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:#fff;}
+.land-stat-num{font-family:var(--font-display),serif;font-size:32px;font-weight:700;color:#fff;}
 .land-stat-label{font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px;}
 .lsb-wrap{background:#F0EDE6;border-bottom:1px solid rgba(0,0,0,0.06);}
 .lsb-inner{max-width:860px;margin:0 auto;padding:18px 48px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:0;}
 .lsb-group{display:flex;align-items:center;justify-content:space-around;}
 .lsb-stat{text-align:center;padding:0 16px;}
-.lsb-num{font-family:'DM Mono',monospace;font-size:19px;font-weight:500;color:#1A2510;line-height:1;letter-spacing:-0.5px;margin-bottom:3px;}
+.lsb-num{font-family:var(--font-sans),monospace;font-size:19px;font-weight:500;color:#1A2510;line-height:1;letter-spacing:-0.5px;margin-bottom:3px;}
 .lsb-label{font-size:8.5px;color:#A8A098;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;}
 .lsb-div{width:1px;height:28px;background:rgba(0,0,0,0.09);flex-shrink:0;}
 .lsb-btn-wrap{display:flex;justify-content:center;padding:0 28px;}
-.lsb-btn{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(180deg,#fff 0%,#F7F5EF 100%);color:#1C2814;border:1px solid rgba(176,136,64,0.32);border-radius:999px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.08px;cursor:pointer;box-shadow:0 12px 28px rgba(28,40,20,0.09),inset 0 1px 0 rgba(255,255,255,0.9);transition:transform 0.22s ease,box-shadow 0.22s ease,border-color 0.22s ease,color 0.22s ease;white-space:nowrap;}
+.lsb-btn{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(180deg,#fff 0%,#F7F5EF 100%);color:#1C2814;border:1px solid rgba(176,136,64,0.32);border-radius:999px;font-family:var(--font-sans),sans-serif;font-size:13px;font-weight:800;letter-spacing:0.08px;cursor:pointer;box-shadow:0 12px 28px rgba(28,40,20,0.09),inset 0 1px 0 rgba(255,255,255,0.9);transition:transform 0.22s ease,box-shadow 0.22s ease,border-color 0.22s ease,color 0.22s ease;white-space:nowrap;}
 .lsb-btn:hover{transform:translateY(-1px);border-color:rgba(176,136,64,0.46);box-shadow:0 16px 34px rgba(28,40,20,0.12),inset 0 1px 0 rgba(255,255,255,0.94);color:#1A2614;}
 /* Landing stats/marketplace strip mobile behavior is consolidated into a single
    authoritative ruleset further below (search: "AUTHORITATIVE lsb mobile"). The
@@ -10290,7 +10277,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .testimonial-card{}
 .land-section{padding:80px 48px;max-width:1100px;margin:0 auto;}
 .land-section-eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold-text);margin-bottom:12px;text-align:center;display:block;}
-.land-section-title{font-family:'Playfair Display',serif;font-size:38px;font-weight:700;color:var(--navy);text-align:center;margin:0 0 12px;letter-spacing:-0.5px;line-height:1.1;}
+.land-section-title{font-family:var(--font-display),serif;font-size:38px;font-weight:700;color:var(--navy);text-align:center;margin:0 0 12px;letter-spacing:-0.5px;line-height:1.1;}
 .land-section-sub{font-size:16px;color:var(--text-muted);text-align:center;font-weight:400;max-width:520px;margin:0 auto 48px;line-height:1.7;}
 .land-cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
 .land-cat-card{background:white;padding:32px 28px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;border:none;}
@@ -10302,13 +10289,13 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .land-cat-card:hover .cat-line{background:var(--gold-light);}
 .land-cat-card-inner{position:relative;z-index:1;}
 .cat-line{width:24px;height:2px;background:var(--navy);margin-bottom:20px;transition:background 0.3s;}
-.cat-label-text{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px;line-height:1.3;transition:color 0.3s;}
+.cat-label-text{font-family:var(--font-display),serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px;line-height:1.3;transition:color 0.3s;}
 .cat-count-text{font-size:11px;color:var(--text-muted);font-weight:500;letter-spacing:0.5px;transition:color 0.3s;}
 .cat-arrow{position:absolute;top:32px;right:28px;font-size:18px;color:var(--gold-light);opacity:0;transform:translateX(-8px);transition:all 0.3s;}
 .land-hiw{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:0;}
 .land-hiw-card{background:white;border-radius:16px;border:1px solid var(--border);padding:28px 24px;}
-.land-hiw-num{width:36px;height:36px;border-radius:9px;background:var(--navy);color:var(--gold-light);font-family:'Playfair Display',serif;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
-.land-hiw-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--navy);margin-bottom:8px;}
+.land-hiw-num{width:36px;height:36px;border-radius:9px;background:var(--navy);color:var(--gold-light);font-family:var(--font-display),serif;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.land-hiw-title{font-family:var(--font-display),serif;font-size:18px;font-weight:600;color:var(--navy);margin-bottom:8px;}
 .land-hiw-sub{font-size:13px;color:var(--text-muted);line-height:1.6;font-weight:400;}
 .land-footer{background-color:#1C2814;background-image:var(--clay-bg);background-size:cover;background-position:center;padding:40px 48px 100px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
 .land-footer-copy{font-size:13px;color:rgba(255,255,255,0.35);}
@@ -10317,7 +10304,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .auth-shell{min-height:100vh;background:var(--cream);display:flex;align-items:center;justify-content:center;padding:40px 20px;}
 .auth-box{background:white;border-radius:20px;border:1px solid var(--border);width:100%;max-width:480px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.08);}
 .auth-hd{background-color:#fffdf8;padding:28px 32px;border-bottom:1px solid rgba(28,40,20,0.09);}
-.auth-hd-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#1C2814;margin-bottom:4px;}
+.auth-hd-title{font-family:var(--font-display),serif;font-size:22px;font-weight:700;color:#1C2814;margin-bottom:4px;}
 .auth-hd-sub{font-size:13px;color:rgba(28,40,20,0.50);font-weight:400;}
 .auth-body{padding:28px 32px;}
 .role-select-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
@@ -10328,11 +10315,11 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .role-option-label{font-size:14px;font-weight:700;color:var(--navy);}
 .role-option-sub{font-size:11px;color:var(--text-muted);margin-top:3px;}
 .auth-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--text-muted);}
-.auth-switch button{background:none;border:none;color:var(--gold);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;}
+.auth-switch button{background:none;border:none;color:var(--gold);font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;font-size:13px;}
 .step-bar{display:flex;align-items:center;gap:0;margin:0 0 32px;padding:0;}
 .step-item{display:flex;align-items:center;flex:1;}
 .step-item:last-child{flex:0;}
-.step-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);border:2px solid var(--cream-dark);color:var(--text-muted);background:white;font-family:'DM Mono',monospace;letter-spacing:-0.5px;}
+.step-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);border:2px solid var(--cream-dark);color:var(--text-muted);background:white;font-family:var(--font-sans),monospace;letter-spacing:-0.5px;}
 .step-circle.active{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 0 0 5px rgba(42,53,32,0.12),0 4px 12px rgba(42,53,32,0.2);transform:scale(1.08);}
 .step-circle.done{background:var(--navy);border-color:var(--navy);color:var(--gold-light);}
 .step-label{font-size:10px;font-weight:700;color:var(--text-muted);margin-left:9px;white-space:nowrap;letter-spacing:0.8px;text-transform:uppercase;}
@@ -10352,17 +10339,17 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pp-step-card{background:white;border:1px solid var(--card-border);border-radius:20px;box-shadow:0 2px 20px rgba(42,53,32,0.06),0 1px 4px rgba(42,53,32,0.04);overflow:hidden;animation:fadeUp 0.28s ease;}
 .pp-card-head{padding:32px 36px 24px;border-bottom:1px solid var(--border);}
 .pp-card-head-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
-.pp-card-head-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;line-height:1.15;}
+.pp-card-head-title{font-family:var(--font-display),serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;line-height:1.15;}
 .pp-card-head-sub{font-size:13px;color:var(--text-muted);margin-top:7px;line-height:1.55;font-weight:400;}
 .pp-card-body{padding:32px 36px;}
 .pp-section{margin-bottom:32px;}
 .pp-section:last-child{margin-bottom:0;}
 .pp-label{font-size:10px;font-weight:700;color:var(--text-mid);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;display:block;}
 .pp-helper{font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.5;font-weight:400;}
-.pp-input{width:100%;padding:13px 16px;border-radius:10px;border:1.5px solid var(--border);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:white;outline:none;transition:border-color 0.18s,box-shadow 0.18s;box-sizing:border-box;}
+.pp-input{width:100%;padding:13px 16px;border-radius:10px;border:1.5px solid var(--border);font-family:var(--font-sans),sans-serif;font-size:14px;color:var(--text);background:white;outline:none;transition:border-color 0.18s,box-shadow 0.18s;box-sizing:border-box;}
 .pp-input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(42,53,32,0.07);}
 .pp-input::placeholder{color:var(--text-muted);}
-.pp-textarea{width:100%;padding:13px 16px;border-radius:10px;border:1.5px solid var(--border);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:white;outline:none;resize:vertical;transition:border-color 0.18s,box-shadow 0.18s;box-sizing:border-box;line-height:1.65;min-height:140px;}
+.pp-textarea{width:100%;padding:13px 16px;border-radius:10px;border:1.5px solid var(--border);font-family:var(--font-sans),sans-serif;font-size:14px;color:var(--text);background:white;outline:none;resize:vertical;transition:border-color 0.18s,box-shadow 0.18s;box-sizing:border-box;line-height:1.65;min-height:140px;}
 .pp-textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(42,53,32,0.07);}
 .pp-textarea::placeholder{color:var(--text-muted);}
 .pp-char-count{font-size:11px;color:var(--text-muted);text-align:right;margin-top:5px;}
@@ -10370,7 +10357,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pp-cat-card{padding:13px 16px;border-radius:11px;border:1.5px solid var(--border);background:white;cursor:pointer;transition:all 0.16s;display:flex;align-items:center;gap:12px;}
 .pp-cat-card:hover{border-color:rgba(42,53,32,0.3);background:var(--cream);}
 .pp-cat-card.sel{border-color:var(--navy);background:var(--cream);box-shadow:inset 0 0 0 1px var(--navy);}
-.pp-cat-sym{width:32px;height:32px;border-radius:8px;background:var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--navy);flex-shrink:0;font-family:'DM Mono',monospace;}
+.pp-cat-sym{width:32px;height:32px;border-radius:8px;background:var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--navy);flex-shrink:0;font-family:var(--font-sans),monospace;}
 .pp-cat-card.sel .pp-cat-sym{background:var(--navy);color:var(--gold-light);}
 .pp-cat-label{font-size:12px;font-weight:600;color:var(--navy);line-height:1.3;}
 .pp-cat-desc{font-size:10px;color:var(--text-muted);margin-top:2px;line-height:1.4;}
@@ -10384,7 +10371,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pp-format-opt.sel .pp-format-radio-dot{display:block;}
 .pp-format-text{font-size:13px;font-weight:600;color:var(--navy);}
 .pp-format-sub{font-size:11px;color:var(--text-muted);margin-top:1px;font-weight:400;}
-.pp-tpl-toggle{display:flex;align-items:center;gap:9px;padding:11px 18px;background:var(--cream);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-mid);font-family:'DM Sans',sans-serif;transition:all 0.16s;width:100%;text-align:left;margin-bottom:8px;}
+.pp-tpl-toggle{display:flex;align-items:center;gap:9px;padding:11px 18px;background:var(--cream);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-mid);font-family:var(--font-sans),sans-serif;transition:all 0.16s;width:100%;text-align:left;margin-bottom:8px;}
 .pp-tpl-toggle:hover{border-color:var(--navy);color:var(--navy);}
 .pp-tpl-toggle.open{border-color:var(--navy);color:var(--navy);background:white;}
 .pp-tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:20px;animation:fadeUp 0.2s ease;}
@@ -10394,7 +10381,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pp-tpl-cat{font-size:10px;color:var(--text-muted);margin-bottom:8px;}
 .pp-tpl-pills{display:flex;gap:5px;flex-wrap:wrap;}
 .pp-tpl-pill{padding:2px 8px;border-radius:100px;background:var(--cream-dark);font-size:9px;font-weight:600;color:var(--text-muted);}
-.pp-optional-toggle{display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--text-muted);padding:0;margin-top:4px;transition:color 0.15s;}
+.pp-optional-toggle{display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;font-family:var(--font-sans),sans-serif;font-size:12px;font-weight:600;color:var(--text-muted);padding:0;margin-top:4px;transition:color 0.15s;}
 .pp-optional-toggle:hover{color:var(--navy);}
 .pp-optional-body{padding-top:20px;border-top:1px solid var(--border);margin-top:20px;animation:fadeUp 0.2s ease;}
 .pp-radio-list{display:flex;flex-direction:column;gap:6px;}
@@ -10407,7 +10394,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pp-radio-opt.sel .pp-radio-inner{display:block;}
 .pp-radio-label{font-size:13px;font-weight:600;color:var(--navy);}
 .pp-radio-sub{font-size:11px;color:var(--text-muted);margin-top:1px;font-weight:400;}
-.pp-radio-right{margin-left:auto;font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);}
+.pp-radio-right{margin-left:auto;font-family:var(--font-sans),monospace;font-size:12px;color:var(--text-muted);}
 .pp-budget-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .pp-urgent-row{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:11px;border:1.5px solid var(--border);cursor:pointer;transition:all 0.18s;background:white;}
 .pp-urgent-row:hover{border-color:rgba(42,53,32,0.3);}
@@ -10430,31 +10417,31 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 /* ── POST PROJECT V2 // refined, calm, restrained ── */
 .ppv2-page{max-width:620px;margin:0 auto;padding:40px 24px 120px;}
 .ppv2-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;}
-.ppv2-back{background:none;border:none;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;}
+.ppv2-back{background:none;border:none;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:var(--font-sans),sans-serif;padding:0;}
 .ppv2-back:hover{color:var(--navy);}
 .ppv2-progress{display:flex;align-items:center;gap:6px;}
 .ppv2-dot{width:5px;height:5px;border-radius:50%;background:rgba(20,21,24,0.10);transition:all 0.3s;}
 .ppv2-dot.done{background:var(--navy);}
 .ppv2-dot.active{background:var(--navy);transform:scale(1.6);}
-.ppv2-saved{font-size:11px;color:var(--text-muted);font-family:'DM Sans',sans-serif;}
+.ppv2-saved{font-size:11px;color:var(--text-muted);font-family:var(--font-sans),sans-serif;}
 
 /* Hero phase */
-.ppv2-prompt{font-family:'Playfair Display',serif;font-size:32px;font-weight:500;color:var(--navy);letter-spacing:-0.6px;line-height:1.2;margin-bottom:8px;}
+.ppv2-prompt{font-family:var(--font-display),serif;font-size:32px;font-weight:500;color:var(--navy);letter-spacing:-0.6px;line-height:1.2;margin-bottom:8px;}
 .ppv2-prompt-sub{font-size:14px;color:var(--text-muted);font-weight:400;margin-bottom:36px;line-height:1.5;}
-.ppv2-bigtext{width:100%;padding:14px 0 12px;border:none;border-bottom:1.5px solid var(--border);font-family:'DM Sans',sans-serif;font-size:18px;color:var(--text);background:transparent;outline:none;resize:none;line-height:1.55;transition:border-color 0.2s;box-sizing:border-box;font-weight:400;overflow:hidden;}
+.ppv2-bigtext{width:100%;padding:14px 0 12px;border:none;border-bottom:1.5px solid var(--border);font-family:var(--font-sans),sans-serif;font-size:18px;color:var(--text);background:transparent;outline:none;resize:none;line-height:1.55;transition:border-color 0.2s;box-sizing:border-box;font-weight:400;overflow:hidden;}
 .ppv2-bigtext:focus{border-bottom-color:var(--navy);}
 .ppv2-bigtext::placeholder{color:var(--text-muted);font-weight:400;}
 .ppv2-example-line{margin-top:14px;font-size:13px;color:var(--text-muted);font-style:italic;font-weight:400;line-height:1.5;cursor:pointer;transition:color 0.18s;}
 .ppv2-example-line:hover{color:var(--navy);}
 .ppv2-onramps{display:flex;gap:24px;margin-top:36px;flex-wrap:wrap;}
-.ppv2-onramp{background:none;border:none;font-size:12.5px;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;}
+.ppv2-onramp{background:none;border:none;font-size:12.5px;color:var(--text-muted);cursor:pointer;font-family:var(--font-sans),sans-serif;padding:0;}
 .ppv2-onramp:hover{color:var(--navy);}
-.ppv2-go-btn{margin-top:24px;padding:12px 24px;border-radius:100px;border:none;background:var(--navy);color:var(--gold-light);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.ppv2-go-btn{margin-top:24px;padding:12px 24px;border-radius:100px;border:none;background:var(--navy);color:var(--gold-light);font-family:var(--font-sans),sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
 .ppv2-go-btn:hover:not(:disabled){background:#0f1808;}
 .ppv2-go-btn:disabled{opacity:0.35;cursor:not-allowed;}
 
 /* Title (questions phase) */
-.ppv2-title{width:100%;padding:8px 0;border:none;background:transparent;outline:none;font-family:'Playfair Display',serif;font-size:26px;font-weight:500;letter-spacing:-0.5px;color:var(--navy);line-height:1.25;border-bottom:1px solid transparent;transition:border-color 0.2s;margin-bottom:24px;}
+.ppv2-title{width:100%;padding:8px 0;border:none;background:transparent;outline:none;font-family:var(--font-display),serif;font-size:26px;font-weight:500;letter-spacing:-0.5px;color:var(--navy);line-height:1.25;border-bottom:1px solid transparent;transition:border-color 0.2s;margin-bottom:24px;}
 .ppv2-title:hover{border-bottom-color:var(--border);}
 .ppv2-title:focus{border-bottom-color:var(--navy);}
 .ppv2-title::placeholder{color:var(--text-muted);font-weight:400;font-style:italic;}
@@ -10473,30 +10460,30 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 
 /* Active question — quiet cream wash, no border */
 .ppv2-active{margin-top:32px;padding:22px 24px;background:var(--cream);border-radius:16px;}
-.ppv2-active-q{font-family:'Playfair Display',serif;font-size:21px;font-weight:500;color:var(--navy);letter-spacing:-0.4px;line-height:1.25;margin-bottom:4px;}
+.ppv2-active-q{font-family:var(--font-display),serif;font-size:21px;font-weight:500;color:var(--navy);letter-spacing:-0.4px;line-height:1.25;margin-bottom:4px;}
 .ppv2-active-context{font-size:12.5px;color:var(--text-muted);font-weight:400;margin-bottom:18px;line-height:1.5;}
 .ppv2-chips{display:flex;flex-wrap:wrap;gap:7px;}
-.ppv2-c{padding:9px 16px;border-radius:100px;border:1px solid var(--border);background:white;font-size:12.5px;font-weight:500;color:var(--navy);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.ppv2-c{padding:9px 16px;border-radius:100px;border:1px solid var(--border);background:white;font-size:12.5px;font-weight:500;color:var(--navy);cursor:pointer;transition:all 0.15s;font-family:var(--font-sans),sans-serif;}
 .ppv2-c:hover{border-color:var(--navy);}
 .ppv2-c.sel{background:var(--navy);color:var(--gold-light);border-color:var(--navy);}
-.ppv2-c.mono{font-family:'DM Mono',monospace;letter-spacing:-0.2px;}
+.ppv2-c.mono{font-family:var(--font-sans),monospace;letter-spacing:-0.2px;}
 
 /* Publish */
 .ppv2-publish-wrap{margin-top:48px;animation:fadeUp 0.4s ease;}
-.ppv2-publish{width:100%;padding:18px;border-radius:14px;border:none;background:var(--navy);color:var(--gold-light);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;}
+.ppv2-publish{width:100%;padding:18px;border-radius:14px;border:none;background:var(--navy);color:var(--gold-light);font-family:var(--font-sans),sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;}
 .ppv2-publish:hover{background:#0f1808;transform:translateY(-1px);}
 .ppv2-publish-note{text-align:center;font-size:11.5px;color:var(--text-muted);margin-top:10px;font-weight:400;}
-.ppv2-more-link{display:block;margin-top:24px;background:none;border:none;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;text-align:center;width:100%;}
+.ppv2-more-link{display:block;margin-top:24px;background:none;border:none;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:var(--font-sans),sans-serif;padding:0;text-align:center;width:100%;}
 .ppv2-more-link:hover{color:var(--navy);}
 .ppv2-more-body{margin-top:24px;padding-top:24px;border-top:1px solid var(--border);animation:fadeUp 0.3s ease;}
 .ppv2-more-section{margin-bottom:24px;}
 .ppv2-more-section:last-child{margin-bottom:0;}
 .ppv2-more-label{font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:400;}
-.ppv2-more-input{width:100%;padding:10px 0;border:none;border-bottom:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--text);background:transparent;outline:none;resize:vertical;box-sizing:border-box;font-weight:400;line-height:1.55;}
+.ppv2-more-input{width:100%;padding:10px 0;border:none;border-bottom:1px solid var(--border);font-family:var(--font-sans),sans-serif;font-size:13.5px;color:var(--text);background:transparent;outline:none;resize:vertical;box-sizing:border-box;font-weight:400;line-height:1.55;}
 .ppv2-more-input:focus{border-bottom-color:var(--navy);}
 .ppv2-skill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:100px;background:var(--cream);font-size:12px;color:var(--navy);margin:0 4px 4px 0;font-weight:500;}
 .ppv2-skill button{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;line-height:1;padding:0;}
-.ppv2-skill-sug{padding:6px 12px;border-radius:100px;border:1px dashed rgba(20,21,24,0.18);background:white;font-size:12px;color:var(--text-mid);cursor:pointer;font-family:'DM Sans',sans-serif;margin:0 4px 4px 0;font-weight:500;}
+.ppv2-skill-sug{padding:6px 12px;border-radius:100px;border:1px dashed rgba(20,21,24,0.18);background:white;font-size:12px;color:var(--text-mid);cursor:pointer;font-family:var(--font-sans),sans-serif;margin:0 4px 4px 0;font-weight:500;}
 .ppv2-skill-sug:hover{border-style:solid;border-color:var(--navy);color:var(--navy);}
 
 /* Stagger reveal // the magic moment */
@@ -10506,7 +10493,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 /* Template overlay */
 .ppv2-overlay{position:fixed;inset:0;background:rgba(20,21,24,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeUp 0.2s ease;}
 .ppv2-overlay-card{background:white;border-radius:20px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;padding:36px 36px 32px;}
-.ppv2-overlay-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:500;color:var(--navy);margin-bottom:6px;letter-spacing:-0.4px;}
+.ppv2-overlay-title{font-family:var(--font-display),serif;font-size:22px;font-weight:500;color:var(--navy);margin-bottom:6px;letter-spacing:-0.4px;}
 .ppv2-overlay-sub{font-size:12.5px;color:var(--text-muted);margin-bottom:24px;font-weight:400;}
 .ppv2-overlay-list{display:grid;gap:8px;}
 .ppv2-overlay-item{padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:white;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:space-between;gap:14px;text-align:left;}
@@ -10514,8 +10501,8 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .ppv2-overlay-item-main{display:flex;align-items:center;gap:12px;min-width:0;}
 .ppv2-overlay-item-icon{font-size:16px;}
 .ppv2-overlay-item-label{font-size:13.5px;font-weight:600;color:var(--navy);}
-.ppv2-overlay-item-meta{font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:-0.2px;flex-shrink:0;}
-.ppv2-overlay-close{margin-top:20px;background:none;border:none;font-size:12.5px;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;}
+.ppv2-overlay-item-meta{font-size:11px;color:var(--text-muted);font-family:var(--font-sans),monospace;letter-spacing:-0.2px;flex-shrink:0;}
+.ppv2-overlay-close{margin-top:20px;background:none;border:none;font-size:12.5px;color:var(--text-muted);cursor:pointer;font-family:var(--font-sans),sans-serif;padding:0;}
 .ppv2-overlay-close:hover{color:var(--navy);}
 
 @media(max-width:640px){
@@ -10560,13 +10547,13 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .screen-header-bg{display:none;}
 /* screen-header-content defined with screen-header above */
 .screen-header-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(28,40,20,0.40);margin-bottom:4px;}
-.screen-header-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#1C2814;letter-spacing:-0.4px;margin-bottom:2px;line-height:1.1;}
+.screen-header-title{font-family:var(--font-display),serif;font-size:22px;font-weight:700;color:#1C2814;letter-spacing:-0.4px;margin-bottom:2px;line-height:1.1;}
 .screen-header-sub{font-size:12px;color:rgba(28,40,20,0.50);font-weight:400;line-height:1.4;max-width:520px;margin:0 auto;}
 .screen-header-actions{display:flex;justify-content:center;gap:10px;margin-top:10px;}
 /* ── PROJECT TAB SWITCHER (Browse / My Projects / My Work) ── */
 .proj-tab-bar{background-color:#fffdf8;background-image:none;border-bottom:1px solid rgba(28,40,20,0.09);}
 .proj-tab-bar-inner{max-width:1140px;margin:0 auto;padding:0 32px;display:flex;gap:0;}
-.proj-tab-btn{padding:14px 22px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(28,40,20,0.45);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;letter-spacing:0.2px;}
+.proj-tab-btn{padding:14px 22px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(28,40,20,0.45);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.2s;letter-spacing:0.2px;}
 .proj-tab-btn.active{color:#1C2814;font-weight:700;border-bottom-color:#1C2814;}
 .proj-tab-btn:hover:not(.active){color:rgba(28,40,20,0.75);}
 /* Profile-style headers (avatar + tabs) // allow natural height */
@@ -10592,13 +10579,13 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .workspace-shell-copy{flex:1;min-width:280px;max-width:760px;}
 .workspace-shell-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(53,81,58,0.08);border:1px solid rgba(53,81,58,0.08);font-size:10px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#35513a;margin-bottom:14px;}
 .workspace-shell-eyebrow-dot{width:6px;height:6px;border-radius:999px;background:currentColor;opacity:0.9;flex-shrink:0;}
-.workspace-shell-title{font-family:'Newsreader', Georgia, serif;font-size:clamp(34px,4vw,48px);line-height:0.98;letter-spacing:-0.045em;font-weight:400;color:#141518;margin:0 0 10px;max-width:14ch;}
+.workspace-shell-title{font-family:var(--font-display), serif;font-size:clamp(34px,4vw,48px);line-height:0.98;letter-spacing:-0.045em;font-weight:400;color:#141518;margin:0 0 10px;max-width:14ch;}
 .workspace-shell-sub{font-size:14px;line-height:1.72;color:#6b6d75;max-width:700px;margin:0;}
 .workspace-shell-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end;}
 /* [REMOVED] .workspace-shell-actions .btn-* height:46px — 0 live JSX uses (workspace-shell-hero was dead CSS) */
 .workspace-shell-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
 .workspace-shell-stat{background:rgba(248,246,240,0.9);border:1px solid rgba(20,21,24,0.06);border-radius:16px;padding:14px 16px;display:grid;gap:5px;min-height:72px;align-content:center;}
-.workspace-shell-stat-value{font-family:'Newsreader', Georgia, serif;font-size:31px;letter-spacing:-0.045em;line-height:1;color:#141518;}
+.workspace-shell-stat-value{font-family:var(--font-display), serif;font-size:31px;letter-spacing:-0.045em;line-height:1;color:#141518;}
 .workspace-shell-stat-label{font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#a3a5ad;line-height:1.45;}
 .workspace-shell-stat-sub{font-size:12px;line-height:1.55;color:#6b6d75;}
 .workspace-surface-header{margin-bottom:18px;padding:26px 28px 22px;border-radius:26px;border:1px solid rgba(20,21,24,0.06);background:linear-gradient(180deg,rgba(255,255,255,0.98) 0%,rgba(248,246,240,0.98) 100%);box-shadow:0 8px 24px rgba(16,24,40,0.05);}
@@ -10608,7 +10595,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 /* [REMOVED] .workspace-surface-header-actions .btn-* height:46px — only inside dead WorkspaceSurfaceHeader component */
 .workspace-surface-header-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
 .workspace-surface-header-pill{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border-radius:999px;border:1px solid rgba(20,21,24,0.08);background:rgba(255,255,255,0.88);font-size:11px;font-weight:700;color:#5f626c;}
-.workspace-surface-header-pill strong{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.01em;color:#141518;font-weight:700;}
+.workspace-surface-header-pill strong{font-family:var(--font-sans),monospace;font-size:10px;letter-spacing:0.01em;color:#141518;font-weight:700;}
 .workspace-body-shell{display:grid;gap:18px;}
 .marketplace-body-shell{gap:14px;}
 .workspace-body-shell > .page{padding-top:0!important;}
@@ -10686,7 +10673,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   display:inline-flex;
   align-items:center;
   gap:7px;
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
   letter-spacing:.005em!important;
   white-space:nowrap!important;
   transition:color .15s ease,opacity .15s ease;
@@ -10705,7 +10692,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   box-shadow:0 -1px 9px rgba(201,154,53,.24)!important;
 }
 .kb-header-tab-count{
-  font-family:'DM Mono',monospace;
+  font-family:var(--font-sans),monospace;
   font-size:9.5px!important;
   font-weight:800!important;
   color:rgba(28,40,20,.45)!important;
@@ -10724,7 +10711,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .kb-header-search input:focus{border-color:rgba(196,151,58,0.44);background:#fff;box-shadow:0 0 0 3px rgba(196,151,58,0.12);}
 .kb-header-search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:6px;border:none;background:transparent;color:rgba(28,40,20,0.50);cursor:pointer;font-size:14px;line-height:1;}
 .kb-header-search-clear:hover{color:#1C2814;background:rgba(28,40,20,0.06);}
-.kb-header-sort{height:30px!important;padding:0 11px;border-radius:8px;border:1px solid rgba(28,40,20,0.12);background:#FFFDF8!important;font-size:11.5px;font-weight:600;color:#1C2814;cursor:pointer;font-family:'DM Sans',sans-serif;outline:none;}
+.kb-header-sort{height:30px!important;padding:0 11px;border-radius:8px;border:1px solid rgba(28,40,20,0.12);background:#FFFDF8!important;font-size:11.5px;font-weight:600;color:#1C2814;cursor:pointer;font-family:var(--font-sans),sans-serif;outline:none;}
 .kb-header-sort:hover{border-color:rgba(196,151,58,0.34);background:#fff;}
 .kb-header-sort option{background:#fff;color:#1C2814;}
 
@@ -10735,11 +10722,11 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .kb-masthead{padding:0!important;width:100%;position:relative;z-index:1;}
 .kb-masthead-row-top{display:flex;align-items:center!important;justify-content:flex-start;gap:18px!important;flex-wrap:nowrap!important;text-align:left;min-height:38px!important;width:100%;}
 .kb-masthead-title-wrap{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important;min-width:0!important;flex:1 1 auto!important;max-width:none!important;text-align:left;}
-.kb-masthead-headline{font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:25px!important;line-height:1!important;letter-spacing:-0.04em!important;font-weight:700!important;color:#FFFDF6!important;margin:0!important;white-space:nowrap!important;text-shadow:0 1px 0 rgba(0,0,0,.14)!important;overflow:visible!important;}
-.kb-masthead-descriptor{font-family:'DM Sans',sans-serif;font-style:normal;font-size:12.2px!important;line-height:1.2!important;color:rgba(255,253,246,.74)!important;margin:0!important;padding-left:0!important;border-left:0!important;white-space:normal!important;letter-spacing:.01em!important;}
+.kb-masthead-headline{font-family:var(--font-display),serif;font-size:25px!important;line-height:1!important;letter-spacing:-0.04em!important;font-weight:700!important;color:#FFFDF6!important;margin:0!important;white-space:nowrap!important;text-shadow:0 1px 0 rgba(0,0,0,.14)!important;overflow:visible!important;}
+.kb-masthead-descriptor{font-family:var(--font-sans),sans-serif;font-style:normal;font-size:12.2px!important;line-height:1.2!important;color:rgba(255,253,246,.74)!important;margin:0!important;padding-left:0!important;border-left:0!important;white-space:normal!important;letter-spacing:.01em!important;}
 .kb-masthead-actions{display:flex;gap:14px!important;flex-wrap:nowrap!important;justify-content:flex-end;align-items:center!important;flex-shrink:0;margin-left:auto!important;}
 .kb-masthead-actions::before{content:'';width:1px;height:30px;background:rgba(212,185,120,.32);display:block;margin-right:2px;}
-.kb-masthead-btn{height:34px!important;padding:0 15px!important;border-radius:7px!important;font-size:12px!important;font-weight:800!important;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;letter-spacing:.01em!important;white-space:nowrap;transition:transform 0.15s ease,background 0.18s ease,border-color 0.18s ease,color 0.18s ease,box-shadow 0.2s ease;box-shadow:none!important;}
+.kb-masthead-btn{height:34px!important;padding:0 15px!important;border-radius:7px!important;font-size:12px!important;font-weight:800!important;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-family:var(--font-sans),sans-serif;letter-spacing:.01em!important;white-space:nowrap;transition:transform 0.15s ease,background 0.18s ease,border-color 0.18s ease,color 0.18s ease,box-shadow 0.2s ease;box-shadow:none!important;}
 .kb-masthead-btn.is-primary{background:linear-gradient(180deg,#E7C76E 0%,#CFA64D 100%)!important;border:1px solid rgba(255,238,180,.55)!important;color:#102416!important;box-shadow:0 10px 22px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.38)!important;}
 .kb-masthead-btn.is-primary:hover{transform:translateY(-1px)!important;background:linear-gradient(180deg,#F0D27F 0%,#D4AD59 100%)!important;border-color:rgba(255,238,180,.72)!important;box-shadow:0 12px 24px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.42)!important;}
 .kb-masthead-btn.is-secondary{background:transparent!important;border:0!important;border-radius:0!important;color:#FFFDF6!important;padding:0 2px!important;box-shadow:none!important;opacity:.92;}
@@ -10790,11 +10777,11 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.055),inset 0 -24px 34px rgba(0,0,0,.08)!important;
 }
 .kb737-titleblock{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;text-align:left;}
-.kb737-title{margin:0!important;font-family:'Playfair Display','Newsreader',Georgia,serif!important;font-size:29px!important;line-height:1!important;font-weight:600!important;letter-spacing:-.035em!important;color:#FFFDF6!important;text-shadow:0 1px 0 rgba(0,0,0,.14)!important;white-space:nowrap!important;}
-.kb737-subtitle{font-family:'DM Sans',Inter,system-ui,sans-serif!important;font-size:13px!important;line-height:1.22!important;font-weight:400!important;color:rgba(255,253,246,.76)!important;letter-spacing:.01em!important;white-space:nowrap!important;}
+.kb737-title{margin:0!important;font-family:var(--font-display),serif!important;font-size:29px!important;line-height:1!important;font-weight:600!important;letter-spacing:-.035em!important;color:#FFFDF6!important;text-shadow:0 1px 0 rgba(0,0,0,.14)!important;white-space:nowrap!important;}
+.kb737-subtitle{font-family:var(--font-sans),system-ui,sans-serif!important;font-size:13px!important;line-height:1.22!important;font-weight:400!important;color:rgba(255,253,246,.76)!important;letter-spacing:.01em!important;white-space:nowrap!important;}
 .kb737-actions{display:flex;align-items:center;justify-content:flex-end;gap:20px;flex-shrink:0;margin-left:auto;}
 .kb737-actions::before{content:'';width:1px;height:46px;background:rgba(212,185,120,.30);display:block;margin-right:10px;}
-.kb737-action{height:42px;border-radius:9px;border:0;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 24px;font-family:'DM Sans',Inter,system-ui,sans-serif;font-size:14px;font-weight:800;letter-spacing:.015em;cursor:pointer;white-space:nowrap;transition:transform .15s ease,box-shadow .18s ease,background .18s ease,color .18s ease,border-color .18s ease;}
+.kb737-action{height:42px;border-radius:9px;border:0;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 24px;font-family:var(--font-sans),system-ui,sans-serif;font-size:14px;font-weight:800;letter-spacing:.015em;cursor:pointer;white-space:nowrap;transition:transform .15s ease,box-shadow .18s ease,background .18s ease,color .18s ease,border-color .18s ease;}
 .kb737-action.is-primary{background:linear-gradient(180deg,#E7C76E 0%,#CFA64D 100%);border:1px solid rgba(255,238,180,.55);color:#102416;box-shadow:0 10px 22px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.38);}
 .kb737-action.is-primary:hover{transform:translateY(-1px);background:linear-gradient(180deg,#F0D27F 0%,#D4AD59 100%);}
 .kb737-action.is-secondary{background:transparent;color:#FFFDF6;border:0;box-shadow:none;padding:0 4px;opacity:.94;}
@@ -10810,20 +10797,20 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.78)!important;
 }
 .kb737-tabs{display:flex;align-items:center;gap:22px;min-height:36px;flex-wrap:nowrap;}
-.kb737-tab{position:relative;height:36px;padding:0;border:0;background:transparent;display:inline-flex;align-items:center;gap:8px;font-family:'DM Sans',Inter,system-ui,sans-serif;font-size:15px;font-weight:800;color:rgba(28,40,20,.58);cursor:pointer;white-space:nowrap;letter-spacing:.005em;}
+.kb737-tab{position:relative;height:36px;padding:0;border:0;background:transparent;display:inline-flex;align-items:center;gap:8px;font-family:var(--font-sans),system-ui,sans-serif;font-size:15px;font-weight:800;color:rgba(28,40,20,.58);cursor:pointer;white-space:nowrap;letter-spacing:.005em;}
 .kb737-tab:hover{color:#1C2814;}
 .kb737-tab.active{font-weight:800;color:#102416;}
 .kb737-tab.active::after{content:'';position:absolute;left:0;right:0;bottom:-10px;height:2px;background:#C99A35;border-radius:2px 2px 0 0;box-shadow:0 -1px 9px rgba(201,154,53,.24);}
-.kb737-tab-count{font-family:'DM Mono',monospace;font-size:10px;font-weight:800;color:rgba(28,40,20,.45);background:rgba(28,40,20,.055);padding:2px 7px;border-radius:999px;line-height:1.5;}
+.kb737-tab-count{font-family:var(--font-sans),monospace;font-size:10px;font-weight:800;color:rgba(28,40,20,.45);background:rgba(28,40,20,.055);padding:2px 7px;border-radius:999px;line-height:1.5;}
 .kb737-tab.active .kb737-tab-count{color:#1C2814;background:rgba(201,154,53,.20);}
 .kb737-tools{display:flex;align-items:center;gap:12px;min-width:0;}
 .kb737-search{position:relative;width:340px;max-width:100%;}
 .kb737-search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none;color:rgba(28,40,20,.40);}
-.kb737-search input{height:42px;width:100%;padding:0 36px 0 39px;border-radius:8px;border:1px solid rgba(28,40,20,.12);background:#FFFDF8;font-size:14px;color:#1C2814;font-family:'DM Sans',Inter,system-ui,sans-serif;outline:none;box-sizing:border-box;transition:border-color .15s,background .15s,box-shadow .15s;}
+.kb737-search input{height:42px;width:100%;padding:0 36px 0 39px;border-radius:8px;border:1px solid rgba(28,40,20,.12);background:#FFFDF8;font-size:14px;color:#1C2814;font-family:var(--font-sans),system-ui,sans-serif;outline:none;box-sizing:border-box;transition:border-color .15s,background .15s,box-shadow .15s;}
 .kb737-search input::placeholder{color:rgba(28,40,20,.38);}
 .kb737-search input:focus{border-color:rgba(196,151,58,.44);background:#fff;box-shadow:0 0 0 3px rgba(196,151,58,.12);}
 .kb737-search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:6px;border:0;background:transparent;color:rgba(28,40,20,.50);cursor:pointer;font-size:15px;line-height:1;}
-.kb737-sort{height:42px;min-width:194px;padding:0 16px;border-radius:8px;border:1px solid rgba(28,40,20,.12);background:#FFFDF8;font-size:14px;font-weight:700;color:#1C2814;cursor:pointer;font-family:'DM Sans',Inter,system-ui,sans-serif;outline:none;}
+.kb737-sort{height:42px;min-width:194px;padding:0 16px;border-radius:8px;border:1px solid rgba(28,40,20,.12);background:#FFFDF8;font-size:14px;font-weight:700;color:#1C2814;cursor:pointer;font-family:var(--font-sans),system-ui,sans-serif;outline:none;}
 .kb737-sort:hover{border-color:rgba(196,151,58,.34);background:#fff;}
 @media(max-width:900px){
   .marketplace-command-shell.page,.myproj-command-shell.page{padding:24px 18px 54px!important;}
@@ -11091,7 +11078,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   color:#1C2814!important;
 }
 .kb-vendor-stat-chip span{
-  font-family:'DM Mono','JetBrains Mono',monospace!important;
+  font-family:var(--font-sans),monospace!important;
   font-size:8.5px!important;
   letter-spacing:.14em!important;
   text-transform:uppercase!important;
@@ -11123,8 +11110,8 @@ html.gpi-public-host-active body #kb-main-content>*>*{
    Uses existing featuredTrackRef + featuredClickSuppressRef. */
 .kb-strip{margin:0 28px 22px;}
 .kb-strip-eyebrow-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;padding:0 2px;}
-.kb-strip-eyebrow{font-size:10.5px;letter-spacing:0.28em;color:rgba(28,40,20,0.55);font-weight:600;text-transform:uppercase;font-family:'DM Sans',sans-serif;}
-.kb-strip-hint{font-size:11.5px;color:#A87B2A;font-style:italic;font-family:'Playfair Display',Georgia,serif;}
+.kb-strip-eyebrow{font-size:10.5px;letter-spacing:0.28em;color:rgba(28,40,20,0.55);font-weight:600;text-transform:uppercase;font-family:var(--font-sans),sans-serif;}
+.kb-strip-hint{font-size:11.5px;color:#A87B2A;font-style:italic;font-family:var(--font-display),serif;}
 .kb-strip-track-wrap{position:relative;}
 .kb-strip-track{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;cursor:grab;user-select:none;padding:6px 2px 8px;-webkit-overflow-scrolling:touch;}
 .kb-strip-track::-webkit-scrollbar{display:none;}
@@ -11136,16 +11123,16 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .kb-strip-track.has-pressed .kb-strip-card:not(.is-pressed){opacity:0.62;}
 .kb-strip-card-img{width:100%;height:108px;background:#f0ebe0;position:relative;overflow:hidden;flex-shrink:0;}
 .kb-strip-card-img img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;}
-.kb-strip-card-flag{position:absolute;top:7px;left:7px;background:rgba(255,253,247,0.95);font-size:8.5px;letter-spacing:0.14em;color:#A87B2A;padding:2.5px 6px;border-radius:3px;font-weight:700;text-transform:uppercase;font-family:'DM Sans',sans-serif;}
+.kb-strip-card-flag{position:absolute;top:7px;left:7px;background:rgba(255,253,247,0.95);font-size:8.5px;letter-spacing:0.14em;color:#A87B2A;padding:2.5px 6px;border-radius:3px;font-weight:700;text-transform:uppercase;font-family:var(--font-sans),sans-serif;}
 .kb-strip-card-flag.is-urgent{background:rgba(232,155,124,0.96);color:#5b1c0f;}
 .kb-strip-card-flag.is-bid{background:rgba(45,110,55,0.94);color:#fff;}
 .kb-strip-card-body{padding:8px 10px 10px;flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:6px;min-height:0;}
-.kb-strip-card-title{font-size:12px;line-height:1.25;font-weight:600;color:#1C2814;font-family:'DM Sans',sans-serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.kb-strip-card-budget{display:inline-block;background:#F6F1E8;color:#7A5C2E;font-size:10px;font-weight:700;padding:2.5px 7px;border-radius:4px;font-family:'DM Mono',monospace;letter-spacing:-0.01em;width:fit-content;}
+.kb-strip-card-title{font-size:12px;line-height:1.25;font-weight:600;color:#1C2814;font-family:var(--font-sans),sans-serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.kb-strip-card-budget{display:inline-block;background:#F6F1E8;color:#7A5C2E;font-size:10px;font-weight:700;padding:2.5px 7px;border-radius:4px;font-family:var(--font-sans),monospace;letter-spacing:-0.01em;width:fit-content;}
 .kb-strip-card-end{flex:0 0 152px;height:178px;background:linear-gradient(135deg,#fffdf8,#F6F1E8);border:1px dashed rgba(196,151,58,0.4);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#A87B2A;text-align:center;padding:14px;transition:transform 0.18s ease,background 0.2s ease;}
 .kb-strip-card-end:hover{transform:scale(1.02);background:linear-gradient(135deg,#fffdf8,#f0e6cf);}
-.kb-strip-card-end-label{font-size:11px;letter-spacing:0.18em;color:#A87B2A;font-weight:700;text-transform:uppercase;font-family:'DM Sans',sans-serif;}
-.kb-strip-card-end-text{font-family:'Playfair Display',Georgia,serif;font-size:17px;line-height:1.15;color:#1C2814;font-weight:500;font-style:italic;}
+.kb-strip-card-end-label{font-size:11px;letter-spacing:0.18em;color:#A87B2A;font-weight:700;text-transform:uppercase;font-family:var(--font-sans),sans-serif;}
+.kb-strip-card-end-text{font-family:var(--font-display),serif;font-size:17px;line-height:1.15;color:#1C2814;font-weight:500;font-style:italic;}
 @media(max-width:760px){
   .kb-strip{margin:0 14px 18px;}
   .kb-strip-card{flex:0 0 142px;height:170px;}
@@ -11197,7 +11184,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 }
 
 /* Header button variant for white headers */
-.btn-header{padding:10px 22px;background:var(--gold-light);color:var(--navy);border-radius:9px;font-size:12px;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;letter-spacing:0.3px;box-shadow:0 4px 16px rgba(232,224,208,0.2);}
+.btn-header{padding:10px 22px;background:var(--gold-light);color:var(--navy);border-radius:9px;font-size:12px;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-sans),sans-serif;letter-spacing:0.3px;box-shadow:0 4px 16px rgba(232,224,208,0.2);}
 .btn-header:hover{background:#fff;transform:translateY(-1px);box-shadow:0 8px 24px rgba(232,224,208,0.35);}
 
 /* ── FILTER ROW ── */
@@ -11206,7 +11193,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   padding:0 16px;height:38px;border-radius:100px;font-size:12px;font-weight:600;
   border:1.5px solid rgba(42,53,32,0.15);background:white;
   cursor:pointer;transition:all 0.15s;color:var(--text-muted);
-  letter-spacing:0.2px;font-family:'DM Sans',sans-serif;
+  letter-spacing:0.2px;font-family:var(--font-sans),sans-serif;
   display:inline-flex;align-items:center;
 }
 .filter-pill:hover{border-color:var(--navy);color:var(--navy);background:rgba(42,53,32,0.02);}
@@ -11214,7 +11201,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .board-search{position:relative;min-width:240px;flex:1;}
 .board-search input{
   width:100%;padding:10px 14px 10px 38px;border-radius:10px;
-  border:1.5px solid rgba(42,53,32,0.15);font-family:'DM Sans',sans-serif;
+  border:1.5px solid rgba(42,53,32,0.15);font-family:var(--font-sans),sans-serif;
   font-size:13px;background:white;outline:none;transition:all 0.2s;color:var(--text);
 }
 .board-search input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(42,53,32,0.06);}
@@ -11223,15 +11210,15 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 /* filter-bar-* retained for any legacy FilterBar component references */
 .filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
 .filter-bar-search{position:relative;flex:1;min-width:220px;}
-.filter-bar-search input{width:100%;padding:0 38px 0 38px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;transition:all 0.2s;color:var(--text);height:38px;box-sizing:border-box;}
+.filter-bar-search input{width:100%;padding:0 38px 0 38px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);font-family:var(--font-sans),sans-serif;font-size:13px;background:white;outline:none;transition:all 0.2s;color:var(--text);height:38px;box-sizing:border-box;}
 .filter-bar-search input:focus{border-color:var(--navy);}
 .filter-bar-search input::placeholder{color:var(--text-muted);}
 .filter-bar-search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;opacity:0.25;pointer-events:none;line-height:1;}
 .filter-bar-search-clear{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;color:var(--text-muted);line-height:1;padding:2px;opacity:0.45;}
 .filter-bar-pills{display:flex;gap:5px;flex-shrink:0;}
-.filter-bar-select{padding:0 10px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-mid);background:white;outline:none;cursor:pointer;height:38px;}
+.filter-bar-select{padding:0 10px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);font-family:var(--font-sans),sans-serif;font-size:12px;color:var(--text-mid);background:white;outline:none;cursor:pointer;height:38px;}
 .filter-bar-select.has-value{border-color:rgba(42,53,32,0.4);color:var(--navy);font-weight:600;}
-.filter-bar-clear{padding:0 12px;height:38px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);background:white;font-size:11px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;}
+.filter-bar-clear{padding:0 12px;height:38px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);background:white;font-size:11px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:var(--font-sans),sans-serif;}
 .filter-bar-count{font-size:10.5px;color:var(--text-muted);font-weight:600;letter-spacing:0.6px;text-transform:uppercase;white-space:nowrap;padding-left:4px;}
 .filter-bar-mobile-toggle{display:none;}
 .filter-bar-mobile-panel{display:none;}
@@ -11260,7 +11247,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .project-card-titles{display:none;}
 .project-card-top-row{display:none;}
 .project-cat-badge{display:none;}
-.project-card-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;line-height:1.2;letter-spacing:-0.2px;color:#0D1208;}
+.project-card-title{font-family:var(--font-display),serif;font-size:14px;font-weight:700;line-height:1.2;letter-spacing:-0.2px;color:#0D1208;}
 .project-card-church{font-size:10px;color:#B8B0A6;display:block;}
 .project-card-desc{display:none;}
 .project-card-meta-row{display:none;}
@@ -11271,7 +11258,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .project-card-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:11px 14px;flex-shrink:0;gap:1px;}
 .project-bid-num{display:none;}
 .project-bid-label{display:none;}
-.project-budget{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#1A2510;}
+.project-budget{font-family:var(--font-sans),monospace;font-size:13px;font-weight:700;color:#1A2510;}
 .project-budget-label{display:none;}
 .project-bid-count{font-size:10px;color:#B8B0A6;}
 .project-bid-count strong{color:#78716C;font-weight:600;}
@@ -11301,56 +11288,56 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .kc-arc-bg{position:absolute;inset:0;}
 .kc-arc-fade{position:absolute;bottom:0;left:0;right:0;height:55px;pointer-events:none;}
 .kc-arc-meta{display:flex;align-items:center;justify-content:space-between;width:100%;position:relative;z-index:1;}
-.kc-cat-pill{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.5px;padding:4px 10px;border-radius:100px;background:rgba(255,255,255,0.13);color:rgba(255,255,255,0.88);border:0.5px solid rgba(255,255,255,0.22);}
+.kc-cat-pill{font-family:var(--font-sans),sans-serif;font-size:10px;font-weight:500;letter-spacing:0.5px;padding:4px 10px;border-radius:100px;background:rgba(255,255,255,0.13);color:rgba(255,255,255,0.88);border:0.5px solid rgba(255,255,255,0.22);}
 .kc-status-row{display:flex;align-items:center;gap:5px;}
 .kc-dot{width:5px;height:5px;border-radius:50%;}
-.kc-status-txt{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.3px;}
-.kc-urgent-badge{font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:0.6px;text-transform:uppercase;color:#FCA5A5;background:rgba(239,68,68,0.18);border:0.5px solid rgba(239,68,68,0.3);border-radius:4px;padding:3px 7px;}
+.kc-status-txt{font-family:var(--font-sans),sans-serif;font-size:10px;font-weight:500;letter-spacing:0.3px;}
+.kc-urgent-badge{font-family:var(--font-sans),sans-serif;font-size:9px;font-weight:500;letter-spacing:0.6px;text-transform:uppercase;color:#FCA5A5;background:rgba(239,68,68,0.18);border:0.5px solid rgba(239,68,68,0.3);border-radius:4px;padding:3px 7px;}
 .kc-verse{overflow:hidden;transition:height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.28s;}
 .kc-verse-inner{padding:13px 18px 15px;display:flex;align-items:center;gap:11px;}
 .kc-verse-line{width:2px;border-radius:1px;align-self:stretch;flex-shrink:0;}
-.kc-verse-txt{font-family:'Playfair Display',serif;font-size:11.5px;font-style:italic;font-weight:400;line-height:1.65;}
-.kc-verse-ref{font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;margin-top:5px;}
+.kc-verse-txt{font-family:var(--font-display),serif;font-size:11.5px;font-style:italic;font-weight:400;line-height:1.65;}
+.kc-verse-ref{font-family:var(--font-sans),sans-serif;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;margin-top:5px;}
 .kc-body{padding:16px 18px 0;flex:1;display:flex;flex-direction:column;}
 .kc-church-row{display:flex;align-items:center;gap:6px;margin-bottom:9px;}
 .kc-church-av{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#F0EDE6;}
-.kc-church-name{font-family:'DM Sans',sans-serif;font-size:11px;color:#7A7060;}
-.kc-city{font-family:'DM Sans',sans-serif;font-size:11px;color:#B0A898;}
+.kc-church-name{font-family:var(--font-sans),sans-serif;font-size:11px;color:#7A7060;}
+.kc-city{font-family:var(--font-sans),sans-serif;font-size:11px;color:#B0A898;}
 .kc-sep{color:#D8D0C8;font-size:10px;}
-.kc-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:500;line-height:1.32;letter-spacing:-0.3px;color:#0F130A;margin-bottom:8px;}
-.kc-desc{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:#7A7060;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1;}
+.kc-title{font-family:var(--font-display),serif;font-size:17px;font-weight:500;line-height:1.32;letter-spacing:-0.3px;color:#0F130A;margin-bottom:8px;}
+.kc-desc{font-family:var(--font-sans),sans-serif;font-size:12px;font-weight:400;color:#7A7060;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1;}
 .kc-expand{overflow:hidden;transition:height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.28s;}
 .kc-expand-inner{padding:10px 0 4px;display:flex;flex-direction:column;gap:7px;}
 .kc-skill-row{display:flex;flex-wrap:wrap;gap:5px;}
-.kc-skill{font-family:'DM Sans',sans-serif;font-size:10px;color:#6B6058;background:#F5F2EE;border-radius:4px;padding:3px 8px;}
-.kc-req{font-family:'DM Sans',sans-serif;font-size:11px;color:#6B6058;display:flex;align-items:flex-start;gap:6px;line-height:1.5;}
+.kc-skill{font-family:var(--font-sans),sans-serif;font-size:10px;color:#6B6058;background:#F5F2EE;border-radius:4px;padding:3px 8px;}
+.kc-req{font-family:var(--font-sans),sans-serif;font-size:11px;color:#6B6058;display:flex;align-items:flex-start;gap:6px;line-height:1.5;}
 .kc-req-dot{flex-shrink:0;font-size:10px;margin-top:1px;}
 .kc-sat-bar{margin:10px 18px 0;height:2px;background:rgba(42,53,32,0.08);border-radius:1px;overflow:hidden;}
 .kc-sat-fill{height:100%;border-radius:1px;transition:width 0.4s ease;}
 .kc-divider{height:0.5px;background:rgba(42,53,32,0.08);margin:14px 18px 0;}
 .kc-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 15px;}
 .kc-footer-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.kc-time-pill{font-family:'DM Sans',sans-serif;font-size:10px;color:#9A9080;background:#F5F3EF;border:0.5px solid rgba(42,53,32,0.09);border-radius:100px;padding:4px 9px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
-.kc-bids{display:inline-flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;font-size:10px;color:#7A7060;background:rgba(42,53,32,0.05);border-radius:100px;padding:3px 8px;}
+.kc-time-pill{font-family:var(--font-sans),sans-serif;font-size:10px;color:#9A9080;background:#F5F3EF;border:0.5px solid rgba(42,53,32,0.09);border-radius:100px;padding:4px 9px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+.kc-bids{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-sans),sans-serif;font-size:10px;color:#7A7060;background:rgba(42,53,32,0.05);border-radius:100px;padding:3px 8px;}
 .kc-budget-block{text-align:right;flex-shrink:0;}
-.kc-budget-lbl{font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#C0B8AE;margin-bottom:2px;}
-.kc-budget-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:500;color:#0F130A;letter-spacing:-0.3px;line-height:1;}
-.kc-arrow{font-family:'DM Sans',sans-serif;font-size:10px;color:#9A9080;opacity:0;transition:opacity 0.18s;margin-top:2px;}
-.kc-toggle{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#B8B0A6;transition:color 0.2s;margin-top:3px;}
+.kc-budget-lbl{font-family:var(--font-sans),sans-serif;font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#C0B8AE;margin-bottom:2px;}
+.kc-budget-val{font-family:var(--font-display),serif;font-size:18px;font-weight:500;color:#0F130A;letter-spacing:-0.3px;line-height:1;}
+.kc-arrow{font-family:var(--font-sans),sans-serif;font-size:10px;color:#9A9080;opacity:0;transition:opacity 0.18s;margin-top:2px;}
+.kc-toggle{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;font-family:var(--font-sans),sans-serif;font-size:9px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:#B8B0A6;transition:color 0.2s;margin-top:3px;}
 .kc-toggle:hover{color:#7A7060;}
 .kc-chev{display:inline-block;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);}
 .kc-save{position:absolute;top:10px;right:10px;z-index:2;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.22);border:0.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.18s,transform 0.15s;flex-shrink:0;}
 .kc-save:hover{background:rgba(0,0,0,0.38);transform:scale(1.08);}
 .kc-save.saved{background:rgba(196,147,90,0.85);border-color:rgba(196,147,90,0.6);}
-.kc-bid-action{margin:0 18px 14px;padding:10px 16px;border-radius:10px;background:var(--navy);color:var(--gold-light);border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:calc(100% - 36px);display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.18s,opacity 0.18s;letter-spacing:0.2px;overflow:hidden;max-height:0;opacity:0;padding-top:0;padding-bottom:0;margin-bottom:0;}
+.kc-bid-action{margin:0 18px 14px;padding:10px 16px;border-radius:10px;background:var(--navy);color:var(--gold-light);border:none;font-family:var(--font-sans),sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:calc(100% - 36px);display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.18s,opacity 0.18s;letter-spacing:0.2px;overflow:hidden;max-height:0;opacity:0;padding-top:0;padding-bottom:0;margin-bottom:0;}
 .kc-bid-action.visible{max-height:42px;opacity:1;padding:10px 16px;margin-bottom:14px;}
 .kc-bid-action:hover{background:#1A2B14;}
 .kc-actions{display:flex;gap:7px;padding:0 18px 14px;flex-wrap:wrap;}
-.kc-action-btn{display:inline-flex;align-items:center;padding:7px 14px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;white-space:nowrap;}
+.kc-action-btn{display:inline-flex;align-items:center;padding:7px 14px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:background 0.15s;white-space:nowrap;}
 .kc-action-btn:hover{background:#1A2B14;}
-.kc-action-ghost{display:inline-flex;align-items:center;padding:7px 12px;background:transparent;color:var(--text-muted);border:0.5px solid rgba(42,53,32,0.18);border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.kc-action-ghost{display:inline-flex;align-items:center;padding:7px 12px;background:transparent;color:var(--text-muted);border:0.5px solid rgba(42,53,32,0.18);border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.15s;white-space:nowrap;}
 .kc-action-ghost:hover{border-color:var(--navy);color:var(--navy);}
-.kc-action-success{display:inline-flex;align-items:center;padding:7px 14px;background:var(--success-bg);color:var(--success);border:0.5px solid var(--success-border);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.kc-action-success{display:inline-flex;align-items:center;padding:7px 14px;background:var(--success-bg);color:var(--success);border:0.5px solid var(--success-border);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;white-space:nowrap;}
 /* keep old pc-* aliases pointing to kc equivalents for any remaining references */
 .pc-card{background:white;border-radius:20px;border:0.5px solid rgba(42,53,32,0.11);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:border-color 0.2s,transform 0.2s;}
 .pc-card:hover{border-color:rgba(42,53,32,0.22);transform:translateY(-3px);}
@@ -11364,21 +11351,21 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pc-status-text{font-size:12px;font-weight:600;letter-spacing:0.1px;}
 .pc-bids-ct{font-size:11px;color:#B0A89E;margin-left:auto;font-weight:400;}
 .pc-body{padding:20px 22px 0;flex:1;display:flex;flex-direction:column;}
-.pc-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;line-height:1.3;letter-spacing:-0.2px;color:#0D1108;margin-bottom:6px;min-height:2.6em;max-height:2.6em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.pc-title{font-family:var(--font-display),serif;font-size:16px;font-weight:600;line-height:1.3;letter-spacing:-0.2px;color:#0D1108;margin-bottom:6px;min-height:2.6em;max-height:2.6em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .pc-church{font-size:12px;font-weight:400;color:#8A7D70;margin-bottom:12px;display:flex;align-items:center;gap:5px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pc-desc{font-size:12.5px;font-weight:400;color:#6B6058;line-height:1.68;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:3.36em;max-height:3.36em;flex:0 0 auto;}
 .pc-footer{display:flex;align-items:flex-end;justify-content:space-between;padding:13px 22px 17px;margin-top:14px;border-top:1px solid rgba(42,53,32,0.07);}
 .pc-pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:500;color:#9A9088;background:#F5F3F0;border:1px solid rgba(42,53,32,0.09);border-radius:100px;padding:4px 10px;white-space:nowrap;}
 .pc-budget-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
 .pc-budget-lbl{font-size:9px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:#C0B8B0;}
-.pc-budget-val{font-family:'Playfair Display',serif;font-size:17px;font-weight:500;color:#0D1108;letter-spacing:-0.3px;line-height:1;}
+.pc-budget-val{font-family:var(--font-display),serif;font-size:17px;font-weight:500;color:#0D1108;letter-spacing:-0.3px;line-height:1;}
 .pc-view-hint{font-size:11px;color:#9A9088;opacity:0;transform:translateX(-4px);transition:opacity 0.18s,transform 0.18s;margin-top:3px;text-align:right;letter-spacing:0.1px;}
 .pc-actions{display:flex;align-items:center;gap:7px;padding:0 22px 17px;flex-wrap:wrap;}
-.pc-action-btn{display:inline-flex;align-items:center;padding:7px 15px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;white-space:nowrap;letter-spacing:0.2px;}
+.pc-action-btn{display:inline-flex;align-items:center;padding:7px 15px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:background 0.15s;white-space:nowrap;letter-spacing:0.2px;}
 .pc-action-btn:hover{background:#1A2B14;}
-.pc-action-ghost{display:inline-flex;align-items:center;padding:7px 13px;background:transparent;color:var(--text-muted);border:1px solid rgba(42,53,32,0.15);border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.pc-action-ghost{display:inline-flex;align-items:center;padding:7px 13px;background:transparent;color:var(--text-muted);border:1px solid rgba(42,53,32,0.15);border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.15s;white-space:nowrap;}
 .pc-action-ghost:hover{border-color:var(--navy);color:var(--navy);}
-.pc-action-success{display:inline-flex;align-items:center;padding:7px 15px;background:var(--success-bg);color:var(--success);border:1px solid var(--success-border);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;white-space:nowrap;}
+.pc-action-success{display:inline-flex;align-items:center;padding:7px 15px;background:var(--success-bg);color:var(--success);border:1px solid var(--success-border);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:background 0.15s;white-space:nowrap;}
 .pc-action-success:hover{background:#DCFCE7;}
 
 /* ── MARKETPLACE CARDS-FIRST LAYOUT ── */
@@ -11393,7 +11380,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 
 /* Sidebar: search */
 .mkt-sb-search{position:relative;margin-bottom:0;}
-.mkt-sb-search input{width:100%;padding:9px 36px 9px 34px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;color:var(--text);box-sizing:border-box;height:38px;transition:border-color 0.15s,box-shadow 0.15s;}
+.mkt-sb-search input{width:100%;padding:9px 36px 9px 34px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);font-family:var(--font-sans),sans-serif;font-size:13px;background:white;outline:none;color:var(--text);box-sizing:border-box;height:38px;transition:border-color 0.15s,box-shadow 0.15s;}
 .mkt-sb-search input::placeholder{color:var(--text-muted);}
 .mkt-sb-search input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(42,53,32,0.06);}
 .mkt-sb-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;opacity:0.25;pointer-events:none;line-height:1;}
@@ -11408,7 +11395,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 
 /* Sidebar: radio-style options */
 .mkt-sb-options{display:flex;flex-direction:column;gap:1px;}
-.mkt-sb-option{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;cursor:pointer;transition:background 0.12s;font-size:13px;font-weight:500;color:var(--text-mid);border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;text-align:left;}
+.mkt-sb-option{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;cursor:pointer;transition:background 0.12s;font-size:13px;font-weight:500;color:var(--text-mid);border:none;background:none;font-family:var(--font-sans),sans-serif;width:100%;text-align:left;}
 .mkt-sb-option:hover{background:rgba(42,53,32,0.05);color:var(--navy);}
 .mkt-sb-option.active{background:rgba(42,53,32,0.07);color:var(--navy);font-weight:600;}
 .mkt-sb-radio{width:14px;height:14px;border-radius:50%;border:2px solid rgba(42,53,32,0.22);flex-shrink:0;transition:all 0.15s;display:flex;align-items:center;justify-content:center;}
@@ -11419,18 +11406,18 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .mkt-sb-option.active .mkt-sb-option-count{color:var(--navy);opacity:0.6;}
 
 /* Sidebar: selects */
-.mkt-sb-select{width:100%;padding:9px 10px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-mid);background:white;outline:none;cursor:pointer;transition:border-color 0.15s;height:38px;box-sizing:border-box;}
+.mkt-sb-select{width:100%;padding:9px 10px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);font-family:var(--font-sans),sans-serif;font-size:12px;color:var(--text-mid);background:white;outline:none;cursor:pointer;transition:border-color 0.15s;height:38px;box-sizing:border-box;}
 .mkt-sb-select:focus{border-color:var(--navy);}
 .mkt-sb-select.has-value{border-color:rgba(42,53,32,0.38);color:var(--navy);font-weight:600;}
 
 /* Sidebar: clear */
-.mkt-sb-clear{width:100%;padding:9px 0;background:none;border:1.5px solid rgba(42,53,32,0.12);border-radius:10px;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;margin-top:4px;}
+.mkt-sb-clear{width:100%;padding:9px 0;background:none;border:1.5px solid rgba(42,53,32,0.12);border-radius:10px;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.15s;margin-top:4px;}
 .mkt-sb-clear:hover{border-color:rgba(220,38,38,0.3);color:var(--danger);background:var(--danger-bg);}
 
 /* ── SLIM FILTER BAR (cards-first) ── */
 .kc-filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
 .kc-filter-search{position:relative;flex:1;min-width:200px;}
-.kc-filter-search input{width:100%;height:38px;padding:0 38px 0 36px;border-radius:10px;border:0.5px solid rgba(42,53,32,0.15);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:white;outline:none;transition:border-color 0.15s,box-shadow 0.15s;box-sizing:border-box;}
+.kc-filter-search input{width:100%;height:38px;padding:0 38px 0 36px;border-radius:10px;border:0.5px solid rgba(42,53,32,0.15);font-family:var(--font-sans),sans-serif;font-size:13px;color:var(--text);background:white;outline:none;transition:border-color 0.15s,box-shadow 0.15s;box-sizing:border-box;}
 .kc-filter-search input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(42,53,32,0.06);}
 .kc-filter-search input::placeholder{color:var(--text-muted);}
 .kc-filter-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;opacity:0.3;}
@@ -11438,25 +11425,25 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .kc-filter-search-clear:hover{opacity:1;}
 .kc-filter-right{display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap;}
 .kc-dd-wrap{position:relative;}
-.kc-dd-btn{height:38px;padding:0 14px;border-radius:10px;border:0.5px solid rgba(42,53,32,0.15);background:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--text-mid);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:border-color 0.15s,color 0.15s;white-space:nowrap;}
+.kc-dd-btn{height:38px;padding:0 14px;border-radius:10px;border:0.5px solid rgba(42,53,32,0.15);background:white;font-family:var(--font-sans),sans-serif;font-size:12px;font-weight:500;color:var(--text-mid);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:border-color 0.15s,color 0.15s;white-space:nowrap;}
 .kc-dd-btn:hover{border-color:rgba(42,53,32,0.28);}
 .kc-dd-btn.active{border-color:var(--navy);color:var(--navy);background:#F5F3EF;}
 .kc-dd-chevron{font-size:9px;opacity:0.45;transition:transform 0.2s;}
 .kc-dd-btn.open .kc-dd-chevron{transform:rotate(180deg);}
 .kc-dd-panel{position:absolute;top:calc(100% + 6px);right:0;background:white;border:0.5px solid rgba(42,53,32,0.14);border-radius:12px;padding:6px;min-width:160px;z-index:200;box-shadow:0 8px 24px rgba(42,53,32,0.1);}
-.kc-dd-opt{display:flex;align-items:center;justify-content:space-between;width:100%;padding:8px 10px;border-radius:7px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-mid);cursor:pointer;text-align:left;transition:background 0.12s;}
+.kc-dd-opt{display:flex;align-items:center;justify-content:space-between;width:100%;padding:8px 10px;border-radius:7px;border:none;background:none;font-family:var(--font-sans),sans-serif;font-size:12px;color:var(--text-mid);cursor:pointer;text-align:left;transition:background 0.12s;}
 .kc-dd-opt:hover{background:rgba(42,53,32,0.05);}
 .kc-dd-opt.selected{color:var(--navy);font-weight:600;}
 .kc-dd-check{font-size:11px;color:var(--navy);}
-.kc-filter-count{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-muted);flex-shrink:0;white-space:nowrap;padding-left:4px;}
-.kc-filter-clear{height:38px;padding:0 12px;border-radius:10px;border:0.5px solid rgba(220,38,38,0.2);background:none;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:#DC2626;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.kc-filter-count{font-family:var(--font-sans),sans-serif;font-size:12px;color:var(--text-muted);flex-shrink:0;white-space:nowrap;padding-left:4px;}
+.kc-filter-clear{height:38px;padding:0 12px;border-radius:10px;border:0.5px solid rgba(220,38,38,0.2);background:none;font-family:var(--font-sans),sans-serif;font-size:11px;font-weight:500;color:#DC2626;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
 .kc-filter-clear:hover{background:var(--danger-bg);}
 
 /* ── SAMPLE PROJECTS SECTION ── */
 .sample-section{margin-top:36px;}
 .sample-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(42,53,32,0.08);}
 .sample-section-eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);}
-.sample-section-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-0.3px;}
+.sample-section-title{font-family:var(--font-display),serif;font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-0.3px;}
 .sample-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;background:rgba(232,224,208,0.5);border:1px solid rgba(196,147,90,0.25);font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--gold-text);}
 .sample-section-sub{font-size:12px;color:var(--text-muted);line-height:1.5;max-width:540px;margin-top:4px;}
 
@@ -11476,10 +11463,10 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 /* Mobile filter bar */
 .mkt-mobile-bar{display:none;align-items:center;gap:8px;padding:14px 0 6px;}
 .mkt-mobile-search{flex:1;min-width:0;position:relative;}
-.mkt-mobile-search input{width:100%;height:40px;padding:0 12px 0 36px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:white;outline:none;box-sizing:border-box;transition:border-color 0.15s;}
+.mkt-mobile-search input{width:100%;height:40px;padding:0 12px 0 36px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);font-family:var(--font-sans),sans-serif;font-size:13px;color:var(--text);background:white;outline:none;box-sizing:border-box;transition:border-color 0.15s;}
 .mkt-mobile-search input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(42,53,32,0.06);}
 .mkt-mobile-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;opacity:0.25;pointer-events:none;}
-.mkt-mobile-filter-btn{display:flex;align-items:center;gap:7px;padding:0 16px;height:40px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);background:white;font-size:12px;font-weight:600;color:var(--text-mid);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0;transition:all 0.15s;}
+.mkt-mobile-filter-btn{display:flex;align-items:center;gap:7px;padding:0 16px;height:40px;border-radius:10px;border:1.5px solid rgba(42,53,32,0.13);background:white;font-size:12px;font-weight:600;color:var(--text-mid);cursor:pointer;font-family:var(--font-sans),sans-serif;white-space:nowrap;flex-shrink:0;transition:all 0.15s;}
 .mkt-mobile-filter-btn.has-filters{border-color:var(--navy);color:var(--navy);}
 .mkt-filter-badge{background:var(--navy);color:var(--gold-light);border-radius:100px;font-size:9px;font-weight:700;padding:2px 7px;line-height:1.5;}
 
@@ -11490,9 +11477,9 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .mkt-sheet.open{display:block;animation:slideUpSheet 0.3s ease;}
 .mkt-sheet-handle{width:36px;height:4px;background:rgba(0,0,0,0.1);border-radius:2px;margin:14px auto 0;cursor:pointer;}
 .mkt-sheet-hd{display:flex;align-items:center;justify-content:space-between;padding:20px 0 16px;border-bottom:1px solid rgba(42,53,32,0.07);margin-bottom:4px;}
-.mkt-sheet-title{font-size:16px;font-weight:700;color:var(--navy);font-family:'DM Sans',sans-serif;}
+.mkt-sheet-title{font-size:16px;font-weight:700;color:var(--navy);font-family:var(--font-sans),sans-serif;}
 .mkt-sheet-close{background:none;border:none;font-size:20px;color:var(--text-muted);cursor:pointer;padding:4px;line-height:1;}
-.mkt-sheet-apply{width:100%;margin-top:20px;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+.mkt-sheet-apply{width:100%;margin-top:20px;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:background 0.15s;}
 .mkt-sheet-apply:hover{background:#1A2B14;}
 
 
@@ -11528,7 +11515,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .bid-detail-body{padding:24px 28px;}
 .bid-detail-cover{background:var(--cream);border-radius:10px;border:1px solid var(--border);padding:18px 20px;margin-bottom:20px;}
 .bid-detail-actions{padding:20px 28px;border-top:1px solid var(--border);background:var(--cream-dark);display:flex;gap:10px;flex-wrap:wrap;}
-.bid-hire-btn{flex:1;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;letter-spacing:0.2px;}
+.bid-hire-btn{flex:1;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.2s;letter-spacing:0.2px;}
 .bid-hire-btn:hover{background:#1A2B14;box-shadow:0 6px 20px rgba(42,53,32,0.3);}
 .bid-hire-btn:disabled{opacity:0.4;cursor:not-allowed;}
 
@@ -11549,14 +11536,14 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pd-hero-rings{position:absolute;top:-80px;right:-80px;width:360px;height:360px;pointer-events:none;z-index:0;}
 .pd-hero-ring{position:absolute;border-radius:50%;border:1px solid;}
 .pd-hero-inner{position:relative;z-index:1;padding:28px 32px 24px;}
-.pd-hero-back{background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.3px;display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;transition:opacity 0.15s;padding:0;}
+.pd-hero-back{background:none;border:none;cursor:pointer;font-family:var(--font-sans),sans-serif;font-size:11px;font-weight:600;letter-spacing:0.3px;display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;transition:opacity 0.15s;padding:0;}
 .pd-hero-back:hover{opacity:0.7;}
 .pd-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;}
 .pd-hero-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .pd-cat-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
 .pd-urgent-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;font-size:10px;font-weight:700;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.3);color:#FCA5A5;letter-spacing:0.5px;}
 .pd-hero-actions{display:flex;gap:8px;flex-shrink:0;}
-.pd-title{font-family:'Playfair Display',serif;font-size:clamp(22px,3.5vw,34px);font-weight:700;color:#fff;line-height:1.15;letter-spacing:-0.5px;margin-bottom:14px;}
+.pd-title{font-family:var(--font-display),serif;font-size:clamp(22px,3.5vw,34px);font-weight:700;color:#fff;line-height:1.15;letter-spacing:-0.5px;margin-bottom:14px;}
 .pd-church-row{display:flex;align-items:center;gap:10px;margin-bottom:22px;}
 .pd-church-av{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
 .pd-church-name{font-size:13px;color:rgba(255,255,255,0.75);font-weight:500;}
@@ -11564,11 +11551,11 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pd-stats-strip{display:flex;gap:0;border-radius:var(--r-sm);overflow:hidden;border:1px solid rgba(255,255,255,0.1);width:fit-content;}
 .pd-stat{padding:10px 20px;border-right:1px solid rgba(255,255,255,0.08);}
 .pd-stat:last-child{border-right:none;}
-.pd-stat-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:#fff;line-height:1;margin-bottom:3px;}
+.pd-stat-val{font-family:var(--font-sans),monospace;font-size:13px;font-weight:600;color:#fff;line-height:1;margin-bottom:3px;}
 .pd-stat-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);}
 .pd-verse{margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.07);display:flex;align-items:flex-start;gap:10px;}
 .pd-verse-bar{width:2px;border-radius:1px;flex-shrink:0;align-self:stretch;min-height:32px;}
-.pd-verse-text{font-family:'Playfair Display',serif;font-size:11.5px;font-style:italic;color:rgba(255,255,255,0.42);line-height:1.7;}
+.pd-verse-text{font-family:var(--font-display),serif;font-size:11.5px;font-style:italic;color:rgba(255,255,255,0.42);line-height:1.7;}
 .pd-verse-ref{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.22);margin-top:4px;}
 /* two-column content area */
 .pd-layout{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;}
@@ -11583,27 +11570,27 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pd-req-item{display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--text-mid);line-height:1.6;}
 .pd-req-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px;}
 .pd-skill-tags{display:flex;flex-wrap:wrap;gap:7px;}
-.pd-skill-tag{padding:5px 13px;border-radius:6px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;border:1.5px solid;}
+.pd-skill-tag{padding:5px 13px;border-radius:6px;font-size:11px;font-weight:600;font-family:var(--font-sans),sans-serif;border:1.5px solid;}
 /* sticky action panel */
 .pd-panel{background:white;border-radius:var(--r-lg);border:1px solid var(--card-border);position:sticky;top:24px;box-shadow:0 8px 32px rgba(42,53,32,0.1);overflow:hidden;}
 .pd-panel-hero{padding:22px 22px 18px;}
 .pd-panel-budget-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;}
-.pd-panel-budget{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;line-height:1;margin-bottom:14px;}
+.pd-panel-budget{font-family:var(--font-display),serif;font-size:32px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;line-height:1;margin-bottom:14px;}
 .pd-panel-bid-count{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--r-sm);margin-bottom:16px;}
-.pd-panel-bid-num{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--navy);line-height:1;}
+.pd-panel-bid-num{font-family:var(--font-sans),monospace;font-size:20px;font-weight:700;color:var(--navy);line-height:1;}
 .pd-panel-bid-lbl{font-size:11px;color:var(--text-muted);font-weight:500;}
 .pd-panel-cta{padding:16px 22px;border-top:1px solid var(--card-border);}
-.pd-panel-cta-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--navy),var(--navy-light));color:#fff;border:none;border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.2px;}
+.pd-panel-cta-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--navy),var(--navy-light));color:#fff;border:none;border-radius:var(--r-sm);font-family:var(--font-sans),sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.2px;}
 .pd-panel-cta-primary:hover{background:linear-gradient(135deg,#1A2B14,var(--navy));box-shadow:0 6px 20px rgba(42,53,32,0.3);transform:translateY(-1px);}
 .pd-panel-cta-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
-.pd-panel-cta-secondary{width:100%;padding:11px;background:white;color:var(--text-mid);border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px;}
+.pd-panel-cta-secondary{width:100%;padding:11px;background:white;color:var(--text-mid);border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:var(--font-sans),sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px;}
 .pd-panel-cta-secondary:hover{border-color:var(--navy);color:var(--navy);}
 .pd-church-card{padding:18px 22px;border-top:1px solid var(--card-border);background:var(--cream);}
 /* backward-compat aliases so nothing referencing old classes errors */
 .detail-layout{display:none;}
 .bid-panel{display:none;}
 .skill-tags{display:flex;flex-wrap:wrap;gap:8px;}
-.skill-tag{padding:6px 14px;background:var(--navy);color:var(--gold-light);border-radius:7px;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;letter-spacing:0.3px;}
+.skill-tag{padding:6px 14px;background:var(--navy);color:var(--gold-light);border-radius:7px;font-size:11px;font-weight:700;font-family:var(--font-sans),sans-serif;letter-spacing:0.3px;}
 .req-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
 .req-item{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--text-mid);line-height:1.6;}
 .req-bullet{width:6px;height:6px;border-radius:50%;background:var(--navy);margin-top:7px;flex-shrink:0;opacity:0.4;}
@@ -11621,10 +11608,10 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 }
 .milestone-row{display:flex;gap:10px;align-items:center;padding:11px 13px;background:var(--cream);border-radius:9px;margin-bottom:8px;}
 .milestone-num{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.milestone-input{padding:7px 10px;border-radius:7px;border:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;background:white;width:100%;}
+.milestone-input{padding:7px 10px;border-radius:7px;border:1px solid var(--border);font-family:var(--font-sans),sans-serif;font-size:13px;outline:none;background:white;width:100%;}
 .milestone-input:focus{border-color:var(--navy);}
 .bids-table{width:100%;border-collapse:collapse;}
-.bids-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);padding:10px 16px;border-bottom:1px solid var(--border);background:var(--cream);font-family:'DM Mono',monospace;}
+.bids-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);padding:10px 16px;border-bottom:1px solid var(--border);background:var(--cream);font-family:var(--font-sans),monospace;}
 .bids-table td{padding:14px 16px;border-bottom:1px solid rgba(42,53,32,0.05);font-size:13px;vertical-align:middle;}
 .bids-table tr:last-child td{border-bottom:none;}
 .bids-table tr:hover td{background:rgba(245,240,232,0.4);}
@@ -11633,12 +11620,12 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .vendor-mini{display:flex;align-items:center;gap:10px;}
 .vendor-mini-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--navy),var(--navy-light));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gold-light);flex-shrink:0;letter-spacing:0.5px;}
 .vendor-mini-name{font-size:13px;font-weight:700;color:var(--navy);line-height:1.2;}
-.vendor-mini-cat{font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-top:1px;}
-.bid-amount-cell{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;}
+.vendor-mini-cat{font-size:10px;color:var(--text-muted);font-family:var(--font-sans),monospace;margin-top:1px;}
+.bid-amount-cell{font-family:var(--font-display),serif;font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;}
 .badge-best{display:inline-flex;align-items:center;padding:2px 7px;background:var(--navy);color:var(--gold-light);border-radius:5px;font-size:8px;font-weight:700;margin-left:6px;letter-spacing:0.3px;}
-.btn-accept{padding:7px 16px;background:var(--navy);color:#fff;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;letter-spacing:0.2px;}
+.btn-accept{padding:7px 16px;background:var(--navy);color:#fff;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.15s;letter-spacing:0.2px;}
 .btn-accept:hover{background:#1A2B14;box-shadow:0 4px 12px rgba(42,53,32,0.25);}
-.btn-decline-sm{padding:7px 12px;background:white;color:var(--text-muted);border-radius:8px;font-size:12px;font-weight:500;border:1.5px solid var(--border);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.btn-decline-sm{padding:7px 12px;background:white;color:var(--text-muted);border-radius:8px;font-size:12px;font-weight:500;border:1.5px solid var(--border);cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.15s;}
 .btn-decline-sm:hover{border-color:var(--danger);color:var(--danger);}
 .option-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
 .option-card{padding:14px;border-radius:10px;border:1.5px solid var(--border);background:white;cursor:pointer;transition:all 0.2s;text-align:center;}
@@ -11650,14 +11637,14 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .tags-wrap:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,224,208,0.1);}
 .tag-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:var(--gold-pale);border:1px solid rgba(232,224,208,0.3);border-radius:100px;font-size:12px;font-weight:500;color:var(--text-mid);}
 .tag-chip-x{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:13px;line-height:1;padding:0;}
-.tags-input{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;flex:1;min-width:80px;background:transparent;}
+.tags-input{border:none;outline:none;font-family:var(--font-sans),sans-serif;font-size:13px;flex:1;min-width:80px;background:transparent;}
 
 /* ── VENDOR DIRECTORY ── */
 
 .vendor-card-top{height:80px;position:relative;}
 .vendor-card-avatar{width:52px;height:52px;border-radius:13px;border:3px solid white;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-size:22px;position:absolute;bottom:-18px;left:16px;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
 .vendor-card-body{padding:24px 16px 14px;}
-.vendor-card-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.vendor-card-name{font-family:var(--font-display),serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px;}
 .vendor-card-cat{font-size:12px;color:var(--text-muted);margin-bottom:8px;}
 .vendor-card-bio{font-size:11px;color:var(--text-mid);line-height:1.5;font-weight:400;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px;}
 .vendor-card-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--cream);}
@@ -11669,11 +11656,11 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .profile-cover-pattern{position:absolute;inset:0;opacity:0.06;background-image:linear-gradient(rgba(232,224,208,1) 1px,transparent 1px),linear-gradient(90deg,rgba(232,224,208,1) 1px,transparent 1px);background-size:24px 24px;}
 .profile-info{padding:0 28px 24px;position:relative;}
 .profile-avatar{width:72px;height:72px;border-radius:18px;border:4px solid var(--navy);background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-size:30px;margin-top:-36px;margin-bottom:12px;}
-.profile-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;}
+.profile-name{font-family:var(--font-display),serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;}
 .profile-cat{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;}
 .profile-stats-row{display:flex;gap:20px;flex-wrap:wrap;}
 .profile-stat{text-align:center;}
-.profile-stat-num{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff;}
+.profile-stat-num{font-family:var(--font-display),serif;font-size:18px;font-weight:700;color:#fff;}
 .profile-stat-label{font-size:11px;color:rgba(255,255,255,0.4);}
 
 /* ── MESSAGES ── */
@@ -11684,17 +11671,17 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .inbox{width:300px;min-width:300px;background:#FAFAF8;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid #EDECE8;}
 .inbox-head{padding:24px 20px 0;flex-shrink:0;}
 .inbox-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.inbox-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#0E1A0C;letter-spacing:-0.8px;}
+.inbox-title{font-family:var(--font-display),serif;font-size:26px;font-weight:700;color:#0E1A0C;letter-spacing:-0.8px;}
 .inbox-badge{display:none;}
 .inbox-new-btn{width:32px;height:32px;border-radius:9px;background:#0E1A0C;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;flex-shrink:0;}
 .inbox-new-btn:hover{background:#1E2A17;}
 .inbox-search{position:relative;margin-bottom:4px;}
 .inbox-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;}
-.inbox-search input{width:100%;padding:9px 12px 9px 32px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:12px;background:#EDECE8;outline:none;color:#374151;box-sizing:border-box;}
+.inbox-search input{width:100%;padding:9px 12px 9px 32px;border-radius:9px;border:none;font-family:var(--font-sans),sans-serif;font-size:12px;background:#EDECE8;outline:none;color:#374151;box-sizing:border-box;}
 .inbox-search input::placeholder{color:#B8B6B2;}
 .inbox-search input:focus{background:#E5E3DE;}
 .inbox-filters{display:flex;gap:0;padding:12px 20px 0;border-bottom:1px solid #EDECE8;flex-shrink:0;}
-.inbox-filter{font-size:11px;font-weight:600;color:#B8B6B2;padding:0 0 11px;margin-right:20px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.2px;transition:all 0.15s;}
+.inbox-filter{font-size:11px;font-weight:600;color:#B8B6B2;padding:0 0 11px;margin-right:20px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:var(--font-sans),sans-serif;letter-spacing:0.2px;transition:all 0.15s;}
 .inbox-filter.active{color:#0E1A0C;border-bottom-color:#0E1A0C;}
 .inbox-filter:hover:not(.active){color:#374151;}
 .convo-list{flex:1;overflow-y:auto;}
@@ -11711,7 +11698,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .convo-body{flex:1;min-width:0;}
 .convo-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;}
 .convo-name{font-size:13px;font-weight:600;color:#0E1A0C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
-.convo-time{font-size:10px;color:#C4C2BE;flex-shrink:0;font-family:'DM Mono',monospace;}
+.convo-time{font-size:10px;color:#C4C2BE;flex-shrink:0;font-family:var(--font-sans),monospace;}
 .convo-project{display:none;}
 .convo-preview{font-size:11px;color:#C4C2BE;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .convo-preview.bold{color:#374151;font-weight:500;}
@@ -11733,9 +11720,9 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .chat-head-avatar{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;letter-spacing:0.5px;color:#fff;}
 .chat-head-avatar.church{background:#1E2A17;}
 .chat-head-avatar.vendor{background:#1A2E38;}
-.chat-head-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#0E1A0C;letter-spacing:-0.3px;line-height:1.2;margin-bottom:1px;}
+.chat-head-name{font-family:var(--font-display),serif;font-size:15px;font-weight:700;color:#0E1A0C;letter-spacing:-0.3px;line-height:1.2;margin-bottom:1px;}
 .chat-head-role{display:none;}
-.chat-head-project{font-size:10px;color:#C4C2BE;font-family:'DM Mono',monospace;letter-spacing:0.3px;text-transform:uppercase;}
+.chat-head-project{font-size:10px;color:#C4C2BE;font-family:var(--font-sans),monospace;letter-spacing:0.3px;text-transform:uppercase;}
 .chat-head-indicator{display:none;}
 .chat-head-indicator-dot{display:none;}
 
@@ -11756,7 +11743,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .bubble{max-width:480px;padding:11px 15px;font-size:13px;line-height:1.65;font-weight:400;word-break:break-word;}
 .bubble.me{background:#0E1A0C;color:rgba(255,255,255,0.92);border-radius:16px 16px 3px 16px;}
 .bubble.them{background:#F0EFEB;color:#111;border-radius:16px 16px 16px 3px;}
-.bubble-time{font-size:9px;margin-top:4px;display:block;font-family:'DM Mono',monospace;}
+.bubble-time{font-size:9px;margin-top:4px;display:block;font-family:var(--font-sans),monospace;}
 .bubble.me .bubble-time{text-align:right;color:rgba(255,255,255,0.35);}
 .bubble.them .bubble-time{color:#C4C2BE;}
 
@@ -11772,30 +11759,30 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .file-name{font-size:11px;font-weight:600;display:block;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .file-name.me{color:rgba(255,255,255,0.9);}
 .file-name.them{color:#0E1A0C;}
-.file-size{font-size:10px;display:block;margin-top:2px;font-family:'DM Mono',monospace;}
+.file-size{font-size:10px;display:block;margin-top:2px;font-family:var(--font-sans),monospace;}
 .file-size.me{color:rgba(255,255,255,0.3);}
 .file-size.them{color:#9CA3AF;}
 
 /* System / day dividers */
 .sys-msg{display:flex;align-items:center;gap:12px;margin:10px 0 14px;flex-shrink:0;}
 .sys-msg-line{flex:1;height:1px;background:#EDECE8;}
-.sys-msg-inner{white-space:nowrap;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;color:#C4C2BE;}
+.sys-msg-inner{white-space:nowrap;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:var(--font-sans),monospace;color:#C4C2BE;}
 .sys-msg-inner.gold{color:#8A7B65;}
 .msg-day-divider{display:flex;align-items:center;gap:12px;margin:10px 0 14px;flex-shrink:0;}
 .msg-day-line{flex:1;height:1px;background:#EDECE8;}
-.msg-day-label{font-size:9px;color:#C4C2BE;font-weight:600;letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;white-space:nowrap;}
+.msg-day-label{font-size:9px;color:#C4C2BE;font-weight:600;letter-spacing:2px;text-transform:uppercase;font-family:var(--font-sans),monospace;white-space:nowrap;}
 
 /* ── INPUT TRAY ── */
 .chat-input-area{background:#fff;border-top:1px solid #EDECE8;padding:12px 18px 16px;flex-shrink:0;}
 .quick-actions-row{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;}
-.quick-action-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:100px;border:1px solid #E8E6E1;background:#FAFAF8;font-size:11px;font-weight:500;color:#374151;cursor:pointer;transition:all 0.12s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.quick-action-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:100px;border:1px solid #E8E6E1;background:#FAFAF8;font-size:11px;font-weight:500;color:#374151;cursor:pointer;transition:all 0.12s;font-family:var(--font-sans),sans-serif;white-space:nowrap;}
 .quick-action-btn svg{flex-shrink:0;opacity:0.4;}
 .quick-action-btn:hover{background:#0E1A0C;color:#F5F0E8;border-color:#0E1A0C;}
 .quick-action-btn:hover svg{opacity:1;}
 .chat-file-preview{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#F5F4F0;border-radius:10px;border:1px solid #E8E6E1;margin-bottom:8px;}
 .chat-input-box{display:flex;align-items:center;gap:8px;background:#F5F4F0;border-radius:12px;padding:9px 10px 9px 14px;border:1.5px solid transparent;transition:all 0.15s;}
 .chat-input-box:focus-within{background:#fff;border-color:#0E1A0C;}
-.chat-input{flex:1;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:#111;outline:none;resize:none;line-height:1.55;padding:3px 0;max-height:100px;overflow-y:auto;}
+.chat-input{flex:1;border:none;background:transparent;font-family:var(--font-sans),sans-serif;font-size:13px;color:#111;outline:none;resize:none;line-height:1.55;padding:3px 0;max-height:100px;overflow-y:auto;}
 .chat-input::placeholder{color:#C4C2BE;font-weight:400;}
 .chat-input-actions{display:flex;align-items:center;gap:4px;flex-shrink:0;}
 .input-attach-btn{width:30px;height:30px;border-radius:8px;border:none;background:none;cursor:pointer;color:#B8B6B2;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
@@ -11807,7 +11794,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 /* Mobile back */
 .msg-mobile-back{display:none;align-items:center;gap:8px;padding:0 16px;height:42px;background:#fff;flex-shrink:0;cursor:pointer;border:none;border-bottom:1px solid #EDECE8;width:100%;text-align:left;}
 .msg-mobile-back-arrow{color:#9CA3AF;font-size:16px;}
-.msg-mobile-back-label{font-size:13px;font-weight:600;color:#374151;font-family:'DM Sans',sans-serif;}
+.msg-mobile-back-label{font-size:13px;font-weight:600;color:#374151;font-family:var(--font-sans),sans-serif;}
 
 /* ── REVIEWS ── */
 .review-card{background:linear-gradient(180deg,#fff 0%,#FBFAF7 100%);border-radius:24px;border:1px solid rgba(42,53,32,0.08);padding:22px;margin-bottom:12px;transition:all 0.22s;position:relative;overflow:hidden;box-shadow:0 12px 28px rgba(20,25,27,0.04);}
@@ -11839,7 +11826,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .sub-stars{display:flex;gap:2px;}
 .sub-star{font-size:18px;background:none;border:none;cursor:pointer;color:#d1c9b8;transition:all 0.15s;line-height:1;}
 .sub-star.lit{color:#ca8a04;}
-.tag-opt{padding:5px 11px;border-radius:100px;border:1.5px solid var(--border);background:white;font-size:11px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.tag-opt{padding:5px 11px;border-radius:100px;border:1.5px solid var(--border);background:white;font-size:11px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all 0.2s;font-family:var(--font-sans),sans-serif;}
 .tag-opt.sel{background:var(--gold-pale);border-color:var(--gold);color:var(--gold);}
 .recommend-row{display:flex;gap:10px;}
 .recommend-opt{flex:1;padding:12px;border-radius:9px;border:1.5px solid var(--border);background:white;cursor:pointer;transition:all 0.2s;text-align:center;}
@@ -11871,7 +11858,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pulse{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.3);}}
 @keyframes skeleton{0%,100%{opacity:1;}50%{opacity:0.5;}}
-.admin-btn{padding:4px 11px;border-radius:6px;border:1px solid var(--aborder2);background:none;color:var(--atext-mid);font-size:11px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.admin-btn{padding:4px 11px;border-radius:6px;border:1px solid var(--aborder2);background:none;color:var(--atext-mid);font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.2s;}
 .admin-btn:hover{border-color:var(--gold);color:var(--gold-light);}
 .admin-content{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;padding:24px;container-type:inline-size;container-name:admincontent;}
 .admin-content::-webkit-scrollbar{width:4px;}
@@ -11885,7 +11872,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .kpi-card.blue::before{background:var(--blue2);}
 .kpi-card.purple::before{background:#A855F7;}
 .kpi-label{font-size:9px;font-weight:700;color:var(--atext-muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;opacity:0.7;}
-.kpi-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--atext);line-height:1;margin-bottom:5px;letter-spacing:-0.3px;}
+.kpi-val{font-family:var(--font-display),serif;font-size:28px;font-weight:700;color:var(--atext);line-height:1;margin-bottom:5px;letter-spacing:-0.3px;}
 .kpi-change{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;}
 .kpi-change.up{color:var(--green);}
 .kpi-change.down{color:var(--red);}
@@ -11896,13 +11883,13 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .panel:hover{border-color:var(--aborder2);}
 .panel-hd{padding:14px 18px;border-bottom:1px solid var(--aborder);display:flex;align-items:center;justify-content:space-between;}
 .panel-title{font-size:11px;font-weight:700;color:var(--atext);display:flex;align-items:center;gap:6px;letter-spacing:0.5px;text-transform:uppercase;}
-.panel-action{padding:4px 10px;border-radius:6px;border:1px solid var(--aborder2);background:none;color:var(--atext-muted);font-size:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;letter-spacing:0.3px;}
+.panel-action{padding:4px 10px;border-radius:6px;border:1px solid var(--aborder2);background:none;color:var(--atext-muted);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.2s;letter-spacing:0.3px;}
 .panel-action:hover{color:var(--gold-light);border-color:rgba(245,240,232,0.25);background:rgba(245,240,232,0.05);}
 .panel-body{padding:16px 18px;}
 .mini-chart{display:flex;align-items:flex-end;gap:3px;height:56px;margin:4px 0;}
 .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
 .bar{width:100%;border-radius:2px 2px 0 0;min-height:3px;}
-.bar-label{font-size:8px;color:var(--atext-muted);font-family:'DM Mono',monospace;}
+.bar-label{font-size:8px;color:var(--atext-muted);font-family:var(--font-sans),monospace;}
 .data-table{width:100%;border-collapse:collapse;}
 .data-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--atext-muted);padding:0 0 10px;border-bottom:1px solid var(--aborder);opacity:0.7;}
 .data-table td{padding:11px 0;border-bottom:1px solid var(--aborder);font-size:12.5px;vertical-align:middle;}
@@ -11914,7 +11901,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .feed-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px;}
 .feed-text{font-size:10px;color:var(--atext-mid);line-height:1.5;}
 .feed-text strong{color:var(--atext);font-weight:600;}
-.feed-time{font-size:9px;color:var(--atext-muted);margin-top:2px;font-family:'DM Mono',monospace;}
+.feed-time{font-size:9px;color:var(--atext-muted);margin-top:2px;font-family:var(--font-sans),monospace;}
 
 /* desktop authenticated heavy-data refinements */
 .admin-app-stress .admin-topbar{min-height:60px;padding:0 28px;}
@@ -11937,7 +11924,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .admin-summary-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px;}
 .admin-summary-chip{background:var(--abg2);border:1px solid var(--aborder);border-radius:12px;padding:12px 14px;min-width:0;}
 .admin-summary-chip-label{font-size:9px;color:var(--atext-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:5px;}
-.admin-summary-chip-value{font-family:'DM Mono',monospace;font-size:22px;line-height:1;color:var(--atext);}
+.admin-summary-chip-value{font-family:var(--font-sans),monospace;font-size:22px;line-height:1;color:var(--atext);}
 .admin-metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px;}
 .admin-verification-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px;}
 .admin-action-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -11965,7 +11952,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .qa-summary-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px;}
 .qa-summary-card{background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:18px;padding:16px 18px;}
 .qa-summary-label{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a8aab4;margin-bottom:6px;}
-.qa-summary-value{font-family:'Newsreader',Georgia,serif;font-size:30px;line-height:1;color:#141518;letter-spacing:-.03em;}
+.qa-summary-value{font-family:var(--font-display),serif;font-size:30px;line-height:1;color:#141518;letter-spacing:-.03em;}
 .reviews-main-wrap{grid-template-columns:minmax(0,1fr) 340px!important;align-items:start!important;}
 .reviews-results-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px;border:1px solid rgba(42,53,32,0.08);border-radius:18px;background:#fff;box-shadow:0 8px 20px rgba(20,25,27,0.04);margin-bottom:16px;}
 .reviews-results-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
@@ -11998,7 +11985,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .health-label{font-size:10px;color:var(--atext-mid);width:110px;flex-shrink:0;}
 .health-track{flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
 .health-fill{height:100%;border-radius:2px;transition:width 0.6s ease;}
-.health-val{font-size:10px;font-weight:600;width:34px;text-align:right;flex-shrink:0;font-family:'DM Mono',monospace;}
+.health-val{font-size:10px;font-weight:600;width:34px;text-align:right;flex-shrink:0;font-family:var(--font-sans),monospace;}
 .dispute-card{background:var(--abg3);border:1px solid var(--aborder);border-radius:9px;padding:13px 14px;margin-bottom:9px;transition:border-color 0.2s;}
 .dispute-card.urgent{border-color:var(--red-border);background:rgba(239,68,68,0.04);}
 .checklist-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--aborder);font-size:12px;color:var(--atext-mid);}
@@ -12006,14 +11993,14 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .check-icon{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;}
 .check-pass{background:var(--green-bg);color:var(--green);}
 .check-fail{background:var(--red-bg);color:var(--red);}
-.act-btn{padding:5px 11px;border-radius:6px;font-size:10px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;letter-spacing:0.2px;}
+.act-btn{padding:5px 11px;border-radius:6px;font-size:10px;font-weight:600;border:none;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.2s;letter-spacing:0.2px;}
 .act-approve{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
 .act-approve:hover{background:var(--green);color:#fff;}
 .act-reject{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
 .act-reject:hover{background:var(--red);color:#fff;}
 .act-view{background:rgba(255,255,255,0.06);color:var(--atext-mid);border:1px solid var(--aborder);}
 .act-view:hover{border-color:var(--aborder2);color:var(--atext);}
-.mono{font-family:'DM Mono',monospace;font-size:11px;}
+.mono{font-family:var(--font-sans),monospace;font-size:11px;}
 
 /* ── HOVER UTILITY CLASSES (replaces onMouseEnter/Leave hacks) ── */
 .hover-lift{transition:transform 0.18s ease,box-shadow 0.18s ease;}
@@ -12037,7 +12024,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 
 .success-screen{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 40px;animation:fadeUp 0.5s ease;}
 .success-icon{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 22px;}
-.success-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:10px;}
+.success-title{font-family:var(--font-display),serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:10px;}
 .success-sub{font-size:13px;color:var(--text-muted);font-weight:400;max-width:400px;line-height:1.7;margin-bottom:28px;}
 
 /* ── MODAL ── */
@@ -12048,9 +12035,9 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .modal-close{background:none;border:none;color:var(--atext-muted);font-size:18px;cursor:pointer;line-height:1;}
 .modal-body{padding:20px;}
 .modal-footer{padding:12px 20px;border-top:1px solid var(--aborder);display:flex;gap:8px;justify-content:flex-end;}
-.btn-approve-modal{padding:8px 18px;background:var(--green);color:#fff;border-radius:7px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;}
-.btn-deny-modal{padding:8px 16px;background:var(--red-bg);color:var(--red);border-radius:7px;font-size:12px;font-weight:600;border:1px solid var(--red-border);cursor:pointer;font-family:'DM Sans',sans-serif;}
-.btn-cancel-modal{padding:8px 16px;background:none;color:var(--atext-muted);border-radius:7px;font-size:12px;font-weight:500;border:1px solid var(--aborder);cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-approve-modal{padding:8px 18px;background:var(--green);color:#fff;border-radius:7px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:var(--font-sans),sans-serif;}
+.btn-deny-modal{padding:8px 16px;background:var(--red-bg);color:var(--red);border-radius:7px;font-size:12px;font-weight:600;border:1px solid var(--red-border);cursor:pointer;font-family:var(--font-sans),sans-serif;}
+.btn-cancel-modal{padding:8px 16px;background:none;color:var(--atext-muted);border-radius:7px;font-size:12px;font-weight:500;border:1px solid var(--aborder);cursor:pointer;font-family:var(--font-sans),sans-serif;}
 
 /* ── LANDING PRICING ── */
 .pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:800px;margin:0 auto;}
@@ -12058,9 +12045,9 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .pricing-card.featured{border-color:var(--gold);box-shadow:0 20px 60px rgba(232,224,208,0.15);}
 .pricing-card-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);padding:4px 16px;border-radius:100px;font-size:11px;font-weight:700;white-space:nowrap;}
 .pricing-role{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
-.pricing-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:6px;}
-.pricing-price{font-family:'Playfair Display',serif;font-size:52px;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px;}
-.pricing-price span{font-size:18px;font-weight:400;color:var(--text-muted);font-family:'DM Sans',sans-serif;}
+.pricing-name{font-family:var(--font-display),serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.pricing-price{font-family:var(--font-display),serif;font-size:52px;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px;}
+.pricing-price span{font-size:18px;font-weight:400;color:var(--text-muted);font-family:var(--font-sans),sans-serif;}
 .pricing-desc{font-size:14px;color:var(--text-muted);font-weight:400;margin-bottom:24px;line-height:1.6;}
 .pricing-features{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:28px;}
 .pricing-feature{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text-mid);}
@@ -12079,13 +12066,13 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .help-modal{background:#fffdf8;border:1px solid #dfd5c2;border-radius:24px;width:100%;max-width:700px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 32px 90px rgba(28,40,20,0.30);animation:fadeUp 0.25s ease;}
 .help-modal-head{background:#fffdf8;padding:30px 34px 26px;flex-shrink:0;position:relative;overflow:hidden;border-bottom:1px solid rgba(28,40,20,0.09);}
 .help-modal-head::after{content:'';position:absolute;inset:0;background:none;pointer-events:none;}
-.help-modal-eyebrow{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;letter-spacing:2.6px;text-transform:uppercase;color:#b08840;margin-bottom:8px;position:relative;z-index:1;}
-.help-modal-title{font-family:'Playfair Display',serif;font-size:29px;font-weight:700;color:#1C2814;letter-spacing:-0.6px;margin-bottom:6px;position:relative;z-index:1;}
+.help-modal-eyebrow{font-family:var(--font-sans),monospace;font-size:9px;font-weight:700;letter-spacing:2.6px;text-transform:uppercase;color:#b08840;margin-bottom:8px;position:relative;z-index:1;}
+.help-modal-title{font-family:var(--font-display),serif;font-size:29px;font-weight:700;color:#1C2814;letter-spacing:-0.6px;margin-bottom:6px;position:relative;z-index:1;}
 .help-modal-sub{font-size:13px;color:rgba(28,40,20,0.55);font-weight:400;line-height:1.6;position:relative;z-index:1;}
 .help-modal-close{position:absolute;top:20px;right:20px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.72);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;z-index:2;}
 .help-modal-close:hover{background:rgba(255,255,255,0.14);color:#fff;border-color:rgba(255,255,255,0.22);}
 .help-modal-tabs{display:flex;gap:8;background:#faf8f4;border-bottom:1px solid #dfd5c2;flex-shrink:0;overflow-x:auto;padding:10px 12px;}
-.help-modal-tab{padding:8px 14px;border:1px solid transparent;background:transparent;border-radius:999px;font-size:12px;font-weight:700;color:#7d7363;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s;letter-spacing:0.1px;}
+.help-modal-tab{padding:8px 14px;border:1px solid transparent;background:transparent;border-radius:999px;font-size:12px;font-weight:700;color:#7d7363;cursor:pointer;font-family:var(--font-sans),sans-serif;white-space:nowrap;transition:all 0.15s;letter-spacing:0.1px;}
 .help-modal-tab.active{color:#1C2814;border-color:#dfd5c2;background:#fffdf8;box-shadow:0 4px 12px rgba(28,40,20,0.045);}
 .help-modal-tab:hover:not(.active){color:#1C2814;background:#fffaf0;border-color:#eadfca;}
 .help-modal-body{flex:1;overflow-y:auto;padding:6px 0;background:#fffdf8;}
@@ -12099,7 +12086,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .help-faq-a{padding:0 8px 20px;font-size:13px;color:#5a5246;line-height:1.8;font-weight:400;}
 /* ── LANDING ROLE TOGGLE ── */
 .role-toggle{display:inline-flex;background:var(--cream-dark);border-radius:100px;padding:4px;margin-bottom:40px;}
-.role-toggle-btn{padding:8px 24px;border-radius:100px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;color:var(--text-muted);background:none;}
+.role-toggle-btn{padding:8px 24px;border-radius:100px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:var(--font-sans),sans-serif;color:var(--text-muted);background:none;}
 .role-toggle-btn.active{background:var(--navy);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
 
 /* ── AVAILABILITY CALENDAR ── */
@@ -12143,7 +12130,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   flex-shrink:0;color:var(--gold-light);letter-spacing:0.5px;
 }
 .vendor-row-body{flex:1;min-width:0;}
-.vendor-row-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.vendor-row-name{font-family:var(--font-display),serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px;}
 .vendor-row-meta{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:8px;}
 .vendor-row-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
 
@@ -12161,16 +12148,16 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   width:48px;height:42px;border-radius:50%;display:flex;align-items:center;
   justify-content:center;position:relative;flex-shrink:0;background:var(--cream);
 }
-.match-score-text{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;line-height:1;letter-spacing:-0.5px;}
+.match-score-text{font-family:var(--font-sans),monospace;font-size:11px;font-weight:700;line-height:1;letter-spacing:-0.5px;}
 .match-reasons{display:flex;flex-direction:column;gap:3px;margin-top:0;}
 .match-reason{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-mid);}
 /* ── REFERRAL ── */
 .referral-card{background:linear-gradient(135deg,var(--navy) 0%,#1a2e12 100%);border-radius:16px;padding:24px;color:#fff;position:relative;overflow:hidden;}
-.referral-amount{font-family:'Playfair Display',serif;font-size:52px;font-weight:700;color:var(--gold-light);line-height:1;position:relative;z-index:1;}
+.referral-amount{font-family:var(--font-display),serif;font-size:52px;font-weight:700;color:var(--gold-light);line-height:1;position:relative;z-index:1;}
 .referral-copy-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;margin-top:14px;}
 .referral-copy-box:hover{background:rgba(255,255,255,0.1);}
-.referral-link{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.6);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.referral-copy-btn{padding:4px 12px;border-radius:6px;background:var(--gold-light);color:var(--navy);font-size:11px;font-weight:700;border:none;cursor:pointer;flex-shrink:0;font-family:'DM Sans',sans-serif;}
+.referral-link{font-family:var(--font-sans),monospace;font-size:12px;color:rgba(255,255,255,0.6);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.referral-copy-btn{padding:4px 12px;border-radius:6px;background:var(--gold-light);color:var(--navy);font-size:11px;font-weight:700;border:none;cursor:pointer;flex-shrink:0;font-family:var(--font-sans),sans-serif;}
 /* ── LEGAL ── */
 .legal-doc-card{background:white;border-radius:14px;border:1.5px solid var(--border);overflow:hidden;transition:all 0.2s;cursor:pointer;}
 .legal-doc-card:hover{border-color:var(--gold);box-shadow:0 6px 20px rgba(0,0,0,0.06);}
@@ -12276,7 +12263,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   border:1px solid rgba(42,53,32,0.15);background:white;
   cursor:pointer;transition:all 0.15s;font-size:11px;
   font-weight:600;color:var(--text-muted);letter-spacing:0.3px;
-  white-space:nowrap;font-family:'DM Sans',sans-serif;
+  white-space:nowrap;font-family:var(--font-sans),sans-serif;
 }
 .vendor-cat-pill:hover{border-color:var(--navy);color:var(--navy);}
 .vendor-cat-pill.active{background:var(--navy);border-color:var(--navy);color:var(--gold-light);}
@@ -12287,7 +12274,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .vcat-hero-overlay{position:absolute;inset:0;pointer-events:none;filter:blur(28px);background:radial-gradient(ellipse 70% 55% at 85% 25%, rgba(28,40,20,0.04) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 15% 70%, rgba(28,40,20,0.03) 0%, transparent 60%), radial-gradient(ellipse 50% 45% at 50% 50%, rgba(28,40,20,0.03) 0%, transparent 55%);}
 .vcat-hero-inner{position:relative;z-index:1;}
 .vcat-hero-head{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;margin-bottom:36px;flex-wrap:wrap;}
-.vcat-hero-title{font-size:44px;font-weight:800;color:#1C2814;line-height:1;letter-spacing:-1.5px;font-family:'DM Sans',sans-serif;}
+.vcat-hero-title{font-size:44px;font-weight:800;color:#1C2814;line-height:1;letter-spacing:-1.5px;font-family:var(--font-sans),sans-serif;}
 .vcat-hero-title span{color:rgba(28,40,20,0.2);}
 .vcat-hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--kb-green);margin-bottom:12px;opacity:0.6;}
 .vcat-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(28,40,20,0.06);border:1px solid rgba(28,40,20,0.06);border-radius:var(--r-md);overflow:hidden;}
@@ -12295,7 +12282,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .vcat-row:hover{background:rgba(28,40,20,0.04);}
 .vcat-row.sel{background:rgba(232,224,208,0.08);border-left:2px solid var(--gold-light);}
 .vcat-row-left{display:flex;align-items:center;gap:16px;}
-.vcat-num{font-family:'DM Mono',monospace;font-size:10px;color:rgba(28,40,20,0.18);letter-spacing:1px;width:18px;flex-shrink:0;}
+.vcat-num{font-family:var(--font-sans),monospace;font-size:10px;color:rgba(28,40,20,0.18);letter-spacing:1px;width:18px;flex-shrink:0;}
 .vcat-label{font-size:13px;font-weight:600;color:rgba(255,255,255,0.78);letter-spacing:-0.1px;}
 .vcat-row.sel .vcat-label{color:#fff;}
 .vcat-count{font-size:10px;color:rgba(28,40,20,0.22);margin-top:2px;}
@@ -12323,7 +12310,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   background:#1C2814;color:#fffdf8;
 }
 .vendor-tile-body{flex:1;padding:16px 16px 16px 14px;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:5px;}
-.vendor-tile-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#0D1208;line-height:1.2;letter-spacing:-0.2px;}
+.vendor-tile-name{font-family:var(--font-display),serif;font-size:15px;font-weight:700;color:#0D1208;line-height:1.2;letter-spacing:-0.2px;}
 .vendor-tile-cat{font-size:10px;font-weight:700;letter-spacing:1.7px;text-transform:uppercase;color:#9A8F7D;}
 .vendor-tile-bio{font-size:12.5px;color:#6B6458;line-height:1.65;font-weight:400;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .vendor-tile-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
@@ -12341,7 +12328,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .vendor-tile-cta{
   padding:9px 16px;border-radius:12px;border:1px solid rgba(42,53,32,0.12);
   background:white;color:#1A2510;font-size:11px;font-weight:700;letter-spacing:0.15px;
-  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s;white-space:nowrap;box-shadow:0 1px 0 rgba(255,255,255,0.7);
+  cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.18s;white-space:nowrap;box-shadow:0 1px 0 rgba(255,255,255,0.7);
 }
 .vendor-tile-cta:hover{background:#1A2510;color:#F5F0E8;border-color:#1A2510;box-shadow:0 10px 22px rgba(20,25,27,0.14);}
 .vendor-tile-trust-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
@@ -12366,7 +12353,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   width:100%;padding:10px;background:linear-gradient(135deg,var(--gold),var(--gold-light));
   color:var(--navy);border:none;border-radius:9px;
   font-size:12px;font-weight:700;cursor:pointer;
-  font-family:'DM Sans',sans-serif;transition:all 0.2s;
+  font-family:var(--font-sans),sans-serif;transition:all 0.2s;
   display:flex;align-items:center;justify-content:center;gap:6px;
 }
 .vendor-tile-overlay-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(232,224,208,0.4);}
@@ -12443,7 +12430,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   .mobile-nav-item{
     display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;
     border:none;background:none;border-radius:10px;cursor:pointer;
-    font-family:'DM Sans',sans-serif;font-size:14.5px;font-weight:500;
+    font-family:var(--font-sans),sans-serif;font-size:14.5px;font-weight:500;
     color:#2a3a22;text-align:left;transition:all 0.15s;
     margin-bottom:2px;
   }
@@ -12675,12 +12662,12 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   }
   .land-menu-heading{padding:0 2px 22px;border-bottom:1px solid rgba(255,255,255,.08);}
   .land-menu-kicker{font-size:9px;font-weight:800;letter-spacing:.20em;text-transform:uppercase;color:#d9bd72;margin-bottom:8px;}
-  .land-menu-title{font-family:'Playfair Display',serif;font-size:26px;line-height:1.08;font-weight:700;letter-spacing:-.025em;color:#fffdf8;}
+  .land-menu-title{font-family:var(--font-display),serif;font-size:26px;line-height:1.08;font-weight:700;letter-spacing:-.025em;color:#fffdf8;}
   .land-menu-primary-actions{display:grid;grid-template-columns:1fr;gap:10px;padding:20px 0 24px;}
   .land-menu-primary-action{
     width:100%;min-height:54px;padding:0 16px;border-radius:12px;
     display:flex;align-items:center;justify-content:space-between;gap:12px;
-    font-family:'DM Sans',sans-serif;font-size:13px;font-weight:800;text-align:left;
+    font-family:var(--font-sans),sans-serif;font-size:13px;font-weight:800;text-align:left;
     cursor:pointer;
   }
   .land-menu-primary-action.is-church{background:#f4ead7;border:1px solid rgba(255,255,255,.18);color:#22301B;}
@@ -12709,7 +12696,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
   .land-menu-footer{margin-top:auto;padding-top:26px;}
   .land-menu-partner{
     border:0;background:transparent;padding:10px 2px;color:rgba(255,253,248,.52);
-    font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;
+    font-family:var(--font-sans),sans-serif;font-size:12px;font-weight:700;cursor:pointer;
   }
 
   /* ── NEW FIXES ── */
@@ -13518,7 +13505,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 
 /* ── MOBILE BOTTOM NAV ── */
 .mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background-color:#1C2814;background-size:cover;background-position:center;border-top:1px solid rgba(232,224,208,0.08);z-index:200;align-items:stretch;backdrop-filter:blur(20px);}
-.mob-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;color:rgba(255,255,255,0.35);font-size:9px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.5px;text-transform:uppercase;transition:color 0.18s;position:relative;padding:8px 4px;}
+.mob-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;color:rgba(255,255,255,0.35);font-size:9px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;letter-spacing:0.5px;text-transform:uppercase;transition:color 0.18s;position:relative;padding:8px 4px;}
 .mob-nav-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
 .mob-nav-btn.active{color:var(--gold-light);}
 .mob-nav-btn.active svg{stroke:var(--gold-light);}
@@ -13530,7 +13517,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .fv-modal-inner{background-color:#1C2814;background-image:var(--clay-bg);background-size:cover;background-position:center;border:1px solid rgba(232,224,208,0.1);border-radius:24px 24px 0 0;padding:40px 28px 48px;max-width:480px;width:100%;position:relative;box-shadow:0 40px 100px rgba(0,0,0,0.7);animation:slideUpSheet 0.32s cubic-bezier(0.22,1,0.36,1);max-height:94vh;overflow-y:auto;}
 @media(min-width:600px){.fv-modal-inner{border-radius:24px;padding:52px 48px;animation:fadeUp 0.32s cubic-bezier(0.22,1,0.36,1);max-height:none;}}
 @keyframes slideUpSheet{from{transform:translateY(100%);}to{transform:translateY(0);}}
-.fv-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.3);width:30px;height:30px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.fv-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.3);width:30px;height:30px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-family:var(--font-sans),sans-serif;}
 .fv-close:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);}
 .fv-perks{display:flex;flex-direction:column;gap:0;margin:24px 0 28px;border:1px solid rgba(232,224,208,0.08);border-radius:12px;overflow:hidden;}
 .fv-perk{padding:13px 16px;border-bottom:1px solid rgba(232,224,208,0.06);display:flex;align-items:flex-start;gap:12px;}
@@ -13538,22 +13525,22 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .fv-perk-dot{width:5px;height:5px;border-radius:50%;background:rgba(232,224,208,0.3);flex-shrink:0;margin-top:5px;}
 .fv-perk-title{font-size:12px;font-weight:600;color:rgba(232,224,208,0.8);margin-bottom:1px;letter-spacing:0.1px;}
 .fv-perk-body{font-size:11px;color:rgba(255,255,255,0.28);line-height:1.55;}
-.fv-input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:10px;font-size:13.5px;color:rgba(255,255,255,0.88);font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box;transition:border-color 0.2s;margin-bottom:9px;}
+.fv-input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:10px;font-size:13.5px;color:rgba(255,255,255,0.88);font-family:var(--font-sans),sans-serif;outline:none;box-sizing:border-box;transition:border-color 0.2s;margin-bottom:9px;}
 .fv-input:focus{border-color:rgba(232,224,208,0.3);background:rgba(255,255,255,0.06);}
 .fv-input::placeholder{color:rgba(255,255,255,0.18);}
 .fv-input option{background:#1C2814;color:#fff;}
-.fv-submit{width:100%;padding:14px;background:#F5F0E8;color:#1A2510;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s;margin-top:4px;letter-spacing:-0.1px;}
+.fv-submit{width:100%;padding:14px;background:#F5F0E8;color:#1A2510;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.18s;margin-top:4px;letter-spacing:-0.1px;}
 .fv-submit:hover{background:#fff;}
 .fv-submit:disabled{opacity:0.4;cursor:not-allowed;}
 .fv-countdown{display:flex;gap:10px;justify-content:center;margin-bottom:24px;}
 .fv-count-block{text-align:center;background:rgba(255,255,255,0.04);border:1px solid rgba(232,224,208,0.08);border-radius:8px;padding:10px 14px;min-width:58px;}
-.fv-count-num{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:#F5F0E8;line-height:1;}
+.fv-count-num{font-family:var(--font-sans),monospace;font-size:22px;font-weight:500;color:#F5F0E8;line-height:1;}
 .fv-count-label{font-size:8px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-top:4px;}
 
 /* ── CHARTER VENDOR STICKY BOTTOM BAR ── */
 .msg-mobile-back{display:none;align-items:center;gap:8px;padding:0 12px;height:56px;background:var(--navy);flex-shrink:0;cursor:pointer;border:none;width:100%;text-align:left;}
 .msg-mobile-back-arrow{color:rgba(255,255,255,0.6);font-size:18px;line-height:1;}
-.msg-mobile-back-label{font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);font-family:'DM Sans',sans-serif;}
+.msg-mobile-back-label{font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);font-family:var(--font-sans),sans-serif;}
 .fv-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:4000;background-color:#1C2814;background-image:var(--clay-bg);background-size:cover;background-position:center;border-top:1px solid rgba(232,224,208,0.1);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;padding:13px 40px;gap:24px;animation:slideUp 0.4s cubic-bezier(0.22,1,0.36,1);}
 .fv-bar-left{display:flex;align-items:center;gap:14px;flex:1;min-width:0;}
 .fv-bar-cross{width:20px;height:20px;position:relative;flex-shrink:0;}
@@ -13562,9 +13549,9 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .fv-bar-copy{min-width:0;}
 .fv-bar-strong{font-size:13px;font-weight:600;color:rgba(255,255,255,0.88);display:block;letter-spacing:-0.1px;}
 .fv-bar-sub{font-size:11px;color:rgba(255,255,255,0.32);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.fv-bar-btn{padding:9px 22px;background:#F5F0E8;color:#1A2510;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.18s;flex-shrink:0;letter-spacing:-0.1px;}
+.fv-bar-btn{padding:9px 22px;background:#F5F0E8;color:#1A2510;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;white-space:nowrap;transition:all 0.18s;flex-shrink:0;letter-spacing:-0.1px;}
 .fv-bar-btn:hover{background:#fff;}
-.fv-bar-dismiss{background:none;border:none;color:rgba(255,255,255,0.18);font-size:16px;cursor:pointer;padding:4px 4px 4px 8px;line-height:1;flex-shrink:0;transition:color 0.15s;font-family:'DM Sans',sans-serif;}
+.fv-bar-dismiss{background:none;border:none;color:rgba(255,255,255,0.18);font-size:16px;cursor:pointer;padding:4px 4px 4px 8px;line-height:1;flex-shrink:0;transition:color 0.15s;font-family:var(--font-sans),sans-serif;}
 .fv-bar-dismiss:hover{color:rgba(255,255,255,0.5);}
 
 /* ── CHARTER VENDOR LANDING SECTION ── */
@@ -13573,8 +13560,8 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .fv-hero-perks{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(232,224,208,0.08);border:1px solid rgba(232,224,208,0.08);border-radius:14px;overflow:hidden;margin-top:52px;}
 .fv-hero-perk{background-color:#1C2814;background-image:var(--clay-bg);background-size:cover;background-position:center;padding:32px 28px;transition:background 0.2s;}
 .fv-hero-perk:hover{background:rgba(255,255,255,0.03);}
-.fv-hero-perk-num{font-family:'DM Mono',monospace;font-size:11px;color:rgba(232,224,208,0.25);letter-spacing:2px;margin-bottom:16px;}
-.fv-hero-perk-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:10px;line-height:1.2;}
+.fv-hero-perk-num{font-family:var(--font-sans),monospace;font-size:11px;color:rgba(232,224,208,0.25);letter-spacing:2px;margin-bottom:16px;}
+.fv-hero-perk-title{font-family:var(--font-display),serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:10px;line-height:1.2;}
 .fv-hero-perk-body{font-size:12px;color:rgba(255,255,255,0.35);line-height:1.7;}
 
 /* ── EXIT INTENT POPUP ── */
@@ -13587,28 +13574,28 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .kb-ref-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(232,224,208,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(232,224,208,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
 .kb-ref-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
 .kb-ref-inner{max-width:1100px;margin:0 auto;padding:0 48px;position:relative;z-index:1;}
-.kb-ref-eyebrow{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(232,224,208,0.3);margin-bottom:18px;font-family:'DM Sans',sans-serif;}
-.kb-ref-headline{font-family:'Playfair Display',serif;font-size:clamp(38px,5vw,68px);font-weight:700;color:#fff;line-height:1.02;letter-spacing:-2px;margin-bottom:20px;}
+.kb-ref-eyebrow{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(232,224,208,0.3);margin-bottom:18px;font-family:var(--font-sans),sans-serif;}
+.kb-ref-headline{font-family:var(--font-display),serif;font-size:clamp(38px,5vw,68px);font-weight:700;color:#fff;line-height:1.02;letter-spacing:-2px;margin-bottom:20px;}
 .kb-ref-sub{font-size:16px;color:rgba(255,255,255,0.35);line-height:1.8;font-weight:400;max-width:520px;margin-bottom:48px;}
 .kb-counter-strip{display:flex;align-items:center;gap:0;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;overflow:hidden;margin-bottom:56px;width:fit-content;}
 .kb-counter-cell{padding:20px 32px;text-align:center;border-right:1px solid rgba(255,255,255,0.07);}
 .kb-counter-cell:last-child{border-right:none;}
-.kb-counter-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:#22C55E;letter-spacing:-1px;line-height:1;}
+.kb-counter-num{font-family:var(--font-sans),monospace;font-size:36px;font-weight:500;color:#22C55E;letter-spacing:-1px;line-height:1;}
 .kb-counter-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-top:6px;}
 .kb-milestone-bar{margin-bottom:56px;}
 .kb-milestone-track{height:4px;background:rgba(255,255,255,0.07);border-radius:2px;position:relative;overflow:hidden;margin-bottom:16px;}
 .kb-milestone-fill{height:100%;background:linear-gradient(90deg,#22C55E,#86EFAC);border-radius:2px;transition:width 1.5s cubic-bezier(0.16,1,0.3,1);}
 .kb-milestone-ticks{display:flex;justify-content:space-between;}
-.kb-milestone-tick{font-size:10px;color:rgba(255,255,255,0.2);font-family:'DM Mono',monospace;font-weight:500;}
+.kb-milestone-tick{font-size:10px;color:rgba(255,255,255,0.2);font-family:var(--font-sans),monospace;font-weight:500;}
 .kb-milestone-tick.hit{color:#22C55E;}
 .kb-tier-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;margin-bottom:56px;}
 .kb-tier-card{background:#0a1508;padding:28px 24px;position:relative;transition:background 0.2s;}
 .kb-tier-card:hover{background:#0e1c0b;}
 .kb-tier-card.unlocked{background:#0d1f0a;}
-.kb-tier-num{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.15);letter-spacing:2px;margin-bottom:18px;}
+.kb-tier-num{font-family:var(--font-sans),monospace;font-size:10px;color:rgba(255,255,255,0.15);letter-spacing:2px;margin-bottom:18px;}
 .kb-tier-badge{width:44px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px;}
-.kb-tier-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;}
-.kb-tier-count{font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px;font-family:'DM Mono',monospace;}
+.kb-tier-name{font-family:var(--font-display),serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;}
+.kb-tier-count{font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px;font-family:var(--font-sans),monospace;}
 .kb-tier-perks{display:flex;flex-direction:column;gap:7px;}
 .kb-tier-perk{font-size:11px;color:rgba(255,255,255,0.38);line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
 .kb-tier-perk::before{content:'';width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;margin-top:5px;}
@@ -13620,11 +13607,11 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .kb-lb-row:last-child{border-bottom:none;}
 .kb-lb-row:hover{background:rgba(255,255,255,0.02);}
 .kb-lb-row.is-me{background:rgba(34,197,94,0.04);border-left:2px solid rgba(34,197,94,0.4);}
-.kb-lb-rank{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.2);font-weight:500;}
+.kb-lb-rank{font-family:var(--font-sans),monospace;font-size:12px;color:rgba(255,255,255,0.2);font-weight:500;}
 .kb-lb-rank.top{color:#F59E0B;}
 .kb-lb-name{font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;}
 .kb-lb-tier{font-size:10px;font-weight:700;letter-spacing:0.5px;}
-.kb-lb-count{font-family:'DM Mono',monospace;font-size:14px;color:#22C55E;font-weight:500;text-align:right;}
+.kb-lb-count{font-family:var(--font-sans),monospace;font-size:14px;color:#22C55E;font-weight:500;text-align:right;}
 .kb-dual-signup{display:grid;grid-template-columns:1.1fr 0.9fr;gap:0;border-radius:20px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.5);}
 .kb-signup-panel{padding:64px 56px;text-align:center;position:relative;background-color:#1C2814;background-size:cover;background-position:center;}
 .kb-signup-panel.kb-panel-vendor::after{content:'';position:absolute;inset:0;background:rgba(10,7,4,0.42);pointer-events:none;z-index:0;}
@@ -13633,14 +13620,14 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .kb-signup-panel.kb-panel-vendor{border-right:1px solid rgba(255,255,255,0.1);}
 .kb-signup-panel.kb-panel-church{}
 .kb-signup-panel-eyebrow{font-size:12px;font-weight:700;color:rgba(255,255,255,0.7);margin-bottom:24px;letter-spacing:0.3px;}
-.kb-signup-panel-title{font-family:'Playfair Display',serif;font-size:38px;font-weight:700;color:#fff;line-height:1.05;margin-bottom:16px;letter-spacing:-1px;}
+.kb-signup-panel-title{font-family:var(--font-display),serif;font-size:38px;font-weight:700;color:#fff;line-height:1.05;margin-bottom:16px;letter-spacing:-1px;}
 .kb-signup-panel-sub{font-size:15px;color:rgba(255,255,255,0.85);line-height:1.75;margin-bottom:40px;font-weight:500;max-width:360px;margin-left:auto;margin-right:auto;}
 .kb-field{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;text-align:left;}
 .kb-field-label{font-size:12px;font-weight:700;color:#fff;letter-spacing:0.2px;}
-.kb-input{width:100%;padding:14px 18px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.15);border-radius:10px;font-size:14px;color:#fff;font-family:'DM Sans',sans-serif;outline:none;transition:border 0.2s,background 0.2s,box-shadow 0.2s;box-sizing:border-box;}
+.kb-input{width:100%;padding:14px 18px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.15);border-radius:10px;font-size:14px;color:#fff;font-family:var(--font-sans),sans-serif;outline:none;transition:border 0.2s,background 0.2s,box-shadow 0.2s;box-sizing:border-box;}
 .kb-input:focus{border-color:rgba(232,224,208,0.5);background:rgba(0,0,0,0.35);box-shadow:0 0 0 3px rgba(232,224,208,0.08);}
 .kb-input::placeholder{color:rgba(255,255,255,0.25);}
-.kb-submit{width:100%;padding:17px;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.25s;margin-top:10px;letter-spacing:0.2px;}
+.kb-submit{width:100%;padding:17px;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.25s;margin-top:10px;letter-spacing:0.2px;}
 .kb-submit-vendor{background:var(--gold-light);color:var(--navy);box-shadow:0 4px 24px rgba(232,224,208,0.25);}
 .kb-submit-vendor:hover{background:#fff;box-shadow:0 8px 36px rgba(232,224,208,0.45);transform:translateY(-1px);}
 .kb-submit-church{background:rgba(255,255,255,0.92);color:#1C2814;box-shadow:0 4px 24px rgba(255,255,255,0.1);}
@@ -13648,23 +13635,23 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .kb-submit:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none;}
 .kb-fine-print{font-size:13px;color:rgba(255,255,255,0.6);text-align:center;margin-top:16px;font-weight:500;}
 .kb-done-card{padding:8px 0;}
-.kb-done-heading{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:#fff;margin-bottom:12px;letter-spacing:-0.5px;}
+.kb-done-heading{font-family:var(--font-display),serif;font-size:36px;font-weight:700;color:#fff;margin-bottom:12px;letter-spacing:-0.5px;}
 .kb-done-sub{font-size:15px;color:rgba(255,255,255,0.85);line-height:1.75;margin-bottom:32px;max-width:340px;margin-left:auto;margin-right:auto;font-weight:500;}
 .kb-ref-code-box{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:28px;margin-bottom:12px;}
 .kb-ref-code-label{font-size:12px;font-weight:700;color:#fff;margin-bottom:12px;letter-spacing:0.2px;}
-.kb-ref-code{font-family:'DM Mono',monospace;font-size:28px;font-weight:700;color:#fff;letter-spacing:4px;margin-bottom:10px;}
+.kb-ref-code{font-family:var(--font-sans),monospace;font-size:28px;font-weight:700;color:#fff;letter-spacing:4px;margin-bottom:10px;}
 .kb-ref-link{font-size:12px;color:rgba(255,255,255,0.5);word-break:break-all;margin-bottom:20px;line-height:1.6;font-weight:500;}
-.kb-copy-btn{width:100%;padding:14px;background:var(--gold-light);color:var(--navy);border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.25s;box-shadow:0 4px 20px rgba(232,224,208,0.2);}
+.kb-copy-btn{width:100%;padding:14px;background:var(--gold-light);color:var(--navy);border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.25s;box-shadow:0 4px 20px rgba(232,224,208,0.2);}
 .kb-copy-btn:hover{background:#fff;box-shadow:0 8px 32px rgba(232,224,208,0.4);transform:translateY(-1px);}
-.kb-share-btn{padding:13px 20px;border:1px solid rgba(255,255,255,0.15);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.65);transition:all 0.2s;margin-top:10px;width:100%;}
+.kb-share-btn{padding:13px 20px;border:1px solid rgba(255,255,255,0.15);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.65);transition:all 0.2s;margin-top:10px;width:100%;}
 .kb-share-btn:hover{background:rgba(0,0,0,0.35);color:#fff;border-color:rgba(255,255,255,0.25);}
 
 /* referral dashboard in profile */
 .ref-dash{padding:0;}
 .ref-dash-hero{background:linear-gradient(135deg,#0a1508,#0f1f0b);border-radius:16px;padding:32px;margin-bottom:20px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
 .ref-dash-code-row{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 18px;margin-top:20px;}
-.ref-dash-code{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:#4ade80;letter-spacing:4px;flex:1;}
-.ref-dash-copy{padding:6px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:6px;color:#4ade80;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s;}
+.ref-dash-code{font-family:var(--font-sans),monospace;font-size:22px;font-weight:500;color:#4ade80;letter-spacing:4px;flex:1;}
+.ref-dash-copy{padding:6px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:6px;color:#4ade80;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;white-space:nowrap;transition:all 0.15s;}
 .ref-dash-copy:hover{background:rgba(34,197,94,0.18);}
 .ref-tier-progress{background:white;border-radius:14px;border:1px solid var(--border);padding:24px;margin-bottom:16px;}
 .ref-rewards-list{background:white;border-radius:14px;border:1px solid var(--border);padding:24px;margin-bottom:16px;}
@@ -13694,11 +13681,11 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .sf-card{width:100%;max-width:580px;background:white;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,0.45);overflow:hidden;animation:fadeUp 0.35s ease;}
 .sf-card-head{padding:32px 36px 24px;border-bottom:1px solid var(--border);}
 .sf-eyebrow{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
-.sf-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:6px;}
+.sf-title{font-family:var(--font-display),serif;font-size:24px;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:6px;}
 .sf-sub{font-size:13px;color:var(--text-muted);font-weight:400;line-height:1.6;}
 .sf-card-body{padding:28px 36px;}
 .sf-cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.sf-cat-btn{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:var(--r-md);border:1.5px solid var(--border);background:white;cursor:pointer;transition:all 0.18s;text-align:left;font-family:'DM Sans',sans-serif;}
+.sf-cat-btn{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:var(--r-md);border:1.5px solid var(--border);background:white;cursor:pointer;transition:all 0.18s;text-align:left;font-family:var(--font-sans),sans-serif;}
 .sf-cat-btn:hover{border-color:var(--navy);background:var(--cream);}
 .sf-cat-btn.selected{border-color:var(--navy);background:var(--navy);}
 .sf-cat-btn.selected .sf-cat-label{color:#fff;}
@@ -13707,14 +13694,14 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .sf-cat-label{font-size:12px;font-weight:600;color:var(--text);line-height:1.3;}
 .sf-field{margin-bottom:20px;}
 .sf-label{font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px;}
-.sf-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);background:white;transition:border-color 0.18s;outline:none;}
+.sf-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-family:var(--font-sans),sans-serif;color:var(--text);background:white;transition:border-color 0.18s;outline:none;}
 .sf-input:focus{border-color:var(--navy);}
-.sf-textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);background:white;transition:border-color 0.18s;outline:none;resize:vertical;min-height:90px;line-height:1.6;}
+.sf-textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-family:var(--font-sans),sans-serif;color:var(--text);background:white;transition:border-color 0.18s;outline:none;resize:vertical;min-height:90px;line-height:1.6;}
 .sf-textarea:focus{border-color:var(--navy);}
 .sf-card-footer{padding:20px 36px 28px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.sf-back-btn{background:none;border:none;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;}
+.sf-back-btn{background:none;border:none;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:var(--font-sans),sans-serif;padding:0;}
 .sf-back-btn:hover{color:var(--text);}
-.sf-next-btn{padding:13px 28px;background:var(--navy);color:#fff;border:none;border-radius:var(--r-pill);font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s;letter-spacing:0.3px;}
+.sf-next-btn{padding:13px 28px;background:var(--navy);color:#fff;border:none;border-radius:var(--r-pill);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.18s;letter-spacing:0.3px;}
 .sf-next-btn:disabled{opacity:0.35;cursor:not-allowed;}
 .sf-next-btn:not(:disabled):hover{background:#1a2210;box-shadow:0 4px 16px rgba(42,53,32,0.25);}
 .sf-confirm-card{width:100%;max-width:580px;animation:fadeUp 0.4s ease;}
@@ -13739,7 +13726,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .sf-brand-copy{display:flex;flex-direction:column;line-height:1.1;}
 .sf-brand-name{font-size:11px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.7);}
 .sf-brand-tag{font-size:11px;color:rgba(255,255,255,0.44);font-weight:400;}
-.sf-nav-ghost{background:none;border:none;color:rgba(255,255,255,0.62);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;white-space:nowrap;}
+.sf-nav-ghost{background:none;border:none;color:rgba(255,255,255,0.62);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans),sans-serif;padding:0;white-space:nowrap;}
 .sf-nav-ghost:hover{color:#fff;}
 .sf-body-premium{padding:12px 24px 54px;}
 .sf-frame{width:100%;display:grid;gap:28px;align-items:start;}
@@ -13749,7 +13736,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .sf-panel-inner{padding:34px 36px 30px;}
 .sf-panel-inner-compact{padding:34px 34px 28px;}
 .sf-hero-kicker{font-size:11px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:rgba(26,34,16,0.46);margin-bottom:12px;}
-.sf-hero-title{font-family:'Playfair Display',serif;font-size:36px;line-height:1.05;color:#1d2a17;font-weight:800;margin:0 0 10px;}
+.sf-hero-title{font-family:var(--font-display),serif;font-size:36px;line-height:1.05;color:#1d2a17;font-weight:800;margin:0 0 10px;}
 .sf-hero-sub{font-size:14px;line-height:1.75;color:#6C706B;max-width:700px;margin-bottom:22px;}
 .sf-stepper-premium{display:flex;align-items:center;gap:12px;justify-content:center;flex:1;min-width:0;}
 .sf-stepper-item{display:flex;align-items:center;gap:10px;min-width:0;}
@@ -13767,13 +13754,13 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .sf-field-card-title{font-size:17px;font-weight:700;color:#1d2718;line-height:1.2;}
 .sf-field-card-helper{font-size:12.5px;color:#6f736d;line-height:1.6;max-width:520px;}
 .sf-optional{font-size:10px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#9a9f99;}
-.sf-input-premium,.sf-textarea-premium{width:100%;border:1px solid rgba(33,48,27,0.12);background:#fff;border-radius:16px;padding:14px 16px;font-family:'DM Sans',sans-serif;color:#182019;font-size:14px;outline:none;transition:border-color 0.18s, box-shadow 0.18s;}
+.sf-input-premium,.sf-textarea-premium{width:100%;border:1px solid rgba(33,48,27,0.12);background:#fff;border-radius:16px;padding:14px 16px;font-family:var(--font-sans),sans-serif;color:#182019;font-size:14px;outline:none;transition:border-color 0.18s, box-shadow 0.18s;}
 .sf-input-premium:focus,.sf-textarea-premium:focus{border-color:#22301B;box-shadow:0 0 0 3px rgba(34,48,27,0.06);}
 .sf-textarea-premium{min-height:148px;line-height:1.7;resize:vertical;}
 .sf-grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
 .sf-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
 .sf-tile-grid{display:grid;gap:12px;}
-.sf-tile{border:1px solid rgba(33,48,27,0.12);background:#fff;border-radius:18px;padding:16px 16px 15px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:transform 0.16s ease,border-color 0.18s ease,box-shadow 0.18s ease,background 0.18s ease;min-height:78px;text-align:left;font-family:'DM Sans',sans-serif;}
+.sf-tile{border:1px solid rgba(33,48,27,0.12);background:#fff;border-radius:18px;padding:16px 16px 15px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:transform 0.16s ease,border-color 0.18s ease,box-shadow 0.18s ease,background 0.18s ease;min-height:78px;text-align:left;font-family:var(--font-sans),sans-serif;}
 .sf-tile:hover{transform:translateY(-1px);border-color:rgba(34,48,27,0.26);box-shadow:0 12px 26px rgba(31,42,34,0.08);}
 .sf-tile.active{background:#22301B;border-color:#22301B;box-shadow:0 16px 34px rgba(31,42,34,0.18);}
 .sf-tile-icon{width:40px;height:40px;border-radius:14px;background:#F3EEE2;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;color:#22301B;}
@@ -13783,7 +13770,7 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .sf-tile-desc{font-size:12px;color:#72746F;line-height:1.5;}
 .sf-tile.active .sf-tile-label,.sf-tile.active .sf-tile-desc{color:#fff;}
 .sf-chip-row{display:flex;flex-wrap:wrap;gap:8px;}
-.sf-chip{border:1px solid rgba(33,48,27,0.12);background:#fff;border-radius:999px;padding:9px 12px;font-size:12px;font-weight:600;color:#233120;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s ease;}
+.sf-chip{border:1px solid rgba(33,48,27,0.12);background:#fff;border-radius:999px;padding:9px 12px;font-size:12px;font-weight:600;color:#233120;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:all 0.18s ease;}
 .sf-chip:hover{border-color:#22301B;color:#22301B;background:#F7F4EC;}
 .sf-chip.active{background:#22301B;border-color:#22301B;color:#fff;}
 .sf-chip.subtle{background:#F7F4EC;}
@@ -13792,11 +13779,11 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .sf-upload-copy{font-size:13px;color:#6e736c;line-height:1.6;}
 .sf-file-pill{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:14px;background:#fff;border:1px solid rgba(33,48,27,0.08);font-size:12px;color:#233120;}
 .sf-file-meta{font-size:11px;color:#7A7E78;}
-.sf-link-btn{background:none;border:none;padding:0;color:#22301B;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.sf-link-btn{background:none;border:none;padding:0;color:#22301B;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;}
 .sf-preview-shell{position:sticky;top:18px;display:flex;flex-direction:column;gap:16px;}
 .sf-preview-card{background:linear-gradient(180deg,rgba(19,25,15,0.96) 0%,rgba(16,21,13,0.94) 100%);border:1px solid rgba(232,224,208,0.12);border-radius:28px;padding:24px;color:#fff;box-shadow:0 28px 100px rgba(0,0,0,0.42);}
 .sf-preview-kicker{font-size:10px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:rgba(232,224,208,0.54);margin-bottom:12px;}
-.sf-preview-title{font-family:'Playfair Display',serif;font-size:30px;line-height:1.08;font-weight:700;margin-bottom:12px;color:#fff;}
+.sf-preview-title{font-family:var(--font-display),serif;font-size:30px;line-height:1.08;font-weight:700;margin-bottom:12px;color:#fff;}
 .sf-preview-placeholder{color:rgba(255,255,255,0.36);}
 .sf-preview-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
 .sf-preview-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);font-size:11px;font-weight:700;color:#F4EFE4;}
@@ -13825,10 +13812,10 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .sf-section-note{font-size:12px;line-height:1.65;color:#757972;margin-top:-6px;margin-bottom:14px;}
 .sf-actions-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:8px;flex-wrap:wrap;}
 .sf-actions-inline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.sf-primary-btn{height:42px;padding:0 24px;border:none;border-radius:999px;background:#22301B;color:#fff;font-size:13.5px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.03em;transition:transform 0.16s ease,box-shadow 0.18s ease,background 0.18s ease;}
+.sf-primary-btn{height:42px;padding:0 24px;border:none;border-radius:999px;background:#22301B;color:#fff;font-size:13.5px;font-weight:800;cursor:pointer;font-family:var(--font-sans),sans-serif;letter-spacing:0.03em;transition:transform 0.16s ease,box-shadow 0.18s ease,background 0.18s ease;}
 .sf-primary-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 16px 34px rgba(31,42,34,0.16);background:#182211;}
 .sf-primary-btn:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
-.sf-secondary-btn{height:42px;padding:0 18px;border-radius:999px;border:1px solid rgba(33,48,27,0.14);background:#fff;color:#22301B;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.sf-secondary-btn{height:42px;padding:0 18px;border-radius:999px;border:1px solid rgba(33,48,27,0.14);background:#fff;color:#22301B;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans),sans-serif;}
 .sf-quiet-copy{font-size:12px;line-height:1.65;color:#6E736D;}
 .sf-mobile-preview{display:none;}
 .sf-mini-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
@@ -17603,7 +17590,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     gap:10px;
   }
   .kbdr2-thread-command-title{
-    font-family:'Playfair Display',Georgia,serif;
+    font-family:var(--font-display),serif;
     font-size:14px;
     line-height:1.2;
     font-weight:600;
@@ -18379,7 +18366,7 @@ h1,h2,h3,h4{
   background:linear-gradient(180deg,#fffdf8 0%,#f6efe2 100%)!important;
   color:#172116!important;
   box-shadow:0 10px 22px rgba(28,40,20,.07), inset 0 1px 0 rgba(255,255,255,.9)!important;
-  font-family:'DM Sans',Inter,system-ui,sans-serif!important;
+  font-family:var(--font-sans),system-ui,sans-serif!important;
   font-size:11.5px!important;
   font-weight:800!important;
   letter-spacing:.06em!important;
@@ -18481,7 +18468,7 @@ h1,h2,h3,h4{
   border:1px solid rgba(28,40,20,0.14);
   background:#fff;
   color:#1C2814;
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
   font-size:12px;
   font-weight:600;
   letter-spacing:0.01em;
@@ -18516,7 +18503,7 @@ h1,h2,h3,h4{
   letter-spacing:0.14em;
   text-transform:uppercase;
   color:rgba(28,40,20,0.50);
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
 }
 .kbm-mp-sort select{
   appearance:none;
@@ -18525,7 +18512,7 @@ h1,h2,h3,h4{
   border-radius:8px;
   border:1px solid rgba(28,40,20,0.14);
   background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C2814' stroke-width='2.2' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 8px center/12px 12px;
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
   font-size:12.5px;
   font-weight:600;
   color:#1C2814;
@@ -18540,7 +18527,7 @@ h1,h2,h3,h4{
   border:1px solid rgba(196,151,58,0.45);
   background:rgba(196,151,58,0.08);
   color:#A87B2A;
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
   font-size:12px;
   font-weight:700;
   letter-spacing:0.04em;
@@ -18619,7 +18606,7 @@ h1,h2,h3,h4{
   border:1px solid rgba(28,40,20,0.18);
   background:#fff;
   color:#1C2814;
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
   font-size:13px;
   font-weight:700;
   letter-spacing:0.02em;
@@ -18725,7 +18712,7 @@ h1,h2,h3,h4{
   min-width:0;
 }
 .kb-live-featured.is-bare .kb-live-section-kicker{
-  font-family:'DM Sans',sans-serif;
+  font-family:var(--font-sans),sans-serif;
   font-size:11px;
   font-weight:700;
   letter-spacing:0.28em;
@@ -18733,7 +18720,7 @@ h1,h2,h3,h4{
   color:#A87B2A;
 }
 .kb-live-featured.is-bare .kb-live-section-title{
-  font-family:'Playfair Display','Newsreader',Georgia,serif;
+  font-family:var(--font-display),serif;
   font-size:clamp(22px,2.4vw,28px)!important;
   line-height:1.04!important;
   letter-spacing:-0.025em!important;
@@ -18767,7 +18754,7 @@ h1,h2,h3,h4{
   padding:0!important;
 }
 .kb-live-featured.is-bare .kb-live-feature-preview strong{
-  font-family:'Playfair Display','Newsreader',Georgia,serif!important;
+  font-family:var(--font-display),serif!important;
   font-size:14px!important;
   font-weight:500!important;
   color:#1C2814!important;
@@ -18927,7 +18914,7 @@ h1,h2,h3,h4{
 .kb-live-intel-strip > .kb-live-intel-cell span,
 .kb-live-intel-strip > div span{
   display:block!important;
-  font-family:'Playfair Display','Newsreader',Georgia,serif!important;
+  font-family:var(--font-display),serif!important;
   font-size:20px!important;
   font-weight:500!important;
   letter-spacing:-0.02em!important;
@@ -18941,7 +18928,7 @@ h1,h2,h3,h4{
 .kb-live-intel-strip > .kb-live-intel-cell em,
 .kb-live-intel-strip > div em{
   font-style:normal!important;
-  font-family:'DM Sans',sans-serif!important;
+  font-family:var(--font-sans),sans-serif!important;
   font-size:10.5px!important;
   font-weight:600!important;
   letter-spacing:0.14em!important;
@@ -19240,7 +19227,7 @@ h1,h2,h3,h4{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 12px 28px rgba(0,0,0,.18);
 }
 .admin-premium-shell .admin-brand-copy{min-width:0;}
-.admin-premium-shell .admin-brand-name{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;line-height:1.05;color:#fff9ee;letter-spacing:-.3px;}
+.admin-premium-shell .admin-brand-name{font-family:var(--font-display),serif;font-size:19px;font-weight:700;line-height:1.05;color:#fff9ee;letter-spacing:-.3px;}
 .admin-premium-shell .admin-brand-subtitle{margin-top:4px;font-size:9px;font-weight:700;letter-spacing:1.45px;text-transform:uppercase;color:var(--atext-muted);white-space:nowrap;}
 .admin-premium-shell .admin-brand-badge{display:inline-flex;align-items:center;gap:7px;margin-top:15px;padding:6px 9px;border-radius:999px;background:rgba(216,193,143,.07);border:1px solid rgba(216,193,143,.14);font-size:8.5px;font-weight:800;letter-spacing:1.25px;text-transform:uppercase;color:var(--admin-shell-gold);}
 .admin-premium-shell .admin-brand-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--gold-light);box-shadow:0 0 0 4px rgba(216,193,143,.08);}
@@ -19255,7 +19242,7 @@ h1,h2,h3,h4{
 .admin-premium-shell .admin-nav-item:hover{background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.05);transform:translateX(2px);}
 .admin-premium-shell .admin-nav-item.active{background:linear-gradient(135deg,rgba(216,193,143,.12),rgba(216,193,143,.055));border-color:rgba(216,193,143,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 10px 24px rgba(0,0,0,.10);}
 .admin-premium-shell .admin-nav-item.active::before{left:-1px;top:11px;bottom:11px;width:3px;background:linear-gradient(180deg,var(--gold-light),var(--gold));box-shadow:0 0 14px rgba(216,193,143,.38);}
-.admin-premium-shell .admin-nav-glyph{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);font-family:'DM Mono',monospace;font-size:12px;font-weight:800;color:var(--atext-muted);}
+.admin-premium-shell .admin-nav-glyph{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);font-family:var(--font-sans),monospace;font-size:12px;font-weight:800;color:var(--atext-muted);}
 .admin-premium-shell .admin-nav-item.active .admin-nav-glyph{background:rgba(216,193,143,.12);border-color:rgba(216,193,143,.20);color:var(--gold-light);}
 .admin-premium-shell .admin-nav-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:2px;}
 .admin-premium-shell .admin-nav-title{font-size:11.5px;font-weight:700;line-height:1.2;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -19263,7 +19250,7 @@ h1,h2,h3,h4{
 .admin-premium-shell .anav-badge{flex:0 0 auto;margin-left:2px;min-width:22px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.12);}
 .admin-premium-shell .admin-sidebar-footer{margin-top:auto;padding:14px 12px 16px;border-top:1px solid var(--admin-shell-edge);}
 .admin-premium-shell .admin-sidebar-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.045);}
-.admin-premium-shell .admin-sidebar-avatar{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:linear-gradient(145deg,var(--gold),var(--gold-light));font-family:'DM Mono',monospace;font-size:12px;font-weight:800;color:#172014;box-shadow:0 8px 18px rgba(0,0,0,.18);}
+.admin-premium-shell .admin-sidebar-avatar{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:linear-gradient(145deg,var(--gold),var(--gold-light));font-family:var(--font-sans),monospace;font-size:12px;font-weight:800;color:#172014;box-shadow:0 8px 18px rgba(0,0,0,.18);}
 .admin-premium-shell .admin-sidebar-user-copy{min-width:0;}
 .admin-premium-shell .admin-sidebar-user-name{font-size:11px;font-weight:700;color:var(--atext);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .admin-premium-shell .admin-sidebar-user-role{margin-top:2px;font-size:9px;color:var(--atext-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -19275,11 +19262,11 @@ h1,h2,h3,h4{
 }
 .admin-premium-shell .admin-topbar-context{display:flex;flex-direction:column;gap:3px;min-width:0;}
 .admin-premium-shell .admin-topbar-kicker{font-size:8px;font-weight:800;letter-spacing:1.7px;text-transform:uppercase;color:var(--atext-muted);}
-.admin-premium-shell .admin-topbar-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;letter-spacing:-.15px;color:#fff9ee;line-height:1.15;}
+.admin-premium-shell .admin-topbar-title{font-family:var(--font-display),serif;font-size:16px;font-weight:700;letter-spacing:-.15px;color:#fff9ee;line-height:1.15;}
 .admin-premium-shell .admin-topbar-right{gap:7px;min-width:0;}
 .admin-premium-shell .status-pill{min-height:31px;padding:0 11px;background:rgba(34,197,94,.075);font-size:9.5px;white-space:nowrap;}
 .admin-premium-shell .admin-topbar-attention{display:flex;align-items:center;min-height:31px;padding:0 10px;border-radius:999px;background:rgba(239,68,68,.075);border:1px solid rgba(239,68,68,.18);font-size:9.5px;font-weight:700;color:var(--red);white-space:nowrap;}
-.admin-premium-shell .admin-topbar-action{height:32px;padding:0 12px;border-radius:9px;border:1px solid var(--admin-shell-edge-strong);background:rgba(255,255,255,.025);color:var(--atext-mid);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;transition:all .16s ease;}
+.admin-premium-shell .admin-topbar-action{height:32px;padding:0 12px;border-radius:9px;border:1px solid var(--admin-shell-edge-strong);background:rgba(255,255,255,.025);color:var(--atext-mid);font-family:var(--font-sans),sans-serif;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;transition:all .16s ease;}
 .admin-premium-shell .admin-topbar-action:hover{border-color:rgba(216,193,143,.30);background:rgba(216,193,143,.07);color:var(--gold-light);transform:translateY(-1px);}
 .admin-premium-shell .admin-topbar-action:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 .admin-premium-shell .admin-refresh-action{background:rgba(216,193,143,.08);border-color:rgba(216,193,143,.18);color:var(--gold-light);}
@@ -19287,14 +19274,14 @@ h1,h2,h3,h4{
 .admin-premium-shell .admin-content>*{width:100%;max-width:1480px;margin-left:auto;margin-right:auto;}
 .admin-premium-shell .admin-page-heading{margin-bottom:22px;padding:0 2px;text-align:left;}
 .admin-premium-shell .admin-page-eyebrow{font-size:9px;font-weight:800;letter-spacing:2.25px;text-transform:uppercase;color:var(--gold-light);opacity:.74;margin-bottom:8px;}
-.admin-premium-shell .admin-page-title{margin:0;font-family:'Playfair Display',serif;font-size:clamp(25px,2.35vw,34px);font-weight:700;line-height:1.08;letter-spacing:-.65px;color:#fff9ee;}
+.admin-premium-shell .admin-page-title{margin:0;font-family:var(--font-display),serif;font-size:clamp(25px,2.35vw,34px);font-weight:700;line-height:1.08;letter-spacing:-.65px;color:#fff9ee;}
 .admin-premium-shell .admin-page-copy{max-width:780px;margin:7px 0 0;font-size:12px;font-weight:400;line-height:1.65;color:var(--atext-muted);}
 .admin-premium-shell .admin-command-hero{position:relative;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(430px,.75fr);gap:28px;align-items:stretch;margin-bottom:16px;padding:28px;border:1px solid rgba(216,193,143,.16);border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(34,45,27,.94),rgba(25,33,20,.94));box-shadow:var(--admin-shell-shadow);}
 .admin-premium-shell .admin-command-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 88% 12%,rgba(216,193,143,.13),transparent 33%),linear-gradient(120deg,rgba(255,255,255,.018),transparent 44%);pointer-events:none;}
 .admin-premium-shell .admin-command-hero::after{content:'';position:absolute;left:28px;right:28px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(216,193,143,.65),transparent);opacity:.55;}
 .admin-premium-shell .admin-command-hero-copy,.admin-premium-shell .admin-command-signal-grid{position:relative;z-index:1;}
 .admin-premium-shell .admin-command-hero-copy{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:4px 0;}
-.admin-premium-shell .admin-command-title{margin:0;max-width:760px;font-family:'Playfair Display',serif;font-size:clamp(30px,3.1vw,46px);font-weight:700;line-height:1.03;letter-spacing:-1.2px;color:#fffaf0;}
+.admin-premium-shell .admin-command-title{margin:0;max-width:760px;font-family:var(--font-display),serif;font-size:clamp(30px,3.1vw,46px);font-weight:700;line-height:1.03;letter-spacing:-1.2px;color:#fffaf0;}
 .admin-premium-shell .admin-command-copy{max-width:720px;margin:12px 0 0;font-size:13px;line-height:1.7;color:rgba(255,255,255,.57);}
 .admin-premium-shell .admin-command-state-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:18px;}
 .admin-premium-shell .admin-command-state{display:inline-flex;align-items:center;gap:7px;min-height:27px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);font-size:9.5px;font-weight:600;color:rgba(255,255,255,.62);}
@@ -19304,7 +19291,7 @@ h1,h2,h3,h4{
 .admin-premium-shell button.admin-command-signal{cursor:pointer;transition:transform .16s ease,border-color .16s ease,background .16s ease;}
 .admin-premium-shell button.admin-command-signal:hover{transform:translateY(-2px);border-color:rgba(216,193,143,.25);background:rgba(216,193,143,.055);}
 .admin-premium-shell .admin-command-signal-label{font-size:8.5px;font-weight:800;letter-spacing:1.35px;text-transform:uppercase;color:var(--atext-muted);}
-.admin-premium-shell .admin-command-signal strong{margin-top:9px;font-family:'DM Mono',monospace;font-size:clamp(19px,1.8vw,28px);line-height:1;color:#fff8e8;overflow-wrap:anywhere;}
+.admin-premium-shell .admin-command-signal strong{margin-top:9px;font-family:var(--font-sans),monospace;font-size:clamp(19px,1.8vw,28px);line-height:1;color:#fff8e8;overflow-wrap:anywhere;}
 .admin-premium-shell .admin-command-signal>span:last-child{margin-top:7px;font-size:9px;line-height:1.4;color:var(--atext-muted);}
 .admin-premium-shell .admin-command-signal.is-healthy strong{color:var(--green);}
 .admin-premium-shell .admin-command-signal.is-loading strong{color:var(--amber);}
@@ -19313,11 +19300,11 @@ h1,h2,h3,h4{
 .admin-premium-shell .admin-command-action{min-width:0;min-height:74px;padding:12px;border:1px solid var(--admin-shell-edge);border-radius:14px;background:rgba(26,33,20,.82);display:grid;grid-template-columns:30px minmax(0,1fr) auto;grid-template-areas:'icon copy badge' 'icon copy arrow';column-gap:10px;align-items:center;color:var(--atext);font-family:inherit;text-align:left;cursor:pointer;box-shadow:0 10px 26px rgba(2,6,2,.08);transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease;}
 .admin-premium-shell .admin-command-action:hover{transform:translateY(-2px);border-color:rgba(216,193,143,.24);background:rgba(32,42,25,.96);box-shadow:0 16px 34px rgba(2,6,2,.15);}
 .admin-premium-shell .admin-command-action:disabled{opacity:.55;cursor:not-allowed;transform:none;}
-.admin-premium-shell .admin-command-action-icon{grid-area:icon;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(216,193,143,.08);border:1px solid rgba(216,193,143,.13);font-family:'DM Mono',monospace;font-size:12px;font-weight:800;color:var(--gold-light);}
+.admin-premium-shell .admin-command-action-icon{grid-area:icon;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(216,193,143,.08);border:1px solid rgba(216,193,143,.13);font-family:var(--font-sans),monospace;font-size:12px;font-weight:800;color:var(--gold-light);}
 .admin-premium-shell .admin-command-action-copy{grid-area:copy;display:flex;min-width:0;flex-direction:column;gap:3px;}
 .admin-premium-shell .admin-command-action-copy strong{font-size:10.5px;font-weight:700;color:var(--atext);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .admin-premium-shell .admin-command-action-copy span{font-size:8.75px;line-height:1.35;color:var(--atext-muted);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;}
-.admin-premium-shell .admin-command-action-badge{grid-area:badge;align-self:start;min-width:20px;padding:2px 6px;border-radius:999px;background:var(--red);font-family:'DM Mono',monospace;font-size:8px;font-weight:800;color:#fff;text-align:center;}
+.admin-premium-shell .admin-command-action-badge{grid-area:badge;align-self:start;min-width:20px;padding:2px 6px;border-radius:999px;background:var(--red);font-family:var(--font-sans),monospace;font-size:8px;font-weight:800;color:#fff;text-align:center;}
 .admin-premium-shell .admin-command-action-arrow{grid-area:arrow;align-self:end;justify-self:end;font-size:11px;color:var(--atext-muted);}
 .admin-premium-shell .kpi-grid{gap:11px;margin-bottom:12px;}
 .admin-premium-shell .kpi-card{min-height:156px;padding:22px 20px 18px;border-radius:16px;border-color:var(--admin-shell-edge);background:linear-gradient(180deg,rgba(30,39,24,.96),rgba(24,31,19,.96));box-shadow:0 14px 32px rgba(3,7,3,.10);}
@@ -22587,12 +22574,12 @@ class ScreenBoundary extends React.Component {
         <div style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",padding:"40px 20px",background:"#f7f5f0"}}>
           <div style={{maxWidth:520,width:"100%",background:"#fff",border:"1px solid rgba(20,21,24,0.08)",borderRadius:24,boxShadow:"0 24px 70px rgba(20,21,24,0.12)",padding:"28px 24px",textAlign:"center"}}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:"#b08840",marginBottom:12}}>Workspace hiccup</div>
-            <div style={{fontFamily:"Newsreader, Georgia, serif",fontSize:34,lineHeight:1.05,letterSpacing:"-0.03em",color:"#141518",marginBottom:10}}>This screen hit an error.</div>
+            <div style={{fontFamily:"var(--font-display), serif",fontSize:34,lineHeight:1.05,letterSpacing:"-0.03em",color:"#141518",marginBottom:10}}>This screen hit an error.</div>
             <div style={{fontSize:14,lineHeight:1.7,color:"#6b6d75",marginBottom:20}}>Something unexpected happened. Try reloading, or head back to your marketplace and try again.</div>
             <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
-              <button type="button" onClick={()=>{ this.setState({hasError:false}); this.props.onRecover && this.props.onRecover("projects"); }} style={{height:40,padding:"0 16px",borderRadius:10,border:"none",background:"#1e2028",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans, sans-serif"}}>Go to Marketplace</button>
-              <button type="button" onClick={()=>{ this.setState({hasError:false}); this.props.onRecover && this.props.onRecover("my-projects"); }} style={{height:40,padding:"0 16px",borderRadius:10,border:"1px solid rgba(20,21,24,0.1)",background:"#fff",color:"#2e3038",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans, sans-serif"}}>Open my projects</button>
-              <button type="button" onClick={()=>{ this.setState({hasError:false}); this.props.onRecover && this.props.onRecover("inbox"); }} style={{height:40,padding:"0 16px",borderRadius:10,border:"1px solid rgba(20,21,24,0.1)",background:"#fff",color:"#2e3038",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans, sans-serif"}}>Open Inbox</button>
+              <button type="button" onClick={()=>{ this.setState({hasError:false}); this.props.onRecover && this.props.onRecover("projects"); }} style={{height:40,padding:"0 16px",borderRadius:10,border:"none",background:"#1e2028",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans), sans-serif"}}>Go to Marketplace</button>
+              <button type="button" onClick={()=>{ this.setState({hasError:false}); this.props.onRecover && this.props.onRecover("my-projects"); }} style={{height:40,padding:"0 16px",borderRadius:10,border:"1px solid rgba(20,21,24,0.1)",background:"#fff",color:"#2e3038",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans), sans-serif"}}>Open my projects</button>
+              <button type="button" onClick={()=>{ this.setState({hasError:false}); this.props.onRecover && this.props.onRecover("inbox"); }} style={{height:40,padding:"0 16px",borderRadius:10,border:"1px solid rgba(20,21,24,0.1)",background:"#fff",color:"#2e3038",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans), sans-serif"}}>Open Inbox</button>
             </div>
           </div>
         </div>
@@ -24184,7 +24171,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         >
           ← Projects
         </button>
-        <div style={{fontFamily:'DM Mono,monospace',fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
+        <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
           Draft saved
         </div>
       </div>
@@ -24193,7 +24180,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         {/* Hero banner */}
         <div style={{background:'#fff', border:'1px solid #dfd5c2', borderRadius:22, padding:'32px 28px', textAlign:'center', boxShadow:'0 7px 20px rgba(28,40,20,0.06)', marginBottom:20}}>
           <div style={{width:72,height:72,borderRadius:'50%',background:'linear-gradient(135deg,#c9a45c,#b08840)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:30,color:'#fff',margin:'0 auto 18px',boxShadow:'0 8px 24px rgba(176,136,64,0.30)'}}>✦</div>
-          <h1 style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 10px'}}>
+          <h1 style={{fontFamily:"var(--font-display),serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 10px'}}>
             Your project brief is saved.
           </h1>
           <div style={{fontSize:14, color:'#565862', lineHeight:1.65, maxWidth:480, margin:'0 auto'}}>
@@ -24207,7 +24194,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         {/* What happens next */}
         <div style={{background:'#fff', border:'1px solid #dfd5c2', borderRadius:22, overflow:'hidden', marginBottom:20, boxShadow:'0 7px 20px rgba(28,40,20,0.06)'}}>
           <div style={{padding:'14px 22px', borderBottom:'1px solid #efe7d9', background:'#fffdf8'}}>
-            <div style={{fontFamily:'DM Mono,monospace', fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>What happens next</div>
+            <div style={{fontFamily:"var(--font-sans),monospace", fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>What happens next</div>
           </div>
           {[
             {num:'01',title:'Review the draft',body:'Confirm the scope, budget, timeline, and category before you move forward.'},
@@ -24217,10 +24204,10 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           ].map((s,i,arr)=>(
             <div key={s.num} style={{display:'grid', gridTemplateColumns:'56px 1fr', borderBottom: i < arr.length-1 ? '1px solid #efe7d9' : 'none'}}>
               <div style={{padding:'16px', display:'flex', alignItems:'flex-start', justifyContent:'center', paddingTop:18}}>
-                <span style={{fontFamily:'DM Mono,monospace', fontSize:11, color:'#b08840', letterSpacing:'0.10em', fontWeight:700}}>{s.num}</span>
+                <span style={{fontFamily:"var(--font-sans),monospace", fontSize:11, color:'#b08840', letterSpacing:'0.10em', fontWeight:700}}>{s.num}</span>
               </div>
               <div style={{padding:'16px 22px 16px 0'}}>
-                <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif", fontSize:15.5, fontWeight:700, color:'#1C2814', marginBottom:4, letterSpacing:'-0.015em'}}>{s.title}</div>
+                <div style={{fontFamily:"var(--font-display),serif", fontSize:15.5, fontWeight:700, color:'#1C2814', marginBottom:4, letterSpacing:'-0.015em'}}>{s.title}</div>
                 <div style={{fontSize:13, color:'#565862', lineHeight:1.6}}>{s.body}</div>
               </div>
             </div>
@@ -24359,7 +24346,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
                 showToast('Confirmation email sent — check your inbox.');
                 setTimeout(() => setResendCooldown(false), 60000);
               }
-            }} style={{flexShrink:0, padding:'8px 14px', borderRadius:8, border:'1px solid rgba(220,38,38,0.3)', background:resendCooldown ? 'rgba(220,38,38,0.03)' : 'rgba(220,38,38,0.08)', color:resendCooldown ? 'rgba(177,52,42,0.45)' : '#b1342a', fontSize:12, fontWeight:700, cursor:resendCooldown ? 'not-allowed' : 'pointer', fontFamily:'DM Sans,sans-serif', whiteSpace:'nowrap', transition:'all 0.18s'}}>
+            }} style={{flexShrink:0, padding:'8px 14px', borderRadius:8, border:'1px solid rgba(220,38,38,0.3)', background:resendCooldown ? 'rgba(220,38,38,0.03)' : 'rgba(220,38,38,0.08)', color:resendCooldown ? 'rgba(177,52,42,0.45)' : '#b1342a', fontSize:12, fontWeight:700, cursor:resendCooldown ? 'not-allowed' : 'pointer', fontFamily:"var(--font-sans),sans-serif", whiteSpace:'nowrap', transition:'all 0.18s'}}>
               {resendCooldown ? 'Email sent — check your inbox' : 'Resend confirmation email →'}
             </button>
           </div>
@@ -24380,7 +24367,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         >
           ← Projects
         </button>
-        <div style={{fontFamily:'DM Mono,monospace',fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
+        <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
           Proposal submitted
         </div>
       </div>
@@ -24393,7 +24380,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
               <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:7,height:7,borderRadius:'50%',background:'#c4973a'}}/>
             </div>
           </div>
-          <h1 style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 10px'}}>
+          <h1 style={{fontFamily:"var(--font-display),serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 10px'}}>
             Proposal submitted.
           </h1>
           <div style={{fontSize:14, color:'#565862', lineHeight:1.65, maxWidth:440, margin:'0 auto'}}>
@@ -24403,7 +24390,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
 
         {/* Tips while you wait — retained dark navy card, refined */}
         <div style={{background:'linear-gradient(135deg,#1C2814,#2a3520)', borderRadius:22, padding:'24px 26px', marginBottom:20, textAlign:'left', color:'#fff', boxShadow:'0 7px 20px rgba(28,40,20,0.20)'}}>
-          <div style={{fontFamily:'DM Mono,monospace', fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#c4973a', marginBottom:14}}>While you wait</div>
+          <div style={{fontFamily:"var(--font-sans),monospace", fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#c4973a', marginBottom:14}}>While you wait</div>
           {[
             'Complete your Faith Verification to stand out above unverified vendors.',
             'Add a bio and portfolio to your profile — churches review it before hiring.',
@@ -26577,7 +26564,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
             aria-label="More filters"
           >
             <div className="kbm2-filter-sheet-head">
-              <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840'}}>Filters</span>
+              <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840'}}>Filters</span>
               <button type="button" onClick={() => setFilterSheetOpen(false)} aria-label="Close filters" style={{marginLeft:'auto',width:32,height:32,borderRadius:999,border:'1px solid rgba(28,40,20,0.12)',background:'#fff',fontSize:16,cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center',color:'#1C2814'}}>×</button>
             </div>
 
@@ -26606,7 +26593,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                 <select
                   value={locationFilter}
                   onChange={e => setLocationFilter(e.target.value)}
-                  style={{height:42,padding:'0 14px',borderRadius:10,border:'1px solid rgba(28,40,20,0.14)',background:'#fff',fontSize:13,fontFamily:'DM Sans,sans-serif',color:'#1C2814',cursor:'pointer',outline:'none'}}
+                  style={{height:42,padding:'0 14px',borderRadius:10,border:'1px solid rgba(28,40,20,0.14)',background:'#fff',fontSize:13,fontFamily:"var(--font-sans),sans-serif",color:'#1C2814',cursor:'pointer',outline:'none'}}
                 >
                   <option value="All Locations">All locations</option>
                   <option value="Remote">Remote</option>
@@ -27311,7 +27298,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
                     fontSize:11,
                     fontWeight:700,
                     cursor:"pointer",
-                    fontFamily:"DM Sans,sans-serif",
+                    fontFamily:"var(--font-sans),sans-serif",
                   }}
                 >
                   {phase.label}
@@ -27404,7 +27391,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
               value={workspace.nextAction || ""}
               onChange={e => updateWorkspace({ nextAction: e.target.value })}
               placeholder={isVendor ? "Example: Send homepage mockups by Friday" : "Example: Review revised scope and approve milestone 2"}
-              style={{width:"100%",padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"DM Sans,sans-serif",fontSize:13,outline:"none",background:"#fff",marginBottom:10}}
+              style={{width:"100%",padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"var(--font-sans),sans-serif",fontSize:13,outline:"none",background:"#fff",marginBottom:10}}
             />
             <div style={{fontSize:11,color:"var(--text-muted)",lineHeight:1.6}}>
               Use this as the single source of truth for what needs to happen next on the project.
@@ -27484,7 +27471,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
                 <div style={{fontSize:18,fontWeight:800,color:'#1C2814'}}>{moneyLabel(paymentCoordination?.lastCoordinatedAmount)}</div>
               </div>
             </div>
-            <textarea rows={2} value={paymentCoordination?.note || ''} onChange={e=>updatePaymentCoordination('note', e.target.value)} placeholder='Payment coordination note, invoice reminder, or payout detail…' style={{width:'100%',padding:'12px 12px',borderRadius:10,border:'1px solid var(--border)',fontFamily:'DM Sans,sans-serif',fontSize:13,outline:'none',resize:'vertical'}} />
+            <textarea rows={2} value={paymentCoordination?.note || ''} onChange={e=>updatePaymentCoordination('note', e.target.value)} placeholder='Payment coordination note, invoice reminder, or payout detail…' style={{width:'100%',padding:'12px 12px',borderRadius:10,border:'1px solid var(--border)',fontFamily:"var(--font-sans),sans-serif",fontSize:13,outline:'none',resize:'vertical'}} />
             <div style={{fontSize:11,color:'#7d7363',lineHeight:1.7}}>FaithBid documents the operating record and vendor fee while payment handling is still coordinated directly between both sides. Standard fee: {PLATFORM_FEE_LABEL}.</div>
           </div>
 
@@ -27496,7 +27483,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
                 onChange={e=>setDeliverableInput(e.target.value)}
                 onKeyDown={e=>{ if (e.key === "Enter") { e.preventDefault(); addDeliverable(); } }}
                 placeholder="Add a deliverable or handoff item"
-                style={{flex:1,padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"DM Sans,sans-serif",fontSize:13,outline:"none"}}
+                style={{flex:1,padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"var(--font-sans),sans-serif",fontSize:13,outline:"none"}}
               />
               <button type="button" onClick={addDeliverable} className="btn-secondary" style={{padding:"0 14px"}}>Add</button>
             </div>
@@ -27536,7 +27523,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
             value={updateText}
             onChange={e=>setUpdateText(e.target.value)}
             placeholder={isVendor ? "Example: Mockups are ready for your review and I uploaded the PDF in the thread." : "Example: We reviewed the latest draft and are ready to approve milestone two."}
-            style={{width:"100%",padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"DM Sans,sans-serif",fontSize:13,outline:"none",resize:"vertical",marginBottom:10}}
+            style={{width:"100%",padding:"12px 12px",borderRadius:10,border:"1px solid var(--border)",fontFamily:"var(--font-sans),sans-serif",fontSize:13,outline:"none",resize:"vertical",marginBottom:10}}
           />
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             <button type="button" onClick={sendProjectUpdate} disabled={!updateText.trim() || sending} className="btn-primary" style={{padding:"10px 16px"}}>
@@ -27594,7 +27581,7 @@ function ProjectWorkspacePanel({ project:p, role, nav, onComplete, onLifecycleAc
               return <button key={field} type='button' onClick={()=>updateCloseout(field, complete ? 'pending' : (field === 'finalPayout' ? 'released' : 'done'))} style={{padding:'12px 14px',borderRadius:12,border:'1px solid var(--border)',background:'#fff',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,cursor:'pointer'}}><span style={{fontSize:13,color:'#1C2814',fontWeight:600}}>{label}</span><span style={{fontSize:11,fontWeight:700,color:complete?'var(--success)':'var(--warn)',textTransform:'uppercase'}}>{String(value || 'pending').replace('_',' ')}</span></button>;
             }) : <div style={{gridColumn:'1 / -1',padding:'13px 14px',borderRadius:12,background:'#fff',border:'1px solid var(--border)',fontSize:12,color:'#7d7363',lineHeight:1.65}}>No closeout checklist has been documented for this project yet.</div>}
           </div>
-          <textarea rows={2} value={opsState?.closeout?.closeoutNote || ''} onChange={e=>updateCloseout('closeoutNote', e.target.value)} placeholder='Handoff summary, archive notes, or any final coordination details…' style={{width:'100%',padding:'12px 12px',borderRadius:10,border:'1px solid var(--border)',fontFamily:'DM Sans,sans-serif',fontSize:13,outline:'none',resize:'vertical'}} />
+          <textarea rows={2} value={opsState?.closeout?.closeoutNote || ''} onChange={e=>updateCloseout('closeoutNote', e.target.value)} placeholder='Handoff summary, archive notes, or any final coordination details…' style={{width:'100%',padding:'12px 12px',borderRadius:10,border:'1px solid var(--border)',fontFamily:"var(--font-sans),sans-serif",fontSize:13,outline:'none',resize:'vertical'}} />
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
             <button type='button' className='btn-secondary' style={{padding:'10px 14px'}} onClick={requestReview}>Request review</button>
             <button type='button' className='btn-secondary' style={{padding:'10px 14px'}} onClick={()=>{
@@ -27699,7 +27686,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
         >
           ← Back
         </button>
-        <div style={{fontFamily:'DM Mono,monospace',fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
+        <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
           Submit Proposal
         </div>
       </div>
@@ -27708,7 +27695,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
         <div style={{fontSize:11, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'#b08840', marginBottom:8}}>
           {churchName}
         </div>
-        <h1 style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif", fontSize:'clamp(24px,3.6vw,34px)', fontWeight:500, lineHeight:1.15, color:'#1C2814', margin:'0 0 6px'}}>
+        <h1 style={{fontFamily:"var(--font-display),serif", fontSize:'clamp(24px,3.6vw,34px)', fontWeight:500, lineHeight:1.15, color:'#1C2814', margin:'0 0 6px'}}>
           {projectTitle}
         </h1>
         <div style={{fontSize:13, color:'#565862', marginBottom:20}}>{contextMeta || budgetLabel}</div>
@@ -27776,7 +27763,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
               value={amount}
               onChange={e => setAmount(e.target.value)}
               placeholder="e.g. 12500"
-              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:'DM Sans, sans-serif'}}
+              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:"var(--font-sans), sans-serif"}}
             />
             {amountTooHigh ? (
               <div style={{marginTop:6, padding:'8px 12px', borderRadius:10, background:'rgba(220,38,38,0.06)', border:'1px solid rgba(220,38,38,0.18)', fontSize:12, color:'#b1342a'}}>
@@ -27802,7 +27789,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
               value={timeline}
               onChange={e => setTimeline(e.target.value)}
               placeholder="e.g. 4 weeks from kickoff"
-              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:'DM Sans, sans-serif'}}
+              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:"var(--font-sans), sans-serif"}}
             />
           </label>
 
@@ -27814,7 +27801,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
               rows={5}
               maxLength={1500}
               placeholder="How would you approach this project? What makes you a strong fit? Anything you'd need from the church to get started."
-              style={{padding:'12px 14px', borderRadius:12, border:`1px solid ${note.length > 1350 ? 'rgba(220,38,38,0.35)' : 'rgba(0,0,0,0.12)'}`, background:'#fff', fontSize:14, lineHeight:1.55, fontFamily:'DM Sans, sans-serif', resize:'vertical', transition:'border-color 0.15s'}}
+              style={{padding:'12px 14px', borderRadius:12, border:`1px solid ${note.length > 1350 ? 'rgba(220,38,38,0.35)' : 'rgba(0,0,0,0.12)'}`, background:'#fff', fontSize:14, lineHeight:1.55, fontFamily:"var(--font-sans), sans-serif", resize:'vertical', transition:'border-color 0.15s'}}
             />
             <div style={{display:'flex', justifyContent:'space-between', gap:10, alignItems:'center', marginTop:2, flexWrap:'wrap'}}>
               <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
@@ -27830,7 +27817,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
                   </button>
                 ))}
               </div>
-              <span style={{fontSize:11, fontFamily:'DM Mono,monospace', color: note.length > 1350 ? '#b1342a' : note.length > 1100 ? '#8a6729' : 'rgba(28,40,20,0.28)', letterSpacing:'0.04em'}}>
+              <span style={{fontSize:11, fontFamily:"var(--font-sans),monospace", color: note.length > 1350 ? '#b1342a' : note.length > 1100 ? '#8a6729' : 'rgba(28,40,20,0.28)', letterSpacing:'0.04em'}}>
                 {note.length}/1500
               </span>
             </div>
@@ -27846,7 +27833,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
               </button>
               {coachingOpen && (
                 <div style={{marginTop:8, padding:'12px 14px', borderRadius:12, background:'#fffdf8', border:'1px solid #efe7d9'}}>
-                  <div style={{fontFamily:'DM Mono,monospace', fontSize:9.5, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840', marginBottom:8}}>What churches look for</div>
+                  <div style={{fontFamily:"var(--font-sans),monospace", fontSize:9.5, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840', marginBottom:8}}>What churches look for</div>
                   <ul style={{margin:0, padding:0, listStyle:'none', display:'flex', flexDirection:'column', gap:6}}>
                     <li style={{display:'flex', gap:8, alignItems:'flex-start', fontSize:12.5, color:'#565862', lineHeight:1.5}}>
                       <span style={{width:5, height:5, borderRadius:999, background:'#b08840', flexShrink:0, marginTop:7}}/>
@@ -28353,7 +28340,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
                 </div>
                 <div className="kb-snapshot-label" style={{fontSize:12,fontWeight:700,letterSpacing:0,textTransform:'none',color:'#1C2814',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.label}</div>
               </div>
-              <div style={{fontFamily:"'Newsreader','Playfair Display',serif",fontSize:17,fontWeight:600,letterSpacing:'-0.025em',color:'#1C2814',lineHeight:1,marginLeft:'auto',flexShrink:0,whiteSpace:'nowrap'}}>{item.value}</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:600,letterSpacing:'-0.025em',color:'#1C2814',lineHeight:1,marginLeft:'auto',flexShrink:0,whiteSpace:'nowrap'}}>{item.value}</div>
             </div>
           );
         })}
@@ -28506,7 +28493,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
               </div>
               {activityItemsTotal > activityItemsVisible.length ? (
                 <div style={{padding:'10px 18px',borderTop:'1px solid #f4ecdc',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <button type="button" onClick={()=>{setLane('all');setSearch('');}} style={{fontSize:12,fontWeight:700,color:'#8a6729',background:'none',border:'none',cursor:'pointer',padding:'4px 12px',fontFamily:"'DM Sans',sans-serif"}}>
+                  <button type="button" onClick={()=>{setLane('all');setSearch('');}} style={{fontSize:12,fontWeight:700,color:'#8a6729',background:'none',border:'none',cursor:'pointer',padding:'4px 12px',fontFamily:"var(--font-sans),sans-serif"}}>
                     {activityItemsTotal - activityItemsVisible.length} more item{activityItemsTotal - activityItemsVisible.length === 1 ? '' : 's'} — view all projects →
                   </button>
                 </div>
@@ -28547,12 +28534,12 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       ) : myProjectsFetchError ? (
         <div style={{padding:'48px 24px',textAlign:'center',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
           <div style={{width:52,height:52,borderRadius:'50%',background:'rgba(220,38,38,0.07)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24}}>⚠</div>
-          <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em'}}>Couldn't load your projects</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em'}}>Couldn't load your projects</div>
           <div style={{fontSize:13,color:'#858792',maxWidth:340,lineHeight:1.6}}>There was a problem fetching your projects. Check your connection and try again.</div>
           <button
             type="button"
             onClick={typeof onRetryMyProjects === 'function' ? onRetryMyProjects : undefined}
-            style={{height:42,padding:'0 22px',borderRadius:11,border:'none',background:'linear-gradient(180deg,#1C2814,#0e1808)',color:'#fffdf8',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",letterSpacing:'0.02em',boxShadow:'0 4px 14px rgba(28,40,20,0.20)'}}
+            style={{height:42,padding:'0 22px',borderRadius:11,border:'none',background:'linear-gradient(180deg,#1C2814,#0e1808)',color:'#fffdf8',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif",letterSpacing:'0.02em',boxShadow:'0 4px 14px rgba(28,40,20,0.20)'}}
           >
             Try again
           </button>
@@ -28617,8 +28604,8 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       {vendorPickModal && (
         <div style={{position:'fixed',inset:0,background:'rgba(28,40,20,0.50)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:16,backdropFilter:'blur(4px)'}} role="dialog" aria-modal="true">
           <div style={{background:'#fff',borderRadius:22,padding:'24px 26px',maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(28,40,20,0.30)',border:'1px solid #dfd5c2'}}>
-            <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Vendor selection</div>
-            <h3 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:'0 0 4px'}}>Update which vendor?</h3>
+            <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Vendor selection</div>
+            <h3 style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:'0 0 4px'}}>Update which vendor?</h3>
             <p style={{margin:'0 0 18px',fontSize:13,color:'#565862'}}>{vendorPickModal.project?.title}</p>
             <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:18}}>
               {vendorPickModal.links.map((v) => (
@@ -28642,7 +28629,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       {normalizedProjects.filter(p => p.laneKey === 'cancelled').length > 0 && (
         <div style={{maxWidth:1400,margin:'32px auto 0',padding:'0 24px'}}>
           <details style={{borderRadius:14,border:'1px solid #ece4d2',background:'#fffdf8',overflow:'hidden'}}>
-            <summary style={{padding:'13px 20px',cursor:'pointer',fontSize:12,fontWeight:700,color:'#8a8579',letterSpacing:'0.08em',textTransform:'uppercase',fontFamily:"'DM Mono',monospace",userSelect:'none',listStyle:'none',display:'flex',alignItems:'center',gap:8}}>
+            <summary style={{padding:'13px 20px',cursor:'pointer',fontSize:12,fontWeight:700,color:'#8a8579',letterSpacing:'0.08em',textTransform:'uppercase',fontFamily:"var(--font-sans),monospace",userSelect:'none',listStyle:'none',display:'flex',alignItems:'center',gap:8}}>
               <span style={{flex:1}}>Closed projects · {normalizedProjects.filter(p=>p.laneKey==='cancelled').length}</span>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
             </summary>
@@ -28650,7 +28637,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
               {normalizedProjects.filter(p=>p.laneKey==='cancelled').map(p=>(
                 <div key={p.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 20px',gap:12}}>
                   <span style={{fontSize:13,color:'#7d7363',lineHeight:1.4}}>{p.title}</span>
-                  <span style={{fontSize:10.5,fontFamily:"'DM Mono',monospace",color:'#c4bdb4',fontWeight:600,letterSpacing:'0.06em',textTransform:'uppercase',flexShrink:0}}>Closed</span>
+                  <span style={{fontSize:10.5,fontFamily:"var(--font-sans),monospace",color:'#c4bdb4',fontWeight:600,letterSpacing:'0.06em',textTransform:'uppercase',flexShrink:0}}>Closed</span>
                 </div>
               ))}
             </div>
@@ -28661,8 +28648,8 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       {stagePickModal && (
         <div style={{position:'fixed',inset:0,background:'rgba(28,40,20,0.50)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:16,backdropFilter:'blur(4px)'}} role="dialog" aria-modal="true">
           <div style={{background:'#fff',borderRadius:22,padding:'24px 26px',maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(28,40,20,0.30)',border:'1px solid #dfd5c2'}}>
-            <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Vendor stage</div>
-            <h3 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:'0 0 4px'}}>Set stage for {stagePickModal.vendor?.name}</h3>
+            <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Vendor stage</div>
+            <h3 style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:'0 0 4px'}}>Set stage for {stagePickModal.vendor?.name}</h3>
             <p style={{margin:'0 0 18px',fontSize:13,color:'#565862'}}>Current: <strong style={{color:'#1C2814',fontWeight:700}}>{PROJECT_VENDOR_STAGE_META[stagePickModal.vendor?.stage]?.label || 'Watching'}</strong></p>
             <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:18}}>
               {PROJECT_VENDOR_PIPELINE.map((item) => {
@@ -28835,8 +28822,8 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
           </div>
         ) : won.length===0 ? (
           <div style={{background:'linear-gradient(135deg,#1C2814,#2a3520)',borderRadius:22,padding:'64px 40px',textAlign:'center',color:'#fff',boxShadow:'0 7px 20px rgba(28,40,20,0.20)'}}>
-            <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#c4973a',marginBottom:14}}>Your work</div>
-            <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(24px,3.4vw,30px)',fontWeight:700,marginBottom:10,letterSpacing:'-0.025em',color:'#fff',lineHeight:1.05}}>No active projects yet.</div>
+            <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#c4973a',marginBottom:14}}>Your work</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(24px,3.4vw,30px)',fontWeight:700,marginBottom:10,letterSpacing:'-0.025em',color:'#fff',lineHeight:1.05}}>No active projects yet.</div>
             <div style={{fontSize:14,color:'rgba(255,255,255,0.72)',marginBottom:28,lineHeight:1.65,maxWidth:420,margin:'0 auto 28px'}}>
               Submit bids on open projects and win your first ministry client.
             </div>
@@ -28913,7 +28900,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
                       onClick={()=>setWithdrawWorkPanelConfirm(b.id)}
                       disabled={withdrawingBid===b.id}
                       aria-label={`Withdraw bid on ${proj.title||'project'}`}
-                      style={{padding:'5px 12px',borderRadius:999,border:'1px solid rgba(220,38,38,0.22)',background:'rgba(220,38,38,0.06)',color:'#b1342a',fontSize:10.5,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",letterSpacing:'0.04em',opacity:withdrawingBid===b.id?0.5:1}}
+                      style={{padding:'5px 12px',borderRadius:999,border:'1px solid rgba(220,38,38,0.22)',background:'rgba(220,38,38,0.06)',color:'#b1342a',fontSize:10.5,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif",letterSpacing:'0.04em',opacity:withdrawingBid===b.id?0.5:1}}
                     >
                       {withdrawingBid===b.id ? 'Withdrawing…' : 'Withdraw bid'}
                     </button>
@@ -28922,16 +28909,16 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
                     <div style={{marginTop:4, padding:'16px 18px', borderRadius:14, background:'#fffdf8', border:'1px solid #efe7d9', display:'flex', flexDirection:'column', gap:14}}>
                       <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
                         <div style={{padding:'10px 12px',borderRadius:12,background:'#fff',border:'1px solid #e5dcc8',minWidth:110}}>
-                          <div style={{fontFamily:'DM Mono,monospace',fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Your bid</div>
-                          <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{formatMoney(Number(b.amount))}</div>
+                          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Your bid</div>
+                          <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{formatMoney(Number(b.amount))}</div>
                         </div>
                         <div style={{padding:'10px 12px',borderRadius:12,background:'#fff',border:'1px solid #e5dcc8',minWidth:110}}>
-                          <div style={{fontFamily:'DM Mono,monospace',fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Timeline</div>
-                          <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{b.timeline || '—'}</div>
+                          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Timeline</div>
+                          <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{b.timeline || '—'}</div>
                         </div>
                         <div style={{padding:'10px 12px',borderRadius:12,background:'#fff',border:'1px solid #e5dcc8',minWidth:110}}>
-                          <div style={{fontFamily:'DM Mono,monospace',fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Submitted</div>
-                          <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{days === 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days}d ago`}</div>
+                          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Submitted</div>
+                          <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{days === 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days}d ago`}</div>
                         </div>
                       </div>
                       {(b.cover_letter || b.note) && (
@@ -28949,7 +28936,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
                               inputMode="decimal"
                               value={editingBid.amount}
                               onChange={e => setEditingBid(prev => ({...prev, amount: e.target.value}))}
-                              style={{height:38, padding:'0 12px', borderRadius:8, border:'1.5px solid #dfd5c2', background:'#fff', fontSize:14, fontFamily:'DM Sans,sans-serif', outline:'none'}}
+                              style={{height:38, padding:'0 12px', borderRadius:8, border:'1.5px solid #dfd5c2', background:'#fff', fontSize:14, fontFamily:"var(--font-sans),sans-serif", outline:'none'}}
                             />
                           </label>
                           <div style={{display:'flex', alignItems:'flex-end', gap:8}}>
@@ -29046,7 +29033,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
   const description = p.desc || p.description || "This representative project shows how a complete ministry brief can look once a church posts work to the marketplace.";
 
   return (
-    <div style={{ minHeight: "100vh", backgroundImage: KB_WORKSPACE_CLAY_BACKGROUND, backgroundSize: "cover", backgroundPosition: "center top", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed", backgroundColor: "#f6efe4", padding: "22px 24px 52px", fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundImage: KB_WORKSPACE_CLAY_BACKGROUND, backgroundSize: "cover", backgroundPosition: "center top", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed", backgroundColor: "#f6efe4", padding: "22px 24px 52px", fontFamily: "var(--font-sans), sans-serif" }}>
       <div style={{ maxWidth: 1120, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginBottom: 18, flexWrap: "wrap" }}>
           <button
@@ -29068,7 +29055,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase", color: "#b08840", marginBottom: 10 }}>
                 {p.category || "Sample project"}
               </div>
-              <h1 style={{ margin: 0, fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: "clamp(31px,5vw,54px)", lineHeight: 0.98, letterSpacing: "-0.045em", fontWeight: 800, color: "#1C2814", maxWidth: 760 }}>
+              <h1 style={{ margin: 0, fontFamily: "var(--font-display),serif", fontSize: "clamp(31px,5vw,54px)", lineHeight: 0.98, letterSpacing: "-0.045em", fontWeight: 800, color: "#1C2814", maxWidth: 760 }}>
                 {p.title || "Sample ministry project"}
               </h1>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 16, color: "#6b6d75", fontSize: 13.5, fontWeight: 600 }}>
@@ -29095,7 +29082,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
                     style={{ width: "100%", textAlign: "left", padding: "13px 14px", borderRadius: 16, border: "1px solid #eadfca", background: "#fffdf8", cursor: "pointer" }}
                   >
                     <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#a09a85", marginBottom: 4 }}>{item.label}</div>
-                    <div style={{ fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: 19, lineHeight: 1.1, fontWeight: 800, letterSpacing: "-0.02em", color: "#1C2814" }}>{item.value}</div>
+                    <div style={{ fontFamily: "var(--font-display),serif", fontSize: 19, lineHeight: 1.1, fontWeight: 800, letterSpacing: "-0.02em", color: "#1C2814" }}>{item.value}</div>
                   </button>
                 ))}
               </div>
@@ -29127,7 +29114,7 @@ function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
         <section style={{ marginTop: 16, borderRadius: 24, overflow: "hidden", background: "linear-gradient(135deg,#1C2814,#28371d)", border: "1px solid rgba(28,40,20,0.22)", boxShadow: "0 18px 42px rgba(28,40,20,0.16)" }}>
           <div style={{ padding: "28px clamp(22px,4vw,38px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 22, flexWrap: "wrap" }}>
             <div style={{ minWidth: 0, maxWidth: 660 }}>
-              <div style={{ fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: "clamp(22px,3vw,32px)", fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.035em", color: "#fff", marginBottom: 8 }}>
+              <div style={{ fontFamily: "var(--font-display),serif", fontSize: "clamp(22px,3vw,32px)", fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.035em", color: "#fff", marginBottom: 8 }}>
                 {isVendor ? "Projects like this are waiting for you." : "Ready to post a project like this?"}
               </div>
               <div style={{ fontSize: 13.5, lineHeight: 1.7, color: "rgba(255,255,255,0.68)", maxWidth: 600 }}>
@@ -29384,8 +29371,8 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
       {/* Cream headline section */}
       <div className="kb755-bid-review-hero" style={{padding:'22px 24px 20px',background:'#fffdf8',borderBottom:'1px solid #efe7d9'}}>
         <div style={{maxWidth:1400,margin:'0 auto'}}>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>Bid review · {error ? 'Unable to load proposals' : `${bids.length} ${bids.length===1?'proposal':'proposals'}`}</div>
-          <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(26px,3.6vw,34px)',fontWeight:700,lineHeight:1.04,letterSpacing:'-0.025em',color:'#1C2814',margin:'0 0 6px',overflow:'hidden',textOverflow:'ellipsis'}}>{p.title}</h1>
+          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>Bid review · {error ? 'Unable to load proposals' : `${bids.length} ${bids.length===1?'proposal':'proposals'}`}</div>
+          <h1 style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(26px,3.6vw,34px)',fontWeight:700,lineHeight:1.04,letterSpacing:'-0.025em',color:'#1C2814',margin:'0 0 6px',overflow:'hidden',textOverflow:'ellipsis'}}>{p.title}</h1>
           <div style={{fontSize:13,color:'#565862'}}>{p.church_name||p.church}{p.city?` · ${p.city}`:""}{p.budget?` · ${p.budget}`:''}</div>
 
           {/* Stat strip */}
@@ -29396,8 +29383,8 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
               {label:'Avg bid',    val:error?'—':(bids.length>0?formatMoney(avgBid):'—')},
             ].map((s,i)=>(
               <div key={s.label} style={{padding:'14px 18px',borderRight:i<2?'1px solid #efe7d9':'none'}}>
-                <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{s.val}</div>
-                <div style={{fontFamily:'DM Mono,monospace',fontSize:9.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',marginTop:5}}>{s.label}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{s.val}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',marginTop:5}}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -29426,7 +29413,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
 
       {!loading && error && (
         <div style={{background:"#fff",borderRadius:"var(--r-lg)",border:"1.5px solid var(--border)",padding:"48px 40px",textAlign:"center"}}>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:8}}>We couldn't load the bids</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:8}}>We couldn't load the bids</div>
           <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,maxWidth:420,margin:"0 auto 18px"}}>The project may still have proposals. Nothing has been changed. Try loading the bid review again.</div>
           <button type="button" onClick={()=>{ if (typeof onRetry === 'function') onRetry(); }} className="btn-secondary" style={{padding:"10px 16px",fontSize:12}}>Try again</button>
         </div>
@@ -29437,7 +29424,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
           <div style={{width:48,height:48,borderRadius:"var(--r-md)",background:"var(--cream-dark)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
           </div>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Waiting for bids</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Waiting for bids</div>
           <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,maxWidth:360,margin:"0 auto"}}>Most projects receive their first bid within a few hours. Make sure your description is clear and your budget is realistic.</div>
         </div>
       )}
@@ -29448,8 +29435,8 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
             <div className="kb755-bid-review-recommendation" style={{background:'linear-gradient(135deg,#fffdf8,#f7f1e4)',borderRadius:'var(--r-lg)',border:'1.5px solid rgba(176,136,64,0.16)',padding:'18px 20px',marginBottom:14,boxShadow:'0 12px 36px rgba(20,21,24,0.05)'}}>
               <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:16,flexWrap:'wrap'}}>
                 <div style={{maxWidth:660}}>
-                  <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#8a6a2e',marginBottom:8,fontFamily:'DM Mono,monospace'}}>Recommended now</div>
-                  <div style={{fontFamily:'Playfair Display,serif',fontSize:28,fontWeight:700,color:'#1C2814',letterSpacing:-0.5,lineHeight:1.05,marginBottom:6}}>{decisionLeader.bid.vendor || decisionLeader.bid.vendor_name || 'Vendor'}</div>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#8a6a2e',marginBottom:8,fontFamily:"var(--font-sans),monospace"}}>Recommended now</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:700,color:'#1C2814',letterSpacing:-0.5,lineHeight:1.05,marginBottom:6}}>{decisionLeader.bid.vendor || decisionLeader.bid.vendor_name || 'Vendor'}</div>
                   <div style={{fontSize:13,color:'var(--text-mid)',lineHeight:1.75,marginBottom:10,maxWidth:600}}>{decisionLeader.profile.body}</div>
                   <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:12}}>
                     {decisionLeader.profile.reasons.map(reason => <span key={reason} style={{padding:'6px 10px',borderRadius:999,border:'1px solid rgba(20,21,24,0.08)',background:'#fff',fontSize:11,fontWeight:700,color:'var(--text-mid)'}}>{reason}</span>)}
@@ -29464,7 +29451,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   </div>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:10,minWidth:280,flex:'1 1 320px',maxWidth:360}}>
-                  {decisionSnapshot.map(item => <div key={item.label} style={{padding:'12px 13px',borderRadius:14,background:'#fff',border:'1px solid rgba(20,21,24,0.06)'}}><div style={{fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#7d7363',marginBottom:5,fontFamily:'DM Mono,monospace'}}>{item.label}</div><div style={{fontSize:13,fontWeight:700,color:'#1C2814',lineHeight:1.45}}>{item.value}</div></div>)}
+                  {decisionSnapshot.map(item => <div key={item.label} style={{padding:'12px 13px',borderRadius:14,background:'#fff',border:'1px solid rgba(20,21,24,0.06)'}}><div style={{fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#7d7363',marginBottom:5,fontFamily:"var(--font-sans),monospace"}}>{item.label}</div><div style={{fontSize:13,fontWeight:700,color:'#1C2814',lineHeight:1.45}}>{item.value}</div></div>)}
                 </div>
               </div>
             </div>
@@ -29473,7 +29460,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
             <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:14,flexWrap:"wrap",marginBottom:14}}>
               <div>
                 <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--text-muted)",marginBottom:6}}>Decision workspace</div>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,color:"var(--navy)",letterSpacing:-0.5,marginBottom:5}}>Review every bid in one place</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",letterSpacing:-0.5,marginBottom:5}}>Review every bid in one place</div>
                 <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,maxWidth:560}}>Review price, trust signals, cover letters, and bid status before you hire. Use the filters to quickly narrow the field.</div>
               </div>
               <div style={{display:"flex",gap:0,background:"var(--cream)",borderRadius:"var(--r-md)",border:"1px solid var(--border)",overflow:"hidden"}}>
@@ -29484,7 +29471,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   {label:"Hired", val:hired?1:0},
                 ].map((s,i)=>(
                   <div key={s.label} style={{padding:"10px 14px",borderRight:i<3?"1px solid var(--border)":"none",minWidth:86,textAlign:"center"}}>
-                    <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--navy)",lineHeight:1}}>{s.val}</div>
+                    <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",lineHeight:1}}>{s.val}</div>
                     <div style={{fontSize:9,fontWeight:700,letterSpacing:1.3,textTransform:"uppercase",color:"var(--text-muted)",marginTop:4}}>{s.label}</div>
                   </div>
                 ))}
@@ -29503,7 +29490,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                     key={filter.key}
                     type="button"
                     onClick={()=>setStageFilter(filter.key)}
-                    style={{padding:"7px 12px",borderRadius:999,border:stageFilter===filter.key?"1px solid var(--navy)":"1px solid var(--border)",background:stageFilter===filter.key?"var(--navy)":"#fff",color:stageFilter===filter.key?"#fff":"var(--text-mid)",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif",letterSpacing:0.2,display:"inline-flex",alignItems:"center",gap:6,transition:"all 0.15s"}}
+                    style={{padding:"7px 12px",borderRadius:999,border:stageFilter===filter.key?"1px solid var(--navy)":"1px solid var(--border)",background:stageFilter===filter.key?"var(--navy)":"#fff",color:stageFilter===filter.key?"#fff":"var(--text-mid)",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,display:"inline-flex",alignItems:"center",gap:6,transition:"all 0.15s"}}
                   >
                     <span>{filter.label}</span>
                     <span style={{padding:"2px 6px",borderRadius:999,background:stageFilter===filter.key?"rgba(255,255,255,0.14)":"var(--cream)",color:"inherit",fontSize:10}}>{filter.count}</span>
@@ -29514,7 +29501,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                     type="button"
                     onClick={()=>setConfirmDeclineAll(true)}
                     disabled={decliningAll}
-                    style={{padding:"7px 12px",background:"var(--danger-bg)",color:"var(--danger)",border:"1px solid var(--danger-border)",borderRadius:999,fontSize:11,fontWeight:700,cursor:decliningAll?"not-allowed":"pointer",fontFamily:"DM Sans,sans-serif",opacity:decliningAll?0.6:1,letterSpacing:0.2}}
+                    style={{padding:"7px 12px",background:"var(--danger-bg)",color:"var(--danger)",border:"1px solid var(--danger-border)",borderRadius:999,fontSize:11,fontWeight:700,cursor:decliningAll?"not-allowed":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:decliningAll?0.6:1,letterSpacing:0.2}}
                   >
                     {decliningAll ? "Declining…" : `Decline remaining (${pendingCount})`}
                   </button>
@@ -29524,7 +29511,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                 <div style={{display:"flex",gap:0,background:"#fff",borderRadius:"var(--r-sm)",border:"1.5px solid var(--border)",overflow:"hidden"}}>
                   {[{key:"amount",label:"Price"},{key:"rating",label:"Rating"},{key:"recent",label:"Recent"}].map((s,i)=>(
                     <button key={s.key} type="button" onClick={()=>setSortBy(s.key)}
-                      style={{padding:"7px 12px",background:sortBy===s.key?"var(--navy)":"#fff",color:sortBy===s.key?"#fff":"var(--text-mid)",border:"none",borderRight:i<2?"1.5px solid var(--border)":"none",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif",transition:"all 0.15s"}}>
+                      style={{padding:"7px 12px",background:sortBy===s.key?"var(--navy)":"#fff",color:sortBy===s.key?"#fff":"var(--text-mid)",border:"none",borderRight:i<2?"1.5px solid var(--border)":"none",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"}}>
                       {s.label}
                     </button>
                   ))}
@@ -29533,7 +29520,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   <div style={{display:"flex",gap:0,background:"#fff",borderRadius:"var(--r-sm)",border:"1.5px solid var(--border)",overflow:"hidden"}}>
                     {[{key:"list",label:"List"},{key:"compare",label:"Side-by-side"}].map((m,i)=>(
                       <button key={m.key} type="button" onClick={()=>setViewMode(m.key)}
-                        style={{padding:"7px 12px",background:viewMode===m.key?"#1C2814":"#fff",color:viewMode===m.key?"#fff":"#1C2814",border:"none",borderRight:i<1?"1.5px solid var(--border)":"none",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif",transition:"all 0.15s",display:"inline-flex",alignItems:"center",gap:6}}>
+                        style={{padding:"7px 12px",background:viewMode===m.key?"#1C2814":"#fff",color:viewMode===m.key?"#fff":"#1C2814",border:"none",borderRight:i<1?"1.5px solid var(--border)":"none",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s",display:"inline-flex",alignItems:"center",gap:6}}>
                         {m.key==="compare" && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>}
                         {m.label}
                       </button>
@@ -29549,7 +29536,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
             <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:18,boxShadow:'0 7px 20px rgba(28,40,20,0.06)',overflow:'hidden'}}>
               <div style={{padding:'14px 18px',background:'#fffdf8',borderBottom:'1px solid #efe7d9',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,flexWrap:'wrap'}}>
                 <div>
-                  <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:3}}>Side-by-side</div>
+                  <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:3}}>Side-by-side</div>
                   <div style={{fontSize:13,color:'#565862'}}>Comparing {stageFiltered.length} {stageFiltered.length===1?'bid':'bids'} · sorted by {sortBy === 'amount' ? 'price' : sortBy === 'rating' ? 'rating' : 'most recent'}</div>
                 </div>
                 <button type="button" onClick={()=>setViewMode('list')} style={{height:32,padding:'0 12px',borderRadius:999,border:'1px solid rgba(28,40,20,0.12)',background:'#fff',fontSize:12,fontWeight:700,color:'#1C2814',cursor:'pointer'}}>Back to list</button>
@@ -29569,7 +29556,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
                           <div style={{width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,#5b7a5e,#3d5940)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0,letterSpacing:0.5}}>{initials}</div>
                           <div style={{minWidth:0,flex:1}}>
-                            <div style={{fontFamily:'DM Sans,sans-serif',fontSize:13,fontWeight:800,color:'#1C2814',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{b.vendor||b.vendor_name||'Vendor'}</div>
+                            <div style={{fontFamily:"var(--font-sans),sans-serif",fontSize:13,fontWeight:800,color:'#1C2814',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{b.vendor||b.vendor_name||'Vendor'}</div>
                             <div style={{fontSize:11,color:'#74756d'}}>{b.city || 'Location'}</div>
                           </div>
                         </div>
@@ -29587,10 +29574,10 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   })}
 
                   {/* Amount row */}
-                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:'DM Mono,monospace',fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Bid amount</div>
+                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Bid amount</div>
                   {stageFiltered.map(b => (
                     <div key={`amt-${b.id}`} style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',borderLeft:'1px solid #efe7d9',background:'#fff'}}>
-                      <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{b.amount ? formatMoney(Number(b.amount)) : '—'}</div>
+                      <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{b.amount ? formatMoney(Number(b.amount)) : '—'}</div>
                       {Number(b.amount) > 0 && avgBid > 0 && (
                         <div style={{fontSize:10.5,color: Number(b.amount) < avgBid ? '#2F855A' : '#74756d',marginTop:4,fontWeight:600}}>{Number(b.amount) < avgBid ? `${formatMoney(avgBid - Number(b.amount))} below avg` : Number(b.amount) > avgBid ? `${formatMoney(Number(b.amount) - avgBid)} above avg` : 'At average'}</div>
                       )}
@@ -29598,13 +29585,13 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   ))}
 
                   {/* Timeline row */}
-                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:'DM Mono,monospace',fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Timeline</div>
+                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Timeline</div>
                   {stageFiltered.map(b => (
                     <div key={`tl-${b.id}`} style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',borderLeft:'1px solid #efe7d9',background:'#fff',fontSize:13,color:'#1C2814',fontWeight:600}}>{b.timeline || b.delivery_window || '—'}</div>
                   ))}
 
                   {/* Rating row */}
-                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:'DM Mono,monospace',fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Rating</div>
+                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Rating</div>
                   {stageFiltered.map(b => (
                     <div key={`rt-${b.id}`} style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',borderLeft:'1px solid #efe7d9',background:'#fff'}}>
                       {Number(b.rating) > 0 ? (
@@ -29618,7 +29605,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                   ))}
 
                   {/* Cover letter row */}
-                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:'DM Mono,monospace',fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Cover letter</div>
+                  <div style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',background:'#fbfaf6',fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',position:'sticky',left:0,zIndex:1}}>Cover letter</div>
                   {stageFiltered.map(b => (
                     <div key={`cl-${b.id}`} style={{padding:'14px 16px',borderBottom:'1px solid #efe7d9',borderLeft:'1px solid #efe7d9',background:'#fff',fontSize:12.5,color:'#565862',lineHeight:1.5,maxHeight:140,overflowY:'auto'}}>
                       {b.cover_letter || b.note || b.message || <span style={{color:'#a8aab4',fontStyle:'italic'}}>No cover letter provided</span>}
@@ -29684,7 +29671,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                           {isHiredCard && <span style={{fontSize:"8px",fontWeight:700,padding:"1px 6px",borderRadius:3,background:"var(--success-bg)",color:"var(--success)",border:"1px solid var(--success-border)",letterSpacing:0.5,textTransform:"uppercase"}}>Hired</span>}
                           {b.status==="under_review" && !isHiredCard && <span style={{fontSize:"8px",fontWeight:700,padding:"1px 6px",borderRadius:3,background:"#FFFBEB",color:"#D97706",border:"1px solid #FDE68A",letterSpacing:0.5,textTransform:"uppercase"}}>Under review</span>}
                         </div>
-                        <div style={{fontSize:10,color:"var(--text-muted)",fontFamily:"DM Mono,monospace",marginBottom:6}}>{b.category||"//"}{b.rating?" · "+Number(b.rating).toFixed(1)+"★":""}</div>
+                        <div style={{fontSize:10,color:"var(--text-muted)",fontFamily:"var(--font-sans),monospace",marginBottom:6}}>{b.category||"//"}{b.rating?" · "+Number(b.rating).toFixed(1)+"★":""}</div>
                         {/* One-line cover letter preview */}
                         {(b.note||b.cover_letter) && (
                           <div style={{fontSize:11,color:"var(--text-muted)",fontStyle:"italic",lineHeight:1.4,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>
@@ -29693,9 +29680,9 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
                         )}
                       </div>
                       <div style={{textAlign:"right",flexShrink:0}}>
-                        <div style={{fontFamily:"Playfair Display,serif",fontSize:17,fontWeight:700,color:"var(--navy)",letterSpacing:-0.5,lineHeight:1}}>{formatMoney(Number(b.amount||0))}</div>
+                        <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:"var(--navy)",letterSpacing:-0.5,lineHeight:1}}>{formatMoney(Number(b.amount||0))}</div>
                         <div style={{display:"inline-flex",alignItems:"center",justifyContent:"center",marginTop:5,padding:"3px 8px",borderRadius:999,background:decisionProfile.tone==='clear'?'rgba(22,163,74,0.1)':decisionProfile.tone==='strong'?'rgba(176,136,64,0.1)':'rgba(43,108,176,0.1)',color:decisionProfile.tone==='clear'?'#15803d':decisionProfile.tone==='strong'?'#8a6a2e':'#2b6cb0',fontSize:10,fontWeight:700,letterSpacing:0.4}}>{bidFitLabel}</div>
-                        {b.timeline && <div style={{fontSize:9,color:"var(--text-muted)",marginTop:4,fontFamily:"DM Mono,monospace"}}>{b.timeline}</div>}
+                        {b.timeline && <div style={{fontSize:9,color:"var(--text-muted)",marginTop:4,fontFamily:"var(--font-sans),monospace"}}>{b.timeline}</div>}
                       </div>
                     </div>
                     <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:10}}>
@@ -29856,8 +29843,8 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
       {/* Cream headline section */}
       <div style={{padding:'22px 24px 18px',background:'#fffdf8',borderBottom:'1px solid #efe7d9'}}>
         <div style={{maxWidth:1400,margin:'0 auto'}}>
-          <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>Your activity</div>
-          <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(26px,3.6vw,34px)',fontWeight:700,lineHeight:1.04,letterSpacing:'-0.025em',color:'#1C2814',margin:'0 0 6px'}}>My bids</h1>
+          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>Your activity</div>
+          <h1 style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(26px,3.6vw,34px)',fontWeight:700,lineHeight:1.04,letterSpacing:'-0.025em',color:'#1C2814',margin:'0 0 6px'}}>My bids</h1>
           <div style={{fontSize:13,color:'#565862'}}>Every proposal submitted and your win rate.</div>
 
           {/* Stat strip */}
@@ -29869,8 +29856,8 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
               {label:'Win rate', val:bids.length>0?Math.round(won.length/bids.length*100)+'%':'—'},
             ].map((s,i)=>(
               <div key={s.label} style={{padding:'14px 18px',borderRight:i<3?'1px solid #efe7d9':'none'}}>
-                <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{s.val}</div>
-                <div style={{fontFamily:'DM Mono,monospace',fontSize:9.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',marginTop:5}}>{s.label}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1}}>{s.val}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:'0.10em',textTransform:'uppercase',color:'#8a8579',marginTop:5}}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -29885,7 +29872,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
         <div style={{background:"linear-gradient(135deg,var(--navy),var(--navy-light))",borderRadius:"var(--r-md)",padding:"16px 20px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
           <div>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:"var(--atext-2)",marginBottom:6}}>Revenue via FaithBid</div>
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:28,fontWeight:700,color:"#fff",lineHeight:1}}>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:700,color:"#fff",lineHeight:1}}>
               {formatMoney(won.reduce((sum,b)=>sum+(Number(b.amount)||0),0))}
             </div>
             <div style={{fontSize:11,color:"var(--atext-2)",marginTop:4}}>Across {won.length} won project{won.length!==1?"s":""}</div>
@@ -29898,7 +29885,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
             for(const b of sorted){ if(b.status==="hired") streak++; else break; }
             return streak > 1 ? (
               <div style={{textAlign:"center",padding:"12px 20px",background:"rgba(245,240,232,0.08)",borderRadius:10,border:"1px solid rgba(245,240,232,0.15)"}}>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"var(--gold-light)",lineHeight:1}}>{streak}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"var(--gold-light)",lineHeight:1}}>{streak}</div>
                 <div style={{fontSize:10,color:"var(--atext-2)",marginTop:4,fontWeight:600,letterSpacing:0.5}}>WIN STREAK</div>
               </div>
             ) : null;
@@ -29912,7 +29899,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
           <div style={{fontSize:12,fontWeight:700,color:"#fff",marginBottom:2}}>Help build FaithBid's founding community</div>
           <div style={{fontSize:11,color:"var(--atext-mid)"}}>Invite a church or Christian business. One qualified activation before public launch earns permanent Founding Connector recognition.</div>
         </div>
-        <button type="button" style={{background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:"var(--r-sm)",padding:"7px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif",whiteSpace:"nowrap"}} onClick={async(e)=>{
+        <button type="button" style={{background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:"var(--r-sm)",padding:"7px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",whiteSpace:"nowrap"}} onClick={async(e)=>{
           const btn = e.currentTarget;
           try {
             const userId = currentUser?.id || (await getCurrentUserSafe())?.id;
@@ -29940,7 +29927,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
       ) : localBids.length === 0 ? (
         <div style={{background:"linear-gradient(135deg,var(--navy),var(--navy-light))",borderRadius:"var(--r-lg)",padding:"48px 40px",textAlign:"center",color:"#fff"}}>
           <div style={{width:52,height:2,background:"rgba(255,255,255,0.15)",borderRadius:2,margin:"0 auto 18px"}}></div>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,marginBottom:10}}>Your first bid is the hardest one</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,marginBottom:10}}>Your first bid is the hardest one</div>
           <div style={{fontSize:14,color:"var(--atext-mid)",marginBottom:28,lineHeight:1.8,maxWidth:440,margin:"0 auto 28px"}}>
             Browse open projects, find one that fits your skills, and write a personal cover letter. Churches here are actively looking to hire Christian vendors // they're rooting for you.
           </div>
@@ -29965,7 +29952,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
               <React.Fragment key={b.id}>
               <div style={{background:"#fff",borderRadius:"var(--r-md)",border:"1px solid rgba(42,53,32,0.09)",padding:"18px 20px",boxShadow:"0 1px 3px rgba(42,53,32,0.04)",display:"flex",gap:16,alignItems:"flex-start",flexWrap:"wrap"}}>
                 <div style={{flex:1,minWidth:200}}>
-                  <div style={{fontFamily:"Playfair Display,serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:4}}>{proj.title || "Project"}</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:4}}>{proj.title || "Project"}</div>
                   <div style={{fontSize:12,color:"var(--text-muted)",marginBottom:8}}>{proj.church_name || "//"} ·  {proj.city || "//"}</div>
                   <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
                     <div style={{fontSize:12,color:"var(--text-mid)"}}>Your bid: <strong style={{color:"var(--navy)"}}>{formatMoney(Number(b.amount))}</strong></div>
@@ -29977,10 +29964,10 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
                   <span style={{padding:"5px 12px",borderRadius:100,fontSize:11,fontWeight:600,background:sc.bg,color:sc.color,border:`1px solid ${sc.border}`}}>{sc.label}</span>
                   {b.status==="pending" && (
                     <>
-                      <button type="button" onClick={()=>setEditingBid({id:b.id, amount:String(b.amount||''), note:b.cover_letter||''})} style={{padding:"5px 11px",borderRadius:"var(--r-sm)",border:"1px solid var(--border)",background:"#fff",color:"var(--navy)",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>
+                      <button type="button" onClick={()=>setEditingBid({id:b.id, amount:String(b.amount||''), note:b.cover_letter||''})} style={{padding:"5px 11px",borderRadius:"var(--r-sm)",border:"1px solid var(--border)",background:"#fff",color:"var(--navy)",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>
                         Edit
                       </button>
-                      <button type="button" onClick={()=>handleWithdraw(b.id)} disabled={withdrawing===b.id} style={{padding:"5px 11px",borderRadius:"var(--r-sm)",border:"1px solid var(--border)",background:"#fff",color:"var(--text-muted)",fontSize:11,fontWeight:500,cursor:"pointer",fontFamily:"DM Sans,sans-serif",opacity:withdrawing===b.id?0.5:1}}>
+                      <button type="button" onClick={()=>handleWithdraw(b.id)} disabled={withdrawing===b.id} style={{padding:"5px 11px",borderRadius:"var(--r-sm)",border:"1px solid var(--border)",background:"#fff",color:"var(--text-muted)",fontSize:11,fontWeight:500,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:withdrawing===b.id?0.5:1}}>
                         {withdrawing===b.id?"…":"Withdraw"}
                       </button>
                     </>
@@ -29998,14 +29985,14 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
                         inputMode="decimal"
                         value={editingBid.amount}
                         onChange={e=>setEditingBid(prev=>({...prev,amount:e.target.value}))}
-                        style={{height:40,padding:"0 12px",borderRadius:10,border:"1.5px solid #dfd5c2",background:"#fff",fontSize:14,fontFamily:"DM Sans,sans-serif",outline:"none"}}
+                        style={{height:40,padding:"0 12px",borderRadius:10,border:"1.5px solid #dfd5c2",background:"#fff",fontSize:14,fontFamily:"var(--font-sans),sans-serif",outline:"none"}}
                       />
                     </label>
                     <div style={{display:"flex",alignItems:"flex-end",gap:8}}>
-                      <button type="button" onClick={doEditBid} disabled={editSaving} aria-busy={editSaving} style={{height:40,padding:"0 16px",borderRadius:10,border:"none",background:editSaving?"#e5e7eb":"linear-gradient(180deg,#c9a45c,#b08840)",color:editSaving?"#9ca3af":"#fff",fontSize:12,fontWeight:700,cursor:editSaving?"not-allowed":"pointer",fontFamily:"DM Sans,sans-serif",display:"inline-flex",alignItems:"center",gap:6}}>
+                      <button type="button" onClick={doEditBid} disabled={editSaving} aria-busy={editSaving} style={{height:40,padding:"0 16px",borderRadius:10,border:"none",background:editSaving?"#e5e7eb":"linear-gradient(180deg,#c9a45c,#b08840)",color:editSaving?"#9ca3af":"#fff",fontSize:12,fontWeight:700,cursor:editSaving?"not-allowed":"pointer",fontFamily:"var(--font-sans),sans-serif",display:"inline-flex",alignItems:"center",gap:6}}>
                         {editSaving ? <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" style={{animation:"spin 0.7s linear infinite"}} aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Saving…</> : "Save changes"}
                       </button>
-                      <button type="button" onClick={()=>setEditingBid(null)} style={{height:40,padding:"0 14px",borderRadius:10,border:"1px solid #dfd5c2",background:"#fff",color:"#5a5246",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Cancel</button>
+                      <button type="button" onClick={()=>setEditingBid(null)} style={{height:40,padding:"0 14px",borderRadius:10,border:"1px solid #dfd5c2",background:"#fff",color:"#5a5246",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Cancel</button>
                     </div>
                   </div>
                   <label style={{display:"grid",gap:5}}>
@@ -30015,7 +30002,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
                       onChange={e=>setEditingBid(prev=>({...prev,note:e.target.value.slice(0,1500)}))}
                       rows={3}
                       maxLength={1500}
-                      style={{padding:"10px 12px",borderRadius:10,border:"1.5px solid #dfd5c2",background:"#fff",fontSize:13,fontFamily:"DM Sans,sans-serif",outline:"none",resize:"vertical",lineHeight:1.5}}
+                      style={{padding:"10px 12px",borderRadius:10,border:"1.5px solid #dfd5c2",background:"#fff",fontSize:13,fontFamily:"var(--font-sans),sans-serif",outline:"none",resize:"vertical",lineHeight:1.5}}
                     />
                   </label>
                 </div>
@@ -30773,7 +30760,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   }, [desc]);
 
   return (
-    <div className="project-detail-shell" style={{backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND, backgroundSize:'cover', backgroundPosition:'center top', backgroundRepeat:'no-repeat', backgroundAttachment:'fixed', backgroundColor:'#f6efe4', minHeight:'100vh', color:'#1C2814', fontFamily:"'General Sans','DM Sans',-apple-system,BlinkMacSystemFont,sans-serif"}}>
+    <div className="project-detail-shell" style={{backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND, backgroundSize:'cover', backgroundPosition:'center top', backgroundRepeat:'no-repeat', backgroundAttachment:'fixed', backgroundColor:'#f6efe4', minHeight:'100vh', color:'#1C2814', fontFamily:"var(--font-sans),-apple-system,BlinkMacSystemFont,sans-serif"}}>
       <div style={{position:'sticky', top:58, left:0, right:0, zIndex:300, background:scrolled ? 'rgba(255,253,248,0.92)' : 'rgba(255,253,248,0.72)', backdropFilter:'blur(28px) saturate(1.6)', WebkitBackdropFilter:'blur(28px) saturate(1.6)', borderBottom:'1px solid rgba(28,40,20,0.08)', boxShadow:scrolled ? '0 14px 34px rgba(28,40,20,0.08)' : 'none', transition:'all 0.3s cubic-bezier(0.23,1,0.32,1)'}}>
         <div className="project-detail-topbar" style={{display:'flex',alignItems:'center',justifyContent:'space-between',minHeight:isMobile ? 62 : 54,maxWidth:1400,margin:'0 auto',padding:isMobile ? '8px 18px' : '0 48px',gap:16,flexWrap:isMobile ? 'wrap' : 'nowrap'}}>
           <div style={{display:'flex',alignItems:'center',gap:14,minWidth:0,flex:isMobile ? '1 1 100%' : '0 1 auto'}}>
@@ -30805,7 +30792,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
             {project?.status === 'open' ? 'Actively Hiring' : String(project?.status || 'Project').replace(/_/g,' ')}
           </div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.14em',textTransform:'uppercase',color:'#c9a45c',marginBottom:12}}>{category}</div>
-          <h1 className="project-detail-hero-title" style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(30px,3.6vw,46px)',fontWeight:700,lineHeight:1.02,letterSpacing:'-0.04em',color:'#fff',maxWidth:860,margin:'0 0 14px',overflowWrap:'anywhere',textShadow:'0 18px 42px rgba(0,0,0,0.36)'}}>{headline}</h1>
+          <h1 className="project-detail-hero-title" style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(30px,3.6vw,46px)',fontWeight:700,lineHeight:1.02,letterSpacing:'-0.04em',color:'#fff',maxWidth:860,margin:'0 0 14px',overflowWrap:'anywhere',textShadow:'0 18px 42px rgba(0,0,0,0.36)'}}>{headline}</h1>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:14,color:'rgba(255,255,255,0.65)',marginBottom:6}}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             {city}
@@ -30848,7 +30835,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               ].map((item, idx)=>(
                 <div key={item.label} style={{padding:isMobile ? '16px 14px' : '18px 18px',position:'relative',background:'#fff',minWidth:0}}>
                   {idx>0 && !isCompactMobile && <div style={{position:'absolute',left:0,top:'16%',height:'68%',width:1,background:'rgba(0,0,0,0.06)'}} />}
-                  <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:isMobile ? 21 : 23,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1,marginBottom:5,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.value}</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:isMobile ? 21 : 23,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1,marginBottom:5,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.value}</div>
                   <div style={{fontSize:10.5,fontWeight:700,color:'#a8aab4',letterSpacing:'0.06em',textTransform:'uppercase',whiteSpace:'nowrap'}}>{item.label}</div>
                 </div>
               ))}
@@ -30890,7 +30877,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
                 </div>
                 <div style={{padding:'16px 16px 14px',borderRadius:18,background:'#fff',border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 2px rgba(0,0,0,0.04)'}}>
                   <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:6}}>Approvals</div>
-                  <div style={{fontSize:24,fontFamily:"'Newsreader', Georgia, serif",fontWeight:500,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1,marginBottom:6}}>{workflowSummary.pendingApprovals.length}</div>
+                  <div style={{fontSize:24,fontFamily:"var(--font-display), serif",fontWeight:500,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1,marginBottom:6}}>{workflowSummary.pendingApprovals.length}</div>
                   <div style={{fontSize:12,color:'#858792',lineHeight:1.65}}>{workflowSummary.pendingApprovals.length ? 'Pending approvals need a response before work can move cleanly.' : 'No approval requests are documented right now.'}</div>
                 </div>
                 <div style={{padding:'16px 16px 14px',borderRadius:18,background:'#fff',border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 2px rgba(0,0,0,0.04)'}}>
@@ -30963,7 +30950,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)',marginBottom:24}}>
                 <div style={{padding:isMobile ? '20px 18px 18px' : '28px 28px 24px'}}>
                   <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:10}}>Scope of Work</div>
-                  <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:isMobile ? 24 : 30,fontWeight:700,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:10}}>What this project needs</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:isMobile ? 24 : 30,fontWeight:700,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:10}}>What this project needs</div>
                   <div style={{fontSize:14,lineHeight:1.7,color:'#565862',maxWidth:760,marginBottom:18}}>A cleaner brief view for vendors and churches: scope, deliverables, timing, and fit are separated so the next action is easier to understand.</div>
                   <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(3,minmax(0,1fr))',gap:10,marginBottom:20}}>
                     {projectDetailNextSteps.map((item, idx) => (
@@ -31127,7 +31114,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               <div style={{position:'absolute',bottom:-80,left:-70,width:220,height:220,borderRadius:999,background:'radial-gradient(circle,rgba(28,40,20,0.04),transparent 64%)',pointerEvents:'none'}} />
               <div style={{position:'relative',padding:'26px 24px 24px'}}>
                 <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:10}}>{actionModel.eyebrow || 'Action panel'}</div>
-                <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:28,fontWeight:800,color:'#1C2814',letterSpacing:'-0.04em',marginBottom:8,lineHeight:1.05}}>{actionModel.title}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:800,color:'#1C2814',letterSpacing:'-0.04em',marginBottom:8,lineHeight:1.05}}>{actionModel.title}</div>
                 <div style={{fontSize:13,color:'#565862',lineHeight:1.62,marginBottom:20}}>{actionModel.body}</div>
                 {!!actionModel.primaryLabel && <button type="button" onClick={runDetailAction(actionModel.primaryAction, projectDetailPrimaryFallback, 'project-detail-primary-action')} style={{width:'100%',height:48,borderRadius:14,border:'none',fontSize:14,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,background:'linear-gradient(135deg,#C4973A,#A87B2A)',color:'#fff',boxShadow:'0 2px 8px rgba(176,136,64,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',marginBottom:10}}>{actionModel.primaryLabel}</button>}
                 {!!actionModel.secondaryLabel && (
@@ -31166,7 +31153,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
                 <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:10}}>
                   {posterStats.map(([val,label])=>(
                     <div key={label} style={{padding:12,borderRadius:10,background:'#fbfaf6',border:'1px solid #efe7d9',textAlign:'center'}}>
-                      <div style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif",fontSize:18,fontWeight:500,color:'#1C2814',lineHeight:1}}>{val}</div>
+                      <div style={{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:500,color:'#1C2814',lineHeight:1}}>{val}</div>
                       <div style={{fontSize:10,fontWeight:600,color:'#a8aab4',letterSpacing:'0.04em',textTransform:'uppercase',marginTop:3}}>{label}</div>
                     </div>
                   ))}
@@ -31178,7 +31165,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)'}}>
                 <div style={{padding:'18px 22px',borderBottom:'1px solid rgba(0,0,0,0.06)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div style={{fontSize:13,fontWeight:700,color:'#1C2814',letterSpacing:'-0.01em'}}>Saved Projects</div>
-                  <span style={{fontFamily:"'JetBrains Mono','DM Mono',monospace",fontSize:10,fontWeight:600,color:'#a8aab4',padding:'3px 8px',borderRadius:999,background:'rgba(20,21,24,0.04)'}}>{savedProjectReferences.length}</span>
+                  <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:600,color:'#a8aab4',padding:'3px 8px',borderRadius:999,background:'rgba(20,21,24,0.04)'}}>{savedProjectReferences.length}</span>
                 </div>
                 <div style={{padding:'10px 14px'}}>
                   {savedProjectReferences.map(item => (
@@ -31327,12 +31314,12 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
   };
 
   return (
-    <main className="kb-saved-projects-fullbleed-page" style={{minHeight:'100vh',width:'100%',maxWidth:'none',margin:0,backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND,backgroundSize:'cover',backgroundPosition:'center top',padding:'34px clamp(18px,4vw,52px) 86px',fontFamily:"'DM Sans',sans-serif"}}>
+    <main className="kb-saved-projects-fullbleed-page" style={{minHeight:'100vh',width:'100%',maxWidth:'none',margin:0,backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND,backgroundSize:'cover',backgroundPosition:'center top',padding:'34px clamp(18px,4vw,52px) 86px',fontFamily:"var(--font-sans),sans-serif"}}>
       <div style={{width:'100%',maxWidth:'none',margin:0}}>
         <button type="button" onClick={() => nav('projects')} style={{border:'1px solid rgba(28,40,20,0.12)',background:'#fffdf8',borderRadius:999,padding:'9px 14px',fontSize:12,fontWeight:800,color:'#1C2814',cursor:'pointer',marginBottom:20}}>Back to Marketplace</button>
         <section style={{display:'grid',gap:12,marginBottom:24}}>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.18em',textTransform:'uppercase',color:'#B08840'}}>Workspace / Saved projects</div>
-          <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(38px,6vw,76px)',lineHeight:0.95,letterSpacing:'-0.055em',color:'#1C2814',margin:0}}>Saved Projects.</h1>
+          <h1 style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(38px,6vw,76px)',lineHeight:0.95,letterSpacing:'-0.055em',color:'#1C2814',margin:0}}>Saved Projects.</h1>
           <p style={{maxWidth:720,fontSize:16,lineHeight:1.65,color:'#56614f',fontWeight:600,margin:0}}>A clean bookmark list for projects you want to revisit. Notification-only bidding requests stay separate and do not appear here unless you also saved the project.</p>
         </section>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,flexWrap:'wrap',marginBottom:18,padding:'14px 16px',border:'1px solid rgba(28,40,20,0.10)',borderRadius:18,background:'rgba(255,253,248,0.76)',boxShadow:'0 12px 34px rgba(28,40,20,0.07)'}}>
@@ -31345,7 +31332,7 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:18}}>{[0,1,2].map(i => <div key={i} style={{height:430,borderRadius:18,background:'linear-gradient(90deg,rgba(255,255,255,0.52),rgba(255,255,255,0.86),rgba(255,255,255,0.52))',border:'1px solid rgba(28,40,20,0.08)'}} />)}</div>
         ) : rows.length === 0 ? (
           <div style={{padding:'42px 28px',borderRadius:26,border:'1px solid rgba(28,40,20,0.10)',background:'rgba(255,253,248,0.82)',textAlign:'center',boxShadow:'0 18px 48px rgba(28,40,20,0.08)'}}>
-            <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:34,fontWeight:800,color:'#1C2814',marginBottom:8}}>No saved projects yet.</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:34,fontWeight:800,color:'#1C2814',marginBottom:8}}>No saved projects yet.</div>
             <p style={{fontSize:14,lineHeight:1.6,color:'#6f7569',margin:'0 auto 20px',maxWidth:520}}>Save a project from the marketplace to track it here. Bidding-open notifications are managed separately so a reminder never pretends to be a bookmark.</p>
             <button type="button" onClick={() => nav('projects')} style={{height:44,borderRadius:14,border:'1px solid rgba(212,185,120,0.55)',background:'linear-gradient(135deg,#1C2814,#304225)',color:'#fffdf8',padding:'0 18px',fontSize:13,fontWeight:800,cursor:'pointer'}}>Browse Projects</button>
           </div>
@@ -31829,7 +31816,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   return (
     <div className={`kb-live-marketplace-page kb-vendor-marketplace-page${isHirerMarketplace ? ' kb-hirer-vendor-directory-page' : ' kb-vendor-directory-standalone-page'}${isChurchMarketplace ? ' kb-church-marketplace-page' : ''}`}>
       <style>{`
-        .kb-vendor-marketplace-page{background:transparent!important;min-height:auto!important;color:#171814;font-family:'DM Sans',Inter,system-ui,-apple-system,BlinkMacSystemFont,sans-serif;}
+        .kb-vendor-marketplace-page{background:transparent!important;min-height:auto!important;color:#171814;font-family:var(--font-sans),system-ui,-apple-system,BlinkMacSystemFont,sans-serif;}
         .kb-vendor-marketplace-page *{box-sizing:border-box;}
         .kb-vendor-marketplace-page.kb-church-marketplace-page{overflow-x:clip!important;}
 
@@ -31929,7 +31916,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           margin:0!important;
           padding:0!important;
           color:#fffdf8!important;
-          font-family:'Playfair Display','Newsreader',Georgia,serif!important;
+          font-family:var(--font-display),serif!important;
           font-size:clamp(48px,4vw,60px)!important;
           font-weight:500!important;
           line-height:1.02!important;
@@ -32198,7 +32185,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
             background:linear-gradient(180deg,rgba(40,71,37,.98),rgba(24,48,27,.98))!important;
             color:#fffdf8!important;
             box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
-            font-family:'DM Sans',system-ui,sans-serif!important;
+            font-family:var(--font-sans),system-ui,sans-serif!important;
             font-size:11.25px!important;
             font-weight:800!important;
             letter-spacing:.01em!important;
@@ -32277,7 +32264,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         .kb-vendor-marketplace-page .kb-live-shell{width:min(100%,1368px);margin:0 auto;padding:0 30px 54px;}
         .kb-vendor-marketplace-page .kb-live-vendor-kicker{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#9B7A35;margin:0 0 6px;}
         .kb-vendor-marketplace-page .kb-live-all-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 12px;padding:0 2px;}
-        .kb-vendor-marketplace-page .kb-live-all-head h2{margin:0;font-family:'Playfair Display','Newsreader',Georgia,serif;font-size:clamp(27px,3.1vw,38px);line-height:1;letter-spacing:-.04em;color:#10110f;font-weight:800;}
+        .kb-vendor-marketplace-page .kb-live-all-head h2{margin:0;font-family:var(--font-display),serif;font-size:clamp(27px,3.1vw,38px);line-height:1;letter-spacing:-.04em;color:#10110f;font-weight:800;}
         .kb-vendor-head-right{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;}
         .kb-vendor-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
         .kb-vendor-head-action{height:34px;border-radius:999px;border:1px solid rgba(28,40,20,.12);background:rgba(255,253,248,.78);color:#1C2814;padding:0 13px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:inherit;box-shadow:0 1px 2px rgba(28,40,20,.035);}
@@ -32287,7 +32274,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         .kb-market-mode-switch button{height:26px;border:0;border-radius:999px;background:transparent;color:#5d6258;padding:0 11px;font:inherit;font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
         .kb-market-mode-switch button.is-active{background:#1C2814;color:#fffdf8;box-shadow:0 6px 14px rgba(28,40,20,.12);}
         .kb-market-mode-switch button:not(.is-active):hover{background:rgba(28,40,20,.055);color:#1C2814;}
-        .kb-vendor-marketplace-page .kb-live-all-count{font-family:'DM Sans',Inter,sans-serif;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#9B7A35;}
+        .kb-vendor-marketplace-page .kb-live-all-count{font-family:var(--font-sans),sans-serif;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#9B7A35;}
         .kb-vendor-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 180px auto;gap:10px;align-items:center;margin:0 0 12px;padding:10px;border:1px solid rgba(176,136,64,.18);border-radius:18px;background:rgba(255,253,248,.78);box-shadow:0 10px 24px rgba(28,40,20,.055);}
         .kb-vendor-search{height:42px;border:1px solid rgba(28,40,20,.12);border-radius:13px;background:#fffdf8;padding:0 13px;font:inherit;font-size:13px;font-weight:600;color:#1C2814;outline:none;}
         .kb-vendor-search:focus{border-color:rgba(176,136,64,.55);box-shadow:0 0 0 3px rgba(176,136,64,.12);}
@@ -32306,7 +32293,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         .kb-vendor-marketplace-page .kb-live-card-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.03) 28%,rgba(0,0,0,.31) 58%,rgba(0,0,0,.73) 100%);z-index:1;}
         .kb-vendor-marketplace-page .kb-live-card-content{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:0 12px 12px;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;display:flex;flex-direction:column;gap:4px;align-items:stretch;}
         .kb-vendor-marketplace-page .kb-live-all-category{display:inline-flex;align-self:flex-start;margin:0;padding:0;border:0;background:none;font-size:7.5px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:rgba(214,163,62,.94);text-shadow:0 1px 5px rgba(0,0,0,.52);line-height:1;}
-        .kb-vendor-marketplace-page .kb-live-card-content h3{margin:0;padding:0;font-family:'DM Sans',Inter,system-ui,sans-serif;font-size:13.5px;font-weight:800;line-height:1.2;letter-spacing:-.028em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.55);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;text-align:left;}
+        .kb-vendor-marketplace-page .kb-live-card-content h3{margin:0;padding:0;font-family:var(--font-sans),system-ui,sans-serif;font-size:13.5px;font-weight:800;line-height:1.2;letter-spacing:-.028em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.55);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;text-align:left;}
         .kb-vendor-marketplace-page .kb-live-all-summary{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-size:9.5px;line-height:1.24;font-weight:600;color:rgba(255,253,248,.82);text-shadow:0 1px 5px rgba(0,0,0,.52);}
         .kb-vendor-marketplace-page .kb-vendor-match-summary strong{color:#fffdf8;font-weight:800;}
         .kb-vendor-marketplace-page .kb-vendor-match-summary{color:rgba(255,253,248,.88)!important;}
@@ -32398,7 +32385,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
             background:linear-gradient(180deg,rgba(40,71,37,.98),rgba(24,48,27,.98))!important;
             color:#fffdf8!important;
             box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
-            font-family:'DM Sans',system-ui,sans-serif!important;
+            font-family:var(--font-sans),system-ui,sans-serif!important;
             font-size:12px!important;
             font-weight:800!important;
             letter-spacing:.01em!important;
@@ -32444,7 +32431,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                 <div style={{marginBottom:14,padding:"14px 16px",border:"1px solid rgba(176,136,64,0.24)",borderRadius:18,background:"linear-gradient(135deg,rgba(255,247,234,0.94),rgba(255,253,248,0.96))",boxShadow:"0 12px 30px rgba(28,40,20,0.08)"}}>
                   <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
                     <div style={{minWidth:0}}>
-                      <div style={{fontFamily:"DM Mono,monospace",fontSize:10,fontWeight:800,letterSpacing:".14em",textTransform:"uppercase",color:"#9a7434",marginBottom:5}}>Founder coverage context</div>
+                      <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:".14em",textTransform:"uppercase",color:"#9a7434",marginBottom:5}}>Founder coverage context</div>
                       <div style={{display:"inline-flex",alignItems:"center",gap:6,marginBottom:7,padding:"4px 7px",borderRadius:999,background:"rgba(154,116,52,0.08)",border:"1px solid rgba(154,116,52,0.15)",fontSize:9,fontWeight:800,color:"#9a7434"}}>Opened from Founder Brief</div>
                       <div style={{fontSize:16,fontWeight:800,color:"#1C2814",lineHeight:1.2,marginBottom:5}}>{founderCoverageContext.projectTitle || founderCoverageContext.title || "Find qualified vendors"}</div>
                       <div style={{fontSize:12,color:"rgba(28,40,20,0.64)",lineHeight:1.55,maxWidth:680}}>{founderCoverageContext.reason || "Use this focused vendor directory pass to find qualified coverage for the marketplace gap."}</div>
@@ -32827,23 +32814,23 @@ function EditVendorProfile({ vendor = {}, onBack = () => {}, onSave = async () =
   const evx = {
     shell:{background:"#faf8f4",minHeight:"100vh",paddingBottom:60},
     topbar:{maxWidth:980,margin:"0 auto",padding:"22px 28px 0",display:"flex",alignItems:"center",gap:12},
-    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
-    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"'DM Mono',monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
+    backPill:{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 14px 7px 11px",borderRadius:999,background:"#fffdf8",border:"1px solid #dfd5c2",color:"#1C2814",fontSize:12.5,fontWeight:600,fontFamily:"var(--font-sans),sans-serif",cursor:"pointer",transition:"all 0.15s",boxShadow:"0 4px 12px rgba(28,40,20,0.04)"},
+    crumb:{fontSize:11.5,color:"#7d7363",fontFamily:"var(--font-sans),monospace",letterSpacing:0.6,textTransform:"uppercase",fontWeight:600},
     headWrap:{maxWidth:980,margin:"0 auto",padding:"22px 28px 22px"},
     headPanel:{background:"#fffdf8",border:"1px solid #dfd5c2",borderRadius:22,padding:"28px 30px 26px",boxShadow:"0 7px 20px rgba(28,40,20,0.045)"},
-    eyebrow:{fontFamily:"'DM Mono',monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
-    headline:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:36,fontWeight:700,color:"#1C2814",letterSpacing:-0.7,lineHeight:1.05,margin:0},
+    eyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
+    headline:{fontFamily:"var(--font-display),serif",fontSize:36,fontWeight:700,color:"#1C2814",letterSpacing:-0.7,lineHeight:1.05,margin:0},
     sub:{fontSize:14,color:"#5a5246",lineHeight:1.55,maxWidth:560,marginTop:8},
     panel:{background:"#fff",border:"1px solid #dfd5c2",borderRadius:18,boxShadow:"0 6px 18px rgba(28,40,20,0.04)",overflow:"hidden",marginBottom:18},
     panelHd:{padding:"16px 22px 14px",background:"#fffdf8",borderBottom:"1px solid #ece4d2"},
-    panelEyebrow:{fontFamily:"'DM Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
-    panelTitle:{fontFamily:"'Playfair Display',Georgia,serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
+    panelEyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
+    panelTitle:{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
     panelBody:{padding:"22px"},
-    label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"'DM Sans',sans-serif"},
-    input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"'DM Sans',sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box"},
-    textarea:{width:"100%",padding:"12px 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"'DM Sans',sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box",resize:"vertical",lineHeight:1.55},
-    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
-    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",transition:"all 0.15s"},
+    label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"var(--font-sans),sans-serif"},
+    input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box"},
+    textarea:{width:"100%",padding:"12px 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s",boxSizing:"border-box",resize:"vertical",lineHeight:1.55},
+    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
+    btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
     onFocus:(e)=>{e.currentTarget.style.borderColor="#b08840";e.currentTarget.style.boxShadow="0 0 0 3px rgba(176,136,64,0.12)";},
     onBlur:(e)=>{e.currentTarget.style.borderColor="#dfd5c2";e.currentTarget.style.boxShadow="none";},
   };
@@ -32912,7 +32899,7 @@ function EditVendorProfile({ vendor = {}, onBack = () => {}, onSave = async () =
                   type="button"
                   onClick={()=>photoInputRef.current?.click()}
                   disabled={photoUploading}
-                  style={{height:38,padding:'0 16px',borderRadius:11,border:'1.5px solid #dfd5c2',background:'#fffdf8',color:'#1C2814',fontSize:12.5,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",display:'inline-flex',alignItems:'center',gap:7}}
+                  style={{height:38,padding:'0 16px',borderRadius:11,border:'1.5px solid #dfd5c2',background:'#fffdf8',color:'#1C2814',fontSize:12.5,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif",display:'inline-flex',alignItems:'center',gap:7}}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                   {photoPreview ? 'Change photo' : 'Upload photo'}
@@ -32921,7 +32908,7 @@ function EditVendorProfile({ vendor = {}, onBack = () => {}, onSave = async () =
                   <button
                     type="button"
                     onClick={()=>{ setPhotoPreview(null); setPhotoFile(null); if(photoInputRef.current) photoInputRef.current.value=''; }}
-                    style={{height:38,padding:'0 14px',borderRadius:11,border:'1px solid rgba(220,38,38,0.22)',background:'rgba(220,38,38,0.04)',color:'#b1342a',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}
+                    style={{height:38,padding:'0 14px',borderRadius:11,border:'1px solid rgba(220,38,38,0.22)',background:'rgba(220,38,38,0.04)',color:'#b1342a',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}
                   >
                     Remove
                   </button>
@@ -32984,7 +32971,7 @@ function EditVendorProfile({ vendor = {}, onBack = () => {}, onSave = async () =
           </div>
         </div>
         <div style={{display:'flex',gap:10,justifyContent:'flex-end',marginTop:8,flexWrap:'wrap',alignItems:'center'}}>
-          {saveError && <div role="alert" style={{flex:1,fontSize:12.5,color:'#a23b3b',fontWeight:600,fontFamily:"'DM Sans',sans-serif"}}>{saveError}</div>}
+          {saveError && <div role="alert" style={{flex:1,fontSize:12.5,color:'#a23b3b',fontWeight:600,fontFamily:"var(--font-sans),sans-serif"}}>{saveError}</div>}
           <button type="button" style={evx.btnSecondary} onClick={onBack}>Cancel</button>
           <button type="button" style={{...evx.btnPrimary,opacity:(saving || !String(form.name || '').trim())?0.5:1,cursor:(saving || !String(form.name || '').trim())?"not-allowed":"pointer",display:'inline-flex',alignItems:'center',gap:6}} onClick={submit} disabled={saving || !String(form.name || '').trim()} aria-busy={saving}>
             {saving ? (
@@ -33033,7 +33020,7 @@ const VENDOR_PROFILE_PANEL_HD_STYLE = {
 };
 
 const VENDOR_PROFILE_PANEL_TITLE_STYLE = {
-  fontFamily: "'Playfair Display','Newsreader',Georgia,serif",
+  fontFamily: "var(--font-display),serif",
   fontSize: 16,
   fontWeight: 700,
   color: "#1C2814",
@@ -33043,7 +33030,7 @@ const VENDOR_PROFILE_PANEL_TITLE_STYLE = {
 const VENDOR_PROFILE_PANEL_BODY_STYLE = { padding: 16 };
 
 const VENDOR_PROFILE_KICKER_STYLE = {
-  fontFamily: "'DM Mono', monospace",
+  fontFamily: "var(--font-sans), monospace",
   fontSize: 10,
   fontWeight: 800,
   letterSpacing: "0.13em",
@@ -33094,7 +33081,7 @@ function VendorProfileStatTile({ label, value, hint = null, accent = false }) {
   return (
     <div style={{ padding: "14px 15px", borderRadius: 14, border: "1px solid #dfd5c2", background: accent ? "linear-gradient(135deg,#fffdf8,#faf6ed)" : "#fffdf8" }}>
       <div style={{ ...VENDOR_PROFILE_KICKER_STYLE, color: accent ? "#8a6a2e" : "#7d7363", marginBottom: 6 }}>{label}</div>
-      <div style={{ fontFamily: "'Playfair Display','Newsreader',Georgia,serif", fontSize: 24, fontWeight: 700, color: "#1C2814", lineHeight: 1.05 }}>{value}</div>
+      <div style={{ fontFamily: "var(--font-display),serif", fontSize: 24, fontWeight: 700, color: "#1C2814", lineHeight: 1.05 }}>{value}</div>
       {hint && <div style={{ marginTop: 6, fontSize: 12, color: "#565862", lineHeight: 1.5 }}>{hint}</div>}
     </div>
   );
@@ -33521,12 +33508,12 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:8}}>
-                  <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840'}}>Vendor diligence profile</span>
+                  <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840'}}>Vendor diligence profile</span>
                   <span style={{width:4,height:4,borderRadius:999,background:'#d6c08a'}} />
-                  <span style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#7d7363'}}>{v.category || 'Church vendor'}</span>
+                  <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#7d7363'}}>{v.category || 'Church vendor'}</span>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:7}}>
-                  <h1 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:'clamp(25px,3.2vw,34px)',fontWeight:700,color:'#1C2814',letterSpacing:'-0.035em',lineHeight:1.02,wordBreak:'break-word',margin:0}}>{firstNonEmpty(v.name, 'Unnamed Vendor')}</h1>
+                  <h1 style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(25px,3.2vw,34px)',fontWeight:700,color:'#1C2814',letterSpacing:'-0.035em',lineHeight:1.02,wordBreak:'break-word',margin:0}}>{firstNonEmpty(v.name, 'Unnamed Vendor')}</h1>
                   {identityBadges.length > 0 && <BadgeRow badges={identityBadges} />}
                 </div>
                 <div style={{fontSize:13.5,color:'#565862',lineHeight:1.55,maxWidth:660,marginBottom:10}}>
@@ -34878,45 +34865,45 @@ const FB_CONCIERGE_EVIDENCE_METHODS = Object.freeze([
 ]);
 
 const FB_CONCIERGE_CSS = [
-  ".fb-concierge{min-height:calc(100vh - 48px);background:#f7f4ed;color:#1c2814;font-family:DM Sans,sans-serif}",
+  ".fb-concierge{min-height:calc(100vh - 48px);background:#f7f4ed;color:#1c2814;font-family:var(--font-sans),sans-serif}",
   ".fb-concierge *{box-sizing:border-box}",
   ".fb-concierge-shell{max-width:1520px;margin:0 auto;padding:28px 30px 56px}",
   ".fb-concierge-eyebrow{font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:var(--kb-text-eyebrow)}",
-  ".fb-concierge-title{font-family:Playfair Display,serif;font-size:34px;line-height:1.08;margin:5px 0 5px;color:#1c2814}",
+  ".fb-concierge-title{font-family:var(--font-display),serif;font-size:34px;line-height:1.08;margin:5px 0 5px;color:#1c2814}",
   ".fb-concierge-subtitle{font-size:13px;color:#697063;line-height:1.55}",
   ".fb-concierge-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:20px}",
   ".fb-concierge-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}",
-  ".fb-concierge-btn{height:38px;padding:0 14px;border-radius:9px;border:1px solid rgba(28,40,20,.15);background:#fffdf8;color:#1c2814;font:800 12px DM Sans,sans-serif;cursor:pointer}",
+  ".fb-concierge-btn{height:38px;padding:0 14px;border-radius:9px;border:1px solid rgba(28,40,20,.15);background:#fffdf8;color:#1c2814;font:800 12px var(--font-sans),sans-serif;cursor:pointer}",
   ".fb-concierge-btn:hover{background:#f2eee3}.fb-concierge-btn.primary{background:#1c2814;color:#fffdf8;border-color:#1c2814}.fb-concierge-btn.primary:hover{background:#314126}.fb-concierge-btn:disabled{opacity:.55;cursor:not-allowed}",
   ".fb-concierge-tabs{display:flex;gap:4px;overflow-x:auto;padding:5px;background:#ebe7dc;border:1px solid rgba(28,40,20,.08);border-radius:12px;margin-bottom:20px}",
-  ".fb-concierge-tab{white-space:nowrap;border:0;background:transparent;border-radius:8px;padding:9px 13px;color:var(--kb-text-nav-inactive);font:800 11.5px DM Sans,sans-serif;cursor:pointer}",
+  ".fb-concierge-tab{white-space:nowrap;border:0;background:transparent;border-radius:8px;padding:9px 13px;color:var(--kb-text-nav-inactive);font:800 11.5px var(--font-sans),sans-serif;cursor:pointer}",
   ".fb-concierge-tab.active{background:#fffdf8;color:#1c2814;box-shadow:0 1px 3px rgba(28,40,20,.09)}",
-  ".fb-concierge-search{width:min(360px,100%);height:38px;border:1px solid rgba(28,40,20,.14);border-radius:9px;background:#fffdf8;padding:0 12px;color:#1c2814;font:500 12.5px DM Sans,sans-serif;outline:none}",
+  ".fb-concierge-search{width:min(360px,100%);height:38px;border:1px solid rgba(28,40,20,.14);border-radius:9px;background:#fffdf8;padding:0 12px;color:#1c2814;font:500 12.5px var(--font-sans),sans-serif;outline:none}",
   ".fb-concierge-search:focus,.fb-concierge-field input:focus,.fb-concierge-field select:focus,.fb-concierge-field textarea:focus{border-color:#8a6a22;box-shadow:0 0 0 3px rgba(176,136,64,.13)}",
   ".fb-concierge-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:18px}",
   ".fb-concierge-card{background:#fffdf8;border:1px solid rgba(28,40,20,.1);border-radius:15px;box-shadow:0 1px 2px rgba(28,40,20,.035)}",
-  ".fb-concierge-metric{padding:18px}.fb-concierge-metric-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#7b8174}.fb-concierge-metric-value{font-family:Playfair Display,serif;font-size:31px;font-weight:750;margin-top:7px;color:#1c2814}.fb-concierge-metric-value.money{font-family:DM Sans,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em}.fb-concierge-metric-note{font-size:11.5px;color:#777d71;margin-top:4px;line-height:1.45}",
+  ".fb-concierge-metric{padding:18px}.fb-concierge-metric-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#7b8174}.fb-concierge-metric-value{font-family:var(--font-display),serif;font-size:31px;font-weight:750;margin-top:7px;color:#1c2814}.fb-concierge-metric-value.money{font-family:var(--font-sans),sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em}.fb-concierge-metric-note{font-size:11.5px;color:#777d71;margin-top:4px;line-height:1.45}",
   ".fb-concierge-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px}.fb-concierge-stack{display:grid;gap:18px}",
   ".fb-concierge-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 18px;border-bottom:1px solid rgba(28,40,20,.09)}",
-  ".fb-concierge-panel-title{font-family:Playfair Display,serif;font-size:18px;font-weight:750}.fb-concierge-panel-note{font-size:11.5px;color:#7b8174;margin-top:3px}",
+  ".fb-concierge-panel-title{font-family:var(--font-display),serif;font-size:18px;font-weight:750}.fb-concierge-panel-note{font-size:11.5px;color:#7b8174;margin-top:3px}",
   ".fb-concierge-count{display:inline-flex;min-width:25px;height:22px;padding:0 7px;border-radius:99px;align-items:center;justify-content:center;background:#eee7d5;color:#755a1f;font-size:10px;font-weight:900}",
   ".fb-concierge-table-wrap{overflow:auto}.fb-concierge-table{width:100%;border-collapse:collapse;min-width:700px}.fb-concierge-table th{padding:11px 14px;text-align:left;background:#f3f0e8;color:#73796d;font-size:9.5px;letter-spacing:.085em;text-transform:uppercase}.fb-concierge-table td{padding:13px 14px;border-top:1px solid rgba(28,40,20,.075);font-size:12px;color:#4f574b;vertical-align:top}.fb-concierge-table strong{display:block;color:#1c2814;font-size:12.5px}.fb-concierge-muted{display:block;color:#82877d;font-size:10.5px;margin-top:3px}",
   ".fb-concierge-badge{display:inline-flex;align-items:center;min-height:23px;padding:3px 8px;border-radius:99px;background:#eee9dc;color:#646b5e;font-size:9.5px;font-weight:900;letter-spacing:.02em}.fb-concierge-badge.green{background:#dff0df;color:#315b35}.fb-concierge-badge.amber{background:#f5e8c6;color:#79591b}.fb-concierge-badge.red{background:#f6dddd;color:#8d3030}.fb-concierge-badge.blue{background:#dfe9f2;color:#31546c}",
-  ".fb-concierge-watch{padding:17px}.fb-concierge-watch h3{font-family:Playfair Display,serif;font-size:18px;margin:0 0 13px}.fb-concierge-watch-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-top:1px solid rgba(28,40,20,.075);font-size:11.5px;color:#687061}.fb-concierge-watch-row:first-of-type{border-top:0}.fb-concierge-watch-row strong{color:#1c2814}",
+  ".fb-concierge-watch{padding:17px}.fb-concierge-watch h3{font-family:var(--font-display),serif;font-size:18px;margin:0 0 13px}.fb-concierge-watch-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-top:1px solid rgba(28,40,20,.075);font-size:11.5px;color:#687061}.fb-concierge-watch-row:first-of-type{border-top:0}.fb-concierge-watch-row strong{color:#1c2814}",
   ".fb-concierge-live{display:flex;align-items:center;gap:7px;margin-top:14px;color:#697063;font-size:10.5px}.fb-concierge-live-dot{width:7px;height:7px;border-radius:50%;background:#3d8b56}.fb-concierge-live.error .fb-concierge-live-dot{background:#b64040}",
-  ".fb-concierge-state{padding:52px 22px;text-align:center;color:#6d7468;font-size:12.5px}.fb-concierge-state strong{font-family:Playfair Display,serif;font-size:19px;color:#1c2814;display:block;margin-bottom:5px}",
+  ".fb-concierge-state{padding:52px 22px;text-align:center;color:#6d7468;font-size:12.5px}.fb-concierge-state strong{font-family:var(--font-display),serif;font-size:19px;color:#1c2814;display:block;margin-bottom:5px}",
   ".fb-concierge-notice{margin-bottom:16px;border:1px solid #bdddbf;background:#edf8ed;color:#315b35;border-radius:11px;padding:12px 14px;font-size:12px;line-height:1.5}.fb-concierge-error{border-color:#edc4c4;background:#fff0f0;color:#8d3030}",
-  ".fb-concierge-cold-start{position:relative;overflow:hidden;padding:34px;border:1px solid rgba(155,116,50,.20);border-radius:18px;background:linear-gradient(135deg,#fffdf8 0%,#f3ecde 100%);box-shadow:0 12px 34px rgba(42,53,32,.06)}.fb-concierge-cold-start:after{content:'';position:absolute;width:240px;height:240px;border-radius:50%;right:-110px;top:-130px;background:rgba(176,136,64,.10)}.fb-concierge-cold-start>*{position:relative;z-index:1}.fb-concierge-cold-start h2{margin:5px 0 9px;font-family:Playfair Display,serif;font-size:28px;color:#1c2814}.fb-concierge-cold-start p{max-width:720px;margin:0;color:#687061;font-size:12.5px;line-height:1.65}.fb-concierge-cold-start-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}",
+  ".fb-concierge-cold-start{position:relative;overflow:hidden;padding:34px;border:1px solid rgba(155,116,50,.20);border-radius:18px;background:linear-gradient(135deg,#fffdf8 0%,#f3ecde 100%);box-shadow:0 12px 34px rgba(42,53,32,.06)}.fb-concierge-cold-start:after{content:'';position:absolute;width:240px;height:240px;border-radius:50%;right:-110px;top:-130px;background:rgba(176,136,64,.10)}.fb-concierge-cold-start>*{position:relative;z-index:1}.fb-concierge-cold-start h2{margin:5px 0 9px;font-family:var(--font-display),serif;font-size:28px;color:#1c2814}.fb-concierge-cold-start p{max-width:720px;margin:0;color:#687061;font-size:12.5px;line-height:1.65}.fb-concierge-cold-start-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}",
   ".fb-concierge-modal-backdrop{position:fixed;inset:0;z-index:5000;background:rgba(18,24,15,.58);display:flex;align-items:center;justify-content:center;padding:20px}.fb-concierge-modal{width:min(820px,100%);max-height:min(880px,94vh);overflow:auto;background:#fffdf8;border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.28)}",
-  ".fb-concierge-modal-head{position:sticky;top:0;z-index:2;background:#fffdf8;padding:20px 22px 15px;border-bottom:1px solid rgba(28,40,20,.09)}.fb-concierge-modal-head h2{font-family:Playfair Display,serif;font-size:23px;margin:3px 0 4px}.fb-concierge-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:13px}.fb-concierge-step{height:4px;border-radius:8px;background:#e3dfd4}.fb-concierge-step.active{background:#8a6a22}",
-  ".fb-concierge-form{padding:20px 22px}.fb-concierge-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.fb-concierge-field{display:block;font-size:11px;font-weight:850;color:#313b2b}.fb-concierge-field.wide{grid-column:1/-1}.fb-concierge-field small{font-weight:600;color:#878c82}.fb-concierge-field input,.fb-concierge-field select,.fb-concierge-field textarea{display:block;width:100%;margin-top:6px;border:1px solid rgba(28,40,20,.15);border-radius:8px;background:#fff;padding:9px 10px;color:#1c2814;font:500 12px DM Sans,sans-serif;outline:none}.fb-concierge-field input::placeholder,.fb-concierge-field textarea::placeholder{color:#969c91;font-style:italic;font-weight:400;opacity:1}.fb-concierge-field input,.fb-concierge-field select{height:38px}.fb-concierge-field textarea{min-height:76px;resize:vertical}.fb-concierge-checkbox{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;background:#f2eee4;font-size:11.5px;color:#566050}.fb-concierge-checkbox input{margin-top:2px}",
+  ".fb-concierge-modal-head{position:sticky;top:0;z-index:2;background:#fffdf8;padding:20px 22px 15px;border-bottom:1px solid rgba(28,40,20,.09)}.fb-concierge-modal-head h2{font-family:var(--font-display),serif;font-size:23px;margin:3px 0 4px}.fb-concierge-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:13px}.fb-concierge-step{height:4px;border-radius:8px;background:#e3dfd4}.fb-concierge-step.active{background:#8a6a22}",
+  ".fb-concierge-form{padding:20px 22px}.fb-concierge-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.fb-concierge-field{display:block;font-size:11px;font-weight:850;color:#313b2b}.fb-concierge-field.wide{grid-column:1/-1}.fb-concierge-field small{font-weight:600;color:#878c82}.fb-concierge-field input,.fb-concierge-field select,.fb-concierge-field textarea{display:block;width:100%;margin-top:6px;border:1px solid rgba(28,40,20,.15);border-radius:8px;background:#fff;padding:9px 10px;color:#1c2814;font:500 12px var(--font-sans),sans-serif;outline:none}.fb-concierge-field input::placeholder,.fb-concierge-field textarea::placeholder{color:#969c91;font-style:italic;font-weight:400;opacity:1}.fb-concierge-field input,.fb-concierge-field select{height:38px}.fb-concierge-field textarea{min-height:76px;resize:vertical}.fb-concierge-checkbox{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;background:#f2eee4;font-size:11.5px;color:#566050}.fb-concierge-checkbox input{margin-top:2px}",
   ".fb-concierge-safe{grid-column:1/-1;border:1px solid #bdddbf;background:#edf8ed;color:#315b35;border-radius:10px;padding:11px 12px;font-size:11px;line-height:1.5}.fb-concierge-modal-actions{display:flex;justify-content:flex-end;gap:9px;padding:15px 22px;border-top:1px solid rgba(28,40,20,.09);background:#f8f5ee}",
-  ".fb-concierge-review-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.fb-concierge-review-summary{display:grid;gap:10px}.fb-concierge-review-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-review-card strong{display:block;color:#1c2814;font-size:12px;margin-bottom:4px}.fb-concierge-review-card span{color:#687061;font-size:11.5px;line-height:1.45}.fb-concierge-checklist{display:grid;gap:8px}.fb-concierge-check{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(28,40,20,.1);border-radius:9px;background:#fff;padding:9px 10px;color:#4f574b;font-size:11px;line-height:1.35}.fb-concierge-check.good{border-color:#bdddbf;background:#edf8ed;color:#315b35}.fb-concierge-check.bad{border-color:#edc4c4;background:#fff0f0;color:#8d3030}.fb-concierge-check-mark{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;background:rgba(28,40,20,.09)}.fb-concierge-row-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.fb-concierge-mini-btn{height:29px;padding:0 10px;border-radius:7px;border:1px solid rgba(28,40,20,.14);background:#fffdf8;color:#1c2814;font:850 10.5px DM Sans,sans-serif;cursor:pointer}.fb-concierge-mini-btn:hover{background:#f2eee3}",
+  ".fb-concierge-review-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.fb-concierge-review-summary{display:grid;gap:10px}.fb-concierge-review-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-review-card strong{display:block;color:#1c2814;font-size:12px;margin-bottom:4px}.fb-concierge-review-card span{color:#687061;font-size:11.5px;line-height:1.45}.fb-concierge-checklist{display:grid;gap:8px}.fb-concierge-check{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(28,40,20,.1);border-radius:9px;background:#fff;padding:9px 10px;color:#4f574b;font-size:11px;line-height:1.35}.fb-concierge-check.good{border-color:#bdddbf;background:#edf8ed;color:#315b35}.fb-concierge-check.bad{border-color:#edc4c4;background:#fff0f0;color:#8d3030}.fb-concierge-check-mark{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;background:rgba(28,40,20,.09)}.fb-concierge-row-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.fb-concierge-mini-btn{height:29px;padding:0 10px;border-radius:7px;border:1px solid rgba(28,40,20,.14);background:#fffdf8;color:#1c2814;font:850 10.5px var(--font-sans),sans-serif;cursor:pointer}.fb-concierge-mini-btn:hover{background:#f2eee3}",
   ".fb-concierge-governance-groups{display:grid;gap:14px;padding:16px}.fb-concierge-governance-group{overflow:hidden;border:1px solid rgba(28,40,20,.10);border-radius:12px;background:#fff}.fb-concierge-governance-group.blocking{border-color:rgba(141,48,48,.20)}.fb-concierge-governance-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#f8f5ee;border-bottom:1px solid rgba(28,40,20,.08)}.fb-concierge-governance-group.blocking .fb-concierge-governance-group-head{background:#fff6f3}.fb-concierge-governance-group-title{font-size:12px;font-weight:900;color:#1c2814}.fb-concierge-governance-group-note{margin-top:2px;font-size:10.5px;color:#7b8174}.fb-concierge-governance-group-count{display:inline-flex;min-width:24px;height:24px;padding:0 7px;align-items:center;justify-content:center;border-radius:999px;background:rgba(28,40,20,.07);font-size:10px;font-weight:900;color:#4f574b}",
-  ".fb-concierge-review-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.fb-concierge-review-summary{display:grid;gap:10px}.fb-concierge-review-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-review-card strong{display:block;color:#1c2814;font-size:12px;margin-bottom:4px}.fb-concierge-review-card span{color:#687061;font-size:11.5px;line-height:1.45}.fb-concierge-checklist{display:grid;gap:8px}.fb-concierge-check{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(28,40,20,.1);border-radius:9px;background:#fff;padding:9px 10px;color:#4f574b;font-size:11px;line-height:1.35}.fb-concierge-check.good{border-color:#bdddbf;background:#edf8ed;color:#315b35}.fb-concierge-check.bad{border-color:#edc4c4;background:#fff0f0;color:#8d3030}.fb-concierge-check-mark{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;background:rgba(28,40,20,.09)}.fb-concierge-row-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.fb-concierge-mini-btn{height:29px;padding:0 10px;border-radius:7px;border:1px solid rgba(28,40,20,.14);background:#fffdf8;color:#1c2814;font:850 10.5px DM Sans,sans-serif;cursor:pointer}.fb-concierge-mini-btn:hover{background:#f2eee3}.fb-concierge-mini-btn.primary{background:#1c2814;border-color:#1c2814;color:#fff}.fb-concierge-mini-btn:disabled{opacity:.5;cursor:not-allowed}",
-  ".fb-concierge-queue{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px}.fb-concierge-queue-card{border:1px solid rgba(28,40,20,.1);border-radius:12px;background:#fff;padding:14px;display:grid;gap:11px}.fb-concierge-queue-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.fb-concierge-queue-head strong{font-family:Playfair Display,serif;font-size:16px;color:#1c2814}.fb-concierge-queue-meta{display:flex;gap:7px;flex-wrap:wrap}.fb-concierge-progress{height:7px;background:#e9e4d8;border-radius:99px;overflow:hidden}.fb-concierge-progress span{display:block;height:100%;background:#8a6a22;border-radius:inherit}.fb-concierge-candidates{display:grid;gap:9px}.fb-concierge-candidate{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#fff;padding:11px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.fb-concierge-candidate-main{min-width:0}.fb-concierge-candidate-main strong{color:#1c2814;font-size:12.5px}.fb-concierge-modal.wide{width:min(1040px,100%)}",
-  ".fb-concierge-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:7px}.fb-concierge-choice{display:flex;align-items:flex-start;gap:8px;border:1px solid rgba(28,40,20,.1);border-radius:8px;background:#fff;padding:8px 9px;color:#4f574b;font-size:10.5px;font-weight:650;line-height:1.3}.fb-concierge-choice input{display:inline-block!important;width:14px!important;height:14px!important;min-height:0!important;margin:1px 0 0!important;padding:0!important;box-shadow:none!important;flex:0 0 14px}.fb-concierge-vendor-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px}.fb-concierge-vendor-stat{border:1px solid rgba(28,40,20,.09);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-vendor-stat strong{display:block;font-family:Playfair Display,serif;font-size:22px;color:#1c2814}.fb-concierge-vendor-stat span{display:block;margin-top:3px;color:#747b6f;font-size:10.5px}",
-  ".fb-concierge-evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fb-concierge-evidence-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#fff;padding:11px;display:grid;gap:7px}.fb-concierge-evidence-card strong{font-size:12px;color:#1c2814}.fb-concierge-growth-list{display:grid;gap:9px;padding:16px}.fb-concierge-growth-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;border:1px solid rgba(28,40,20,.1);border-radius:11px;background:#fff;padding:12px}.fb-concierge-section-title{grid-column:1/-1;margin:3px 0 -3px;font-family:Playfair Display,serif;font-size:16px;color:#1c2814}",
+  ".fb-concierge-review-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.fb-concierge-review-summary{display:grid;gap:10px}.fb-concierge-review-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-review-card strong{display:block;color:#1c2814;font-size:12px;margin-bottom:4px}.fb-concierge-review-card span{color:#687061;font-size:11.5px;line-height:1.45}.fb-concierge-checklist{display:grid;gap:8px}.fb-concierge-check{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(28,40,20,.1);border-radius:9px;background:#fff;padding:9px 10px;color:#4f574b;font-size:11px;line-height:1.35}.fb-concierge-check.good{border-color:#bdddbf;background:#edf8ed;color:#315b35}.fb-concierge-check.bad{border-color:#edc4c4;background:#fff0f0;color:#8d3030}.fb-concierge-check-mark{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;background:rgba(28,40,20,.09)}.fb-concierge-row-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.fb-concierge-mini-btn{height:29px;padding:0 10px;border-radius:7px;border:1px solid rgba(28,40,20,.14);background:#fffdf8;color:#1c2814;font:850 10.5px var(--font-sans),sans-serif;cursor:pointer}.fb-concierge-mini-btn:hover{background:#f2eee3}.fb-concierge-mini-btn.primary{background:#1c2814;border-color:#1c2814;color:#fff}.fb-concierge-mini-btn:disabled{opacity:.5;cursor:not-allowed}",
+  ".fb-concierge-queue{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px}.fb-concierge-queue-card{border:1px solid rgba(28,40,20,.1);border-radius:12px;background:#fff;padding:14px;display:grid;gap:11px}.fb-concierge-queue-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.fb-concierge-queue-head strong{font-family:var(--font-display),serif;font-size:16px;color:#1c2814}.fb-concierge-queue-meta{display:flex;gap:7px;flex-wrap:wrap}.fb-concierge-progress{height:7px;background:#e9e4d8;border-radius:99px;overflow:hidden}.fb-concierge-progress span{display:block;height:100%;background:#8a6a22;border-radius:inherit}.fb-concierge-candidates{display:grid;gap:9px}.fb-concierge-candidate{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#fff;padding:11px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.fb-concierge-candidate-main{min-width:0}.fb-concierge-candidate-main strong{color:#1c2814;font-size:12.5px}.fb-concierge-modal.wide{width:min(1040px,100%)}",
+  ".fb-concierge-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:7px}.fb-concierge-choice{display:flex;align-items:flex-start;gap:8px;border:1px solid rgba(28,40,20,.1);border-radius:8px;background:#fff;padding:8px 9px;color:#4f574b;font-size:10.5px;font-weight:650;line-height:1.3}.fb-concierge-choice input{display:inline-block!important;width:14px!important;height:14px!important;min-height:0!important;margin:1px 0 0!important;padding:0!important;box-shadow:none!important;flex:0 0 14px}.fb-concierge-vendor-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px}.fb-concierge-vendor-stat{border:1px solid rgba(28,40,20,.09);border-radius:10px;background:#f8f5ee;padding:12px}.fb-concierge-vendor-stat strong{display:block;font-family:var(--font-display),serif;font-size:22px;color:#1c2814}.fb-concierge-vendor-stat span{display:block;margin-top:3px;color:#747b6f;font-size:10.5px}",
+  ".fb-concierge-evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fb-concierge-evidence-card{border:1px solid rgba(28,40,20,.1);border-radius:10px;background:#fff;padding:11px;display:grid;gap:7px}.fb-concierge-evidence-card strong{font-size:12px;color:#1c2814}.fb-concierge-growth-list{display:grid;gap:9px;padding:16px}.fb-concierge-growth-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;border:1px solid rgba(28,40,20,.1);border-radius:11px;background:#fff;padding:12px}.fb-concierge-section-title{grid-column:1/-1;margin:3px 0 -3px;font-family:var(--font-display),serif;font-size:16px;color:#1c2814}",
   "@media(max-width:1000px){.fb-concierge-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.fb-concierge-grid{grid-template-columns:1fr}.fb-concierge-shell{padding:22px 18px 45px}}",
   "@media(max-width:900px){.fb-concierge-queue{grid-template-columns:1fr}}",
   "@media(max-width:760px){.fb-concierge-review-layout{grid-template-columns:1fr}.fb-concierge-candidate{flex-direction:column}.fb-concierge-vendor-summary,.fb-concierge-evidence-grid{grid-template-columns:1fr}.fb-concierge-growth-row{flex-direction:column}}",
@@ -38481,7 +38468,7 @@ export default function App() {
                         >
                           <span style={{width:18,height:18,borderRadius:6,display:'inline-flex',alignItems:'center',justifyContent:'center',background:'rgba(28,40,20,0.055)',color:'rgba(28,40,20,0.58)',fontSize:item.mark === '•' ? 18 : 10.5,fontWeight:800,lineHeight:1}}>{item.mark}</span>
                           <span style={{minWidth:0,fontSize:12.5,fontWeight:800,color:'#1C2814',lineHeight:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.label}</span>
-                          <span style={{fontFamily:'DM Mono, monospace',fontSize:9.5,fontWeight:800,color:item.admin ? 'rgba(138,103,41,0.74)' : 'rgba(28,40,20,0.34)',textTransform:'uppercase',letterSpacing:'0.04em'}}>{item.right}</span>
+                          <span style={{fontFamily:"var(--font-sans), monospace",fontSize:9.5,fontWeight:800,color:item.admin ? 'rgba(138,103,41,0.74)' : 'rgba(28,40,20,0.34)',textTransform:'uppercase',letterSpacing:'0.04em'}}>{item.right}</span>
                         </button>
                       ))}
                     </div>
@@ -38530,12 +38517,12 @@ export default function App() {
                             {label:"Concierge", icon:"C", action:()=>nav("concierge")},
                           ] : []),
                         ].map((item)=>(
-                          <button type="button" role="menuitem" key={item.label} onClick={()=>{setMenuOpen(false);item.action();}} className="hover-cream kb-topnav-menu-item" style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 12px",border:"none",background:"none",borderRadius:"var(--r-sm)",cursor:"pointer",fontSize:13,color:"var(--text-mid)",fontFamily:"DM Sans,sans-serif",textAlign:"left",fontWeight:500,transition:"background 0.15s"}}>
+                          <button type="button" role="menuitem" key={item.label} onClick={()=>{setMenuOpen(false);item.action();}} className="hover-cream kb-topnav-menu-item" style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 12px",border:"none",background:"none",borderRadius:"var(--r-sm)",cursor:"pointer",fontSize:13,color:"var(--text-mid)",fontFamily:"var(--font-sans),sans-serif",textAlign:"left",fontWeight:500,transition:"background 0.15s"}}>
                             <span className="kb-topnav-menu-item-icon" aria-hidden="true">{item.icon}</span><span>{item.label}</span>
                           </button>
                         ))}
                         <div style={{height:1,background:"var(--border)",margin:"4px 4px"}}/>
-                        <button type="button" role="menuitem" className="kb-topnav-menu-item kb-topnav-menu-item-danger" onClick={handleSignOut} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 12px",border:"none",background:"none",borderRadius:"var(--r-sm)",cursor:"pointer",fontSize:13,color:"var(--danger)",fontFamily:"DM Sans,sans-serif",textAlign:"left",fontWeight:500}}>
+                        <button type="button" role="menuitem" className="kb-topnav-menu-item kb-topnav-menu-item-danger" onClick={handleSignOut} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 12px",border:"none",background:"none",borderRadius:"var(--r-sm)",cursor:"pointer",fontSize:13,color:"var(--danger)",fontFamily:"var(--font-sans),sans-serif",textAlign:"left",fontWeight:500}}>
                           <span className="kb-topnav-menu-item-icon" aria-hidden="true">↗</span><span>Sign out</span>
                         </button>
                       </div>
@@ -38682,7 +38669,7 @@ export default function App() {
               <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.16em",textTransform:"uppercase",color:"#B08840",marginBottom:8}}>
                 {!authReady || !marketplaceGateLoaded ? "Checking private access" : "Private prelaunch"}
               </div>
-              <div style={{fontFamily:"Playfair Display,serif",fontSize:26,fontWeight:700,color:"#1C2814",lineHeight:1.15,marginBottom:8}}>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:26,fontWeight:700,color:"#1C2814",lineHeight:1.15,marginBottom:8}}>
                 {!authReady || !marketplaceGateLoaded ? "Preparing your FaithBid workspace." : "Returning you to early access."}
               </div>
               <div style={{fontSize:13.5,lineHeight:1.65,color:"#6f7569"}}>
@@ -38710,16 +38697,16 @@ export default function App() {
         {screen==="ambassador"&& <AmbassadorScreen nav={nav} showToast={showToast}/>}
         {screen==="partner"   && <PartnerScreen nav={nav}/>}
         {screen==="join"      && <JoinScreen nav={nav} setAuthDefaultRole={setAuthDefaultRole}/>}
-        {screen==="growth"    && (isAdmin ? <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Growth Engine…</div>}><div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:8,padding:"10px 16px"}}><button type="button" aria-pressed={dallasPilotOnly} onClick={()=>setDallasPilotOnly((value)=>!value)} style={{padding:"6px 12px",borderRadius:6,border:"1px solid var(--navy,#1C2814)",background:dallasPilotOnly?"var(--navy,#1C2814)":"transparent",color:dallasPilotOnly?"#fff":"var(--navy,#1C2814)",fontSize:13,cursor:"pointer"}}>Dallas Pilot only</button></div><GrowthEngine currentUser={currentUser} isAdmin={isAdmin} nav={nav} dallasPilotOnly={dallasPilotOnly}/></React.Suspense> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>The growth engine is restricted to admins.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
-        {screen==="concierge" && (isAdmin ? <ConciergeOpsScreen currentUser={currentUser} showToast={showToast} dallasPilotOnly={dallasPilotOnly} onToggleDallasPilotOnly={()=>setDallasPilotOnly((value)=>!value)}/> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>FaithBid Concierge is restricted to platform administrators.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
+        {screen==="growth"    && (isAdmin ? <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Growth Engine…</div>}><div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:8,padding:"10px 16px"}}><button type="button" aria-pressed={dallasPilotOnly} onClick={()=>setDallasPilotOnly((value)=>!value)} style={{padding:"6px 12px",borderRadius:6,border:"1px solid var(--navy,#1C2814)",background:dallasPilotOnly?"var(--navy,#1C2814)":"transparent",color:dallasPilotOnly?"#fff":"var(--navy,#1C2814)",fontSize:13,cursor:"pointer"}}>Dallas Pilot only</button></div><GrowthEngine currentUser={currentUser} isAdmin={isAdmin} nav={nav} dallasPilotOnly={dallasPilotOnly}/></React.Suspense> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>The growth engine is restricted to admins.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
+        {screen==="concierge" && (isAdmin ? <ConciergeOpsScreen currentUser={currentUser} showToast={showToast} dallasPilotOnly={dallasPilotOnly} onToggleDallasPilotOnly={()=>setDallasPilotOnly((value)=>!value)}/> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>FaithBid Concierge is restricted to platform administrators.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
         </div>
         </PlatformScreenShell>
         </ScreenBoundary>
         {showPublicLegalFooter && <PublicLegalFooter compact={compactPublicLegalFooter} />}
         {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","projects","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","verify-profile","settings","about","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
           <div style={{minHeight:"80vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px",animation:"fadeUp 0.4s ease"}}>
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:72,fontWeight:700,color:"var(--navy)",opacity:0.08,lineHeight:1,marginBottom:24}}>404</div>
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:22,fontWeight:700,color:"var(--navy)",marginBottom:10}}>Page not found</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:72,fontWeight:700,color:"var(--navy)",opacity:0.08,lineHeight:1,marginBottom:24}}>404</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"var(--navy)",marginBottom:10}}>Page not found</div>
             <div style={{fontSize:14,color:"var(--text-muted)",marginBottom:28,fontWeight:400}}>That page doesn't exist. Let's get you back on track.</div>
             <button type="button" className="btn-primary" onClick={()=>nav("projects")}>← Back to marketplace</button>
           </div>
@@ -38824,7 +38811,7 @@ function VendorCompletionMeter({ vendorRow, portfolioCount, showToast, nav }) {
     <div style={{ background: bgColor, border: `1px solid ${color}22`, borderRadius: "var(--r-md)", padding: "14px 18px", marginBottom: 20 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", color }}>Profile Strength</div>
-        <div style={{ fontFamily: "DM Mono,monospace", fontSize: 13, fontWeight: 700, color }}>{pct}%</div>
+        <div style={{ fontFamily: "var(--font-sans),monospace", fontSize: 13, fontWeight: 700, color }}>{pct}%</div>
       </div>
       <div style={{ height: 6, background: "rgba(0,0,0,0.08)", borderRadius: 100, overflow: "hidden", marginBottom: 10 }}>
         <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 100, transition: "width 0.6s ease" }}/>
@@ -39031,10 +39018,10 @@ function SeasonalAlert({role, nav}){
         <div style={{fontSize:12,color:"rgba(255,255,255,0.8)",fontWeight:400,lineHeight:1.5}}>{role==="church"?alert.church:alert.vendor}</div>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-        <button type="button" onClick={()=>nav(role==="church"?"projects:post":"projects")} style={{background:"rgba(255,255,255,0.12)",border:"none",borderRadius:"var(--r-sm)",padding:"5px 12px",fontSize:11,fontWeight:600,color:"#fff",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"DM Sans,sans-serif"}}>
+        <button type="button" onClick={()=>nav(role==="church"?"projects:post":"projects")} style={{background:"rgba(255,255,255,0.12)",border:"none",borderRadius:"var(--r-sm)",padding:"5px 12px",fontSize:11,fontWeight:600,color:"#fff",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"var(--font-sans),sans-serif"}}>
           {role==="church"?"Post a project":"Browse projects"}
         </button>
-        <button type="button" aria-label="Dismiss" onClick={dismiss} style={{background:"none",border:"none",cursor:"pointer",color:"var(--atext-muted)",fontSize:16,lineHeight:1,padding:"4px",fontFamily:"DM Sans,sans-serif"}} title="Dismiss">×</button>
+        <button type="button" aria-label="Dismiss" onClick={dismiss} style={{background:"none",border:"none",cursor:"pointer",color:"var(--atext-muted)",fontSize:16,lineHeight:1,padding:"4px",fontFamily:"var(--font-sans),sans-serif"}} title="Dismiss">×</button>
       </div>
     </div>
   );
@@ -39236,7 +39223,7 @@ function ProfileStats({currentUser, role, showToast, nav}){
           {label:"Avg rating",       val:stats.avgRating>0?stats.avgRating.toFixed(1)+"★":"//"},
         ]).map((s,i)=>(
           <div key={s.label} style={{flex:1,padding:"16px",textAlign:"center",borderRight:i<3?"1px solid #eadfce":"none"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:700,color:"var(--navy)",lineHeight:1,marginBottom:4}}>{s.val}</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:26,fontWeight:700,color:"var(--navy)",lineHeight:1,marginBottom:4}}>{s.val}</div>
             <div style={{fontSize:10,color:"var(--text-muted)",fontWeight:600,letterSpacing:0.5,textTransform:"uppercase"}}>{s.label}</div>
           </div>
         ))}
@@ -39249,7 +39236,7 @@ function ProfileStats({currentUser, role, showToast, nav}){
           <div style={{flex:1,minWidth:200,background:"#fff",borderRadius:"var(--r-md)",border:"1px solid var(--border)",padding:"20px"}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:"var(--text-muted)",marginBottom:12}}>Reputation score</div>
             <div style={{display:"flex",alignItems:"flex-end",gap:10,marginBottom:12}}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:42,fontWeight:700,color:"var(--navy)",lineHeight:1}}>{repScore}</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:42,fontWeight:700,color:"var(--navy)",lineHeight:1}}>{repScore}</div>
               <div style={{fontSize:13,color:"var(--text-muted)",marginBottom:4}}>/100</div>
             </div>
             <div style={{height:6,background:"var(--cream-dark)",borderRadius:3,overflow:"hidden"}}>
@@ -39262,7 +39249,7 @@ function ProfileStats({currentUser, role, showToast, nav}){
           {/* Earnings summary */}
           <div style={{flex:1,minWidth:200,background:"#fff",borderRadius:"var(--r-md)",border:"1px solid var(--border)",padding:"20px"}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:"var(--text-muted)",marginBottom:12}}>Revenue via FaithBid</div>
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:36,fontWeight:700,color:"var(--navy)",lineHeight:1,marginBottom:6}}>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:36,fontWeight:700,color:"var(--navy)",lineHeight:1,marginBottom:6}}>
               {formatMoney(stats.earnings)}
             </div>
             <div style={{fontSize:12,color:"var(--text-muted)",marginBottom:12}}>Across {stats.projectsWon} completed project{stats.projectsWon!==1?"s":""}</div>
@@ -39280,7 +39267,7 @@ function ProfileStats({currentUser, role, showToast, nav}){
             <div style={{fontSize:12,fontWeight:700,color:"#fff",marginBottom:3}}>Your Annual Ministry Report is ready</div>
             <div style={{fontSize:11,color:"var(--atext-mid)"}}>Show your congregation how your ministry invested in professional services this year.</div>
           </div>
-          <button type="button" onClick={()=>nav(role==="church" ? "analytics" : "activity")} style={{background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:"var(--r-sm)",padding:"8px 16px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif",whiteSpace:"nowrap"}}>
+          <button type="button" onClick={()=>nav(role==="church" ? "analytics" : "activity")} style={{background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:"var(--r-sm)",padding:"8px 16px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",whiteSpace:"nowrap"}}>
             {role==="church" ? "Open report" : "Open Activity"}
           </button>
         </div>
@@ -39454,7 +39441,7 @@ function TrustedVendorRoster({currentUser, nav, showToast = () => {}}){
                   // Navigate to vendors directory // VendorsScreen will show vendor profile if vendor_id is passed via event
                   document.dispatchEvent(new CustomEvent("kb:openVendor", { detail: b.vendor_id }));
                   nav("vendors");
-                }} style={{background:"var(--cream-dark)",border:"1px solid var(--border)",borderRadius:"var(--r-sm)",padding:"5px 11px",fontSize:11,fontWeight:600,color:"var(--text-mid)",cursor:"pointer",fontFamily:"DM Sans,sans-serif"}} title={`View ${b.vendor_name}'s profile`}>View profile →</button>
+                }} style={{background:"var(--cream-dark)",border:"1px solid var(--border)",borderRadius:"var(--r-sm)",padding:"5px 11px",fontSize:11,fontWeight:600,color:"var(--text-mid)",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}} title={`View ${b.vendor_name}'s profile`}>View profile →</button>
               </div>
             </div>
           ))}
@@ -39466,14 +39453,14 @@ function TrustedVendorRoster({currentUser, nav, showToast = () => {}}){
         <div style={{fontSize:12,fontWeight:700,color:"#fff",marginBottom:4}}>Bring a church into FaithBid's founding community</div>
         <div style={{fontSize:11,color:"var(--atext-mid)",marginBottom:12}}>One qualified activation before public launch earns permanent Founding Connector recognition. No pricing or placement reward is promised.</div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
-          <div style={{flex:1,background:"rgba(255,255,255,0.07)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"var(--r-sm)",padding:"7px 12px",fontSize:11,color:"var(--atext-mid)",fontFamily:"DM Mono,monospace",overflow:"hidden",textOverflow:"ellipsis"}}>
+          <div style={{flex:1,background:"rgba(255,255,255,0.07)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"var(--r-sm)",padding:"7px 12px",fontSize:11,color:"var(--atext-mid)",fontFamily:"var(--font-sans),monospace",overflow:"hidden",textOverflow:"ellipsis"}}>
             {referralCode ? buildCanonicalReferralLink(referralCode).replace(/^https?:\/\//,"") : "Referral link loading…"}
           </div>
           <button type="button" onClick={async()=>{
             if (!referralCode) { showToast("Referral code still loading — try again in a sec"); return; }
             try { await navigator.clipboard.writeText(buildCanonicalReferralLink(referralCode)); showToast("✓ Referral link copied"); }
             catch { showToast("Copy failed — copy the link manually"); }
-          }} style={{background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:"var(--r-sm)",padding:"7px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif",whiteSpace:"nowrap"}}>Copy link</button>
+          }} style={{background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:"var(--r-sm)",padding:"7px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",whiteSpace:"nowrap"}}>Copy link</button>
         </div>
       </div>
     </div>
@@ -39710,7 +39697,7 @@ function getAdminUserStatusPill(user = {}) {
   if (user?.suspended) return { label:'Suspended', style:{fontSize:10,fontWeight:700,color:'var(--red)',background:'rgba(239,68,68,0.08)',padding:'2px 8px',borderRadius:100,border:'1px solid rgba(239,68,68,0.18)'} };
   if (user?.type === 'church' && user?.churchVerified) return { label:'Church Verified', style:{fontSize:10,fontWeight:700,color:'var(--blue2)',background:'rgba(59,130,246,0.1)',padding:'2px 8px',borderRadius:100,border:'1px solid rgba(59,130,246,0.22)'} };
   if (user?.verified) return { label:'✦ Faith Verified', style:{fontSize:10,fontWeight:700,color:'var(--gold-light)',background:'rgba(232,224,208,0.08)',padding:'2px 8px',borderRadius:100,border:'1px solid rgba(232,224,208,0.2)'} };
-  return { label:user?.plan || 'Open access', style:{fontFamily:'DM Mono,monospace',fontSize:10,color:'var(--atext-muted)'} };
+  return { label:user?.plan || 'Open access', style:{fontFamily:"var(--font-sans),monospace",fontSize:10,color:'var(--atext-muted)'} };
 }
 
 
@@ -39773,7 +39760,7 @@ function StripePlatformFeeModal({bid, project, onClose, onSuccess, showToast}){
           <div style={{position:"absolute",inset:0,opacity:0.04,backgroundImage:"linear-gradient(rgba(232,224,208,1) 1px,transparent 1px),linear-gradient(90deg,rgba(232,224,208,1) 1px,transparent 1px)",backgroundSize:"24px 24px"}}/>
           <div style={{position:"relative"}}>
             <div style={{fontSize:10,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-light)",marginBottom:6}}>Hire confirmation</div>
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:22,fontWeight:700,color:"#fff",marginBottom:3}}>Hire {bid.vendor}</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"#fff",marginBottom:3}}>Hire {bid.vendor}</div>
             <div style={{fontSize:13,color:"var(--atext-mid)"}}>{project?.title}</div>
           </div>
         </div>
@@ -39889,7 +39876,7 @@ function LandingFaithVerified({nav}){
         <div className="land-fv-header" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:64,alignItems:"end",marginBottom:42}}>
           <div>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:16}}>Faith Verified</div>
-            <h2 style={{fontFamily:"Playfair Display,serif",fontSize:48,fontWeight:700,color:"var(--navy)",lineHeight:1,letterSpacing:-1,margin:0}}>
+            <h2 style={{fontFamily:"var(--font-display),serif",fontSize:48,fontWeight:700,color:"var(--navy)",lineHeight:1,letterSpacing:-1,margin:0}}>
               Not just talented.<br/><span style={{color:"#6f675b"}}>Accountable.</span>
             </h2>
           </div>
@@ -39916,7 +39903,7 @@ function LandingFaithVerified({nav}){
           ].map((item, i)=>(
             <div className="land-fv-proof-card" key={item?.eyebrow || item?.title || i} style={{background:"#fff",borderRadius:18,border:"1px solid rgba(42,53,32,0.08)",padding:"18px 18px 16px",boxShadow:"0 10px 24px rgba(20,25,27,0.04)"}}>
               <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:8}}>{item.eyebrow}</div>
-              <div style={{fontFamily:"Playfair Display,serif",fontSize:22,lineHeight:1.08,color:"var(--navy)",marginBottom:8}}>{item.title}</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:22,lineHeight:1.08,color:"var(--navy)",marginBottom:8}}>{item.title}</div>
               <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7}}>{item.body}</div>
             </div>
           ))}
@@ -39925,7 +39912,7 @@ function LandingFaithVerified({nav}){
         {/* Verification tiers */}
         <div style={{marginBottom:30}}>
           <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:12,textAlign:"center"}}>Verification Tiers</div>
-          <h3 style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"var(--navy)",textAlign:"center",marginBottom:8,letterSpacing:-0.5}}>Two distinct trust signals.</h3>
+          <h3 style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"var(--navy)",textAlign:"center",marginBottom:8,letterSpacing:-0.5}}>Two distinct trust signals.</h3>
           <p style={{fontSize:15,color:"var(--text-muted)",textAlign:"center",fontWeight:400,marginBottom:36,maxWidth:520,margin:"0 auto 36px"}}>Marketplace Approved governs participation. Faith Verified is an additional reviewed trust signal; it is not required just to bid.</p>
           <div className="land-fv-tiers" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:16}}>
             {TIERS.map((t)=>(
@@ -39934,7 +39921,7 @@ function LandingFaithVerified({nav}){
                 <div style={{display:"inline-flex",marginBottom:16,padding:"4px 12px",borderRadius:100,background:t.badgeBg,border:`1px solid ${t.badgeColor}40`}}>
                   <span style={{fontSize:11,fontWeight:700,color:t.badgeColor,letterSpacing:0.3}}>{t.badge}</span>
                 </div>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:18,fontWeight:700,color:"var(--navy)",marginBottom:8}}>{t.name}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"var(--navy)",marginBottom:8}}>{t.name}</div>
                 <div style={{fontSize:12,color:"var(--text-muted)",lineHeight:1.6,marginBottom:20,fontWeight:400}}>{t.desc}</div>
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
                   {t.steps.map((s,si)=>(
@@ -39952,7 +39939,7 @@ function LandingFaithVerified({nav}){
         <div className="land-fv-covenant-footer" style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:20,flexWrap:"wrap",padding:"20px 22px",border:"1px solid var(--border)",borderRadius:18,background:"#fff"}}>
           <div style={{maxWidth:680}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:7}}>Vendor Covenant</div>
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:21,fontWeight:700,color:"var(--navy)",marginBottom:5}}>Five commitments. One accountable standard.</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:21,fontWeight:700,color:"var(--navy)",marginBottom:5}}>Five commitments. One accountable standard.</div>
             <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.65}}>Faith Verified vendors commit to service, integrity, Christlike conduct, local-church accountability, and ongoing review. One ministry reference is required.</div>
           </div>
           <button type="button" onClick={handleApply} className="btn-primary" style={{padding:"12px 24px",fontSize:13}}>{currentUser ? "Go to Verification" : "Apply for verification"}</button>
@@ -39999,7 +39986,7 @@ function LandingPricing({nav, setStartFreeDefaultRole}){
       <div style={{maxWidth:1120,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:18}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(232,224,208,0.54)",marginBottom:12}}>Pricing</div>
-          <h2 style={{fontFamily:"Playfair Display,serif",fontSize:40,fontWeight:700,color:"#fff",marginBottom:10,letterSpacing:-0.5}}>Pricing is under review.</h2>
+          <h2 style={{fontFamily:"var(--font-display),serif",fontSize:40,fontWeight:700,color:"#fff",marginBottom:10,letterSpacing:-0.5}}>Pricing is under review.</h2>
           <p style={{fontSize:16,color:"var(--atext-2)",fontWeight:400,maxWidth:680,lineHeight:1.65,margin:"0 auto 28px"}}>FaithBid is not currently advertising a standard platform fee, paid vendor plan, or automatic church give-back. Any future terms will be published before they apply.</p>
           <div style={{display:"flex",justifyContent:"center",marginBottom:48}}>
             <div className="role-toggle" style={{background:"rgba(255,255,255,0.08)"}}>
@@ -40074,7 +40061,7 @@ function LandingPricing({nav, setStartFreeDefaultRole}){
 
             <div className="land-pricing-explainer" style={{marginTop:28,padding:"24px 24px 22px",background:"linear-gradient(180deg, rgba(232,224,208,0.10) 0%, rgba(245,240,232,0.07) 100%)",border:"1px solid rgba(232,224,208,0.22)",borderRadius:22,boxShadow:"0 20px 60px rgba(0,0,0,0.12)"}}>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-light)",marginBottom:8}}>Program under review</div>
-              <div style={{fontFamily:"Playfair Display,serif",fontSize:30,lineHeight:1.08,color:"#fff",marginBottom:10}}>No standard fee, paid plan, or give-back promise is being advertised.</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:30,lineHeight:1.08,color:"#fff",marginBottom:10}}>No standard fee, paid plan, or give-back promise is being advertised.</div>
               <div style={{fontSize:14,color:"var(--atext-mid)",lineHeight:1.8,maxWidth:760}}>FaithBid is testing the marketplace and concierge experience before finalizing cross-phase pricing. Exact rates, caps, triggers, payment timing, refunds, reversals, vendor-plan benefits, and any church give-back program remain subject to founder decision and legal review. The published terms in effect at the time will control before any charge or benefit applies.</div>
             </div>
           </div>
@@ -40171,7 +40158,7 @@ function LandingTestimonials(){
             border:"1px solid var(--border)",padding:"20px",
             boxShadow:"0 2px 12px rgba(0,0,0,0.04)",
           }}>
-            <div style={{fontSize:22,color:"var(--gold)",fontFamily:"Georgia,serif",lineHeight:1,marginBottom:8}}>"</div>
+            <div style={{fontSize:22,color:"var(--gold)",fontFamily:"var(--font-display),serif",lineHeight:1,marginBottom:8}}>"</div>
             <div style={{fontSize:12,color:"var(--text-mid)",lineHeight:1.7,fontWeight:400,marginBottom:14,fontStyle:"italic"}}>{t.quote}</div>
             <div style={{display:"flex",alignItems:"center",gap:8,paddingTop:12,borderTop:"1px solid var(--border)"}}>
               <div style={{width:32,height:32,borderRadius:"var(--r-sm)",background:"linear-gradient(135deg,var(--navy-light),var(--navy))",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,flexShrink:0}}>{t.avatar}</div>
@@ -40686,7 +40673,7 @@ function LandingFAQ(){
       <div style={{maxWidth:720,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:40}}>
           <div style={{fontSize:11,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:"#8a6a2e",marginBottom:10}}>FAQ</div>
-          <h2 style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"var(--navy)"}}>Common Questions</h2>
+          <h2 style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"var(--navy)"}}>Common Questions</h2>
         </div>
         {KB_LANDING_FAQS.map((f,i)=>(
           <div key={f.q||i} className="faq-item">
@@ -40793,7 +40780,7 @@ function ShareableCard({refCode, orgName, onClose}){
               <span style={{marginLeft:"auto",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(34,197,94,0.8)",background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.2)",borderRadius:100,padding:"3px 10px"}}>Founding Connector</span>
             </div>
 
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:28,fontWeight:700,color:"#fff",lineHeight:1.1,marginBottom:10,letterSpacing:-0.5}}>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:700,color:"#fff",lineHeight:1.1,marginBottom:10,letterSpacing:-0.5}}>
               I helped build<br/>FaithBid's founding community.
             </div>
             <div style={{fontSize:13,color:"var(--atext-muted)",lineHeight:1.7,marginBottom:28,fontWeight:400}}>
@@ -40807,7 +40794,7 @@ function ShareableCard({refCode, orgName, onClose}){
                 {num:"Pre-launch",label:"Earned"},
               ].map((s)=>(
                 <div key={s.label||s.num||s.value} style={{textAlign:"center"}}>
-                  <div style={{fontFamily:"Playfair Display,serif",fontSize:22,fontWeight:700,color:"#22C55E"}}>{s.num}</div>
+                  <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"#22C55E"}}>{s.num}</div>
                   <div style={{fontSize:9,color:"var(--atext-muted)",letterSpacing:1,textTransform:"uppercase",marginTop:2}}>{s.label}</div>
                 </div>
               ))}
@@ -40816,7 +40803,7 @@ function ShareableCard({refCode, orgName, onClose}){
             <div style={{background:"rgba(245,240,232,0.07)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:10,padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <div>
                 <div style={{fontSize:9,color:"var(--atext-muted)",letterSpacing:2,textTransform:"uppercase",marginBottom:4}}>My referral code</div>
-                <div style={{fontFamily:"DM Mono,monospace",fontSize:20,color:"#4ade80",letterSpacing:4,fontWeight:500}}>{refCode}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:20,color:"#4ade80",letterSpacing:4,fontWeight:500}}>{refCode}</div>
               </div>
               <div style={{fontSize:11,color:"rgba(255,255,255,0.2)"}}>{getAppUrl().replace(/^https?:\/\//,"")}</div>
             </div>
@@ -40883,7 +40870,7 @@ function GpiLandingReveal({ nav }) {
         .glr-card.tone-serve .glr-word-svg text{fill:rgba(9,27,20,0.62);}
         .glr-word-svg{display:block;width:100%;height:42px;overflow:visible;}
         .glr-word-svg text{
-          font-family:'Bebas Neue','Arial Narrow',Impact,sans-serif;
+          font-family:var(--font-display),'Arial Narrow',Impact,sans-serif;
           font-size:30px;font-weight:400;letter-spacing:0;
           transform:scaleX(0.62);transform-origin:50% 50%;
           fill:rgba(248,240,223,0.88);
@@ -40891,14 +40878,14 @@ function GpiLandingReveal({ nav }) {
       `}</style>
       <div style={{maxWidth:1120,margin:"0 auto"}} className="glr-grid">
         <div>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:"#b08840",marginBottom:14,fontFamily:"DM Sans,sans-serif"}}>Get Plugged In</div>
-          <h2 style={{fontFamily:"Newsreader, Playfair Display, serif",fontSize:"clamp(28px,4vw,42px)",fontWeight:500,color:"#fff",lineHeight:1.1,letterSpacing:"-0.03em",margin:"0 0 14px"}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:"#b08840",marginBottom:14,fontFamily:"var(--font-sans),sans-serif"}}>Get Plugged In</div>
+          <h2 style={{fontFamily:"var(--font-display), serif",fontSize:"clamp(28px,4vw,42px)",fontWeight:500,color:"#fff",lineHeight:1.1,letterSpacing:"-0.03em",margin:"0 0 14px"}}>
             FaithBid is becoming something bigger.
           </h2>
           <p style={{fontSize:15,color:"rgba(255,255,255,0.6)",lineHeight:1.75,maxWidth:480,margin:"0 auto 22px",fontWeight:400}} className="glr-body">
             Discover local ways to serve, connect, and grow — shaped around what you're looking for and where you are.
           </p>
-          <button type="button" onClick={()=>nav("get-plugged-in")} style={{background:"none",border:"none",padding:0,color:"#e8cd8c",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>
+          <button type="button" onClick={()=>nav("get-plugged-in")} style={{background:"none",border:"none",padding:0,color:"#e8cd8c",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>
             Explore Get Plugged In →
           </button>
         </div>
@@ -40944,8 +40931,8 @@ function KingdomBuilderTeaser({nav, grandTotal, setAuthDefaultRole, setStartFree
         <div style={{background:"linear-gradient(180deg,#fff 0%,#fcfbf8 100%)",border:"1px solid rgba(20,21,24,0.08)",borderRadius:28,boxShadow:"0 18px 48px rgba(20,21,24,0.06)",overflow:"hidden"}}>
           <div className="kb-teaser-grid" style={{display:"grid",gridTemplateColumns:"minmax(0,1.15fr) minmax(280px,0.85fr)",gap:0}}>
             <div className="kb-teaser-left" style={{padding:"42px 42px 38px"}}>
-              <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:"#b08840",marginBottom:14,fontFamily:"DM Sans,sans-serif"}}>Join the Network</div>
-              <h2 style={{fontFamily:"Newsreader, Playfair Display, serif",fontSize:"clamp(30px,4vw,44px)",fontWeight:500,color:"#141518",lineHeight:1.06,letterSpacing:"-0.03em",margin:"0 0 14px"}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:"#b08840",marginBottom:14,fontFamily:"var(--font-sans),sans-serif"}}>Join the Network</div>
+              <h2 style={{fontFamily:"var(--font-display), serif",fontSize:"clamp(30px,4vw,44px)",fontWeight:500,color:"#141518",lineHeight:1.06,letterSpacing:"-0.03em",margin:"0 0 14px"}}>
                 Choose the right role and get started.
               </h2>
               <p style={{fontSize:15,color:"#6b6d75",lineHeight:1.75,maxWidth:560,margin:"0 0 22px",fontWeight:400}}>
@@ -40953,7 +40940,7 @@ function KingdomBuilderTeaser({nav, grandTotal, setAuthDefaultRole, setStartFree
               </p>
               <div style={{display:"inline-flex",alignItems:"center",gap:10,background:"#f4ecd8",border:"1px solid rgba(176,136,64,0.18)",borderRadius:999,padding:"8px 18px",marginBottom:20}}>
                 <div style={{width:6,height:6,borderRadius:"50%",background:"#b08840"}}/>
-                <span style={{fontFamily:"JetBrains Mono, DM Mono, monospace",fontSize:13,color:"#8a6729",fontWeight:600,letterSpacing:0.2}}>
+                <span style={{fontFamily:"var(--font-sans), monospace",fontSize:13,color:"#8a6729",fontWeight:600,letterSpacing:0.2}}>
                   {liveTotal > 0 ? `${liveTotal.toLocaleString()} charter members` : "Be among the first"}
                 </span>
               </div>
@@ -40963,7 +40950,7 @@ function KingdomBuilderTeaser({nav, grandTotal, setAuthDefaultRole, setStartFree
             </div>
             <div className="kb-teaser-right" style={{padding:"42px 34px 38px",borderLeft:"1px solid rgba(20,21,24,0.06)",background:"linear-gradient(180deg,#fdfbf7 0%,#f7f4ee 100%)",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
               <div>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:"#a8aab4",marginBottom:10,fontFamily:"DM Sans,sans-serif"}}>Charter access includes</div>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:"#a8aab4",marginBottom:10,fontFamily:"var(--font-sans),sans-serif"}}>Charter access includes</div>
                 <div style={{display:"grid",gap:10,marginBottom:20}}>
                   {[
                     "Charter recognition in the network",
@@ -40982,16 +40969,16 @@ function KingdomBuilderTeaser({nav, grandTotal, setAuthDefaultRole, setStartFree
                   <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("vendor"); if (typeof setStartFreeDefaultRole === "function") setStartFreeDefaultRole("vendor"); nav("vendor-signup"); }} className="btn-cta" style={{padding:"14px 24px",fontSize:15,borderRadius:12}}>
                     I'm a Vendor
                   </button>
-                  <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("church"); if (typeof setStartFreeDefaultRole === "function") setStartFreeDefaultRole("church"); nav("church-signup"); }} style={{padding:"14px 22px",fontSize:15,borderRadius:12,border:"1px solid rgba(20,21,24,0.10)",background:"#fff",color:"#22301B",fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif",boxShadow:"0 1px 2px rgba(0,0,0,0.03)"}}>
+                  <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("church"); if (typeof setStartFreeDefaultRole === "function") setStartFreeDefaultRole("church"); nav("church-signup"); }} style={{padding:"14px 22px",fontSize:15,borderRadius:12,border:"1px solid rgba(20,21,24,0.10)",background:"#fff",color:"#22301B",fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",boxShadow:"0 1px 2px rgba(0,0,0,0.03)"}}>
                     I'm a Church
                   </button>
                 </div>
                 <div style={{fontSize:11,color:"#a8aab4",lineHeight:1.6,marginBottom:12}}>{PRELAUNCH_FINE_PRINT}</div>
-                <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("login"); nav("auth"); }} style={{background:"none",border:"none",padding:0,color:"#22301B",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>
+                <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("login"); nav("auth"); }} style={{background:"none",border:"none",padding:0,color:"#22301B",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>
                   Already have an account? Log in →
                 </button>
                 <div style={{marginTop:10}}>
-                  <button type="button" onClick={()=>nav("get-plugged-in")} style={{background:"none",border:"none",padding:0,color:"#858792",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>
+                  <button type="button" onClick={()=>nav("get-plugged-in")} style={{background:"none",border:"none",padding:0,color:"#858792",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>
                     See how FaithBid connects people, too →
                   </button>
                 </div>
@@ -41018,10 +41005,10 @@ function JoinScreen({nav, setAuthDefaultRole = null}){
           <CrossLogo size={30}/>
         </button>
         <div style={{display:"flex",alignItems:"center",gap:16}}>
-          <button type="button" onClick={()=>nav("landing")} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>
+          <button type="button" onClick={()=>nav("landing")} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>
             &#8592; Back to home
           </button>
-          <button type="button" onClick={()=>{setAuthDefaultRole("login");nav("auth");}} style={{padding:"7px 18px",background:"rgba(245,240,232,0.08)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"var(--r-sm)",color:"rgba(255,255,255,0.7)",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>
+          <button type="button" onClick={()=>{setAuthDefaultRole("login");nav("auth");}} style={{padding:"7px 18px",background:"rgba(245,240,232,0.08)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"var(--r-sm)",color:"rgba(255,255,255,0.7)",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>
             Already have an account? Sign in
           </button>
         </div>
@@ -41035,7 +41022,7 @@ function JoinScreen({nav, setAuthDefaultRole = null}){
 
       {/* Footer strip */}
       <div style={{background:"#040a03",borderTop:"1px solid rgba(255,255,255,0.04)",padding:"24px 32px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
-        <div style={{fontSize:11,color:"rgba(255,255,255,0.15)",fontFamily:"DM Sans,sans-serif"}}>
+        <div style={{fontSize:11,color:"rgba(255,255,255,0.15)",fontFamily:"var(--font-sans),sans-serif"}}>
           FaithBid &#183; Built for the Kingdom
         </div>
         <div style={{display:"flex",gap:20}}>
@@ -41133,7 +41120,7 @@ function KingdomBuilderSection({onVendorSignup, onChurchSignup}){
         <div className="kb-milestone-bar">
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
             <div style={{fontSize:12,color:"var(--atext-2)",fontWeight:500}}>Progress to next milestone</div>
-            <div style={{fontFamily:"DM Mono,monospace",fontSize:12,color:"#22C55E"}}>{grandTotal} / {MILESTONE_GOAL}</div>
+            <div style={{fontFamily:"var(--font-sans),monospace",fontSize:12,color:"#22C55E"}}>{grandTotal} / {MILESTONE_GOAL}</div>
           </div>
           <div className="kb-milestone-track">
             <div className="kb-milestone-fill" style={{width:`${pct}%`}}/>
@@ -41156,7 +41143,7 @@ function KingdomBuilderSection({onVendorSignup, onChurchSignup}){
           <div style={{width:48,height:48,borderRadius:12,background:"rgba(34,197,94,0.10)",border:"1px solid rgba(34,197,94,0.22)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,color:"#4ade80"}}>✦</div>
           <div>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:1.8,textTransform:"uppercase",color:"#4ade80",marginBottom:6}}>Founding Connector</div>
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"#fff",marginBottom:6}}>Help bring one real church or Christian business into FaithBid.</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"#fff",marginBottom:6}}>Help bring one real church or Christian business into FaithBid.</div>
             <div style={{fontSize:12,color:"var(--atext-muted)",lineHeight:1.7,maxWidth:720}}>One qualified activation before public launch earns permanent Founding Connector recognition. Clicks and pending signups do not count.</div>
           </div>
         </div>
@@ -41164,7 +41151,7 @@ function KingdomBuilderSection({onVendorSignup, onChurchSignup}){
         {/* Signup CTA */}
         <div style={{marginTop:48,textAlign:"center"}}>
           <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"rgba(232,224,208,0.3)",marginBottom:12}}>Claim Your Founding Spot</div>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"#fff",letterSpacing:-0.5,marginBottom:32}}>Two doors. One Kingdom.</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"#fff",letterSpacing:-0.5,marginBottom:32}}>Two doors. One Kingdom.</div>
           <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
             <button type="button" onClick={()=>document.dispatchEvent(new CustomEvent("kb:openModal",{detail:"vendor"}))} className="btn-cta hover-fade" style={{padding:"16px 36px",fontSize:15,letterSpacing:0.2}}>
               Offer Your Services →
@@ -41286,7 +41273,7 @@ function ReferralDashboard({currentUser, showToast}){
               {val:impact.vendors,label:"Christian businesses",color:"#f3e6bd"},
             ].map((s,i)=>(
               <div key={s.label} style={{padding:"14px 24px",borderRight:i<2?"1px solid rgba(255,255,255,0.09)":"none",textAlign:"center",minWidth:140}}>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:22,fontWeight:700,color:s.color,lineHeight:1,marginBottom:4}}>{s.val}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:s.color,lineHeight:1,marginBottom:4}}>{s.val}</div>
                 <div style={{fontSize:9,color:"rgba(255,255,255,0.70)",letterSpacing:1.5,textTransform:"uppercase",fontWeight:800}}>{s.label}</div>
               </div>
             ))}
@@ -41296,7 +41283,7 @@ function ReferralDashboard({currentUser, showToast}){
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap",marginBottom:5}}>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:1.3,textTransform:"uppercase",color:hasFoundingConnector?"#4ade80":"rgba(255,255,255,0.82)"}}>{hasFoundingConnector?"Founding Connector ✓":"Founding Connector"}</div>
               <div style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:10.5,fontWeight:700,color:hasFoundingConnector?"#86efac":"rgba(255,255,255,0.72)",whiteSpace:"nowrap"}}>
-                {hasFoundingConnector ? "Permanent recognition earned" : <><strong style={{fontFamily:"DM Mono,monospace",fontSize:11.5,color:"rgba(255,255,255,0.92)"}}>{Math.min(impact.qualified,1)} / 1</strong><span>Qualified Activation</span></>}
+                {hasFoundingConnector ? "Permanent recognition earned" : <><strong style={{fontFamily:"var(--font-sans),monospace",fontSize:11.5,color:"rgba(255,255,255,0.92)"}}>{Math.min(impact.qualified,1)} / 1</strong><span>Qualified Activation</span></>}
               </div>
             </div>
             <div style={{fontSize:12.5,color:"rgba(255,255,255,0.70)",lineHeight:1.65,maxWidth:650}}>
@@ -41310,7 +41297,7 @@ function ReferralDashboard({currentUser, showToast}){
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontSize:9,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,0.70)",marginBottom:4}}>Your referral link</div>
               <div className="ref-dash-code">{code || "Provisioning"}</div>
-              <div style={{fontSize:10.5,color:"rgba(255,255,255,0.68)",marginTop:3,fontFamily:"DM Mono,monospace",overflow:"hidden",textOverflow:"ellipsis"}}>{code?shareUrl:"Your canonical referral code will appear here."}</div>
+              <div style={{fontSize:10.5,color:"rgba(255,255,255,0.68)",marginTop:3,fontFamily:"var(--font-sans),monospace",overflow:"hidden",textOverflow:"ellipsis"}}>{code?shareUrl:"Your canonical referral code will appear here."}</div>
             </div>
             <button type="button" className="ref-dash-copy" onClick={handleCopy} disabled={!code} style={!code?{opacity:0.5,cursor:"not-allowed"}:undefined}>{copied?"Copied!":"Copy"}</button>
           </div>
@@ -41320,11 +41307,11 @@ function ReferralDashboard({currentUser, showToast}){
       <div style={{background:"#fff",borderRadius:"var(--r-md)",border:"1px solid var(--border)",padding:"20px",marginBottom:16}}>
         <div style={{fontSize:10,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:"var(--text-muted)",marginBottom:14}}>Invite someone who should be here</div>
         <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-          <button type="button" onClick={()=>shareReferralMessage("church",shareUrl,showToast)} disabled={!code} style={{padding:"10px 18px",background:"var(--navy)",color:"#fff",border:"none",borderRadius:"var(--r-sm)",fontSize:12,fontWeight:700,cursor:code?"pointer":"not-allowed",fontFamily:"DM Sans,sans-serif",opacity:code?1:0.5}}>Invite My Church</button>
-          <button type="button" onClick={()=>shareReferralMessage("vendor",shareUrl,showToast)} disabled={!code} style={{padding:"10px 18px",background:"var(--cream)",color:"var(--navy)",border:"1px solid var(--border)",borderRadius:"var(--r-sm)",fontSize:12,fontWeight:700,cursor:code?"pointer":"not-allowed",fontFamily:"DM Sans,sans-serif",opacity:code?1:0.5}}>Invite a Christian Business</button>
-          <button type="button" onClick={()=>shareReferralMessage("general",shareUrl,showToast)} disabled={!code} style={{padding:"10px 18px",background:"#fff",color:"var(--navy)",border:"1px solid var(--border)",borderRadius:"var(--r-sm)",fontSize:12,fontWeight:700,cursor:code?"pointer":"not-allowed",fontFamily:"DM Sans,sans-serif",opacity:code?1:0.5}}>Share FaithBid</button>
+          <button type="button" onClick={()=>shareReferralMessage("church",shareUrl,showToast)} disabled={!code} style={{padding:"10px 18px",background:"var(--navy)",color:"#fff",border:"none",borderRadius:"var(--r-sm)",fontSize:12,fontWeight:700,cursor:code?"pointer":"not-allowed",fontFamily:"var(--font-sans),sans-serif",opacity:code?1:0.5}}>Invite My Church</button>
+          <button type="button" onClick={()=>shareReferralMessage("vendor",shareUrl,showToast)} disabled={!code} style={{padding:"10px 18px",background:"var(--cream)",color:"var(--navy)",border:"1px solid var(--border)",borderRadius:"var(--r-sm)",fontSize:12,fontWeight:700,cursor:code?"pointer":"not-allowed",fontFamily:"var(--font-sans),sans-serif",opacity:code?1:0.5}}>Invite a Christian Business</button>
+          <button type="button" onClick={()=>shareReferralMessage("general",shareUrl,showToast)} disabled={!code} style={{padding:"10px 18px",background:"#fff",color:"var(--navy)",border:"1px solid var(--border)",borderRadius:"var(--r-sm)",fontSize:12,fontWeight:700,cursor:code?"pointer":"not-allowed",fontFamily:"var(--font-sans),sans-serif",opacity:code?1:0.5}}>Share FaithBid</button>
           {hasFoundingConnector && (
-            <button type="button" onClick={()=>setShowShare(true)} style={{padding:"10px 18px",background:"rgba(34,197,94,0.08)",color:"#166534",border:"1px solid rgba(34,197,94,0.22)",borderRadius:"var(--r-sm)",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>My Founding Connector Card</button>
+            <button type="button" onClick={()=>setShowShare(true)} style={{padding:"10px 18px",background:"rgba(34,197,94,0.08)",color:"#166534",border:"1px solid rgba(34,197,94,0.22)",borderRadius:"var(--r-sm)",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>My Founding Connector Card</button>
           )}
         </div>
         <div style={{marginTop:12,fontSize:11,color:"var(--text-muted)",lineHeight:1.6}}>
@@ -41530,10 +41517,10 @@ function LandingCoverageMap() {
 
       {/* Header // left-aligned, two-line, editorial */}
       <div className="land-map-header" style={{maxWidth:760,margin:"0 auto 44px",position:"relative",zIndex:3,padding:"0 16px"}}>
-        <div className="land-map-kicker" style={{fontSize:10,letterSpacing:4,textTransform:"uppercase",color:"rgba(232,224,208,0.35)",fontWeight:600,marginBottom:16,fontFamily:"'DM Sans',sans-serif"}}>
+        <div className="land-map-kicker" style={{fontSize:10,letterSpacing:4,textTransform:"uppercase",color:"rgba(232,224,208,0.35)",fontWeight:600,marginBottom:16,fontFamily:"var(--font-sans),sans-serif"}}>
           Kingdom at Scale
         </div>
-        <h2 className="land-map-title" style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(32px,4.5vw,48px)",fontWeight:700,lineHeight:1.05,margin:0,letterSpacing:-1}}>
+        <h2 className="land-map-title" style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(32px,4.5vw,48px)",fontWeight:700,lineHeight:1.05,margin:0,letterSpacing:-1}}>
           <span style={{color:"#fff",display:"block"}}>Serving the Kingdom.</span>
           <span style={{color:"rgba(232,224,208,0.28)",display:"block"}}>Coast to coast.</span>
         </h2>
@@ -41571,7 +41558,7 @@ function LandingCoverageMap() {
                   textAnchor="middle"
                   fontSize={7.5}
                   fill={isActive ? "rgba(134,239,172,0.55)" : "rgba(255,255,255,0.12)"}
-                  fontFamily="DM Sans,sans-serif"
+                  fontFamily="var(--font-sans),sans-serif"
                   fontWeight={500}
                 >
                   {s.a}
@@ -41585,27 +41572,27 @@ function LandingCoverageMap() {
       {/* Stats */}
       <div className="land-map-stats" style={{display:"flex",justifyContent:"center",alignItems:"stretch",gap:48,marginTop:36,position:"relative",zIndex:1}}>
         <div className="land-map-stat" style={{textAlign:"center"}}>
-          <div style={{fontFamily:"'DM Mono',monospace",fontSize:28,fontWeight:500,color:"#22C55E",letterSpacing:-0.5}}>{ACTIVE.size}</div>
-          <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:"var(--atext-muted)",letterSpacing:2,textTransform:"uppercase",marginTop:4}}>States active</div>
+          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:28,fontWeight:500,color:"#22C55E",letterSpacing:-0.5}}>{ACTIVE.size}</div>
+          <div style={{fontFamily:"var(--font-sans),sans-serif",fontSize:11,color:"var(--atext-muted)",letterSpacing:2,textTransform:"uppercase",marginTop:4}}>States active</div>
         </div>
         <div className="land-map-stat-divider" style={{width:1,background:"rgba(255,255,255,0.07)",alignSelf:"stretch",margin:"4px 0"}}/>
         <div className="land-map-stat" style={{textAlign:"center"}}>
-          <div style={{fontFamily:"'DM Mono',monospace",fontSize:28,fontWeight:500,color:"#22C55E",letterSpacing:-0.5}}>{counts.vendors !== null ? `${counts.vendors}+` : "—"}</div>
-          <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:"var(--atext-muted)",letterSpacing:2,textTransform:"uppercase",marginTop:4}}>Vendors</div>
+          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:28,fontWeight:500,color:"#22C55E",letterSpacing:-0.5}}>{counts.vendors !== null ? `${counts.vendors}+` : "—"}</div>
+          <div style={{fontFamily:"var(--font-sans),sans-serif",fontSize:11,color:"var(--atext-muted)",letterSpacing:2,textTransform:"uppercase",marginTop:4}}>Vendors</div>
         </div>
         <div className="land-map-stat-divider" style={{width:1,background:"rgba(255,255,255,0.07)",alignSelf:"stretch",margin:"4px 0"}}/>
         <div className="land-map-stat" style={{textAlign:"center"}}>
-          <div style={{fontFamily:"'DM Mono',monospace",fontSize:28,fontWeight:500,color:"#22C55E",letterSpacing:-0.5}}>{counts.churches !== null ? `${counts.churches}+` : "—"}</div>
-          <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:"var(--atext-muted)",letterSpacing:2,textTransform:"uppercase",marginTop:4}}>Churches</div>
+          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:28,fontWeight:500,color:"#22C55E",letterSpacing:-0.5}}>{counts.churches !== null ? `${counts.churches}+` : "—"}</div>
+          <div style={{fontFamily:"var(--font-sans),sans-serif",fontSize:11,color:"var(--atext-muted)",letterSpacing:2,textTransform:"uppercase",marginTop:4}}>Churches</div>
         </div>
       </div>
 
       {/* Legend */}
       <div className="land-map-legend" style={{display:"flex",alignItems:"center",gap:24,justifyContent:"center",marginTop:24,position:"relative",zIndex:1}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,fontFamily:"'DM Sans',sans-serif",fontSize:11,color:"var(--atext-muted)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,fontFamily:"var(--font-sans),sans-serif",fontSize:11,color:"var(--atext-muted)"}}>
           <div style={{width:7,height:7,borderRadius:"50%",background:"#22C55E",flexShrink:0}}/>Active
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:8,fontFamily:"'DM Sans',sans-serif",fontSize:11,color:"var(--atext-muted)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,fontFamily:"var(--font-sans),sans-serif",fontSize:11,color:"var(--atext-muted)"}}>
           <div style={{width:7,height:7,borderRadius:"50%",background:"rgba(255,255,255,0.1)",flexShrink:0}}/>Coming soon
         </div>
       </div>
@@ -41767,7 +41754,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
           <h1 className="land-h1 land-animate-in-d1" style={{marginBottom:16}}>
             Post Your Project.<br/>
             Compare Aligned Proposals.<br/>
-            <span style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif",fontStyle:"italic",fontWeight:400,background:"linear-gradient(135deg,#E8D49A 0%,#C4973A 50%,#D4B978 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",letterSpacing:"-0.015em"}}>Hire with Confidence.</span>
+            <span style={{fontFamily:"var(--font-display),serif",fontStyle:"italic",fontWeight:400,background:"linear-gradient(135deg,#E8D49A 0%,#C4973A 50%,#D4B978 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text",letterSpacing:"-0.015em"}}>Hire with Confidence.</span>
           </h1>
 
           {/* Subheadline — tighter color, slightly tighter line-height */}
@@ -41786,7 +41773,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
                 border:"1px solid rgba(232,205,140,0.18)",
                 background:"#354B2C",
                 color:"#fdf8ec",
-                fontFamily:"'DM Sans',sans-serif",
+                fontFamily:"var(--font-sans),sans-serif",
                 fontSize:14,
                 fontWeight:500,
                 cursor:"pointer",
@@ -41863,8 +41850,8 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
         <style>{`@media (max-width: 760px){ .landing-final-proof{padding:38px 20px !important;} .landing-final-proof > div{grid-template-columns:1fr !important;text-align:center;} .landing-final-proof button{width:100%;} }`}</style>
         <div style={{maxWidth:940,margin:"0 auto",display:"grid",gridTemplateColumns:"minmax(0,1fr) auto",gap:24,alignItems:"center"}}>
           <div>
-            <div style={{fontFamily:"'DM Mono', monospace",fontSize:10,fontWeight:800,letterSpacing:"0.18em",textTransform:"uppercase",color:"#8a6729",marginBottom:10}}>Before you sign up</div>
-            <h2 style={{fontFamily:"'Playfair Display', Georgia, serif",fontSize:"clamp(26px,4vw,40px)",lineHeight:1.06,letterSpacing:"-0.03em",color:"#1C2814",margin:"0 0 10px"}}>See the kind of work FaithBid is built to organize.</h2>
+            <div style={{fontFamily:"var(--font-sans), monospace",fontSize:10,fontWeight:800,letterSpacing:"0.18em",textTransform:"uppercase",color:"#8a6729",marginBottom:10}}>Before you sign up</div>
+            <h2 style={{fontFamily:"var(--font-display), serif",fontSize:"clamp(26px,4vw,40px)",lineHeight:1.06,letterSpacing:"-0.03em",color:"#1C2814",margin:"0 0 10px"}}>See the kind of work FaithBid is built to organize.</h2>
             <p style={{fontSize:14.5,lineHeight:1.75,color:"#5f6659",margin:0,fontWeight:400}}>Reserve a place for your church in FaithBid's first Dallas pilot cohort. No project is posted until your team is ready.</p>
           </div>
           <button type="button" onClick={()=>{ trackLandingCta("church", "final_proof", "church-signup"); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }} style={{border:"1px solid rgba(28,40,20,0.12)",background:"#1C2814",color:"#fff",borderRadius:999,padding:"15px 24px",fontSize:13.5,fontWeight:800,cursor:"pointer",boxShadow:"0 18px 40px rgba(28,40,20,0.18)",whiteSpace:"nowrap"}}>Reserve church access →</button>
@@ -41886,8 +41873,8 @@ function LandingChurchTrustStrip() {
     <section data-kb-funnel-section="trust" aria-labelledby="landing-trust-title" style={{background:"#f5f0e6",borderTop:"1px solid #dfd5c2",borderBottom:"1px solid #dfd5c2"}}>
       <div style={{maxWidth:1120,margin:"0 auto",padding:"38px 48px"}}>
         <div style={{maxWidth:680,marginBottom:20}}>
-          <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,fontWeight:800,letterSpacing:"0.18em",textTransform:"uppercase",color:"#8a6729",marginBottom:8}}>Trust, in plain language</div>
-          <h2 id="landing-trust-title" style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:"clamp(26px,3.5vw,38px)",lineHeight:1.08,color:"#1C2814",margin:0}}>Clear signals. Your church makes the call.</h2>
+          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:"0.18em",textTransform:"uppercase",color:"#8a6729",marginBottom:8}}>Trust, in plain language</div>
+          <h2 id="landing-trust-title" style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(26px,3.5vw,38px)",lineHeight:1.08,color:"#1C2814",margin:0}}>Clear signals. Your church makes the call.</h2>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:14}}>
           {items.map(item => <div key={item.title} style={{padding:"18px 20px",background:"rgba(255,255,255,.72)",border:"1px solid #dfd5c2",borderRadius:16}}><strong style={{display:"block",fontSize:14,color:"#1C2814",marginBottom:6}}>{item.title}</strong><span style={{fontSize:13,lineHeight:1.65,color:"#62695d"}}>{item.body}</span></div>)}
@@ -41910,8 +41897,8 @@ function FirstSessionTrustRail() {
       <div style={{ maxWidth: 1120, margin: "0 auto", padding: "46px 48px", position: "relative", zIndex: 1 }}>
         <div className="fs-trust-head" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.05fr) minmax(280px,0.95fr)", gap: 28, alignItems: "end", marginBottom: 24 }}>
           <div>
-            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "#8a6729", marginBottom: 10 }}>How FaithBid works</div>
-            <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(28px, 4.2vw, 44px)", lineHeight: 1.04, letterSpacing: "-0.035em", color: "#1C2814", margin: 0 }}>One marketplace built for church projects.</h2>
+            <div style={{ fontFamily: "var(--font-sans), monospace", fontSize: 10, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "#8a6729", marginBottom: 10 }}>How FaithBid works</div>
+            <h2 style={{ fontFamily: "var(--font-display), serif", fontSize: "clamp(28px, 4.2vw, 44px)", lineHeight: 1.04, letterSpacing: "-0.035em", color: "#1C2814", margin: 0 }}>One marketplace built for church projects.</h2>
           </div>
           <div>
             <p style={{ fontSize: 14.5, lineHeight: 1.75, color: "#5f6659", margin: 0, fontWeight: 400 }}>FaithBid is built to help churches post clearly, compare faith-aligned bids, and move from first message to final handoff without losing control of the project.</p>
@@ -41921,8 +41908,8 @@ function FirstSessionTrustRail() {
           {items.map(item => (
             <div key={item.num} style={{ background: "rgba(255,255,255,0.78)", border: "1px solid #dfd5c2", borderRadius: 22, padding: "20px 20px 22px", boxShadow: "0 18px 44px rgba(28,40,20,0.055)", position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: 0, left: 20, right: 20, height: 2, background: "linear-gradient(90deg, #b08840, rgba(176,136,64,0))" }} />
-              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", color: "#b08840", marginBottom: 12 }}>{item.num}</div>
-              <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 21, fontWeight: 700, color: "#1C2814", marginBottom: 8, letterSpacing: "-0.015em" }}>{item.title}</div>
+              <div style={{ fontFamily: "var(--font-sans), monospace", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", color: "#b08840", marginBottom: 12 }}>{item.num}</div>
+              <div style={{ fontFamily: "var(--font-display), serif", fontSize: 21, fontWeight: 700, color: "#1C2814", marginBottom: 8, letterSpacing: "-0.015em" }}>{item.title}</div>
               <div style={{ fontSize: 13.5, lineHeight: 1.7, color: "#6d7468", fontWeight: 400 }}>{item.body}</div>
             </div>
           ))}
@@ -41966,8 +41953,8 @@ function AboutScreen({nav, setStartFreeDefaultRole}){
           <CrossLogo size={22}/>
         </button>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <button type="button" onClick={()=>nav("landing")} style={{background:"transparent",border:"1px solid rgba(42,53,32,0.12)",color:"var(--navy)",padding:"10px 14px",borderRadius:999,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>← Back</button>
-          <button type="button" onClick={()=>{ if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }} style={{background:"var(--navy)",border:"none",color:"#fff",padding:"10px 16px",borderRadius:999,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Get started</button>
+          <button type="button" onClick={()=>nav("landing")} style={{background:"transparent",border:"1px solid rgba(42,53,32,0.12)",color:"var(--navy)",padding:"10px 14px",borderRadius:999,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back</button>
+          <button type="button" onClick={()=>{ if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }} style={{background:"var(--navy)",border:"none",color:"#fff",padding:"10px 16px",borderRadius:999,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Get started</button>
         </div>
       </div>
 
@@ -41976,11 +41963,11 @@ function AboutScreen({nav, setStartFreeDefaultRole}){
           <div className="sub-page-two-col" style={{display:"grid",gridTemplateColumns:"minmax(0,1.15fr) minmax(320px,0.85fr)",gap:36,alignItems:"end"}}>
             <div>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:18}}>About FaithBid</div>
-              <h1 style={{fontFamily:"Playfair Display,serif",fontSize:"clamp(40px,5.8vw,72px)",fontWeight:700,color:"var(--navy)",lineHeight:0.98,letterSpacing:-1.8,margin:"0 0 18px 0"}}>Built for the Kingdom.<br/><span style={{color:"rgba(42,53,32,0.55)"}}>Designed for trusted work.</span></h1>
+              <h1 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(40px,5.8vw,72px)",fontWeight:700,color:"var(--navy)",lineHeight:0.98,letterSpacing:-1.8,margin:"0 0 18px 0"}}>Built for the Kingdom.<br/><span style={{color:"rgba(42,53,32,0.55)"}}>Designed for trusted work.</span></h1>
               <p style={{fontSize:17,color:"var(--text-muted)",fontWeight:400,lineHeight:1.9,maxWidth:680,margin:"0 0 26px 0"}}>FaithBid is a premium operating system for church projects — a place to source aligned vendors, compare bids, hire confidently, and keep the work organized after the decision is made.</p>
               <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
                 <button type="button" onClick={()=>{ if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }} className="land-cta-primary">I'm a Church</button>
-                <button type="button" onClick={()=>nav("landing")} style={{background:"#fff",border:"1px solid rgba(42,53,32,0.12)",color:"var(--navy)",padding:"15px 22px",borderRadius:"var(--r-md)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Back to home</button>
+                <button type="button" onClick={()=>nav("landing")} style={{background:"#fff",border:"1px solid rgba(42,53,32,0.12)",color:"var(--navy)",padding:"15px 22px",borderRadius:"var(--r-md)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Back to home</button>
               </div>
             </div>
             <div style={{background:"rgba(255,255,255,0.78)",border:"1px solid rgba(42,53,32,0.08)",borderRadius:28,padding:24,boxShadow:"0 18px 60px rgba(42,53,32,0.08)"}}>
@@ -42005,14 +41992,14 @@ function AboutScreen({nav, setStartFreeDefaultRole}){
         <div style={{maxWidth:1160,margin:"0 auto"}}>
           <div style={{marginBottom:28}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:2.4,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:12}}>Why we exist</div>
-            <h2 style={{fontFamily:"Playfair Display,serif",fontSize:"clamp(28px,4vw,42px)",fontWeight:700,color:"var(--navy)",lineHeight:1.08,margin:"0 0 12px 0"}}>A better operating layer for ministry work.</h2>
+            <h2 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(28px,4vw,42px)",fontWeight:700,color:"var(--navy)",lineHeight:1.08,margin:"0 0 12px 0"}}>A better operating layer for ministry work.</h2>
             <p style={{fontSize:15,color:"var(--text-muted)",fontWeight:400,lineHeight:1.8,maxWidth:760,margin:0}}>Churches should not have to stitch together Facebook posts, spreadsheets, texts, and guesswork just to hire well. Christian professionals should not have to hide their values just to find serious work.</p>
           </div>
           <div className="sub-page-three-col" style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:16}}>
             {PILLARS.map((item)=>(
               <div key={item.title||item.label||item.heading} style={{padding:"26px 24px",borderRadius:24,background:"var(--cream)",border:"1px solid rgba(42,53,32,0.08)"}}>
                 <div style={{fontSize:10,fontWeight:800,letterSpacing:2.3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:12}}>{item.eyebrow}</div>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--navy)",lineHeight:1.25,marginBottom:10}}>{item.title}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",lineHeight:1.25,marginBottom:10}}>{item.title}</div>
                 <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.8,fontWeight:400}}>{item.body}</div>
               </div>
             ))}
@@ -42025,7 +42012,7 @@ function AboutScreen({nav, setStartFreeDefaultRole}){
           <div className="sub-page-two-col" style={{display:"grid",gridTemplateColumns:"minmax(0,0.92fr) minmax(0,1.08fr)",gap:36,alignItems:"start"}}>
             <div style={{position:"sticky",top:100}}>
               <div style={{fontSize:10,fontWeight:800,letterSpacing:2.4,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:14}}>The friction we are fixing</div>
-              <h2 style={{fontFamily:"Playfair Display,serif",fontSize:"clamp(28px,4vw,40px)",fontWeight:700,color:"var(--navy)",lineHeight:1.08,margin:"0 0 14px 0"}}>The old way is fragmented.</h2>
+              <h2 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(28px,4vw,40px)",fontWeight:700,color:"var(--navy)",lineHeight:1.08,margin:"0 0 14px 0"}}>The old way is fragmented.</h2>
               <p style={{fontSize:15,color:"var(--text-muted)",fontWeight:400,lineHeight:1.8,margin:"0 0 22px 0"}}>The problem is not just finding a vendor. It is sourcing the right people, checking trust, comparing clearly, and then actually managing the work after the hire.</p>
               <div style={{padding:"18px 20px",borderRadius:20,background:"#fff",border:"1px solid rgba(42,53,32,0.08)",boxShadow:"0 10px 24px rgba(42,53,32,0.05)"}}>
                 <div style={{fontSize:12,fontWeight:800,color:"var(--navy)",marginBottom:6}}>FaithBid replaces that sprawl.</div>
@@ -42038,9 +42025,9 @@ function AboutScreen({nav, setStartFreeDefaultRole}){
                 return (
                   <button key={p.num || i} type="button" onClick={()=>setActive(open ? null : i)} style={{textAlign:"left",padding:"22px 22px",borderRadius:24,border:open?"1px solid rgba(176,136,64,0.24)":"1px solid rgba(42,53,32,0.08)",background:open?"#fff":"rgba(255,255,255,0.72)",cursor:"pointer",boxShadow:open?"0 18px 34px rgba(42,53,32,0.06)":"none"}}>
                     <div style={{display:"grid",gridTemplateColumns:"48px 1fr 24px",gap:14,alignItems:"start"}}>
-                      <div style={{fontFamily:"DM Mono,monospace",fontSize:10,color:"rgba(42,53,32,0.35)",letterSpacing:1,paddingTop:4}}>{p.num}</div>
+                      <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"rgba(42,53,32,0.35)",letterSpacing:1,paddingTop:4}}>{p.num}</div>
                       <div>
-                        <div style={{fontSize:20,fontWeight:700,color:"var(--navy)",lineHeight:1.3,fontFamily:"DM Sans,sans-serif",marginBottom:open?10:0}}>{p.title}</div>
+                        <div style={{fontSize:20,fontWeight:700,color:"var(--navy)",lineHeight:1.3,fontFamily:"var(--font-sans),sans-serif",marginBottom:open?10:0}}>{p.title}</div>
                         {open && <><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.8,fontWeight:400,marginBottom:14}}>{p.body}</div><div style={{display:"inline-flex",padding:"7px 12px",borderRadius:999,background:"rgba(176,136,64,0.08)",border:"1px solid rgba(176,136,64,0.12)",fontSize:11,fontWeight:700,color:"var(--gold-text)"}}>{p.counter}</div></>}
                       </div>
                       <div style={{width:24,height:24,borderRadius:"50%",border:"1px solid rgba(42,53,32,0.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:"var(--navy)",transform:open?"rotate(45deg)":"rotate(0deg)",transition:"transform 0.2s ease"}}>+</div>
@@ -42057,14 +42044,14 @@ function AboutScreen({nav, setStartFreeDefaultRole}){
         <div style={{maxWidth:1160,margin:"0 auto"}}>
           <div style={{textAlign:"center",marginBottom:34}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:2.4,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:12}}>How FaithBid works</div>
-            <h2 style={{fontFamily:"Playfair Display,serif",fontSize:"clamp(28px,4vw,40px)",fontWeight:700,color:"var(--navy)",margin:"0 0 12px 0"}}>A cleaner flow from post to completion.</h2>
+            <h2 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(28px,4vw,40px)",fontWeight:700,color:"var(--navy)",margin:"0 0 12px 0"}}>A cleaner flow from post to completion.</h2>
             <p style={{fontSize:15,color:"var(--text-muted)",fontWeight:400,lineHeight:1.8,maxWidth:700,margin:"0 auto"}}>The product is no longer just a marketplace. It is becoming the operating system around the decision itself.</p>
           </div>
           <div className="sub-page-three-col" style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:16}}>
             {HOW.map((item)=>(
               <div key={item.title||item.label||item.step} style={{padding:"24px 20px",borderRadius:22,background:"var(--cream)",border:"1px solid rgba(42,53,32,0.08)"}}>
-                <div style={{fontFamily:"DM Mono,monospace",fontSize:10,color:"var(--gold-text)",letterSpacing:1.5,marginBottom:12}}>{item.step}</div>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:10}}>{item.title}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"var(--gold-text)",letterSpacing:1.5,marginBottom:12}}>{item.step}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:10}}>{item.title}</div>
                 <div style={{fontSize:13,color:"var(--text-muted)",fontWeight:400,lineHeight:1.75}}>{item.body}</div>
               </div>
             ))}
@@ -42076,11 +42063,11 @@ function AboutScreen({nav, setStartFreeDefaultRole}){
         <div style={{position:"absolute",inset:0,background:"linear-gradient(135deg, rgba(10,18,8,0.9) 0%, rgba(22,31,17,0.82) 55%, rgba(10,18,8,0.92) 100%)"}}/>
         <div style={{maxWidth:1020,margin:"0 auto",position:"relative",zIndex:1,textAlign:"center"}}>
           <div style={{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-light)",marginBottom:14}}>Built for the whole Kingdom</div>
-          <h2 style={{fontFamily:"Playfair Display,serif",fontSize:"clamp(30px,4.8vw,48px)",fontWeight:700,color:"#fff",lineHeight:1.08,margin:"0 0 14px 0"}}>Trusted work deserves better infrastructure.</h2>
+          <h2 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(30px,4.8vw,48px)",fontWeight:700,color:"#fff",lineHeight:1.08,margin:"0 0 14px 0"}}>Trusted work deserves better infrastructure.</h2>
           <p style={{fontSize:16,color:"var(--atext-2)",fontWeight:400,lineHeight:1.8,maxWidth:720,margin:"0 auto 28px"}}>That is what FaithBid is here to build — not a noisy directory, but a serious, faith-aligned operating layer for real church projects and the people who help deliver them.</p>
           <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginBottom:16}}>
             <button type="button" className="land-cta-primary" onClick={e=>{e.stopPropagation(); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup");}}>{LAUNCHED ? "Post your first project" : "Reserve church access"}</button>
-            <button type="button" onClick={e=>{e.stopPropagation(); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("vendor"); nav("vendor-signup");}} style={{background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",color:"#fff",padding:"15px 24px",borderRadius:"var(--r-md)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>{LAUNCHED ? "Join as a vendor" : "Apply as a vendor"}</button>
+            <button type="button" onClick={e=>{e.stopPropagation(); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("vendor"); nav("vendor-signup");}} style={{background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",color:"#fff",padding:"15px 24px",borderRadius:"var(--r-md)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>{LAUNCHED ? "Join as a vendor" : "Apply as a vendor"}</button>
           </div>
           <div style={{fontSize:12,color:"var(--atext-muted)",letterSpacing:0.2}}>Church give-back terms are not yet final. Any future program will be governed by published eligibility and payment terms.</div>
         </div>
@@ -42144,14 +42131,14 @@ function AmbassadorScreen({nav, showToast = () => {}}){
         <button type="button" aria-label="Go to home" onClick={()=>nav("landing")} style={{display:"flex",alignItems:"center",gap:9,background:"none",border:"none",cursor:"pointer"}}>
           <CrossLogo size={22}/>
         </button>
-        <button type="button" onClick={()=>nav("projects")} style={{background:"none",border:"none",color:"var(--atext-2)",fontSize:12,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>← Back</button>
+        <button type="button" onClick={()=>nav("projects")} style={{background:"none",border:"none",color:"var(--atext-2)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back</button>
       </div>
 
       {/* Hero */}
       <div className="sub-page-hero" style={{backgroundImage:`url(${CLAY_BG})`,backgroundSize:"cover",backgroundPosition:"center",padding:"96px 48px 80px"}}>
         <div style={{maxWidth:800,margin:"0 auto"}}>
           <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--atext-muted)",marginBottom:20}}>Ambassador Program</div>
-          <h1 style={{fontFamily:"Playfair Display,serif",fontSize:"clamp(36px,5vw,60px)",fontWeight:700,color:"#fff",lineHeight:1.05,letterSpacing:-1,marginBottom:24}}>Spread the mission.<br/><span style={{color:"var(--gold-light)"}}>Build your career.</span></h1>
+          <h1 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(36px,5vw,60px)",fontWeight:700,color:"#fff",lineHeight:1.05,letterSpacing:-1,marginBottom:24}}>Spread the mission.<br/><span style={{color:"var(--gold-light)"}}>Build your career.</span></h1>
           <p style={{fontSize:17,color:"var(--atext-2)",fontWeight:400,lineHeight:1.8,maxWidth:580}}>FaithBid Ambassadors are ministry students, campus leaders, and young Christian professionals who believe faith-aligned work matters and want to help build the platform that makes it possible.</p>
           <div style={{marginTop:36,display:"inline-flex",alignItems:"center",gap:12,padding:"12px 20px",background:"rgba(232,224,208,0.06)",border:"1px solid rgba(232,224,208,0.15)",borderRadius:10}}>
             <div style={{width:8,height:8,borderRadius:"50%",background:"var(--gold-light)",flexShrink:0}}/>
@@ -42165,14 +42152,14 @@ function AmbassadorScreen({nav, showToast = () => {}}){
         <div style={{maxWidth:1000,margin:"0 auto"}}>
           <div style={{textAlign:"center",marginBottom:56}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:14}}>What You Get</div>
-            <h2 style={{fontFamily:"Playfair Display,serif",fontSize:36,fontWeight:700,color:"var(--navy)",marginBottom:12}}>Real rewards. Zero cost.</h2>
+            <h2 style={{fontFamily:"var(--font-display),serif",fontSize:36,fontWeight:700,color:"var(--navy)",marginBottom:12}}>Real rewards. Zero cost.</h2>
             <p style={{fontSize:15,color:"var(--text-muted)",fontWeight:400,maxWidth:480,margin:"0 auto",lineHeight:1.7}}>Every perk is something genuinely useful // not a discount code for something you'd never buy.</p>
           </div>
           <div className="sub-page-three-col" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
             {PERKS.map((p)=>(
               <div key={p.label||p.title||p.heading} className="hover-lift-card" style={{padding:"26px 24px",borderRadius:"var(--r-lg)",border:"1.5px solid var(--border)",background:"var(--cream)"}}>
-                <div style={{fontFamily:"DM Mono,monospace",fontSize:10,color:"var(--text-muted)",letterSpacing:1,marginBottom:12}}>{String(i+1).padStart(2,"0")}</div>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:8}}>{p.title}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"var(--text-muted)",letterSpacing:1,marginBottom:12}}>{String(i+1).padStart(2,"0")}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:8}}>{p.title}</div>
                 <div style={{fontSize:12,color:"var(--text-muted)",lineHeight:1.7,fontWeight:400}}>{p.desc}</div>
               </div>
             ))}
@@ -42186,7 +42173,7 @@ function AmbassadorScreen({nav, showToast = () => {}}){
           <div className="sub-page-two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:64,alignItems:"center"}}>
             <div>
               <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--atext-muted)",marginBottom:16}}>Who We're Looking For</div>
-              <h2 style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"#fff",lineHeight:1.1,marginBottom:20}}>Ministry students and campus leaders who get it.</h2>
+              <h2 style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"#fff",lineHeight:1.1,marginBottom:20}}>Ministry students and campus leaders who get it.</h2>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 {["Bible college, seminary, or Christian university students","Campus ministry leaders (Cru, YoungLife, BCM, RUF, etc.)","Church communications, worship arts, or theology majors","Young professionals actively involved in local church ministry","Anyone who already recommends tools they love"].map((item)=>(
                   <div key={item.label||item.text||item.title} style={{display:"flex",alignItems:"flex-start",gap:10}}>
@@ -42216,19 +42203,19 @@ function AmbassadorScreen({nav, showToast = () => {}}){
         <div style={{maxWidth:600,margin:"0 auto"}}>
           <div style={{textAlign:"center",marginBottom:40}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:14}}>Apply now</div>
-            <h2 style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"var(--navy)",marginBottom:10}}>We review every application personally.</h2>
+            <h2 style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"var(--navy)",marginBottom:10}}>We review every application personally.</h2>
             <p style={{fontSize:14,color:"var(--text-muted)",fontWeight:400,lineHeight:1.7}}>Three questions. Honest answers. We respond within 72 hours.</p>
           </div>
           {submitted ? (
             <div style={{textAlign:"center",padding:"48px 32px",background:"#fff",borderRadius:20,border:"1px solid var(--border)"}}>
-              <div style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Application received.</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Application received.</div>
               <div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.7,maxWidth:360,margin:"0 auto"}}>We'll review your application and get back to you within 72 hours. Thank you for wanting to be part of this.</div>
               <button type="button" onClick={()=>nav("landing")} className="btn-primary" style={{marginTop:24}}>Back to FaithBid</button>
             </div>
           ) : (
             <div style={{background:"#fff",borderRadius:20,border:"1px solid var(--border)",overflow:"hidden"}}>
               <div style={{backgroundImage:`url(${CLAY_BG})`,backgroundSize:"cover",backgroundPosition:"center",padding:"24px 32px"}}>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:18,fontWeight:700,color:"#fff"}}>Ambassador Application</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"#fff"}}>Ambassador Application</div>
                 <div style={{fontSize:12,color:"var(--atext-2)",marginTop:3}}>Takes about 3 minutes</div>
               </div>
               <div style={{padding:"28px 32px",display:"flex",flexDirection:"column",gap:14}}>
@@ -42320,14 +42307,14 @@ function PartnerScreen({nav}){
         <button type="button" aria-label="Go to home" onClick={()=>nav("landing")} style={{display:"flex",alignItems:"center",gap:9,background:"none",border:"none",cursor:"pointer"}}>
           <CrossLogo size={22}/>
         </button>
-        <button type="button" onClick={()=>nav("projects")} style={{background:"none",border:"none",color:"var(--atext-2)",fontSize:12,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>← Back</button>
+        <button type="button" onClick={()=>nav("projects")} style={{background:"none",border:"none",color:"var(--atext-2)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back</button>
       </div>
 
       {/* Hero */}
       <div className="sub-page-hero" style={{backgroundImage:`url(${CLAY_BG})`,backgroundSize:"cover",backgroundPosition:"center",padding:"96px 48px 80px"}}>
         <div style={{maxWidth:800,margin:"0 auto"}}>
           <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--atext-muted)",marginBottom:20}}>Partner with us</div>
-          <h1 style={{fontFamily:"Playfair Display,serif",fontSize:"clamp(36px,5vw,60px)",fontWeight:700,color:"#fff",lineHeight:1.05,letterSpacing:-1,marginBottom:24}}>Build the Kingdom<br/><span style={{color:"var(--gold-light)"}}>together.</span></h1>
+          <h1 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(36px,5vw,60px)",fontWeight:700,color:"#fff",lineHeight:1.05,letterSpacing:-1,marginBottom:24}}>Build the Kingdom<br/><span style={{color:"var(--gold-light)"}}>together.</span></h1>
           <p style={{fontSize:17,color:"var(--atext-2)",fontWeight:400,lineHeight:1.8,maxWidth:580}}>Whether you're a church that's found real value in FaithBid, or an organization that sees what we're building // let's make it go further together.</p>
         </div>
       </div>
@@ -42337,10 +42324,10 @@ function PartnerScreen({nav}){
         <div style={{maxWidth:1000,margin:"0 auto"}}>
           <div style={{textAlign:"center",marginBottom:40}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:14}}>Partnership Type</div>
-            <h2 style={{fontFamily:"Playfair Display,serif",fontSize:32,fontWeight:700,color:"var(--navy)",marginBottom:28}}>What kind of partner are you?</h2>
+            <h2 style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"var(--navy)",marginBottom:28}}>What kind of partner are you?</h2>
             <div style={{display:"inline-flex",background:"var(--cream-dark)",borderRadius:100,padding:4}}>
               {[{id:"church",label:"Church or Ministry"},{id:"org",label:"Organization or Network"}].map(t=>(
-                <button type="button" key={t.id} onClick={()=>setType(t.id)} style={{padding:"10px 22px",borderRadius:100,border:"none",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif",background:type===t.id?"var(--navy)":"transparent",color:type===t.id?"#fff":"var(--text-muted)",transition:"all 0.18s"}}>{t.label}</button>
+                <button type="button" key={t.id} onClick={()=>setType(t.id)} style={{padding:"10px 22px",borderRadius:100,border:"none",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",background:type===t.id?"var(--navy)":"transparent",color:type===t.id?"#fff":"var(--text-muted)",transition:"all 0.18s"}}>{t.label}</button>
               ))}
             </div>
           </div>
@@ -42349,7 +42336,7 @@ function PartnerScreen({nav}){
             {(type==="church"?CHURCH_PERKS:ORG_PERKS).map((p)=>(
               <div key={p.label||p.title||p.heading} style={{padding:"26px 24px",borderRadius:"var(--r-lg)",border:"1.5px solid var(--border)",background:"var(--cream)"}}>
                 <div style={{width:32,height:2,background:"var(--navy)",marginBottom:16,borderRadius:1}}/>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:8}}>{p.title}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:8}}>{p.title}</div>
                 <div style={{fontSize:12,color:"var(--text-muted)",lineHeight:1.7,fontWeight:400}}>{p.desc}</div>
               </div>
             ))}
@@ -42359,7 +42346,7 @@ function PartnerScreen({nav}){
           <div className="sub-page-ask-row" style={{backgroundImage:`url(${CLAY_BG})`,backgroundSize:"cover",backgroundPosition:"center",borderRadius:20,padding:"36px 40px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:48,alignItems:"center"}}>
             <div>
               <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--atext-muted)",marginBottom:14}}>What We Ask in Return</div>
-              <h3 style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,color:"#fff",lineHeight:1.2,marginBottom:16}}>Mutual credibility. Nothing more.</h3>
+              <h3 style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"#fff",lineHeight:1.2,marginBottom:16}}>Mutual credibility. Nothing more.</h3>
               <div style={{fontSize:13,color:"var(--atext-2)",lineHeight:1.8,fontWeight:400}}>A Partner Church has used FaithBid for at least 3 projects. They're willing to display a Partner badge on their website and share honest feedback with their network. That's the whole ask.</div>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
@@ -42382,19 +42369,19 @@ function PartnerScreen({nav}){
         <div style={{maxWidth:600,margin:"0 auto"}}>
           <div style={{textAlign:"center",marginBottom:40}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:14}}>Get In Touch</div>
-            <h2 style={{fontFamily:"Playfair Display,serif",fontSize:28,fontWeight:700,color:"var(--navy)",marginBottom:10}}>Start the conversation.</h2>
+            <h2 style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:700,color:"var(--navy)",marginBottom:10}}>Start the conversation.</h2>
             <p style={{fontSize:14,color:"var(--text-muted)",fontWeight:400,lineHeight:1.7}}>Tell us who you are. We'll follow up personally.</p>
           </div>
           {submitted ? (
             <div style={{textAlign:"center",padding:"48px 32px",background:"#fff",borderRadius:20,border:"1px solid var(--border)"}}>
-              <div style={{fontFamily:"Playfair Display,serif",fontSize:22,fontWeight:700,color:"var(--navy)",marginBottom:8}}>We'll be in touch.</div>
+              <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"var(--navy)",marginBottom:8}}>We'll be in touch.</div>
               <div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.7,maxWidth:340,margin:"0 auto"}}>Thank you for reaching out. We respond to every partnership inquiry personally, usually within 2 business days.</div>
               <button type="button" onClick={()=>nav("landing")} className="btn-primary" style={{marginTop:24}}>Back to FaithBid</button>
             </div>
           ) : (
             <div style={{background:"#fff",borderRadius:20,border:"1px solid var(--border)",overflow:"hidden"}}>
               <div style={{backgroundImage:`url(${CLAY_BG})`,backgroundSize:"cover",backgroundPosition:"center",padding:"24px 32px"}}>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:18,fontWeight:700,color:"#fff"}}>Partnership Inquiry</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"#fff"}}>Partnership Inquiry</div>
                 <div style={{fontSize:12,color:"var(--atext-2)",marginTop:3}}>{type==="church"?"Church / Ministry":"Organization / Network"}</div>
               </div>
               <div style={{padding:"28px 32px",display:"flex",flexDirection:"column",gap:14}}>
@@ -42552,7 +42539,7 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
         <div style={{maxWidth:1240,margin:"0 auto",padding:"22px 28px"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:20,marginBottom:36}}>
             <div style={{cursor:"pointer"}} onClick={()=>nav("landing")} role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))}><CrossLogo size={34} color="#22301B" wordmarkColor="#22301B"/></div>
-            <button type="button" onClick={()=>nav("landing")} style={{height:40,padding:"0 16px",borderRadius:10,border:"1px solid rgba(20,21,24,0.1)",background:"#fff",fontSize:13,fontWeight:700,color:"#2e3038",cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Back to landing</button>
+            <button type="button" onClick={()=>nav("landing")} style={{height:40,padding:"0 16px",borderRadius:10,border:"1px solid rgba(20,21,24,0.1)",background:"#fff",fontSize:13,fontWeight:700,color:"#2e3038",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Back to landing</button>
           </div>
           <div style={{maxWidth:760,margin:"0 auto",background:"#fff",border:"1px solid rgba(20,21,24,0.06)",borderRadius:28,boxShadow:"0 24px 72px rgba(20,21,24,0.08)",overflow:"hidden"}}>
             <div style={{padding:"46px 40px 36px",background:"linear-gradient(180deg,#faf8f4 0%, #f3efe6 100%)",borderBottom:"1px solid rgba(20,21,24,0.06)",textAlign:"center"}}>
@@ -42560,7 +42547,7 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:"#b08840",marginBottom:12}}>Account created</div>
-              <div style={{fontFamily:"Newsreader, Georgia, serif",fontSize:42,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:14}}>Check your email to continue.</div>
+              <div style={{fontFamily:"var(--font-display), serif",fontSize:42,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:14}}>Check your email to continue.</div>
               <div style={{maxWidth:520,margin:"0 auto",fontSize:15,lineHeight:1.75,color:"#6b6d75"}}>We sent a confirmation link to <strong style={{color:"#141518"}}>{email}</strong>. Once you confirm, your free FaithBid account will be ready.</div>
             </div>
             <div style={{padding:"30px 34px 36px"}}>
@@ -42572,10 +42559,10 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
                 ].map((line, idx)=>(<div key={idx} style={{display:"flex",gap:12,alignItems:"flex-start",padding:"14px 16px",borderRadius:16,background:"#fbfaf7",border:"1px solid rgba(20,21,24,0.06)"}}><div style={{width:22,height:22,borderRadius:999,background:"rgba(176,136,64,0.1)",color:"#b08840",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,flexShrink:0}}>{idx+1}</div><div style={{fontSize:14,color:"#4f525b",lineHeight:1.6}}>{line}</div></div>))}
               </div>
               <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
-                <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("login"); nav("auth"); }} style={{height:48,padding:"0 22px",borderRadius:12,border:"none",background:"#1f2a22",fontSize:14,fontWeight:800,color:"#fff",cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Confirm email, then sign in</button>
-                <button type="button" onClick={()=>nav("projects")} style={{height:48,padding:"0 22px",borderRadius:12,border:"1px solid rgba(20,21,24,0.08)",background:"#fff",fontSize:14,fontWeight:700,color:"#2e3038",cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Browse marketplace</button>
+                <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("login"); nav("auth"); }} style={{height:48,padding:"0 22px",borderRadius:12,border:"none",background:"#1f2a22",fontSize:14,fontWeight:800,color:"#fff",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Confirm email, then sign in</button>
+                <button type="button" onClick={()=>nav("projects")} style={{height:48,padding:"0 22px",borderRadius:12,border:"1px solid rgba(20,21,24,0.08)",background:"#fff",fontSize:14,fontWeight:700,color:"#2e3038",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Browse marketplace</button>
               </div>
-              <div style={{marginTop:14,textAlign:"center",fontSize:13,color:"#6b6d75"}}>Already confirmed? <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("login"); nav("auth"); }} style={{background:"none",border:"none",padding:0,color:"#22301B",fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Go to sign in →</button></div>
+              <div style={{marginTop:14,textAlign:"center",fontSize:13,color:"#6b6d75"}}>Already confirmed? <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("login"); nav("auth"); }} style={{background:"none",border:"none",padding:0,color:"#22301B",fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Go to sign in →</button></div>
             </div>
           </div>
         </div>
@@ -42588,7 +42575,7 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
     return (
       <button type="button" onClick={()=>{ if (roleKey === "vendor") { routeVendorToCharter(); return; } setSelectedRole(roleKey); }} style={{textAlign:"left",padding:"24px 22px",borderRadius:24,border:`1px solid ${active ? 'rgba(176,136,64,0.28)' : 'rgba(20,21,24,0.06)'}`,background:active ? "linear-gradient(180deg,#fffaf2 0%,#fff 100%)" : "#fff",boxShadow:active ? "0 18px 44px rgba(20,21,24,0.08)" : "0 4px 18px rgba(20,21,24,0.04)",cursor:"pointer",transition:"all 0.18s ease"}}>
         <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"5px 10px",borderRadius:999,background:accentBg,fontSize:10,fontWeight:800,letterSpacing:"0.12em",textTransform:"uppercase",color: roleKey === 'church' ? '#35513a' : '#8a6a2e',marginBottom:16}}>{eyebrow}</div>
-        <div style={{fontFamily:"Newsreader, Georgia, serif",fontSize:28,lineHeight:1.03,letterSpacing:"-0.03em",color:"#141518",marginBottom:10}}>{title}</div>
+        <div style={{fontFamily:"var(--font-display), serif",fontSize:28,lineHeight:1.03,letterSpacing:"-0.03em",color:"#141518",marginBottom:10}}>{title}</div>
         <div style={{fontSize:15,lineHeight:1.75,color:"#6b6d75",marginBottom:18}}>{body}</div>
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
           {(roleKey === 'church' ? KB_START_FREE_ROLE_META.church.chips : KB_START_FREE_ROLE_META.vendor.chips).map((item)=>(<span key={item} style={{display:'inline-flex',alignItems:'center',gap:6,padding:'7px 11px',borderRadius:999,border:'1px solid rgba(20,21,24,0.06)',background:'#fbfaf7',fontSize:12,fontWeight:700,color:'#4f525b'}}>{item}</span>))}
@@ -42602,13 +42589,13 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
       <div style={{maxWidth:1360,margin:"0 auto",padding:"24px 28px 64px"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:20,marginBottom:34,flexWrap:"wrap"}}>
           <div style={{cursor:"pointer"}} onClick={()=>nav("landing")} role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))}><CrossLogo size={36} color="#22301B" wordmarkColor="#22301B"/></div>
-          <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole(selectedRole === "vendor" ? "vendor" : "church"); nav("auth"); }} style={{height:40,padding:"0 16px",borderRadius:10,border:"1px solid rgba(20,21,24,0.1)",background:"#fff",fontSize:13,fontWeight:700,color:"#2e3038",cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Already have an account? Sign in</button>
+          <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole(selectedRole === "vendor" ? "vendor" : "church"); nav("auth"); }} style={{height:40,padding:"0 16px",borderRadius:10,border:"1px solid rgba(20,21,24,0.1)",background:"#fff",fontSize:13,fontWeight:700,color:"#2e3038",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Already have an account? Sign in</button>
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.1fr) minmax(420px,0.9fr)",gap:24,alignItems:"start"}} className="startfree-layout">
           <div style={{padding:"14px 6px 0 2px"}}>
             <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"6px 12px",borderRadius:999,background:"#f4ecd8",fontSize:11,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:"#8a6a2e",marginBottom:18}}>Start free</div>
-            <div style={{fontFamily:"Newsreader, Georgia, serif",fontSize:"clamp(42px,6vw,74px)",lineHeight:0.97,letterSpacing:"-0.05em",maxWidth:760,marginBottom:18}}>Start with the right <span style={{fontStyle:'italic',color:'#b08840'}}>FaithBid</span> path.</div>
+            <div style={{fontFamily:"var(--font-display), serif",fontSize:"clamp(42px,6vw,74px)",lineHeight:0.97,letterSpacing:"-0.05em",maxWidth:760,marginBottom:18}}>Start with the right <span style={{fontStyle:'italic',color:'#b08840'}}>FaithBid</span> path.</div>
             <div style={{maxWidth:640,fontSize:16,lineHeight:1.8,color:'#6b6d75',marginBottom:28}}>Choose the path that fits you. FaithBid keeps the first step simple, then guides you into the right workspace.</div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:18}} className="startfree-rolegrid">
               {roleCard('church','Church / Ministry','Post projects for free, review the right bids, compare verified vendors, and manage the work after you hire.','Church path','rgba(47,133,90,0.08)')}
@@ -42619,7 +42606,7 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
           <div style={{background:"#fff",border:"1px solid rgba(20,21,24,0.06)",borderRadius:28,boxShadow:"0 24px 72px rgba(20,21,24,0.08)",overflow:"hidden"}}>
             <div style={{padding:"28px 30px 24px",background:"linear-gradient(180deg,#faf8f4 0%, #f5f1e8 100%)",borderBottom:"1px solid rgba(20,21,24,0.06)"}}>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:'#a1a4ad',marginBottom:10}}>{roleMeta.eyebrow}</div>
-              <div style={{fontFamily:"Newsreader, Georgia, serif",fontSize:38,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:10}}>{roleMeta.title}</div>
+              <div style={{fontFamily:"var(--font-display), serif",fontSize:38,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:10}}>{roleMeta.title}</div>
               <div style={{fontSize:15,lineHeight:1.75,color:'#6b6d75'}}>{roleMeta.sub}</div>
             </div>
             <div style={{padding:"26px 30px 30px"}}>
@@ -42635,11 +42622,11 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
               <div style={{display:'grid',gap:16}}>
                 <div>
                   <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#a1a4ad',marginBottom:8}}>Full name</div>
-                  <input aria-label="Your full name" value={fullName} onChange={e=>setFullName(e.target.value)} placeholder="Your full name" style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:'DM Sans,sans-serif',outline:'none'}} />
+                  <input aria-label="Your full name" value={fullName} onChange={e=>setFullName(e.target.value)} placeholder="Your full name" style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:"var(--font-sans),sans-serif",outline:'none'}} />
                 </div>
                 <div>
                   <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#a1a4ad',marginBottom:8}}>{roleMeta.orgLabel}</div>
-                  <input aria-label={selectedRole === 'vendor' ? 'Business or organization name' : 'Church name'} value={orgName} onChange={e=>setOrgName(e.target.value)} placeholder={selectedRole === 'vendor' ? 'e.g. Cornerstone Creative Co.' : 'e.g. Grace Community Church'} style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:'DM Sans,sans-serif',outline:'none'}} />
+                  <input aria-label={selectedRole === 'vendor' ? 'Business or organization name' : 'Church name'} value={orgName} onChange={e=>setOrgName(e.target.value)} placeholder={selectedRole === 'vendor' ? 'e.g. Cornerstone Creative Co.' : 'e.g. Grace Community Church'} style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:"var(--font-sans),sans-serif",outline:'none'}} />
                 </div>
                 {selectedRole === 'vendor' && (
                   <>
@@ -42668,11 +42655,11 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}} className="startfree-formrow">
                   <div>
                     <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#a1a4ad',marginBottom:8}}>Email</div>
-                    <input aria-label="you@example.com" value={email} onChange={e=>setEmail(e.target.value)} type="email" placeholder="you@example.com" style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:'DM Sans,sans-serif',outline:'none'}} />
+                    <input aria-label="you@example.com" value={email} onChange={e=>setEmail(e.target.value)} type="email" placeholder="you@example.com" style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:"var(--font-sans),sans-serif",outline:'none'}} />
                   </div>
                   <div>
                     <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#a1a4ad',marginBottom:8}}>Password</div>
-                    <input aria-label="At least 8 characters" value={password} onChange={e=>setPassword(e.target.value)} type="password" placeholder="At least 8 characters" style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:'DM Sans,sans-serif',outline:'none'}} />
+                    <input aria-label="At least 8 characters" value={password} onChange={e=>setPassword(e.target.value)} type="password" placeholder="At least 8 characters" style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:"var(--font-sans),sans-serif",outline:'none'}} />
                     {password.length > 0 && (() => {
                       const hasLen = password.length >= 8, hasLetter = /[A-Za-z]/.test(password), hasDigit = /\d/.test(password);
                       const score = [hasLen, hasLetter, hasDigit].filter(Boolean).length;
@@ -42690,18 +42677,18 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
                 </div>
                 <div>
                   <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#a1a4ad',marginBottom:8}}>{selectedRole === 'vendor' && deliveryModel === 'remote' ? 'Base city (optional)' : 'City, State'} <span style={{fontWeight:600,textTransform:'none',letterSpacing:0}}>(optional)</span></div>
-                  <input aria-label={selectedRole === 'vendor' && deliveryModel === 'remote' ? 'Base city, optional for remote vendors' : 'City and state, e.g. Dallas, TX'} value={city} onChange={e=>setCity(e.target.value)} placeholder={selectedRole === 'vendor' && deliveryModel === 'remote' ? 'Optional for remote vendors' : 'e.g. Dallas, TX'} style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:'DM Sans,sans-serif',outline:'none'}} />
+                  <input aria-label={selectedRole === 'vendor' && deliveryModel === 'remote' ? 'Base city, optional for remote vendors' : 'City and state, e.g. Dallas, TX'} value={city} onChange={e=>setCity(e.target.value)} placeholder={selectedRole === 'vendor' && deliveryModel === 'remote' ? 'Optional for remote vendors' : 'e.g. Dallas, TX'} style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:"var(--font-sans),sans-serif",outline:'none'}} />
                 </div>
                 {selectedRole === 'vendor' && deliveryModel !== 'remote' && (
                   <div>
                     <div style={{fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#a1a4ad',marginBottom:8}}>Service radius</div>
-                    <input aria-label="50" value={serviceRadiusMiles} onChange={e=>setServiceRadiusMiles(e.target.value.replace(/[^0-9]/g,''))} placeholder="50" style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:'DM Sans,sans-serif',outline:'none'}} />
+                    <input aria-label="50" value={serviceRadiusMiles} onChange={e=>setServiceRadiusMiles(e.target.value.replace(/[^0-9]/g,''))} placeholder="50" style={{width:'100%',height:50,padding:'0 16px',borderRadius:14,border:'1px solid rgba(20,21,24,0.08)',background:'#fbfaf7',fontSize:14,color:'#1C2814',fontFamily:"var(--font-sans),sans-serif",outline:'none'}} />
                   </div>
                 )}
               </div>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginTop:22,flexWrap:'wrap'}}>
-                <div style={{fontSize:13,color:'#858792',lineHeight:1.6}}>Already have an account? <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === 'function') setAuthDefaultRole('login'); nav('auth'); }} style={{background:'none',border:'none',padding:0,color:'#22301B',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Sign in →</button></div>
-                <button type="button" disabled={!canSubmit || loading} onClick={handleSubmit} style={{height:48,padding:'0 22px',borderRadius:12,border:'none',background:!canSubmit || loading ? 'rgba(31,42,34,0.35)' : '#1f2a22',fontSize:14,fontWeight:800,color:'#fff',cursor:!canSubmit || loading ? 'not-allowed' : 'pointer',fontFamily:'DM Sans,sans-serif'}}>{loading ? 'Creating account…' : `${roleMeta.primary} →`}</button>
+                <div style={{fontSize:13,color:'#858792',lineHeight:1.6}}>Already have an account? <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === 'function') setAuthDefaultRole('login'); nav('auth'); }} style={{background:'none',border:'none',padding:0,color:'#22301B',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Sign in →</button></div>
+                <button type="button" disabled={!canSubmit || loading} onClick={handleSubmit} style={{height:48,padding:'0 22px',borderRadius:12,border:'none',background:!canSubmit || loading ? 'rgba(31,42,34,0.35)' : '#1f2a22',fontSize:14,fontWeight:800,color:'#fff',cursor:!canSubmit || loading ? 'not-allowed' : 'pointer',fontFamily:"var(--font-sans),sans-serif"}}>{loading ? 'Creating account…' : `${roleMeta.primary} →`}</button>
               </div>
             </div>
           </div>
@@ -43100,7 +43087,7 @@ function ChurchWorkspaceLaunchPanel({ onPostProject, onBrowseVendors, onOpenDash
     <div style={{marginTop:24}}>
       <div style={{background:'rgba(232,224,208,0.08)',border:'1px solid rgba(232,224,208,0.18)',borderRadius:'var(--r-md)',padding:'24px',marginBottom:16}}>
         <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(232,224,208,0.45)',marginBottom:10}}>Recommended next step</div>
-        <div style={{fontFamily:'Playfair Display,serif',fontSize:20,fontWeight:700,color:'#fff',marginBottom:8,lineHeight:1.2}}>Publish a brief that vendors can act on</div>
+        <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:'#fff',marginBottom:8,lineHeight:1.2}}>Publish a brief that vendors can act on</div>
         <div style={{fontSize:13,color:'var(--atext-2)',lineHeight:1.7,marginBottom:18}}>Post the project into your workspace, review aligned bids, and keep every approval, file, and next step documented in one place.</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:10,marginBottom:18}}>
           {[
@@ -43119,11 +43106,11 @@ function ChurchWorkspaceLaunchPanel({ onPostProject, onBrowseVendors, onOpenDash
           <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'rgba(232,224,208,0.45)',marginBottom:10}}>Next actions the platform will surface</div>
           <OperationalAlertList alerts={launchAlerts} light compact emptyLabel='Operational alerts will appear here as soon as a project starts moving.' />
         </div>
-        <button type="button" onClick={onPostProject} style={{width:'100%',padding:'15px',background:'var(--gold-light)',color:'#1C2814',border:'none',borderRadius:10,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Post a project Now →</button>
+        <button type="button" onClick={onPostProject} style={{width:'100%',padding:'15px',background:'var(--gold-light)',color:'#1C2814',border:'none',borderRadius:10,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Post a project Now →</button>
       </div>
       <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-        <button type="button" onClick={onBrowseVendors} style={{flex:'1 1 220px',padding:'12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'rgba(255,255,255,0.7)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Browse Verified Vendors</button>
-        <button type="button" onClick={onOpenDashboard} style={{flex:'1 1 220px',padding:'12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'rgba(255,255,255,0.7)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Open Dashboard</button>
+        <button type="button" onClick={onBrowseVendors} style={{flex:'1 1 220px',padding:'12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'rgba(255,255,255,0.7)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Browse Verified Vendors</button>
+        <button type="button" onClick={onOpenDashboard} style={{flex:'1 1 220px',padding:'12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'rgba(255,255,255,0.7)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Open Dashboard</button>
       </div>
     </div>
   );
@@ -43145,7 +43132,7 @@ function VendorWorkspaceLaunchPanel({ vendorProfile = {}, projects = [], onBrows
           <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(232,224,208,0.45)'}}>Your first-run operating center</div>
           <div className="sf-mini-pill" style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.12)',color:'rgba(255,255,255,0.76)'}}>{deliveryMeta?.label || 'Remote-first lane'}</div>
         </div>
-        <div style={{fontFamily:'Playfair Display,serif',fontSize:22,fontWeight:700,color:'#fff',marginBottom:8,lineHeight:1.18}}>Start with the projects that actually fit your lane</div>
+        <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:'#fff',marginBottom:8,lineHeight:1.18}}>Start with the projects that actually fit your lane</div>
         <div style={{fontSize:13,color:'var(--atext-2)',lineHeight:1.7,marginBottom:18}}>FaithBid already knows your specialty, delivery model, and starting location. Use that advantage now: tighten the profile, strengthen trust, and work the projects where you can win faster.</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:10,marginBottom:18}}>
           {[
@@ -43219,13 +43206,13 @@ function VendorWorkspaceLaunchPanel({ vendorProfile = {}, projects = [], onBrows
             <div style={{padding:'16px 16px',borderRadius:14,background:'rgba(245,240,232,0.07)',border:'1px solid rgba(255,255,255,0.07)'}}>
               <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'rgba(232,224,208,0.45)',marginBottom:10}}>Action rail</div>
               <div style={{display:'grid',gap:10}}>
-                <button type="button" onClick={onBrowseProjects} style={{width:'100%',padding:'13px 14px',background:'var(--gold-light)',color:'#1C2814',border:'none',borderRadius:10,fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Browse projects Now →</button>
+                <button type="button" onClick={onBrowseProjects} style={{width:'100%',padding:'13px 14px',background:'var(--gold-light)',color:'#1C2814',border:'none',borderRadius:10,fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Browse projects Now →</button>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:10}}>
-                  <button type="button" onClick={onCompleteProfile} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Complete Profile</button>
-                  <button type="button" onClick={onVerifyProfile} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Get Faith Verified</button>
-                  {onOpenMatches ? <button type="button" onClick={onOpenMatches} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Open Matches</button> : null}
-                  {onOpenInbox ? <button type="button" onClick={onOpenInbox} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Open Inbox</button> : null}
-                  {onOpenActivity ? <button type="button" onClick={onOpenActivity} style={{gridColumn:'1 / -1',padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Open Activity Center</button> : null}
+                  <button type="button" onClick={onCompleteProfile} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Complete Profile</button>
+                  <button type="button" onClick={onVerifyProfile} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Get Faith Verified</button>
+                  {onOpenMatches ? <button type="button" onClick={onOpenMatches} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Open Matches</button> : null}
+                  {onOpenInbox ? <button type="button" onClick={onOpenInbox} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Open Inbox</button> : null}
+                  {onOpenActivity ? <button type="button" onClick={onOpenActivity} style={{gridColumn:'1 / -1',padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Open Activity Center</button> : null}
                 </div>
               </div>
             </div>
@@ -43265,7 +43252,7 @@ function AuthShell({ nav, children, showProgress = false, step = 1, totalSteps =
                 );
               })}
             </div>
-          ) : <button type="button" onClick={() => nav('landing')} style={{background:'none',border:'none',fontSize:12,color:'var(--atext-muted)',cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>Back to home</button>}
+          ) : <button type="button" onClick={() => nav('landing')} style={{background:'none',border:'none',fontSize:12,color:'var(--atext-muted)',cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Back to home</button>}
         </div>
         <div style={{maxWidth:640,margin:'0 auto',background:'rgba(7,14,12,0.92)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:28,padding:'34px 32px 32px',boxShadow:'0 28px 72px rgba(0,0,0,0.30)'}}>
           {children}
@@ -43281,7 +43268,7 @@ function AuthPrimaryBtn({ onClick, disabled = false, children }) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      style={{width:'100%',height:54,borderRadius:12,border:'none',background:disabled?'rgba(232,180,10,0.28)':'var(--gold-light)',color:'#1C2814',fontSize:14,fontWeight:800,cursor:disabled?'not-allowed':'pointer',fontFamily:'DM Sans,sans-serif',transition:'transform 0.16s ease, opacity 0.16s ease',opacity:disabled?0.68:1}}
+      style={{width:'100%',height:54,borderRadius:12,border:'none',background:disabled?'rgba(232,180,10,0.28)':'var(--gold-light)',color:'#1C2814',fontSize:14,fontWeight:800,cursor:disabled?'not-allowed':'pointer',fontFamily:"var(--font-sans),sans-serif",transition:'transform 0.16s ease, opacity 0.16s ease',opacity:disabled?0.68:1}}
     >
       {children}
     </button>
@@ -43289,7 +43276,7 @@ function AuthPrimaryBtn({ onClick, disabled = false, children }) {
 }
 
 function AuthFloatingField({ label, type = 'text', value, onChange, selectedRole = 'church' }) {
-  const baseStyle = {width:'100%',minHeight:54,padding:type === 'textarea' ? '16px 16px 14px' : '0 16px',borderRadius:12,border:'1px solid rgba(255,255,255,0.10)',background:'rgba(255,255,255,0.04)',fontSize:14,color:'#fff',fontFamily:'DM Sans,sans-serif',outline:'none'};
+  const baseStyle = {width:'100%',minHeight:54,padding:type === 'textarea' ? '16px 16px 14px' : '0 16px',borderRadius:12,border:'1px solid rgba(255,255,255,0.10)',background:'rgba(255,255,255,0.04)',fontSize:14,color:'#fff',fontFamily:"var(--font-sans),sans-serif",outline:'none'};
   const selectOptions = selectedRole === 'church'
     ? ['Baptist','Non-denominational','Methodist','Presbyterian','Pentecostal','Catholic','Other']
     : ['Web & Technology','Marketing & Consulting','AV & Media Production','Construction & Renovation','Music & Worship','Photography & Video','Financial Services','Legal Services'];
@@ -43517,7 +43504,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
     <AuthShell nav={nav}>
       <div style={{marginBottom:48}}>
         <div style={{fontSize:11,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-light)",fontWeight:700,marginBottom:18}}>Sign in</div>
-        <div style={{fontFamily:"Playfair Display,serif",fontSize:52,fontWeight:700,color:"#fff",lineHeight:1,letterSpacing:-2,marginBottom:14}}>Welcome back.</div>
+        <div style={{fontFamily:"var(--font-display),serif",fontSize:52,fontWeight:700,color:"#fff",lineHeight:1,letterSpacing:-2,marginBottom:14}}>Welcome back.</div>
         <div style={{fontSize:15,color:"var(--atext-muted)",fontWeight:400}}>Enter your details below.</div>
       </div>
       {errBanner}
@@ -43536,7 +43523,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
             } finally {
               setLoading(false);
             }
-          }} style={{background:"none",border:"none",color:"var(--gold-light)",fontSize:12,cursor:"pointer",fontFamily:"DM Sans,sans-serif",fontWeight:600}}>Resend confirmation email →</button>
+          }} style={{background:"none",border:"none",color:"var(--gold-light)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",fontWeight:600}}>Resend confirmation email →</button>
         </div>
       )}
       <AuthFloatingField label="Email address" type="email" value={form.email} onChange={e=>set("email",e.target.value)} selectedRole={selectedRole}/>
@@ -43554,12 +43541,12 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
           } finally {
             setLoading(false);
           }
-        }} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"DM Sans,sans-serif",padding:0}}>Forgot password?</button>
+        }} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",padding:0}}>Forgot password?</button>
       </div>
       <AuthPrimaryBtn onClick={handleLogin} disabled={loading}>{loading?"Signing in…":"Sign in →"}</AuthPrimaryBtn>
       <div style={{marginTop:24,fontSize:13,color:"var(--atext-muted)",textAlign:"center"}}>
         Don't have an account?{" "}
-        <button type="button" onClick={()=>{ setError(""); if (typeof nav === "function") nav(selectedRole === "vendor" ? "vendor-signup" : "church-signup"); }} style={{background:"none",border:"none",color:"var(--gold-light)",cursor:"pointer",fontFamily:"DM Sans,sans-serif",fontSize:13,fontWeight:600}}>{selectedRole === "vendor" ? "Apply as a Charter Vendor →" : "Join the waitlist →"}</button>
+        <button type="button" onClick={()=>{ setError(""); if (typeof nav === "function") nav(selectedRole === "vendor" ? "vendor-signup" : "church-signup"); }} style={{background:"none",border:"none",color:"var(--gold-light)",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",fontSize:13,fontWeight:600}}>{selectedRole === "vendor" ? "Apply as a Charter Vendor →" : "Join the waitlist →"}</button>
       </div>
     </AuthShell>
   );
@@ -43570,7 +43557,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
         <div style={{width:64,height:64,borderRadius:20,background:"rgba(232,224,208,0.1)",border:"1px solid rgba(232,224,208,0.2)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold-light)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         </div>
-        <div style={{fontFamily:"Playfair Display,serif",fontSize:42,fontWeight:700,color:"#fff",lineHeight:1.05,letterSpacing:-1.2,marginBottom:12}}>Check your inbox.</div>
+        <div style={{fontFamily:"var(--font-display),serif",fontSize:42,fontWeight:700,color:"#fff",lineHeight:1.05,letterSpacing:-1.2,marginBottom:12}}>Check your inbox.</div>
         <div style={{fontSize:14,color:"var(--atext-2)",fontWeight:400,lineHeight:1.7,marginBottom:6}}>
           We sent a confirmation link to
         </div>
@@ -43588,12 +43575,12 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
               const{error:e}=await supabase.auth.resend({type:"signup",email:signupEmail});
               if(!e){setError("");setSuccessMsg("Resent — check your inbox.");}
               else{setError(e.message);}
-            }} style={{background:"none",border:"none",color:"var(--gold-light)",cursor:"pointer",fontFamily:"DM Sans,sans-serif",fontSize:11,fontWeight:600,padding:0}}>resend the email →</button>
+            }} style={{background:"none",border:"none",color:"var(--gold-light)",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",fontSize:11,fontWeight:600,padding:0}}>resend the email →</button>
           </div>
         </div>
-        <button type="button" onClick={()=>setMode("login")} style={{width:"100%",padding:"16px",background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Go to Sign in →</button>
+        <button type="button" onClick={()=>setMode("login")} style={{width:"100%",padding:"16px",background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Go to Sign in →</button>
         <div style={{marginTop:16}}>
-          <button type="button" onClick={()=>nav("landing")} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>← Back to home</button>
+          <button type="button" onClick={()=>nav("landing")} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back to home</button>
         </div>
       </div>
     </AuthShell>
@@ -43631,7 +43618,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
     <AuthShell showProgress step={step} totalSteps={TOTAL_STEPS} nav={nav}>
       <div style={{marginBottom:44}}>
         <div style={{fontSize:11,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-light)",fontWeight:700,marginBottom:18}}>{cur.eyebrow}</div>
-        <div style={{fontFamily:"Playfair Display,serif",fontSize:44,fontWeight:700,color:"#fff",lineHeight:1.05,letterSpacing:-1.5,marginBottom:10}}>{cur.title}</div>
+        <div style={{fontFamily:"var(--font-display),serif",fontSize:44,fontWeight:700,color:"#fff",lineHeight:1.05,letterSpacing:-1.5,marginBottom:10}}>{cur.title}</div>
         <div style={{fontSize:14,color:"var(--atext-muted)",fontWeight:400}}>{cur.sub}</div>
       </div>
       {errBanner}
@@ -43649,7 +43636,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
       </div>
       <div style={{marginTop:24,fontSize:13,color:"var(--atext-muted)",textAlign:"center"}}>
         Already have an account?{" "}
-        <button type="button" onClick={()=>{setMode("login");setError("");}} style={{background:"none",border:"none",color:"var(--gold-light)",cursor:"pointer",fontFamily:"DM Sans,sans-serif",fontSize:13,fontWeight:600}}>Sign in →</button>
+        <button type="button" onClick={()=>{setMode("login");setError("");}} style={{background:"none",border:"none",color:"var(--gold-light)",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",fontSize:13,fontWeight:600}}>Sign in →</button>
       </div>
     </AuthShell>
   );
@@ -44153,7 +44140,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     return (
       <div className="page" style={{ maxWidth: 560, margin: "0 auto", padding: "60px 20px", textAlign: "center" }}>
         <div style={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg,var(--gold),var(--gold-light))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, margin: "0 auto 24px", color: "#fff" }}>✦</div>
-        <div style={{ fontFamily: "Playfair Display, serif", fontSize: 28, fontWeight: 700, color: "var(--navy)", marginBottom: 10 }}>Your project draft is saved.</div>
+        <div style={{ fontFamily: "var(--font-display), serif", fontSize: 28, fontWeight: 700, color: "var(--navy)", marginBottom: 10 }}>Your project draft is saved.</div>
         <div style={{ fontSize: 15, color: "var(--text-muted)", lineHeight: 1.7, fontWeight: 400, marginBottom: 28 }}>
           {postedFromResume
             ? "Your saved project was restored once. No vendors have been notified."
@@ -44177,7 +44164,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     return (
       <div className="page" style={{ maxWidth: 620, margin: "0 auto", padding: "60px 20px", textAlign: "center" }}>
         <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,#fff7df,#ead39b)", border: "1px solid rgba(176,136,64,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, margin: "0 auto 22px", color: "var(--navy)" }}>✦</div>
-        <div style={{ fontFamily: "Playfair Display, serif", fontSize: 28, fontWeight: 700, color: "var(--navy)", marginBottom: 10 }}>{title}</div>
+        <div style={{ fontFamily: "var(--font-display), serif", fontSize: 28, fontWeight: 700, color: "var(--navy)", marginBottom: 10 }}>{title}</div>
         <div style={{ fontSize: 15, color: "var(--text-muted)", lineHeight: 1.7, fontWeight: 400, margin: "0 auto 12px", maxWidth: 520 }}>
           {resumeState.message}
         </div>
@@ -44213,7 +44200,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
           <div style={{ width: "100%", maxWidth: 440, background: "#fff", borderRadius: 14, border: "1px solid var(--border)", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
             <div style={{ padding: "22px 24px 14px", borderBottom: "1px solid var(--border)", background: "linear-gradient(135deg, #fffdf7, #faf6ed)" }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", color: "var(--gold-text)", marginBottom: 6 }}>Almost done</div>
-              <div style={{ fontFamily: "Playfair Display, serif", fontSize: 22, fontWeight: 700, color: "var(--navy)", lineHeight: 1.3 }}>Create your account to publish</div>
+              <div style={{ fontFamily: "var(--font-display), serif", fontSize: 22, fontWeight: 700, color: "var(--navy)", lineHeight: 1.3 }}>Create your account to publish</div>
               <div style={{ fontSize: 13, color: "var(--text-mid)", marginTop: 6, lineHeight: 1.55 }}>
                 Your project is ready. Set up a quick account and we'll post it immediately.
               </div>
@@ -44251,15 +44238,15 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
               {acctErr && <div style={{ padding: "10px 12px", borderRadius: 8, background: "#FEF2F2", border: "1px solid #FECACA", fontSize: 13, color: "#DC2626", lineHeight: 1.5 }}>{acctErr}</div>}
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "var(--navy)", display: "block", marginBottom: 4 }}>Church / organization name</label>
-                <input aria-label="Church or organization name" value={acct.churchName} onChange={e => setAcct(a => ({ ...a, churchName: e.target.value }))} placeholder="e.g. Grace Community Church" autoFocus style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "DM Sans, sans-serif", boxSizing: "border-box", outline: "none" }} />
+                <input aria-label="Church or organization name" value={acct.churchName} onChange={e => setAcct(a => ({ ...a, churchName: e.target.value }))} placeholder="e.g. Grace Community Church" autoFocus style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none" }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "var(--navy)", display: "block", marginBottom: 4 }}>Your email</label>
-                <input aria-label="Your email" type="email" value={acct.email} onChange={e => setAcct(a => ({ ...a, email: e.target.value }))} placeholder="you@church.org" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "DM Sans, sans-serif", boxSizing: "border-box", outline: "none" }} />
+                <input aria-label="Your email" type="email" value={acct.email} onChange={e => setAcct(a => ({ ...a, email: e.target.value }))} placeholder="you@church.org" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none" }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "var(--navy)", display: "block", marginBottom: 4 }}>Create a password</label>
-                <input aria-label="Create a password" type="password" value={acct.password} onChange={e => setAcct(a => ({ ...a, password: e.target.value }))} placeholder="At least 8 characters" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "DM Sans, sans-serif", boxSizing: "border-box", outline: "none" }} />
+                <input aria-label="Create a password" type="password" value={acct.password} onChange={e => setAcct(a => ({ ...a, password: e.target.value }))} placeholder="At least 8 characters" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none" }} />
               </div>
               <button type="button" onClick={createAccountAndPost} disabled={submitting} style={{ padding: "12px", borderRadius: 10, border: "none", background: submitting ? "#e5e7eb" : "var(--gold-light)", color: submitting ? "#9ca3af" : "var(--navy)", fontSize: 14, fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer", marginTop: 4 }}>
                 {submitting ? "Publishing…" : "Create account & publish →"}
@@ -44398,13 +44385,13 @@ function PostProject({ onSubmit, onBack, role }) {
         >
           ← Back
         </button>
-        <div style={{fontFamily:'DM Mono,monospace',fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
+        <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10, fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#b08840'}}>
           Post a project
         </div>
       </div>
 
       <div className="post-project-card" style={{background:'#fff', border:'1px solid #dfd5c2', borderRadius:22, padding:'28px 26px', boxShadow:'0 7px 20px rgba(28,40,20,0.06)'}}>
-        <h1 style={{fontFamily:"'Newsreader','Playfair Display',Georgia,serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 8px'}}>
+        <h1 style={{fontFamily:"var(--font-display),serif", fontSize:'clamp(24px,3.6vw,32px)', fontWeight:600, lineHeight:1.1, letterSpacing:'-0.025em', color:'#1C2814', margin:'0 0 8px'}}>
           What do you need help with?
         </h1>
         <div style={{fontSize:13.5, color:'#565862', marginBottom:24}}>Free to post. Faith-aligned vendors review and submit bids.</div>
@@ -44419,7 +44406,7 @@ function PostProject({ onSubmit, onBack, role }) {
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="e.g. Worship leader for Sunday services"
-              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:'DM Sans, sans-serif', boxSizing:'border-box', outline:'none'}}
+              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:"var(--font-sans), sans-serif", boxSizing:'border-box', outline:'none'}}
             />
           </label>
 
@@ -44433,7 +44420,7 @@ function PostProject({ onSubmit, onBack, role }) {
                 setCategory(nextCategory);
                 setDeliveryPreference(current => current || (nextCategory ? getCategoryDeliveryModeDefault(nextCategory) : ""));
               }}
-              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:'DM Sans, sans-serif', boxSizing:'border-box', outline:'none', cursor:'pointer'}}
+              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:"var(--font-sans), sans-serif", boxSizing:'border-box', outline:'none', cursor:'pointer'}}
             >
               <option value="">Select a category…</option>
               {CATEGORIES.map(c => <option key={c.label} value={c.label}>{c.icon} {c.label}</option>)}
@@ -44477,7 +44464,7 @@ function PostProject({ onSubmit, onBack, role }) {
                     onChange={e=>setProjectCity(e.target.value.slice(0,120))}
                     placeholder="Dallas"
                     autoComplete="address-level2"
-                    style={{height:48,padding:'0 14px',borderRadius:12,border:'1px solid rgba(0,0,0,0.12)',background:'#fff',fontSize:14,fontFamily:'DM Sans, sans-serif',boxSizing:'border-box',outline:'none'}}
+                    style={{height:48,padding:'0 14px',borderRadius:12,border:'1px solid rgba(0,0,0,0.12)',background:'#fff',fontSize:14,fontFamily:"var(--font-sans), sans-serif",boxSizing:'border-box',outline:'none'}}
                   />
                 </label>
                 <label style={{display:'grid',gap:6}}>
@@ -44486,7 +44473,7 @@ function PostProject({ onSubmit, onBack, role }) {
                     value={projectState}
                     onChange={e=>setProjectState(e.target.value)}
                     autoComplete="address-level1"
-                    style={{height:48,padding:'0 12px',borderRadius:12,border:'1px solid rgba(0,0,0,0.12)',background:'#fff',fontSize:14,fontFamily:'DM Sans, sans-serif',boxSizing:'border-box',outline:'none',cursor:'pointer'}}
+                    style={{height:48,padding:'0 12px',borderRadius:12,border:'1px solid rgba(0,0,0,0.12)',background:'#fff',fontSize:14,fontFamily:"var(--font-sans), sans-serif",boxSizing:'border-box',outline:'none',cursor:'pointer'}}
                   >
                     <option value="">Select…</option>
                     {KB_US_STATE_CODES.map(code => <option key={code} value={code}>{code}</option>)}
@@ -44509,7 +44496,7 @@ function PostProject({ onSubmit, onBack, role }) {
               <select
                 value={budget}
                 onChange={e => setBudget(e.target.value)}
-                style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:'DM Sans, sans-serif', boxSizing:'border-box', outline:'none', cursor:'pointer'}}
+                style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:"var(--font-sans), sans-serif", boxSizing:'border-box', outline:'none', cursor:'pointer'}}
               >
                 <option value="">Select a range…</option>
                 {BUDGETS.map(b => <option key={b} value={b}>{b}</option>)}
@@ -44520,7 +44507,7 @@ function PostProject({ onSubmit, onBack, role }) {
               <select
                 value={timeline}
                 onChange={e => setTimeline(e.target.value)}
-                style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:'DM Sans, sans-serif', boxSizing:'border-box', outline:'none', cursor:'pointer'}}
+                style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:"var(--font-sans), sans-serif", boxSizing:'border-box', outline:'none', cursor:'pointer'}}
               >
                 <option value="">Select a timeline…</option>
                 {TIMELINES.map(t => <option key={t} value={t}>{t}</option>)}
@@ -44537,10 +44524,10 @@ function PostProject({ onSubmit, onBack, role }) {
               placeholder="Describe what you need, any requirements, and what a successful outcome looks like…"
               rows={5}
               maxLength={2000}
-              style={{padding:'12px 14px', borderRadius:12, border:`1px solid ${description.length > 1800 ? 'rgba(220,38,38,0.35)' : 'rgba(0,0,0,0.12)'}`, background:'#fff', fontSize:14, lineHeight:1.55, fontFamily:'DM Sans, sans-serif', resize:'vertical', boxSizing:'border-box', outline:'none'}}
+              style={{padding:'12px 14px', borderRadius:12, border:`1px solid ${description.length > 1800 ? 'rgba(220,38,38,0.35)' : 'rgba(0,0,0,0.12)'}`, background:'#fff', fontSize:14, lineHeight:1.55, fontFamily:"var(--font-sans), sans-serif", resize:'vertical', boxSizing:'border-box', outline:'none'}}
             />
             <div style={{display:'flex', justifyContent:'flex-end', marginTop:2}}>
-              <span style={{fontSize:11, fontFamily:'DM Mono,monospace', color: description.length > 1800 ? '#b1342a' : description.length > 1500 ? '#8a6729' : 'rgba(28,40,20,0.28)', letterSpacing:'0.04em'}}>
+              <span style={{fontSize:11, fontFamily:"var(--font-sans),monospace", color: description.length > 1800 ? '#b1342a' : description.length > 1500 ? '#8a6729' : 'rgba(28,40,20,0.28)', letterSpacing:'0.04em'}}>
                 {description.length}/2000
               </span>
             </div>
@@ -44567,7 +44554,7 @@ function PostProject({ onSubmit, onBack, role }) {
               value={scope}
               onChange={e => setScope(e.target.value.slice(0, 300))}
               placeholder="e.g. Replace sanctuary HVAC, rewire stage lighting, repaint fellowship hall"
-              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:'DM Sans, sans-serif', boxSizing:'border-box', outline:'none'}}
+              style={{height:48, padding:'0 14px', borderRadius:12, border:'1px solid rgba(0,0,0,0.12)', background:'#fff', fontSize:14, fontFamily:"var(--font-sans), sans-serif", boxSizing:'border-box', outline:'none'}}
             />
           </div>
 
@@ -44595,7 +44582,7 @@ function PostProject({ onSubmit, onBack, role }) {
                   }
                 }}
                 placeholder={skills.length === 0 ? "e.g. electrical, permits, drywall" : ""}
-                style={{flex:1, minWidth:120, height:30, border:'none', outline:'none', fontSize:13, fontFamily:'DM Sans, sans-serif', background:'transparent'}}
+                style={{flex:1, minWidth:120, height:30, border:'none', outline:'none', fontSize:13, fontFamily:"var(--font-sans), sans-serif", background:'transparent'}}
               />
             </div>
           </div>
@@ -44653,8 +44640,8 @@ function PostProject({ onSubmit, onBack, role }) {
           <div className="post-project-preview-card" style={{background:'#f4f0e7',borderRadius:22,padding:'24px 24px 28px',maxWidth:520,width:'100%',boxShadow:'0 20px 60px rgba(28,40,20,0.30)',border:'1px solid #dfd5c2'}} onClick={e=>e.stopPropagation()}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,marginBottom:18}}>
               <div>
-                <div style={{fontFamily:'DM Mono,monospace',fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:4}}>Vendor preview</div>
-                <h3 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:0}}>How vendors will see this</h3>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:4}}>Vendor preview</div>
+                <h3 style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:0}}>How vendors will see this</h3>
               </div>
               <button type="button" onClick={()=>setShowPreview(false)} style={{width:32,height:32,borderRadius:999,border:'1px solid rgba(28,40,20,0.12)',background:'#fff',fontSize:16,color:'#1C2814',cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center',lineHeight:1}}>×</button>
             </div>
@@ -44671,9 +44658,9 @@ function PostProject({ onSubmit, onBack, role }) {
               </div>
 
               <div style={{padding:'14px 16px 14px',display:'flex',flexDirection:'column',flex:1}}>
-                <div style={{fontFamily:'DM Mono,monospace',fontSize:9.25,fontWeight:700,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:4,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{category || 'Project'}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9.25,fontWeight:700,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:4,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{category || 'Project'}</div>
 
-                <h3 style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:17,fontWeight:700,lineHeight:1.15,letterSpacing:'-0.025em',color:'#1C2814',margin:'0 0 6px',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{title || 'Your project title'}</h3>
+                <h3 style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,lineHeight:1.15,letterSpacing:'-0.025em',color:'#1C2814',margin:'0 0 6px',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{title || 'Your project title'}</h3>
 
                 <div style={{fontSize:11.5,color:'#74756d',fontWeight:600,marginBottom:4}}>Your church</div>
                 <div style={{fontSize:10.5,color:'#8a6a2e',fontWeight:700,marginBottom:8}}>
@@ -44686,7 +44673,7 @@ function PostProject({ onSubmit, onBack, role }) {
                 </div>
 
                 <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap',marginBottom:12}}>
-                  {budget ? <span style={{height:22,display:'inline-flex',alignItems:'center',padding:'0 8px',borderRadius:999,background:'rgba(176,136,64,0.10)',border:'1px solid rgba(176,136,64,0.20)',fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:11.5,fontWeight:700,color:'#8a6729',letterSpacing:'-0.01em'}}>{budget}</span> : null}
+                  {budget ? <span style={{height:22,display:'inline-flex',alignItems:'center',padding:'0 8px',borderRadius:999,background:'rgba(176,136,64,0.10)',border:'1px solid rgba(176,136,64,0.20)',fontFamily:"var(--font-display),serif",fontSize:11.5,fontWeight:700,color:'#8a6729',letterSpacing:'-0.01em'}}>{budget}</span> : null}
                   {timeline ? <span style={{height:22,display:'inline-flex',alignItems:'center',padding:'0 8px',borderRadius:999,background:'#fbfaf6',border:'1px solid #e5dbc8',fontSize:10,fontWeight:800,color:'#6a604f',letterSpacing:'0.05em',textTransform:'uppercase'}}>{timeline}</span> : null}
                 </div>
 
@@ -44934,7 +44921,7 @@ function KcProjectCardLegacy({ project: p, onSelect, actions, bidAmount, statusO
       <div style={{padding:"22px 22px 0",flex:1,display:"flex",flexDirection:"column"}}>
 
         {/* Title */}
-        <div style={{fontFamily:"'Playfair Display','Newsreader',Georgia,serif",fontSize:24,fontWeight:700,color:"#1C2814",lineHeight:1.12,letterSpacing:"-0.025em",marginBottom:10,minHeight:"2.24em",maxHeight:"2.24em",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>
+        <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"#1C2814",lineHeight:1.12,letterSpacing:"-0.025em",marginBottom:10,minHeight:"2.24em",maxHeight:"2.24em",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>
           {title}
         </div>
 
@@ -44993,7 +44980,7 @@ function KcProjectCardLegacy({ project: p, onSelect, actions, bidAmount, statusO
             e.stopPropagation();
             onSelect && onSelect(p || project);
           }}
-          style={{height:48,borderRadius:12,border:"1.5px solid rgba(28,40,20,0.16)",background:"#fff",fontSize:13,fontWeight:800,color:"#1C2814",cursor:"pointer",transition:"border-color .15s, box-shadow .15s, transform .15s",fontFamily:"'DM Sans',sans-serif"}}
+          style={{height:48,borderRadius:12,border:"1.5px solid rgba(28,40,20,0.16)",background:"#fff",fontSize:13,fontWeight:800,color:"#1C2814",cursor:"pointer",transition:"border-color .15s, box-shadow .15s, transform .15s",fontFamily:"var(--font-sans),sans-serif"}}
           onMouseEnter={e=>{e.currentTarget.style.borderColor="#C4973A";e.currentTarget.style.boxShadow="0 6px 18px rgba(196,151,58,0.14)";e.currentTarget.style.transform="translateY(-1px)";}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(28,40,20,0.16)";e.currentTarget.style.boxShadow="none";e.currentTarget.style.transform="translateY(0)";}}
         >
@@ -45003,7 +44990,7 @@ function KcProjectCardLegacy({ project: p, onSelect, actions, bidAmount, statusO
           <button
             type="button"
             onClick={e=>{e.stopPropagation(); if(onBid) onBid(p||project); else onSelect&&onSelect(p||project);}}
-            style={{height:48,borderRadius:12,border:"1px solid rgba(212,185,120,0.50)",background:"linear-gradient(135deg,#C4973A,#A87B2A)",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",boxShadow:"0 6px 18px rgba(196,151,58,0.28)",transition:"background .15s, box-shadow .15s, transform .15s"}}
+            style={{height:48,borderRadius:12,border:"1px solid rgba(212,185,120,0.50)",background:"linear-gradient(135deg,#C4973A,#A87B2A)",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",boxShadow:"0 6px 18px rgba(196,151,58,0.28)",transition:"background .15s, box-shadow .15s, transform .15s"}}
             onMouseEnter={e=>{e.currentTarget.style.background="linear-gradient(135deg,#D4AA4A,#9B6F22)";e.currentTarget.style.boxShadow="0 9px 24px rgba(196,151,58,0.36)";e.currentTarget.style.transform="translateY(-1px)";}}
             onMouseLeave={e=>{e.currentTarget.style.background="linear-gradient(135deg,#C4973A,#A87B2A)";e.currentTarget.style.boxShadow="0 6px 18px rgba(196,151,58,0.28)";e.currentTarget.style.transform="translateY(0)";}}
           >
@@ -45011,7 +44998,7 @@ function KcProjectCardLegacy({ project: p, onSelect, actions, bidAmount, statusO
           </button>
         ) : primaryAction ? (
           <button type="button" onClick={e=>{e.stopPropagation();primaryAction.onClick&&primaryAction.onClick(e);}}
-            style={{height:48,borderRadius:12,border:"1px solid rgba(212,185,120,0.50)",background:"linear-gradient(135deg,#C4973A,#A87B2A)",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",boxShadow:"0 6px 18px rgba(196,151,58,0.28)"}}>
+            style={{height:48,borderRadius:12,border:"1px solid rgba(212,185,120,0.50)",background:"linear-gradient(135deg,#C4973A,#A87B2A)",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",boxShadow:"0 6px 18px rgba(196,151,58,0.28)"}}>
             {primaryAction.label}
           </button>
         ) : null}
@@ -45370,7 +45357,7 @@ function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors
           margin:0!important;
           padding:0!important;
           color:#fffdf8!important;
-          font-family:'Playfair Display','Newsreader',Georgia,serif!important;
+          font-family:var(--font-display),serif!important;
           font-size:clamp(48px,4vw,60px)!important;
           font-weight:500!important;
           line-height:1.02!important;
@@ -45569,7 +45556,7 @@ function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors
             background:linear-gradient(180deg,rgba(40,71,37,.98),rgba(24,48,27,.98))!important;
             color:#fffdf8!important;
             box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
-            font-family:'DM Sans',system-ui,sans-serif!important;
+            font-family:var(--font-sans),system-ui,sans-serif!important;
             font-size:11.25px!important;
             font-weight:800!important;
             letter-spacing:.01em!important;
@@ -45707,7 +45694,7 @@ function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors
             background:linear-gradient(180deg,rgba(40,71,37,.98),rgba(24,48,27,.98))!important;
             color:#fffdf8!important;
             box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
-            font-family:'DM Sans',system-ui,sans-serif!important;
+            font-family:var(--font-sans),system-ui,sans-serif!important;
             font-size:12px!important;
             font-weight:800!important;
             letter-spacing:.01em!important;
@@ -45975,7 +45962,7 @@ function BidAcceptedModal({vendor, project, onClose, onMessage, onViewProject}){
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1A2B14" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--atext-muted)",marginBottom:6}}>Kickoff ready</div>
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:26,fontWeight:700,color:"#fff",lineHeight:1.2,marginBottom:6}}>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:26,fontWeight:700,color:"#fff",lineHeight:1.2,marginBottom:6}}>
               {vendorFirst} is hired.
             </div>
             <div style={{fontSize:13,color:"var(--atext-2)",fontWeight:400}}>
@@ -46083,7 +46070,7 @@ function VendorWinModal({project, church, amount, onClose, onMessage}){
           <div style={{position:"relative"}}>
             <div style={{fontSize:48,marginBottom:16}}>&#127881;</div>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--atext-2)",marginBottom:8}}>You got the job</div>
-            <div style={{fontFamily:"Playfair Display,serif",fontSize:28,fontWeight:700,color:"#fff",lineHeight:1.15,marginBottom:8}}>Bid accepted!</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:700,color:"#fff",lineHeight:1.15,marginBottom:8}}>Bid accepted!</div>
             <div style={{fontSize:14,color:"var(--atext-mid)",fontWeight:400}}>{church} selected you for this project.</div>
           </div>
         </div>
@@ -46096,7 +46083,7 @@ function VendorWinModal({project, church, amount, onClose, onMessage}){
             {amount && (
               <div style={{textAlign:"right"}}>
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:"var(--text-muted)",marginBottom:4}}>Your Bid</div>
-                <div style={{fontFamily:"Playfair Display,serif",fontSize:22,fontWeight:700,color:"var(--navy)"}}>{formatMoney(Number(amount))}</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"var(--navy)"}}>{formatMoney(Number(amount))}</div>
               </div>
             )}
           </div>
@@ -46152,10 +46139,10 @@ function ConfirmModal({title, body, confirmLabel="Confirm", danger=false, onConf
   return (
     <div role="dialog" aria-modal="true" aria-label="Confirm action" style={{position:"fixed",inset:0,background:"rgba(10,15,8,0.7)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9100,padding:"20px",backdropFilter:"blur(4px)"}}>
       <div style={{background:"#fff",borderRadius:18,width:"100%",maxWidth:400,padding:"32px 28px",animation:"fadeUp 0.2s ease",boxShadow:"0 24px 60px rgba(0,0,0,0.2)"}}>
-        <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:10}}>{title}</div>
+        <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:10}}>{title}</div>
         <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,marginBottom:24}}>{body}</div>
         <div style={{display:"flex",gap:10}}>
-          <button ref={confirmBtnRef} type="button" onClick={onConfirm} style={{flex:1,padding:"12px",background:danger?"var(--danger)":"var(--navy)",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>{confirmLabel}</button>
+          <button ref={confirmBtnRef} type="button" onClick={onConfirm} style={{flex:1,padding:"12px",background:danger?"var(--danger)":"var(--navy)",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>{confirmLabel}</button>
           <button type="button" onClick={onCancel} className="btn-secondary" style={{padding:"12px 18px"}}>Cancel</button>
         </div>
       </div>
@@ -46192,7 +46179,7 @@ function BidDetailContent({ b, onClose, onHire, onDecline, onMessage, onShortlis
           </div>
           <div>
             <div style={{fontSize:15,fontWeight:700,color:"var(--navy)",letterSpacing:-0.2}}>{b.vendor||b.vendor_name||"Vendor"}</div>
-            <div style={{fontSize:11,color:"var(--text-muted)",fontFamily:"DM Mono,monospace"}}>{b.category||""}{rating ? " · "+rating+"★" : ""}</div>
+            <div style={{fontSize:11,color:"var(--text-muted)",fontFamily:"var(--font-sans),monospace"}}>{b.category||""}{rating ? " · "+rating+"★" : ""}</div>
           </div>
         </div>
         {(b.rating || b.reviews > 0 || b.verified || b.faith_verified || b.category) && (
@@ -46211,7 +46198,7 @@ function BidDetailContent({ b, onClose, onHire, onDecline, onMessage, onShortlis
             )}
           </div>
         )}
-        <div style={{fontFamily:"Playfair Display,serif",fontSize:26,fontWeight:700,color:"var(--navy)",letterSpacing:-0.5}}>{formatMoney(amount)}</div>
+        <div style={{fontFamily:"var(--font-display),serif",fontSize:26,fontWeight:700,color:"var(--navy)",letterSpacing:-0.5}}>{formatMoney(amount)}</div>
         {b.timeline && <div style={{fontSize:12,color:"var(--text-muted)",marginTop:2}}>Timeline: {b.timeline}</div>}
       </div>
 
@@ -46231,7 +46218,7 @@ function BidDetailContent({ b, onClose, onHire, onDecline, onMessage, onShortlis
             {milestones.map((m, i) => (
               <div key={m.id||i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#fff",border:"1px solid var(--border)",borderRadius:8}}>
                 <div style={{fontSize:12,color:"var(--navy)",fontWeight:500}}>{m.label||m.title||m.desc||`Milestone ${i+1}`}</div>
-                <div style={{fontSize:13,fontWeight:700,color:"var(--navy)",fontFamily:"DM Mono,monospace"}}>{formatMoney(Number((m.amount ?? ((Number(b.amount)||0) * (Number(m.pct ?? m.percent ?? 0)||0) / 100)) || 0))}</div>
+                <div style={{fontSize:13,fontWeight:700,color:"var(--navy)",fontFamily:"var(--font-sans),monospace"}}>{formatMoney(Number((m.amount ?? ((Number(b.amount)||0) * (Number(m.pct ?? m.percent ?? 0)||0) / 100)) || 0))}</div>
               </div>
             ))}
           </div>
@@ -46643,7 +46630,7 @@ function AdminActivityFeed({refreshSignal = 0, onHealthChange = null, healthKey 
     <div style={{padding:"20px 0",textAlign:"center"}}>
       <div style={{fontSize:20,marginBottom:8}}>⚠</div>
       <div style={{fontSize:12,color:"var(--atext-muted)",marginBottom:10}}>Couldn't load activity — check your connection.</div>
-      <button type="button" style={{padding:"6px 14px",borderRadius:8,border:"1px solid var(--aborder)",background:"var(--abg3)",color:"var(--atext)",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}} onClick={()=>{ setFetchError(false); setLoading(true); setRetryTick(t=>t+1); }}>Retry</button>
+      <button type="button" style={{padding:"6px 14px",borderRadius:8,border:"1px solid var(--aborder)",background:"var(--abg3)",color:"var(--atext)",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}} onClick={()=>{ setFetchError(false); setLoading(true); setRetryTick(t=>t+1); }}>Retry</button>
     </div>
   );
   if (items.length === 0) return (
@@ -46771,7 +46758,7 @@ function AdminReferralLeaderboard({showToast, refreshSignal = 0, onHealthChange 
                   <div style={{fontSize:12,fontWeight:600,color:"var(--atext)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.name}</div>
                   <div style={{fontSize:10,color:"var(--atext-muted)"}}>{r.qualified} qualified · {r.total} total referral{r.total!==1?"s":""}</div>
                 </div>
-                <div style={{fontFamily:"DM Mono,monospace",fontSize:13,fontWeight:700,color:r.qualified>0?"var(--green)":"var(--atext-muted)",flexShrink:0,textAlign:"right"}}>{r.qualified}</div>
+                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:13,fontWeight:700,color:r.qualified>0?"var(--green)":"var(--atext-muted)",flexShrink:0,textAlign:"right"}}>{r.qualified}</div>
               </div>
             ))}
           </>
@@ -47476,7 +47463,7 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
     boxShadow:"0 12px 30px rgba(28,40,20,0.05)",
     minWidth:0
   };
-  const controlStyle = { padding:"12px 14px", background:"var(--abg2)", border:"1px solid var(--aborder2)", borderRadius:12, color:"var(--atext)", fontSize:13, fontFamily:"DM Sans,sans-serif", outline:"none" };
+  const controlStyle = { padding:"12px 14px", background:"var(--abg2)", border:"1px solid var(--aborder2)", borderRadius:12, color:"var(--atext)", fontSize:13, fontFamily:"var(--font-sans),sans-serif", outline:"none" };
 
   return (
     <div className="charter-members-admin">
@@ -47511,13 +47498,13 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
       <div className="charter-admin-header" style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:16,marginBottom:20,flexWrap:"wrap"}}>
         <div style={{maxWidth:760}}>
           <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-light)",opacity:0.82,marginBottom:8}}>Pre-Launch Ops</div>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:30,fontWeight:700,color:"var(--atext)",letterSpacing:-0.7,marginBottom:6,lineHeight:1.1}}>Charter Members</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:30,fontWeight:700,color:"var(--atext)",letterSpacing:-0.7,marginBottom:6,lineHeight:1.1}}>Charter Members</div>
           <div style={{fontSize:13,color:"var(--atext-muted)",lineHeight:1.75,maxWidth:700}}>
             Review current pre-launch applications and monitor each applicant's access lifecycle. Search, filters, sorting, and pagination run at the database level; lifecycle data is read through an Admin-only safe snapshot.
           </div>
         </div>
         <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6,flexShrink:0}}>
-          <button type="button" onClick={exportFilteredCSV} disabled={exporting || totalCount === 0} style={{padding:"12px 20px",background:"linear-gradient(180deg, rgba(232,224,208,0.14), rgba(232,224,208,0.08))",border:"1px solid rgba(232,224,208,0.22)",borderRadius:12,color:"var(--gold-light)",fontSize:12,fontWeight:700,cursor:exporting||totalCount===0?"not-allowed":"pointer",fontFamily:"DM Sans,sans-serif",flexShrink:0,boxShadow:"0 10px 24px rgba(2,6,23,0.16)",opacity:exporting||totalCount===0?0.6:1}}>
+          <button type="button" onClick={exportFilteredCSV} disabled={exporting || totalCount === 0} style={{padding:"12px 20px",background:"linear-gradient(180deg, rgba(232,224,208,0.14), rgba(232,224,208,0.08))",border:"1px solid rgba(232,224,208,0.22)",borderRadius:12,color:"var(--gold-light)",fontSize:12,fontWeight:700,cursor:exporting||totalCount===0?"not-allowed":"pointer",fontFamily:"var(--font-sans),sans-serif",flexShrink:0,boxShadow:"0 10px 24px rgba(2,6,23,0.16)",opacity:exporting||totalCount===0?0.6:1}}>
             {exporting ? (exportProgress ? `Exporting ${exportProgress.done}/${exportProgress.total}…` : "Exporting…") : "Export all filtered (CSV)"}
           </button>
           <div style={{fontSize:11,color:"var(--atext-muted)"}}>Exports every record matching the current filters, not just this page.</div>
@@ -47557,10 +47544,10 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
               key={status}
               onClick={()=>setStatusFilter(active ? "all" : status)}
               aria-pressed={active}
-              style={{padding:"15px 16px",borderRadius:15,border:`1px solid ${active ? meta.border : "rgba(255,255,255,0.08)"}`,background:active ? meta.background : "rgba(11,18,33,0.72)",textAlign:"left",cursor:"pointer",fontFamily:"DM Sans,sans-serif",boxShadow:active?`0 12px 28px ${meta.background}`:"none"}}
+              style={{padding:"15px 16px",borderRadius:15,border:`1px solid ${active ? meta.border : "rgba(255,255,255,0.08)"}`,background:active ? meta.background : "rgba(11,18,33,0.72)",textAlign:"left",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",boxShadow:active?`0 12px 28px ${meta.background}`:"none"}}
             >
               <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:"uppercase",color:meta.color,marginBottom:7}}>{meta.label}</div>
-              <div style={{fontFamily:"DM Mono,monospace",fontSize:22,fontWeight:800,color:"var(--atext)"}}>{statusCountsLoading ? "…" : statusCountsError ? "—" : Number(statusCounts[status] || 0).toLocaleString()}</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:22,fontWeight:800,color:"var(--atext)"}}>{statusCountsLoading ? "…" : statusCountsError ? "—" : Number(statusCounts[status] || 0).toLocaleString()}</div>
             </button>
           );
         })}
@@ -47577,7 +47564,7 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.8,textTransform:"uppercase",color:"var(--gold-light)",marginBottom:5}}>Access lifecycle</div>
             <div style={{fontSize:13,color:"var(--atext-muted)",lineHeight:1.65}}>Live visibility into conversion, invitation, dispatch, and completion state. Trusted recovery controls appear only when the applicant's current lifecycle state supports a safe Admin action.</div>
           </div>
-          <button type="button" onClick={()=>setReloadKey(key=>key+1)} disabled={lifecycleLoading} style={{padding:"8px 12px",borderRadius:9,border:"1px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.04)",color:"var(--atext)",fontSize:11,fontWeight:800,cursor:lifecycleLoading?"wait":"pointer",fontFamily:"DM Sans,sans-serif",opacity:lifecycleLoading?0.55:1}}>
+          <button type="button" onClick={()=>setReloadKey(key=>key+1)} disabled={lifecycleLoading} style={{padding:"8px 12px",borderRadius:9,border:"1px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.04)",color:"var(--atext)",fontSize:11,fontWeight:800,cursor:lifecycleLoading?"wait":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:lifecycleLoading?0.55:1}}>
             {lifecycleLoading ? "Refreshing…" : "Refresh lifecycle"}
           </button>
         </div>
@@ -47590,7 +47577,7 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
           ].map(([label,count,detail,color]) => (
             <div key={label} style={{padding:"12px 13px",borderRadius:13,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(255,255,255,0.035)",minWidth:0}}>
               <div style={{fontSize:10,fontWeight:800,letterSpacing:1.25,textTransform:"uppercase",color,marginBottom:6}}>{label}</div>
-              <div style={{fontFamily:"DM Mono,monospace",fontSize:20,fontWeight:800,color:"var(--atext)",marginBottom:4}}>{lifecycleLoading ? "…" : lifecycleError ? "—" : Number(count || 0).toLocaleString()}</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:20,fontWeight:800,color:"var(--atext)",marginBottom:4}}>{lifecycleLoading ? "…" : lifecycleError ? "—" : Number(count || 0).toLocaleString()}</div>
               <div style={{fontSize:10.5,color:"var(--atext-muted)",lineHeight:1.5}}>{detail}</div>
             </div>
           ))}
@@ -47660,14 +47647,14 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
           <div style={{fontSize:22,marginBottom:10,opacity:0.5}}>⚠</div>
           <div style={{fontSize:14,fontWeight:700,color:"var(--atext)",marginBottom:6}}>Couldn't load charter members</div>
           <div style={{fontSize:12,color:"var(--atext-muted)",lineHeight:1.7,maxWidth:380,margin:"0 auto 16px"}}>The applicant query failed. This can happen if the connection dropped or the waitlist table is temporarily unavailable.</div>
-          <button type="button" onClick={()=>setReloadKey(k=>k+1)} style={{padding:"7px 18px",borderRadius:8,border:"1px solid rgba(232,224,208,0.22)",background:"rgba(232,224,208,0.08)",color:"var(--gold-light)",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Retry</button>
+          <button type="button" onClick={()=>setReloadKey(k=>k+1)} style={{padding:"7px 18px",borderRadius:8,border:"1px solid rgba(232,224,208,0.22)",background:"rgba(232,224,208,0.08)",color:"var(--gold-light)",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Retry</button>
         </div>
       ) : totalCount === 0 ? (
         <div style={{padding:"44px 24px",textAlign:"center",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:18}}>
           <div style={{fontSize:22,marginBottom:10,opacity:0.4}}>⌕</div>
           <div style={{fontSize:14,fontWeight:700,color:"var(--atext)",marginBottom:6}}>No applications match this view</div>
           <div style={{fontSize:12,color:"var(--atext-muted)",lineHeight:1.7,maxWidth:360,margin:"0 auto 16px"}}>Try adjusting the search, segment, or source filters.</div>
-          <button type="button" onClick={()=>{setSearch(""); setTypeFilter("all"); setStatusFilter("all"); setSourceFilter("");}} style={{padding:"7px 18px",borderRadius:8,border:"1px solid rgba(232,224,208,0.22)",background:"rgba(232,224,208,0.08)",color:"var(--gold-light)",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Clear filters</button>
+          <button type="button" onClick={()=>{setSearch(""); setTypeFilter("all"); setStatusFilter("all"); setSourceFilter("");}} style={{padding:"7px 18px",borderRadius:8,border:"1px solid rgba(232,224,208,0.22)",background:"rgba(232,224,208,0.08)",color:"var(--gold-light)",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Clear filters</button>
         </div>
       ) : (
         <>
@@ -47720,7 +47707,7 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
                       {m.type==="vendor"?"Vendor":"Church"}
                     </span>
                   </div>
-                  <div style={{fontSize:12,color:"var(--atext-muted)",fontFamily:"DM Mono,monospace",lineHeight:1.5}}>
+                  <div style={{fontSize:12,color:"var(--atext-muted)",fontFamily:"var(--font-sans),monospace",lineHeight:1.5}}>
                     <div>{formatAdminOpsDate(m.signed_up_at)}</div>
                     <div style={{opacity:0.72}}>{formatAdminOpsRelativeDate(m.signed_up_at)}</div>
                   </div>
@@ -47835,7 +47822,7 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
                                         disabled={savingRecoveryId === m.id}
                                         aria-pressed={selected}
                                         aria-label={`${action.label} for ${m.name || m.email || "application"}`}
-                                        style={{display:"flex",alignItems:"flex-start",gap:10,width:"100%",padding:"11px 12px",borderRadius:11,border:`1px solid ${action.border}`,background:selected?action.background:"rgba(255,255,255,0.018)",color:action.color,textAlign:"left",fontFamily:"DM Sans,sans-serif",cursor:savingRecoveryId===m.id?"wait":"pointer",opacity:savingRecoveryId===m.id?0.55:1,boxShadow:selected?`0 0 0 2px ${action.background}`:"none"}}
+                                        style={{display:"flex",alignItems:"flex-start",gap:10,width:"100%",padding:"11px 12px",borderRadius:11,border:`1px solid ${action.border}`,background:selected?action.background:"rgba(255,255,255,0.018)",color:action.color,textAlign:"left",fontFamily:"var(--font-sans),sans-serif",cursor:savingRecoveryId===m.id?"wait":"pointer",opacity:savingRecoveryId===m.id?0.55:1,boxShadow:selected?`0 0 0 2px ${action.background}`:"none"}}
                                       >
                                         <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:25,height:25,borderRadius:8,background:action.background,border:`1px solid ${action.border}`,fontSize:15,fontWeight:800,flexShrink:0,lineHeight:1}}>{action.icon}</span>
                                         <span style={{minWidth:0}}>
@@ -47868,7 +47855,7 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
                                   <label style={{display:"block",marginTop:12}}>
                                     <span style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,fontSize:9.5,fontWeight:800,letterSpacing:1.25,textTransform:"uppercase",color:"var(--atext-muted)",marginBottom:6}}>
                                       <span>Required Admin reason</span>
-                                      <span style={{fontFamily:"DM Mono,monospace",letterSpacing:0,textTransform:"none"}}>{String(recoveryDraft.reason || "").length}/500</span>
+                                      <span style={{fontFamily:"var(--font-sans),monospace",letterSpacing:0,textTransform:"none"}}>{String(recoveryDraft.reason || "").length}/500</span>
                                     </span>
                                     <textarea
                                       value={recoveryDraft.reason}
@@ -47880,7 +47867,7 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
                                       rows={3}
                                       placeholder="Explain why this recovery action is necessary…"
                                       disabled={savingRecoveryId === m.id}
-                                      style={{width:"100%",boxSizing:"border-box",resize:"vertical",minHeight:76,padding:"11px 12px",borderRadius:10,border:`1px solid ${recoveryError?"rgba(248,113,113,0.58)":"rgba(255,255,255,0.12)"}`,background:"rgba(255,255,255,0.045)",color:"var(--atext)",fontSize:12.5,lineHeight:1.55,fontFamily:"DM Sans,sans-serif",outline:"none",opacity:savingRecoveryId===m.id?0.65:1}}
+                                      style={{width:"100%",boxSizing:"border-box",resize:"vertical",minHeight:76,padding:"11px 12px",borderRadius:10,border:`1px solid ${recoveryError?"rgba(248,113,113,0.58)":"rgba(255,255,255,0.12)"}`,background:"rgba(255,255,255,0.045)",color:"var(--atext)",fontSize:12.5,lineHeight:1.55,fontFamily:"var(--font-sans),sans-serif",outline:"none",opacity:savingRecoveryId===m.id?0.65:1}}
                                     />
                                   </label>
                                   {recoveryError ? (
@@ -47891,13 +47878,13 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
                                       type="button"
                                       onClick={cancelRecoveryDraft}
                                       disabled={savingRecoveryId === m.id}
-                                      style={{padding:"9px 12px",borderRadius:9,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:"var(--atext-muted)",fontSize:11,fontWeight:800,fontFamily:"DM Sans,sans-serif",cursor:savingRecoveryId===m.id?"wait":"pointer",opacity:savingRecoveryId===m.id?0.5:1}}
+                                      style={{padding:"9px 12px",borderRadius:9,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:"var(--atext-muted)",fontSize:11,fontWeight:800,fontFamily:"var(--font-sans),sans-serif",cursor:savingRecoveryId===m.id?"wait":"pointer",opacity:savingRecoveryId===m.id?0.5:1}}
                                     >Cancel</button>
                                     <button
                                       type="button"
                                       onClick={()=>submitRecovery(m)}
                                       disabled={savingRecoveryId === m.id || String(recoveryDraft.reason || "").trim().length < 4}
-                                      style={{padding:"9px 14px",borderRadius:9,border:`1px solid ${selectedRecovery.border}`,background:selectedRecovery.background,color:selectedRecovery.color,fontSize:11,fontWeight:800,fontFamily:"DM Sans,sans-serif",cursor:savingRecoveryId===m.id?"wait":String(recoveryDraft.reason||"").trim().length<4?"not-allowed":"pointer",opacity:savingRecoveryId===m.id||String(recoveryDraft.reason||"").trim().length<4?0.5:1}}
+                                      style={{padding:"9px 14px",borderRadius:9,border:`1px solid ${selectedRecovery.border}`,background:selectedRecovery.background,color:selectedRecovery.color,fontSize:11,fontWeight:800,fontFamily:"var(--font-sans),sans-serif",cursor:savingRecoveryId===m.id?"wait":String(recoveryDraft.reason||"").trim().length<4?"not-allowed":"pointer",opacity:savingRecoveryId===m.id||String(recoveryDraft.reason||"").trim().length<4?0.5:1}}
                                     >{savingRecoveryId === m.id ? "Applying…" : `Confirm ${selectedRecovery.shortLabel}`}</button>
                                   </div>
                                 </div>
@@ -47913,7 +47900,7 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
                           <div style={{fontSize:10,fontWeight:800,letterSpacing:1.6,textTransform:"uppercase",color:"var(--gold-light)",marginBottom:5}}>Internal review</div>
                           <div style={{fontSize:12,color:"var(--atext-muted)",lineHeight:1.6}}>Notes are administrator-only. Status changes and note edits are recorded in the audit log.</div>
                         </div>
-                        <div style={{fontSize:11,color:"var(--atext-muted)",fontFamily:"DM Mono,monospace"}}>{String(reviewDraft.id===m.id?reviewDraft.notes:(m.internal_notes||"")).length}/4000</div>
+                        <div style={{fontSize:11,color:"var(--atext-muted)",fontFamily:"var(--font-sans),monospace"}}>{String(reviewDraft.id===m.id?reviewDraft.notes:(m.internal_notes||"")).length}/4000</div>
                       </div>
                       <textarea
                         aria-label={`Internal notes for ${m.name || m.email || "application"}`}
@@ -47922,14 +47909,14 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
                         maxLength={4000}
                         rows={4}
                         placeholder="Add private review notes, follow-up context, or decision rationale…"
-                        style={{width:"100%",boxSizing:"border-box",resize:"vertical",minHeight:96,padding:"12px 13px",borderRadius:11,border:"1px solid rgba(255,255,255,0.11)",background:"rgba(255,255,255,0.05)",color:"var(--atext)",fontSize:13,lineHeight:1.6,fontFamily:"DM Sans,sans-serif",outline:"none"}}
+                        style={{width:"100%",boxSizing:"border-box",resize:"vertical",minHeight:96,padding:"12px 13px",borderRadius:11,border:"1px solid rgba(255,255,255,0.11)",background:"rgba(255,255,255,0.05)",color:"var(--atext)",fontSize:13,lineHeight:1.6,fontFamily:"var(--font-sans),sans-serif",outline:"none"}}
                       />
                       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,flexWrap:"wrap",marginTop:12}}>
                         <button
                           type="button"
                           onClick={()=>saveReview(m, m.review_status)}
                           disabled={savingReviewId === m.id}
-                          style={{padding:"9px 14px",borderRadius:9,border:"1px solid rgba(232,224,208,0.22)",background:"rgba(232,224,208,0.08)",color:"var(--gold-light)",fontSize:12,fontWeight:800,cursor:savingReviewId===m.id?"wait":"pointer",fontFamily:"DM Sans,sans-serif",opacity:savingReviewId===m.id?0.6:1}}
+                          style={{padding:"9px 14px",borderRadius:9,border:"1px solid rgba(232,224,208,0.22)",background:"rgba(232,224,208,0.08)",color:"var(--gold-light)",fontSize:12,fontWeight:800,cursor:savingReviewId===m.id?"wait":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:savingReviewId===m.id?0.6:1}}
                         >
                           {savingReviewId === m.id ? "Saving…" : "Save notes"}
                         </button>
@@ -47945,7 +47932,7 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
                                 onClick={()=>saveReview(m,status)}
                                 disabled={current || savingReviewId === m.id}
                                 aria-label={`${label} ${m.name || m.email || "application"}`}
-                                style={{padding:"9px 12px",borderRadius:9,border:`1px solid ${actionMeta.border}`,background:current?actionMeta.background:"transparent",color:actionMeta.color,fontSize:11,fontWeight:800,cursor:current?"default":savingReviewId===m.id?"wait":"pointer",fontFamily:"DM Sans,sans-serif",opacity:current?0.6:savingReviewId===m.id?0.45:1}}
+                                style={{padding:"9px 12px",borderRadius:9,border:`1px solid ${actionMeta.border}`,background:current?actionMeta.background:"transparent",color:actionMeta.color,fontSize:11,fontWeight:800,cursor:current?"default":savingReviewId===m.id?"wait":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:current?0.6:savingReviewId===m.id?0.45:1}}
                               >
                                 {current ? `Current: ${actionMeta.label}` : label}
                               </button>
@@ -47966,8 +47953,8 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
               Showing <strong style={{color:"var(--atext)"}}>{rangeStart.toLocaleString()}–{rangeEnd.toLocaleString()}</strong> of <strong style={{color:"var(--atext)"}}>{totalCount.toLocaleString()}</strong>
             </div>
             <div className="charter-pagination-actions" style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-              <button type="button" onClick={()=>setPage(0)} disabled={page===0} style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:page===0?"var(--atext-muted)":"var(--atext)",fontSize:12,fontWeight:700,cursor:page===0?"not-allowed":"pointer",fontFamily:"DM Sans,sans-serif",opacity:page===0?0.5:1}}>« First</button>
-              <button type="button" onClick={()=>setPage(p=>Math.max(0,p-1))} disabled={page===0} style={{padding:"8px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:page===0?"var(--atext-muted)":"var(--atext)",fontSize:12,fontWeight:700,cursor:page===0?"not-allowed":"pointer",fontFamily:"DM Sans,sans-serif",opacity:page===0?0.5:1}}>‹ Prev</button>
+              <button type="button" onClick={()=>setPage(0)} disabled={page===0} style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:page===0?"var(--atext-muted)":"var(--atext)",fontSize:12,fontWeight:700,cursor:page===0?"not-allowed":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:page===0?0.5:1}}>« First</button>
+              <button type="button" onClick={()=>setPage(p=>Math.max(0,p-1))} disabled={page===0} style={{padding:"8px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:page===0?"var(--atext-muted)":"var(--atext)",fontSize:12,fontWeight:700,cursor:page===0?"not-allowed":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:page===0?0.5:1}}>‹ Prev</button>
               <div style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:"var(--atext-muted)"}}>
                 <span>Page</span>
                 <input
@@ -47980,12 +47967,12 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
                     const v = parseInt(e.target.value, 10);
                     if (!Number.isNaN(v)) setPage(Math.min(totalPages - 1, Math.max(0, v - 1)));
                   }}
-                  style={{width:64,padding:"8px 10px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:8,color:"var(--atext)",fontSize:12,fontFamily:"DM Mono,monospace",textAlign:"center",outline:"none"}}
+                  style={{width:64,padding:"8px 10px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:8,color:"var(--atext)",fontSize:12,fontFamily:"var(--font-sans),monospace",textAlign:"center",outline:"none"}}
                 />
                 <span>of {totalPages.toLocaleString()}</span>
               </div>
-              <button type="button" onClick={()=>setPage(p=>Math.min(totalPages-1,p+1))} disabled={page>=totalPages-1} style={{padding:"8px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:page>=totalPages-1?"var(--atext-muted)":"var(--atext)",fontSize:12,fontWeight:700,cursor:page>=totalPages-1?"not-allowed":"pointer",fontFamily:"DM Sans,sans-serif",opacity:page>=totalPages-1?0.5:1}}>Next ›</button>
-              <button type="button" onClick={()=>setPage(totalPages-1)} disabled={page>=totalPages-1} style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:page>=totalPages-1?"var(--atext-muted)":"var(--atext)",fontSize:12,fontWeight:700,cursor:page>=totalPages-1?"not-allowed":"pointer",fontFamily:"DM Sans,sans-serif",opacity:page>=totalPages-1?0.5:1}}>Last »</button>
+              <button type="button" onClick={()=>setPage(p=>Math.min(totalPages-1,p+1))} disabled={page>=totalPages-1} style={{padding:"8px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:page>=totalPages-1?"var(--atext-muted)":"var(--atext)",fontSize:12,fontWeight:700,cursor:page>=totalPages-1?"not-allowed":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:page>=totalPages-1?0.5:1}}>Next ›</button>
+              <button type="button" onClick={()=>setPage(totalPages-1)} disabled={page>=totalPages-1} style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:page>=totalPages-1?"var(--atext-muted)":"var(--atext)",fontSize:12,fontWeight:700,cursor:page>=totalPages-1?"not-allowed":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:page>=totalPages-1?0.5:1}}>Last »</button>
             </div>
           </div>
         </>
@@ -48050,7 +48037,7 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
   overflow:hidden!important;
   background:#f2eee5!important;
   color:var(--atext)!important;
-  font-family:'DM Sans',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif!important;
+  font-family:var(--font-sans),system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif!important;
 }
 .faithbid-admin-v853bl *,
 .faithbid-admin-v853bl *::before,
@@ -48059,7 +48046,7 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
 .faithbid-admin-v853bl [role='button']{
   -webkit-appearance:none!important;
   appearance:none!important;
-  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-family:var(--font-sans),system-ui,sans-serif!important;
   text-decoration:none!important;
 }
 
@@ -48099,7 +48086,7 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 12px 26px rgba(0,0,0,.20)!important;
 }
 .faithbid-admin-v853bl .admin-brand-copy{min-width:0!important;}
-.faithbid-admin-v853bl .admin-brand-name{font-family:'Playfair Display',Georgia,serif!important;font-size:20px!important;font-weight:700!important;line-height:1!important;letter-spacing:-.35px!important;color:#fffaf0!important;}
+.faithbid-admin-v853bl .admin-brand-name{font-family:var(--font-display),serif!important;font-size:20px!important;font-weight:700!important;line-height:1!important;letter-spacing:-.35px!important;color:#fffaf0!important;}
 .faithbid-admin-v853bl .admin-brand-subtitle{margin-top:5px!important;font-size:8.5px!important;font-weight:800!important;letter-spacing:1.65px!important;text-transform:uppercase!important;color:rgba(255,255,255,.45)!important;white-space:nowrap!important;}
 .faithbid-admin-v853bl .admin-brand-badge{display:inline-flex!important;align-items:center!important;gap:7px!important;margin-top:16px!important;padding:6px 10px!important;border-radius:999px!important;background:rgba(202,165,91,.075)!important;border:1px solid rgba(220,190,128,.15)!important;color:#d9bd82!important;font-size:8.5px!important;font-weight:800!important;letter-spacing:1.3px!important;text-transform:uppercase!important;}
 .faithbid-admin-v853bl .admin-brand-badge-dot{width:6px!important;height:6px!important;border-radius:50%!important;background:#d8b66f!important;box-shadow:0 0 0 4px rgba(216,182,111,.09)!important;}
@@ -48118,15 +48105,15 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
 .faithbid-admin-v853bl .admin-nav-item:hover{transform:translateX(2px)!important;background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.055)!important;color:#fff!important;}
 .faithbid-admin-v853bl .admin-nav-item.active{background:linear-gradient(135deg,rgba(202,165,91,.16),rgba(202,165,91,.07))!important;border-color:rgba(220,190,128,.19)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 12px 28px rgba(0,0,0,.13)!important;}
 .faithbid-admin-v853bl .admin-nav-item.active::before{content:''!important;display:block!important;position:absolute!important;left:-1px!important;top:12px!important;bottom:12px!important;width:3px!important;border-radius:0 4px 4px 0!important;background:linear-gradient(180deg,#e4c784,#b78b3c)!important;box-shadow:0 0 13px rgba(225,193,125,.34)!important;}
-.faithbid-admin-v853bl .admin-nav-glyph{width:31px!important;height:31px!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:9px!important;background:rgba(255,255,255,.045)!important;border:1px solid rgba(255,255,255,.065)!important;color:rgba(255,255,255,.49)!important;font-family:'DM Mono',monospace!important;font-size:12px!important;font-weight:800!important;}
+.faithbid-admin-v853bl .admin-nav-glyph{width:31px!important;height:31px!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:9px!important;background:rgba(255,255,255,.045)!important;border:1px solid rgba(255,255,255,.065)!important;color:rgba(255,255,255,.49)!important;font-family:var(--font-sans),monospace!important;font-size:12px!important;font-weight:800!important;}
 .faithbid-admin-v853bl .admin-nav-item.active .admin-nav-glyph{background:rgba(220,190,128,.13)!important;border-color:rgba(220,190,128,.22)!important;color:#efd69d!important;}
 .faithbid-admin-v853bl .admin-nav-copy{display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important;}
 .faithbid-admin-v853bl .admin-nav-title{display:block!important;font-size:12px!important;font-weight:800!important;line-height:1.2!important;color:inherit!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;}
 .faithbid-admin-v853bl .admin-nav-note{display:block!important;font-size:9.25px!important;font-weight:500!important;line-height:1.25!important;color:rgba(255,255,255,.37)!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;}
-.faithbid-admin-v853bl .anav-badge{justify-self:end!important;margin:0!important;min-width:24px!important;padding:3px 7px!important;border-radius:999px!important;font-family:'DM Mono',monospace!important;font-size:9px!important;font-weight:800!important;text-align:center!important;}
+.faithbid-admin-v853bl .anav-badge{justify-self:end!important;margin:0!important;min-width:24px!important;padding:3px 7px!important;border-radius:999px!important;font-family:var(--font-sans),monospace!important;font-size:9px!important;font-weight:800!important;text-align:center!important;}
 .faithbid-admin-v853bl .admin-sidebar-footer{display:block!important;flex:0 0 auto!important;margin-top:auto!important;padding:14px 12px 16px!important;border-top:1px solid rgba(255,255,255,.075)!important;}
 .faithbid-admin-v853bl .admin-sidebar-user-card{display:grid!important;grid-template-columns:36px minmax(0,1fr)!important;align-items:center!important;gap:10px!important;padding:11px!important;border-radius:13px!important;background:rgba(255,255,255,.03)!important;border:1px solid rgba(255,255,255,.05)!important;}
-.faithbid-admin-v853bl .admin-sidebar-avatar{width:36px!important;height:36px!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:10px!important;background:linear-gradient(145deg,#cba85e,#e5c985)!important;color:#172014!important;font-family:'DM Mono',monospace!important;font-size:12px!important;font-weight:800!important;box-shadow:0 8px 18px rgba(0,0,0,.20)!important;}
+.faithbid-admin-v853bl .admin-sidebar-avatar{width:36px!important;height:36px!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:10px!important;background:linear-gradient(145deg,#cba85e,#e5c985)!important;color:#172014!important;font-family:var(--font-sans),monospace!important;font-size:12px!important;font-weight:800!important;box-shadow:0 8px 18px rgba(0,0,0,.20)!important;}
 .faithbid-admin-v853bl .admin-sidebar-user-copy{min-width:0!important;}
 .faithbid-admin-v853bl .admin-sidebar-user-name{font-size:11px!important;font-weight:700!important;color:#fffaf0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
 .faithbid-admin-v853bl .admin-sidebar-user-role{margin-top:3px!important;font-size:9px!important;line-height:1.25!important;color:rgba(255,255,255,.38)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
@@ -48144,7 +48131,7 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
 }
 .faithbid-admin-v853bl .admin-topbar-context{display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important;}
 .faithbid-admin-v853bl .admin-topbar-kicker{display:block!important;font-size:8px!important;font-weight:800!important;letter-spacing:1.75px!important;text-transform:uppercase!important;color:#9b7432!important;}
-.faithbid-admin-v853bl .admin-topbar-title{font-family:'Playfair Display',Georgia,serif!important;font-size:18px!important;font-weight:700!important;letter-spacing:-.25px!important;line-height:1.1!important;color:#182313!important;}
+.faithbid-admin-v853bl .admin-topbar-title{font-family:var(--font-display),serif!important;font-size:18px!important;font-weight:700!important;letter-spacing:-.25px!important;line-height:1.1!important;color:#182313!important;}
 .faithbid-admin-v853bl .admin-topbar-right{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;min-width:0!important;flex-wrap:wrap!important;}
 .faithbid-admin-v853bl .status-pill,.faithbid-admin-v853bl .admin-topbar-attention{min-height:32px!important;display:inline-flex!important;align-items:center!important;gap:7px!important;padding:0 11px!important;border-radius:999px!important;font-size:9.5px!important;font-weight:700!important;white-space:nowrap!important;}
 .faithbid-admin-v853bl .admin-topbar-action{height:34px!important;min-height:34px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:0 12px!important;border-radius:10px!important;border:1px solid rgba(28,40,20,.13)!important;background:#fffdf8!important;color:#34422f!important;font-size:10px!important;font-weight:800!important;box-shadow:0 4px 11px rgba(28,40,20,.045)!important;cursor:pointer!important;white-space:nowrap!important;}
@@ -48157,7 +48144,7 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
 .faithbid-admin-v853bl .admin-content>*{width:100%!important;max-width:1420px!important;margin-left:auto!important;margin-right:auto!important;}
 .faithbid-admin-v853bl .admin-page-heading{margin:0 0 22px!important;padding:0!important;text-align:left!important;}
 .faithbid-admin-v853bl .admin-page-eyebrow,.faithbid-admin-v853bl .eyebrow{margin:0 0 8px!important;font-size:9px!important;font-weight:800!important;letter-spacing:2.15px!important;text-transform:uppercase!important;color:#9b7432!important;opacity:1!important;}
-.faithbid-admin-v853bl .admin-page-title{margin:0!important;font-family:'Playfair Display',Georgia,serif!important;font-size:clamp(28px,2.7vw,38px)!important;font-weight:700!important;line-height:1.05!important;letter-spacing:-.8px!important;color:#182313!important;}
+.faithbid-admin-v853bl .admin-page-title{margin:0!important;font-family:var(--font-display),serif!important;font-size:clamp(28px,2.7vw,38px)!important;font-weight:700!important;line-height:1.05!important;letter-spacing:-.8px!important;color:#182313!important;}
 .faithbid-admin-v853bl .admin-page-copy{max-width:820px!important;margin:8px 0 0!important;font-size:13px!important;line-height:1.7!important;color:#687263!important;}
 
 /* Overview hero */
@@ -48175,7 +48162,7 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
 .faithbid-admin-v853bl .admin-command-hero-copy,.faithbid-admin-v853bl .admin-command-signal-grid{position:relative!important;z-index:1!important;}
 .faithbid-admin-v853bl .admin-command-hero-copy{display:flex!important;flex-direction:column!important;justify-content:center!important;min-width:0!important;padding:4px 0!important;}
 .faithbid-admin-v853bl .admin-command-hero .admin-page-eyebrow{color:#d4b16a!important;}
-.faithbid-admin-v853bl .admin-command-title{margin:0!important;max-width:720px!important;font-family:'Playfair Display',Georgia,serif!important;font-size:clamp(34px,3.5vw,52px)!important;font-weight:700!important;line-height:1.01!important;letter-spacing:-1.4px!important;color:#fffaf0!important;text-shadow:0 2px 18px rgba(0,0,0,.12)!important;}
+.faithbid-admin-v853bl .admin-command-title{margin:0!important;max-width:720px!important;font-family:var(--font-display),serif!important;font-size:clamp(34px,3.5vw,52px)!important;font-weight:700!important;line-height:1.01!important;letter-spacing:-1.4px!important;color:#fffaf0!important;text-shadow:0 2px 18px rgba(0,0,0,.12)!important;}
 .faithbid-admin-v853bl .admin-command-copy{max-width:720px!important;margin:13px 0 0!important;font-size:13px!important;line-height:1.72!important;color:rgba(255,255,255,.64)!important;}
 .faithbid-admin-v853bl .admin-command-state-row{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;margin-top:19px!important;}
 .faithbid-admin-v853bl .admin-command-state{min-height:29px!important;display:inline-flex!important;align-items:center!important;gap:7px!important;padding:0 11px!important;border-radius:999px!important;background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.075)!important;color:rgba(255,255,255,.69)!important;font-size:9.5px!important;font-weight:700!important;}
@@ -48189,7 +48176,7 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
 .faithbid-admin-v853bl button.admin-command-signal{cursor:pointer!important;}
 .faithbid-admin-v853bl button.admin-command-signal:hover{transform:translateY(-2px)!important;background:rgba(222,191,121,.075)!important;border-color:rgba(222,191,121,.28)!important;}
 .faithbid-admin-v853bl .admin-command-signal-label{font-size:8px!important;font-weight:800!important;letter-spacing:1.45px!important;text-transform:uppercase!important;color:rgba(255,255,255,.48)!important;}
-.faithbid-admin-v853bl .admin-command-signal strong{margin-top:10px!important;font-family:'DM Mono',monospace!important;font-size:clamp(22px,2.3vw,31px)!important;line-height:1!important;color:#fff5dd!important;overflow-wrap:anywhere!important;}
+.faithbid-admin-v853bl .admin-command-signal strong{margin-top:10px!important;font-family:var(--font-sans),monospace!important;font-size:clamp(22px,2.3vw,31px)!important;line-height:1!important;color:#fff5dd!important;overflow-wrap:anywhere!important;}
 .faithbid-admin-v853bl .admin-command-signal>span:last-child{margin-top:8px!important;font-size:9.5px!important;line-height:1.4!important;color:rgba(255,255,255,.48)!important;}
 .faithbid-admin-v853bl .admin-command-signal.is-healthy strong{color:#79d895!important;}.faithbid-admin-v853bl .admin-command-signal.is-loading strong{color:#efc167!important;}.faithbid-admin-v853bl .admin-command-signal.is-degraded strong{color:#f09088!important;}
 
@@ -48202,11 +48189,11 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
   box-shadow:0 10px 26px rgba(28,40,20,.055)!important;cursor:pointer!important;
 }
 .faithbid-admin-v853bl .admin-command-action:hover{transform:translateY(-2px)!important;border-color:rgba(155,116,50,.28)!important;background:#fffaf1!important;box-shadow:0 16px 34px rgba(28,40,20,.09)!important;}
-.faithbid-admin-v853bl .admin-command-action-icon{grid-area:icon!important;width:34px!important;height:34px!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:10px!important;background:#f3ead8!important;border:1px solid rgba(155,116,50,.16)!important;color:#8d672a!important;font-family:'DM Mono',monospace!important;font-size:12px!important;font-weight:800!important;}
+.faithbid-admin-v853bl .admin-command-action-icon{grid-area:icon!important;width:34px!important;height:34px!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:10px!important;background:#f3ead8!important;border:1px solid rgba(155,116,50,.16)!important;color:#8d672a!important;font-family:var(--font-sans),monospace!important;font-size:12px!important;font-weight:800!important;}
 .faithbid-admin-v853bl .admin-command-action-copy{grid-area:copy!important;display:flex!important;flex-direction:column!important;gap:4px!important;min-width:0!important;}
 .faithbid-admin-v853bl .admin-command-action-copy strong{font-size:11px!important;font-weight:800!important;color:#182313!important;white-space:normal!important;line-height:1.25!important;overflow:visible!important;text-overflow:clip!important;}
 .faithbid-admin-v853bl .admin-command-action-copy span{font-size:9px!important;line-height:1.42!important;color:#778071!important;display:block!important;overflow:visible!important;}
-.faithbid-admin-v853bl .admin-command-action-badge{grid-area:badge!important;align-self:start!important;min-width:22px!important;padding:3px 7px!important;border-radius:999px!important;background:#bd403a!important;color:#fff!important;font-family:'DM Mono',monospace!important;font-size:8px!important;font-weight:800!important;text-align:center!important;}
+.faithbid-admin-v853bl .admin-command-action-badge{grid-area:badge!important;align-self:start!important;min-width:22px!important;padding:3px 7px!important;border-radius:999px!important;background:#bd403a!important;color:#fff!important;font-family:var(--font-sans),monospace!important;font-size:8px!important;font-weight:800!important;text-align:center!important;}
 .faithbid-admin-v853bl .admin-command-action-arrow{grid-area:arrow!important;align-self:end!important;justify-self:end!important;color:#9d9689!important;font-size:12px!important;}
 
 /* KPI cards and metrics */
@@ -48218,7 +48205,7 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
 }
 .faithbid-admin-v853bl .kpi-card::before{height:3px!important;opacity:1!important;}.faithbid-admin-v853bl .kpi-card:hover{transform:translateY(-2px)!important;border-color:rgba(155,116,50,.24)!important;box-shadow:0 18px 38px rgba(28,40,20,.09)!important;}
 .faithbid-admin-v853bl .kpi-label{margin:0!important;font-size:8.5px!important;font-weight:800!important;letter-spacing:1.5px!important;text-transform:uppercase!important;color:#7b8376!important;opacity:1!important;}
-.faithbid-admin-v853bl .kpi-val{margin:12px 0 0!important;font-family:'Playfair Display',Georgia,serif!important;font-size:34px!important;font-weight:700!important;line-height:1!important;letter-spacing:-.7px!important;color:#182313!important;}
+.faithbid-admin-v853bl .kpi-val{margin:12px 0 0!important;font-family:var(--font-display),serif!important;font-size:34px!important;font-weight:700!important;line-height:1!important;letter-spacing:-.7px!important;color:#182313!important;}
 .faithbid-admin-v853bl .kpi-sub{margin:9px 0 0!important;font-size:11px!important;line-height:1.48!important;color:#727b6e!important;}
 .faithbid-admin-v853bl .admin-metric-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;}
 .faithbid-admin-v853bl .admin-metric-grid>button,.faithbid-admin-v853bl .admin-metric-grid>div{min-width:0!important;min-height:104px!important;padding:16px 17px!important;border-radius:16px!important;border:1px solid rgba(28,40,20,.10)!important;background:#fffdf8!important;color:#182313!important;box-shadow:0 9px 24px rgba(28,40,20,.045)!important;text-align:left!important;}
@@ -48239,7 +48226,7 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
 .faithbid-admin-v853bl .admin-summary-strip{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:11px!important;}
 .faithbid-admin-v853bl .admin-summary-chip{min-width:0!important;padding:14px 15px!important;border-radius:15px!important;border:1px solid rgba(28,40,20,.10)!important;background:#fffdf8!important;box-shadow:0 8px 20px rgba(28,40,20,.04)!important;}
 .faithbid-admin-v853bl .admin-summary-chip-label{font-size:9px!important;font-weight:800!important;letter-spacing:1.25px!important;text-transform:uppercase!important;color:#7b8376!important;}
-.faithbid-admin-v853bl .admin-summary-chip-value{margin-top:6px!important;font-family:'DM Mono',monospace!important;font-size:20px!important;font-weight:800!important;color:#182313!important;}
+.faithbid-admin-v853bl .admin-summary-chip-value{margin-top:6px!important;font-family:var(--font-sans),monospace!important;font-size:20px!important;font-weight:800!important;color:#182313!important;}
 .faithbid-admin-v853bl .admin-state-card{padding:18px!important;}.faithbid-admin-v853bl .admin-state-title{color:#182313!important;font-size:13px!important;font-weight:800!important;}.faithbid-admin-v853bl .admin-state-copy{color:#6c7568!important;font-size:11.5px!important;line-height:1.65!important;}
 .faithbid-admin-v853bl .admin-detail-rail,.faithbid-admin-v853bl .desktop-stress-rail{position:sticky!important;top:18px!important;}
 
@@ -48312,7 +48299,7 @@ const FAITHBID_ADMIN_V853BK_CSS = String.raw`
 /* Dialogs */
 .faithbid-admin-v853bl .modal-bg{background:rgba(14,20,12,.62)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;}
 .faithbid-admin-v853bl .modal{max-width:min(680px,calc(100vw - 32px))!important;border-radius:22px!important;border:1px solid rgba(28,40,20,.11)!important;background:#fffdf8!important;color:#182313!important;box-shadow:0 30px 90px rgba(15,22,12,.30)!important;overflow:hidden!important;}
-.faithbid-admin-v853bl .modal-hd{padding:18px 20px!important;border-bottom:1px solid rgba(28,40,20,.09)!important;background:#fbf6ec!important;}.faithbid-admin-v853bl .modal-title{color:#182313!important;font-family:'Playfair Display',Georgia,serif!important;font-size:20px!important;}.faithbid-admin-v853bl .modal-close{width:34px!important;height:34px!important;border-radius:10px!important;background:#fffdf8!important;border:1px solid rgba(28,40,20,.11)!important;color:#52604d!important;}.faithbid-admin-v853bl .modal-body{padding:20px!important;color:#52604d!important;}.faithbid-admin-v853bl .modal-footer{padding:15px 20px!important;border-top:1px solid rgba(28,40,20,.09)!important;background:#fbf6ec!important;gap:9px!important;}.faithbid-admin-v853bl .btn-approve-modal,.faithbid-admin-v853bl .btn-deny-modal,.faithbid-admin-v853bl .btn-cancel-modal{min-height:40px!important;border-radius:11px!important;font-weight:800!important;}
+.faithbid-admin-v853bl .modal-hd{padding:18px 20px!important;border-bottom:1px solid rgba(28,40,20,.09)!important;background:#fbf6ec!important;}.faithbid-admin-v853bl .modal-title{color:#182313!important;font-family:var(--font-display),serif!important;font-size:20px!important;}.faithbid-admin-v853bl .modal-close{width:34px!important;height:34px!important;border-radius:10px!important;background:#fffdf8!important;border:1px solid rgba(28,40,20,.11)!important;color:#52604d!important;}.faithbid-admin-v853bl .modal-body{padding:20px!important;color:#52604d!important;}.faithbid-admin-v853bl .modal-footer{padding:15px 20px!important;border-top:1px solid rgba(28,40,20,.09)!important;background:#fbf6ec!important;gap:9px!important;}.faithbid-admin-v853bl .btn-approve-modal,.faithbid-admin-v853bl .btn-deny-modal,.faithbid-admin-v853bl .btn-cancel-modal{min-height:40px!important;border-radius:11px!important;font-weight:800!important;}
 
 /* Responsive */
 @container admincontent (max-width:1120px){
@@ -48992,17 +48979,17 @@ function GetPluggedInAdmin({showToast, previewData=null, founderGrowthContext=nu
 }
 
 const GPI_ADMIN_CSS = `
-.gpi-admin{--gpi-ink:#182313;--gpi-muted:#6f786b;--gpi-line:rgba(28,40,20,.105);--gpi-paper:#fffdf8;--gpi-soft:#f7f1e6;--gpi-gold:#9b7432;--gpi-green:#247b42;color:var(--gpi-ink);font-family:'DM Sans',sans-serif;max-width:1500px;margin:0 auto;}
-.gpi-admin *{box-sizing:border-box}.gpi-admin button,.gpi-admin input,.gpi-admin select{font:inherit}.gpi-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:4px 1px 23px;border-bottom:1px solid var(--gpi-line)}.gpi-eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--gpi-gold);font-size:9px;font-weight:800;letter-spacing:1.45px;text-transform:uppercase}.gpi-eyebrow span{width:18px;height:1px;background:var(--gpi-gold)}.gpi-hero h1{margin:0 0 8px;font-family:'Playfair Display',Georgia,serif;font-size:38px;line-height:1.02;color:var(--gpi-ink)}.gpi-hero p{max-width:700px;margin:0;color:var(--gpi-muted);font-size:12.5px;line-height:1.65}.gpi-hero-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}.gpi-contract,.gpi-refresh{min-height:38px;border:1px solid var(--gpi-line);border-radius:11px;background:var(--gpi-paper);color:#475341;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:10.5px;font-weight:800;cursor:pointer;box-shadow:0 7px 16px rgba(28,40,20,.045)}.gpi-contract{padding:0 13px}.gpi-refresh{width:38px}.gpi-contract:hover,.gpi-refresh:hover{border-color:rgba(155,116,50,.3);color:#765522;background:#fbf4e7}.gpi-contract.passed{color:var(--gpi-green);border-color:rgba(36,123,66,.22);background:rgba(36,123,66,.06)}.gpi-contract.failed{color:#b73f39;border-color:rgba(189,64,58,.22);background:rgba(189,64,58,.06)}
-.gpi-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:17px 0}.gpi-metric{position:relative;overflow:hidden;min-height:105px;padding:15px 17px;border:1px solid var(--gpi-line);border-radius:15px;background:var(--gpi-paper);box-shadow:0 8px 20px rgba(28,40,20,.035)}.gpi-metric:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#26341f}.gpi-metric.green:before{background:#3c9157}.gpi-metric.amber:before{background:#bc7a18}.gpi-metric.gold:before{background:#b28c49}.gpi-metric>span{display:block;color:#7b8376;font-size:8.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase}.gpi-metric strong{display:block;margin:7px 0 5px;font-family:'DM Mono',monospace;font-size:25px;line-height:1;color:var(--gpi-ink)}.gpi-metric small{color:#858c81;font-size:10.5px}
-.gpi-toolbar{min-height:59px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 10px;border:1px solid var(--gpi-line);border-radius:15px 15px 0 0;background:#f9f4ea}.gpi-mode-switch{display:flex;align-items:center;gap:4px}.gpi-mode-switch,.gpi-filters,.faithbid-admin-v853bl .admin-nav-section{scrollbar-width:none}.gpi-mode-switch::-webkit-scrollbar,.gpi-filters::-webkit-scrollbar,.faithbid-admin-v853bl .admin-nav-section::-webkit-scrollbar{display:none}.gpi-mode-switch button{height:38px;padding:0 11px;border:1px solid transparent;border-radius:10px;background:transparent;color:#6d7669;display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;cursor:pointer}.gpi-mode-switch button em{min-width:20px;padding:2px 6px;border-radius:999px;background:rgba(28,40,20,.07);font-family:'DM Mono',monospace;font-size:8.5px;font-style:normal;text-align:center}.gpi-mode-switch button.active{border-color:rgba(155,116,50,.17);background:var(--gpi-paper);color:#735422;box-shadow:0 5px 13px rgba(28,40,20,.06)}.gpi-filters{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0}.gpi-filters select,.gpi-search{height:36px;border:1px solid rgba(28,40,20,.14);border-radius:9px;background:var(--gpi-paper);color:#45513f;font-size:10.5px}.gpi-filters select{padding:0 27px 0 10px}.gpi-search{width:220px;display:flex;align-items:center;gap:6px;padding:0 9px;color:#90968c}.gpi-search input{width:100%;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:var(--gpi-ink)!important;font-size:10.5px}.gpi-clear{border:0;background:transparent;color:#8c672c;font-size:10px;font-weight:800;cursor:pointer}
-.gpi-founder-context{margin-top:12px;padding:14px 16px;border:1px solid rgba(155,116,50,.18);border-radius:15px;background:linear-gradient(135deg,#fffaf0,#f6efe2);display:flex;align-items:center;justify-content:space-between;gap:14px;box-shadow:0 10px 24px rgba(28,40,20,.045)}.gpi-founder-context span{display:block;color:#8a682f;font-size:8.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.gpi-founder-origin{display:inline-flex;align-items:center;margin:6px 0 2px;padding:4px 7px;border-radius:999px;background:rgba(155,116,50,.08);border:1px solid rgba(155,116,50,.16);color:#8a682f;font-size:8.5px;font-weight:800}.gpi-founder-context strong{display:block;margin-top:3px;color:#26331f;font-family:'Playfair Display',Georgia,serif;font-size:17px}.gpi-founder-context p{margin:5px 0 0;color:#687264;font-size:10.5px;line-height:1.55}.gpi-founder-context-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.gpi-founder-context-meta em{font-style:normal;padding:4px 7px;border-radius:999px;background:rgba(36,123,66,.07);color:#247b42;font-size:8.5px;font-weight:800}.gpi-founder-context-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.gpi-founder-context button{border:1px solid rgba(155,116,50,.22);border-radius:10px;background:#fffdf8;color:#735422;padding:8px 11px;font-size:9.5px;font-weight:800;cursor:pointer;white-space:nowrap}.gpi-record-row.founder-focused{background:#fff6df;box-shadow:inset 3px 0 0 #9b7432}.gpi-workspace{display:grid;grid-template-columns:minmax(0,1fr) 318px;gap:12px;align-items:start;padding-top:12px}.gpi-list-panel,.gpi-detail{border:1px solid var(--gpi-line);border-radius:16px;background:var(--gpi-paper);box-shadow:0 11px 27px rgba(28,40,20,.04);overflow:hidden}.gpi-list-heading{min-height:59px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--gpi-line);background:linear-gradient(180deg,#fffdf8,#fcf8ef)}.gpi-list-heading>div:first-child{display:flex;flex-direction:column;gap:3px}.gpi-list-heading>div:first-child span{color:#777f73;font-size:8.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase}.gpi-list-heading>div:first-child strong{font-size:12px}.gpi-severity-summary{display:flex;align-items:center;gap:11px}.gpi-severity-summary span{display:flex;align-items:center;gap:5px;color:#7c8478;font-size:9.5px}.gpi-severity-summary i{width:6px;height:6px;border-radius:50%}.gpi-severity-summary .critical{background:#bb3f39}.gpi-severity-summary .high{background:#c47a17}.gpi-severity-summary .medium{background:#6f84a3}
-.gpi-queue-row,.gpi-record-row{width:100%;display:grid;grid-template-columns:auto minmax(210px,1fr) minmax(170px,.56fr) 18px;align-items:center;gap:13px;padding:14px 16px;border:0;border-bottom:1px solid rgba(28,40,20,.075);background:var(--gpi-paper);color:inherit;text-align:left;cursor:pointer}.gpi-queue-row:hover,.gpi-record-row:hover{background:#faf4e8}.gpi-queue-row:last-child,.gpi-record-row:last-child{border-bottom:0}.gpi-priority{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:800}.gpi-priority.critical{background:rgba(189,64,58,.09);color:#b23d38}.gpi-priority.high{background:rgba(188,122,24,.10);color:#9f650f}.gpi-priority.medium{background:rgba(75,103,140,.09);color:#506d93}.gpi-row-copy{min-width:0}.gpi-row-copy>span{display:flex;align-items:center;gap:8px;min-width:0}.gpi-row-copy b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px;color:#26331f}.gpi-row-copy>small{display:block;margin-top:3px;color:#7e867a;font-size:9.5px}.gpi-row-copy p{margin:5px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#697365;font-size:10.5px}.gpi-row-copy>em{display:inline-block;margin-top:6px;color:#8a682f;font-size:9px;font-style:normal;font-weight:800}.gpi-row-next{display:flex;flex-direction:column;gap:4px}.gpi-row-next small{color:#92978f;font-size:8.5px;text-transform:uppercase;letter-spacing:.6px}.gpi-row-next strong{color:#556150;font-size:10px;line-height:1.45}.gpi-queue-row>svg,.gpi-record-row>svg{color:#9ba096}.gpi-pill{display:inline-flex;align-items:center;padding:3px 7px;border:1px solid rgba(28,40,20,.1);border-radius:999px;background:#f1eee7;color:#71796d;font-size:8px;font-weight:800;white-space:nowrap}.gpi-pill.good{background:rgba(36,123,66,.07);border-color:rgba(36,123,66,.16);color:#247b42}.gpi-pill.warn{background:rgba(169,109,18,.08);border-color:rgba(169,109,18,.18);color:#946013}.gpi-pill.bad{background:rgba(189,64,58,.07);border-color:rgba(189,64,58,.17);color:#ac3d38}
-.gpi-record-mark{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center}.gpi-record-mark.opportunity{background:#edf3e9;color:#496d3e}.gpi-record-mark.organization{background:#f4ebdb;color:#84612b}.gpi-record-mark.access{background:#edf1e9;color:#536d46}.gpi-record-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.gpi-record-stats>span{padding-left:10px;border-left:1px solid var(--gpi-line)}.gpi-record-stats strong,.gpi-record-stats small{display:block}.gpi-record-stats strong{color:#35422f;font-family:'DM Mono',monospace;font-size:11px}.gpi-record-stats small{margin-top:2px;color:#8a9086;font-size:8.5px}
-.gpi-detail{position:sticky;top:16px;min-height:360px}.gpi-detail-top{min-height:49px;padding:0 14px 0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gpi-line);background:#faf5eb}.gpi-detail-top span,.gpi-detail-section-title{color:#777f73;font-size:8.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase}.gpi-detail-top button{width:28px;height:28px;border:1px solid var(--gpi-line);border-radius:8px;background:var(--gpi-paper);color:#6f786b;font-size:18px;line-height:1;cursor:pointer}.gpi-detail-heading{display:flex;align-items:flex-start;gap:11px;padding:17px 16px 14px}.gpi-detail-heading h3{margin:0 0 6px;font-family:'Playfair Display',Georgia,serif;font-size:18px;line-height:1.2}.gpi-detail-description{margin:0;padding:0 16px 15px;color:#687264;font-size:10.5px;line-height:1.65}.gpi-detail-facts{padding:0 16px}.gpi-detail-facts>div{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-top:1px solid rgba(28,40,20,.075)}.gpi-detail-facts span{color:#858c81;font-size:9.5px}.gpi-detail-facts strong{color:#465240;font-size:9.5px;text-align:right}.gpi-detail-section-title{margin:16px 16px 9px}.gpi-tag-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:0 16px}.gpi-tag-wrap span{padding:4px 7px;border-radius:7px;background:#f4eee3;color:#735a31;font-size:8.5px;font-weight:700}.gpi-tag-wrap small,.gpi-detail-opportunities small{color:#8b9188;font-size:9.5px}.gpi-detail-footer{display:flex;gap:8px;padding:16px}.gpi-detail-footer span{padding:5px 8px;border:1px solid var(--gpi-line);border-radius:8px;color:#6f786b;font-size:9px}.gpi-detail-opportunities{padding-bottom:14px}.gpi-detail-opportunities>div:not(.gpi-detail-section-title){display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px;border-top:1px solid rgba(28,40,20,.075);font-size:9.5px}.gpi-detail-opportunities>small{display:block;padding:0 16px}.gpi-detail-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:38px;text-align:center;color:#7d8579}.gpi-detail-placeholder strong{margin:17px 0 6px;color:#3f4b39;font-family:'Playfair Display',Georgia,serif;font-size:16px}.gpi-detail-placeholder p{max-width:220px;margin:0;font-size:10.5px;line-height:1.6}.gpi-detail-orbit{position:relative;width:60px;height:60px;border:1px solid rgba(155,116,50,.17);border-radius:50%}.gpi-detail-orbit:before,.gpi-detail-orbit:after{content:'';position:absolute;inset:9px;border:1px solid rgba(36,123,66,.13);border-radius:50%}.gpi-detail-orbit:after{inset:22px;background:#a98648;border:0}.gpi-detail-orbit span{position:absolute;width:5px;height:5px;border-radius:50%;background:#5e8153}.gpi-detail-orbit span:nth-child(1){left:3px;top:27px}.gpi-detail-orbit span:nth-child(2){right:8px;top:10px}.gpi-detail-orbit span:nth-child(3){right:4px;bottom:13px}.gpi-detail-error{padding:22px 17px}.gpi-detail-error strong{color:#a43b36;font-size:12px}.gpi-detail-error p{color:#7b5b58;font-size:10px;line-height:1.6}
-.gpi-admin-review-mini{margin:12px 16px 0;padding:10px 11px;border:1px solid rgba(28,40,20,.08);border-radius:10px;background:#faf6ed}.gpi-admin-review-mini>span{display:block;margin-bottom:6px;color:#8a7350;font-size:8px;font-weight:800;letter-spacing:.75px;text-transform:uppercase}.gpi-admin-review-mini>div{padding:6px 0;border-top:1px solid rgba(28,40,20,.06)}.gpi-admin-review-mini strong,.gpi-admin-review-mini small{display:block}.gpi-admin-review-mini strong{font-size:9.5px;color:#3d4938}.gpi-admin-review-mini small,.gpi-admin-review-mini p{margin:2px 0 0;color:#7b8377;font-size:8.5px;line-height:1.5}.gpi-admin-logistics-review{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 16px 0}.gpi-admin-logistics-review>div{padding:10px;border:1px solid rgba(28,40,20,.08);border-radius:10px;background:#faf6ed;min-width:0}.gpi-admin-logistics-review span,.gpi-admin-logistics-review strong,.gpi-admin-logistics-review small{display:block}.gpi-admin-logistics-review span{color:#8a7350;font-size:8px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}.gpi-admin-logistics-review strong{margin-top:5px;color:#465240;font-size:9px;overflow-wrap:anywhere}.gpi-admin-logistics-review small{margin-top:3px;color:#858c81;font-size:8px;overflow-wrap:anywhere}.gpi-admin-occurrence-review{margin-top:12px}.gpi-admin-occurrence-review>div:not(.gpi-detail-section-title){display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 16px;border-top:1px solid rgba(28,40,20,.07)}.gpi-admin-occurrence-review strong,.gpi-admin-occurrence-review small{display:block}.gpi-admin-occurrence-review strong{font-size:9px}.gpi-admin-occurrence-review small{margin-top:2px;color:#858c81;font-size:8px}.gpi-admin-review-panel{margin:4px 12px 14px;padding:13px;border:1px solid rgba(155,116,50,.17);border-radius:13px;background:linear-gradient(180deg,#fffaf0,#f8f1e5)}.gpi-admin-review-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}.gpi-admin-review-panel-head>div span,.gpi-admin-review-panel-head>div strong{display:block}.gpi-admin-review-panel-head>div span{color:#8d6a33;font-size:8px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}.gpi-admin-review-panel-head>div strong{margin-top:4px;font-family:'Playfair Display',Georgia,serif;font-size:15px;color:#283523}.gpi-admin-review-checks{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:11px}.gpi-admin-review-checks>div{display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:8px;background:#fffdf8;color:#777f73;font-size:8px}.gpi-admin-review-checks i{width:16px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#ece6da;font-style:normal}.gpi-admin-review-checks .pass{color:#367245}.gpi-admin-review-checks .pass i{background:#e5f3e6;color:#2f7a41}.gpi-admin-review-boundary{display:flex;flex-direction:column;gap:3px;margin-top:11px;padding:9px 10px;border-left:3px solid #9b7432;border-radius:0 9px 9px 0;background:#f5eddd}.gpi-admin-review-boundary strong{color:#6f572d;font-size:9px}.gpi-admin-review-boundary span{color:#756b59;font-size:8.5px;line-height:1.45}.gpi-admin-review-boundary.live{border-left-color:#3c9157;background:#eff7ef}.gpi-admin-review-action-block{margin-top:11px;padding:10px;border:1px solid rgba(155,116,50,.14);border-radius:10px;background:#fffdf8}.gpi-admin-review-action-block.ready{border-color:rgba(36,123,66,.17);background:#f6fbf5}.gpi-admin-review-action-block>div strong,.gpi-admin-review-action-block>div span{display:block}.gpi-admin-review-action-block>div strong{font-size:9.5px;color:#35422f}.gpi-admin-review-action-block>div span{margin-top:3px;color:#7b8377;font-size:8.5px;line-height:1.45}.gpi-admin-review-action-block ul{margin:8px 0 0;padding-left:16px;color:#8a6228;font-size:8.2px;line-height:1.45}.gpi-admin-review-action-block button{width:100%;min-height:35px;margin-top:9px;border-radius:9px;font-size:9px;font-weight:800;cursor:pointer}.gpi-admin-review-action-block button.review{border:1px solid rgba(155,116,50,.25);background:#f8efe0;color:#795b2b}.gpi-admin-review-action-block button.publish{border:1px solid #243a23;background:#243a23;color:#fffaf0}.gpi-admin-review-action-block button:disabled{opacity:.45;cursor:not-allowed}.gpi-admin-change-request{margin-top:11px;padding-top:10px;border-top:1px solid rgba(28,40,20,.08)}.gpi-admin-change-request label>span{display:block;margin-bottom:5px;color:#8c5e50;font-size:8px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}.gpi-admin-change-request textarea{width:100%;min-height:76px;padding:8px;border:1px solid rgba(28,40,20,.13);border-radius:9px;background:#fffdf8;color:#35422f;font-size:9px;line-height:1.5;resize:vertical}.gpi-admin-change-request label>small{display:block;margin-top:3px;text-align:right;color:#969b93;font-size:7.5px}.gpi-admin-change-request>button{width:100%;min-height:34px;margin-top:7px;border:1px solid rgba(189,64,58,.20);border-radius:9px;background:#fff5f2;color:#a03e39;font-size:8.8px;font-weight:800;cursor:pointer}.gpi-admin-change-request>button:disabled{opacity:.45;cursor:not-allowed}..gpi-access-summary{display:flex;align-items:center;gap:8px}.gpi-access-summary span{display:flex;align-items:center;gap:6px;color:#7c8478;font-size:9.5px}.gpi-access-summary i{width:7px;height:7px;border-radius:50%}.gpi-access-summary i.waiting{background:#bc7a18;box-shadow:0 0 0 4px rgba(188,122,24,.08)}.gpi-access-summary i.clear{background:#3c9157;box-shadow:0 0 0 4px rgba(60,145,87,.08)}.gpi-access-row .gpi-row-copy p{max-width:680px}.gpi-access-requester{margin:0 16px 13px;padding:11px 12px;border:1px solid rgba(28,40,20,.08);border-radius:11px;background:#faf6ed}.gpi-access-requester span,.gpi-access-requester small{display:block;color:#858c81;font-size:8.5px}.gpi-access-requester strong{display:block;margin:3px 0;color:#35422f;font-size:10.5px;overflow-wrap:anywhere}.gpi-access-evidence{margin:0 16px;padding:12px;border:1px solid rgba(155,116,50,.13);border-radius:11px;background:#fffaf0}.gpi-access-evidence>div{display:flex;flex-direction:column;gap:3px}.gpi-access-evidence span{color:#8a7350;font-size:8.5px;text-transform:uppercase;letter-spacing:.65px;font-weight:800}.gpi-access-evidence strong{color:#4c573f;font-size:10px;overflow-wrap:anywhere}.gpi-access-evidence p{margin:10px 0 0;color:#697365;font-size:10px;line-height:1.58;white-space:pre-wrap}.gpi-access-boundary{margin:12px 16px 0;padding:10px 11px;border-left:3px solid #9b7432;border-radius:0 9px 9px 0;background:#f8f2e7;color:#695a43;font-size:9.5px;line-height:1.55}.gpi-access-review-form{padding:14px 16px 17px}.gpi-access-blocker{display:flex;flex-direction:column;gap:3px;margin-bottom:11px;padding:10px 11px;border:1px solid rgba(169,109,18,.20);border-radius:10px;background:rgba(169,109,18,.06)}.gpi-access-blocker strong{color:#8f6118;font-size:9.5px}.gpi-access-blocker span{color:#7c6949;font-size:9px;line-height:1.45}.gpi-access-review-form label{display:block;margin-top:10px}.gpi-access-review-form label>span{display:block;margin-bottom:5px;color:#777f73;font-size:8.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}.gpi-access-review-form select,.gpi-access-review-form textarea{width:100%;border:1px solid rgba(28,40,20,.14);border-radius:9px;background:#fffdf8;color:#35422f;font-size:10px}.gpi-access-review-form select{height:36px;padding:0 9px}.gpi-access-review-form textarea{min-height:88px;padding:9px;resize:vertical;line-height:1.5}.gpi-access-review-form label>small{display:block;margin-top:4px;text-align:right;color:#959a92;font-size:8px}.gpi-access-review-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:11px}.gpi-access-review-actions button{min-height:38px;border-radius:10px;font-size:9.5px;font-weight:800;cursor:pointer}.gpi-access-review-actions button.approve{border:1px solid rgba(36,123,66,.22);background:rgba(36,123,66,.08);color:#247b42}.gpi-access-review-actions button.reject{border:1px solid rgba(189,64,58,.20);background:rgba(189,64,58,.06);color:#aa3d38}.gpi-access-review-actions button:disabled{opacity:.45;cursor:not-allowed}.gpi-access-resolved{margin:14px 16px 17px;padding:11px 12px;border:1px solid rgba(28,40,20,.09);border-radius:10px;background:#f8f4eb}.gpi-access-resolved span{color:#777f73;font-size:8.5px;text-transform:uppercase;letter-spacing:.65px;font-weight:800}.gpi-access-resolved p{margin:6px 0 0;color:#5f695a;font-size:9.5px;line-height:1.55;white-space:pre-wrap}
+.gpi-admin{--gpi-ink:#182313;--gpi-muted:#6f786b;--gpi-line:rgba(28,40,20,.105);--gpi-paper:#fffdf8;--gpi-soft:#f7f1e6;--gpi-gold:#9b7432;--gpi-green:#247b42;color:var(--gpi-ink);font-family:var(--font-sans),sans-serif;max-width:1500px;margin:0 auto;}
+.gpi-admin *{box-sizing:border-box}.gpi-admin button,.gpi-admin input,.gpi-admin select{font:inherit}.gpi-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:4px 1px 23px;border-bottom:1px solid var(--gpi-line)}.gpi-eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--gpi-gold);font-size:9px;font-weight:800;letter-spacing:1.45px;text-transform:uppercase}.gpi-eyebrow span{width:18px;height:1px;background:var(--gpi-gold)}.gpi-hero h1{margin:0 0 8px;font-family:var(--font-display),serif;font-size:38px;line-height:1.02;color:var(--gpi-ink)}.gpi-hero p{max-width:700px;margin:0;color:var(--gpi-muted);font-size:12.5px;line-height:1.65}.gpi-hero-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}.gpi-contract,.gpi-refresh{min-height:38px;border:1px solid var(--gpi-line);border-radius:11px;background:var(--gpi-paper);color:#475341;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:10.5px;font-weight:800;cursor:pointer;box-shadow:0 7px 16px rgba(28,40,20,.045)}.gpi-contract{padding:0 13px}.gpi-refresh{width:38px}.gpi-contract:hover,.gpi-refresh:hover{border-color:rgba(155,116,50,.3);color:#765522;background:#fbf4e7}.gpi-contract.passed{color:var(--gpi-green);border-color:rgba(36,123,66,.22);background:rgba(36,123,66,.06)}.gpi-contract.failed{color:#b73f39;border-color:rgba(189,64,58,.22);background:rgba(189,64,58,.06)}
+.gpi-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:17px 0}.gpi-metric{position:relative;overflow:hidden;min-height:105px;padding:15px 17px;border:1px solid var(--gpi-line);border-radius:15px;background:var(--gpi-paper);box-shadow:0 8px 20px rgba(28,40,20,.035)}.gpi-metric:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#26341f}.gpi-metric.green:before{background:#3c9157}.gpi-metric.amber:before{background:#bc7a18}.gpi-metric.gold:before{background:#b28c49}.gpi-metric>span{display:block;color:#7b8376;font-size:8.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase}.gpi-metric strong{display:block;margin:7px 0 5px;font-family:var(--font-sans),monospace;font-size:25px;line-height:1;color:var(--gpi-ink)}.gpi-metric small{color:#858c81;font-size:10.5px}
+.gpi-toolbar{min-height:59px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 10px;border:1px solid var(--gpi-line);border-radius:15px 15px 0 0;background:#f9f4ea}.gpi-mode-switch{display:flex;align-items:center;gap:4px}.gpi-mode-switch,.gpi-filters,.faithbid-admin-v853bl .admin-nav-section{scrollbar-width:none}.gpi-mode-switch::-webkit-scrollbar,.gpi-filters::-webkit-scrollbar,.faithbid-admin-v853bl .admin-nav-section::-webkit-scrollbar{display:none}.gpi-mode-switch button{height:38px;padding:0 11px;border:1px solid transparent;border-radius:10px;background:transparent;color:#6d7669;display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;cursor:pointer}.gpi-mode-switch button em{min-width:20px;padding:2px 6px;border-radius:999px;background:rgba(28,40,20,.07);font-family:var(--font-sans),monospace;font-size:8.5px;font-style:normal;text-align:center}.gpi-mode-switch button.active{border-color:rgba(155,116,50,.17);background:var(--gpi-paper);color:#735422;box-shadow:0 5px 13px rgba(28,40,20,.06)}.gpi-filters{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0}.gpi-filters select,.gpi-search{height:36px;border:1px solid rgba(28,40,20,.14);border-radius:9px;background:var(--gpi-paper);color:#45513f;font-size:10.5px}.gpi-filters select{padding:0 27px 0 10px}.gpi-search{width:220px;display:flex;align-items:center;gap:6px;padding:0 9px;color:#90968c}.gpi-search input{width:100%;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:var(--gpi-ink)!important;font-size:10.5px}.gpi-clear{border:0;background:transparent;color:#8c672c;font-size:10px;font-weight:800;cursor:pointer}
+.gpi-founder-context{margin-top:12px;padding:14px 16px;border:1px solid rgba(155,116,50,.18);border-radius:15px;background:linear-gradient(135deg,#fffaf0,#f6efe2);display:flex;align-items:center;justify-content:space-between;gap:14px;box-shadow:0 10px 24px rgba(28,40,20,.045)}.gpi-founder-context span{display:block;color:#8a682f;font-size:8.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.gpi-founder-origin{display:inline-flex;align-items:center;margin:6px 0 2px;padding:4px 7px;border-radius:999px;background:rgba(155,116,50,.08);border:1px solid rgba(155,116,50,.16);color:#8a682f;font-size:8.5px;font-weight:800}.gpi-founder-context strong{display:block;margin-top:3px;color:#26331f;font-family:var(--font-display),serif;font-size:17px}.gpi-founder-context p{margin:5px 0 0;color:#687264;font-size:10.5px;line-height:1.55}.gpi-founder-context-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.gpi-founder-context-meta em{font-style:normal;padding:4px 7px;border-radius:999px;background:rgba(36,123,66,.07);color:#247b42;font-size:8.5px;font-weight:800}.gpi-founder-context-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.gpi-founder-context button{border:1px solid rgba(155,116,50,.22);border-radius:10px;background:#fffdf8;color:#735422;padding:8px 11px;font-size:9.5px;font-weight:800;cursor:pointer;white-space:nowrap}.gpi-record-row.founder-focused{background:#fff6df;box-shadow:inset 3px 0 0 #9b7432}.gpi-workspace{display:grid;grid-template-columns:minmax(0,1fr) 318px;gap:12px;align-items:start;padding-top:12px}.gpi-list-panel,.gpi-detail{border:1px solid var(--gpi-line);border-radius:16px;background:var(--gpi-paper);box-shadow:0 11px 27px rgba(28,40,20,.04);overflow:hidden}.gpi-list-heading{min-height:59px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--gpi-line);background:linear-gradient(180deg,#fffdf8,#fcf8ef)}.gpi-list-heading>div:first-child{display:flex;flex-direction:column;gap:3px}.gpi-list-heading>div:first-child span{color:#777f73;font-size:8.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase}.gpi-list-heading>div:first-child strong{font-size:12px}.gpi-severity-summary{display:flex;align-items:center;gap:11px}.gpi-severity-summary span{display:flex;align-items:center;gap:5px;color:#7c8478;font-size:9.5px}.gpi-severity-summary i{width:6px;height:6px;border-radius:50%}.gpi-severity-summary .critical{background:#bb3f39}.gpi-severity-summary .high{background:#c47a17}.gpi-severity-summary .medium{background:#6f84a3}
+.gpi-queue-row,.gpi-record-row{width:100%;display:grid;grid-template-columns:auto minmax(210px,1fr) minmax(170px,.56fr) 18px;align-items:center;gap:13px;padding:14px 16px;border:0;border-bottom:1px solid rgba(28,40,20,.075);background:var(--gpi-paper);color:inherit;text-align:left;cursor:pointer}.gpi-queue-row:hover,.gpi-record-row:hover{background:#faf4e8}.gpi-queue-row:last-child,.gpi-record-row:last-child{border-bottom:0}.gpi-priority{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-sans),monospace;font-size:10px;font-weight:800}.gpi-priority.critical{background:rgba(189,64,58,.09);color:#b23d38}.gpi-priority.high{background:rgba(188,122,24,.10);color:#9f650f}.gpi-priority.medium{background:rgba(75,103,140,.09);color:#506d93}.gpi-row-copy{min-width:0}.gpi-row-copy>span{display:flex;align-items:center;gap:8px;min-width:0}.gpi-row-copy b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px;color:#26331f}.gpi-row-copy>small{display:block;margin-top:3px;color:#7e867a;font-size:9.5px}.gpi-row-copy p{margin:5px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#697365;font-size:10.5px}.gpi-row-copy>em{display:inline-block;margin-top:6px;color:#8a682f;font-size:9px;font-style:normal;font-weight:800}.gpi-row-next{display:flex;flex-direction:column;gap:4px}.gpi-row-next small{color:#92978f;font-size:8.5px;text-transform:uppercase;letter-spacing:.6px}.gpi-row-next strong{color:#556150;font-size:10px;line-height:1.45}.gpi-queue-row>svg,.gpi-record-row>svg{color:#9ba096}.gpi-pill{display:inline-flex;align-items:center;padding:3px 7px;border:1px solid rgba(28,40,20,.1);border-radius:999px;background:#f1eee7;color:#71796d;font-size:8px;font-weight:800;white-space:nowrap}.gpi-pill.good{background:rgba(36,123,66,.07);border-color:rgba(36,123,66,.16);color:#247b42}.gpi-pill.warn{background:rgba(169,109,18,.08);border-color:rgba(169,109,18,.18);color:#946013}.gpi-pill.bad{background:rgba(189,64,58,.07);border-color:rgba(189,64,58,.17);color:#ac3d38}
+.gpi-record-mark{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center}.gpi-record-mark.opportunity{background:#edf3e9;color:#496d3e}.gpi-record-mark.organization{background:#f4ebdb;color:#84612b}.gpi-record-mark.access{background:#edf1e9;color:#536d46}.gpi-record-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.gpi-record-stats>span{padding-left:10px;border-left:1px solid var(--gpi-line)}.gpi-record-stats strong,.gpi-record-stats small{display:block}.gpi-record-stats strong{color:#35422f;font-family:var(--font-sans),monospace;font-size:11px}.gpi-record-stats small{margin-top:2px;color:#8a9086;font-size:8.5px}
+.gpi-detail{position:sticky;top:16px;min-height:360px}.gpi-detail-top{min-height:49px;padding:0 14px 0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gpi-line);background:#faf5eb}.gpi-detail-top span,.gpi-detail-section-title{color:#777f73;font-size:8.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase}.gpi-detail-top button{width:28px;height:28px;border:1px solid var(--gpi-line);border-radius:8px;background:var(--gpi-paper);color:#6f786b;font-size:18px;line-height:1;cursor:pointer}.gpi-detail-heading{display:flex;align-items:flex-start;gap:11px;padding:17px 16px 14px}.gpi-detail-heading h3{margin:0 0 6px;font-family:var(--font-display),serif;font-size:18px;line-height:1.2}.gpi-detail-description{margin:0;padding:0 16px 15px;color:#687264;font-size:10.5px;line-height:1.65}.gpi-detail-facts{padding:0 16px}.gpi-detail-facts>div{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-top:1px solid rgba(28,40,20,.075)}.gpi-detail-facts span{color:#858c81;font-size:9.5px}.gpi-detail-facts strong{color:#465240;font-size:9.5px;text-align:right}.gpi-detail-section-title{margin:16px 16px 9px}.gpi-tag-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:0 16px}.gpi-tag-wrap span{padding:4px 7px;border-radius:7px;background:#f4eee3;color:#735a31;font-size:8.5px;font-weight:700}.gpi-tag-wrap small,.gpi-detail-opportunities small{color:#8b9188;font-size:9.5px}.gpi-detail-footer{display:flex;gap:8px;padding:16px}.gpi-detail-footer span{padding:5px 8px;border:1px solid var(--gpi-line);border-radius:8px;color:#6f786b;font-size:9px}.gpi-detail-opportunities{padding-bottom:14px}.gpi-detail-opportunities>div:not(.gpi-detail-section-title){display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px;border-top:1px solid rgba(28,40,20,.075);font-size:9.5px}.gpi-detail-opportunities>small{display:block;padding:0 16px}.gpi-detail-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:38px;text-align:center;color:#7d8579}.gpi-detail-placeholder strong{margin:17px 0 6px;color:#3f4b39;font-family:var(--font-display),serif;font-size:16px}.gpi-detail-placeholder p{max-width:220px;margin:0;font-size:10.5px;line-height:1.6}.gpi-detail-orbit{position:relative;width:60px;height:60px;border:1px solid rgba(155,116,50,.17);border-radius:50%}.gpi-detail-orbit:before,.gpi-detail-orbit:after{content:'';position:absolute;inset:9px;border:1px solid rgba(36,123,66,.13);border-radius:50%}.gpi-detail-orbit:after{inset:22px;background:#a98648;border:0}.gpi-detail-orbit span{position:absolute;width:5px;height:5px;border-radius:50%;background:#5e8153}.gpi-detail-orbit span:nth-child(1){left:3px;top:27px}.gpi-detail-orbit span:nth-child(2){right:8px;top:10px}.gpi-detail-orbit span:nth-child(3){right:4px;bottom:13px}.gpi-detail-error{padding:22px 17px}.gpi-detail-error strong{color:#a43b36;font-size:12px}.gpi-detail-error p{color:#7b5b58;font-size:10px;line-height:1.6}
+.gpi-admin-review-mini{margin:12px 16px 0;padding:10px 11px;border:1px solid rgba(28,40,20,.08);border-radius:10px;background:#faf6ed}.gpi-admin-review-mini>span{display:block;margin-bottom:6px;color:#8a7350;font-size:8px;font-weight:800;letter-spacing:.75px;text-transform:uppercase}.gpi-admin-review-mini>div{padding:6px 0;border-top:1px solid rgba(28,40,20,.06)}.gpi-admin-review-mini strong,.gpi-admin-review-mini small{display:block}.gpi-admin-review-mini strong{font-size:9.5px;color:#3d4938}.gpi-admin-review-mini small,.gpi-admin-review-mini p{margin:2px 0 0;color:#7b8377;font-size:8.5px;line-height:1.5}.gpi-admin-logistics-review{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 16px 0}.gpi-admin-logistics-review>div{padding:10px;border:1px solid rgba(28,40,20,.08);border-radius:10px;background:#faf6ed;min-width:0}.gpi-admin-logistics-review span,.gpi-admin-logistics-review strong,.gpi-admin-logistics-review small{display:block}.gpi-admin-logistics-review span{color:#8a7350;font-size:8px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}.gpi-admin-logistics-review strong{margin-top:5px;color:#465240;font-size:9px;overflow-wrap:anywhere}.gpi-admin-logistics-review small{margin-top:3px;color:#858c81;font-size:8px;overflow-wrap:anywhere}.gpi-admin-occurrence-review{margin-top:12px}.gpi-admin-occurrence-review>div:not(.gpi-detail-section-title){display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 16px;border-top:1px solid rgba(28,40,20,.07)}.gpi-admin-occurrence-review strong,.gpi-admin-occurrence-review small{display:block}.gpi-admin-occurrence-review strong{font-size:9px}.gpi-admin-occurrence-review small{margin-top:2px;color:#858c81;font-size:8px}.gpi-admin-review-panel{margin:4px 12px 14px;padding:13px;border:1px solid rgba(155,116,50,.17);border-radius:13px;background:linear-gradient(180deg,#fffaf0,#f8f1e5)}.gpi-admin-review-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}.gpi-admin-review-panel-head>div span,.gpi-admin-review-panel-head>div strong{display:block}.gpi-admin-review-panel-head>div span{color:#8d6a33;font-size:8px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}.gpi-admin-review-panel-head>div strong{margin-top:4px;font-family:var(--font-display),serif;font-size:15px;color:#283523}.gpi-admin-review-checks{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:11px}.gpi-admin-review-checks>div{display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:8px;background:#fffdf8;color:#777f73;font-size:8px}.gpi-admin-review-checks i{width:16px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#ece6da;font-style:normal}.gpi-admin-review-checks .pass{color:#367245}.gpi-admin-review-checks .pass i{background:#e5f3e6;color:#2f7a41}.gpi-admin-review-boundary{display:flex;flex-direction:column;gap:3px;margin-top:11px;padding:9px 10px;border-left:3px solid #9b7432;border-radius:0 9px 9px 0;background:#f5eddd}.gpi-admin-review-boundary strong{color:#6f572d;font-size:9px}.gpi-admin-review-boundary span{color:#756b59;font-size:8.5px;line-height:1.45}.gpi-admin-review-boundary.live{border-left-color:#3c9157;background:#eff7ef}.gpi-admin-review-action-block{margin-top:11px;padding:10px;border:1px solid rgba(155,116,50,.14);border-radius:10px;background:#fffdf8}.gpi-admin-review-action-block.ready{border-color:rgba(36,123,66,.17);background:#f6fbf5}.gpi-admin-review-action-block>div strong,.gpi-admin-review-action-block>div span{display:block}.gpi-admin-review-action-block>div strong{font-size:9.5px;color:#35422f}.gpi-admin-review-action-block>div span{margin-top:3px;color:#7b8377;font-size:8.5px;line-height:1.45}.gpi-admin-review-action-block ul{margin:8px 0 0;padding-left:16px;color:#8a6228;font-size:8.2px;line-height:1.45}.gpi-admin-review-action-block button{width:100%;min-height:35px;margin-top:9px;border-radius:9px;font-size:9px;font-weight:800;cursor:pointer}.gpi-admin-review-action-block button.review{border:1px solid rgba(155,116,50,.25);background:#f8efe0;color:#795b2b}.gpi-admin-review-action-block button.publish{border:1px solid #243a23;background:#243a23;color:#fffaf0}.gpi-admin-review-action-block button:disabled{opacity:.45;cursor:not-allowed}.gpi-admin-change-request{margin-top:11px;padding-top:10px;border-top:1px solid rgba(28,40,20,.08)}.gpi-admin-change-request label>span{display:block;margin-bottom:5px;color:#8c5e50;font-size:8px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}.gpi-admin-change-request textarea{width:100%;min-height:76px;padding:8px;border:1px solid rgba(28,40,20,.13);border-radius:9px;background:#fffdf8;color:#35422f;font-size:9px;line-height:1.5;resize:vertical}.gpi-admin-change-request label>small{display:block;margin-top:3px;text-align:right;color:#969b93;font-size:7.5px}.gpi-admin-change-request>button{width:100%;min-height:34px;margin-top:7px;border:1px solid rgba(189,64,58,.20);border-radius:9px;background:#fff5f2;color:#a03e39;font-size:8.8px;font-weight:800;cursor:pointer}.gpi-admin-change-request>button:disabled{opacity:.45;cursor:not-allowed}..gpi-access-summary{display:flex;align-items:center;gap:8px}.gpi-access-summary span{display:flex;align-items:center;gap:6px;color:#7c8478;font-size:9.5px}.gpi-access-summary i{width:7px;height:7px;border-radius:50%}.gpi-access-summary i.waiting{background:#bc7a18;box-shadow:0 0 0 4px rgba(188,122,24,.08)}.gpi-access-summary i.clear{background:#3c9157;box-shadow:0 0 0 4px rgba(60,145,87,.08)}.gpi-access-row .gpi-row-copy p{max-width:680px}.gpi-access-requester{margin:0 16px 13px;padding:11px 12px;border:1px solid rgba(28,40,20,.08);border-radius:11px;background:#faf6ed}.gpi-access-requester span,.gpi-access-requester small{display:block;color:#858c81;font-size:8.5px}.gpi-access-requester strong{display:block;margin:3px 0;color:#35422f;font-size:10.5px;overflow-wrap:anywhere}.gpi-access-evidence{margin:0 16px;padding:12px;border:1px solid rgba(155,116,50,.13);border-radius:11px;background:#fffaf0}.gpi-access-evidence>div{display:flex;flex-direction:column;gap:3px}.gpi-access-evidence span{color:#8a7350;font-size:8.5px;text-transform:uppercase;letter-spacing:.65px;font-weight:800}.gpi-access-evidence strong{color:#4c573f;font-size:10px;overflow-wrap:anywhere}.gpi-access-evidence p{margin:10px 0 0;color:#697365;font-size:10px;line-height:1.58;white-space:pre-wrap}.gpi-access-boundary{margin:12px 16px 0;padding:10px 11px;border-left:3px solid #9b7432;border-radius:0 9px 9px 0;background:#f8f2e7;color:#695a43;font-size:9.5px;line-height:1.55}.gpi-access-review-form{padding:14px 16px 17px}.gpi-access-blocker{display:flex;flex-direction:column;gap:3px;margin-bottom:11px;padding:10px 11px;border:1px solid rgba(169,109,18,.20);border-radius:10px;background:rgba(169,109,18,.06)}.gpi-access-blocker strong{color:#8f6118;font-size:9.5px}.gpi-access-blocker span{color:#7c6949;font-size:9px;line-height:1.45}.gpi-access-review-form label{display:block;margin-top:10px}.gpi-access-review-form label>span{display:block;margin-bottom:5px;color:#777f73;font-size:8.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}.gpi-access-review-form select,.gpi-access-review-form textarea{width:100%;border:1px solid rgba(28,40,20,.14);border-radius:9px;background:#fffdf8;color:#35422f;font-size:10px}.gpi-access-review-form select{height:36px;padding:0 9px}.gpi-access-review-form textarea{min-height:88px;padding:9px;resize:vertical;line-height:1.5}.gpi-access-review-form label>small{display:block;margin-top:4px;text-align:right;color:#959a92;font-size:8px}.gpi-access-review-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:11px}.gpi-access-review-actions button{min-height:38px;border-radius:10px;font-size:9.5px;font-weight:800;cursor:pointer}.gpi-access-review-actions button.approve{border:1px solid rgba(36,123,66,.22);background:rgba(36,123,66,.08);color:#247b42}.gpi-access-review-actions button.reject{border:1px solid rgba(189,64,58,.20);background:rgba(189,64,58,.06);color:#aa3d38}.gpi-access-review-actions button:disabled{opacity:.45;cursor:not-allowed}.gpi-access-resolved{margin:14px 16px 17px;padding:11px 12px;border:1px solid rgba(28,40,20,.09);border-radius:10px;background:#f8f4eb}.gpi-access-resolved span{color:#777f73;font-size:8.5px;text-transform:uppercase;letter-spacing:.65px;font-weight:800}.gpi-access-resolved p{margin:6px 0 0;color:#5f695a;font-size:9.5px;line-height:1.55;white-space:pre-wrap}
 .gpi-org-trust-panel{margin:14px 16px 0;padding:13px;border:1px solid rgba(28,40,20,.09);border-radius:13px;background:linear-gradient(180deg,#fffdf8 0%,#faf5ea 100%)}.gpi-org-trust-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.gpi-org-trust-head>div>span,.gpi-org-contact-card>span,.gpi-org-safety-controls>div>span{display:block;color:#8a7350;font-size:8px;font-weight:800;letter-spacing:.72px;text-transform:uppercase}.gpi-org-trust-head>div>strong{display:block;margin-top:3px;color:#33402f;font-size:10.5px}.gpi-org-trust-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:10px}.gpi-org-trust-checks>div{display:flex;align-items:center;gap:5px;min-height:30px;padding:6px 7px;border:1px solid rgba(28,40,20,.07);border-radius:8px;background:#fff}.gpi-org-trust-checks i{width:15px;height:15px;display:grid;place-items:center;border-radius:50%;background:#eee7da;color:#8d8270;font-size:8px;font-style:normal}.gpi-org-trust-checks span{color:#70786c;font-size:8px;line-height:1.25}.gpi-org-trust-checks .pass i{background:#e5f3e6;color:#2f7a41}.gpi-org-trust-checks .pass span{color:#47724f}.gpi-org-contact-card{margin-top:9px;padding:9px 10px;border:1px solid rgba(155,116,50,.12);border-radius:9px;background:#fffaf0}.gpi-org-contact-card strong{display:block;margin-top:3px;color:#364330;font-size:10px;overflow-wrap:anywhere}.gpi-org-contact-card small{display:block;margin-top:3px;color:#7f8479;font-size:8.2px;line-height:1.45}.gpi-org-member-review,.gpi-org-claim-review{margin-top:9px!important}.gpi-org-claim-review p{margin:4px 0 0;color:#687264;font-size:8.5px;line-height:1.45;white-space:pre-wrap}.gpi-org-trust-missing{margin-top:9px;padding:8px 9px;border-left:3px solid #b37a20;border-radius:0 8px 8px 0;background:#fbf3e4}.gpi-org-trust-missing strong{color:#7f5a20;font-size:8.5px}.gpi-org-trust-missing ul{margin:5px 0 0;padding-left:15px;color:#806d4d;font-size:8.2px;line-height:1.45}.gpi-org-trust-action,.gpi-org-safety-controls{margin-top:10px;padding-top:10px;border-top:1px solid rgba(28,40,20,.08)}.gpi-org-trust-action label>span,.gpi-org-safety-controls label>span{display:block;margin-bottom:5px;color:#777f73;font-size:8px;font-weight:800;letter-spacing:.65px;text-transform:uppercase}.gpi-org-trust-action textarea,.gpi-org-safety-controls textarea{width:100%;min-height:70px;padding:8px;border:1px solid rgba(28,40,20,.13);border-radius:9px;background:#fffdf8;color:#35422f;font-size:9px;line-height:1.45;resize:vertical}.gpi-org-trust-action label>small,.gpi-org-safety-controls label>small{display:block;margin-top:3px;text-align:right;color:#969b93;font-size:7.5px}.gpi-org-trust-action>button{width:100%;min-height:34px;margin-top:7px;border:1px solid rgba(36,123,66,.20);border-radius:9px;background:#eef7ed;color:#2f7440;font-size:8.8px;font-weight:800;cursor:pointer}.gpi-org-trust-action>button:disabled,.gpi-org-safety-actions button:disabled{opacity:.45;cursor:not-allowed}.gpi-org-trust-action.verify-org{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}.gpi-org-trust-action.verify-org>div strong,.gpi-org-trust-action.verify-org>div span{display:block}.gpi-org-trust-action.verify-org>div strong{color:#33402f;font-size:9.5px}.gpi-org-trust-action.verify-org>div span{margin-top:3px;color:#7d8579;font-size:8.2px;line-height:1.4}.gpi-org-trust-action.verify-org>button{width:auto;min-width:112px;margin:0;padding:0 11px;background:#243a23;color:#fffaf0;border-color:#243a23}.gpi-org-safety-controls>div>strong{display:block;margin-top:3px;color:#4b5547;font-size:9px;line-height:1.4}.gpi-org-safety-controls label{display:block;margin-top:8px}.gpi-org-safety-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:7px}.gpi-org-safety-actions.two{grid-template-columns:1fr 1fr}.gpi-org-safety-actions button{min-height:32px;padding:0 6px;border-radius:8px;font-size:8px;font-weight:800;cursor:pointer}.gpi-org-safety-actions .suspend{border:1px solid rgba(181,122,24,.22);background:#fff8e8;color:#8d611b}.gpi-org-safety-actions .revoke,.gpi-org-safety-actions .close{border:1px solid rgba(189,64,58,.18);background:#fff5f2;color:#9d413c}.gpi-org-safety-actions .reinstate{border:1px solid rgba(36,123,66,.20);background:#eef7ed;color:#2f7440}.gpi-org-safety-controls.suspended>div{padding:8px 9px;border-radius:8px;background:#fff7e8}.gpi-org-safety-controls.suspended>div>span{color:#8d611b}.gpi-org-safety-controls.suspended>div>strong{color:#765d32}
-.gpi-empty{min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px;text-align:center}.gpi-empty-mark{width:52px;height:52px;border:1px solid rgba(36,123,66,.17);border-radius:50%;display:flex;align-items:center;justify-content:center}.gpi-empty-mark span{width:14px;height:14px;border-radius:50%;background:rgba(36,123,66,.13);box-shadow:0 0 0 7px rgba(36,123,66,.055)}.gpi-empty strong{margin:15px 0 6px;font-family:'Playfair Display',Georgia,serif;font-size:17px}.gpi-empty p{max-width:440px;margin:0;color:#7b8377;font-size:10.5px;line-height:1.65}.gpi-alert{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:12px;padding:12px 14px;border:1px solid rgba(189,64,58,.2);border-radius:12px;background:#fff7f4;color:#9e3a35}.gpi-alert div{display:flex;flex-direction:column;gap:3px}.gpi-alert strong{font-size:11px}.gpi-alert span{font-size:9.5px}.gpi-alert button{border:1px solid rgba(189,64,58,.2);border-radius:8px;background:#fff;color:#9e3a35;padding:6px 10px;font-size:9.5px;font-weight:800;cursor:pointer}
+.gpi-empty{min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px;text-align:center}.gpi-empty-mark{width:52px;height:52px;border:1px solid rgba(36,123,66,.17);border-radius:50%;display:flex;align-items:center;justify-content:center}.gpi-empty-mark span{width:14px;height:14px;border-radius:50%;background:rgba(36,123,66,.13);box-shadow:0 0 0 7px rgba(36,123,66,.055)}.gpi-empty strong{margin:15px 0 6px;font-family:var(--font-display),serif;font-size:17px}.gpi-empty p{max-width:440px;margin:0;color:#7b8377;font-size:10.5px;line-height:1.65}.gpi-alert{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:12px;padding:12px 14px;border:1px solid rgba(189,64,58,.2);border-radius:12px;background:#fff7f4;color:#9e3a35}.gpi-alert div{display:flex;flex-direction:column;gap:3px}.gpi-alert strong{font-size:11px}.gpi-alert span{font-size:9.5px}.gpi-alert button{border:1px solid rgba(189,64,58,.2);border-radius:8px;background:#fff;color:#9e3a35;padding:6px 10px;font-size:9.5px;font-weight:800;cursor:pointer}
 .gpi-loading-list{padding:0 16px}.gpi-loading-row{min-height:73px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(28,40,20,.07)}.gpi-loading-row>i{width:30px;height:30px;border-radius:9px;background:#eee9df;animation:gpiPulse 1.5s ease infinite}.gpi-loading-row>span{flex:1;display:flex;flex-direction:column;gap:7px}.gpi-loading-row b{display:block;width:43%;height:8px;border-radius:5px;background:#eee9df;animation:gpiPulse 1.5s ease infinite}.gpi-loading-row b:last-child{width:28%}.gpi-loading-row em{width:120px;height:9px;border-radius:5px;background:#eee9df;animation:gpiPulse 1.5s ease infinite}@keyframes gpiPulse{50%{opacity:.48}}
 @container admincontent (max-width:1080px){.gpi-workspace{grid-template-columns:1fr}.gpi-detail{position:static}.gpi-record-stats{display:none}}
 @media(max-width:760px){.gpi-admin-logistics-review,.gpi-admin-review-checks{grid-template-columns:1fr}.gpi-hero{align-items:flex-start}.gpi-hero h1{font-size:31px}.gpi-contract{width:38px;padding:0}.gpi-contract>span{display:none}.gpi-contract svg{width:17px}.gpi-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.gpi-toolbar{align-items:stretch;flex-direction:column}.gpi-mode-switch{overflow-x:auto}.gpi-filters{justify-content:flex-start;overflow-x:auto}.gpi-search{min-width:190px}.gpi-queue-row,.gpi-record-row{grid-template-columns:auto minmax(0,1fr) 16px}.gpi-row-next,.gpi-record-stats{display:none}.gpi-detail-placeholder{display:none}}
@@ -49083,7 +49070,7 @@ function AdminMatchmakerFunnelCard({ health = KB_ADMIN_MATCHMAKER_FUNNEL_EMPTY, 
             ["Hires", health.hired],
           ].map(([label,value]) => (
             <div key={label} style={{border:"1px solid var(--aborder)",borderRadius:10,background:"var(--abg3)",padding:"9px 10px"}}>
-              <div style={{fontFamily:"DM Mono,monospace",fontSize:16,fontWeight:800,color:"var(--atext)"}}>{health.loading ? "..." : Number(value || 0).toLocaleString()}</div>
+              <div style={{fontFamily:"var(--font-sans),monospace",fontSize:16,fontWeight:800,color:"var(--atext)"}}>{health.loading ? "..." : Number(value || 0).toLocaleString()}</div>
               <div style={{fontSize:8.5,color:"var(--atext-muted)",textTransform:"uppercase",letterSpacing:".7px",fontWeight:800}}>{label}</div>
             </div>
           ))}
@@ -49499,7 +49486,7 @@ function VendorVerificationFlow({ currentUser, vendorRow, applicationStatus = nu
       <div>
         <div style={{background:"linear-gradient(135deg,var(--navy),#1a2e12)",borderRadius:20,padding:"48px",textAlign:"center",marginBottom:20}}>
           <div style={{width:64,height:64,borderRadius:"var(--r-lg)",background:"rgba(232,224,208,0.12)",border:"1px solid rgba(232,224,208,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,margin:"0 auto 20px"}}>✓</div>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:28,fontWeight:700,color:"#fff",marginBottom:8}}>Faith Verified</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:700,color:"#fff",marginBottom:8}}>Faith Verified</div>
           <div style={{fontSize:14,color:"var(--atext-2)",fontWeight:400,maxWidth:360,margin:"0 auto 24px",lineHeight:1.7}}>Your vendor profile is verified. This badge appears on your public profile and in search results.</div>
           <div style={{display:"inline-flex",padding:"6px 20px",borderRadius:100,background:"rgba(232,224,208,0.1)",border:"1px solid rgba(232,224,208,0.2)"}}>
             <span style={{fontSize:12,fontWeight:700,color:"var(--gold-light)",letterSpacing:1}}>FAITH VERIFIED</span>
@@ -49528,7 +49515,7 @@ function VendorVerificationFlow({ currentUser, vendorRow, applicationStatus = nu
     return (
       <div style={{textAlign:"center",padding:"60px 20px"}}>
         <div style={{width:72,height:72,borderRadius:20,background:"linear-gradient(135deg,var(--gold-pale),var(--cream-dark))",border:"2px solid var(--gold)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 24px"}}><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold-text)" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-        <div style={{fontFamily:"Playfair Display,serif",fontSize:26,fontWeight:700,color:"var(--navy)",marginBottom:8}}>{approved ? "Faith Verification Approved" : appStatus === "needs_info" ? "Application Needs Review" : "Application Under Review"}</div>
+        <div style={{fontFamily:"var(--font-display),serif",fontSize:26,fontWeight:700,color:"var(--navy)",marginBottom:8}}>{approved ? "Faith Verification Approved" : appStatus === "needs_info" ? "Application Needs Review" : "Application Under Review"}</div>
         <div style={{fontSize:14,color:"var(--text-muted)",fontWeight:400,maxWidth:460,margin:"0 auto 28px",lineHeight:1.7}}>{reviewCopy}</div>
         <div style={{display:"flex",flexDirection:"column",gap:10,maxWidth:380,margin:"0 auto"}}>
           {[
@@ -49560,7 +49547,7 @@ function VendorVerificationFlow({ currentUser, vendorRow, applicationStatus = nu
       {/* Header */}
       <div style={{marginBottom:32}}>
         <div className="eyebrow">Faith Verification</div>
-        <h2 style={{fontFamily:"Playfair Display,serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:6}}>Apply for verification</h2>
+        <h2 style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:6}}>Apply for verification</h2>
         <p style={{fontSize:13,color:"var(--text-muted)",fontWeight:400,lineHeight:1.6,maxWidth:500}}>Verified vendors receive more inquiries, higher trust from churches, and a badge on their public profile. Takes about 3 minutes.</p>
       </div>
 
@@ -50180,9 +50167,9 @@ function NotificationBell({currentUser, role, nav, onBidAccepted}){
   const ntx = {
     panel:{position:"absolute",top:"calc(100% + 10px)",right:0,width:348,background:"#fffdf8",border:"1px solid #dfd5c2",borderRadius:18,boxShadow:"0 22px 70px rgba(28,40,20,0.22)",zIndex:300,overflow:"hidden",animation:"fadeUp 0.15s ease"},
     head:{padding:"14px 16px",borderBottom:"1px solid #eadfca",display:"flex",alignItems:"center",justifyContent:"space-between",background:"linear-gradient(135deg,#fffdf8,#faf4e8)"},
-    title:{fontSize:13,fontWeight:800,color:"#1C2814",letterSpacing:-0.1,fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",gap:8},
-    badge:{padding:"2px 8px",background:"#8a3324",color:"#fff",borderRadius:999,fontSize:10,fontWeight:800,fontFamily:"'DM Mono',monospace",letterSpacing:0.3},
-    mark:{fontSize:11.5,color:"#7d7363",background:"transparent",border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:700},
+    title:{fontSize:13,fontWeight:800,color:"#1C2814",letterSpacing:-0.1,fontFamily:"var(--font-sans),sans-serif",display:"flex",alignItems:"center",gap:8},
+    badge:{padding:"2px 8px",background:"#8a3324",color:"#fff",borderRadius:999,fontSize:10,fontWeight:800,fontFamily:"var(--font-sans),monospace",letterSpacing:0.3},
+    mark:{fontSize:11.5,color:"#7d7363",background:"transparent",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",fontWeight:700},
     iconWrap:(n)=>({display:"flex",alignItems:"center",justifyContent:"center",width:30,height:30,borderRadius:10,background:n.read?"#fffdf8":"#fff4d8",border:n.read?"1px solid #efe7d9":"1px solid #e9d5a5",flexShrink:0}),
     row:(n)=>({width:'100%',padding:"13px 16px",background:n.read?"#fffdf8":"#fffaf0",display:"flex",gap:11,alignItems:"flex-start",cursor:"pointer",transition:"background 0.15s",border:'none',borderBottom:"1px solid #efe7d9",textAlign:'left'}),
   };
@@ -50191,7 +50178,7 @@ function NotificationBell({currentUser, role, nav, onBidAccepted}){
     <div ref={bellRef} style={{position:"relative"}}>
       <button type="button" aria-label={unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'} aria-expanded={open} onClick={()=>setOpen(o=>!o)} style={{width:36,height:36,borderRadius:12,border:open?"1px solid rgba(176,136,64,0.34)":"1px solid rgba(28,40,20,0.12)",background:open?"#fff":"rgba(255,255,255,0.78)",boxShadow:open?"0 10px 24px rgba(28,40,20,0.12)":"0 1px 2px rgba(20,21,24,0.04)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",flexShrink:0,transition:"all 0.18s"}}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#35513a" strokeWidth="2" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        {unread>0&&<div style={{position:"absolute",top:-4,right:-4,minWidth:17,height:17,padding:"0 4px",borderRadius:999,background:"#8a3324",border:"2px solid #fffdf8",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:800,color:"#fff",fontFamily:"'DM Mono',monospace"}}>{unread>9?"9+":unread}</div>}
+        {unread>0&&<div style={{position:"absolute",top:-4,right:-4,minWidth:17,height:17,padding:"0 4px",borderRadius:999,background:"#8a3324",border:"2px solid #fffdf8",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:800,color:"#fff",fontFamily:"var(--font-sans),monospace"}}>{unread>9?"9+":unread}</div>}
       </button>
       {open&&(
         <div className="kb-notification-panel" style={ntx.panel}>
@@ -50203,16 +50190,16 @@ function NotificationBell({currentUser, role, nav, onBidAccepted}){
             {allNotifs.length===0
               ?<div style={{padding:"34px 28px",textAlign:"center"}}>
                 <div style={{width:46,height:46,borderRadius:14,background:"linear-gradient(135deg,#fffaf0,#f2e4c9)",border:"1px solid #e9d5a5",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 14px",color:"#8a6729",fontWeight:800}}>✓</div>
-                <div style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:20,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginBottom:5}}>All caught up</div>
+                <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginBottom:5}}>All caught up</div>
                 <div style={{fontSize:12.5,color:"#7d7363",lineHeight:1.55}}>Bids, messages, reviews, and project alerts will appear here.</div>
               </div>
               :allNotifs.map(n=>(
                 <button type="button" key={n.id} onClick={()=>handleClick(n)} className={`hover-notif${n.read?"":" unread"}`} style={ntx.row(n)} >
                   <div style={ntx.iconWrap(n)}>{typeIcon(n.type)}</div>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12.5,fontWeight:800,color:"#1C2814",marginBottom:3,fontFamily:"'DM Sans',sans-serif",letterSpacing:-0.1}}>{n.title}</div>
+                    <div style={{fontSize:12.5,fontWeight:800,color:"#1C2814",marginBottom:3,fontFamily:"var(--font-sans),sans-serif",letterSpacing:-0.1}}>{n.title}</div>
                     {n.body&&<div style={{fontSize:11.5,color:"#5a5246",lineHeight:1.48,overflow:"hidden",textOverflow:"ellipsis",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{n.body}</div>}
-                    <div style={{fontSize:10.5,color:"#8f8371",marginTop:6,display:"flex",alignItems:"center",gap:7,fontFamily:"'DM Sans',sans-serif"}}>
+                    <div style={{fontSize:10.5,color:"#8f8371",marginTop:6,display:"flex",alignItems:"center",gap:7,fontFamily:"var(--font-sans),sans-serif"}}>
                       {formatNotificationAge(n.createdAt, timeNow)}
                       <span style={{color:"#8a6729",fontWeight:800}}>→ {getNotificationActionLabel(n)}</span>
                     </div>
@@ -50223,7 +50210,7 @@ function NotificationBell({currentUser, role, nav, onBidAccepted}){
             }
           </div>
           {allNotifs.length>0&&<div style={{padding:"11px 16px",borderTop:"1px solid #eadfca",textAlign:"center",background:"#faf8f4"}}>
-            <button type="button" onClick={()=>{setOpen(false);queueActivityNavigation(nav);}} style={{fontSize:11.5,color:"#7d7363",background:"none",border:"none",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:700}}>Open Activity Center →</button>
+            <button type="button" onClick={()=>{setOpen(false);queueActivityNavigation(nav);}} style={{fontSize:11.5,color:"#7d7363",background:"none",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",fontWeight:700}}>Open Activity Center →</button>
           </div>}
         </div>
       )}
@@ -50329,7 +50316,7 @@ function AmbassadorAppsPanel({showToast = () => {}, refreshSignal = 0, onAudit =
       <div style={{marginBottom:16,display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:16,flexWrap:'wrap'}}>
         <div>
           <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'var(--gold-light)',opacity:0.7,marginBottom:6}}>Ambassadors</div>
-          <div style={{fontFamily:'Playfair Display,serif',fontSize:20,fontWeight:700,color:'var(--atext)',marginBottom:3}}>Ambassador Applications</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:'var(--atext)',marginBottom:3}}>Ambassador Applications</div>
           <div style={{fontSize:11,color:'var(--atext-muted)',lineHeight:1.6}}>Review ministry students, campus leaders, and young professionals who applied through the Ambassador page.</div>
         </div>
         {!loading&&!fetchError&&<div style={{padding:'4px 12px',borderRadius:100,background:'rgba(216,193,143,0.10)',border:'1px solid rgba(216,193,143,0.24)',fontSize:12,fontWeight:700,color:'var(--gold-light)',whiteSpace:'nowrap'}}>{total} pending</div>}
@@ -50356,7 +50343,7 @@ function AmbassadorAppsPanel({showToast = () => {}, refreshSignal = 0, onAudit =
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
             {apps.map(app=>(
               <div key={app.id} style={{background:'var(--abg2)',border:`1px solid ${expanded===app.id?'rgba(216,193,143,0.34)':'var(--aborder)'}`,borderRadius:'var(--r-md)',overflow:'hidden'}}>
-                <button type="button" aria-expanded={expanded===app.id} onClick={()=>setExpanded(value=>value===app.id?null:app.id)} style={{width:'100%',padding:'14px 18px',display:'flex',alignItems:'center',gap:12,background:'transparent',border:'none',cursor:'pointer',fontFamily:'DM Sans,sans-serif',textAlign:'left',color:'inherit'}}>
+                <button type="button" aria-expanded={expanded===app.id} onClick={()=>setExpanded(value=>value===app.id?null:app.id)} style={{width:'100%',padding:'14px 18px',display:'flex',alignItems:'center',gap:12,background:'transparent',border:'none',cursor:'pointer',fontFamily:"var(--font-sans),sans-serif",textAlign:'left',color:'inherit'}}>
                   <div style={{width:36,height:36,borderRadius:10,background:'rgba(216,193,143,0.10)',border:'1px solid rgba(216,193,143,0.20)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,color:'var(--gold-light)',flexShrink:0}}>{String(app.name||'A').split(' ').map(part=>part[0]).join('').slice(0,2).toUpperCase()}</div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:3,flexWrap:'wrap'}}>
@@ -50384,9 +50371,9 @@ function AmbassadorAppsPanel({showToast = () => {}, refreshSignal = 0, onAudit =
                       <div style={{fontSize:12,color:'var(--atext-mid)',lineHeight:1.7,padding:'11px 13px',background:'var(--abg3)',border:'1px solid var(--aborder)',borderRadius:10}}>{app.why||'No response provided.'}</div>
                     </div>
                     <div className="admin-action-row">
-                      <button type="button" disabled={busyId===app.id} onClick={()=>decide(app,'approved')} style={{padding:'8px 18px',background:'var(--green)',color:'#fff',border:'none',borderRadius:'var(--r-sm)',fontSize:12,fontWeight:700,cursor:busyId===app.id?'wait':'pointer',fontFamily:'DM Sans,sans-serif',opacity:busyId===app.id?0.6:1}}>{busyId===app.id?'Saving…':'Approve'}</button>
-                      <button type="button" disabled={busyId===app.id} onClick={()=>decide(app,'declined')} style={{padding:'8px 16px',background:'transparent',color:'var(--red)',border:'1px solid var(--red-border)',borderRadius:'var(--r-sm)',fontSize:12,cursor:busyId===app.id?'wait':'pointer',fontFamily:'DM Sans,sans-serif',opacity:busyId===app.id?0.6:1}}>Decline</button>
-                      {app.email&&<a href={`mailto:${app.email}?subject=${encodeURIComponent('Your FaithBid Ambassador Application')}`} style={{padding:'8px 16px',background:'var(--abg3)',color:'var(--atext-mid)',border:'1px solid var(--aborder)',borderRadius:'var(--r-sm)',fontSize:12,fontFamily:'DM Sans,sans-serif',textDecoration:'none',display:'inline-flex',alignItems:'center'}}>Email applicant</a>}
+                      <button type="button" disabled={busyId===app.id} onClick={()=>decide(app,'approved')} style={{padding:'8px 18px',background:'var(--green)',color:'#fff',border:'none',borderRadius:'var(--r-sm)',fontSize:12,fontWeight:700,cursor:busyId===app.id?'wait':'pointer',fontFamily:"var(--font-sans),sans-serif",opacity:busyId===app.id?0.6:1}}>{busyId===app.id?'Saving…':'Approve'}</button>
+                      <button type="button" disabled={busyId===app.id} onClick={()=>decide(app,'declined')} style={{padding:'8px 16px',background:'transparent',color:'var(--red)',border:'1px solid var(--red-border)',borderRadius:'var(--r-sm)',fontSize:12,cursor:busyId===app.id?'wait':'pointer',fontFamily:"var(--font-sans),sans-serif",opacity:busyId===app.id?0.6:1}}>Decline</button>
+                      {app.email&&<a href={`mailto:${app.email}?subject=${encodeURIComponent('Your FaithBid Ambassador Application')}`} style={{padding:'8px 16px',background:'var(--abg3)',color:'var(--atext-mid)',border:'1px solid var(--aborder)',borderRadius:'var(--r-sm)',fontSize:12,fontFamily:"var(--font-sans),sans-serif",textDecoration:'none',display:'inline-flex',alignItems:'center'}}>Email applicant</a>}
                     </div>
                   </div>
                 )}
@@ -50515,7 +50502,7 @@ function PartnerAppsPanel({showToast, refreshSignal = 0, onAudit = null, onQueue
   if(total===0) return (
     <div style={{marginTop:20,textAlign:"left"}}>
       <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-light)",opacity:0.7,marginBottom:6}}>Partnerships</div>
-      <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--atext)",marginBottom:10}}>Partnership Inquiries</div>
+      <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--atext)",marginBottom:10}}>Partnership Inquiries</div>
       <div style={{background:"var(--abg2)",border:"1px solid var(--aborder)",borderRadius:"var(--r-md)",padding:"22px 20px",textAlign:"center"}}>
         <div style={{fontSize:20,marginBottom:8,opacity:0.35}}>✓</div>
         <div style={{fontSize:13,fontWeight:600,color:"var(--atext)",marginBottom:4}}>No pending partnership inquiries</div>
@@ -50530,7 +50517,7 @@ function PartnerAppsPanel({showToast, refreshSignal = 0, onAudit = null, onQueue
       <div style={{marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div>
           <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-light)",opacity:0.7,marginBottom:6}}>Partnerships</div>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:20,fontWeight:700,color:"var(--atext)"}}>Partnership Inquiries</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--atext)"}}>Partnership Inquiries</div>
         </div>
         <div style={{padding:"4px 12px",borderRadius:100,background:"rgba(59,130,246,0.1)",border:"1px solid rgba(59,130,246,0.25)",fontSize:12,fontWeight:700,color:"var(--blue2)"}}>{total.toLocaleString()} pending</div>
       </div>
@@ -50550,9 +50537,9 @@ function PartnerAppsPanel({showToast, refreshSignal = 0, onAudit = null, onQueue
             <div style={{borderTop:"1px solid var(--aborder)",padding:"16px 18px"}}>
               {app.message&&<div style={{marginBottom:14}}><div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:"var(--atext-muted)",marginBottom:4}}>Message</div><div style={{fontSize:12,color:"var(--atext-mid)",lineHeight:1.7}}>{app.message}</div></div>}
               <div className="admin-action-row">
-                <button type="button" disabled={busyId===app.id} onClick={()=>approve(app.id,app.org)} style={{padding:"8px 18px",background:"var(--green)",color:"#fff",border:"none",borderRadius:"var(--r-sm)",fontSize:12,fontWeight:700,cursor:busyId===app.id?"wait":"pointer",fontFamily:"DM Sans,sans-serif",opacity:busyId===app.id?0.6:1}}>Approve</button>
-                <button type="button" disabled={busyId===app.id} onClick={()=>decline(app.id,app.org)} style={{padding:"8px 16px",background:"transparent",color:"var(--red)",border:"1px solid var(--red-border)",borderRadius:"var(--r-sm)",fontSize:12,cursor:busyId===app.id?"wait":"pointer",fontFamily:"DM Sans,sans-serif",opacity:busyId===app.id?0.6:1}}>Decline</button>
-                <a href={`mailto:${app.email}?subject=Your FaithBid Partnership Inquiry`} style={{padding:"8px 16px",background:"var(--abg3)",color:"var(--atext-mid)",border:"1px solid var(--aborder)",borderRadius:"var(--r-sm)",fontSize:12,fontFamily:"DM Sans,sans-serif",textDecoration:"none",display:"inline-flex",alignItems:"center"}}>Reply</a>
+                <button type="button" disabled={busyId===app.id} onClick={()=>approve(app.id,app.org)} style={{padding:"8px 18px",background:"var(--green)",color:"#fff",border:"none",borderRadius:"var(--r-sm)",fontSize:12,fontWeight:700,cursor:busyId===app.id?"wait":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:busyId===app.id?0.6:1}}>Approve</button>
+                <button type="button" disabled={busyId===app.id} onClick={()=>decline(app.id,app.org)} style={{padding:"8px 16px",background:"transparent",color:"var(--red)",border:"1px solid var(--red-border)",borderRadius:"var(--r-sm)",fontSize:12,cursor:busyId===app.id?"wait":"pointer",fontFamily:"var(--font-sans),sans-serif",opacity:busyId===app.id?0.6:1}}>Decline</button>
+                <a href={`mailto:${app.email}?subject=Your FaithBid Partnership Inquiry`} style={{padding:"8px 16px",background:"var(--abg3)",color:"var(--atext-mid)",border:"1px solid var(--aborder)",borderRadius:"var(--r-sm)",fontSize:12,fontFamily:"var(--font-sans),sans-serif",textDecoration:"none",display:"inline-flex",alignItems:"center"}}>Reply</a>
               </div>
             </div>
           )}
@@ -50798,7 +50785,7 @@ function ReferralPanel({ currentUser, showToast }) {
         <div style={{position:"absolute",bottom:-30,left:-20,width:120,height:120,borderRadius:"50%",background:"rgba(232,224,208,0.04)",pointerEvents:"none"}}/>
         <div style={{position:"relative",zIndex:1}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--atext-2)",marginBottom:8}}>Founding referral program</div>
-          <div style={{fontFamily:"Playfair Display,serif",fontSize:28,fontWeight:700,color:"#fff",lineHeight:1.1,marginBottom:10}}>Founding Connector</div>
+          <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:700,color:"#fff",lineHeight:1.1,marginBottom:10}}>Founding Connector</div>
           <div style={{fontSize:13,color:"var(--atext-mid)",lineHeight:1.7,maxWidth:520,marginBottom:16}}>
             Invite a church or Christian business that genuinely belongs on FaithBid. One qualified activation before public launch earns permanent Founding Connector recognition.
           </div>
@@ -50818,7 +50805,7 @@ function ReferralPanel({ currentUser, showToast }) {
           {label:"Founding Connector", val:hasFoundingConnector?"Earned":"Not yet", color:hasFoundingConnector?"var(--success)":"var(--text-muted)"},
         ].map((s,i) => (
           <div key={s.label} style={{flex:1,padding:"14px 16px",textAlign:"center",borderRight:i<2?"1px solid var(--border)":"none"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:24,fontWeight:700,color:s.color,lineHeight:1,marginBottom:4}}>{s.val}</div>
+            <div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:s.color,lineHeight:1,marginBottom:4}}>{s.val}</div>
             <div style={{fontSize:10,color:"var(--text-muted)",fontWeight:600,letterSpacing:0.5,textTransform:"uppercase"}}>{s.label}</div>
           </div>
         ))}
@@ -50841,7 +50828,7 @@ function ReferralPanel({ currentUser, showToast }) {
           {num:"3", title:"One qualified activation earns Founding Connector", desc:"Before public launch, that permanent recognition is awarded once to the referrer. Faith Verification is not required."},
         ].map((step, i) => (
           <div key={step.num} style={{display:"flex",gap:12,padding:"10px 0",borderBottom:i<2?"1px solid var(--border)":"none"}}>
-            <div style={{width:28,height:28,borderRadius:"var(--r-sm)",background:"var(--navy)",color:"var(--gold-light)",fontFamily:"Playfair Display,serif",fontSize:14,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{step.num}</div>
+            <div style={{width:28,height:28,borderRadius:"var(--r-sm)",background:"var(--navy)",color:"var(--gold-light)",fontFamily:"var(--font-display),serif",fontSize:14,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{step.num}</div>
             <div><div style={{fontSize:13,fontWeight:700,color:"var(--navy)",marginBottom:2}}>{step.title}</div><div style={{fontSize:12,color:"var(--text-muted)",lineHeight:1.5}}>{step.desc}</div></div>
           </div>
         ))}
@@ -50885,7 +50872,7 @@ function LegalProtectionPanel({ role, showToast }) {
     mid: "#5d5548",
     panel: { border: "1px solid #dfd5c2", borderRadius: 22, background: "#fffdf8", boxShadow: "0 18px 50px rgba(28,40,20,0.06)", overflow: "hidden" },
     eyebrow: { fontSize: 10, fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase", color: "#8a6729", marginBottom: 6 },
-    title: { fontFamily: "'Playfair Display', Georgia, serif", fontSize: 26, fontWeight: 700, color: "#1C2814", letterSpacing: "-0.02em", lineHeight: 1.08, margin: 0 },
+    title: { fontFamily: "var(--font-display), serif", fontSize: 26, fontWeight: 700, color: "#1C2814", letterSpacing: "-0.02em", lineHeight: 1.08, margin: 0 },
     body: { fontSize: 14, color: "#5d5548", lineHeight: 1.75, fontWeight: 400 },
     pillBtn: { padding: "9px 14px", borderRadius: 999, border: "1px solid #dfd5c2", background: "#fffdf8", color: "#1C2814", fontSize: 12, fontWeight: 800, cursor: "pointer" },
   };
@@ -50949,7 +50936,7 @@ function LegalProtectionPanel({ role, showToast }) {
             {KB_LEGAL_SUMMARY_CARDS.map((item,i)=>(
               <div key={i} style={{ padding: "16px 17px", borderRadius: 18, border: "1px solid #dfd5c2", background: "#fffdf8", boxShadow: "0 10px 26px rgba(28,40,20,0.045)" }}>
                 <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, textTransform: "uppercase", color: lx.muted, marginBottom: 7 }}>{item.label}</div>
-                <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 23, fontWeight: 700, color: lx.ink, lineHeight: 1.05 }}>{item.value}</div>
+                <div style={{ fontFamily: "var(--font-display), serif", fontSize: 23, fontWeight: 700, color: lx.ink, lineHeight: 1.05 }}>{item.value}</div>
                 <div style={{ marginTop: 7, fontSize: 12.5, color: lx.mid, lineHeight: 1.55 }}>{item.sub}</div>
               </div>
             ))}
@@ -50958,7 +50945,7 @@ function LegalProtectionPanel({ role, showToast }) {
           <div style={lx.panel}>
             <div style={{ padding: "18px 22px", borderBottom: "1px solid #eadfce", background: lx.cream2 }}>
               <div style={lx.eyebrow}>Confidentiality</div>
-              <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 21, fontWeight: 700, color: lx.ink }}>NDA settings</div>
+              <div style={{ fontFamily: "var(--font-display), serif", fontSize: 21, fontWeight: 700, color: lx.ink }}>NDA settings</div>
             </div>
             <div style={{ padding: "18px 22px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
@@ -51100,7 +51087,7 @@ function FoundingVendorBadgeReveal(){
             ) : (
               <>
                 <div style={{
-                  fontFamily:"DM Mono,monospace",fontSize:8,fontWeight:700,letterSpacing:3,
+                  fontFamily:"var(--font-sans),monospace",fontSize:8,fontWeight:700,letterSpacing:3,
                   textTransform:"uppercase",color:"rgba(232,224,208,0.45)",marginBottom:8,
                   animation:"fadeIn 0.5s ease both",
                 }}>FaithBid</div>
@@ -51109,12 +51096,12 @@ function FoundingVendorBadgeReveal(){
                   <path d="M1,26 C0.5,26.5 0.2,27.5 0.8,28.8 C1.2,29.8 2.5,31 4,31.2 L22,32 L38,31.8 L56,31.2 C58,31 59.5,30 59.8,28.5 C60.1,27 59.5,25.8 58,25 C56.5,24.2 54,23.8 52,24 L38,24.5 L22,24.2 L6,23.8 C3.5,23.6 1.5,24.5 1,26 Z" fill="#D4C9B0" opacity="0.9"/>
                 </svg>
                 <div style={{
-                  fontFamily:"Playfair Display,serif",fontSize:11,fontWeight:700,
+                  fontFamily:"var(--font-display),serif",fontSize:11,fontWeight:700,
                   color:"var(--gold-light)",lineHeight:1.2,letterSpacing:0.3,
                   animation:"fadeIn 0.5s ease 0.2s both",
                 }}><div style={{lineHeight:1.2}}>Founding</div><div style={{lineHeight:1.2}}>Vendor</div></div>
                 <div style={{
-                  fontFamily:"DM Mono,monospace",fontSize:7,color:"rgba(232,224,208,0.3)",
+                  fontFamily:"var(--font-sans),monospace",fontSize:7,color:"rgba(232,224,208,0.3)",
                   marginTop:6,letterSpacing:2,textTransform:"uppercase",
                   animation:"fadeIn 0.5s ease 0.4s both",
                 }}>Est. 2026</div>
@@ -51216,24 +51203,7 @@ const DETAIL_VENDOR_MATCHES = {
 };
 
 function injectMarketplaceDetailFonts(){
-  if (typeof document === 'undefined') return;
-  if (!document.getElementById('kb-marketplace-detail-fonts')) {
-    const preconnect1 = document.createElement('link');
-    preconnect1.id = 'kb-marketplace-detail-fonts';
-    preconnect1.rel = 'preconnect';
-    preconnect1.href = 'https://fonts.googleapis.com';
-    document.head.appendChild(preconnect1);
-    const preconnect2 = document.createElement('link');
-    preconnect2.rel = 'preconnect';
-    preconnect2.href = 'https://fonts.gstatic.com';
-    preconnect2.crossOrigin = 'anonymous';
-    document.head.appendChild(preconnect2);
-    const font = document.createElement('link');
-    font.rel = 'stylesheet';
-    font.href = 'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500&family=General+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap';
-    document.head.appendChild(font);
-  }
-  /* kb-marketplace-detail-polish-v2: moved to src/styles/legacy-route-patches.css */
+  // Typography is loaded once by the shared FaithBid type system.
 }
 
 function detailBudgetParts(rawBudget) {
@@ -51359,7 +51329,7 @@ function getMockProjectVisualDirections(project = {}, seed = 0) {
       title:'Direction 01',
       previewImage:warmFirst ? heroImageA : heroImageB,
       palette:warmFirst ? ['#F5EFE2','#243930','#C79C4B','#2E3138'] : ['#F4F1EA','#314238','#B8873D','#343942'],
-      typography:{ heading:'Playfair Display', body:'DM Sans' },
+      typography:{ heading:"var(--font-display)", body:"var(--font-sans)" },
       tone:warmFirst ? ['Warm','Welcoming','Premium'] : ['Calm','Structured','Premium'],
       visualLanguage:warmFirst ? 'Editorial spacing with natural warmth and calm hierarchy.' : 'Structured modern layout with stronger clarity and contrast.',
       keywords:warmFirst ? ['Trustworthy','Inviting','Elevated'] : ['Clear','Confident','Uplifting'],
@@ -51372,7 +51342,7 @@ function getMockProjectVisualDirections(project = {}, seed = 0) {
       title:'Direction 02',
       previewImage:warmFirst ? heroImageB : heroImageA,
       palette:warmFirst ? ['#F3EEE6','#2F4238','#B8873D','#3A3D44'] : ['#F7F2E9','#22352F','#C79C4B','#2B2E34'],
-      typography:{ heading:'Cormorant Garamond', body:'DM Sans' },
+      typography:{ heading:"var(--font-display)", body:"var(--font-sans)" },
       tone:warmFirst ? ['Modern','Clear','Hopeful'] : ['Warm','Trustworthy','Refined'],
       visualLanguage:warmFirst ? 'Cleaner sections, lighter rhythm, and stronger first-visit clarity.' : 'A softer editorial treatment with deeper warmth and ministry character.',
       keywords:warmFirst ? ['Structured','Inviting','Clear'] : ['Welcoming','Calm','Refined'],
@@ -51446,7 +51416,7 @@ function getSelectedProjectVisualDirection(state, activeKey) {
 
 function ProjectVisualDirectionMockCanvas({ direction, brief, compact = false }) {
   const palette = Array.isArray(direction?.palette) && direction.palette.length ? direction.palette : ['#F5EFE2','#243930','#C79C4B','#2E3138'];
-  const headingFont = direction?.typography?.heading === 'Cormorant Garamond' ? "'Cormorant Garamond', Georgia, serif" : "'Playfair Display', Georgia, serif";
+  const headingFont = direction?.typography?.heading === "var(--font-display)" ? "var(--font-display), serif" : "var(--font-display), serif";
   const headline = /website|digital|brand/i.test(`${brief?.title || ''} ${brief?.category || ''}`)
     ? 'A warmer way to welcome visitors.'
     : 'A cleaner direction for this project.';

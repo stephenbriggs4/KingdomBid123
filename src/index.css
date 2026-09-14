@@ -11,9 +11,11 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --sans: var(--font-sans);
+  --heading: var(--font-display);
+  --mono: var(--font-sans);
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -52,6 +54,7 @@
 
 body {
   margin: 0;
+  font-family: var(--font-sans);
 }
 
 #root {
@@ -67,8 +70,12 @@ body {
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--heading) !important;
   font-weight: 500;
   color: var(--text-h);
 }
