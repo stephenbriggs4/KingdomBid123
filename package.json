@@ -30,6 +30,7 @@
     "test:budget-truth": "node tests/budget-truth.test.mjs",
     "test:profile-role-reads": "node tests/profile-role-reads.test.mjs",
     "test:concierge-intake-ux": "node tests/concierge-intake-ux.test.mjs",
+    "test:church-sourcing-permissions": "node tests/church-sourcing-permissions.test.mjs",
     "test:landing-prelaunch-requests": "node tests/landing-prelaunch-requests.test.mjs",
     "test:dealrooms-mobile-layout": "node tests/dealrooms-mobile-layout.test.mjs",
     "test:concierge-command-hierarchy": "node tests/concierge-command-hierarchy.test.mjs",

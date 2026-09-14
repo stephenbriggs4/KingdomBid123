@@ -34769,6 +34769,27 @@ const FB_DALLAS_PILOT_RISK_FLAGS = Object.freeze([
 
 const FB_DALLAS_PILOT_EXCLUDED_FLAGS = new Set(FB_DALLAS_PILOT_RISK_FLAGS.slice(0, 7).map(([value]) => value));
 
+const FB_CONCIERGE_PERMISSION_STATUSES = Object.freeze([
+  ["not_requested", "Not requested"],
+  ["granted", "Granted"],
+  ["declined", "Declined"],
+  ["revoked", "Revoked"],
+]);
+
+const FB_CONCIERGE_REFERRAL_PERMISSION_STATUSES = Object.freeze([
+  ["not_applicable", "No referred vendor yet"],
+  ...FB_CONCIERGE_PERMISSION_STATUSES,
+]);
+
+const FB_CONCIERGE_PERMISSION_SOURCES = Object.freeze([
+  ["", "Choose how permission was captured"],
+  ["meeting_notes", "Meeting notes"],
+  ["email", "Email"],
+  ["text_message", "Text message"],
+  ["phone_call", "Phone call"],
+  ["other", "Other written record"],
+]);
+
 function fbConciergePilotClassification(record) {
   const category = String(record?.primary_service_category || "").toLowerCase();
   const flags = Array.isArray(record?.pilot_risk_flags) ? record.pilot_risk_flags : [];
@@ -34818,6 +34839,14 @@ const FB_CONCIERGE_EMPTY_INTAKE = Object.freeze({
   service_location: "",
   faith_alignment_requirement: "unknown",
   faith_fit_rationale: "",
+  church_sourcing_permission_status: "not_requested",
+  referral_contact_permission_status: "not_applicable",
+  church_identity_permission_status: "not_requested",
+  public_sourcing_permission_status: "not_requested",
+  church_sourcing_permission_recorded_at: "",
+  church_sourcing_permission_source: "",
+  church_sourcing_permission_reference: "",
+  church_sourcing_permission_recorded_by: null,
   pilot_risk_flags: [],
   next_action: "",
   next_action_on: "",
@@ -35027,6 +35056,10 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
     }
     if (step === 4) {
       if (form.budget_band !== "not_disclosed_or_unknown" && !["confirmed", "working_range"].includes(form.budget_status)) return "A church-declared budget band requires Confirmed or Working Range budget status.";
+      const specificPermissionGranted = [form.referral_contact_permission_status, form.church_identity_permission_status, form.public_sourcing_permission_status].includes("granted");
+      const anyPermissionGranted = form.church_sourcing_permission_status === "granted" || specificPermissionGranted;
+      if (specificPermissionGranted && form.church_sourcing_permission_status !== "granted") return "Specific outreach or disclosure permission requires church permission to source this need.";
+      if (anyPermissionGranted && (!form.church_sourcing_permission_recorded_at || !form.church_sourcing_permission_source || !form.church_sourcing_permission_reference.trim())) return "Record when, how, and where the church's permission was captured.";
     }
     return "";
   };
@@ -35112,6 +35145,14 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
                 {input("Service location", "service_location", { placeholder: "City, campus, or remote" })}
                 {select("Faith alignment", "faith_alignment_requirement", [["unknown","Unknown"],["required","Required"],["strongly_preferred","Strongly preferred"],["preferred","Preferred"],["not_material","Not material"]])}
                 {input("Faith-fit rationale", "faith_fit_rationale")}
+                {select("Permission to source vendors for this need", "church_sourcing_permission_status", FB_CONCIERGE_PERMISSION_STATUSES)}
+                {select("Permission to contact a referred vendor", "referral_contact_permission_status", FB_CONCIERGE_REFERRAL_PERMISSION_STATUSES)}
+                {select("Permission to identify the church to vendors", "church_identity_permission_status", FB_CONCIERGE_PERMISSION_STATUSES)}
+                {select("Permission to post the need publicly", "public_sourcing_permission_status", FB_CONCIERGE_PERMISSION_STATUSES)}
+                {input("Permission recorded on", "church_sourcing_permission_recorded_at", { type: "date" })}
+                {select("Permission captured by", "church_sourcing_permission_source", FB_CONCIERGE_PERMISSION_SOURCES)}
+                {input("Permission record reference", "church_sourcing_permission_reference", { wide: true, placeholder: "Meeting note, email subject, message link, or file reference" })}
+                <div className="fb-concierge-safe"><strong>Permission stays scoped:</strong> approval to source does not permit FaithBid to name the church, contact a referred vendor, or post publicly unless each permission above is separately Granted.</div>
                 {input("Next action", "next_action", { placeholder: "Clarify scope with the church" })}
                 {input("Next action date", "next_action_on", { type: "date" })}
                 <div className="fb-concierge-safe"><strong>Safe starting state:</strong> this creates Organization, Primary Contact, and Need atomically. The Need stays in Intake with risk Unclassified until the review gate is completed.</div>
@@ -35150,6 +35191,16 @@ function fbConciergeReviewChecks(form, operatorId) {
   add(!["on_site_local", "on_site_regional", "on_site_nationwide", "hybrid"].includes(form.delivery_requirement) || String(form.service_location || "").trim(), "On-site or hybrid work has a service location.");
   add(form.faith_alignment_requirement && form.faith_alignment_requirement !== "unknown", "Faith alignment requirement is classified.");
   add(!["required", "strongly_preferred"].includes(form.faith_alignment_requirement) || String(form.faith_fit_rationale || "").trim(), "Faith-fit rationale supports the classification.");
+  add(form.church_sourcing_permission_status === "granted", "The church granted permission to source vendors for this need.");
+  add(
+    form.church_sourcing_permission_status !== "granted" || (
+      form.church_sourcing_permission_recorded_at
+      && form.church_sourcing_permission_source
+      && String(form.church_sourcing_permission_reference || "").trim()
+      && (form.church_sourcing_permission_recorded_by || operatorId)
+    ),
+    "Granted sourcing permission has a date, source, reference, and recorder.",
+  );
   add(form.risk_tier && form.risk_tier !== "unclassified", "Risk tier is classified.");
   add(form.compliance_gate && form.compliance_gate !== "declined", "Compliance gate is not declined.");
   add(form.risk_tier !== "tier_3_regulated" || form.compliance_gate === "approved", "Tier 3 regulated needs have approval before sourcing.");
@@ -35228,6 +35279,8 @@ function FBConciergeIntakeReviewModal({ client, need, operatorId, onClose, onRev
     nice_to_haves: form.nice_to_haves || "",
     service_location: form.service_location || "",
     faith_fit_rationale: form.faith_fit_rationale || "",
+    church_sourcing_permission_recorded_at: form.church_sourcing_permission_recorded_at ? String(form.church_sourcing_permission_recorded_at).slice(0, 10) : "",
+    church_sourcing_permission_reference: form.church_sourcing_permission_reference || "",
     next_action: form.next_action || "",
     next_action_on: form.next_action_on || "",
     target_decision_on: form.target_decision_on || "",
@@ -35267,6 +35320,14 @@ function FBConciergeIntakeReviewModal({ client, need, operatorId, onClose, onRev
       service_location: String(form.service_location || "").trim() || null,
       faith_alignment_requirement: form.faith_alignment_requirement || "unknown",
       faith_fit_rationale: String(form.faith_fit_rationale || "").trim(),
+      church_sourcing_permission_status: form.church_sourcing_permission_status || "not_requested",
+      referral_contact_permission_status: form.referral_contact_permission_status || "not_applicable",
+      church_identity_permission_status: form.church_identity_permission_status || "not_requested",
+      public_sourcing_permission_status: form.public_sourcing_permission_status || "not_requested",
+      church_sourcing_permission_recorded_at: form.church_sourcing_permission_recorded_at ? `${String(form.church_sourcing_permission_recorded_at).slice(0, 10)}T12:00:00.000Z` : null,
+      church_sourcing_permission_source: form.church_sourcing_permission_source || null,
+      church_sourcing_permission_reference: String(form.church_sourcing_permission_reference || "").trim() || null,
+      church_sourcing_permission_recorded_by: [form.church_sourcing_permission_status, form.referral_contact_permission_status, form.church_identity_permission_status, form.public_sourcing_permission_status].includes("granted") ? (form.church_sourcing_permission_recorded_by || operatorId || null) : null,
       pilot_risk_flags: form.pilot_risk_flags || [],
       risk_tier: pilot.riskTier,
       compliance_gate: pilot.complianceGate,
@@ -35323,6 +35384,14 @@ function FBConciergeIntakeReviewModal({ client, need, operatorId, onClose, onRev
                 {input("Service location", "service_location")}
                 {select("Faith alignment", "faith_alignment_requirement", [["unknown","Unknown"],["required","Required"],["strongly_preferred","Strongly preferred"],["preferred","Preferred"],["not_material","Not material"]])}
                 {input("Faith-fit rationale", "faith_fit_rationale", { wide: true })}
+                {select("Permission to source vendors for this need", "church_sourcing_permission_status", FB_CONCIERGE_PERMISSION_STATUSES)}
+                {select("Permission to contact a referred vendor", "referral_contact_permission_status", FB_CONCIERGE_REFERRAL_PERMISSION_STATUSES)}
+                {select("Permission to identify the church to vendors", "church_identity_permission_status", FB_CONCIERGE_PERMISSION_STATUSES)}
+                {select("Permission to post the need publicly", "public_sourcing_permission_status", FB_CONCIERGE_PERMISSION_STATUSES)}
+                {input("Permission recorded on", "church_sourcing_permission_recorded_at", { type: "date" })}
+                {select("Permission captured by", "church_sourcing_permission_source", FB_CONCIERGE_PERMISSION_SOURCES)}
+                {input("Permission record reference", "church_sourcing_permission_reference", { wide: true, placeholder: "Meeting note, email subject, message link, or file reference" })}
+                <div className="fb-concierge-safe"><strong>Scoped permission:</strong> Ready to Source requires the church's permission to seek vendors. Referral contact, church-name disclosure, and public posting remain separate choices and never default to Granted.</div>
                 {select("Risk tier", "risk_tier", [["unclassified","Unclassified"],["tier_1","Tier 1"],["tier_2","Tier 2"],["tier_3_regulated","Tier 3 / regulated"]])}
                 {select("Compliance gate", "compliance_gate", [["standard","Standard"],["category_sop_required","Category SOP required"],["legal_compliance_approval_required","Legal / compliance approval required"],["approved","Approved"],["declined","Declined"]])}
                 {input("Shortlist target", "shortlist_target", { type: "number", min: "1", max: "20" })}
@@ -36599,7 +36668,7 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
     setError("");
     const results = await Promise.all([
       client.from("organizations").select("id,organization_name,organization_type,lifecycle_stage,city,state_region,pilot_cohort,next_follow_up_on,relationship_source,created_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
-      client.from("needs").select("id,organization_id,requesting_contact_id,owner_id,need_title,status,need_type,service_frequency,primary_service_category,service_detail,need_brief,desired_outcome,must_haves,nice_to_haves,urgency,target_decision_on,target_start_on,budget_status,budget_basis,budget_band,budget_band_basis,marketplace_budget_band,budget_translation_status,delivery_requirement,service_location,faith_alignment_requirement,faith_fit_rationale,risk_tier,compliance_gate,pilot_risk_flags,pilot_eligibility,pilot_hold_reason,shortlist_target,next_action,next_action_on,ready_to_source_at,sourcing_started_at,shortlist_presented_at,selected_at,organization:organizations(organization_name)").is("archived_at", null).order("next_action_on", { ascending: true, nullsFirst: false }).limit(500),
+      client.from("needs").select("id,organization_id,requesting_contact_id,owner_id,need_title,status,need_type,service_frequency,primary_service_category,service_detail,need_brief,desired_outcome,must_haves,nice_to_haves,urgency,target_decision_on,target_start_on,budget_status,budget_basis,budget_band,budget_band_basis,marketplace_budget_band,budget_translation_status,delivery_requirement,service_location,faith_alignment_requirement,faith_fit_rationale,church_sourcing_permission_status,referral_contact_permission_status,church_identity_permission_status,public_sourcing_permission_status,church_sourcing_permission_recorded_at,church_sourcing_permission_source,church_sourcing_permission_reference,church_sourcing_permission_recorded_by,risk_tier,compliance_gate,pilot_risk_flags,pilot_eligibility,pilot_hold_reason,shortlist_target,next_action,next_action_on,ready_to_source_at,sourcing_started_at,shortlist_presented_at,selected_at,organization:organizations(organization_name)").is("archived_at", null).order("next_action_on", { ascending: true, nullsFirst: false }).limit(500),
       client.from("vendors").select("id,vendor_name,legal_business_name,website,growth_vendor_id,primary_contact_id,relationship_status,relationship_source,relationship_owner_id,vetting_decision,vetting_decision_date,vetting_review_due_on,vetting_summary,proof_level,proven_service_categories,proof_decision_date,service_categories,delivery_modes,capabilities_summary,current_capacity_note,capacity_checked_on,internal_restrictions_concerns,typical_project_minimum_cents,typical_project_maximum_cents,church_ministry_experience,headquarters_city,headquarters_state_region,next_follow_up_on,consideration_consent_status,consideration_consented_at,consideration_consent_source,consideration_consent_reference,consideration_consent_recorded_by,created_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
       client.from("match_details").select("id,need_id,vendor_id,need_title,organization_name,vendor_name,stage,vendor_interest,project_availability,must_have_fit,overall_fit,fit_rationale,concerns,shortlist_rank,recommendation_summary,organization_feedback,shortlisted_at,need_budget_band,introduction_fee_tier,agreed_introduction_fee_cents,renewal_fee_applies,agreed_renewal_fee_cents,renewal_trigger_terms,placement_agreement_status,placement_agreement_reference,introduced_at,updated_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),
       client.from("engagement_details").select("id,selected_match_id,need_id,vendor_id,organization_id,need_title,need_type,organization_name,vendor_name,status,agreement_selection_on,planned_start_on,actual_start_on,actual_completion_on,launch_confirmation_reference,launch_summary,church_start_confirmed_on,vendor_start_confirmed_on,delivery_health,latest_check_in_on,latest_check_in_summary,next_check_in_on,current_milestone,milestone_status,milestone_due_on,delivery_next_action,delivery_next_action_on,delivery_check_ins,delivery_event_count,issue_escalation_summary,outcome_review_status,outcome_assessment,would_recommend_again,organization_satisfaction,vendor_performance,outcome_summary,proof_disqualifier,renewal_fee_applies,agreed_introduction_fee_cents,agreed_renewal_fee_cents,introduction_fee_triggered_on,introduction_invoice_status,introduction_amount_invoiced_cents,introduction_gross_collected_cents,introduction_refunds_credits_cents,introduction_taxes_collected_cents,recurring_confirmation_status,recurring_confirmed_on,renewal_fee_triggered_on,renewal_invoice_status,renewal_amount_invoiced_cents,renewal_gross_collected_cents,renewal_refunds_credits_cents,renewal_taxes_collected_cents,total_net_fees_collected_cents,give_back_status,give_back_recipient_type,give_back_recipient,recipient_verification_status,give_back_eligible_cents,actual_give_back_cents,updated_at").is("archived_at", null).order("updated_at", { ascending: false }).limit(500),

@@ -17,5 +17,5 @@ test('concierge intake separates need basics from budget and logistics without d
 test('concierge examples and money are visually distinguishable from entered data', () => {
   assert.match(appSource, /\.fb-concierge-field input::placeholder,.fb-concierge-field textarea::placeholder\{color:#969c91;font-style:italic;font-weight:400;opacity:1\}/);
   assert.match(appSource, /const monetary = typeof value === "string" && value\.trim\(\)\.startsWith\("\$"\)/);
-  assert.match(appSource, /\.fb-concierge-metric-value\.money\{font-family:DM Sans,sans-serif;font-variant-numeric:tabular-nums/);
+  assert.match(appSource, /\.fb-concierge-metric-value\.money\{font-family:(?:DM Sans|var\(--font-sans\)),sans-serif;font-variant-numeric:tabular-nums/);
 });
