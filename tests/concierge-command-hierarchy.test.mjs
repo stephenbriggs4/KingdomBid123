@@ -9,8 +9,8 @@ test('empty Concierge pipeline renders one truthful orientation state', () => {
   assert.match(source, /view === "command" && status === "ready" && !hasConciergePipelineActivity/);
   assert.match(source, /The workspace is ready for Church #1\./);
   assert.match(source, /not represented as approved bench vendors/);
-  assert.match(source, />Create first intake<\/button>/);
-  assert.match(source, />Review vendor evidence<\/button>/);
+  assert.match(source, /actionLabel="Create first intake"/);
+  assert.match(source, /secondaryLabel="Review vendor evidence"/);
 });
 
 test('governance decisions are grouped without changing their stored statuses', () => {

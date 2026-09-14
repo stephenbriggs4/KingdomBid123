@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { supabase } from "./supabaseClient";
+import KBWorkspaceEmptyState from "./KBWorkspaceEmptyState";
 
 let HIGHLIGHT_TAGS, KB_NAV_SCREENS, KB_REVIEW_FILTER_OPTIONS, KB_REVIEW_SORT_OPTIONS, KB_WORKSPACE_CLAY_BACKGROUND, STAR_LABELS, activateOnKey, clearPendingReviewTarget, filterAndSortReviewRecords, getCurrentUserSafe, getPendingReviewTarget, getReturnNavigationTarget, getReviewDashboardStats, getReviewFooterChips, getReviewResultSummary, getReviewSidebarGuidance, getReviewStrongestSignal, logError, queueProjectNavigation, readReturnContext, runSupabaseWithFallback, starFill;
 
@@ -401,24 +402,19 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
   );
 
   if (reviews.length === 0) return (
-    <div style={{ background:"#fffdf8", borderRadius:22, border:"1px solid #dfd5c2", padding:"68px 42px", textAlign:"center", boxShadow:"0 7px 20px rgba(28,40,20,0.045)", marginTop:18 }}>
-      <div style={{ width:60, height:60, borderRadius:18, background:"linear-gradient(135deg,#fffaf0,#f0e6d0)", border:"1px solid #e9d5a5", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 20px" }}>
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#b08840" strokeWidth="1.6" strokeLinecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-      </div>
-      <div style={{ ...rdx.eyebrow, marginBottom:10 }}>Review ledger</div>
-      <div style={{ fontFamily:"var(--font-display),serif", fontSize:28, color:"#1C2814", fontWeight:700, marginBottom:10, letterSpacing:-0.5 }}>
-        {role === "vendor" ? "No published reviews yet" : "No reviews in your record yet"}
-      </div>
-      <div style={{ fontSize:14, color:"#5a5246", lineHeight:1.7, maxWidth:480, margin:"0 auto 24px" }}>
-        {role === "vendor"
-          ? "Complete church work, request thoughtful feedback, and this tab becomes a calm record of earned credibility."
-          : "Once projects are completed, publish honest reviews here so the next church can hire with more confidence."}
-      </div>
-      <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
-        {role === "church" && <button type="button" style={rdx.btnPrimary} onClick={onWrite}>Choose a vendor →</button>}
-        {onBrowse && <button type="button" style={rdx.btnSecondary} onClick={onBrowse}>{role === 'vendor' ? 'Browse projects' : 'Open marketplace'}</button>}
-      </div>
-    </div>
+    <KBWorkspaceEmptyState
+      className="kb-reviews-primary-empty"
+      eyebrow="Review ledger"
+      title={role === "vendor" ? "No published reviews yet" : "No reviews in your record yet"}
+      body={role === "vendor"
+        ? "Complete church work, request thoughtful feedback, and this tab becomes a calm record of earned credibility."
+        : "Once projects are completed, publish honest reviews here so the next church can hire with more confidence."}
+      actionLabel={role === "church" ? "Choose a vendor" : null}
+      onAction={onWrite}
+      secondaryLabel={onBrowse ? (role === 'vendor' ? 'Browse projects' : 'Open marketplace') : null}
+      onSecondary={onBrowse}
+      style={{marginTop:18}}
+    />
   );
 
   const filtered = filterAndSortReviewRecords(reviews, filter, sort);

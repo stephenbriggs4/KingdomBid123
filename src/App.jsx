@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import { supabase } from './supabaseClient'
 import * as Sentry from "@sentry/react";
 import { loadPendingWaitlistInvitationContext, normalizeWaitlistInvitationRole, restorePendingWaitlistInvitationRoute } from "./waitlistInvitationContext";
+import KBWorkspaceEmptyState from "./KBWorkspaceEmptyState";
 import "./styles/marketplace.css";
 import "./styles/legacy-route-patches.css";
 import "./styles/controls.css";
@@ -26504,11 +26505,24 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
           </div>
           <div className="kb-live-all-grid">
             {liveAllProjects.length === 0 ? (
-              <div className="kb-live-all-empty" style={{gridColumn:'1/-1',padding:'28px 18px',textAlign:'center',fontSize:13,color:'rgba(28,40,20,0.62)'}}>
-                {hasBrowseRefinements
-                  ? <>No projects match those filters. <button type="button" className="kb-live-all-empty-link" onClick={() => { setSearch(''); setCatFilter('All'); setSavedOnly(false); setUrgentOnly(false); }}>Clear filters →</button></>
-                  : 'No projects to show right now. Check back soon.'}
-              </div>
+              hasBrowseRefinements ? (
+                <div className="kb-live-all-empty" style={{gridColumn:'1/-1',padding:'28px 18px',textAlign:'center',fontSize:13,color:'rgba(28,40,20,0.62)'}}>
+                  No projects match those filters. <button type="button" className="kb-live-all-empty-link" onClick={() => { setSearch(''); setCatFilter('All'); setSavedOnly(false); setUrgentOnly(false); }}>Clear filters →</button>
+                </div>
+              ) : (
+                <KBWorkspaceEmptyState
+                  className="kb-marketplace-primary-empty"
+                  eyebrow="Church marketplace"
+                  title="The next church brief will appear here"
+                  body="FaithBid only shows real, published church needs. Check back as the Dallas pilot opens, or create a project for your own church."
+                  actionLabel="Post a project"
+                  onAction={onPost}
+                  secondaryLabel={role === 'vendor' ? null : "Browse vendors"}
+                  onSecondary={role === 'vendor' ? null : () => typeof onTabSwitch === 'function' ? onTabSwitch('vendors') : null}
+                  minHeight="clamp(320px, 46vh, 430px)"
+                  style={{gridColumn:'1/-1'}}
+                />
+              )
             ) : liveAllProjects.map((project, index) => {
               const bidN = Number(project?.bids || project?.bids_count || 0) || 0;
               const proposalLabel = bidN > 0 ? `${bidN} proposal${bidN === 1 ? '' : 's'}` : 'New listing';
@@ -28550,13 +28564,14 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
           </button>
         </div>
       ) : normalizedProjects.length === 0 ? (
-        <ProjectPrimaryEmptyState
+        <KBWorkspaceEmptyState
+          eyebrow="Get started"
           title="No projects yet"
-          sub="Post your first project. Aligned vendors propose, you compare, and the work moves into the deal room — all in one place."
+          body="Post your first project. Aligned vendors propose, you compare, and the work moves into the deal room — all in one place. Free to post. Usually live in under 3 minutes."
+          actionLabel="Post a project"
           onAction={onPost}
-          onSecondaryAction={()=>nav('vendors')}
-          secondaryActionLabel="Browse vendors"
-          compact
+          secondaryLabel="Browse vendors"
+          onSecondary={()=>nav('vendors')}
         />
       ) : filtered.length === 0 ? (
         <KBIntentionalState
@@ -34898,7 +34913,6 @@ const FB_CONCIERGE_CSS = [
   ".fb-concierge-live{display:flex;align-items:center;gap:7px;margin-top:14px;color:#697063;font-size:10.5px}.fb-concierge-live-dot{width:7px;height:7px;border-radius:50%;background:#3d8b56}.fb-concierge-live.error .fb-concierge-live-dot{background:#b64040}",
   ".fb-concierge-state{padding:52px 22px;text-align:center;color:#6d7468;font-size:12.5px}.fb-concierge-state strong{font-family:var(--font-display),serif;font-size:19px;color:#1c2814;display:block;margin-bottom:5px}",
   ".fb-concierge-notice{margin-bottom:16px;border:1px solid #bdddbf;background:#edf8ed;color:#315b35;border-radius:11px;padding:12px 14px;font-size:12px;line-height:1.5}.fb-concierge-error{border-color:#edc4c4;background:#fff0f0;color:#8d3030}",
-  ".fb-concierge-cold-start{position:relative;overflow:hidden;padding:34px;border:1px solid rgba(155,116,50,.20);border-radius:18px;background:linear-gradient(135deg,#fffdf8 0%,#f3ecde 100%);box-shadow:0 12px 34px rgba(42,53,32,.06)}.fb-concierge-cold-start:after{content:'';position:absolute;width:240px;height:240px;border-radius:50%;right:-110px;top:-130px;background:rgba(176,136,64,.10)}.fb-concierge-cold-start>*{position:relative;z-index:1}.fb-concierge-cold-start h2{margin:5px 0 9px;font-family:var(--font-display),serif;font-size:28px;color:#1c2814}.fb-concierge-cold-start p{max-width:720px;margin:0;color:#687061;font-size:12.5px;line-height:1.65}.fb-concierge-cold-start-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}",
   ".fb-concierge-modal-backdrop{position:fixed;inset:0;z-index:5000;background:rgba(18,24,15,.58);display:flex;align-items:center;justify-content:center;padding:20px}.fb-concierge-modal{width:min(820px,100%);max-height:min(880px,94vh);overflow:auto;background:#fffdf8;border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.28)}",
   ".fb-concierge-modal-head{position:sticky;top:0;z-index:2;background:#fffdf8;padding:20px 22px 15px;border-bottom:1px solid rgba(28,40,20,.09)}.fb-concierge-modal-head h2{font-family:var(--font-display),serif;font-size:23px;margin:3px 0 4px}.fb-concierge-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:13px}.fb-concierge-step{height:4px;border-radius:8px;background:#e3dfd4}.fb-concierge-step.active{background:#8a6a22}",
   ".fb-concierge-form{padding:20px 22px}.fb-concierge-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.fb-concierge-field{display:block;font-size:11px;font-weight:850;color:#313b2b}.fb-concierge-field.wide{grid-column:1/-1}.fb-concierge-field small{font-weight:600;color:#878c82}.fb-concierge-field input,.fb-concierge-field select,.fb-concierge-field textarea{display:block;width:100%;margin-top:6px;border:1px solid rgba(28,40,20,.15);border-radius:8px;background:#fff;padding:9px 10px;color:#1c2814;font:500 12px var(--font-sans),sans-serif;outline:none}.fb-concierge-field input::placeholder,.fb-concierge-field textarea::placeholder{color:#969c91;font-style:italic;font-weight:400;opacity:1}.fb-concierge-field input,.fb-concierge-field select{height:38px}.fb-concierge-field textarea{min-height:76px;resize:vertical}.fb-concierge-checkbox{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;background:#f2eee4;font-size:11.5px;color:#566050}.fb-concierge-checkbox input{margin-top:2px}",
@@ -36841,15 +36855,16 @@ function ConciergeOpsScreen({ currentUser, showToast, dallasPilotOnly = false, o
         {status === "error" && <div className="fb-concierge-notice fb-concierge-error" role="alert"><strong>Live connection needs attention.</strong> {error} <button type="button" onClick={() => void load()} style={{marginLeft:8,border:0,background:"transparent",color:"inherit",textDecoration:"underline",cursor:"pointer",fontWeight:800}}>Retry</button></div>}
 
         {view === "command" && status === "ready" && !hasConciergePipelineActivity ? (
-          <section className="fb-concierge-cold-start" aria-labelledby="fb-concierge-cold-start-title">
-            <div className="fb-concierge-eyebrow">Dallas pilot · operating readiness</div>
-            <h2 id="fb-concierge-cold-start-title">The workspace is ready for Church #1.</h2>
-            <p>No Concierge organization, need, vetted bench vendor, match, or engagement has been recorded yet. {records.growthVendors.length ? `${records.growthVendors.length} Growth Engine vendor lead${records.growthVendors.length === 1 ? " is" : "s are"} still in evidence and consent review; ${records.growthVendors.length === 1 ? "it is" : "they are"} not represented as approved bench vendors.` : "New vendor leads will remain separate until evidence, consent, and Concierge vetting are complete."}</p>
-            <div className="fb-concierge-cold-start-actions">
-              <button type="button" className="fb-concierge-btn primary" onClick={() => setIntakeOpen(true)}>Create first intake</button>
-              <button type="button" className="fb-concierge-btn" onClick={() => setView("vendors")}>Review vendor evidence</button>
-            </div>
-          </section>
+          <KBWorkspaceEmptyState
+            className="fb-concierge-primary-empty"
+            eyebrow="Dallas pilot · operating readiness"
+            title="The workspace is ready for Church #1."
+            body={`No Concierge organization, need, vetted bench vendor, match, or engagement has been recorded yet. ${records.growthVendors.length ? `${records.growthVendors.length} Growth Engine vendor lead${records.growthVendors.length === 1 ? " is" : "s are"} still in evidence and consent review; ${records.growthVendors.length === 1 ? "it is" : "they are"} not represented as approved bench vendors.` : "New vendor leads will remain separate until evidence, consent, and Concierge vetting are complete."}`}
+            actionLabel="Create first intake"
+            onAction={() => setIntakeOpen(true)}
+            secondaryLabel="Review vendor evidence"
+            onSecondary={() => setView("vendors")}
+          />
         ) : view === "command" ? <>
           <section className="fb-concierge-metrics" aria-label="Concierge summary">
             <FBConciergeMetric label="Active needs" value={loadingValue || metrics.activeNeeds.length} note={records.organizations.length + " organizations recorded"}/>
