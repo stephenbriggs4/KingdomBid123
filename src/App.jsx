@@ -22810,6 +22810,7 @@ function readAppScreenFromHash(hashValue, fallback = "landing") {
 
 function readProjectSubTabFromHash(hashValue) {
   const route = String(hashValue || "").replace(/^#\/?/, "").split("/")[0].split("?")[0];
+  if (route === "projects") return "browse";
   return APP_PROJECT_SUBTAB_BY_ROUTE[route] || null;
 }
 
@@ -23206,7 +23207,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
   }, [forceProjectTab, navSubTab, defaultMarketplaceProjectTab]);
   const rawProjectTab = forceProjectTab || navSubTab || localProjectTab || defaultMarketplaceProjectTab;
   const normalizedProjectTab = rawProjectTab === "shortlist" ? defaultMarketplaceProjectTab : rawProjectTab;
-  const projectTab = role === "vendor" && normalizedProjectTab === "vendors" ? "browse" : normalizedProjectTab;
+  const projectTab = normalizedProjectTab;
   // V808: keep previously visited marketplace panels warm instead of destroying
   // and rebuilding them on every tab click. First load stays lean; panels only
   // mount after the user visits them once.
@@ -23221,9 +23222,9 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
   }, [projectTab]);
   const setProjectTab = (tab) => {
     const requestedTab = tab === "shortlist" ? defaultMarketplaceProjectTab : (tab || defaultMarketplaceProjectTab);
-    const safeTab = role === "vendor" && requestedTab === "vendors" ? "browse" : requestedTab;
+    const safeTab = requestedTab;
     setLocalProjectTab(safeTab);
-    if (onSubTabChange) onSubTabChange(safeTab === defaultMarketplaceProjectTab ? null : safeTab);
+    if (onSubTabChange) onSubTabChange(safeTab);
   };
 
   useEffect(() => {
@@ -37045,18 +37046,9 @@ export default function App() {
 
   useEffect(() => {
     if (!["vendors","discover","matches"].includes(screen)) return;
-    setNavSubTab(role === "vendor" ? null : "vendors");
+    setNavSubTab("vendors");
     setScreen("projects");
-  }, [screen, role]);
-
-  // 853x — vendor accounts never enter the vendor-directory subtab. Normalize
-  // stale hashes, saved navigation state, and post-auth destinations to the
-  // vendor's Open Projects floor before any directory panel can become active.
-  useEffect(() => {
-    if (role !== "vendor" || navSubTab !== "vendors") return;
-    setNavSubTab(null);
-    if (screen !== "projects") setScreen("projects");
-  }, [role, navSubTab, screen]);
+  }, [screen]);
 
   const consumePostAuthTarget = React.useCallback(() => {
     const target = loadPostAuthTarget();
@@ -37765,8 +37757,10 @@ export default function App() {
       return;
     }
     setScreen(target);
-    try { window.location.hash = target; } catch {}
-    setNavSubTab(null);
+    const marketplaceDefaultSubTab = (role === "church" || role === "individual") ? "vendors" : "browse";
+    const nextSubTab = target === "projects" ? marketplaceDefaultSubTab : null;
+    try { window.location.hash = target === "projects" ? getProjectSubTabRoute(nextSubTab) : target; } catch {}
+    setNavSubTab(nextSubTab);
     if (target === "projects") {
       try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch {}
     }
