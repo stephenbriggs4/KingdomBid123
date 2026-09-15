@@ -41892,9 +41892,47 @@ function LandingCoverageMap() {
 
 
 
-function LandingExampleReveal({ onAccess }) {
+function LandingVendorPreviewCard({ item }) {
+  return (
+    <article className="kb-marketplace-vendor-card">
+      <div className="kb-marketplace-vendor-card__media">
+        <img src={item.image} alt="" loading="lazy" />
+        <span className="kb-marketplace-vendor-card__category">{item.categoryLabel}</span>
+        <span className="kb-marketplace-vendor-card__save"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></svg></span>
+        {item.vendor.verified ? <span className="kb-marketplace-vendor-card__verified"><span>✓</span> Faith Verified</span> : null}
+      </div>
+      <div className="kb-marketplace-vendor-card__body">
+        <span className="kb-marketplace-vendor-card__title">{item.vendor.name}</span>
+        <p className="kb-marketplace-vendor-card__location"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Dallas, TX</p>
+        <div className="kb-marketplace-vendor-card__footer"><span className={`kb-marketplace-vendor-card__status is-${item.status.tone}`}><span />{item.status.label}</span><span className="kb-marketplace-vendor-card__open">→</span></div>
+      </div>
+    </article>
+  );
+}
+
+function LandingProjectPreviewCard({ item }) {
+  return (
+    <article className="kb-marketplace-project-card">
+      <div className="kb-marketplace-project-card__media">
+        <img src={item.image} alt="" loading="lazy" />
+        <span className="kb-marketplace-project-card__category">{item.categoryLabel}</span>
+        <span className="kb-marketplace-project-card__save"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></svg></span>
+        <span className="kb-marketplace-project-card__status">{item.statusLabel}</span>
+      </div>
+      <div className="kb-marketplace-project-card__body">
+        <span className="kb-marketplace-project-card__title">{item.project.title}</span>
+        <p className="kb-marketplace-project-card__meta"><span>{item.locationLabel}</span><span>·</span><span>{item.timelineLabel}</span></p>
+        <p className="kb-marketplace-project-card__description">{item.project.description}</p>
+        <div className="kb-marketplace-project-card__footer"><div><span>Budget</span><strong>{item.budgetLabel}</strong></div><span className="kb-marketplace-project-card__open">→</span></div>
+      </div>
+    </article>
+  );
+}
+
+function LandingExampleReveal() {
   const sectionRef = useRef(null);
   const [revealed, setRevealed] = useState(false);
+  const [previewMode, setPreviewMode] = useState("vendors");
   useEffect(() => {
     const node = sectionRef.current;
     if (!node || typeof IntersectionObserver === "undefined") { setRevealed(true); return undefined; }
@@ -41904,18 +41942,89 @@ function LandingExampleReveal({ onAccess }) {
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
+
+  const previewVendors = [
+    {
+      vendor: { name:"Facilities service provider", service_city:"Dallas", service_state:"TX", verified:true },
+      image:"/images/faithbid-marketplace-church-v2.png",
+      categoryLabel:"Facilities",
+      status:{ tone:"available", label:"Availability shown here" },
+    },
+    {
+      vendor: { name:"Creative services team", service_city:"Dallas", service_state:"TX", verified:false },
+      image:"/images/faithbid-landing-church.png",
+      categoryLabel:"Creative",
+      status:{ tone:"unknown", label:"Availability shown here" },
+    },
+  ];
+  const previewProjects = [
+    {
+      project:{ title:"Facility maintenance need", description:"A church can share its scope, timing, and priorities in one organized brief." },
+      image:"/images/faithbid-marketplace-church-v2.png",
+      categoryLabel:"Facilities",
+      locationLabel:"Location shown here",
+      timelineLabel:"Timeline shown here",
+      budgetLabel:"Budget shown here",
+      statusLabel:"Project status",
+    },
+    {
+      project:{ title:"Church website refresh", description:"Qualified vendors can review the need and respond when their work is a strong fit." },
+      image:"/images/faithbid-landing-church.png",
+      categoryLabel:"Creative",
+      locationLabel:"Location shown here",
+      timelineLabel:"Timeline shown here",
+      budgetLabel:"Budget shown here",
+      statusLabel:"Project status",
+    },
+  ];
+
   return (
     <section id="landing-example-reveal" ref={sectionRef} className={`fb-example-reveal${revealed ? " is-revealed" : ""}`} aria-labelledby="landing-example-reveal-title">
       <div className="fb-example-reveal__inner">
         <header className="fb-example-reveal__head">
           <div className="fb-section-eyebrow">A glimpse inside</div>
           <h2 id="landing-example-reveal-title">See how the right work comes into focus.</h2>
-          <p>Illustrative profiles only. FaithBid never presents sample content as live marketplace inventory.</p>
+          <p>A look inside the marketplace.</p>
         </header>
-        <div className="fb-example-reveal__cards">
-          <FaithBidCard11A variant="marketplace" title="Ministry bookkeeping support" topLabel="Example — not a live listing" trustLabel="Finance" detail="A profile can show service focus, availability, and reviewed trust signals in one place." avatarText="FB" meta="Illustrative provider profile" valueLabel="Availability" value="Example only" actionLabel="Request access" onAction={()=>onAccess?.("church", "example_reveal")}/>
-          <FaithBidCard11A variant="marketplace" image="/images/faithbid-marketplace-church-v2.png" imageAlt="" title="Preventive facilities care" topLabel="Example — not a live listing" trustLabel="Facilities" detail="Church teams can compare relevant experience and start an organized conversation." avatarText="FB" meta="Illustrative provider profile" valueLabel="Availability" value="Example only" actionLabel="Request access" onAction={()=>onAccess?.("church", "example_reveal")}/>
-        </div>
+        <figure className="fb-product-peek" aria-label="Preview of FaithBid's marketplace showing search, service categories, featured results, and profile cards.">
+          <div className="fb-product-peek__chrome" aria-hidden="true">
+            <span/><span/><span/>
+            <div>app.faithbid.com/marketplace</div>
+            <strong>Product preview</strong>
+          </div>
+          <div className="fb-product-peek__app">
+            <div className="fb-product-peek__nav" aria-hidden="true">
+              <span className="fb-product-peek__brand">FaithBid</span>
+              <div><b>Marketplace</b><span>My Projects</span><span>Deal Rooms</span><span>Saved</span></div>
+              <span className="fb-product-peek__account">Church account</span>
+            </div>
+            <div className="fb-product-peek__hero">
+              <div className="fb-product-peek__mode" role="group" aria-label="Choose marketplace preview">
+                <button type="button" className={previewMode === "vendors" ? "is-active" : ""} aria-pressed={previewMode === "vendors"} onClick={()=>setPreviewMode("vendors")}>Vendors</button>
+                <button type="button" className={previewMode === "projects" ? "is-active" : ""} aria-pressed={previewMode === "projects"} onClick={()=>setPreviewMode("projects")}>Projects</button>
+              </div>
+              <div className="fb-product-peek__eyebrow">{previewMode === "vendors" ? "Church marketplace" : "Vendor marketplace"}</div>
+              <h3>{previewMode === "vendors" ? "What does your church need?" : "Find work that fits your trade."}</h3>
+              <p>{previewMode === "vendors" ? "Find trusted professionals who understand your mission." : "Browse real ministry needs and respond where your work is a strong fit."}</p>
+              <div className="fb-product-peek__search" aria-hidden="true"><span>⌕</span><em>{previewMode === "vendors" ? "What are you looking for?" : "Search briefs, services, or areas…"}</em><i>Dallas, TX</i><b>Search</b></div>
+            </div>
+            <div className="fb-product-peek__categories" aria-hidden="true">
+              {['All services','Facilities','Creative','Technology','Marketing','Finance','Events','Ministry Support'].map((label, index) => <span key={label} className={index === 0 ? "is-active" : ""}>{label}</span>)}
+            </div>
+            <div className="fb-product-peek__results">
+              <div className="fb-product-peek__results-head">
+                <div><small>Featured</small><h4>{previewMode === "vendors" ? "Featured for your church" : "Projects worth a closer look"}</h4></div>
+                <div className="fb-product-peek__segments" aria-hidden="true"><b>Featured</b><span>Newest</span><span>Nearby</span><i>←</i><i>→</i></div>
+              </div>
+              <div className="fb-product-peek__cards" aria-hidden="true">
+                {previewMode === "vendors"
+                  ? previewVendors.map((item) => <LandingVendorPreviewCard key={item.vendor.name} item={item} />)
+                  : previewProjects.map((item) => <LandingProjectPreviewCard key={item.project.title} item={item} />)}
+              </div>
+            </div>
+          </div>
+          <figcaption><span>Illustrative interface—no live listings shown.</span><div><b>Vetting</b><b>Availability</b><b>Reviews</b></div></figcaption>
+        </figure>
       </div>
     </section>
   );
@@ -42028,11 +42137,6 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
     document.getElementById("how-faithbid-works")?.scrollIntoView({ behavior:"smooth", block:"start" });
   };
 
-  const scrollToExampleReveal = () => {
-    if (typeof document === "undefined") return;
-    document.getElementById("landing-example-reveal")?.scrollIntoView({ behavior:"smooth", block:"start" });
-  };
-
   const enterAccessFlow = (role, surface = "hero") => {
     const destination = role === "vendor" ? "vendor-signup" : "church-signup";
     trackLandingCta(role, surface, destination);
@@ -42070,11 +42174,12 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
             <button type="button" className="fb-landing-cta fb-landing-cta-primary" onClick={()=>enterAccessFlow("church")}><span>{LAUNCHED ? "For Churches" : "Request Church Access"}</span><span aria-hidden="true">→</span></button>
             <button type="button" className="fb-landing-cta fb-landing-cta-secondary" onClick={()=>enterAccessFlow("vendor")}><span>{LAUNCHED ? "For Vendors" : "Apply as a Vendor"}</span><span aria-hidden="true">→</span></button>
           </div>
-          <button type="button" className="fb-landing-scroll" onClick={scrollToExampleReveal} aria-label="Preview the FaithBid marketplace"><span aria-hidden="true"/></button>
+          <button type="button" className="fb-landing-scroll" onClick={scrollToHowItWorks} aria-label="Learn how FaithBid works"><span aria-hidden="true"/></button>
         </div>
       </section>
 
-      <LandingExampleReveal onAccess={enterAccessFlow}/>
+      <FirstSessionTrustRail />
+      <LandingExampleReveal />
 
       {/* ── STATS + BROWSE ALL ROW ── */}
       {(()=>{
@@ -42118,8 +42223,6 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
         );
       })()}
 
-
-      <FirstSessionTrustRail />
       <LandingChurchTrustStrip />
 
       <GpiLandingReveal nav={nav}/>
