@@ -41296,14 +41296,20 @@ function LandingMobileMenu({nav, setAuthDefaultRole, setStartFreeDefaultRole}){
 
             <div className="land-menu-section-label">Explore FaithBid</div>
             <nav className="land-menu-links" aria-label="Explore FaithBid">
-              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndNav("vendor-signup", ()=>{ if (typeof setStartFreeDefaultRole === "function") setStartFreeDefaultRole("vendor"); })}>
-                <span>For vendors</span><span aria-hidden="true">→</span>
+              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndScrollTo("how-faithbid-works")}>
+                <span>For Churches</span><span aria-hidden="true">→</span>
+              </button>
+              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndScrollTo("pricing-section")}>
+                <span>For Vendors</span><span aria-hidden="true">→</span>
+              </button>
+              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndScrollTo("how-faithbid-works")}>
+                <span>How It Works</span><span aria-hidden="true">→</span>
               </button>
               <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndNav("about")}>
-                <span>About FaithBid</span><span aria-hidden="true">→</span>
+                <span>About</span><span aria-hidden="true">→</span>
               </button>
               <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndNav("auth", ()=>setAuthDefaultRole("login"))}>
-                <span>Log in</span><span aria-hidden="true">→</span>
+                <span>Sign In</span><span aria-hidden="true">→</span>
               </button>
             </nav>
 
@@ -41579,9 +41585,10 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
             <img src="/logos/faithbid-fb-monogram.png" alt="" aria-hidden="true" />
           </button>
           <div className="land-nav-links fb-landing-nav-links">
-            <button type="button" className="land-nav-btn" onClick={()=>enterAccessFlow("church", "navigation")}>For Churches</button>
-            <button type="button" className="land-nav-btn" onClick={()=>enterAccessFlow("vendor", "navigation")}>For Vendors</button>
+            <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>For Churches</button>
+            <button type="button" className="land-nav-btn" onClick={()=>document.getElementById("pricing-section")?.scrollIntoView({behavior:"smooth",block:"start"})}>For Vendors</button>
             <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>How It Works</button>
+            <button type="button" className="land-nav-btn" onClick={()=>nav("about")}>About</button>
           </div>
           <div className="fb-landing-nav-actions">
             <button type="button" className="fb-landing-signin" onClick={()=>{setAuthDefaultRole("login");nav("auth");}}>Sign In</button>
