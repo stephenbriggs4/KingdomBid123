@@ -26403,7 +26403,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
       <div className="kb-live-shell kb-mp-mobile-unified-shell kb-mp-exact-marketplace-shell">
 
-        <header className="kb-live-hero kb-live-handpicked-hero" aria-label="Open project briefs">
+        {marketplaceIntelligenceStats.open > 0 ? <header className="kb-live-hero kb-live-handpicked-hero" aria-label="Open project briefs">
           <div className="kb-live-section-head kb-live-handpicked-masthead">
             <div className="kb-live-section-headline">
               <div className="kb-live-section-kicker">— Church Projects —</div>
@@ -26426,7 +26426,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
             </button>
             {/* V71 — header is title/stats only; carousel controls live on the detached rail edges. */}
           </div>
-        </header>
+        </header> : null}
 
         {marketplaceVisualProjectTargets.length ? <section className="kb-live-featured is-bare kb-live-featured-detached" aria-label="Open projects">
           {/* V71 — barely-visible edge arrows replace the heavy header controls. */}
@@ -26491,7 +26491,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
         </section> : null}
 
         {/* V72 — compact Marketplace utility filter above All Project Briefs. Surgical: same state pipeline, smaller UI surface. */}
-        <div className="kbm-mp-toolbar" role="search" aria-label="Filter open briefs">
+        {(marketplaceIntelligenceStats.open > 0 || hasBrowseRefinements) ? <div className="kbm-mp-toolbar" role="search" aria-label="Filter open briefs">
           <div className="kbm-mp-search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input
@@ -26574,7 +26574,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               >Reset</button>
             ) : null}
           </div>
-        </div>
+        </div> : null}
 
         {/* ╔══ V43 — ALL PROJECTS (real live data, moved up under Featured) ══════════
             Uses existing CSS classes (.kb-live-all-head, .kb-live-all-grid,
@@ -26582,7 +26582,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
             previous 4-card stub exactly. Cards open the project they display via
             handleAllProjectsCardClick → openProject. Curated cover image picked
             by category. Capped at 12 cards to preserve page rhythm. ═════════════ */}
-        <section>
+        <section className={`mkt2-project-results${liveAllProjects.length === 0 ? ' is-empty' : ''}`}>
           {/* V45 — head shows live filter count; cards show saved-bookmark badge; mobile caps at 6 with Show all */}
           <div className="kb-live-all-head">
             <h2>All project briefs {hasBrowseRefinements ? <span className="kb-live-all-count">· {liveAllProjects.length} match{liveAllProjects.length === 1 ? '' : 'es'}</span> : null}</h2>
@@ -32179,7 +32179,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                   </div>
                 </div>
               )}
-              <div className="kb-church-marketplace-context-line">
+              {(vendors.length > 0 || projectSelectionOptions.length > 0 || founderCoverageContext) ? <div className="kb-church-marketplace-context-line">
                 <div className="kb-church-marketplace-context-copy">
                   {projectSelectionOptions.length ? (
                     <>
@@ -32197,7 +32197,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                       <span>project.</span>
                     </>
                   ) : (
-                    <span>Browse trusted vendors for your ministry. Post a project to unlock project-scored invites.</span>
+                    <span>Add a project when you want recommendations scored against real scope.</span>
                   )}
                   <details className="kb-church-marketplace-match-info">
                     <summary aria-label="How FaithBid recommendations work" title="How recommendations work">i</summary>
@@ -32215,9 +32215,9 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                     Saved Projects →
                   </button>
                 </div>
-              </div>
+              </div> : null}
 
-              <div className={`kb-vendor-toolbar${activeFilterCount > 0 ? ' has-clear' : ''}`}>
+              {(vendors.length > 0 || activeFilterCount > 0) ? <div className={`kb-vendor-toolbar${activeFilterCount > 0 ? ' has-clear' : ''}`}>
                 <input
                   className="kb-vendor-search"
                   aria-label="Search vendors"
@@ -32236,7 +32236,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                   <option value="Recently added">Recently added</option>
                 </select>
                 {activeFilterCount > 0 ? <button type="button" className="kb-vendor-clear" onClick={clearVendorFilters}>Clear</button> : null}
-              </div>
+              </div> : null}
             </>
           ) : (
             <>
@@ -32384,13 +32384,22 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         ) : (
           <div className="kb-live-all-grid">
             {pagedVendors.length === 0 ? (
-              <div className="kb-vendor-empty">
-                {vendors.length === 0
-                  ? 'No vendors are available in the marketplace yet. Approved vendor profiles will appear here as they join.'
-                  : activeFilterCount > 0
+              vendors.length === 0 ? (
+                <KBWorkspaceEmptyState
+                  className="kb-marketplace-primary-empty mkt2-vendor-empty"
+                  eyebrow="Vendor directory"
+                  title="Approved vendors will appear here"
+                  body="FaithBid only publishes real, available vendor profiles. New Dallas-area professionals will appear as their marketplace review is completed."
+                  minHeight="clamp(270px, 38vh, 340px)"
+                  style={{gridColumn:'1/-1'}}
+                />
+              ) : (
+                <div className="kb-vendor-empty">
+                  {activeFilterCount > 0
                     ? <>No vendors match those filters. <button type="button" className="kb-live-all-empty-link" onClick={clearVendorFilters}>Clear filters →</button></>
                     : 'No vendors are available in this view.'}
-              </div>
+                </div>
+              )
             ) : pagedVendors.map((vendor, index) => {
               const vendorKey = String(vendor?.id || vendor?.user_id || vendor?.name || index);
               const isSaved = effectiveSavedVendorIds.has(vendorKey);

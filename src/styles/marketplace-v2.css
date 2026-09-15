@@ -924,3 +924,116 @@ html body #root .mkt2-root .kbm-mp-toolbar {
     transition: none;
   }
 }
+
+/* Item 4: one calm results transition below the category rail. */
+.mkt2-root .mkt2-project-results.is-empty .kb-live-all-head {
+  display: none !important;
+}
+
+.mkt2-root .mkt2-project-results.is-empty,
+.mkt2-root .mkt2-project-results.is-empty .kb-live-all-grid {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.mkt2-root .kb-marketplace-primary-empty {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 300px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.mkt2-root .kb-marketplace-primary-empty > div {
+  width: min(100%, 720px) !important;
+  padding: clamp(34px, 4vw, 48px) clamp(24px, 5vw, 52px) !important;
+  border-color: rgba(55, 65, 58, 0.13) !important;
+  border-radius: 22px !important;
+  background: rgba(255, 253, 248, 0.92) !important;
+  box-shadow: 0 18px 42px rgba(93, 68, 38, 0.075) !important;
+}
+
+.mkt2-root .kb-church-marketplace-context-line {
+  min-height: 48px !important;
+  margin: 0 0 18px !important;
+  padding: 0 2px 14px !important;
+  border-bottom: 1px solid var(--mkt2-border) !important;
+  background: transparent !important;
+}
+
+.mkt2-root .kb-church-marketplace-context-copy {
+  color: var(--mkt2-muted) !important;
+  font-size: 12px !important;
+}
+
+html body #root .mkt2-root .kb-vendor-toolbar,
+html body #root .mkt2-root .kbm-mp-toolbar {
+  width: auto !important;
+  min-height: 44px !important;
+  margin: 0 0 20px auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body #root .mkt2-root .kb-vendor-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.mkt2-root .kb-vendor-toolbar .kb-vendor-select[aria-label="Sort vendors"] {
+  width: 196px !important;
+  flex: 0 0 196px !important;
+}
+
+html body #root .mkt2-root .kbm-mp-toolbar {
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+.mkt2-root .kbm-mp-filter-row {
+  width: auto !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.mkt2-root .kbm-mp-sort {
+  width: 190px !important;
+}
+
+.mkt2-root .mkt2-project-results:not(.is-empty) .kb-live-all-head {
+  margin: 28px 0 18px !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+@media (max-width: 640px) {
+  .mkt2-root .kb-marketplace-primary-empty {
+    min-height: 260px !important;
+  }
+
+  html body #root .mkt2-root .kb-vendor-toolbar,
+  html body #root .mkt2-root .kbm-mp-toolbar,
+  .mkt2-root .kbm-mp-filter-row {
+    width: 100% !important;
+  }
+
+  .mkt2-root .kb-vendor-toolbar .kb-vendor-select[aria-label="Sort vendors"],
+  .mkt2-root .kbm-mp-sort {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+}

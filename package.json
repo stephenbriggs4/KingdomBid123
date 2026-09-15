@@ -28,6 +28,7 @@
     "test:marketplace-card-truth": "node tests/marketplace-card-truth.test.mjs",
     "test:marketplace-role-routing": "node tests/marketplace-role-routing.test.mjs",
     "test:marketplace-header-v2": "node tests/marketplace-header-v2.test.mjs",
+    "test:marketplace-results-cleanup": "node tests/marketplace-results-cleanup.test.mjs",
     "test:migration-update-safety": "node tests/migration-update-safety.test.mjs",
     "test:reconciliation-regressions": "node tests/reconciliation-regressions.test.mjs",
     "test:budget-truth": "node tests/budget-truth.test.mjs",
