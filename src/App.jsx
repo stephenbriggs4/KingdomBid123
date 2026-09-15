@@ -26,6 +26,11 @@ function FaithBidCard11A({
   saved = false,
   onToggleSave,
   matchPercent = null,
+  variant = "legacy",
+  trustLabel = "",
+  detail = "",
+  valueLabel = "",
+  reviewLabel = "",
   ariaLabel,
   className = "",
 }) {
@@ -42,6 +47,69 @@ function FaithBidCard11A({
     if (event?.type === "keydown") event.preventDefault();
     onOpen(event);
   };
+
+  if (variant === "marketplace") {
+    return (
+      <article
+        className={`faithbid-card-11a faithbid-card-11a--marketplace ${className}`.trim()}
+        role={canOpen ? "button" : undefined}
+        tabIndex={canOpen ? 0 : undefined}
+        aria-label={ariaLabel || (canOpen ? `Open ${title}` : undefined)}
+        onClick={activate}
+        onKeyDown={activate}
+      >
+        <div className="faithbid-card-11a__media">
+          {image ? <img src={image} alt={imageAlt || ""} loading="lazy" /> : <span className="faithbid-card-11a__media-mark" aria-hidden="true">FB</span>}
+          <div className="faithbid-card-11a__media-shade" aria-hidden="true" />
+          <div className="faithbid-card-11a__chips">
+            {normalizedTopLabel ? <span className="faithbid-card-11a__category">{normalizedTopLabel}</span> : null}
+            {trustLabel ? <span className="faithbid-card-11a__trust">{trustLabel}</span> : null}
+          </div>
+          <div className="faithbid-card-11a__utilities">
+            {safeMatch != null ? <span className="faithbid-card-11a__match" aria-label={`${safeMatch}% match`}>{safeMatch}% match</span> : null}
+            {typeof onToggleSave === "function" ? (
+              <button
+                type="button"
+                className={`faithbid-card-11a__save${saved ? " is-saved" : ""}`}
+                aria-label={saved ? `Remove ${title} from saved` : `Save ${title}`}
+                aria-pressed={saved}
+                onClick={(event) => { event.stopPropagation(); onToggleSave(event); }}
+              >
+                <span aria-hidden="true" />
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="faithbid-card-11a__body">
+          <h2 className="faithbid-card-11a__title">{title}</h2>
+          {detail ? <p className="faithbid-card-11a__detail">{detail}</p> : null}
+          <div className="faithbid-card-11a__meta-row">
+            <span className="faithbid-card-11a__avatar" aria-hidden="true">{String(avatarText || "FB").slice(0, 2).toUpperCase()}</span>
+            <span className="faithbid-card-11a__meta">{meta}</span>
+          </div>
+          {reviewLabel ? <p className="faithbid-card-11a__reviews">{reviewLabel}</p> : null}
+          <div className="faithbid-card-11a__footer">
+            <div className="faithbid-card-11a__value-wrap">
+              {valueLabel ? <span className="faithbid-card-11a__value-label">{valueLabel}</span> : null}
+              <strong className="faithbid-card-11a__value">{value}</strong>
+            </div>
+            <button
+              type="button"
+              className="faithbid-card-11a__action"
+              disabled={actionDisabled}
+              onClick={(event) => {
+                event.stopPropagation();
+                if (!actionDisabled && typeof onAction === "function") onAction(event);
+              }}
+            >
+              {actionLabel} <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article
@@ -26368,13 +26436,17 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               return (
                 <div className="faithbid-card-11a-rail-item">
                   <FaithBidCard11A
+                    variant="marketplace"
                     image={leadImage}
                     imageAlt=""
                     title={lead.title}
                     topLabel={lead.category}
-                    avatarText={getInitialsSafe(leadProject?.church_name || leadProject?.church || 'FaithBid')}
+                    avatarText="FB"
+                    detail={String(leadProject?.description || leadProject?.desc || '').trim()}
                     meta={`${leadProject?.city || 'Remote'} · ${leadTimelineLabel} · ${lead.proposals || 'New listing'}`}
                     value={lead.budget}
+                    valueLabel="Budget"
+                    trustLabel="Open brief"
                     actionLabel={role === 'vendor' ? 'Submit proposal' : 'Open project'}
                     onOpen={(event) => handleLiveVisualCardClick(0, event)}
                     onAction={(event) => handleLiveVisualCardClick(0, event)}
@@ -26390,13 +26462,17 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               return (
                 <div key={m.project?.id || card.target} className="faithbid-card-11a-rail-item">
                   <FaithBidCard11A
+                    variant="marketplace"
                     image={cardImage}
                     imageAlt=""
                     title={m.title}
                     topLabel={m.category}
-                    avatarText={getInitialsSafe(m.project?.church_name || m.project?.church || 'FaithBid')}
+                    avatarText="FB"
+                    detail={String(m.project?.description || m.project?.desc || '').trim()}
                     meta={`${m.project?.city || 'Remote'} · ${timelineLabel} · ${m.proposals || 'New listing'}`}
                     value={m.budget}
+                    valueLabel="Budget"
+                    trustLabel="Open brief"
                     actionLabel={role === 'vendor' ? 'Submit proposal' : 'Open project'}
                     onOpen={(event) => handleLiveVisualCardClick(card.target, event)}
                     onAction={(event) => handleLiveVisualCardClick(card.target, event)}
@@ -26541,13 +26617,17 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               return (
                 <div key={cardKey} className={`kb-live-card-wrap${showAllProjects ? '' : ' kb-live-card-wrap-cap'}`}>
                   <FaithBidCard11A
+                    variant="marketplace"
                     image={image}
                     imageAlt=""
                     title={cardLabel}
                     topLabel={categoryLabel}
-                    avatarText={getInitialsSafe(project?.church_name || project?.church || 'FaithBid')}
+                    avatarText="FB"
+                    detail={String(project?.description || project?.desc || '').trim()}
                     meta={`${project?.city || 'Remote'} · ${timelineLabel} · ${proposalLabel}`}
                     value={budgetDisplay}
+                    valueLabel="Budget"
+                    trustLabel="Open brief"
                     actionLabel={role === 'vendor' ? 'Submit proposal' : 'Open project'}
                     onOpen={(event) => handleAllProjectsCardClick(project, event)}
                     onAction={(event) => handleAllProjectsCardClick(project, event)}
@@ -32294,7 +32374,10 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               const image = vendorImageFor(vendor, index);
               const recommendedFit = vendor.recommendedFit || computeRecommendedVendorFit(vendor, matchContextProject, viewerCity);
               const recommendedPresentation = getRecommendedFitPresentation(recommendedFit);
-              const ratingLabel = Number(vendor.rating || 0) > 0 ? `${Number(vendor.rating).toFixed(1)}★` : 'New';
+              const reviewCount = Number(vendor.reviews_count || vendor.reviews || 0) || 0;
+              const evidenceRating = getEvidenceBackedRating(vendor.rating, reviewCount);
+              const reviewLabel = evidenceRating ? `${evidenceRating.toFixed(1)} ★ · ${reviewCount} verified review${reviewCount === 1 ? '' : 's'}` : '';
+              const vendorDetail = String(vendor.tagline || vendor.headline || vendor.bio || '').trim();
               const inviteKey = getInviteKey(vendor);
               const vendorDeal = vendorDealStateByKey.get(vendorKey) || {};
               const displayDealState = vendorDeal.displayDealState || 'not_contacted';
@@ -32325,14 +32408,18 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               return (
                 <div key={vendorKey} className="kb-live-card-wrap">
                   <FaithBidCard11A
+                    variant="marketplace"
                     image={image}
                     imageAlt=""
                     title={vendor.name}
-                    topLabel={String(dealStatusLabel || 'Available').toUpperCase()}
-                    topTone="green"
+                    topLabel={categoryLabel}
+                    trustLabel={vendor.verified === true ? 'Faith Verified' : ''}
                     avatarText={getInitialsSafe(vendor.name || 'Vendor')}
-                    meta={`${vendor.city || vendor.service_city || 'Remote delivery'} · ${categoryLabel}`}
-                    value={ratingLabel}
+                    meta={vendor.city || vendor.service_city || 'Remote delivery'}
+                    detail={vendorDetail && vendorDetail !== categoryLabel ? vendorDetail : ''}
+                    reviewLabel={reviewLabel}
+                    valueLabel="Relationship"
+                    value={dealStatusLabel || 'Available'}
                     matchPercent={matchPercent}
                     actionLabel={hasInviteProject ? inviteLabel : 'View profile'}
                     actionDisabled={hasInviteProject && inviteDisabled}
