@@ -40738,13 +40738,13 @@ function GpiLandingReveal({ nav }) {
         <div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:"#b08840",marginBottom:14,fontFamily:"var(--font-sans),sans-serif"}}>Get Plugged In</div>
           <h2 style={{fontFamily:"var(--font-display), serif",fontSize:"clamp(28px,4vw,42px)",fontWeight:500,color:"#fff",lineHeight:1.1,letterSpacing:"-0.03em",margin:"0 0 14px"}}>
-            FaithBid is becoming something bigger.
+            FaithBid is more than a marketplace.
           </h2>
           <p style={{fontSize:15,color:"rgba(255,255,255,0.6)",lineHeight:1.75,maxWidth:480,margin:"0 auto 22px",fontWeight:400}} className="glr-body">
-            Discover local ways to serve, connect, and grow — shaped around what you're looking for and where you are.
+            Get Plugged In is taking shape as a place to discover local ways to serve, connect, and grow around your city.
           </p>
           <button type="button" onClick={()=>nav("get-plugged-in")} style={{background:"none",border:"none",padding:0,color:"#e8cd8c",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>
-            Explore Get Plugged In →
+            Preview Get Plugged In →
           </button>
         </div>
         <div className="glr-stage" style={{position:"relative",width:220,height:220}}>
@@ -41695,6 +41695,8 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
       <FirstSessionTrustRail />
       <LandingChurchTrustStrip />
+
+      <GpiLandingReveal nav={nav}/>
 
       {/* ── PRICING ── */}
       <LandingPricing nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole}/>
