@@ -26386,6 +26386,11 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
           if (target && typeof target.scrollIntoView === 'function') target.scrollIntoView({ behavior:'smooth', block:'start' });
         }}
         onSavedProjects={() => typeof nav === 'function' && nav('saved-projects')}
+        search={search}
+        onSearchChange={setSearch}
+        categories={['All','Web & Technology','Creative Media','Marketing & Communications','Tech / AV / Production','Worship & Music','Construction & Renovation']}
+        activeCategory={catFilter}
+        onCategoryChange={setCatFilter}
       />
 
 
@@ -31472,7 +31477,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   }, []);
   const directoryRef = useRef(null);
   const isHirerMarketplace = role === 'church' || role === 'individual';
-  const isChurchMarketplace = role === 'church' && surface === 'church-vendors';
+  const isChurchMarketplace = surface === 'church-vendors';
   const viewerCity = firstNonEmpty(currentUser?.city, currentUser?.profile?.city, currentUser?.user_metadata?.city, currentUser?.user_metadata?.location, '');
   const inviteChurchId = String(currentUser?.id || '').trim();
   const [selectedVendorProjectMirror, setSelectedVendorProjectMirror] = useState(null);
@@ -32132,8 +32137,15 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
       {isChurchMarketplace ? (
         <ChurchMarketplaceHero
           isActive={isActive}
+          isVendor={role === 'vendor'}
           onPost={onPost}
           onChurchProjects={onBack}
+          onVendorWorkspace={() => typeof onBack === 'function' ? onBack() : null}
+          search={search}
+          onSearchChange={setSearch}
+          categories={chips.length > 1 ? chips.map(([label]) => label) : ['All','Facilities','Creative','Technology','Marketing','Finance','Events','Ministry Support']}
+          activeCategory={category}
+          onCategoryChange={setCategory}
           onBrowse={() => {
             if (directoryRef.current && typeof directoryRef.current.scrollIntoView === 'function') {
               directoryRef.current.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -32355,6 +32367,17 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
             </>
           )}
         </div>
+
+        {!vendorsLoading && vendors.length > 0 ? (
+          <div className="mkt2-results-heading">
+            <div>
+              <p>Featured vendors</p>
+              <h2>Explore trusted professionals.</h2>
+              <span>FaithBid only displays real, available vendor profiles.</span>
+            </div>
+            <strong>{filteredVendors.length} vendor{filteredVendors.length === 1 ? '' : 's'}</strong>
+          </div>
+        ) : null}
 
         {vendorsLoading ? (
           <KBSkeleton variant="list" count={4} style={{maxWidth:920,margin:'20px auto'}} />
@@ -44905,6 +44928,20 @@ function rememberProjectForVendorMatching(churchUserId, project, source = 'proje
     projectSnapshot: { ...(normalized || {}), id: projectId },
   });
 }
+function MarketplaceCategoryGlyph({ index = 0 }) {
+  const paths = [
+    <><path d="M4 18 18 4l2 2L6 20H4v-2Z"/><path d="m12 6 6 6"/></>,
+    <><circle cx="12" cy="12" r="8"/><circle cx="9" cy="9" r="1"/><circle cx="14" cy="8" r="1"/><circle cx="16" cy="13" r="1"/></>,
+    <><rect x="4" y="6" width="16" height="11" rx="1"/><path d="M2 20h20"/></>,
+    <><path d="m4 13 13-6v10L4 11v2Z"/><path d="m7 14 1 5h3"/></>,
+    <><path d="M5 19V9h3v10M11 19V5h3v14M17 19v-7h3v7"/></>,
+    <><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M8 3v6M16 3v6M4 11h16"/></>,
+    <><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 20c0-4 2-6 5-6s5 2 5 6M11 20c0-4 2-6 5-6s5 2 5 6"/></>,
+    <><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></>,
+  ];
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[index % paths.length]}</svg>;
+}
+
 function MarketplaceV2Header({
   view = 'vendors',
   isVendor = false,
@@ -44912,74 +44949,64 @@ function MarketplaceV2Header({
   onVendors,
   onProjects,
   onVendorWorkspace,
+  search = '',
+  onSearchChange,
+  categories = [],
+  activeCategory = 'All',
+  onCategoryChange,
 }) {
   const isProjects = view === 'projects';
-  const title = isProjects ? 'Open Church Projects' : 'Find a Vendor';
+  const title = isProjects ? 'Find work that fits your trade.' : 'What does your church need?';
   const support = isProjects
-    ? 'Real ministry needs from churches in the Dallas pilot.'
-    : 'Browse available ministry partners by service, location, and fit.';
+    ? 'Browse real ministry needs and respond where your work is a strong fit.'
+    : 'Find trusted Christian professionals and businesses who understand your mission.';
   const actionLabel = isVendor ? 'My Work' : 'Post a Project';
   const actionHandler = isVendor ? onVendorWorkspace : onPost;
+  const searchRef = useRef(null);
+  const visibleCategories = (categories.length ? categories : ['All']).slice(0, 8);
 
   return (
     <section className="mkt2-header" aria-labelledby={`mkt2-${view}-title`}>
       <div className="mkt2-header__inner">
+        <div className="mkt2-header__topline">
+          <p className="mkt2-header__eyebrow">{isProjects ? 'Vendor marketplace' : 'Church marketplace'}</p>
+          <div className="mkt2-switch" aria-label="Marketplace views">
+            <button type="button" className="mkt2-switch__option" aria-pressed={!isProjects} onClick={onVendors}>Vendors</button>
+            <button type="button" className="mkt2-switch__option" aria-pressed={isProjects} onClick={onProjects}>Projects</button>
+          </div>
+        </div>
         <div className="mkt2-header__copy">
-          <p className="mkt2-header__eyebrow">Marketplace</p>
           <h1 className="mkt2-header__title" id={`mkt2-${view}-title`}>{title}</h1>
           <p className="mkt2-header__support">{support}</p>
         </div>
-        <div className="mkt2-header__tools">
-          <div className="mkt2-switch" aria-label="Marketplace views">
-            <button
-              type="button"
-              className="mkt2-switch__option"
-              aria-pressed={!isProjects}
-              onClick={onVendors}
-            >
-              Vendors
-            </button>
-            <button
-              type="button"
-              className="mkt2-switch__option"
-              aria-pressed={isProjects}
-              onClick={onProjects}
-            >
-              Projects
-            </button>
-          </div>
-          {typeof actionHandler === 'function' ? (
-            <button type="button" className="mkt2-header__action" onClick={actionHandler}>
-              {actionLabel}
-            </button>
-          ) : null}
+        <div className="mkt2-header__search" role="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input ref={searchRef} type="search" value={search} onChange={(event) => onSearchChange?.(event.target.value)} placeholder={isProjects ? 'Search briefs, services, or areas…' : 'What are you looking for?'} aria-label={isProjects ? 'Search church project briefs' : 'Search vendors and services'} />
+          <span className="mkt2-header__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Dallas, TX</span>
+          <button type="button" onClick={() => searchRef.current?.focus()}>Search</button>
+        </div>
+        <div className="mkt2-header__prompt">
+          <span>{isProjects ? 'Ready to follow up?' : 'Already know the project?'}</span>
+          {typeof actionHandler === 'function' ? <button type="button" onClick={actionHandler}>{actionLabel} <span aria-hidden="true">→</span></button> : null}
         </div>
       </div>
+      <nav className="mkt2-categories" aria-label={isProjects ? 'Project categories' : 'Vendor categories'}>
+        {visibleCategories.map((category, index) => (
+          <button key={category} type="button" className={activeCategory === category ? 'is-active' : ''} aria-pressed={activeCategory === category} onClick={() => onCategoryChange?.(category)}>
+            <MarketplaceCategoryGlyph index={index}/><span>{category === 'All' ? 'All services' : formatMarketplaceCategoryLabel(category, category)}</span>
+          </button>
+        ))}
+      </nav>
     </section>
   );
 }
 
-function ChurchMarketplaceHero({ onPost, onChurchProjects }) {
-  return (
-    <MarketplaceV2Header
-      view="vendors"
-      onPost={onPost}
-      onProjects={onChurchProjects}
-    />
-  );
+function ChurchMarketplaceHero({ onPost, onChurchProjects, search, onSearchChange, categories, activeCategory, onCategoryChange, isVendor = false, onVendorWorkspace }) {
+  return <MarketplaceV2Header view="vendors" isVendor={isVendor} onPost={onPost} onVendors={()=>{}} onProjects={onChurchProjects} onVendorWorkspace={onVendorWorkspace} search={search} onSearchChange={onSearchChange} categories={categories} activeCategory={activeCategory} onCategoryChange={onCategoryChange}/>;
 }
 
-function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors, onBrowseProjects, onMyWork }) {
-  return (
-    <MarketplaceV2Header
-      view="projects"
-      isVendor={isVendor}
-      onPost={onPost}
-      onVendors={onFindVendors}
-      onProjects={onBrowseProjects}
-      onVendorWorkspace={onMyWork}
-    />
-  );
+function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors, onBrowseProjects, onMyWork, search, onSearchChange, categories, activeCategory, onCategoryChange }) {
+  return <MarketplaceV2Header view="projects" isVendor={isVendor} onPost={onPost} onVendors={onFindVendors} onProjects={onBrowseProjects} onVendorWorkspace={onMyWork} search={search} onSearchChange={onSearchChange} categories={categories} activeCategory={activeCategory} onCategoryChange={onCategoryChange}/>;
 }
 
 // v63 — lightweight remote category image presets.

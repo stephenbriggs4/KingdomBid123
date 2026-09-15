@@ -173,6 +173,284 @@ html body #root .mkt2-root {
   }
 }
 
+/* Approved photographic, search-led marketplace top. */
+html body #root .mkt2-root .mkt2-header {
+  border-bottom: 0;
+  background: #fffdf8 !important;
+}
+
+.mkt2-root .mkt2-header__inner {
+  width: 100%;
+  min-height: 338px;
+  padding: 30px max(32px, calc((100vw - 1180px) / 2)) 28px;
+  display: block;
+  background-color: #f4efe4;
+  background-image:
+    linear-gradient(90deg, rgba(255, 252, 245, 0.82) 0%, rgba(255, 252, 245, 0.68) 44%, rgba(255, 252, 245, 0.4) 72%, rgba(255, 252, 245, 0.18) 100%),
+    linear-gradient(180deg, rgba(255, 253, 248, 0.26), rgba(255, 253, 248, 0.44)),
+    url('/images/faithbid-marketplace-church-v2.png');
+  background-position: center, center, center 48%;
+  background-size: cover;
+}
+
+.mkt2-root .mkt2-header__topline {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.mkt2-root .mkt2-header__eyebrow {
+  margin: 0;
+  color: #825a18;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+}
+
+.mkt2-root .mkt2-header__copy {
+  width: min(100%, 880px);
+  margin: 28px auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.mkt2-root .mkt2-header__title {
+  width: 100%;
+  margin-inline: auto;
+  color: #102f29;
+  font-size: clamp(42px, 4.6vw, 66px);
+  font-weight: 500;
+  line-height: 0.98;
+}
+
+.mkt2-root .mkt2-header__support {
+  max-width: 610px;
+  margin: 13px auto 0;
+  color: #53625e;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.mkt2-root .mkt2-header__search {
+  width: min(100%, 780px);
+  min-height: 56px;
+  margin: 22px auto 0;
+  padding: 4px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto 130px;
+  align-items: center;
+  border: 1px solid rgba(24, 48, 39, 0.25);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 13px 32px rgba(56, 40, 21, 0.11);
+}
+
+.mkt2-root .mkt2-header__search > svg {
+  width: 19px;
+  height: 19px;
+  margin-left: 9px;
+  color: #18372f;
+}
+
+.mkt2-root .mkt2-header__search input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 12px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #19352d;
+  font: 600 13px/1 var(--font-sans), system-ui, sans-serif;
+}
+
+.mkt2-root .mkt2-header__search input::placeholder {
+  color: #77817d;
+  opacity: 1;
+}
+
+.mkt2-root .mkt2-header__location {
+  min-height: 32px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-left: 1px solid rgba(24, 48, 39, 0.2);
+  color: #45554f;
+  font: 600 12px/1 var(--font-sans), system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+.mkt2-root .mkt2-header__location svg {
+  width: 17px;
+  height: 17px;
+}
+
+.mkt2-root .mkt2-header__search > button {
+  height: 46px;
+  border: 1px solid #174c3c;
+  border-radius: 8px;
+  background: #174c3c;
+  color: #fff;
+  font: 800 12px/1 var(--font-sans), system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.mkt2-root .mkt2-header__search:focus-within {
+  border-color: #9a6f22;
+  box-shadow: 0 0 0 3px rgba(154, 111, 34, 0.17), 0 13px 32px rgba(56, 40, 21, 0.11);
+}
+
+.mkt2-root .mkt2-header__prompt {
+  margin: 11px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #6b7470;
+  font: 500 11px/1.4 var(--font-sans), system-ui, sans-serif;
+}
+
+.mkt2-root .mkt2-header__prompt button {
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: #174c3c;
+  font: 800 11px/1.4 var(--font-sans), system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.mkt2-root .mkt2-categories {
+  width: min(100% - 48px, 1180px);
+  min-height: 92px;
+  margin: 0 auto;
+  padding: 12px 0 10px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(110px, 1fr);
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: #fffdf8;
+}
+
+.mkt2-root .mkt2-categories::-webkit-scrollbar { display: none; }
+
+.mkt2-root .mkt2-categories button {
+  position: relative;
+  min-width: 110px;
+  padding: 7px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  border-right: 1px solid rgba(55, 65, 58, 0.11);
+  background: transparent;
+  color: #173f35;
+  font: 700 10px/1.2 var(--font-sans), system-ui, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mkt2-root .mkt2-categories button:last-child { border-right: 0; }
+
+.mkt2-root .mkt2-categories button::after {
+  content: '';
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 3px;
+  height: 2px;
+  border-radius: 99px;
+  background: transparent;
+}
+
+.mkt2-root .mkt2-categories button.is-active::after { background: #a87928; }
+
+.mkt2-root .mkt2-categories svg {
+  width: 24px;
+  height: 24px;
+}
+
+.mkt2-root .mkt2-results-heading {
+  margin: 32px 0 18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.mkt2-root .mkt2-results-heading p {
+  margin: 0 0 7px;
+  color: #825a18;
+  font: 800 10px/1 var(--font-sans), system-ui, sans-serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.mkt2-root .mkt2-results-heading h2 {
+  margin: 0;
+  color: var(--mkt2-ink);
+  font: 500 clamp(30px, 3.2vw, 43px)/1 var(--font-display), Georgia, serif;
+  letter-spacing: -0.045em;
+}
+
+.mkt2-root .mkt2-results-heading span {
+  display: block;
+  margin-top: 7px;
+  color: var(--mkt2-muted);
+  font: 500 13px/1.45 var(--font-sans), system-ui, sans-serif;
+}
+
+.mkt2-root .mkt2-results-heading > strong {
+  color: #4e5d57;
+  font: 700 12px/1 var(--font-sans), system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+/* Search and category now live in the photographic header; retain only deeper result controls below. */
+.mkt2-root .kb-vendor-toolbar .kb-vendor-search,
+.mkt2-root .kb-vendor-toolbar .kb-vendor-select[aria-label="Filter by service"],
+.mkt2-root .kbm-mp-toolbar .kbm-mp-search,
+.mkt2-root .kbm-mp-toolbar .kbm-mp-control:first-child {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .mkt2-root .mkt2-header__inner {
+    min-height: 0;
+    padding: 22px 18px 25px;
+    background-position: center, center, 62% center;
+  }
+
+  .mkt2-root .mkt2-header__topline {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .mkt2-root .mkt2-switch { width: auto; }
+  .mkt2-root .mkt2-switch__option { flex: none; }
+
+  .mkt2-root .mkt2-header__copy { margin-top: 24px; }
+  .mkt2-root .mkt2-header__title { font-size: clamp(38px, 11vw, 52px); }
+
+  .mkt2-root .mkt2-header__search {
+    grid-template-columns: 32px minmax(0, 1fr) 92px;
+    margin-top: 20px;
+  }
+
+  .mkt2-root .mkt2-header__location { display: none; }
+  .mkt2-root .mkt2-header__prompt { flex-wrap: wrap; }
+  .mkt2-root .mkt2-categories { width: 100%; padding-inline: 8px; }
+  .mkt2-root .mkt2-results-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
+}
+
 /* Item 2: calm, light working surfaces. Existing filtering and loading logic is preserved. */
 .mkt2-root > .kb-live-shell {
   width: min(100% - 64px, 1368px) !important;
