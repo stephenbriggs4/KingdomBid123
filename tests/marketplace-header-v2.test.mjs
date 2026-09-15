@@ -33,6 +33,14 @@ test('new header remains responsive and keyboard-visible', () => {
   assert.match(source, /aria-label=\{isProjects \? 'Project categories' : 'Vendor categories'\}/);
 });
 
+test('desktop header scales as one composition instead of collapsing into narrow monitor caps', () => {
+  assert.match(styles, /\.mkt2-root \.mkt2-header__inner\s*\{[^}]*padding:[^;]*clamp\(44px, 5vw, 96px\)/s);
+  assert.match(styles, /\.mkt2-root \.mkt2-header__topline\s*\{[^}]*width:\s*100%/s);
+  assert.match(styles, /\.mkt2-root \.mkt2-header__search\s*\{[^}]*width:\s*min\(100%, 64vw, 1500px\)/s);
+  assert.match(styles, /\.mkt2-root \.mkt2-categories\s*\{[^}]*width:\s*calc\(100% - clamp\(32px, 4vw, 96px\)\)[^}]*grid-template-columns:\s*repeat\(8, minmax\(110px, 1fr\)\)/s);
+  assert.doesNotMatch(styles, /padding:\s*30px max\(32px, calc\(\(100vw - 1180px\) \/ 2\)\)/);
+});
+
 test('both marketplace hero headlines override the legacy left-aligned heading rule', () => {
   assert.match(styles, /\.mkt2-root \.mkt2-header__title\s*\{[^}]*text-align:\s*center !important;/s);
   assert.match(styles, /\.mkt2-root \.mkt2-header__support\s*\{[^}]*text-align:\s*center !important;/s);

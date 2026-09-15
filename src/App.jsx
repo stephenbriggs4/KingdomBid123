@@ -24979,6 +24979,42 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
 }
 const MemoVendorMarketplaceFastPanel = React.memo(VendorMarketplaceFastPanel);
 
+function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locationLabel, timelineLabel, budgetLabel, statusLabel, saved = false, onToggleSave, onOpen, role = 'vendor' }) {
+  const title = String(project?.title || 'Untitled project');
+  const description = String(project?.description || project?.desc || '').replace(/\s+/g, ' ').trim();
+  return (
+    <article className="kb-marketplace-project-card">
+      <div className="kb-marketplace-project-card__media">
+        {image ? <img src={image} alt="" loading="lazy" /> : <span className="kb-marketplace-project-card__image-fallback" aria-hidden="true">FB</span>}
+        <span className="kb-marketplace-project-card__category">{categoryLabel}</span>
+        <button
+          type="button"
+          className={`kb-marketplace-project-card__save${saved ? ' is-saved' : ''}`}
+          aria-label={saved ? `Remove ${title} from saved projects` : `Save ${title}`}
+          aria-pressed={saved}
+          onClick={(event) => onToggleSave?.(event)}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></svg>
+        </button>
+        {statusLabel ? <span className={`kb-marketplace-project-card__status${project?.urgent ? ' is-urgent' : ''}`}>{statusLabel}</span> : null}
+      </div>
+      <div className="kb-marketplace-project-card__body">
+        <button type="button" className="kb-marketplace-project-card__title" onClick={onOpen}>{title}</button>
+        <p className="kb-marketplace-project-card__meta">
+          <span>{locationLabel}</span>
+          <span aria-hidden="true">·</span>
+          <span>{timelineLabel}</span>
+        </p>
+        {description ? <p className="kb-marketplace-project-card__description">{description}</p> : null}
+        <div className="kb-marketplace-project-card__footer">
+          <div><span>Budget</span><strong>{budgetLabel}</strong></div>
+          <button type="button" className="kb-marketplace-project-card__open" aria-label={`${role === 'vendor' ? 'Open' : 'View'} ${title}`} onClick={onOpen}>→</button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 
 function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, onMyBids, showToast, nav, vendorVerified, myBids, myActiveProjects, loadingMyBids, loadingMyProjects, myProjectsFetchError = false, onRetryMyProjects, onSelectSample, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null}){
   const STORAGE_KEY = KB_STORAGE_KEYS.marketplaceBoardState;
@@ -25459,12 +25495,8 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
           for (const canonical of selectedCanonicalCats) if (projectCats.has(canonical)) return true;
           return false;
         })();
-      const matchesLocation = locationFilter === 'All Locations' || String(getProjectLocationLabel(project) || '').trim() === locationFilter;
-      const matchesBudget = matchesBudgetBand(project, budgetFilter);
       const matchesSaved = !savedOnly || savedIds.has(String(project.id || project.title));
-      const matchesUrgent = !urgentOnly || !!project.urgent;
-      const matchesReviewing = !reviewingOnly || Number(project.bids || 0) >= 4;
-      return matchesSearch && matchesCat && matchesLocation && matchesBudget && matchesSaved && matchesUrgent && matchesReviewing;
+      return matchesSearch && matchesCat && matchesSaved;
     });
 
     const sorter = (a, b) => {
@@ -25494,9 +25526,9 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
       return scoreProject(b) - scoreProject(a);
     };
     return [...next].sort(sorter);
-  }, [openProjects, debouncedSearch, catFilter, locationFilter, budgetFilter, savedOnly, urgentOnly, reviewingOnly, savedIds, savedAtMap, sortBy]);
+  }, [openProjects, debouncedSearch, catFilter, savedOnly, savedIds, savedAtMap, sortBy]);
 
-  const hasBrowseRefinements = !!debouncedSearch.trim() || catFilter !== 'All' || locationFilter !== 'All Locations' || budgetFilter !== 'Budget: Any' || (sortBy !== 'best_match') || savedOnly || urgentOnly || reviewingOnly;
+  const hasBrowseRefinements = !!debouncedSearch.trim() || catFilter !== 'All' || sortBy !== 'best_match' || savedOnly;
   const featuredThemeBuckets = useMemo(() => {
     const now = Date.now();
     const msPerDay = 86400000;
@@ -26197,30 +26229,22 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     };
   };
 
-  // Real-data pool for the All Projects grid: live filtered/open projects,
-  // deduped by id/title, capped at 12 to preserve page rhythm.
+  // Real-data pool for the project directory. The UI never backfills this
+  // list with samples: it is the visible window of actual open projects.
   const liveAllProjects = useMemo(() => {
     const seen = new Set();
     const out = [];
-    // The toolbar belongs only to All project briefs. Empty persisted data and
-    // empty filtered results both remain truthful; neither is backfilled.
     const filtered = Array.isArray(filteredProjects) ? filteredProjects : [];
-    const open = Array.isArray(openProjects) ? openProjects : [];
-    const sources = hasBrowseRefinements
-      ? [filtered]
-      : [filtered.length ? filtered : open];
-    for (const source of sources) {
-      for (const p of source) {
-        if (!p) continue;
-        const key = String(p.id ?? p.title ?? out.length);
-        if (seen.has(key)) continue;
-        seen.add(key);
-        out.push(p);
-        if (out.length >= 12) return out;
-      }
+    for (const project of filtered) {
+      if (!project) continue;
+      const key = String(project.id ?? project.title ?? out.length);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(project);
+      if (out.length >= visibleCount) break;
     }
     return out;
-  }, [filteredProjects, openProjects, hasBrowseRefinements]);
+  }, [filteredProjects, visibleCount]);
 
   // Pick a curated cover image based on the project's category/title — keeps
   // the All Projects grid visually consistent with the curated rows above.
@@ -26485,6 +26509,8 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     });
   }, [role, projects?.length, filteredProjects?.length]);
 
+  const useStreamlinedProjectDirectory = true;
+
   return (
     <div className={`mkt2-root kb-live-marketplace-page${role === 'vendor' ? ' kb-vendor-open-projects-page' : ''} kb-church-projects-marketplace-page kb-mp-mobile-unified-page kb-mp-mobile-unified-churchprojects kb-mp-exact-marketplace-page kb-mp-exact-marketplace-churchprojects`}>
       
@@ -26507,14 +26533,93 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
         onCategoryChange={setCatFilter}
       />
 
+      {useStreamlinedProjectDirectory ? (
+        <main className="kb-marketplace-projects-body" ref={projectGridRef}>
+          {loading ? (
+            <KBSkeleton variant="list" count={6} style={{margin:'8px 0 0'}} />
+          ) : openProjects.length === 0 ? (
+            <section className="kb-marketplace-project-empty" aria-labelledby="kb-project-marketplace-empty-title">
+              <span className="kb-marketplace-project-empty__mark" aria-hidden="true">✦</span>
+              <p>Church marketplace</p>
+              <h2 id="kb-project-marketplace-empty-title">No open church projects yet</h2>
+              <span>FaithBid only shows real, published church needs. New opportunities will appear here as churches post them.</span>
+              {role === 'vendor' ? (
+                <button type="button" className="kb-marketplace-project-empty__secondary" onClick={() => typeof nav === 'function' && nav('saved-projects')}>View saved projects</button>
+              ) : (
+                <button type="button" className="kb-marketplace-project-empty__primary" onClick={onPost}>Post a project</button>
+              )}
+            </section>
+          ) : (
+            <section className="kb-marketplace-project-directory" aria-labelledby="kb-marketplace-project-directory-title">
+              <div className="kb-marketplace-project-directory__head">
+                <div>
+                  <p className="kb-marketplace-section-kicker">Project opportunities</p>
+                  <h2 id="kb-marketplace-project-directory-title">Open church projects</h2>
+                  <span>{filteredProjects.length} real brief{filteredProjects.length === 1 ? '' : 's'} currently accepting responses.</span>
+                </div>
+                <div className="kb-marketplace-project-directory__controls">
+                  <button
+                    type="button"
+                    className={`kb-marketplace-project-saved${savedOnly ? ' is-active' : ''}`}
+                    aria-pressed={savedOnly}
+                    onClick={() => setSavedOnly(value => !value)}
+                  >
+                    Saved{savedIds.size ? ` (${savedIds.size})` : ''}
+                  </button>
+                  <label className="kb-marketplace-sort">
+                    <span>Sort</span>
+                    <select aria-label="Sort project briefs" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+                      <option value="best_match">Best match</option>
+                      <option value="newest">Newest</option>
+                      <option value="closing_soon">Closing soon</option>
+                      <option value="budget">Highest budget</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
 
-      
+              {liveAllProjects.length ? (
+                <div className="kb-marketplace-project-grid">
+                  {liveAllProjects.map((project, index) => {
+                    const projectId = project?.id == null ? '' : String(project.id);
+                    const ageDays = getProjectFreshness(project);
+                    const statusLabel = project?.urgent ? 'Urgent' : ageDays != null && ageDays <= 4 ? 'New' : 'Open';
+                    return (
+                      <MarketplaceProjectDirectoryCard
+                        key={projectId || project?.title || index}
+                        project={project}
+                        image={pickImageForProject(project, index)}
+                        categoryLabel={getProjectCardCategoryLabel(project, project?.category || 'Project')}
+                        locationLabel={getProjectLocationLabel(project)}
+                        timelineLabel={getProjectTimelineLabel(project)}
+                        budgetLabel={formatProjectBudget(project?.budget)}
+                        statusLabel={statusLabel}
+                        saved={!!projectId && savedIds.has(projectId)}
+                        onToggleSave={(event) => handleToggleSave(project, event)}
+                        onOpen={() => openProject(project)}
+                        role={role}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="kb-marketplace-project-filter-empty">
+                  <span aria-hidden="true">⌕</span>
+                  <h3>No projects match this view</h3>
+                  <p>Try another service category or return to every open project.</p>
+                  <button type="button" onClick={() => clearBoardFilters({announce:false})}>Clear filters</button>
+                </div>
+              )}
 
-
-
-      
-
-
+              {hasMoreToLoad ? (
+                <div ref={loadMoreSentinelRef} className="kb-marketplace-project-load-more" aria-live="polite">
+                  {loadingMoreServerProjects ? 'Loading more projects…' : 'More projects load as you browse'}
+                </div>
+              ) : null}
+            </section>
+          )}
+        </main>
+      ) : (
       <div className="kb-live-shell kb-mp-mobile-unified-shell kb-mp-exact-marketplace-shell">
 
         {marketplaceIntelligenceStats.open > 0 ? <header className="kb-live-hero kb-live-handpicked-hero" aria-label="Open project briefs">
@@ -26788,6 +26893,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
         {/* ╚════════════════════════════════════════════════════════════════════════ */}
 
       </div>
+      )}
       {filterSheetOpen && (
         <>
           <div

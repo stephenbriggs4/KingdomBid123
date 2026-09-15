@@ -14,9 +14,10 @@ test('empty project inventory renders one intentional empty state without redund
 test('category filters use canonical project taxonomy and never a sample-data fallback', () => {
   assert.match(app, /selectedCanonicalCats = catFilter === 'All'/);
   assert.match(app, /__kbDeriveProjectCategories\(project\)/);
-  assert.match(app, /const sources = hasBrowseRefinements\s*\? \[filtered\]\s*:\s*\[filtered\.length \? filtered : open\]/s);
+  assert.match(app, /const filtered = Array\.isArray\(filteredProjects\) \? filteredProjects : \[\];/);
+  assert.doesNotMatch(app, /const sources = hasBrowseRefinements\s*\? \[filtered\]\s*:\s*\[filtered\.length \? filtered : open\]/s);
   assert.match(app, /\.from\("projects"\)[\s\S]*?\.eq\("status", "open"\)/);
-  assert.match(app, /title="No matching briefs yet"/);
+  assert.match(app, /No projects match this view/);
 });
 
 test('empty vendor inventory removes controls that cannot affect any records', () => {
