@@ -371,12 +371,12 @@ function PublicLegalFooter({ compact = false }) {
   const currentYear = new Date().getFullYear();
   return (
     <footer
-      className={`fb-public-legal-footer${compact ? " is-compact" : ""}`}
+      className={`fb-public-footer-v2${compact ? " is-compact" : ""}`}
       role="contentinfo"
       aria-label="FaithBid public disclaimer and contact"
     >
       <style>{`
-        .fb-public-legal-footer{
+        .fb-public-footer-v2{
           width:100%;
           position:relative;
           z-index:1;
@@ -384,42 +384,42 @@ function PublicLegalFooter({ compact = false }) {
           background-image:var(--clay-bg);
           background-size:cover;
           background-position:center;
-          border-top:1px solid rgba(255,255,255,.10);
-          color:rgba(255,255,255,.72);
-          padding:30px 48px max(30px, env(safe-area-inset-bottom));
+          border-top:1px solid rgba(232,224,208,.12);
+          color:rgba(255,253,248,.76);
+          padding:30px 48px max(32px, env(safe-area-inset-bottom));
           font-family:var(--font-sans),sans-serif;
         }
-        .fb-public-legal-footer.is-compact{padding-top:24px;padding-bottom:max(24px, env(safe-area-inset-bottom));}
-        .fb-public-legal-footer__inner{width:min(1040px,100%);margin:0 auto;display:grid;gap:8px;}
-        .fb-public-legal-footer__copyright{font-size:12.5px;font-weight:700;color:rgba(255,255,255,.88);letter-spacing:.01em;}
-        .fb-public-legal-footer__copy{max-width:940px;font-size:12.5px;line-height:1.62;font-weight:400;color:rgba(255,255,255,.62);}
-        .fb-public-legal-footer__links{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:3px;}
-        .fb-public-legal-footer__link{color:#e0c57e;font-size:12.5px;font-weight:700;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;border-radius:4px;}
-        .fb-public-legal-footer__link:hover{color:#f1d998;}
-        .fb-public-legal-footer__link:focus-visible{outline:2px solid #f1d998;outline-offset:4px;}
+        .fb-public-footer-v2.is-compact{padding-top:26px;padding-bottom:max(28px, env(safe-area-inset-bottom));}
+        .fb-public-footer-v2__inner{width:min(1180px,100%);margin:0 auto;display:grid;grid-template-columns:minmax(190px,.34fr) minmax(0,1fr);gap:clamp(30px,6vw,86px);align-items:start;}
+        .fb-public-legal-footer__brand{font-family:var(--font-display),Georgia,serif;font-size:25px;font-weight:700;line-height:1;color:#fffaf0;letter-spacing:-.035em;margin-bottom:9px;}
+        .fb-public-legal-footer__copyright{font-size:11.5px;font-weight:700;color:rgba(255,253,248,.78);letter-spacing:.01em;line-height:1.5;}
+        .fb-public-legal-footer__disclaimers{display:grid;gap:7px;}
+        .fb-public-legal-footer__copy{max-width:880px;font-size:11.5px;line-height:1.58;font-weight:400;color:rgba(255,253,248,.66);}
+        .fb-public-legal-footer__links{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:13px;}
+        .fb-public-legal-footer__link{color:#e0bd73;font-size:11.5px;font-weight:800;text-decoration:none;border-bottom:1px solid rgba(224,189,115,.42);border-radius:2px;}
+        .fb-public-legal-footer__link:hover{color:#fffaf0;border-bottom-color:#fffaf0;}
+        .fb-public-legal-footer__link:focus-visible{outline:2px solid #b27b22;outline-offset:4px;}
         @media(max-width:760px){
-          .fb-public-legal-footer{padding:26px 20px max(28px, env(safe-area-inset-bottom));}
-          .fb-public-legal-footer.is-compact{padding-top:20px;}
-          .fb-public-legal-footer__inner{gap:9px;}
-          .fb-public-legal-footer__copyright,.fb-public-legal-footer__copy,.fb-public-legal-footer__link{font-size:11.5px;}
-          .fb-public-legal-footer__copy{line-height:1.58;}
+          .fb-public-footer-v2{padding:26px 22px max(30px, env(safe-area-inset-bottom));}
+          .fb-public-footer-v2.is-compact{padding-top:24px;}
+          .fb-public-footer-v2__inner{grid-template-columns:1fr;gap:20px;}
+          .fb-public-legal-footer__brand{font-size:23px;}
+          .fb-public-legal-footer__copyright,.fb-public-legal-footer__copy,.fb-public-legal-footer__link{font-size:11px;}
+          .fb-public-legal-footer__copy{line-height:1.55;}
         }
       `}</style>
-      <div className="fb-public-legal-footer__inner">
-        <div className="fb-public-legal-footer__copyright">
-          © {currentYear} {cfg.owner}. All rights reserved.
+      <div className="fb-public-footer-v2__inner">
+        <div className="fb-public-legal-footer__identity">
+          <div className="fb-public-legal-footer__brand">FaithBid</div>
+          <div className="fb-public-legal-footer__copyright">© {currentYear} {cfg.owner}. All rights reserved.</div>
+          <div className="fb-public-legal-footer__links">
+            <a className="fb-public-legal-footer__link" href="#get-plugged-in">Get Plugged In</a>
+            <a className="fb-public-legal-footer__link" href={`mailto:${cfg.contactEmail}`} aria-label={`${cfg.contactLabel} ${cfg.owner} at ${cfg.contactEmail}`}>{cfg.contactLabel}</a>
+          </div>
         </div>
-        <div className="fb-public-legal-footer__copy">{cfg.earlyAccessDisclaimer}</div>
-        <div className="fb-public-legal-footer__copy">{cfg.marketplaceDisclaimer}</div>
-        <div className="fb-public-legal-footer__links">
-          <a className="fb-public-legal-footer__link" href="#get-plugged-in">Get Plugged In</a>
-          <a
-            className="fb-public-legal-footer__link"
-            href={`mailto:${cfg.contactEmail}`}
-            aria-label={`${cfg.contactLabel} ${cfg.owner} at ${cfg.contactEmail}`}
-          >
-            {cfg.contactLabel}
-          </a>
+        <div className="fb-public-legal-footer__disclaimers">
+          <div className="fb-public-legal-footer__copy">{cfg.earlyAccessDisclaimer}</div>
+          <div className="fb-public-legal-footer__copy">{cfg.marketplaceDisclaimer}</div>
         </div>
       </div>
     </footer>
@@ -40141,7 +40141,7 @@ function LandingPricing({nav, setStartFreeDefaultRole}){
     `Reviewed ${VERIFICATION_REVIEW_WINDOW}. Free to apply.`,
   ];
   return (
-    <div id="pricing-section" data-kb-funnel-section="pricing" className="land-pricing-outer" style={withBrandTexture({padding:"80px 48px"})}>
+    <div id="pricing-section" data-kb-funnel-section="pricing" className="land-pricing-outer fb-pricing-v2" style={withBrandTexture({padding:"80px 48px"})}>
       <div style={{maxWidth:1120,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:18}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(232,224,208,0.54)",marginBottom:12}}>Pricing</div>
@@ -40828,7 +40828,7 @@ function getAdminUserSnapshot(allUsers = []) {
 function LandingFAQ(){
   const [open, setOpen] = useState(null);
   return (
-    <div id="landing-faq-section" data-kb-funnel-section="faq" className="land-faq-outer" style={{background:"#fff",padding:"64px 48px"}}>
+    <div id="landing-faq-section" data-kb-funnel-section="faq" className="land-faq-outer fb-faq-v2" style={{background:"#fff",padding:"64px 48px"}}>
       <div style={{maxWidth:720,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:40}}>
           <div style={{fontSize:11,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:"#8a6a2e",marginBottom:10}}>FAQ</div>
@@ -41893,7 +41893,6 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
         </nav>
 
         <div className="land-hero-body fb-landing-hero-body">
-          <div className="fb-landing-pilot-note">Dallas pilot access now forming</div>
           <div className="fb-landing-hero-mark" aria-label="FaithBid — Faith in every bid">
             <div className="fb-landing-hero-wordmark">FaithBid</div>
             <div className="fb-landing-hero-rule" aria-hidden="true"><span/></div>
@@ -41961,7 +41960,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
       {/* ── FAQ ── */}
       <LandingFAQ/>
 
-      <section className="landing-final-proof" style={{background:"#fffdf8",borderTop:"1px solid #dfd5c2",padding:"54px 48px"}}>
+      <section className="landing-final-proof fb-final-access-v2" style={{background:"#fffdf8",borderTop:"1px solid #dfd5c2",padding:"54px 48px"}}>
         <style>{`@media (max-width: 760px){ .landing-final-proof{padding:38px 20px !important;} .landing-final-proof > div{grid-template-columns:1fr !important;text-align:center;} .landing-final-proof button{width:100%;} }`}</style>
         <div style={{maxWidth:940,margin:"0 auto",display:"grid",gridTemplateColumns:"minmax(0,1fr) auto",gap:24,alignItems:"center"}}>
           <div>
@@ -41979,20 +41978,31 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
 
 function LandingChurchTrustStrip() {
-  const items = [
-    { title: "What FaithBid reviews", body: "Marketplace access is reviewed. A Faith Verified badge means FaithBid also reviewed the vendor's faith statement and ministry reference information." },
-    { title: "What the church decides", body: "Your church compares the proposal, references, scope, and fit. FaithBid does not guarantee vendor work or replace project-specific due diligence." },
-    { title: "Who to contact", body: <>Questions or concerns go directly to <a href={`mailto:${BRAND.supportEmail}`} style={{color:"#6f531f",fontWeight:800}}>{BRAND.supportEmail}</a>.</> },
+  const steps = [
+    { num: "01", title: "Business review", body: "We review core business and profile information before marketplace access is approved." },
+    { num: "02", title: "Faith review", body: "Faith Verified applicants provide a faith statement and ministry reference. The badge is earned, never purchased." },
+    { num: "03", title: "Ongoing accountability", body: "Verified vendors commit to integrity, Christlike conduct, local-church accountability, and continued review." },
   ];
   return (
-    <section data-kb-funnel-section="trust" aria-labelledby="landing-trust-title" style={{background:"#f5f0e6",borderTop:"1px solid #dfd5c2",borderBottom:"1px solid #dfd5c2"}}>
-      <div style={{maxWidth:1120,margin:"0 auto",padding:"38px 48px"}}>
-        <div style={{maxWidth:680,marginBottom:20}}>
-          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:"0.18em",textTransform:"uppercase",color:"#8a6729",marginBottom:8}}>Trust, in plain language</div>
-          <h2 id="landing-trust-title" style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(26px,3.5vw,38px)",lineHeight:1.08,color:"#1C2814",margin:0}}>Clear signals. Your church makes the call.</h2>
+    <section data-kb-funnel-section="trust" aria-labelledby="landing-trust-title" className="fb-trust-v2">
+      <div className="fb-trust-v2__inner">
+        <div className="fb-trust-v2__head">
+          <div className="fb-section-eyebrow">Faith Verified</div>
+          <h2 id="landing-trust-title">Faith alignment, thoughtfully reviewed.</h2>
+          <p>A clear, human review process gives churches a stronger starting point—without replacing their judgment.</p>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:14}}>
-          {items.map(item => <div key={item.title} style={{padding:"18px 20px",background:"rgba(255,255,255,.72)",border:"1px solid #dfd5c2",borderRadius:16}}><strong style={{display:"block",fontSize:14,color:"#1C2814",marginBottom:6}}>{item.title}</strong><span style={{fontSize:13,lineHeight:1.65,color:"#62695d"}}>{item.body}</span></div>)}
+        <div className="fb-trust-v2__steps">
+          {steps.map((item) => (
+            <article key={item.num} className="fb-trust-v2__step">
+              <div className="fb-trust-v2__number">{item.num}</div>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </article>
+          ))}
+        </div>
+        <div className="fb-trust-v2__note">
+          <div><strong>Your church still makes the decision.</strong> Faith Verified is a trust signal—not a certification, guarantee, or replacement for due diligence.</div>
+          <a href={`mailto:${BRAND.supportEmail}`}>Questions? {BRAND.supportEmail}</a>
         </div>
       </div>
     </section>
@@ -43331,18 +43341,12 @@ function VendorWorkspaceLaunchPanel({ vendorProfile = {}, projects = [], onBrows
 
 function AuthShell({ nav, children, showProgress = false, step = 1, totalSteps = 3 }) {
   return (
-    <div className="page-shell-dark">
-      <div style={{maxWidth:980,margin:'0 auto',padding:'28px 24px 48px'}}>
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,marginBottom:28,flexWrap:'wrap'}}>
-          <div style={{display:'flex',alignItems:'center',gap:12,cursor:'pointer'}} onClick={() => nav('landing')} role="button" tabIndex={0} onKeyDown={activateOnKey(() => nav('landing'))}>
-            <CrossLogo size={30}/>
-            <div>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:'uppercase',color:'var(--atext-muted)'}}>FaithBid</div>
-              <div style={{fontSize:13,color:'var(--atext-2)'}}>Account access</div>
-            </div>
-          </div>
+    <div className="page-shell-dark fb-auth-shell-v2">
+      <div className="fb-auth-layout">
+        <div className="fb-auth-topbar">
+          <button type="button" className="fb-auth-brand" onClick={() => nav('landing')} aria-label="FaithBid home">FaithBid</button>
           {showProgress ? (
-            <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+            <div className="fb-auth-progress" style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
               {Array.from({ length: totalSteps }).map((_, idx) => {
                 const index = idx + 1;
                 const active = index === step;
@@ -43357,9 +43361,14 @@ function AuthShell({ nav, children, showProgress = false, step = 1, totalSteps =
                 );
               })}
             </div>
-          ) : <button type="button" onClick={() => nav('landing')} style={{background:'none',border:'none',fontSize:12,color:'var(--atext-muted)',cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Back to home</button>}
+          ) : (
+            <div className="fb-auth-top-actions">
+              <button type="button" className="fb-auth-home-link" onClick={() => nav('landing')}>Back to home</button>
+              <button type="button" className="fb-auth-access-link" onClick={() => nav('church-signup')}>Request Access</button>
+            </div>
+          )}
         </div>
-        <div style={{maxWidth:640,margin:'0 auto',background:'rgba(7,14,12,0.92)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:28,padding:'34px 32px 32px',boxShadow:'0 28px 72px rgba(0,0,0,0.30)'}}>
+        <div className="fb-auth-card">
           {children}
         </div>
       </div>
@@ -43371,6 +43380,7 @@ function AuthPrimaryBtn({ onClick, disabled = false, children }) {
   return (
     <button
       type="button"
+      className="fb-auth-primary"
       onClick={onClick}
       disabled={disabled}
       style={{width:'100%',height:54,borderRadius:12,border:'none',background:disabled?'rgba(232,180,10,0.28)':'var(--gold-light)',color:'#1C2814',fontSize:14,fontWeight:800,cursor:disabled?'not-allowed':'pointer',fontFamily:"var(--font-sans),sans-serif",transition:'transform 0.16s ease, opacity 0.16s ease',opacity:disabled?0.68:1}}
@@ -43399,17 +43409,17 @@ function AuthFloatingField({ label, type = 'text', value, onChange, selectedRole
   })() : null;
 
   return (
-    <div style={{marginBottom:18}}>
-      <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--atext-muted)',marginBottom:8}}>{label}</div>
+    <div className="fb-auth-field-wrap" style={{marginBottom:18}}>
+      <div className="fb-auth-field-label" style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--atext-muted)',marginBottom:8}}>{label}</div>
       {type === 'textarea' ? (
-        <textarea value={value} onChange={onChange} rows={5} style={{...baseStyle,resize:'vertical'}} />
+        <textarea className="fb-auth-field" value={value} onChange={onChange} rows={5} style={{...baseStyle,resize:'vertical'}} />
       ) : type === 'select' ? (
-        <select value={value} onChange={onChange} style={{...baseStyle,appearance:'none',WebkitAppearance:'none'}}>
+        <select className="fb-auth-field" value={value} onChange={onChange} style={{...baseStyle,appearance:'none',WebkitAppearance:'none'}}>
           <option value="">Select an option</option>
           {selectOptions.map(option => <option key={option} value={option}>{option}</option>)}
         </select>
       ) : (
-        <input type={type} value={value} onChange={onChange} style={baseStyle} />
+        <input className="fb-auth-field" type={type} value={value} onChange={onChange} style={baseStyle} />
       )}
       {pwStrength && (
         <div style={{marginTop:6}}>
@@ -43607,10 +43617,10 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
 
   if(mode==="login") return (
     <AuthShell nav={nav}>
-      <div style={{marginBottom:48}}>
-        <div style={{fontSize:11,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-light)",fontWeight:700,marginBottom:18}}>Sign in</div>
-        <div style={{fontFamily:"var(--font-display),serif",fontSize:52,fontWeight:700,color:"#fff",lineHeight:1,letterSpacing:-2,marginBottom:14}}>Welcome back.</div>
-        <div style={{fontSize:15,color:"var(--atext-muted)",fontWeight:400}}>Enter your details below.</div>
+      <div className="fb-auth-intro" style={{marginBottom:48}}>
+        <div className="fb-auth-eyebrow" style={{fontSize:11,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-light)",fontWeight:700,marginBottom:18}}>Sign in</div>
+        <div className="fb-auth-title" style={{fontFamily:"var(--font-display),serif",fontSize:52,fontWeight:700,color:"#fff",lineHeight:1,letterSpacing:-2,marginBottom:14}}>Welcome back.</div>
+        <div className="fb-auth-subtitle" style={{fontSize:15,color:"var(--atext-muted)",fontWeight:400}}>Enter your details below.</div>
       </div>
       {errBanner}
       {error && error.includes("confirm your email") && (
@@ -43633,7 +43643,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
       )}
       <AuthFloatingField label="Email address" type="email" value={form.email} onChange={e=>set("email",e.target.value)} selectedRole={selectedRole}/>
       <AuthFloatingField label="Password" type="password" value={form.password} onChange={e=>set("password",e.target.value)} selectedRole={selectedRole}/>
-      <div style={{textAlign:"right",marginTop:-8,marginBottom:24}}>
+      <div className="fb-auth-forgot" style={{textAlign:"right",marginTop:-8,marginBottom:24}}>
         <button type="button" onClick={async()=>{
           if(!form.email){setError("Enter your email first.");return;}
           setLoading(true);
@@ -43649,7 +43659,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
         }} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",padding:0}}>Forgot password?</button>
       </div>
       <AuthPrimaryBtn onClick={handleLogin} disabled={loading}>{loading?"Signing in…":"Sign in →"}</AuthPrimaryBtn>
-      <div style={{marginTop:24,fontSize:13,color:"var(--atext-muted)",textAlign:"center"}}>
+      <div className="fb-auth-switch" style={{marginTop:24,fontSize:13,color:"var(--atext-muted)",textAlign:"center"}}>
         Don't have an account?{" "}
         <button type="button" onClick={()=>{ setError(""); if (typeof nav === "function") nav(selectedRole === "vendor" ? "vendor-signup" : "church-signup"); }} style={{background:"none",border:"none",color:"var(--gold-light)",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",fontSize:13,fontWeight:600}}>{selectedRole === "vendor" ? "Apply as a Charter Vendor →" : "Join the waitlist →"}</button>
       </div>
