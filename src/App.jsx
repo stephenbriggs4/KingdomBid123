@@ -39751,116 +39751,6 @@ function goToLandingFAQ(nav){
   if (typeof nav === "function") nav("landing");
 }
 
-function LandingFaithVerified({nav}){
-  const [currentUser, setCurrentUser] = useState(null);
-  useEffect(()=>{ let alive = true; getCurrentUserSafe().then(user => { if (alive) setCurrentUser(user || null); }); return ()=>{ alive = false; }; },[]);
-  const scrollToLandingFAQ = () => goToLandingFAQ(nav);
-  const handleApply = () => {
-    if (currentUser) { nav("verify-profile"); return; }
-    nav("vendor-signup");
-  };
-  const TIERS = [
-    {
-      name:"Marketplace Approved",
-      desc:"Approved by FaithBid to participate in the marketplace.",
-      steps:["Create your account","Complete your vendor profile","Complete marketplace review"],
-      badge:"Marketplace Approved",
-      badgeColor:"#4f5f49",
-      badgeBg:"#edf1eb",
-    },
-    {
-      name:"Faith Verified",
-      desc:"Additional FaithBid review of your faith statement and ministry reference information.",
-      steps:["Submit a faith statement","Provide ministry reference information","FaithBid team review"],
-      badge:"Faith Verified",
-      badgeColor:"#8a6a2e",
-      badgeBg:"#fbf2df",
-      featured:true,
-    },
-  ];
-
-  return (
-    <div id="faith-verified-section" data-kb-funnel-section="faith_verified" className="land-fv-outer" style={{"--text-muted":"#6f675b",background:"var(--cream)",padding:"72px 0"}}>
-      <div className="land-fv-inner" style={{maxWidth:1100,margin:"0 auto",padding:"0 48px"}}>
-
-        {/* Header */}
-        <div className="land-fv-header" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:64,alignItems:"end",marginBottom:42}}>
-          <div>
-            <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:16}}>Faith Verified</div>
-            <h2 style={{fontFamily:"var(--font-display),serif",fontSize:48,fontWeight:700,color:"var(--navy)",lineHeight:1,letterSpacing:-1,margin:0}}>
-              Not just talented.<br/><span style={{color:"#6f675b"}}>Accountable.</span>
-            </h2>
-          </div>
-          <div style={{paddingBottom:4}}>
-            <p style={{fontSize:16,color:"var(--text-muted)",fontWeight:400,lineHeight:1.8,margin:"0 0 20px 0"}}>
-              Any platform can list providers. FaithBid is built to show what has actually been reviewed: faith statement, ministry reference, visible badge status, review history, and an accountable project record over time.
-            </p>
-            <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-              <button type="button"
-                onClick={handleApply}
-                className="btn-primary"
-                style={{padding:"12px 24px",fontSize:13}}
-              >{currentUser ? "Go to Verification" : "Apply for verification"}</button>
-              <button type="button" onClick={scrollToLandingFAQ} className="btn-secondary" style={{padding:"12px 22px",fontSize:12}}>How trust works</button>
-            </div>
-          </div>
-        </div>
-
-        <div className="land-fv-proof-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:14,marginBottom:34}}>
-          {[
-            {eyebrow:"Reviewed", title:"Faith statement + reference", body:"Faith Verified vendors submit a faith statement and one ministry reference for team review."},
-            {eyebrow:"Visible", title:"Badge status on profile", body:"Churches can distinguish marketplace participation from the additional Faith Verified trust signal."},
-            {eyebrow:"Documented", title:"Real project record", body:"Messages, milestones, approvals, reviews, and disputes stay attached to the work record."},
-          ].map((item, i)=>(
-            <div className="land-fv-proof-card" key={item?.eyebrow || item?.title || i} style={{background:"#fff",borderRadius:18,border:"1px solid rgba(42,53,32,0.08)",padding:"18px 18px 16px",boxShadow:"0 10px 24px rgba(20,25,27,0.04)"}}>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:8}}>{item.eyebrow}</div>
-              <div style={{fontFamily:"var(--font-display),serif",fontSize:22,lineHeight:1.08,color:"var(--navy)",marginBottom:8}}>{item.title}</div>
-              <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7}}>{item.body}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Verification tiers */}
-        <div style={{marginBottom:30}}>
-          <div style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:12,textAlign:"center"}}>Verification Tiers</div>
-          <h3 style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"var(--navy)",textAlign:"center",marginBottom:8,letterSpacing:-0.5}}>Two distinct trust signals.</h3>
-          <p style={{fontSize:15,color:"var(--text-muted)",textAlign:"center",fontWeight:400,marginBottom:36,maxWidth:520,margin:"0 auto 36px"}}>Marketplace Approved governs participation. Faith Verified is an additional reviewed trust signal; it is not required just to bid.</p>
-          <div className="land-fv-tiers" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:16}}>
-            {TIERS.map((t)=>(
-              <div key={t.label||t.name||t.title} style={{background:"#fff",borderRadius:"var(--r-lg)",border:t.featured?"2px solid var(--gold)":"1.5px solid var(--border)",padding:"28px 24px",position:"relative",transition:"all 0.18s"}}>
-                {t.featured && <div style={{position:"absolute",top:-12,left:24,background:"linear-gradient(135deg,var(--gold),var(--gold-light))",color:"var(--navy)",fontSize:10,fontWeight:700,padding:"3px 12px",borderRadius:100,letterSpacing:0.5}}>Most Common</div>}
-                <div style={{display:"inline-flex",marginBottom:16,padding:"4px 12px",borderRadius:100,background:t.badgeBg,border:`1px solid ${t.badgeColor}40`}}>
-                  <span style={{fontSize:11,fontWeight:700,color:t.badgeColor,letterSpacing:0.3}}>{t.badge}</span>
-                </div>
-                <div style={{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"var(--navy)",marginBottom:8}}>{t.name}</div>
-                <div style={{fontSize:12,color:"var(--text-muted)",lineHeight:1.6,marginBottom:20,fontWeight:400}}>{t.desc}</div>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {t.steps.map((s,si)=>(
-                    <div key={si} style={{display:"flex",alignItems:"flex-start",gap:10}}>
-                      <div style={{width:18,height:18,borderRadius:"50%",background:"var(--cream-dark)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:"var(--text-muted)",flexShrink:0,marginTop:1}}>{si+1}</div>
-                      <span style={{fontSize:12,color:"var(--text-mid)",lineHeight:1.5}}>{s}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="land-fv-covenant-footer" style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:20,flexWrap:"wrap",padding:"20px 22px",border:"1px solid var(--border)",borderRadius:18,background:"#fff"}}>
-          <div style={{maxWidth:680}}>
-            <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:7}}>Vendor Covenant</div>
-            <div style={{fontFamily:"var(--font-display),serif",fontSize:21,fontWeight:700,color:"var(--navy)",marginBottom:5}}>Five commitments. One accountable standard.</div>
-            <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.65}}>Faith Verified vendors commit to service, integrity, Christlike conduct, local-church accountability, and ongoing review. One ministry reference is required.</div>
-          </div>
-          <button type="button" onClick={handleApply} className="btn-primary" style={{padding:"12px 24px",fontSize:13}}>{currentUser ? "Go to Verification" : "Apply for verification"}</button>
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
 /* ══════════════════════════════════
    LANDING // PRICING
 ══════════════════════════════════ */
@@ -39985,10 +39875,16 @@ function LandingPricing({nav, setStartFreeDefaultRole}){
 /* ══════════════════════════════════
    LANDING // TESTIMONIALS
 ══════════════════════════════════ */
+// PLACEHOLDER — fabricated testimonials, MUST replace before prospect-facing use.
+// This guard is deliberately impossible to enable in a production build.
+const SHOW_PLACEHOLDER_TESTIMONIALS = import.meta.env.DEV
+  && import.meta.env.VITE_SHOW_PLACEHOLDER_TESTIMONIALS !== "false";
+
 function LandingTestimonials(){
   const viewportWidth = useViewportWidth(1440);
   const isCompactMobile = viewportWidth < 420;
   const isTouchCompact = viewportWidth < 900;
+  // PLACEHOLDER — fabricated testimonial data for Stephen's local visual preview only.
   const TESTIMONIALS = [
     {quote:"We posted our website project on a Friday and had 8 bids by Monday. We hired a fantastic designer who understood our vision immediately.",author:"Pastor David M.",role:"Grace Fellowship Church",city:"Dallas, TX",rating:5,avatar:"CH"},
     {quote:"As a Christian AV company, finding churches that share our values used to be impossible. FaithBid changed everything. 4 projects in 2 months.",author:"Marcus T.",role:"Summit Sound & AV",city:"Phoenix, AZ",rating:5,avatar:""},
@@ -40047,7 +39943,7 @@ function LandingTestimonials(){
   return (
     <div style={{background:"var(--cream)",padding:"52px 0",overflow:"hidden"}}>
       <div style={{textAlign:"center",marginBottom:28,padding:"0 24px"}}>
-        <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:8}}>Testimonials</div>
+        <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:8}}>Internal preview · placeholder testimonials</div>
         <div style={{display:"flex",justifyContent:"center",gap:2,fontSize:13,color:"#ca8a04"}}>★★★★★</div>
       </div>
       <div
@@ -41708,6 +41604,8 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
       {/* ── PRICING ── */}
       <LandingPricing nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole}/>
+
+      {SHOW_PLACEHOLDER_TESTIMONIALS && <LandingTestimonials/>}
 
       {/* ── FAQ ── */}
       <LandingFAQ/>
