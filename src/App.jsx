@@ -41668,15 +41668,49 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
       {/* ── FAQ ── */}
       <LandingFAQ/>
 
-      <section className="landing-final-proof fb-final-access-v2" style={{background:"#fffdf8",borderTop:"1px solid #dfd5c2",padding:"54px 48px"}}>
-        <style>{`@media (max-width: 760px){ .landing-final-proof{padding:38px 20px !important;} .landing-final-proof > div{grid-template-columns:1fr !important;text-align:center;} .landing-final-proof button{width:100%;} }`}</style>
-        <div style={{maxWidth:940,margin:"0 auto",display:"grid",gridTemplateColumns:"minmax(0,1fr) auto",gap:24,alignItems:"center"}}>
-          <div>
-            <div style={{fontFamily:"var(--font-sans), monospace",fontSize:10,fontWeight:800,letterSpacing:"0.18em",textTransform:"uppercase",color:"#8a6729",marginBottom:10}}>Before you sign up</div>
-            <h2 style={{fontFamily:"var(--font-display), serif",fontSize:"clamp(26px,4vw,40px)",lineHeight:1.06,letterSpacing:"-0.03em",color:"#1C2814",margin:"0 0 10px"}}>See the kind of work FaithBid is built to organize.</h2>
-            <p style={{fontSize:14.5,lineHeight:1.75,color:"#5f6659",margin:0,fontWeight:400}}>Reserve a place for your church in FaithBid's first Dallas pilot cohort. No project is posted until your team is ready.</p>
+      <section className="landing-final-proof fb-final-access-v2">
+        <div className="fb-final-access-v2__inner">
+          <header className="fb-final-access-v2__head">
+            <div className="fb-section-eyebrow">Before you sign up</div>
+            <h2>See the kind of work FaithBid is built to organize.</h2>
+            <p>These examples show the shape of a project brief—not live inventory. Real projects only appear after a church chooses to publish.</p>
+          </header>
+          <div className="fb-final-access-v2__cards" aria-label="Illustrative FaithBid project briefs">
+            <FaithBidCard11A
+              variant="marketplace"
+              image="/images/faithbid-marketplace-church-v2.png"
+              imageAlt=""
+              title="Sanctuary audio assessment"
+              topLabel="Example — not a live listing"
+              trustLabel="AV & Tech"
+              detail="Assess coverage, speech clarity, and upgrade priorities before requesting proposals."
+              avatarText="FB"
+              meta="Illustrative Dallas-area brief"
+              valueLabel="Stage"
+              value="Planning"
+              actionLabel="How it works"
+              onAction={scrollToHowItWorks}
+            />
+            <FaithBidCard11A
+              variant="marketplace"
+              image="/images/faithbid-landing-church.png"
+              imageAlt=""
+              title="Church website refresh"
+              topLabel="Example — not a live listing"
+              trustLabel="Web & Creative"
+              detail="Clarify goals, content needs, timing, and handoff expectations in one organized brief."
+              avatarText="FB"
+              meta="Illustrative Dallas-area brief"
+              valueLabel="Stage"
+              value="Scoping"
+              actionLabel="How it works"
+              onAction={scrollToHowItWorks}
+            />
           </div>
-          <button type="button" onClick={()=>{ trackLandingCta("church", "final_proof", "church-signup"); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }} style={{border:"1px solid rgba(28,40,20,0.12)",background:"#1C2814",color:"#fff",borderRadius:999,padding:"15px 24px",fontSize:13.5,fontWeight:800,cursor:"pointer",boxShadow:"0 18px 40px rgba(28,40,20,0.18)",whiteSpace:"nowrap"}}>Reserve church access →</button>
+          <div className="fb-final-access-v2__cta-row">
+            <p>Reserve a place in the first Dallas pilot. Nothing is posted until your church is ready.</p>
+            <button type="button" onClick={()=>{ trackLandingCta("church", "final_proof", "church-signup"); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }}>Reserve church access →</button>
+          </div>
         </div>
       </section>
 

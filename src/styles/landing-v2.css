@@ -902,6 +902,16 @@ html body .fb-final-access-v2 > div { max-width: 1180px !important; }
 html body .fb-final-access-v2 h2 { color: #143631 !important; font-size: clamp(36px, 4.5vw, 54px) !important; font-weight: 600 !important; letter-spacing: -.04em !important; }
 html body .fb-final-access-v2 p { max-width: 720px !important; color: #63706b !important; }
 html body .fb-final-access-v2 button { border-radius: 10px !important; background: #173f33 !important; box-shadow: 0 15px 34px rgba(18, 55, 45, .15) !important; }
+.fb-final-access-v2__inner { margin: 0 auto; }
+.fb-final-access-v2__head { max-width: 780px; margin-bottom: 32px; }
+.fb-final-access-v2__head h2 { margin: 0 0 14px; line-height: 1.03; }
+.fb-final-access-v2__head p { margin: 0; font-size: 15px; line-height: 1.75; }
+.fb-final-access-v2__cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; max-width: 920px; }
+.fb-final-access-v2__cards .faithbid-card-11a--marketplace { min-height: 400px; }
+.fb-final-access-v2__cards .faithbid-card-11a__category { max-width: none; white-space: normal; line-height: 1.2; }
+.fb-final-access-v2__cta-row { display: flex; justify-content: space-between; align-items: center; gap: 28px; margin-top: 30px; padding-top: 26px; border-top: 1px solid rgba(18, 55, 45, .14); }
+.fb-final-access-v2__cta-row p { margin: 0; font-size: 13.5px; line-height: 1.65; }
+.fb-final-access-v2__cta-row > button { flex: 0 0 auto; border: 0; color: #fff; padding: 15px 24px; font-size: 13.5px; font-weight: 800; cursor: pointer; white-space: nowrap; }
 
 @media (max-width: 860px) {
   .fb-trust-v2__inner { width: min(100% - 48px, 680px); padding: 64px 0; }
@@ -922,4 +932,7 @@ html body .fb-final-access-v2 button { border-radius: 10px !important; backgroun
   html body .fb-final-access-v2 { padding: 60px 22px !important; }
   html body .fb-final-access-v2 > div { text-align: left !important; }
   html body .fb-final-access-v2 button { width: 100% !important; }
+  .fb-final-access-v2__cards { grid-template-columns: 1fr; }
+  .fb-final-access-v2__cards .faithbid-card-11a--marketplace { min-height: 0; }
+  .fb-final-access-v2__cta-row { align-items: stretch; flex-direction: column; gap: 18px; }
 }
