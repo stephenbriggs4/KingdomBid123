@@ -898,6 +898,20 @@ html body .fb-final-access-v2 {
   background-repeat: no-repeat !important;
 }
 
+.fb-example-reveal { padding: 72px 48px; background: #fffdf8; border-bottom: 1px solid rgba(18,55,45,.1); overflow: hidden; }
+.fb-example-reveal__inner { width: min(980px,100%); margin: 0 auto; }
+.fb-example-reveal__head { max-width: 650px; margin: 0 auto 30px; text-align: center; }
+.fb-example-reveal__head h2 { margin: 0 0 12px; color: #143631; font-family: var(--font-display),Georgia,serif; font-size: clamp(34px,4.2vw,50px); font-weight: 600; line-height: 1.04; letter-spacing: -.04em; }
+.fb-example-reveal__head p { margin: 0; color: #66736e; font-size: 14px; line-height: 1.7; }
+.fb-example-reveal__cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; opacity: 0; transform: translateY(18px); transition: opacity .55s ease,transform .55s ease; }
+.fb-example-reveal.is-revealed .fb-example-reveal__cards { opacity: 1; transform: translateY(0); }
+.fb-example-reveal__cards .faithbid-card-11a--marketplace { min-height: 390px; }
+.fb-example-reveal__cards .faithbid-card-11a__category { max-width: none; white-space: normal; line-height: 1.2; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fb-example-reveal__cards { opacity: 1; transform: none; transition: none; }
+}
+
 html body .fb-final-access-v2 > div { max-width: 1180px !important; }
 html body .fb-final-access-v2 h2 { color: #143631 !important; font-size: clamp(36px, 4.5vw, 54px) !important; font-weight: 600 !important; letter-spacing: -.04em !important; }
 html body .fb-final-access-v2 p { max-width: 720px !important; color: #63706b !important; }
@@ -927,6 +941,10 @@ html body .fb-final-access-v2 button { border-radius: 10px !important; backgroun
 }
 
 @media (max-width: 760px) {
+  .fb-example-reveal { padding: 54px 22px; }
+  .fb-example-reveal__head { text-align: left; }
+  .fb-example-reveal__cards { grid-template-columns: 1fr; }
+  .fb-example-reveal__cards .faithbid-card-11a--marketplace { min-height: 0; }
   html body .fb-pricing-v2,
   html body .fb-faq-v2,
   html body .fb-final-access-v2 { padding: 60px 22px !important; }

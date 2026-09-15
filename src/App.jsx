@@ -41466,6 +41466,35 @@ function LandingCoverageMap() {
 
 
 
+function LandingExampleReveal({ onAccess }) {
+  const sectionRef = useRef(null);
+  const [revealed, setRevealed] = useState(false);
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") { setRevealed(true); return undefined; }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) { setRevealed(true); observer.disconnect(); }
+    }, { threshold:0.18 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <section id="landing-example-reveal" ref={sectionRef} className={`fb-example-reveal${revealed ? " is-revealed" : ""}`} aria-labelledby="landing-example-reveal-title">
+      <div className="fb-example-reveal__inner">
+        <header className="fb-example-reveal__head">
+          <div className="fb-section-eyebrow">A glimpse inside</div>
+          <h2 id="landing-example-reveal-title">See how the right work comes into focus.</h2>
+          <p>Illustrative profiles only. FaithBid never presents sample content as live marketplace inventory.</p>
+        </header>
+        <div className="fb-example-reveal__cards">
+          <FaithBidCard11A variant="marketplace" title="Ministry bookkeeping support" topLabel="Example — not a live listing" trustLabel="Finance" detail="A profile can show service focus, availability, and reviewed trust signals in one place." avatarText="FB" meta="Illustrative provider profile" valueLabel="Availability" value="Example only" actionLabel="Request access" onAction={()=>onAccess?.("church", "example_reveal")}/>
+          <FaithBidCard11A variant="marketplace" image="/images/faithbid-marketplace-church-v2.png" imageAlt="" title="Preventive facilities care" topLabel="Example — not a live listing" trustLabel="Facilities" detail="Church teams can compare relevant experience and start an organized conversation." avatarText="FB" meta="Illustrative provider profile" valueLabel="Availability" value="Example only" actionLabel="Request access" onAction={()=>onAccess?.("church", "example_reveal")}/>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, telemetryEnabled = false}){
   const [stats, setStats] = useState({ churches:0, vendors:0, projects:0, founding:0, rating:null, reviewCount:0, loaded:false });
 
@@ -41573,6 +41602,11 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
     document.getElementById("how-faithbid-works")?.scrollIntoView({ behavior:"smooth", block:"start" });
   };
 
+  const scrollToExampleReveal = () => {
+    if (typeof document === "undefined") return;
+    document.getElementById("landing-example-reveal")?.scrollIntoView({ behavior:"smooth", block:"start" });
+  };
+
   const enterAccessFlow = (role, surface = "hero") => {
     const destination = role === "vendor" ? "vendor-signup" : "church-signup";
     trackLandingCta(role, surface, destination);
@@ -41610,9 +41644,11 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
             <button type="button" className="fb-landing-cta fb-landing-cta-primary" onClick={()=>enterAccessFlow("church")}><span>{LAUNCHED ? "For Churches" : "Request Church Access"}</span><span aria-hidden="true">→</span></button>
             <button type="button" className="fb-landing-cta fb-landing-cta-secondary" onClick={()=>enterAccessFlow("vendor")}><span>{LAUNCHED ? "For Vendors" : "Apply as a Vendor"}</span><span aria-hidden="true">→</span></button>
           </div>
-          <button type="button" className="fb-landing-scroll" onClick={scrollToHowItWorks} aria-label="Scroll to how FaithBid works"><span aria-hidden="true"/></button>
+          <button type="button" className="fb-landing-scroll" onClick={scrollToExampleReveal} aria-label="Preview the FaithBid marketplace"><span aria-hidden="true"/></button>
         </div>
       </section>
+
+      <LandingExampleReveal onAccess={enterAccessFlow}/>
 
       {/* ── STATS + BROWSE ALL ROW ── */}
       {(()=>{
