@@ -40137,7 +40137,10 @@ function HelpModal({onClose, role}){
 const KB_LANDING_FAQS = [
   {q:"Is there a church posting fee?", a:"No posting fee is charged to churches in the current preview. Any future church-side terms, if introduced, will be published before they apply."},
   {q:"How does pricing work for vendors?", a:"Vendors can join and bid without charge in the current preview. Standard success-fee and paid-plan pricing remain under review. Any future rate, cap, trigger, payment timing, refund, or reversal terms will be published before they apply."},
-  {q:"What does 'Faith Verified' mean?", a:"Faith Verified means FaithBid completed an additional review of the vendor's faith statement and ministry reference information. It is an added trust signal, but it is not a guarantee of project fit. Churches should still read reviews, compare bids, and use the deal record to make a responsible hiring decision."},
+  {q:"What is the difference between Marketplace Approved and Faith Verified?", a:"Marketplace Approved means a business completed FaithBid's participation review and can use the marketplace. Faith Verified is a separate, additional review of the vendor's faith statement and ministry reference information. Neither status guarantees project fit or work quality; churches still make the hiring decision and should complete project-specific due diligence."},
+  {q:"When will the Dallas pilot open?", a:`The first Dallas pilot is planned for ${LAUNCH_LABEL}, but access will open in measured stages as the founding church and vendor cohort is ready. Requesting access holds your place; it does not guarantee admission or a specific activation date.`},
+  {q:"What happens to my information if the pilot does not reach my area?", a:`FaithBid will keep your early-access information only for pilot communication and account planning consistent with the published privacy terms. You can ask what is on file or request removal by contacting ${BRAND.supportEmail}.`},
+  {q:"Is there a cost to apply for Faith Verified if I am not accepted?", a:"No. FaithBid does not currently charge to apply for Faith Verified, whether or not the review results in approval. Any future terms will be published before they apply."},
   {q:"How is this different from Upwork or Thumbtack?", a:"We're built exclusively for the faith community. Every church and vendor here is specifically here to serve or work with ministries. That shared mission changes the quality of relationships, communication, and work."},
 ];
 
@@ -41663,7 +41666,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
           {num:"Dallas", label:"First pilot market"},
           {num:"Forming", label:"Founding cohort"},
           {num:"Human", label:"Concierge matching"},
-          {num:"Evidence", label:"Trust before claims"},
+          {num:"2", label:"Distinct trust signals"},
         ];
         return (
           <div className="lsb-wrap">
