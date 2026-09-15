@@ -67,8 +67,9 @@ test('the in-app contract does not create an unapproved fee commitment', () => {
 test('vendor empty state distinguishes zero inventory from zero filter matches', () => {
   for (const source of [appSource, projectsSource]) {
     assert.match(source, /vendors\.length === 0/);
-    assert.match(source, /No vendors are available in the marketplace yet/);
     assert.match(source, /activeFilterCount > 0/);
     assert.match(source, /No vendors match those filters/);
   }
+  assert.match(appSource, /Approved vendors will appear here/);
+  assert.match(projectsSource, /No vendors are available in the marketplace yet/);
 });

@@ -18,25 +18,24 @@ test('open project cards do not expose church identity before permission', () =>
 
 test('vendor cards only display ratings backed by review evidence', () => {
   const vendorCards = source.slice(
-    source.indexOf('const reviewCount = Number(vendor.reviews_count'),
-    source.indexOf('{totalPages > 1'),
+    source.indexOf('function MarketplaceVendorDirectoryCard'),
+    source.indexOf('function AllVendorsLanding'),
   );
 
-  assert.match(vendorCards, /getEvidenceBackedRating\(vendor\.rating, reviewCount\)/);
-  assert.match(vendorCards, /reviewLabel=\{reviewLabel\}/);
-  assert.doesNotMatch(vendorCards, /ratingLabel[\s\S]*:\s*['"]New['"]/);
+  assert.doesNotMatch(vendorCards, /vendor\.rating|reviewLabel|ratingLabel/);
 });
 
 test('verification and relationship states remain distinct on vendor cards', () => {
   const vendorCards = source.slice(
-    source.indexOf('const reviewCount = Number(vendor.reviews_count'),
-    source.indexOf('{totalPages > 1'),
+    source.indexOf('function getMarketplaceAvailabilityPresentation'),
+    source.indexOf('function AllVendorsLanding'),
   );
 
-  assert.match(vendorCards, /trustLabel=\{vendor\.verified === true \? 'Faith Verified' : ''\}/);
-  assert.match(vendorCards, /valueLabel="Relationship"/);
-  assert.match(vendorCards, /value=\{dealStatusLabel \|\| 'Available'\}/);
-  assert.match(vendorCards, /topLabel=\{categoryLabel\}/);
+  assert.match(vendorCards, /vendor\?\.verified === true/);
+  assert.match(vendorCards, /> Faith Verified</);
+  assert.match(vendorCards, /label:'In conversation'/);
+  assert.match(vendorCards, /label:'Availability not confirmed'/);
+  assert.doesNotMatch(vendorCards, />Verified</);
 });
 
 test('the redesigned card is scoped to marketplace pages', () => {

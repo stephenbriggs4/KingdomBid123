@@ -4004,6 +4004,10 @@ function normalizeVendorEntity(v = {}, { preserveRaw = true } = {}) {
     reference_count: Number(v.reference_count || 0) || 0,
     response_time: firstNonEmpty(v.response_speed_label, v.response_time, null),
     response_sla: firstNonEmpty(v.response_speed_label, v.response_sla, v.response_time, null),
+    availability_status: ['available', 'limited', 'unavailable'].includes(String(v.availability_status || '').toLowerCase())
+      ? String(v.availability_status).toLowerCase()
+      : 'unknown',
+    availability_updated_at: v.availability_updated_at || null,
     min_project_budget: Number(v.min_project_budget || 0) || null,
     max_project_budget: Number(v.max_project_budget || 0) || null,
     bio: firstNonEmpty(v.bio, ''),
@@ -4964,7 +4968,7 @@ const isVendorAdmittedToDirectory = (vendor) => {
   return status === KB_VENDOR_ADMISSION_STATUS.APPROVED
     || (rawStatus == null && vendor?.verified === true);
 };
-const KB_VENDOR_DIRECTORY_BASE_COLUMNS = "id,name,category,primary_category,category_tags,city,service_city,service_state,base_place_id,service_radius_miles,service_model,min_project_budget,max_project_budget,church_experience_count,completed_project_count,reference_count,response_speed_label,verified,verification_status,tier,founding_vendor,rating,reviews_count,projects_count,response_time,bio,tagline,user_id,image_url,created_at";
+const KB_VENDOR_DIRECTORY_BASE_COLUMNS = "id,name,category,primary_category,category_tags,city,service_city,service_state,base_place_id,service_radius_miles,service_model,min_project_budget,max_project_budget,church_experience_count,completed_project_count,reference_count,response_speed_label,availability_status,availability_updated_at,verified,verification_status,tier,founding_vendor,rating,reviews_count,projects_count,response_time,bio,tagline,user_id,image_url,created_at";
 const KB_VENDOR_DIRECTORY_MIN_COLUMNS = "id,name,category,city,verified,verification_status,user_id,created_at";
 const KB_VENDOR_DIRECTORY_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
 function readVendorDirectoryCache({ verifiedOnly = false } = {}) {
@@ -24791,6 +24795,7 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
   const [marketplaceVendors, setMarketplaceVendors] = useState([]);
   const [vendorsLoading, setVendorsLoading] = useState(true);
   const [savedVendorIds, setSavedVendorIds] = useState(() => new Set(readSavedState().savedVendorIds || []));
+  const [savingVendorIds, setSavingVendorIds] = useState(() => new Set());
   const vendorsFetchInFlightRef = useRef(false);
   const vendorsFetchedAtRef = useRef(0);
   const VENDOR_DIRECTORY_TTL_MS = 120000;
@@ -24832,6 +24837,31 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
   useEffect(() => {
     fetchMarketplaceVendorsFast({ background: true });
   }, [fetchMarketplaceVendorsFast]);
+
+  useEffect(() => {
+    const userId = String(currentUser?.id || '').trim();
+    if (!userId) {
+      setSavedVendorIds(new Set());
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from('saved_vendors')
+      .select('vendor_id')
+      .eq('user_id', userId)
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          logError('marketplace-saved-vendors-read', error);
+          return;
+        }
+        setSavedVendorIds(new Set(safeArray(data).map(row => String(row.vendor_id || '')).filter(Boolean)));
+      })
+      .catch(error => {
+        if (!cancelled) logError('marketplace-saved-vendors-read', error);
+      });
+    return () => { cancelled = true; };
+  }, [currentUser?.id]);
 
 
   useEffect(() => {
@@ -24884,22 +24914,47 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
     showToast && showToast(`Opening ${seeded.name}`);
   }, [nav, onSelectVendorProfile, showToast]);
 
-  const toggleVendorSave = useCallback((vendorId, e) => {
+  const toggleVendorSave = useCallback(async (vendorId, e) => {
     if (e) { e.stopPropagation(); e.preventDefault(); }
     const key = String(vendorId || '');
     if (!key) return;
+    const userId = String(currentUser?.id || '').trim();
+    if (!userId) {
+      showToast && showToast('Sign in with your church account to save vendors.');
+      return;
+    }
+    if (savingVendorIds.has(key)) return;
+    const wasSaved = savedVendorIds.has(key);
+    setSavingVendorIds(prev => new Set(prev).add(key));
     setSavedVendorIds(prev => {
       const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-        showToast && showToast('Removed vendor from saved vendors');
-      } else {
-        next.add(key);
-        showToast && showToast('Saved vendor');
-      }
+      if (wasSaved) next.delete(key);
+      else next.add(key);
       return next;
     });
-  }, [showToast]);
+    try {
+      const result = wasSaved
+        ? await supabase.from('saved_vendors').delete().eq('user_id', userId).eq('vendor_id', key)
+        : await supabase.from('saved_vendors').upsert({ user_id:userId, vendor_id:key }, { onConflict:'user_id,vendor_id' });
+      if (result?.error) throw result.error;
+      showToast && showToast(wasSaved ? 'Removed vendor from saved vendors' : 'Saved vendor');
+    } catch (error) {
+      setSavedVendorIds(prev => {
+        const next = new Set(prev);
+        if (wasSaved) next.add(key);
+        else next.delete(key);
+        return next;
+      });
+      logError('marketplace-saved-vendor-write', error, { vendorId:key });
+      showToast && showToast('Your saved vendors could not be updated. Please try again.');
+    } finally {
+      setSavingVendorIds(prev => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+    }
+  }, [currentUser?.id, savedVendorIds, savingVendorIds, showToast]);
 
   return (
     <AllVendorsLanding
@@ -31536,11 +31591,110 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
   );
 }
 
+function getMarketplaceAvailabilityPresentation(status = 'unknown', relationshipState = 'not_contacted') {
+  if (relationshipState && relationshipState !== 'not_contacted') {
+    return { key:'conversation', label:'In conversation', tone:'conversation' };
+  }
+  const normalized = String(status || 'unknown').toLowerCase();
+  if (normalized === 'available') return { key:'available', label:'Available', tone:'available' };
+  if (normalized === 'limited') return { key:'limited', label:'Limited availability', tone:'limited' };
+  if (normalized === 'unavailable') return { key:'unavailable', label:'Unavailable', tone:'unavailable' };
+  return { key:'unknown', label:'Availability not confirmed', tone:'unknown' };
+}
+
+function computeMarketplaceDirectoryScore(vendor = {}, { selectedCategory = 'All', project = null, viewerCity = '' } = {}) {
+  const clean = (value = '') => String(value || '').trim().toLowerCase();
+  const vendorCategories = [vendor.primary_category, vendor.category, vendor.specialty, ...(safeArray(vendor.category_tags)), ...(safeArray(vendor.tags))]
+    .flatMap(value => typeof __kbCanonicalizeToCategories === 'function' ? __kbCanonicalizeToCategories(value) : [clean(value)])
+    .map(clean)
+    .filter(Boolean);
+  const desiredCategories = selectedCategory && selectedCategory !== 'All'
+    ? (typeof __kbCanonicalizeToCategories === 'function' ? __kbCanonicalizeToCategories(selectedCategory) : [clean(selectedCategory)])
+    : project
+      ? [project.primary_category, project.category, ...(safeArray(project.category_tags))]
+          .flatMap(value => typeof __kbCanonicalizeToCategories === 'function' ? __kbCanonicalizeToCategories(value) : [clean(value)])
+          .map(clean)
+          .filter(Boolean)
+      : [];
+  const categoryKnown = desiredCategories.length > 0;
+  const categoryExact = categoryKnown && vendorCategories.some(category => desiredCategories.includes(category));
+
+  const geoFit = vendor?.geo_fit && typeof vendor.geo_fit === 'object' ? vendor.geo_fit : null;
+  const geoTier = clean(geoFit?.fit_tier);
+  const geoEligible = clean(geoFit?.eligibility) === 'eligible';
+  const viewer = parseCityState(firstNonEmpty(project?.project_city, project?.city, viewerCity, ''));
+  const vendorPlace = parseCityState(firstNonEmpty(vendor?.service_city, vendor?.city, ''));
+  const sameCity = !!(viewer.city && vendorPlace.city && clean(viewer.city) === clean(vendorPlace.city));
+  const sameState = !!(viewer.state && vendorPlace.state && clean(viewer.state) === clean(vendorPlace.state));
+  const proximityKnown = !!(geoFit || viewer.city || viewer.state);
+  const proximityRatio = !proximityKnown ? null
+    : geoEligible && ['exact_place','same_place','radius'].includes(geoTier) ? 1
+    : geoEligible && geoTier === 'market' ? .84
+    : sameCity ? 1
+    : sameState ? .55
+    : geoEligible ? .45
+    : 0;
+
+  const availability = String(vendor?.availability_status || 'unknown').toLowerCase();
+  const availabilityKnown = availability !== 'unknown';
+  const availabilityRatio = availability === 'available' ? 1 : availability === 'limited' ? .6 : 0;
+  const verified = vendor?.verified === true;
+
+  const parts = [
+    categoryKnown ? { key:'category', weight:40, ratio:categoryExact ? 1 : 0 } : null,
+    proximityKnown ? { key:'proximity', weight:25, ratio:proximityRatio || 0 } : null,
+    availabilityKnown ? { key:'availability', weight:20, ratio:availabilityRatio } : null,
+    { key:'faith_verified', weight:15, ratio:verified ? 1 : 0 },
+  ].filter(Boolean);
+  const availableWeight = parts.reduce((sum, part) => sum + part.weight, 0);
+  const earned = parts.reduce((sum, part) => sum + (part.weight * part.ratio), 0);
+  return {
+    score: availableWeight ? Math.round((earned / availableWeight) * 100) : 0,
+    parts: Object.fromEntries(parts.map(part => [part.key, Math.round(part.ratio * 100)])),
+    availableWeight,
+  };
+}
+
+function MarketplaceVendorDirectoryCard({ vendor, image, categoryLabel, saved = false, onToggleSave, onOpen, status }) {
+  const vendorName = String(vendor?.name || 'Vendor');
+  const location = [vendor?.service_city || vendor?.city, vendor?.service_state].filter(Boolean).join(', ') || 'Service area not listed';
+  const faithVerified = vendor?.verified === true;
+  return (
+    <article className="kb-marketplace-vendor-card">
+      <div className="kb-marketplace-vendor-card__media">
+        {image ? <img src={image} alt="" loading="lazy" /> : <span className="kb-marketplace-vendor-card__image-fallback" aria-hidden="true">FB</span>}
+        <span className="kb-marketplace-vendor-card__category">{categoryLabel}</span>
+        <button
+          type="button"
+          className={`kb-marketplace-vendor-card__save${saved ? ' is-saved' : ''}`}
+          aria-label={saved ? `Remove ${vendorName} from saved vendors` : `Save ${vendorName}`}
+          aria-pressed={saved}
+          onClick={(event) => onToggleSave?.(event)}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></svg>
+        </button>
+        {faithVerified ? <span className="kb-marketplace-vendor-card__verified"><span aria-hidden="true">✓</span> Faith Verified</span> : null}
+      </div>
+      <div className="kb-marketplace-vendor-card__body">
+        <button type="button" className="kb-marketplace-vendor-card__title" onClick={onOpen}>{vendorName}</button>
+        <p className="kb-marketplace-vendor-card__location">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          {location}
+        </p>
+        <div className="kb-marketplace-vendor-card__footer">
+          <span className={`kb-marketplace-vendor-card__status is-${status?.tone || 'unknown'}`}><span aria-hidden="true" />{status?.label || 'Availability not confirmed'}</span>
+          <button type="button" className="kb-marketplace-vendor-card__open" aria-label={`Open ${vendorName} profile`} onClick={onOpen}>→</button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendor, vendors: vendorInput = [], vendorsLoading = false, savedVendorIds: savedVendorIdsProp = new Set(), onToggleSave = null, currentUser = null, contextProjects = [], founderCoverageContext = null, onClearFounderCoverageContext = null, surface = 'default', isActive = true }) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 180);
   const [category, setCategory] = useState("All");
-  const [sortBy, setSortBy] = useState("Best overall");
+  const [sortBy, setSortBy] = useState("Best match");
   const [page, setPage] = useState(1);
   const [localSavedVendorIds, setLocalSavedVendorIds] = useState(() => new Set());
   const [invitedVendorKeys, setInvitedVendorKeys] = useState(() => new Set());
@@ -31549,6 +31703,11 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const [vendorPairSignalsLoading, setVendorPairSignalsLoading] = useState(false);
   const [vendorPairSignalRefreshKey, setVendorPairSignalRefreshKey] = useState(0);
   const [geoFitByVendorId, setGeoFitByVendorId] = useState(() => new Map());
+  const [railMode, setRailMode] = useState('featured');
+  const [curationByVendorId, setCurationByVendorId] = useState(() => new Map());
+  const [distanceByVendorId, setDistanceByVendorId] = useState(() => new Map());
+  const featuredRailRef = useRef(null);
+  const featuredRailDragRef = useRef({ active:false, pointerId:null, startX:0, startScrollLeft:0 });
   const refreshVendorPairSignalMaps = useCallback(() => {
     setVendorPairSignalRefreshKey(prev => prev + 1);
   }, []);
@@ -31556,6 +31715,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const isHirerMarketplace = role === 'church' || role === 'individual';
   const isChurchMarketplace = surface === 'church-vendors';
   const viewerCity = firstNonEmpty(currentUser?.city, currentUser?.profile?.city, currentUser?.user_metadata?.city, currentUser?.user_metadata?.location, '');
+  const viewerHasLocation = !!firstNonEmpty(currentUser?.place_id, currentUser?.profile?.place_id, currentUser?.user_metadata?.place_id, '');
   const inviteChurchId = String(currentUser?.id || '').trim();
   const [selectedVendorProjectMirror, setSelectedVendorProjectMirror] = useState(null);
   const normalizedContextProjects = useMemo(() => safeArray(contextProjects).map(p => normalizeProjectEntity(p)).filter(Boolean), [contextProjects]);
@@ -31588,6 +31748,57 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const inviteProjectId = String(matchContextProject?.id || '').trim();
   const inviteSignalChurchId = String(firstNonEmpty(matchContextProject?.church_id, matchContextProject?.client_id, inviteChurchId, '')).trim();
   const hasProjectContext = !!inviteProjectId;
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from('marketplace_vendor_curation')
+      .select('vendor_id,market_key,featured_rank,featured_reason,featured_from,featured_until')
+      .eq('active', true)
+      .order('featured_rank', { ascending:true })
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          logError('marketplace-featured-curation-read', error);
+          setCurationByVendorId(new Map());
+          return;
+        }
+        setCurationByVendorId(new Map(safeArray(data).map(row => [String(row.vendor_id), row])));
+      })
+      .catch(error => {
+        if (!cancelled) {
+          logError('marketplace-featured-curation-read', error);
+          setCurationByVendorId(new Map());
+        }
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!inviteChurchId || !viewerHasLocation) {
+      setDistanceByVendorId(new Map());
+      return () => { cancelled = true; };
+    }
+    supabase
+      .rpc('kb_marketplace_vendor_distances_for_church')
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          logError('marketplace-nearby-distance-read', error);
+          setDistanceByVendorId(new Map());
+          return;
+        }
+        setDistanceByVendorId(new Map(safeArray(data).map(row => [String(row.vendor_id), Number(row.distance_miles)])));
+      })
+      .catch(error => {
+        if (!cancelled) {
+          logError('marketplace-nearby-distance-read', error);
+          setDistanceByVendorId(new Map());
+        }
+      });
+    return () => { cancelled = true; };
+  }, [inviteChurchId, viewerHasLocation]);
   const handleProjectContextRecovery = useCallback((event) => {
     if (event) { event.stopPropagation(); event.preventDefault(); }
     if (typeof onPost === 'function') {
@@ -31633,12 +31844,14 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const { directory: rawVendors } = useMemo(() => getMarketplaceVendorDataset(vendorInput), [vendorInput]);
   const vendors = useMemo(() => rawVendors.map(vendor => {
     const geoFit = geoFitByVendorId.get(String(vendor?.id || '').trim()) || null;
-    const withGeo = { ...vendor, geo_fit: geoFit };
+    const distanceMiles = distanceByVendorId.get(String(vendor?.id || '').trim());
+    const withGeo = { ...vendor, geo_fit: geoFit, distance_miles: Number.isFinite(distanceMiles) ? distanceMiles : null };
     return {
       ...withGeo,
-      recommendedFit: computeRecommendedVendorFit(withGeo, matchContextProject, viewerCity)
+      recommendedFit: computeRecommendedVendorFit(withGeo, matchContextProject, viewerCity),
+      directoryScore: computeMarketplaceDirectoryScore(withGeo, { selectedCategory:category, project:matchContextProject, viewerCity }),
     };
-  }), [rawVendors, matchContextProject, viewerCity, geoFitByVendorId]);
+  }), [rawVendors, matchContextProject, viewerCity, geoFitByVendorId, distanceByVendorId, category]);
   const effectiveSavedVendorIds = onToggleSave ? savedVendorIdsProp : localSavedVendorIds;
 
   const chips = useMemo(() => {
@@ -31654,13 +31867,34 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
       return matchesSearch && matchesCategory;
     });
     list = [...list].sort((a, b) => {
-      if (sortBy === 'Most projects') return (b.projects || 0) - (a.projects || 0) || (b.recommendedFit?.rank || 0) - (a.recommendedFit?.rank || 0);
-      if (sortBy === 'Top rated') return (b.rating || 0) - (a.rating || 0) || (b.reviews || 0) - (a.reviews || 0);
-      if (sortBy === 'Recently added') return Number(b.verified) - Number(a.verified) || a.name.localeCompare(b.name);
-      return (b.recommendedFit?.rankingScore || 0) - (a.recommendedFit?.rankingScore || 0) || (b.recommendedFit?.rank || 0) - (a.recommendedFit?.rank || 0) || Number(b.verified) - Number(a.verified) || a.name.localeCompare(b.name);
+      if (sortBy === 'Available first') {
+        const availabilityRank = { available:3, limited:2, unknown:1, unavailable:0 };
+        return (availabilityRank[b.availability_status] || 0) - (availabilityRank[a.availability_status] || 0)
+          || (b.directoryScore?.score || 0) - (a.directoryScore?.score || 0)
+          || a.name.localeCompare(b.name);
+      }
+      if (sortBy === 'A–Z') return a.name.localeCompare(b.name);
+      return (b.directoryScore?.score || 0) - (a.directoryScore?.score || 0)
+        || Number(b.verified) - Number(a.verified)
+        || a.name.localeCompare(b.name);
     });
     return list;
   }, [vendors, debouncedSearch, category, sortBy]);
+
+  const railVendors = useMemo(() => {
+    const list = [...filteredVendors];
+    if (railMode === 'featured') {
+      return list
+        .filter(vendor => curationByVendorId.has(String(vendor?.id || '')))
+        .sort((a, b) => (Number(curationByVendorId.get(String(a.id))?.featured_rank) || 100) - (Number(curationByVendorId.get(String(b.id))?.featured_rank) || 100));
+    }
+    if (railMode === 'newest') {
+      return list.sort((a, b) => new Date(b?.raw?.created_at || b?.created_at || 0) - new Date(a?.raw?.created_at || a?.created_at || 0));
+    }
+    return list
+      .filter(vendor => Number.isFinite(vendor.distance_miles))
+      .sort((a, b) => a.distance_miles - b.distance_miles);
+  }, [filteredVendors, railMode, curationByVendorId]);
 
   const pageSize = 12;
   const totalPages = Math.max(1, Math.ceil(filteredVendors.length / pageSize));
@@ -31679,6 +31913,8 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   });
 
   const vendorImageFor = (vendor, idx = 0) => {
+    const vendorImage = getValidMediaUrl(firstNonEmpty(vendor?.image_url, vendor?.thumb_url, vendor?.cover, ''));
+    if (vendorImage) return vendorImage;
     const pseudo = vendorProjectShape(vendor);
     return getProjectHeroImage(pseudo, idx) || getProjectHeroImage({ category:'consulting', title:'Trusted vendor partner' }, idx) || '';
   };
@@ -31791,7 +32027,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const vendorDealStateByKey = useMemo(() => {
     const next = new Map();
     const now = new Date().toISOString();
-    safeArray(pagedVendors).forEach((vendor, index) => {
+    safeArray(vendors).forEach((vendor, index) => {
       const vendorKey = String(vendor?.id || vendor?.user_id || vendor?.name || index);
       const vendorId = String(firstNonEmpty(vendor?.id, vendor?.vendor_id, vendor?.user_id, '')).trim();
       const vendorUserId = String(firstNonEmpty(vendor?.user_id, vendor?.vendor_user_id, vendor?.vendor_id, vendor?.id, '')).trim();
@@ -31817,7 +32053,77 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
       });
     });
     return next;
-  }, [pagedVendors, matchContextProject, vendorPairSignalMaps, invitedVendorKeys]);
+  }, [vendors, matchContextProject, vendorPairSignalMaps, invitedVendorKeys]);
+
+  const scrollFeaturedRail = (direction) => {
+    const rail = featuredRailRef.current;
+    if (!rail) return;
+    rail.scrollBy({ left: direction * Math.max(280, rail.clientWidth * .72), behavior:'smooth' });
+  };
+
+  const handleRailPointerDown = (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    const rail = featuredRailRef.current;
+    if (!rail) return;
+    featuredRailDragRef.current = { active:true, moved:false, pointerId:event.pointerId, startX:event.clientX, startScrollLeft:rail.scrollLeft };
+    rail.setPointerCapture?.(event.pointerId);
+  };
+
+  const handleRailPointerMove = (event) => {
+    const drag = featuredRailDragRef.current;
+    const rail = featuredRailRef.current;
+    if (!drag.active || !rail || drag.pointerId !== event.pointerId) return;
+    const delta = event.clientX - drag.startX;
+    if (Math.abs(delta) > 5) drag.moved = true;
+    rail.scrollLeft = drag.startScrollLeft - delta;
+  };
+
+  const finishRailDrag = (event) => {
+    const drag = featuredRailDragRef.current;
+    const rail = featuredRailRef.current;
+    if (drag.active && rail && drag.pointerId === event.pointerId) rail.releasePointerCapture?.(event.pointerId);
+    drag.active = false;
+  };
+
+  const handleRailClickCapture = (event) => {
+    if (!featuredRailDragRef.current.moved) return;
+    event.preventDefault();
+    event.stopPropagation();
+    featuredRailDragRef.current.moved = false;
+  };
+
+  const setMarketplaceRailMode = (mode) => {
+    if (mode === 'nearby' && !viewerHasLocation) {
+      showToast && showToast('Add your church location to use Nearby sorting.');
+      return;
+    }
+    setRailMode(mode);
+    requestAnimationFrame(() => {
+      if (featuredRailRef.current) featuredRailRef.current.scrollLeft = 0;
+    });
+  };
+
+  const getVendorDirectoryCardStatus = (vendor, index = 0) => {
+    const vendorKey = String(vendor?.id || vendor?.user_id || vendor?.name || index);
+    const relationshipState = vendorDealStateByKey.get(vendorKey)?.displayDealState || 'not_contacted';
+    return getMarketplaceAvailabilityPresentation(vendor?.availability_status, relationshipState);
+  };
+
+  const renderMarketplaceVendorDirectoryCard = (vendor, index = 0, keyPrefix = 'grid') => {
+    const vendorKey = String(vendor?.id || vendor?.user_id || vendor?.name || index);
+    return (
+      <MarketplaceVendorDirectoryCard
+        key={`${keyPrefix}-${vendorKey}`}
+        vendor={vendor}
+        image={vendorImageFor(vendor, index)}
+        categoryLabel={getProjectCardCategoryLabel(vendorProjectShape(vendor), vendor.specialty || vendor.category || 'Vendor')}
+        saved={effectiveSavedVendorIds.has(vendorKey)}
+        onToggleSave={(event) => toggleSave(vendor, event)}
+        onOpen={() => handleOpenVendor(vendor)}
+        status={getVendorDirectoryCardStatus(vendor, index)}
+      />
+    );
+  };
 
   const handleInviteVendor = async (vendor, e) => {
     if (e) { e.stopPropagation(); e.preventDefault(); }
@@ -31905,7 +32211,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         source: 'recommended_vendors_app_only',
         created_at: snapshotCreatedAt,
         display_date: snapshotDisplayDate,
-        lens: sortBy || 'Best overall',
+        lens: sortBy || 'Best match',
         fit_label: fit.label || '',
         label_key: fit.labelKey || '',
         reasons: safeArray(fit.reasons).map(snapshotClean).filter(Boolean),
@@ -31950,7 +32256,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const clearVendorFilters = () => {
     setSearch('');
     setCategory('All');
-    setSortBy('Best overall');
+    setSortBy('Best match');
     setPage(1);
   };
 
@@ -31979,7 +32285,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     if (!founderCoverageContextKey) return;
     if (founderCoverageSearchTerm) setSearch(founderCoverageSearchTerm);
     setCategory("All");
-    setSortBy("Best overall");
+    setSortBy("Best match");
     setPage(1);
     requestAnimationFrame(() => {
       if (directoryRef.current && typeof directoryRef.current.scrollIntoView === "function") {
@@ -31992,11 +32298,11 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     if (typeof onClearFounderCoverageContext === "function") onClearFounderCoverageContext();
     setSearch("");
     setCategory("All");
-    setSortBy("Best overall");
+    setSortBy("Best match");
     setPage(1);
   };
 
-  const activeFilterCount = (debouncedSearch.trim() ? 1 : 0) + (category !== 'All' ? 1 : 0) + (sortBy !== 'Best overall' ? 1 : 0);
+  const activeFilterCount = (debouncedSearch.trim() ? 1 : 0) + (category !== 'All' ? 1 : 0) + (sortBy !== 'Best match' ? 1 : 0);
 
   return (
     <div className={`mkt2-root kb-live-marketplace-page kb-vendor-marketplace-page${isHirerMarketplace ? ' kb-hirer-vendor-directory-page' : ' kb-vendor-directory-standalone-page'}${isChurchMarketplace ? ' kb-church-marketplace-page' : ''}`}>
@@ -32231,7 +32537,101 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         />
       ) : null}
 
-      <div className="kb-live-shell" ref={isChurchMarketplace ? null : directoryRef}>
+      {isChurchMarketplace ? (
+        <main className="kb-marketplace-directory-body" ref={directoryRef}>
+          <section className="kb-marketplace-featured" aria-labelledby="kb-marketplace-featured-title">
+            <div className="kb-marketplace-section-head">
+              <div>
+                <p className="kb-marketplace-section-kicker">Featured</p>
+                <div className="kb-marketplace-section-title-line">
+                  <h2 id="kb-marketplace-featured-title">Featured for your church</h2>
+                  <span>Drag to explore →</span>
+                </div>
+              </div>
+              <div className="kb-marketplace-featured-controls">
+                <div className="kb-marketplace-featured-tabs" role="group" aria-label="Featured vendor ordering">
+                  <button type="button" className={railMode === 'featured' ? 'is-active' : ''} aria-pressed={railMode === 'featured'} onClick={() => setMarketplaceRailMode('featured')}>Featured</button>
+                  <button type="button" className={railMode === 'newest' ? 'is-active' : ''} aria-pressed={railMode === 'newest'} onClick={() => setMarketplaceRailMode('newest')}>Newest</button>
+                  <button type="button" className={railMode === 'nearby' ? 'is-active' : ''} aria-pressed={railMode === 'nearby'} disabled={!viewerHasLocation} title={!viewerHasLocation ? 'Add your church location to use Nearby' : 'Sort by distance from your church'} onClick={() => setMarketplaceRailMode('nearby')}>Nearby</button>
+                </div>
+                <button type="button" className="kb-marketplace-rail-arrow" aria-label="Scroll featured vendors left" onClick={() => scrollFeaturedRail(-1)}>←</button>
+                <button type="button" className="kb-marketplace-rail-arrow" aria-label="Scroll featured vendors right" onClick={() => scrollFeaturedRail(1)}>→</button>
+              </div>
+            </div>
+
+            {!viewerHasLocation ? <p className="kb-marketplace-location-note">Add your church location to unlock distance-based Nearby results.</p> : null}
+
+            {vendorsLoading ? (
+              <KBSkeleton variant="list" count={4} style={{margin:'18px 0 0'}} />
+            ) : railVendors.length ? (
+              <div
+                ref={featuredRailRef}
+                className="kb-marketplace-featured-rail"
+                aria-label={`${railMode} vendors`}
+                onPointerDown={handleRailPointerDown}
+                onPointerMove={handleRailPointerMove}
+                onPointerUp={finishRailDrag}
+                onPointerCancel={finishRailDrag}
+                onClickCapture={handleRailClickCapture}
+              >
+                {railVendors.map((vendor, index) => renderMarketplaceVendorDirectoryCard(vendor, index, 'rail'))}
+              </div>
+            ) : (
+              <div className="kb-marketplace-featured-empty" role="status">
+                <strong>{vendors.length ? (railMode === 'featured' ? 'Featured selections are being curated.' : `No ${railMode} vendors match this view.`) : 'Featured vendors will appear here.'}</strong>
+                <span>{vendors.length ? 'Try another view or clear the current search and category filters.' : 'FaithBid only displays real, Marketplace Approved vendor profiles.'}</span>
+              </div>
+            )}
+          </section>
+
+          <section className="kb-marketplace-all-vendors" aria-labelledby="kb-marketplace-all-title">
+            <div className="kb-marketplace-section-head kb-marketplace-section-head--directory">
+              <div>
+                <p className="kb-marketplace-section-kicker">Directory</p>
+                <div className="kb-marketplace-section-title-line">
+                  <h2 id="kb-marketplace-all-title">All vendors</h2>
+                  <span>{filteredVendors.length} Marketplace Approved vendor{filteredVendors.length === 1 ? '' : 's'}</span>
+                </div>
+              </div>
+              <label className="kb-marketplace-sort">
+                <span>Sort</span>
+                <select aria-label="Sort vendors" value={sortBy} onChange={event => setSortBy(event.target.value)}>
+                  <option>Best match</option>
+                  <option>Available first</option>
+                  <option>A–Z</option>
+                </select>
+              </label>
+            </div>
+
+            {vendorsLoading ? (
+              <KBSkeleton variant="list" count={8} style={{margin:'18px 0'}} />
+            ) : pagedVendors.length ? (
+              <div className="kb-marketplace-vendor-grid">
+                {pagedVendors.map((vendor, index) => renderMarketplaceVendorDirectoryCard(vendor, index, 'grid'))}
+              </div>
+            ) : (
+              <KBWorkspaceEmptyState
+                className="kb-marketplace-primary-empty kb-marketplace-directory-empty"
+                eyebrow={vendors.length ? 'No matches' : 'Vendor directory'}
+                title={vendors.length ? 'No vendors match those filters' : 'Approved vendors will appear here'}
+                body={vendors.length ? 'Try another search or service category. FaithBid does not fill empty results with sample listings.' : 'FaithBid only publishes real, Marketplace Approved profiles. Dallas-area professionals will appear as their review is completed.'}
+                actionLabel={vendors.length ? 'Clear filters' : null}
+                onAction={vendors.length ? clearVendorFilters : null}
+                minHeight="clamp(300px, 40vh, 430px)"
+              />
+            )}
+
+            {totalPages > 1 ? (
+              <div className="kb-vendor-pager">
+                <button type="button" onClick={() => changePage(safePage - 1)} disabled={safePage === 1}>Previous</button>
+                <span>Page {safePage} of {totalPages}</span>
+                <button type="button" onClick={() => changePage(safePage + 1)} disabled={safePage === totalPages}>Next</button>
+              </div>
+            ) : null}
+          </section>
+        </main>
+      ) : (
+      <div className="kb-live-shell" ref={directoryRef}>
         <div ref={isChurchMarketplace ? directoryRef : null} className={isChurchMarketplace ? 'kb-church-marketplace-directory-panel' : 'kb-market-ivory-command-basin kb-market-ivory-command-basin--find-vendors kb-audit-vine-seam'}>
           {isChurchMarketplace ? (
             <>
@@ -32307,10 +32707,9 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                   {chips.filter(([label]) => label !== 'All').map(([label]) => <option key={label} value={label}>{label}</option>)}
                 </select>
                 <select className="kb-vendor-select" aria-label="Sort vendors" value={sortBy} onChange={e => setSortBy(e.target.value)}>
-                  <option value="Best overall">Best match</option>
-                  <option value="Top rated">Top rated</option>
-                  <option value="Most projects">Most projects</option>
-                  <option value="Recently added">Recently added</option>
+                  <option value="Best match">Best match</option>
+                  <option value="Available first">Available first</option>
+                  <option value="A–Z">A–Z</option>
                 </select>
                 {activeFilterCount > 0 ? <button type="button" className="kb-vendor-clear" onClick={clearVendorFilters}>Clear</button> : null}
               </div> : null}
@@ -32426,10 +32825,9 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               <div className="kb-vendor-toolbar">
                 <input className="kb-vendor-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search vendors, categories, service area..." />
                 <select className="kb-vendor-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
-                  <option>Best overall</option>
-                  <option>Top rated</option>
-                  <option>Most projects</option>
-                  <option>Recently added</option>
+                  <option>Best match</option>
+                  <option>Available first</option>
+                  <option>A–Z</option>
                 </select>
                 <button type="button" className="kb-vendor-clear" onClick={clearVendorFilters}>Clear</button>
               </div>
@@ -32557,6 +32955,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }
