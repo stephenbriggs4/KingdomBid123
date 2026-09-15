@@ -16,7 +16,7 @@ test("placeholder testimonials are visibly marked and cannot render in productio
   assert.match(source, /SHOW_PLACEHOLDER_TESTIMONIALS && <LandingTestimonials\s*\/>/);
 });
 
-test("Kingdom Builder and Get Plugged In remain parked for their later decisions", () => {
-  assert.match(source, /function KingdomBuilderTeaser\s*\(/);
+test("the retired Kingdom Builder teaser stays removed while Get Plugged In remains", () => {
+  assert.doesNotMatch(source, /function KingdomBuilderTeaser\s*\(/);
   assert.match(source, /function GpiLandingReveal\s*\(/);
 });
