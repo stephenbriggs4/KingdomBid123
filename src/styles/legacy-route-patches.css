@@ -1,6 +1,6 @@
 /*
  * Static retirement of legacy route patches.
- * Selectors and source order are preserved while the runtime <style>
+ * Selectors and source order are preserved while the runtime \3c style>
  * injection mechanism is removed. New control work belongs in controls.css.
  */
 
@@ -6764,9 +6764,6 @@ html body .topnav{
 /* kb-v889-mobile-marketplace-action-hierarchy-vine-lock */
 @media(max-width:680px){
       /* FIND VENDORS — remove the old two-button hero row; leave copy + proof + photography. */
-      html body .kb-church-marketplace-page .kb-church-marketplace-hero-actions{
-        display:none!important;
-      }
       html body .kb-church-marketplace-page .kb-church-marketplace-control-rail{
         display:block!important;
         width:100%!important;
@@ -6860,47 +6857,12 @@ html body .topnav{
 
       /* CHURCH PROJECTS — church POV only.
          Vendor Open Projects keeps its existing Browse Projects / My Work mobile controls. */
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-actions{
-        display:none!important;
-      }
       html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-control-rail{
         display:block!important;
         width:100%!important;
         max-width:none!important;
         height:auto!important;
         margin-top:20px!important;
-      }
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust{
-        display:grid!important;
-        grid-template-columns:repeat(3,minmax(0,1fr))!important;
-        align-items:start!important;
-        justify-content:stretch!important;
-        gap:6px!important;
-        width:100%!important;
-        max-width:360px!important;
-        margin:0!important;
-      }
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust-item{
-        display:flex!important;
-        flex-direction:column!important;
-        align-items:center!important;
-        justify-content:flex-start!important;
-        gap:5px!important;
-        min-width:0!important;
-        color:rgba(255,253,248,.94)!important;
-        font-size:10px!important;
-        font-weight:800!important;
-        line-height:1.12!important;
-        text-align:center!important;
-        white-space:normal!important;
-      }
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust-item svg{
-        width:17px!important;
-        height:17px!important;
-        flex:0 0 17px!important;
-      }
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust-rule{
-        display:none!important;
       }
 
       /* Masthead layout for Church Projects mobile is owned by the
@@ -6933,14 +6895,6 @@ html body .topnav{
     }
 
     @media(max-width:430px){
-      html body .kb-church-marketplace-page .kb-church-marketplace-trust,
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust{
-        gap:4px!important;
-      }
-      html body .kb-church-marketplace-page .kb-church-marketplace-trust-item,
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust-item{
-        font-size:9.4px!important;
-      }
       html body .kb-church-marketplace-page .kb-marketplace-below-seam-action--find-vendors,
       html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-marketplace-below-seam-action--church-projects{
         min-width:170px!important;
@@ -6970,35 +6924,9 @@ html body .topnav{
         gap:5px!important;
       }
 
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust{
-        position:static!important;
-        width:100%!important;
-        max-width:360px!important;
-        margin:0 auto!important;
-        gap:5px!important;
-      }
-
-      html body .kb-church-marketplace-page .kb-church-marketplace-trust-item,
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust-item{
-        gap:4px!important;
-        font-size:9.6px!important;
-        line-height:1.08!important;
-      }
-
-      html body .kb-church-marketplace-page .kb-church-marketplace-trust-item svg,
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust-item svg{
-        width:16px!important;
-        height:16px!important;
-        flex-basis:16px!important;
-      }
-
       /* ── BELOW THE VINE: give the true border a real visual landing zone ── */
       html body .kb-church-marketplace-page .kb-church-marketplace-directory-panel{
         margin-top:0!important;
-        padding-top:100px!important;
-      }
-
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) > .kb-church-projects-cinematic-hero + .kb-live-shell{
         padding-top:100px!important;
       }
 
@@ -7069,16 +6997,6 @@ html body .topnav{
     }
 
     @media(max-width:430px){
-      html body .kb-church-marketplace-page .kb-church-marketplace-trust,
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust{
-        max-width:calc(100% - 24px)!important;
-        gap:3px!important;
-      }
-
-      html body .kb-church-marketplace-page .kb-church-marketplace-trust-item,
-      html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-church-projects-cinematic-trust-item{
-        font-size:9.25px!important;
-      }
 
       html body .kb-church-marketplace-page .kb-marketplace-below-seam-action--find-vendors,
       html body .kb-live-marketplace-page.kb-church-projects-marketplace-page:not(.kb-vendor-open-projects-page) .kb-marketplace-below-seam-action--church-projects{
@@ -7847,26 +7765,6 @@ html body .kbdr2-root.kb-inbox-dark-shell.kb-inbox-render-polish.kb-inbox-final-
     font-size:clamp(38px,2.25vw,44px)!important;
   }
 
-  html body .kb-church-marketplace-hero-content,
-  html body .kb-church-projects-cinematic-content{
-    width:var(--kb0071-wide-content)!important;
-    max-width:none!important;
-    margin-left:auto!important;
-    margin-right:auto!important;
-    padding-left:0!important;
-    padding-right:0!important;
-  }
-
-  html body .kb-church-marketplace-hero h1,
-  html body .kb-church-projects-cinematic-hero h1{
-    font-size:clamp(62px,4.1vw,74px)!important;
-  }
-  html body .kb-church-marketplace-hero-copy > p,
-  html body .kb-church-projects-cinematic-copy > p{
-    font-size:17px!important;
-    line-height:1.42!important;
-  }
-
   html body .kb-church-marketplace-directory-panel .kb-vendor-toolbar,
   html body .kb-live-marketplace-page .kbm-mp-toolbar{
     width:100%!important;
@@ -7896,10 +7794,6 @@ html body .kbdr2-root.kb-inbox-dark-shell.kb-inbox-render-polish.kb-inbox-final-
     right:auto!important;
     width:100%!important;
     z-index:100!important;
-  }
-  html body .kb-live-marketplace-page.kb-church-projects-marketplace-page > .kb-church-projects-cinematic-hero{
-    height:480px!important;
-    min-height:480px!important;
   }
 
   /* Landing inherits the universal scale; keep its hero centered within the
@@ -7985,10 +7879,6 @@ html body .kb-vendor-match-decision-row{
         padding:3px 5px;
       }
     }
-
-/* kb-0141-marketplace-gpi-parity-polish-lock */
-html body .kb-vendor-open-projects-page .kb-church-projects-cinematic-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;width:min(100%,438px)!important;}
-    html body .kb-vendor-open-projects-page .kb-church-projects-cinematic-actions button{min-width:0!important;padding-inline:10px!important;font-size:11px!important;white-space:nowrap!important;}
     html body .kb-vendor-open-projects-page .kb-church-projects-saved-action{border-color:rgba(214,170,72,.42)!important;color:#f7ebcf!important;background:rgba(255,253,248,.10)!important;}
 
     html body .kb-church-marketplace-page .kb-church-marketplace-directory-panel .kb-live-grid-card,
@@ -8004,9 +7894,6 @@ html body .kb-vendor-open-projects-page .kb-church-projects-cinematic-actions{gr
 
     /* GPI-specific 0141 overrides retired by 0157. Results and Discovery now own
        their geometry in the dedicated 0157 visual contract below. */
-    @media(max-width:980px){
-      html body .kb-vendor-open-projects-page .kb-church-projects-cinematic-actions{grid-template-columns:1fr!important;}
-    }
 
 /* kb-0142-gpi-discovery-spacing-tidy-lock */
 html body .gpi-discovery-header-copy{

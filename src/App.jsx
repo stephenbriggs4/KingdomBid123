@@ -7,6 +7,7 @@ import "./styles/marketplace.css";
 import "./styles/legacy-route-patches.css";
 import "./styles/landing-v2.css";
 import "./styles/controls.css";
+import "./styles/marketplace-v2.css";
 // Inlined 11A card implementation — cumulative single-file delivery.
 
 function FaithBidCard11A({
@@ -22831,10 +22832,10 @@ const MessagesScreen = React.lazy(() => import("./MessagesScreen.jsx"));
 const ProfileScreen = React.lazy(() => import("./ProfileScreen.jsx"));
 // Inlined Projects routes — keeps all 11A marketplace/project-card changes in App.jsx.
 const { ProjectsScreenRoute: ProjectsScreen, SavedProjectsScreenRoute: SavedProjectsScreen } = (() => {
-let __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computePlatformFee, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveProjectOperationalAlerts, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailPostedLabel, detailScopeItems, ensureInboxConversation, ExecutionActionStack, fetchLatestProjectOpsSnapshot, fetchLatestProjectWorkspaceSync, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, fmtMoney, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getConversationStatusBadgeLocal, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceModeMeta, getMarketplaceSummaryCards, getMarketplaceTabs, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getProjectPosterStats, getProjectWorkflowSummary, getRecommendedFitPresentation, getReturnNavigationTarget, getSignedChatFileUrl, getValidMediaUrl, getVendorIdentityBadges, getVendorPairSignalMapEntry, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMatchInlineText, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, loadCompareWorkspaceState, loadProjectOpsState, loadProjectWorkspace, logError, makeEmptyVendorPairSignalMaps, mergeProjectOpsSnapshots, mergeProjectWorkspaceSnapshots, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeProjectOpsSnapshot, normalizeProjectWorkspaceSnapshot, normalizeRefCode, normalizeVendorEntity, normalizeVendorPairInviteRow, openInboxThread, OperationalAlertList, parseProjectWorkspaceSync, persistProjectOpsSnapshot, persistProjectWorkspaceSync, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, projectOpsFingerprint, ProjectPrimaryEmptyState, projectWorkspaceFingerprint, pushProjectInteropSignal, queueActivityNavigation, queueDealRoomsHubNavigation, queueInboxNavigation, queueVendorNavigation, readLocalJson, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithFallback, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveCompareWorkspaceState, saveProjectOpsState, saveProjectWorkspace, scoreProjectForVendorLane, scoreVendorAgainstProject, selectConversationsSafe, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setAuthDefaultRole, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateConversationSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_CHURCH_MARKETPLACE_VIDEO_POSTER, KB_CHURCH_VIDEO_STEM_EDGE_MASK, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, clampVendorNarrative, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeDeliveryModel, normalizeSelectedVendorProjectMeta, openProjectContextBack, persistMatchmakerOutcomeEvent, persistRecommendedVendorMatchSnapshot, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks;
+let __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computePlatformFee, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveProjectOperationalAlerts, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailPostedLabel, detailScopeItems, ensureInboxConversation, ExecutionActionStack, fetchLatestProjectOpsSnapshot, fetchLatestProjectWorkspaceSync, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, fmtMoney, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getConversationStatusBadgeLocal, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceModeMeta, getMarketplaceSummaryCards, getMarketplaceTabs, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getProjectPosterStats, getProjectWorkflowSummary, getRecommendedFitPresentation, getReturnNavigationTarget, getSignedChatFileUrl, getValidMediaUrl, getVendorIdentityBadges, getVendorPairSignalMapEntry, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMatchInlineText, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, loadCompareWorkspaceState, loadProjectOpsState, loadProjectWorkspace, logError, makeEmptyVendorPairSignalMaps, mergeProjectOpsSnapshots, mergeProjectWorkspaceSnapshots, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeProjectOpsSnapshot, normalizeProjectWorkspaceSnapshot, normalizeRefCode, normalizeVendorEntity, normalizeVendorPairInviteRow, openInboxThread, OperationalAlertList, parseProjectWorkspaceSync, persistProjectOpsSnapshot, persistProjectWorkspaceSync, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, projectOpsFingerprint, ProjectPrimaryEmptyState, projectWorkspaceFingerprint, pushProjectInteropSignal, queueActivityNavigation, queueDealRoomsHubNavigation, queueInboxNavigation, queueVendorNavigation, readLocalJson, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithFallback, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveCompareWorkspaceState, saveProjectOpsState, saveProjectWorkspace, scoreProjectForVendorLane, scoreVendorAgainstProject, selectConversationsSafe, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setAuthDefaultRole, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateConversationSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, clampVendorNarrative, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeDeliveryModel, normalizeSelectedVendorProjectMeta, openProjectContextBack, persistMatchmakerOutcomeEvent, persistRecommendedVendorMatchSnapshot, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks;
 
 function applyProjectsScreenDependencies(dependencies = {}) {
-  ({ __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computePlatformFee, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveProjectOperationalAlerts, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailPostedLabel, detailScopeItems, ensureInboxConversation, ExecutionActionStack, fetchLatestProjectOpsSnapshot, fetchLatestProjectWorkspaceSync, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, fmtMoney, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getConversationStatusBadgeLocal, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceModeMeta, getMarketplaceSummaryCards, getMarketplaceTabs, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getProjectPosterStats, getProjectWorkflowSummary, getRecommendedFitPresentation, getReturnNavigationTarget, getSignedChatFileUrl, getValidMediaUrl, getVendorIdentityBadges, getVendorPairSignalMapEntry, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMatchInlineText, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, loadCompareWorkspaceState, loadProjectOpsState, loadProjectWorkspace, logError, makeEmptyVendorPairSignalMaps, mergeProjectOpsSnapshots, mergeProjectWorkspaceSnapshots, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeProjectOpsSnapshot, normalizeProjectWorkspaceSnapshot, normalizeRefCode, normalizeVendorEntity, normalizeVendorPairInviteRow, openInboxThread, OperationalAlertList, parseProjectWorkspaceSync, persistProjectOpsSnapshot, persistProjectWorkspaceSync, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, projectOpsFingerprint, ProjectPrimaryEmptyState, projectWorkspaceFingerprint, pushProjectInteropSignal, queueActivityNavigation, queueDealRoomsHubNavigation, queueInboxNavigation, queueVendorNavigation, readLocalJson, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithFallback, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveCompareWorkspaceState, saveProjectOpsState, saveProjectWorkspace, scoreProjectForVendorLane, scoreVendorAgainstProject, selectConversationsSafe, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setAuthDefaultRole, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateConversationSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_CHURCH_MARKETPLACE_VIDEO_POSTER, KB_CHURCH_VIDEO_STEM_EDGE_MASK, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, clampVendorNarrative, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeDeliveryModel, normalizeSelectedVendorProjectMeta, openProjectContextBack, persistMatchmakerOutcomeEvent, persistRecommendedVendorMatchSnapshot, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks } = dependencies || {});
+  ({ __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computePlatformFee, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveProjectOperationalAlerts, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailPostedLabel, detailScopeItems, ensureInboxConversation, ExecutionActionStack, fetchLatestProjectOpsSnapshot, fetchLatestProjectWorkspaceSync, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, fmtMoney, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getConversationStatusBadgeLocal, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceModeMeta, getMarketplaceSummaryCards, getMarketplaceTabs, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getProjectPosterStats, getProjectWorkflowSummary, getRecommendedFitPresentation, getReturnNavigationTarget, getSignedChatFileUrl, getValidMediaUrl, getVendorIdentityBadges, getVendorPairSignalMapEntry, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMatchInlineText, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, loadCompareWorkspaceState, loadProjectOpsState, loadProjectWorkspace, logError, makeEmptyVendorPairSignalMaps, mergeProjectOpsSnapshots, mergeProjectWorkspaceSnapshots, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeProjectOpsSnapshot, normalizeProjectWorkspaceSnapshot, normalizeRefCode, normalizeVendorEntity, normalizeVendorPairInviteRow, openInboxThread, OperationalAlertList, parseProjectWorkspaceSync, persistProjectOpsSnapshot, persistProjectWorkspaceSync, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, projectOpsFingerprint, ProjectPrimaryEmptyState, projectWorkspaceFingerprint, pushProjectInteropSignal, queueActivityNavigation, queueDealRoomsHubNavigation, queueInboxNavigation, queueVendorNavigation, readLocalJson, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithFallback, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveCompareWorkspaceState, saveProjectOpsState, saveProjectWorkspace, scoreProjectForVendorLane, scoreVendorAgainstProject, selectConversationsSafe, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setAuthDefaultRole, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateConversationSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, clampVendorNarrative, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeDeliveryModel, normalizeSelectedVendorProjectMeta, openProjectContextBack, persistMatchmakerOutcomeEvent, persistRecommendedVendorMatchSnapshot, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks } = dependencies || {});
 }
 
 function ProjectsScreen({role, currentUser, showToast, nav, initialView="board", onMounted, navSubTab, onSubTabChange, forceProjectTab=null, privateMarketplaceAccess=false, isAdmin=false}){
@@ -26302,7 +26303,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   }, [role, projects?.length, filteredProjects?.length]);
 
   return (
-    <div className={`kb-live-marketplace-page${role === 'vendor' ? ' kb-vendor-open-projects-page' : ''} kb-church-projects-marketplace-page kb-mp-mobile-unified-page kb-mp-mobile-unified-churchprojects kb-mp-exact-marketplace-page kb-mp-exact-marketplace-churchprojects`}>
+    <div className={`mkt2-root kb-live-marketplace-page${role === 'vendor' ? ' kb-vendor-open-projects-page' : ''} kb-church-projects-marketplace-page kb-mp-mobile-unified-page kb-mp-mobile-unified-churchprojects kb-mp-exact-marketplace-page kb-mp-exact-marketplace-churchprojects`}>
       
       <KBMarketplaceRuntimeStyles />
 
@@ -31835,239 +31836,12 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const activeFilterCount = (debouncedSearch.trim() ? 1 : 0) + (category !== 'All' ? 1 : 0) + (sortBy !== 'Best overall' ? 1 : 0);
 
   return (
-    <div className={`kb-live-marketplace-page kb-vendor-marketplace-page${isHirerMarketplace ? ' kb-hirer-vendor-directory-page' : ' kb-vendor-directory-standalone-page'}${isChurchMarketplace ? ' kb-church-marketplace-page' : ''}`}>
+    <div className={`mkt2-root kb-live-marketplace-page kb-vendor-marketplace-page${isHirerMarketplace ? ' kb-hirer-vendor-directory-page' : ' kb-vendor-directory-standalone-page'}${isChurchMarketplace ? ' kb-church-marketplace-page' : ''}`}>
       <style>{`
         .kb-vendor-marketplace-page{background:transparent!important;min-height:auto!important;color:#171814;font-family:var(--font-sans),system-ui,-apple-system,BlinkMacSystemFont,sans-serif;}
         .kb-vendor-marketplace-page *{box-sizing:border-box;}
         .kb-vendor-marketplace-page.kb-church-marketplace-page{overflow-x:clip!important;}
 
-        /* 853u — Church Marketplace only. The shared navbar and all other POV surfaces remain untouched. */
-        .kb-church-marketplace-page > .kb-church-marketplace-hero{
-          position:relative;
-          width:100%;
-          height:405px;
-          min-height:405px;
-          margin:0;
-          padding:0;
-          isolation:isolate;
-          overflow:hidden;
-          background:transparent;
-        }
-        .kb-church-marketplace-hero-media{
-          position:absolute;
-          inset:0 0 30px 0;
-          z-index:0;
-          overflow:hidden;
-          background:#0b1710;
-          -webkit-mask-image:linear-gradient(#000 0 0),url(${KB_CHURCH_VIDEO_STEM_EDGE_MASK});
-          -webkit-mask-size:100% calc(100% - var(--kb852-vine-height,95px) + 2px),100vw var(--kb852-vine-height,95px);
-          -webkit-mask-position:center top,center bottom;
-          -webkit-mask-repeat:no-repeat,no-repeat;
-          mask-image:linear-gradient(#000 0 0),url(${KB_CHURCH_VIDEO_STEM_EDGE_MASK});
-          mask-size:100% calc(100% - var(--kb852-vine-height,95px) + 2px),100vw var(--kb852-vine-height,95px);
-          mask-position:center top,center bottom;
-          mask-repeat:no-repeat,no-repeat;
-        }
-        .kb-church-marketplace-hero-video,
-        .kb-church-marketplace-hero-poster{
-          position:absolute;
-          inset:0;
-          display:block;
-          width:100%;
-          height:100%;
-          margin:0;
-          object-fit:cover;
-          object-position:58% 50%;
-          background-color:#0b1710;
-          background-image:url(${KB_CHURCH_MARKETPLACE_VIDEO_POSTER});
-          background-size:cover;
-          background-position:58% 50%;
-          background-repeat:no-repeat;
-          filter:saturate(.94) contrast(1.035) brightness(.91);
-        }
-        .kb-church-marketplace-hero-scrim{
-          position:absolute;
-          inset:0;
-          pointer-events:none;
-          background:
-            linear-gradient(90deg,rgba(5,17,11,.96) 0%,rgba(7,20,13,.88) 18%,rgba(8,20,14,.67) 36%,rgba(8,18,13,.28) 58%,rgba(7,15,11,.08) 80%,rgba(5,12,8,.08) 100%),
-            rgba(5,13,9,.06);
-        }
-        .kb-church-marketplace-hero-content{
-          position:relative;
-          z-index:2;
-          display:grid!important;
-          grid-template-columns:minmax(0,1fr) clamp(500px,38vw,520px)!important;
-          align-items:flex-start!important;
-          justify-content:flex-start!important;
-          column-gap:clamp(32px,3.5vw,54px)!important;
-          width:min(100%,1368px)!important;
-          height:100%!important;
-          margin:0 auto!important;
-          padding:70px 54px 125px!important;
-          transform:none!important;
-          text-align:left!important;
-        }
-        .kb-church-marketplace-hero-copy{
-          display:flex;
-          flex-direction:column;
-          align-items:flex-start;
-          width:100%;
-          margin:0!important;
-          color:#fffdf8;
-          transform:none!important;
-          text-align:left!important;
-        }
-        .kb-church-marketplace-hero-kicker{
-          grid-area:kicker;
-          margin:0 0 10px!important;
-          color:#d7a74d;
-          font-size:12px;
-          line-height:1;
-          font-weight:800;
-          letter-spacing:.24em;
-          text-transform:uppercase;
-          text-align:left!important;
-          text-shadow:0 2px 12px rgba(0,0,0,.34);
-        }
-        .kb-church-marketplace-hero h1{
-          grid-area:title;
-          width:auto!important;
-          max-width:none;
-          margin:0!important;
-          padding:0!important;
-          color:#fffdf8!important;
-          font-family:var(--font-display),serif!important;
-          font-size:clamp(48px,4vw,60px)!important;
-          font-weight:500!important;
-          line-height:1.02!important;
-          letter-spacing:-.045em!important;
-          text-align:left!important;
-          white-space:nowrap;
-          transform:none!important;
-          text-shadow:0 3px 22px rgba(0,0,0,.30);
-        }
-        .kb-church-marketplace-hero-copy > p{
-          grid-area:intro;
-          width:auto!important;
-          max-width:570px;
-          margin:10px 0 0!important;
-          padding:0!important;
-          color:rgba(255,253,248,.94)!important;
-          font-size:15.5px!important;
-          font-weight:500!important;
-          line-height:1.4!important;
-          text-align:left!important;
-          transform:none!important;
-          text-shadow:0 2px 13px rgba(0,0,0,.32);
-        }
-        .kb-church-marketplace-control-rail{
-          align-self:start;
-          display:grid;
-          grid-template-rows:34px minmax(0,1fr) 44px 22px;
-          row-gap:10px;
-          width:100%;
-          min-width:0;
-          height:170px;
-          margin:0;
-        }
-        .kb-church-marketplace-hero-actions{
-          grid-row:3;
-          display:grid!important;
-          grid-template-columns:repeat(2,minmax(0,1fr));
-          align-items:center!important;
-          justify-content:stretch!important;
-          gap:12px;
-          width:100%!important;
-          margin:0!important;
-          transform:none!important;
-          text-align:left!important;
-        }
-        .kb-church-marketplace-hero-actions button{
-          flex:0 0 auto!important;
-          width:100%!important;
-          height:44px!important;
-          min-width:0!important;
-          margin:0!important;
-          padding:0 20px!important;
-          border-radius:14px!important;
-          font:inherit;
-          font-size:13px!important;
-          font-weight:800!important;
-          cursor:pointer;
-          transform:none;
-          transition:transform .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease;
-        }
-        .kb-church-marketplace-hero-primary{
-          border:1px solid rgba(67,112,68,.46)!important;
-          background:linear-gradient(180deg,rgba(42,83,46,.98),rgba(27,62,34,.98))!important;
-          color:#fffdf8!important;
-          box-shadow:0 12px 28px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.11)!important;
-        }
-        .kb-church-marketplace-hero-secondary{
-          border:1.5px solid #c99b3e!important;
-          background:rgba(7,18,12,.42)!important;
-          color:#fffdf8!important;
-          box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 24px rgba(0,0,0,.15)!important;
-          backdrop-filter:blur(4px);
-        }
-        .kb-church-marketplace-hero-actions button:hover{transform:translateY(-1px)!important;}
-        .kb-church-marketplace-hero-primary:hover{background:linear-gradient(180deg,#34613a,#21492a)!important;}
-        .kb-church-marketplace-hero-secondary:hover{background:rgba(19,39,25,.62)!important;border-color:#e0b357!important;}
-        .kb-church-marketplace-hero-actions button:focus-visible{outline:2px solid #f1c86f!important;outline-offset:3px;}
-        .kb-church-marketplace-trust{
-          grid-row:4;
-          display:flex!important;
-          align-items:center!important;
-          justify-content:space-between!important;
-          gap:10px;
-          width:100%!important;
-          margin:0!important;
-          color:#fffdf8;
-          transform:none!important;
-          text-align:left!important;
-        }
-        .kb-church-marketplace-trust-item{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:11.5px;font-weight:700;text-shadow:0 2px 9px rgba(0,0,0,.34);}
-        .kb-church-marketplace-trust-item svg{width:22px;height:22px;fill:none;stroke:#d2a445;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 5px rgba(0,0,0,.28));}
-        .kb-church-marketplace-trust-rule{display:block;width:1px;height:20px;background:rgba(255,253,248,.42);}
-
-        /* Identical approved divider to Church Projects on the same dedicated
-           light seam band and full-width desktop/tablet geometry as My Projects. */
-        .kb-church-marketplace-hero-vine{
-          position:absolute;
-          z-index:12;
-          left:50%;
-          right:auto;
-          bottom:30px;
-          width:100vw;
-          height:var(--kb852-vine-height,95px);
-          transform:translateX(-50%);
-          pointer-events:none;
-          background-color:transparent;
-          background-image:var(--kb852-vine-art);
-          background-repeat:no-repeat;
-          background-size:100% var(--kb852-vine-height,95px);
-          background-position:center center;
-          background-blend-mode:normal;
-          -webkit-mask-image:none;
-          mask-image:none;
-          opacity:1;
-          filter:none;
-          border:0;
-          box-shadow:none;
-        }
-        .kb-church-marketplace-mode-switch{
-          position:static;
-          z-index:20;
-          grid-row:1;
-          justify-self:center;
-          top:auto;
-          right:auto;
-          background:rgba(255,253,248,.91)!important;
-          border-color:rgba(255,253,248,.52)!important;
-          box-shadow:0 9px 24px rgba(5,17,11,.18),inset 0 1px 0 rgba(255,255,255,.74)!important;
-          backdrop-filter:blur(10px);
-        }
         .kb-church-marketplace-directory-panel{position:relative;z-index:6;margin:-32px 0 0;padding:0 2px;background:transparent;}
         .kb-church-marketplace-context-line{
           position:relative;
@@ -32169,119 +31943,6 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           overflow:visible!important;
           background:transparent!important;
         }
-        @media(max-width:1100px){
-          .kb-church-marketplace-page > .kb-church-marketplace-hero{height:455px;min-height:455px;}
-          .kb-church-marketplace-hero-content{display:block!important;padding:78px 36px 125px!important;}
-          .kb-church-marketplace-hero-copy{display:block;width:min(100%,720px);}
-          .kb-church-marketplace-hero-kicker{margin:0 0 9px!important;}
-          .kb-church-marketplace-mode-switch{position:absolute;top:64px;right:36px;}
-          .kb-church-marketplace-hero h1{font-size:clamp(44px,6vw,52px)!important;white-space:normal;}
-          .kb-church-marketplace-hero-copy > p{max-width:620px;margin-top:10px!important;}
-          .kb-church-marketplace-control-rail{display:block;width:min(100%,720px);height:auto;margin-top:14px;}
-          .kb-church-marketplace-hero-actions{display:flex!important;width:auto!important;justify-content:flex-start!important;margin:0!important;}
-          .kb-church-marketplace-hero-actions button{width:auto!important;min-width:170px!important;flex:0 0 auto!important;}
-          .kb-church-marketplace-trust{width:auto!important;justify-content:flex-start!important;gap:12px;margin-top:14px!important;flex-wrap:wrap;}
-          html body .workspace-body-shell.marketplace-body-shell .kb-church-marketplace-page > .kb-live-shell,
-          html body .kb-church-marketplace-page > .kb-live-shell{padding:0 20px 48px!important;}
-        }
-        @media(max-width:760px){
-          /* Intermediate step: scale the tablet composition down before the
-             405px/95px mobile vine system takes over at 680px, so 681-759px
-             is not served by the full 125px tablet padding unmodified. */
-          .kb-church-marketplace-page > .kb-church-marketplace-hero{height:374px!important;min-height:374px!important;}
-          .kb-church-marketplace-hero-content{padding:80px 26px 64px!important;}
-          /* CTA visibility fix: the base rule (unscoped, specificity 0,1,0) hides
-             this button by default, normally overridden only at >=1101px or
-             <=680px, leaving it invisible in 681-760px without this override. */
-          html body .kb-church-marketplace-page .kb-marketplace-below-seam-action--find-vendors{
-            display:inline-flex!important;
-            align-items:center!important;
-            justify-content:space-between!important;
-            gap:11px!important;
-            min-width:159px!important;
-            height:38px!important;
-            padding:0 13px 0 16px!important;
-            border-radius:12px!important;
-            border:1px solid rgba(214,170,72,.74)!important;
-            background:linear-gradient(180deg,rgba(40,71,37,.98),rgba(24,48,27,.98))!important;
-            color:#fffdf8!important;
-            box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
-            font-family:var(--font-sans),system-ui,sans-serif!important;
-            font-size:11.25px!important;
-            font-weight:800!important;
-            letter-spacing:.01em!important;
-            white-space:nowrap!important;
-            cursor:pointer!important;
-          }
-        }
-        @media(max-width:680px){
-          /* V882 mobile-only: same true video-mask seam contract as Church Projects. */
-          html body .kb-church-marketplace-page > .kb-church-marketplace-hero{
-            height:340px!important;
-            min-height:340px!important;
-            z-index:8!important;
-            overflow:visible!important;
-            --kb852-vine-height:95px!important;
-            --kb852-vine-anchor-y:31px!important;
-            --kb852-vine-drop:64px!important;
-            --kb852-mobile-desktop-pov-vine-width:1440px!important;
-            --kb852-mobile-desktop-pov-vine-height:95px!important;
-          }
-          html body .kb-church-marketplace-hero .kb-church-marketplace-hero-media{
-            inset:0 0 -64px 0!important;
-            -webkit-mask-image:linear-gradient(#000 0 0),url(${KB_CHURCH_VIDEO_STEM_EDGE_MASK})!important;
-            -webkit-mask-size:100% calc(100% - var(--kb852-mobile-desktop-pov-vine-height) + 2px),var(--kb852-mobile-desktop-pov-vine-width) var(--kb852-mobile-desktop-pov-vine-height)!important;
-            -webkit-mask-position:center top,center bottom!important;
-            -webkit-mask-repeat:no-repeat,no-repeat!important;
-            mask-image:linear-gradient(#000 0 0),url(${KB_CHURCH_VIDEO_STEM_EDGE_MASK})!important;
-            mask-size:100% calc(100% - var(--kb852-mobile-desktop-pov-vine-height) + 2px),var(--kb852-mobile-desktop-pov-vine-width) var(--kb852-mobile-desktop-pov-vine-height)!important;
-            mask-position:center top,center bottom!important;
-            mask-repeat:no-repeat,no-repeat!important;
-          }
-          html body .kb-church-marketplace-hero .kb-church-marketplace-hero-vine{
-            bottom:-64px!important;
-            left:50%!important;
-            right:auto!important;
-            width:var(--kb852-mobile-desktop-pov-vine-width)!important;
-            min-width:var(--kb852-mobile-desktop-pov-vine-width)!important;
-            max-width:var(--kb852-mobile-desktop-pov-vine-width)!important;
-            height:95px!important;
-            min-height:95px!important;
-            transform:translateX(-50%)!important;
-            z-index:20!important;
-            background-image:var(--kb852-vine-art)!important;
-            background-repeat:no-repeat!important;
-            background-size:var(--kb852-mobile-desktop-pov-vine-width) 95px!important;
-            background-position:center center!important;
-            overflow:visible!important;
-          }
-          html body .kb-church-marketplace-hero .kb-church-marketplace-mode-switch{position:absolute!important;top:14px!important;right:14px!important;left:auto!important;bottom:auto!important;transform:none!important;display:inline-flex!important;align-items:center!important;gap:2px!important;width:auto!important;max-width:calc(100vw - 28px)!important;height:30px!important;min-height:30px!important;padding:3px!important;}
-          html body .kb-church-marketplace-hero .kb-church-marketplace-mode-switch button{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;width:auto!important;height:24px!important;min-height:24px!important;padding:0 9px!important;font-size:9px!important;line-height:1!important;letter-spacing:.075em!important;white-space:nowrap!important;}
-          .kb-church-marketplace-hero-video,.kb-church-marketplace-hero-poster{object-position:66% 50%;background-position:66% 50%;}
-          .kb-church-marketplace-hero-scrim{background:linear-gradient(90deg,rgba(5,17,11,.96) 0%,rgba(6,18,12,.86) 58%,rgba(6,16,11,.42) 100%),rgba(5,13,9,.10);}
-          .kb-church-marketplace-hero-content{padding:84px 18px 67px!important;}
-          .kb-church-marketplace-hero-copy{width:100%;}
-          .kb-church-marketplace-hero-kicker{font-size:10.5px;letter-spacing:.19em;margin-bottom:8px!important;}
-          .kb-church-marketplace-hero h1{font-size:clamp(34px,10vw,44px)!important;line-height:1.01!important;}
-          .kb-church-marketplace-hero-copy > p{font-size:14.5px!important;line-height:1.4!important;margin-top:10px!important;max-width:430px;}
-          .kb-church-marketplace-hero-actions{gap:10px;margin:0!important;flex-wrap:nowrap;}
-          .kb-church-marketplace-hero-actions button{height:44px!important;min-width:0!important;flex:1 1 0!important;padding:0 10px!important;border-radius:13px!important;font-size:12px!important;}
-          .kb-church-marketplace-trust{align-items:center!important;gap:9px 13px;margin-top:14px!important;flex-wrap:wrap;}
-          .kb-church-marketplace-trust-item{font-size:11.5px;}
-          .kb-church-marketplace-trust-item svg{width:20px;height:20px;}
-          .kb-church-marketplace-trust-rule{display:none;}
-          .kb-church-marketplace-directory-panel{margin-top:0!important;padding-top:34px!important;z-index:1!important;}
-          .kb-church-marketplace-context-line{align-items:center;gap:6px;margin-bottom:11px;flex-wrap:wrap;font-size:13px;}
-          .kb-church-marketplace-context-line > span{white-space:normal;}
-          .kb-church-marketplace-project-select{max-width:min(100%,270px);}
-          .kb-church-marketplace-directory-panel .kb-vendor-toolbar,
-          .kb-church-marketplace-directory-panel .kb-vendor-toolbar.has-clear{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
-          .kb-church-marketplace-directory-panel .kb-vendor-search{grid-column:1/-1;}
-          .kb-church-marketplace-directory-panel .kb-vendor-clear{grid-column:1/-1;}
-          html body .workspace-body-shell.marketplace-body-shell .kb-church-marketplace-page > .kb-live-shell,
-          html body .kb-church-marketplace-page > .kb-live-shell{position:relative!important;z-index:1!important;padding:0 16px 42px!important;}
-        }
-        @media(prefers-reduced-motion:reduce){.kb-church-marketplace-hero-actions button{transition:none!important;}}
         .kb-vendor-marketplace-page .kb-live-shell{width:min(100%,1368px);margin:0 auto;padding:0 30px 54px;}
         .kb-vendor-marketplace-page .kb-live-vendor-kicker{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#9B7A35;margin:0 0 6px;}
         .kb-vendor-marketplace-page .kb-live-all-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 12px;padding:0 2px;}
@@ -32335,51 +31996,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         @media(max-width:1180px){.kb-vendor-marketplace-page .kb-live-all-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
         /* Mobile rules for this component consolidated into a single block —
            see FIND-VENDORS-MOBILE-CONSOLIDATED below (search that string). */
-        /* 853v — exact desktop parity with the Church Projects right rail.
-           No left-side copy, hero, video, vine, mask, clay, or directory rules. */
         @media(min-width:1101px){
-          html body .kb-church-marketplace-hero .kb-church-marketplace-control-rail{
-            justify-self:end!important;
-            align-self:start!important;
-            width:min(100%,438px)!important;
-            height:auto!important;
-            grid-template-rows:34px 84px auto!important;
-            row-gap:0!important;
-            margin:0!important;
-          }
-          html body .kb-church-marketplace-hero .kb-church-marketplace-mode-switch{
-            position:static!important;
-            grid-row:1!important;
-            justify-self:end!important;
-            align-self:start!important;
-            margin:0!important;
-          }
-          html body .kb-church-marketplace-hero .kb-church-marketplace-hero-actions{display:none!important;}
-          html body .kb-church-marketplace-hero .kb-church-marketplace-trust{
-            grid-row:3!important;
-            align-items:center!important;
-            justify-content:center!important;
-            gap:14px!important;
-            width:100%!important;
-            margin:0!important;
-            flex-wrap:nowrap!important;
-          }
-          html body .kb-church-marketplace-hero .kb-church-marketplace-trust-item{
-            gap:6px!important;
-            font-size:11px!important;
-            line-height:1!important;
-          }
-          html body .kb-church-marketplace-hero .kb-church-marketplace-trust-item svg{
-            width:18px!important;
-            height:18px!important;
-          }
-          html body .kb-church-marketplace-hero .kb-church-marketplace-trust-rule{
-            display:block!important;
-            width:4px!important;
-            height:4px!important;
-            border-radius:999px!important;
-            background:rgba(214,170,72,.72)!important;
-          }
           html body .kb-church-marketplace-page .kb-church-marketplace-context-line{
             display:grid!important;
             grid-template-columns:minmax(0,1fr) auto!important;
@@ -34615,8 +34232,6 @@ function getProjectsScreenDependencies() {
     useDebounce,
     useFocusTrap,
     useViewportWidth,
-    KB_CHURCH_MARKETPLACE_VIDEO_POSTER,
-    KB_CHURCH_VIDEO_STEM_EDGE_MASK,
     KB_MATCHMAKER_INPUT_VERSION,
     KB_NAV_SCREENS,
     clampVendorNarrative,
@@ -34769,19 +34384,16 @@ const FB_DALLAS_PILOT_RISK_FLAGS = Object.freeze([
 ]);
 
 const FB_DALLAS_PILOT_EXCLUDED_FLAGS = new Set(FB_DALLAS_PILOT_RISK_FLAGS.slice(0, 7).map(([value]) => value));
-
 const FB_CONCIERGE_PERMISSION_STATUSES = Object.freeze([
   ["not_requested", "Not requested"],
   ["granted", "Granted"],
   ["declined", "Declined"],
   ["revoked", "Revoked"],
 ]);
-
 const FB_CONCIERGE_REFERRAL_PERMISSION_STATUSES = Object.freeze([
   ["not_applicable", "No referred vendor yet"],
   ...FB_CONCIERGE_PERMISSION_STATUSES,
 ]);
-
 const FB_CONCIERGE_PERMISSION_SOURCES = Object.freeze([
   ["", "Choose how permission was captured"],
   ["meeting_notes", "Meeting notes"],
@@ -36657,7 +36269,6 @@ function FBConciergePilotEntryModal({ organization, operatorId, onClose, onConfi
   const [source, setSource] = useState("");
   const [reference, setReference] = useState("");
   const [error, setError] = useState("");
-
   const submit = async (event) => {
     event.preventDefault();
     if (!operatorId) return setError("A signed-in operator is required to record pilot entry.");
@@ -45213,710 +44824,82 @@ function rememberProjectForVendorMatching(churchUserId, project, source = 'proje
     projectSnapshot: { ...(normalized || {}), id: projectId },
   });
 }
-
-const KB_CHURCH_MARKETPLACE_VIDEO_POSTER = "https://images.pexels.com/videos/13702236/sunset-13702236.jpeg?auto=compress&dpr=1&w=1920";
-const KB_CHURCH_MARKETPLACE_VIDEO_SOURCE = "https://videos.pexels.com/video-files/13702236/13702236-hd_1920_1080_30fps.mp4";
-// Foliage-free alpha edge matched to the approved vine stem; shapes only the video/clay boundary.
-const KB_CHURCH_VIDEO_STEM_EDGE_MASK = "data:image/png;base64,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";
-// Pixel-identical My Projects vine silhouette and alpha, with only pale RGB values capped to sage for dark video.
-const KB_CHURCH_MARKETPLACE_VIDEO_VINE_ART = "/masks/kb-church-marketplace-video-vine.png";
-
-const KB_CHURCH_VINE_CLEAN_INLINE = "/masks/kb-church-vine-clean.png";
-function ChurchMarketplaceHero({ isActive = true, onPost, onBrowse, onChurchProjects }) {
-  const videoRef = useRef(null);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
-    try {
-      return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    } catch {
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined;
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handleChange = () => setPrefersReducedMotion(media.matches);
-    handleChange();
-    if (typeof media.addEventListener === 'function') media.addEventListener('change', handleChange);
-    else if (typeof media.addListener === 'function') media.addListener(handleChange);
-    return () => {
-      if (typeof media.removeEventListener === 'function') media.removeEventListener('change', handleChange);
-      else if (typeof media.removeListener === 'function') media.removeListener(handleChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof document === 'undefined') return undefined;
-    const syncPlayback = () => {
-      const video = videoRef.current;
-      if (!video) return;
-      const shouldPlay = isActive && !prefersReducedMotion && document.visibilityState !== 'hidden';
-      if (!shouldPlay) {
-        video.pause();
-        return;
-      }
-      const playPromise = video.play();
-      if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
-    };
-    syncPlayback();
-    document.addEventListener('visibilitychange', syncPlayback);
-    return () => {
-      document.removeEventListener('visibilitychange', syncPlayback);
-      if (videoRef.current) videoRef.current.pause();
-    };
-  }, [isActive, prefersReducedMotion]);
+function MarketplaceV2Header({
+  view = 'vendors',
+  isVendor = false,
+  onPost,
+  onVendors,
+  onProjects,
+  onVendorWorkspace,
+}) {
+  const isProjects = view === 'projects';
+  const title = isProjects ? 'Open Church Projects' : 'Find a Vendor';
+  const support = isProjects
+    ? 'Real ministry needs from churches in the Dallas pilot.'
+    : 'Browse available ministry partners by service, location, and fit.';
+  const actionLabel = isVendor ? 'My Work' : 'Post a Project';
+  const actionHandler = isVendor ? onVendorWorkspace : onPost;
 
   return (
-    <section className="kb-church-marketplace-hero" aria-labelledby="kb-church-marketplace-hero-title">
-      <div className="kb-church-marketplace-hero-media" aria-hidden="true">
-        {!prefersReducedMotion ? (
-          <video
-            ref={videoRef}
-            className="kb-church-marketplace-hero-video"
-            autoPlay={isActive}
-            muted
-            loop
-            playsInline
-            preload={isActive ? 'metadata' : 'none'}
-            poster={KB_CHURCH_MARKETPLACE_VIDEO_POSTER}
-            tabIndex={-1}
-            onCanPlay={() => {
-              if (!isActive || prefersReducedMotion || !videoRef.current) return;
-              const playPromise = videoRef.current.play();
-              if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
-            }}
-          >
-            <source src={KB_CHURCH_MARKETPLACE_VIDEO_SOURCE} type="video/mp4" />
-          </video>
-        ) : (
-          <div className="kb-church-marketplace-hero-poster" />
-        )}
-        <div className="kb-church-marketplace-hero-scrim" />
-      </div>
-
-      <div className="kb-church-marketplace-hero-content">
-        <div className="kb-church-marketplace-hero-copy">
-          <div className="kb-church-marketplace-hero-kicker">FaithBid Marketplace</div>
-          <h1 id="kb-church-marketplace-hero-title">Faithful Vendors.</h1>
-          <p>Build, restore, and equip your ministry with trusted partners who share your calling.</p>
+    <section className="mkt2-header" aria-labelledby={`mkt2-${view}-title`}>
+      <div className="mkt2-header__inner">
+        <div className="mkt2-header__copy">
+          <p className="mkt2-header__eyebrow">Marketplace</p>
+          <h1 className="mkt2-header__title" id={`mkt2-${view}-title`}>{title}</h1>
+          <p className="mkt2-header__support">{support}</p>
         </div>
-        <div className="kb-church-marketplace-control-rail">
-          <div className="kb-market-mode-switch kb-church-marketplace-mode-switch" aria-label="Church marketplace views">
-            <button type="button" className="is-active" aria-label="Find Vendors" aria-pressed="true">Vendors</button>
-            <button type="button" aria-label="Church Projects" aria-pressed="false" onClick={onChurchProjects}>Projects</button>
+        <div className="mkt2-header__tools">
+          <div className="mkt2-switch" aria-label="Marketplace views">
+            <button
+              type="button"
+              className="mkt2-switch__option"
+              aria-pressed={!isProjects}
+              onClick={onVendors}
+            >
+              Vendors
+            </button>
+            <button
+              type="button"
+              className="mkt2-switch__option"
+              aria-pressed={isProjects}
+              onClick={onProjects}
+            >
+              Projects
+            </button>
           </div>
-          <div className="kb-church-marketplace-hero-actions">
-            <button type="button" className="kb-church-marketplace-hero-primary" onClick={onPost}>Post a Project</button>
-            <button type="button" className="kb-church-marketplace-hero-secondary" onClick={onBrowse}>Browse Vendors</button>
-          </div>
-          <div className="kb-church-marketplace-trust" aria-label="FaithBid marketplace commitments">
-            <div className="kb-church-marketplace-trust-item">
-              <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3.5l10 4v7.3c0 6.2-4.2 11.5-10 13.7-5.8-2.2-10-7.5-10-13.7V7.5l10-4z"/><path d="M11.8 15.8l2.8 2.8 5.9-6.2"/></svg>
-              <span>Verified Vendors</span>
-            </div>
-            <span className="kb-church-marketplace-trust-rule" aria-hidden="true" />
-            <div className="kb-church-marketplace-trust-item">
-              <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 27h22M8 27V14l8-7 8 7v13M13 27v-7h6v7M16 3v8M13 6h6"/></svg>
-              <span>Church-Approved</span>
-            </div>
-            <span className="kb-church-marketplace-trust-rule" aria-hidden="true" />
-            <div className="kb-church-marketplace-trust-item">
-              <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 24l-2-13 8 6 5-11 5 11 8-6-2 13H5zM6 28h20"/></svg>
-              <span>Kingdom Focused</span>
-            </div>
-          </div>
+          {typeof actionHandler === 'function' ? (
+            <button type="button" className="mkt2-header__action" onClick={actionHandler}>
+              {actionLabel}
+            </button>
+          ) : null}
         </div>
       </div>
-      <div className="kb-church-marketplace-hero-vine" aria-hidden="true" />
     </section>
   );
 }
 
-function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors, onBrowseProjects, onMyWork, onSavedProjects }) {
-  const videoRef = useRef(null);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
-    try {
-      return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    } catch {
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined;
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handleChange = () => setPrefersReducedMotion(media.matches);
-    handleChange();
-    if (typeof media.addEventListener === 'function') media.addEventListener('change', handleChange);
-    else if (typeof media.addListener === 'function') media.addListener(handleChange);
-    return () => {
-      if (typeof media.removeEventListener === 'function') media.removeEventListener('change', handleChange);
-      else if (typeof media.removeListener === 'function') media.removeListener(handleChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof document === 'undefined') return undefined;
-    const syncPlayback = () => {
-      const video = videoRef.current;
-      if (!video) return;
-      const shouldPlay = !prefersReducedMotion && document.visibilityState !== 'hidden';
-      if (!shouldPlay) {
-        video.pause();
-        return;
-      }
-      const playPromise = video.play();
-      if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
-    };
-    syncPlayback();
-    document.addEventListener('visibilitychange', syncPlayback);
-    return () => {
-      document.removeEventListener('visibilitychange', syncPlayback);
-      if (videoRef.current) videoRef.current.pause();
-    };
-  }, [prefersReducedMotion]);
-
+function ChurchMarketplaceHero({ onPost, onChurchProjects }) {
   return (
-    <section className="kb-church-projects-cinematic-hero" aria-labelledby="kb-church-projects-cinematic-title">
-      <style>{`
-        html body .kb-live-marketplace-page.kb-church-projects-marketplace-page{
-          overflow-x:clip!important;
-        }
-        html body .kb-church-projects-cinematic-hero{
-          position:relative!important;
-          isolation:isolate!important;
-          width:100%!important;
-          height:405px!important;
-          min-height:405px!important;
-          margin:0!important;
-          padding:0!important;
-          overflow:hidden!important;
-          background:transparent!important;
-        }
-        .kb-church-projects-cinematic-media{
-          position:absolute;
-          inset:0 0 30px 0;
-          z-index:0;
-          overflow:hidden;
-          background:#0b1710;
-          -webkit-mask-image:linear-gradient(#000 0 0),url(${KB_CHURCH_VIDEO_STEM_EDGE_MASK});
-          -webkit-mask-size:100% calc(100% - var(--kb852-vine-height,95px) + 2px),100vw var(--kb852-vine-height,95px);
-          -webkit-mask-position:center top,center bottom;
-          -webkit-mask-repeat:no-repeat,no-repeat;
-          mask-image:linear-gradient(#000 0 0),url(${KB_CHURCH_VIDEO_STEM_EDGE_MASK});
-          mask-size:100% calc(100% - var(--kb852-vine-height,95px) + 2px),100vw var(--kb852-vine-height,95px);
-          mask-position:center top,center bottom;
-          mask-repeat:no-repeat,no-repeat;
-        }
-        .kb-church-projects-cinematic-video,
-        .kb-church-projects-cinematic-poster{
-          position:absolute;
-          inset:0;
-          display:block;
-          width:100%;
-          height:100%;
-          object-fit:cover;
-          object-position:58% 50%;
-          background-color:#0b1710;
-          background-image:url(${KB_CHURCH_MARKETPLACE_VIDEO_POSTER});
-          background-size:cover;
-          background-position:58% 50%;
-          background-repeat:no-repeat;
-          filter:saturate(.94) contrast(1.035) brightness(.91);
-        }
-        .kb-church-projects-cinematic-scrim{
-          position:absolute;
-          inset:0;
-          pointer-events:none;
-          background:
-            linear-gradient(90deg,rgba(5,17,11,.96) 0%,rgba(7,20,13,.88) 18%,rgba(8,20,14,.67) 36%,rgba(8,18,13,.28) 58%,rgba(7,15,11,.08) 80%,rgba(5,12,8,.08) 100%),
-            rgba(5,13,9,.06);
-        }
-        .kb-church-projects-cinematic-content{
-          position:relative!important;
-          z-index:2!important;
-          display:grid!important;
-          grid-template-columns:minmax(0,1fr) clamp(500px,38vw,520px)!important;
-          align-items:flex-start!important;
-          justify-content:flex-start!important;
-          column-gap:clamp(32px,3.5vw,54px)!important;
-          width:min(100%,1368px)!important;
-          height:100%!important;
-          margin:0 auto!important;
-          padding:70px 54px 125px!important;
-          text-align:left!important;
-        }
-        .kb-church-projects-cinematic-copy{
-          display:flex;
-          flex-direction:column;
-          align-items:flex-start;
-          width:100%;
-          margin:0!important;
-          color:#fffdf8;
-          text-align:left!important;
-        }
-        .kb-church-projects-cinematic-kicker{
-          grid-area:kicker;
-          margin:0 0 10px!important;
-          color:#d7a74d;
-          font-size:12px;
-          line-height:1;
-          font-weight:800;
-          letter-spacing:.24em;
-          text-transform:uppercase;
-          text-shadow:0 2px 12px rgba(0,0,0,.34);
-        }
-        .kb-church-projects-cinematic-hero h1{
-          grid-area:title;
-          max-width:none!important;
-          margin:0!important;
-          padding:0!important;
-          color:#fffdf8!important;
-          font-family:var(--font-display),serif!important;
-          font-size:clamp(48px,4vw,60px)!important;
-          font-weight:500!important;
-          line-height:1.02!important;
-          letter-spacing:-.045em!important;
-          white-space:nowrap;
-          text-shadow:0 3px 22px rgba(0,0,0,.30)!important;
-        }
-        .kb-church-projects-cinematic-copy > p{
-          grid-area:intro;
-          max-width:570px!important;
-          margin:10px 0 0!important;
-          color:rgba(255,253,248,.94)!important;
-          font-size:15.5px!important;
-          font-weight:500!important;
-          line-height:1.4!important;
-          text-shadow:0 2px 13px rgba(0,0,0,.32)!important;
-        }
-        .kb-church-projects-control-rail{
-          align-self:start;
-          display:grid;
-          grid-template-rows:34px minmax(0,1fr) 44px 22px;
-          row-gap:10px;
-          width:100%;
-          min-width:0;
-          height:170px;
-          margin:0;
-        }
-        .kb-church-projects-cinematic-actions{
-          grid-row:3;
-          display:grid!important;
-          grid-template-columns:repeat(2,minmax(0,1fr));
-          align-items:center!important;
-          justify-content:stretch!important;
-          gap:12px;
-          width:100%!important;
-          margin:0!important;
-        }
-        .kb-church-projects-cinematic-actions button{
-          display:inline-flex!important;
-          align-items:center!important;
-          justify-content:center!important;
-          width:100%!important;
-          height:44px!important;
-          min-width:0!important;
-          margin:0!important;
-          padding:0 20px!important;
-          border-radius:14px!important;
-          font:inherit!important;
-          font-size:13px!important;
-          font-weight:800!important;
-          letter-spacing:-.01em!important;
-          cursor:pointer!important;
-          transition:transform .18s ease,background .18s ease,border-color .18s ease!important;
-        }
-        .kb-church-projects-cinematic-primary{
-          border:1px solid rgba(103,146,92,.36)!important;
-          background:linear-gradient(180deg,#315c36,#24482a)!important;
-          color:#fffdf8!important;
-          box-shadow:0 12px 25px rgba(4,18,9,.29),inset 0 1px 0 rgba(255,255,255,.10)!important;
-        }
-        .kb-church-projects-cinematic-secondary{
-          border:1px solid #cfa342!important;
-          background:rgba(17,34,22,.42)!important;
-          color:#fffdf8!important;
-          box-shadow:0 9px 22px rgba(4,14,8,.19)!important;
-          backdrop-filter:blur(4px);
-        }
-        .kb-church-projects-cinematic-actions button:hover{transform:translateY(-1px)!important;}
-        .kb-church-projects-cinematic-actions button:focus-visible{outline:2px solid #f1c86f!important;outline-offset:3px;}
-        .kb-church-projects-cinematic-trust{
-          grid-row:4;
-          display:flex!important;
-          align-items:center!important;
-          justify-content:space-between!important;
-          gap:10px;
-          width:100%!important;
-          margin:0!important;
-          color:rgba(255,253,248,.93);
-          font-size:12px;
-          font-weight:700;
-          text-shadow:0 2px 9px rgba(0,0,0,.34);
-        }
-        .kb-church-projects-cinematic-trust-item{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:11.5px;}
-        .kb-church-projects-cinematic-trust-item svg{width:22px;height:22px;fill:none;stroke:#d2a445;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 5px rgba(0,0,0,.28));}
-        .kb-church-projects-cinematic-trust-rule{display:block;width:1px;height:20px;background:rgba(255,253,248,.42);}
-        .kb-marketplace-below-seam-action--church-projects{display:none!important;}
-        /* Approved My Projects divider on its own light seam band.
-           The video ends above this 95px band so the curve mask cannot create
-           a large light-colored wave through the dark hero. */
-        .kb-church-projects-cinematic-vine{
-          position:absolute;
-          z-index:12;
-          left:50%;
-          right:auto;
-          bottom:30px;
-          width:100vw;
-          height:var(--kb852-vine-height,95px);
-          transform:translateX(-50%);
-          pointer-events:none;
-          background-color:transparent;
-          background-image:var(--kb852-vine-art);
-          background-repeat:no-repeat;
-          background-size:100% var(--kb852-vine-height,95px);
-          background-position:center center;
-          background-blend-mode:normal;
-          -webkit-mask-image:none;
-          mask-image:none;
-          opacity:1;
-          filter:none;
-          border:0;
-          box-shadow:none;
-        }
-        .kb-church-projects-mode-switch{
-          position:static!important;
-          z-index:20!important;
-          grid-row:1;
-          justify-self:center;
-          top:auto!important;
-          right:auto!important;
-          display:inline-flex!important;
-          align-items:center!important;
-          gap:3px!important;
-          height:34px!important;
-          width:auto!important;
-          padding:3px!important;
-          border:1px solid rgba(255,253,248,.52)!important;
-          border-radius:999px!important;
-          background:rgba(255,253,248,.91)!important;
-          box-shadow:0 9px 24px rgba(5,17,11,.18),inset 0 1px 0 rgba(255,255,255,.74)!important;
-          backdrop-filter:blur(10px);
-        }
-        .kb-church-projects-mode-switch button{
-          height:26px!important;
-          min-width:0!important;
-          padding:0 11px!important;
-          border:0!important;
-          border-radius:999px!important;
-          background:transparent!important;
-          color:#5d6258!important;
-          font:inherit!important;
-          font-size:9.5px!important;
-          font-weight:800!important;
-          letter-spacing:.12em!important;
-          text-transform:uppercase!important;
-          white-space:nowrap!important;
-          cursor:pointer!important;
-        }
-        .kb-church-projects-mode-switch button.is-active{
-          background:#1C2814!important;
-          color:#fffdf8!important;
-          box-shadow:0 6px 14px rgba(28,40,20,.12)!important;
-        }
-        html body .workspace-body-shell.marketplace-body-shell .kb-live-marketplace-page.kb-church-projects-marketplace-page > .kb-church-projects-cinematic-hero + .kb-live-shell,
-        html body .kb-live-marketplace-page.kb-church-projects-marketplace-page > .kb-church-projects-cinematic-hero + .kb-live-shell{
-          padding-top:0!important;
-        }
-        html body .workspace-body-shell.marketplace-body-shell .kb-live-marketplace-page.kb-church-projects-marketplace-page > .kb-church-projects-cinematic-hero + .kb-live-shell > .kb-live-handpicked-hero,
-        html body .kb-live-marketplace-page.kb-church-projects-marketplace-page > .kb-church-projects-cinematic-hero + .kb-live-shell > .kb-live-handpicked-hero{
-          margin-top:-32px!important;
-          padding-top:0!important;
-          background:transparent!important;
-        }
-        @media(max-width:1100px){
-          html body .kb-church-projects-cinematic-hero{height:455px!important;min-height:455px!important;}
-          .kb-church-projects-cinematic-content{display:block!important;padding:78px 36px 125px!important;}
-          .kb-church-projects-cinematic-copy{display:block;width:min(100%,720px);}
-          .kb-church-projects-cinematic-kicker{margin:0 0 9px!important;}
-          .kb-church-projects-cinematic-hero h1{font-size:clamp(44px,6vw,52px)!important;white-space:normal;}
-          .kb-church-projects-cinematic-copy > p{max-width:620px!important;margin-top:10px!important;}
-          .kb-church-projects-control-rail{display:block;width:min(100%,720px);height:auto;margin-top:14px;}
-          .kb-church-projects-cinematic-actions{display:flex!important;width:auto!important;justify-content:flex-start!important;margin:0!important;}
-          .kb-church-projects-cinematic-actions button{width:auto!important;min-width:170px!important;flex:0 0 auto!important;}
-          .kb-church-projects-cinematic-trust{width:auto!important;justify-content:flex-start!important;gap:12px;margin-top:14px!important;flex-wrap:wrap;}
-          .kb-church-projects-mode-switch{position:absolute!important;top:64px!important;right:36px!important;}
-        }
-        @media(max-width:760px){
-          /* Intermediate step: mirrors Find Vendors' 760px scale-down so both
-             subtabs transition off the tablet composition identically before
-             the 405px/95px mobile vine system takes over at 680px. */
-          html body .kb-church-projects-cinematic-hero{height:374px!important;min-height:374px!important;}
-          .kb-church-projects-cinematic-content{padding:80px 26px 64px!important;}
-          /* CTA visibility fix: the base rule below (unscoped, specificity 0,1,0)
-             hides this button by default and is normally overridden either by the
-             >=1101px desktop rule or the <=680px mobile rules. Neither was active
-             in 681-760px, so the button was invisible in that window. */
-          html body .kb-live-marketplace-page.kb-church-projects-marketplace-page .kb-marketplace-below-seam-action--church-projects{
-            display:inline-flex!important;
-            align-items:center!important;
-            justify-content:space-between!important;
-            gap:11px!important;
-            min-width:159px!important;
-            height:38px!important;
-            padding:0 13px 0 16px!important;
-            border-radius:12px!important;
-            border:1px solid rgba(214,170,72,.74)!important;
-            background:linear-gradient(180deg,rgba(40,71,37,.98),rgba(24,48,27,.98))!important;
-            color:#fffdf8!important;
-            box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
-            font-family:var(--font-sans),system-ui,sans-serif!important;
-            font-size:11.25px!important;
-            font-weight:800!important;
-            letter-spacing:.01em!important;
-            white-space:nowrap!important;
-            cursor:pointer!important;
-          }
-        }
-        @media(max-width:680px){
-          /* V882 mobile-only: true video-mask seam parity.
-             The actual video edge mask crosses the centered phone crop at ~31px
-             inside its 95px rail, so the asset-specific drop is 95 - 31 = 64px.
-             This is intentionally different from the basin-only My Projects 43px
-             drop, whose curve asset has a different anchor. */
-          html body .kb-mp-exact-marketplace-page.kb-mp-exact-marketplace-churchprojects{padding-top:0!important;padding-left:0!important;padding-right:0!important;}
-          html body .kb-church-projects-cinematic-hero{
-            height:340px!important;
-            min-height:340px!important;
-            z-index:8!important;
-            overflow:visible!important;
-            --kb852-vine-height:95px!important;
-            --kb852-vine-anchor-y:31px!important;
-            --kb852-vine-drop:64px!important;
-            --kb852-mobile-desktop-pov-vine-width:1440px!important;
-            --kb852-mobile-desktop-pov-vine-height:95px!important;
-          }
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-cinematic-media{
-            inset:0 0 -64px 0!important;
-            -webkit-mask-image:linear-gradient(#000 0 0),url(${KB_CHURCH_VIDEO_STEM_EDGE_MASK})!important;
-            -webkit-mask-size:100% calc(100% - var(--kb852-mobile-desktop-pov-vine-height) + 2px),var(--kb852-mobile-desktop-pov-vine-width) var(--kb852-mobile-desktop-pov-vine-height)!important;
-            -webkit-mask-position:center top,center bottom!important;
-            -webkit-mask-repeat:no-repeat,no-repeat!important;
-            mask-image:linear-gradient(#000 0 0),url(${KB_CHURCH_VIDEO_STEM_EDGE_MASK})!important;
-            mask-size:100% calc(100% - var(--kb852-mobile-desktop-pov-vine-height) + 2px),var(--kb852-mobile-desktop-pov-vine-width) var(--kb852-mobile-desktop-pov-vine-height)!important;
-            mask-position:center top,center bottom!important;
-            mask-repeat:no-repeat,no-repeat!important;
-          }
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-cinematic-vine{
-            bottom:-64px!important;
-            left:50%!important;
-            right:auto!important;
-            width:var(--kb852-mobile-desktop-pov-vine-width)!important;
-            min-width:var(--kb852-mobile-desktop-pov-vine-width)!important;
-            max-width:var(--kb852-mobile-desktop-pov-vine-width)!important;
-            height:95px!important;
-            min-height:95px!important;
-            transform:translateX(-50%)!important;
-            z-index:20!important;
-            background-image:var(--kb852-vine-art)!important;
-            background-repeat:no-repeat!important;
-            background-size:var(--kb852-mobile-desktop-pov-vine-width) 95px!important;
-            background-position:center center!important;
-            overflow:visible!important;
-          }
-          .kb-church-projects-cinematic-video,.kb-church-projects-cinematic-poster{object-position:66% 50%;background-position:66% 50%;}
-          .kb-church-projects-cinematic-scrim{background:linear-gradient(90deg,rgba(5,17,11,.96) 0%,rgba(6,18,12,.86) 58%,rgba(6,16,11,.42) 100%),rgba(5,13,9,.10);}
-          .kb-church-projects-cinematic-content{padding:84px 18px 67px!important;}
-          .kb-church-projects-cinematic-copy{width:100%;}
-          .kb-church-projects-cinematic-kicker{font-size:10.5px;letter-spacing:.19em;margin-bottom:8px!important;}
-          .kb-church-projects-cinematic-hero h1{font-size:clamp(34px,10vw,44px)!important;line-height:1.01!important;}
-          .kb-church-projects-cinematic-copy > p{font-size:14.5px!important;line-height:1.4!important;margin-top:10px!important;max-width:430px!important;}
-          .kb-church-projects-control-rail{display:grid!important;grid-template-rows:auto auto!important;gap:9px!important;width:100%!important;max-width:360px!important;height:auto!important;margin-top:14px!important;}
-          .kb-church-projects-cinematic-actions{grid-row:1!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin:0!important;}
-          .kb-church-projects-cinematic-actions button{height:42px!important;min-width:0!important;width:100%!important;padding:0 8px!important;border-radius:13px!important;font-size:11.5px!important;line-height:1.15!important;white-space:normal!important;}
-          .kb-church-projects-cinematic-trust{grid-row:2!important;gap:9px 13px;margin-top:14px!important;flex-wrap:wrap;font-size:11.5px;}
-          .kb-church-projects-cinematic-trust-item svg{width:20px;height:20px;}
-          .kb-church-projects-cinematic-trust-rule{display:none;}
-          /* Literal positioning parity with Find Vendors. No inset shorthand: it
-             was resetting top:14px to auto and causing the Church Projects toggle drop. */
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-mode-switch{position:absolute!important;top:14px!important;right:14px!important;left:auto!important;bottom:auto!important;transform:none!important;display:inline-flex!important;align-items:center!important;gap:2px!important;width:auto!important;max-width:calc(100vw - 28px)!important;height:30px!important;min-height:30px!important;padding:3px!important;}
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-mode-switch button{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;width:auto!important;height:24px!important;min-height:24px!important;padding:0 9px!important;font-size:9px!important;line-height:1!important;letter-spacing:.075em!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;}
-          html body .kb-live-marketplace-page.kb-church-projects-marketplace-page > .kb-church-projects-cinematic-hero + .kb-live-shell{position:relative!important;z-index:1!important;padding-top:84px!important;}
-          html body .workspace-body-shell.marketplace-body-shell .kb-live-marketplace-page.kb-church-projects-marketplace-page > .kb-church-projects-cinematic-hero + .kb-live-shell > .kb-live-handpicked-hero,
-          html body .kb-live-marketplace-page.kb-church-projects-marketplace-page > .kb-church-projects-cinematic-hero + .kb-live-shell > .kb-live-handpicked-hero{margin-top:0!important;padding-top:0!important;}
-        }
-        /* 853v — desktop right-rail lock. The left copy/grid, hero geometry,
-           media, divider, and content below the divider remain untouched. */
-        @media(min-width:1101px){
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-control-rail{
-            justify-self:end!important;
-            align-self:start!important;
-            width:min(100%,438px)!important;
-            height:auto!important;
-            grid-template-rows:34px 84px auto!important;
-            row-gap:0!important;
-            margin:0!important;
-          }
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-mode-switch{
-            position:static!important;
-            grid-row:1!important;
-            justify-self:end!important;
-            align-self:start!important;
-            margin:0!important;
-          }
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-cinematic-actions{display:none!important;}
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-cinematic-trust{
-            grid-row:3!important;
-            align-items:center!important;
-            justify-content:center!important;
-            gap:14px!important;
-            width:100%!important;
-            margin:0!important;
-            flex-wrap:nowrap!important;
-          }
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-cinematic-trust-item{
-            gap:6px!important;
-            font-size:11px!important;
-            line-height:1!important;
-          }
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-cinematic-trust-item svg{
-            width:18px!important;
-            height:18px!important;
-          }
-          html body .kb-church-projects-cinematic-hero .kb-church-projects-cinematic-trust-rule{
-            display:block!important;
-            width:4px!important;
-            height:4px!important;
-            border-radius:999px!important;
-            background:rgba(214,170,72,.72)!important;
-          }
-          html body .kb-live-marketplace-page.kb-church-projects-marketplace-page .kb-live-handpicked-hero .kb-live-handpicked-masthead{
-            grid-template-columns:minmax(0,1fr) auto!important;
-            align-items:center!important;
-            gap:14px!important;
-          }
-          html body .kb-live-marketplace-page.kb-church-projects-marketplace-page .kb-marketplace-below-seam-action--church-projects{
-            display:inline-flex!important;
-            align-items:center!important;
-            justify-content:space-between!important;
-            gap:14px!important;
-            min-width:168px!important;
-            height:40px!important;
-            padding:0 16px 0 18px!important;
-            border-radius:12px!important;
-            border:1px solid rgba(214,170,72,.74)!important;
-            background:linear-gradient(180deg,rgba(40,71,37,.98),rgba(24,48,27,.98))!important;
-            color:#fffdf8!important;
-            box-shadow:0 10px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
-            font-family:var(--font-sans),system-ui,sans-serif!important;
-            font-size:12px!important;
-            font-weight:800!important;
-            letter-spacing:.01em!important;
-            white-space:nowrap!important;
-            cursor:pointer!important;
-          }
-          html body .kb-live-marketplace-page.kb-church-projects-marketplace-page .kb-marketplace-below-seam-action--church-projects .kb-marketplace-below-seam-action-arrow{
-            color:#d6aa48!important;
-            font-size:16px!important;
-            line-height:1!important;
-            transition:transform .16s ease,color .16s ease!important;
-          }
-          html body .kb-live-marketplace-page.kb-church-projects-marketplace-page .kb-marketplace-below-seam-action--church-projects:hover{
-            transform:translateY(-1px)!important;
-            border-color:rgba(224,184,88,.94)!important;
-            box-shadow:0 12px 24px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.10)!important;
-          }
-          html body .kb-live-marketplace-page.kb-church-projects-marketplace-page .kb-marketplace-below-seam-action--church-projects:hover .kb-marketplace-below-seam-action-arrow{
-            transform:translateX(3px)!important;
-            color:#e1b957!important;
-          }
-        }
-        @media(prefers-reduced-motion:reduce){.kb-church-projects-cinematic-actions button{transition:none!important;}}
-      `}</style>
-
-      <div className="kb-church-projects-cinematic-media" aria-hidden="true">
-        {!prefersReducedMotion ? (
-          <video
-            ref={videoRef}
-            className="kb-church-projects-cinematic-video"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={KB_CHURCH_MARKETPLACE_VIDEO_POSTER}
-            tabIndex={-1}
-            onCanPlay={() => {
-              if (prefersReducedMotion || !videoRef.current) return;
-              const playPromise = videoRef.current.play();
-              if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
-            }}
-          >
-            <source src={KB_CHURCH_MARKETPLACE_VIDEO_SOURCE} type="video/mp4" />
-          </video>
-        ) : (
-          <div className="kb-church-projects-cinematic-poster" />
-        )}
-        <div className="kb-church-projects-cinematic-scrim" />
-      </div>
-
-      <div className="kb-church-projects-cinematic-content">
-        <div className="kb-church-projects-cinematic-copy">
-          <div className="kb-church-projects-cinematic-kicker">FaithBid Church Projects</div>
-          <h1 id="kb-church-projects-cinematic-title">Church Projects.</h1>
-          <p>Explore real ministry needs, discover what churches are building, and find inspiration for your next project.</p>
-        </div>
-        <div className="kb-church-projects-control-rail">
-          <div className="kb-market-mode-switch kb-church-projects-mode-switch" aria-label={isVendor ? "Vendor marketplace views" : "Church marketplace views"}>
-            {isVendor ? (
-              <>
-                <button type="button" className="is-active" aria-pressed="true">Open Projects</button>
-                <button type="button" aria-pressed="false" onClick={onMyWork}>My Work</button>
-              </>
-            ) : (
-              <>
-                <button type="button" aria-label="Find Vendors" aria-pressed="false" onClick={onFindVendors}>Vendors</button>
-                <button type="button" className="is-active" aria-label="Church Projects" aria-pressed="true">Projects</button>
-              </>
-            )}
-          </div>
-          <div className="kb-church-projects-cinematic-actions">
-            {isVendor ? (<>
-              <button type="button" className="kb-church-projects-cinematic-primary" onClick={onBrowseProjects}>Browse Projects</button>
-              <button type="button" className="kb-church-projects-cinematic-secondary" onClick={onMyWork}>My Work</button>
-              <button type="button" className="kb-church-projects-cinematic-secondary kb-church-projects-saved-action" onClick={onSavedProjects}>Saved Projects</button>
-            </>) : (<>
-              <button type="button" className="kb-church-projects-cinematic-primary" onClick={onPost}>Post a Project</button>
-              <button type="button" className="kb-church-projects-cinematic-secondary" onClick={onBrowseProjects}>Browse Projects</button>
-            </>)}
-          </div>
-          <div className="kb-church-projects-cinematic-trust" aria-label="FaithBid church project commitments">
-            <div className="kb-church-projects-cinematic-trust-item">
-              <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3.5l10 4v7.3c0 6.2-4.2 11.5-10 13.7-5.8-2.2-10-7.5-10-13.7V7.5l10-4z"/><path d="M11.8 15.8l2.8 2.8 5.9-6.2"/></svg>
-              <span>Verified Vendors</span>
-            </div>
-            <span className="kb-church-projects-cinematic-trust-rule" aria-hidden="true" />
-            <div className="kb-church-projects-cinematic-trust-item">
-              <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 27h22M8 27V14l8-7 8 7v13M13 27v-7h6v7M16 3v8M13 6h6"/></svg>
-              <span>Church-Approved</span>
-            </div>
-            <span className="kb-church-projects-cinematic-trust-rule" aria-hidden="true" />
-            <div className="kb-church-projects-cinematic-trust-item">
-              <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 24l-2-13 8 6 5-11 5 11 8-6-2 13H5zM6 28h20"/></svg>
-              <span>Kingdom Focused</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="kb-church-projects-cinematic-vine" aria-hidden="true" />
-    </section>
+    <MarketplaceV2Header
+      view="vendors"
+      onPost={onPost}
+      onProjects={onChurchProjects}
+    />
   );
 }
 
-
-
+function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors, onBrowseProjects, onMyWork }) {
+  return (
+    <MarketplaceV2Header
+      view="projects"
+      isVendor={isVendor}
+      onPost={onPost}
+      onVendors={onFindVendors}
+      onProjects={onBrowseProjects}
+      onVendorWorkspace={onMyWork}
+    />
+  );
+}
 
 // v63 — lightweight remote category image presets.
 // No local generated asset pack required. These are optimized CDN-sized images

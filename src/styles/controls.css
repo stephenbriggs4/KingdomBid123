@@ -237,42 +237,6 @@ html body #root .kb-marketplace-below-seam-action .kb-marketplace-below-seam-act
   padding: 0 !important;
 }
 
-/* Compact segmented navigation: visually subordinate to the 44px primary
- * marketplace action, with identical geometry in both view states. */
-html body #root .kb-church-marketplace-hero .kb-church-marketplace-mode-switch,
-html body #root .kb-church-projects-cinematic-hero .kb-church-projects-mode-switch {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  align-items: center !important;
-  width: 210px !important;
-  max-width: 210px !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  padding: 1px !important;
-  gap: 1px !important;
-  border-radius: var(--kb-control-pill-radius) !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-}
-
-html body #root .kb-church-marketplace-hero .kb-church-marketplace-mode-switch button:not(#kb-marketplace-toggle-option-anchor):not(#kb-marketplace-toggle-global-anchor),
-html body #root .kb-church-projects-cinematic-hero .kb-church-projects-mode-switch button:not(#kb-marketplace-toggle-option-anchor):not(#kb-marketplace-toggle-global-anchor) {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  height: 32px !important;
-  min-height: 32px !important;
-  padding: 0 10px !important;
-  border-radius: var(--kb-control-pill-radius) !important;
-  box-shadow: none !important;
-  font-size: var(--kb-control-font-size) !important;
-  line-height: 1 !important;
-  letter-spacing: 0.04em !important;
-  white-space: nowrap !important;
-}
-
 html body #root .kb-church-marketplace-page .kb-marketplace-below-seam-action--find-vendors {
   width: auto !important;
   min-width: 160px !important;
@@ -282,13 +246,4 @@ html body #root .kb-church-marketplace-page .kb-marketplace-below-seam-action--f
   gap: 12px !important;
   border-radius: 11px !important;
   font-size: 12px !important;
-}
-
-@media (max-width: 430px) {
-  html body #root .kb-church-marketplace-hero .kb-church-marketplace-mode-switch button:not(#kb-marketplace-toggle-option-anchor):not(#kb-marketplace-toggle-global-anchor),
-  html body #root .kb-church-projects-cinematic-hero .kb-church-projects-mode-switch button:not(#kb-marketplace-toggle-option-anchor):not(#kb-marketplace-toggle-global-anchor) {
-    padding: 0 9px !important;
-    font-size: var(--kb-control-font-size) !important;
-    letter-spacing: 0.025em !important;
-  }
 }
