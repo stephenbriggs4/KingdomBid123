@@ -41490,7 +41490,9 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
     <div className="fb-landing-v2">
       <section className="land-hero fb-landing-hero" aria-labelledby="faithbid-landing-title">
         <nav className="land-nav fb-landing-nav" aria-label="FaithBid home navigation">
-          <button type="button" className="fb-landing-nav-brand" onClick={()=>nav("landing")} aria-label="FaithBid home">FaithBid</button>
+          <button type="button" className="fb-landing-nav-brand" onClick={()=>nav("landing")} aria-label="FaithBid home">
+            <img src="/logos/faithbid-fb-monogram.png" alt="" aria-hidden="true" />
+          </button>
           <div className="land-nav-links fb-landing-nav-links">
             <button type="button" className="land-nav-btn" onClick={()=>enterAccessFlow("church", "navigation")}>For Churches</button>
             <button type="button" className="land-nav-btn" onClick={()=>enterAccessFlow("vendor", "navigation")}>For Vendors</button>
@@ -41504,10 +41506,8 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
         </nav>
 
         <div className="land-hero-body fb-landing-hero-body">
-          <div className="fb-landing-hero-mark" aria-label="FaithBid — Faith in every bid">
-            <div className="fb-landing-hero-wordmark">FaithBid</div>
-            <div className="fb-landing-hero-rule" aria-hidden="true"><span/></div>
-            <div className="fb-landing-tagline">Faith in every bid</div>
+          <div className="fb-landing-hero-mark" aria-label="FaithBid — Faith founded. Service driven.">
+            <img className="fb-landing-hero-lockup" src="/logos/faithbid-final-wordmark.png" alt="FaithBid — Faith founded. Service driven." />
           </div>
           <h1 id="faithbid-landing-title" className="land-h1 fb-landing-title">Find the right people.<br/>Build with shared purpose.</h1>
           <p className="land-sub fb-landing-subtitle">FaithBid is forming its first Dallas pilot to help churches connect with trusted Christian professionals and businesses who understand their mission.</p>
