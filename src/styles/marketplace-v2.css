@@ -221,6 +221,7 @@ html body #root .mkt2-root .mkt2-header {
 .mkt2-root .mkt2-header__title {
   width: 100%;
   margin-inline: auto;
+  text-align: center !important;
   color: #102f29;
   font-size: clamp(42px, 4.6vw, 66px);
   font-weight: 500;
@@ -230,6 +231,7 @@ html body #root .mkt2-root .mkt2-header {
 .mkt2-root .mkt2-header__support {
   max-width: 610px;
   margin: 13px auto 0;
+  text-align: center !important;
   color: #53625e;
   font-size: 14px;
   line-height: 1.55;
@@ -926,6 +928,20 @@ html body #root .mkt2-root .kbm-mp-toolbar {
 }
 
 /* Item 4: one calm results transition below the category rail. */
+.mkt2-root .kb-live-handpicked-hero,
+.mkt2-root .kb-live-featured-detached {
+  display: none !important;
+}
+
+.mkt2-root .mkt2-project-results-heading {
+  margin-top: 0;
+}
+
+.mkt2-root .kb-live-all-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
 .mkt2-root .mkt2-project-results.is-empty .kb-live-all-head {
   display: none !important;
 }
@@ -1036,4 +1052,26 @@ html body #root .mkt2-root .kbm-mp-toolbar {
     width: 100% !important;
     flex: 1 1 100% !important;
   }
+}
+
+@media (max-width: 980px) {
+  .mkt2-root .kb-live-all-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .mkt2-root .kb-live-all-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+html body #root .topnav .logo .kb-brand-logo-wordmark,
+html body #root .topnav-brand .kb-brand-logo-wordmark {
+  width: 144px !important;
+  height: 36px !important;
+  max-width: 144px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  background: #fff !important;
 }

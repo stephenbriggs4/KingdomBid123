@@ -20190,16 +20190,18 @@ function formatNow(){return new Date().toLocaleTimeString([],{hour:"2-digit",min
 const FAITHBID_LOGO_FULL = "/logos/faithbid-logo-full.png";
 const FAITHBID_LOGO_DARK = "/logos/faithbid-logo-dark.png";
 const FAITHBID_LOGO_MARK = "/logos/faithbid-logo-mark.png";
+const FAITHBID_LOGO_WORDMARK = "/logos/faithbid-wordmark-black-v2.png";
 
 const FAITHBID_LOGO_HOME = "/logos/faithbid-logo-home.png";
 
 function CrossLogo({ size = 36, variant = "full", tone = "light", color, wordmarkColor, style = {} }) {
   const raw = Math.max(18, Number(size) || 36);
   const isDarkWordmark = variant === "home" || variant === "dark";
-  const resolvedVariant = isDarkWordmark ? "dark" : "full";
+  const isFinalWordmark = variant === "wordmark";
+  const resolvedVariant = isFinalWordmark ? "wordmark" : isDarkWordmark ? "dark" : "full";
   return (
     <img
-      src={isDarkWordmark ? FAITHBID_LOGO_DARK : FAITHBID_LOGO_FULL}
+      src={isFinalWordmark ? FAITHBID_LOGO_WORDMARK : isDarkWordmark ? FAITHBID_LOGO_DARK : FAITHBID_LOGO_FULL}
       alt={BRAND.name}
       draggable="false"
       className={`kb-brand-logo kb-brand-logo-${resolvedVariant}`}
@@ -25328,6 +25330,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     // titles/churches/cities. Empty Set when the term doesn't match any
     // known synonym, in which case we keep the prior behavior.
     const termCanonicalCats = term ? __kbCanonicalizeToCategories(term) : new Set();
+    const selectedCanonicalCats = catFilter === 'All' ? new Set() : __kbCanonicalizeToCategories(catFilter);
     let next = openProjects.filter(project => {
       const projectLocation = String(getProjectLocationLabel(project) || '').toLowerCase();
       const matchesSearch = !term || [
@@ -25344,7 +25347,14 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
         for (const c of termCanonicalCats) if (projectCats.has(c)) return true;
         return false;
       })();
-      const matchesCat = catFilter === 'All' || String(project.category || '') === catFilter;
+      const matchesCat = catFilter === 'All'
+        || String(project.category || '') === catFilter
+        || (() => {
+          if (!selectedCanonicalCats.size) return false;
+          const projectCats = __kbDeriveProjectCategories(project);
+          for (const canonical of selectedCanonicalCats) if (projectCats.has(canonical)) return true;
+          return false;
+        })();
       const matchesLocation = locationFilter === 'All Locations' || String(getProjectLocationLabel(project) || '').trim() === locationFilter;
       const matchesBudget = matchesBudgetBand(project, budgetFilter);
       const matchesSaved = !savedOnly || savedIds.has(String(project.id || project.title));
@@ -26490,8 +26500,19 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
           </div>
         </section> : null}
 
+        {marketplaceIntelligenceStats.open > 0 ? (
+          <div className="mkt2-results-heading mkt2-project-results-heading">
+            <div>
+              <p>Open church projects</p>
+              <h2>Explore current ministry needs.</h2>
+              <span>Every card represents a real, published brief that is currently accepting responses.</span>
+            </div>
+            <strong>{liveAllProjects.length} brief{liveAllProjects.length === 1 ? '' : 's'}</strong>
+          </div>
+        ) : null}
+
         {/* V72 — compact Marketplace utility filter above All Project Briefs. Surgical: same state pipeline, smaller UI surface. */}
-        {(marketplaceIntelligenceStats.open > 0 || hasBrowseRefinements) ? <div className="kbm-mp-toolbar" role="search" aria-label="Filter open briefs">
+        {liveAllProjects.length > 0 ? <div className="kbm-mp-toolbar" role="search" aria-label="Filter open briefs">
           <div className="kbm-mp-search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input
@@ -26584,15 +26605,22 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
             by category. Capped at 12 cards to preserve page rhythm. ═════════════ */}
         <section className={`mkt2-project-results${liveAllProjects.length === 0 ? ' is-empty' : ''}`}>
           {/* V45 — head shows live filter count; cards show saved-bookmark badge; mobile caps at 6 with Show all */}
-          <div className="kb-live-all-head">
+          {liveAllProjects.length > 0 ? <div className="kb-live-all-head">
             <h2>All project briefs {hasBrowseRefinements ? <span className="kb-live-all-count">· {liveAllProjects.length} match{liveAllProjects.length === 1 ? '' : 'es'}</span> : null}</h2>
-          </div>
+          </div> : null}
           <div className="kb-live-all-grid">
             {liveAllProjects.length === 0 ? (
               hasBrowseRefinements ? (
-                <div className="kb-live-all-empty" style={{gridColumn:'1/-1',padding:'28px 18px',textAlign:'center',fontSize:13,color:'rgba(28,40,20,0.62)'}}>
-                  No projects match those filters. <button type="button" className="kb-live-all-empty-link" onClick={() => { setSearch(''); setCatFilter('All'); setSavedOnly(false); setUrgentOnly(false); }}>Clear filters →</button>
-                </div>
+                <KBWorkspaceEmptyState
+                  className="kb-marketplace-primary-empty mkt2-filter-empty"
+                  eyebrow={catFilter !== 'All' ? formatMarketplaceCategoryLabel(catFilter, catFilter) : 'Filtered marketplace'}
+                  title="No matching briefs yet"
+                  body="No real, published church projects currently match this view. Clear the filters to return to every open brief."
+                  actionLabel="Clear filters"
+                  onAction={() => { setSearch(''); setCatFilter('All'); setSortBy('best_match'); setSavedOnly(false); setUrgentOnly(false); setReviewingOnly(false); setLocationFilter('All Locations'); setBudgetFilter('Budget: Any'); }}
+                  minHeight="clamp(270px, 38vh, 340px)"
+                  style={{gridColumn:'1/-1'}}
+                />
               ) : (
                 <KBWorkspaceEmptyState
                   className="kb-marketplace-primary-empty"
@@ -38162,8 +38190,8 @@ export default function App() {
         {/* ── TOP NAV // public About owns its own sticky page header ── */}
         {screen !== "landing" && screen !== "auth" && screen !== "invite" && screen !== "about" && (
           <nav className={`topnav${(screen==="inbox"||screen==="messages")?" topnav-inbox-dark":""}${(screen==="profile"||screen==="verify-profile")?" topnav-profile-normal-flow":""}`} aria-label="Main navigation" style={{height:48,minHeight:48,padding:"0 18px",background:"rgba(255,250,242,0.98)",borderBottom:"1px solid rgba(28,40,20,0.10)",boxShadow:"none"}}>
-            <div className="logo" onClick={()=>nav("landing")} title="Go to Home" role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))} style={{height:34,minWidth:146,width:146,paddingRight:14,borderRight:"1px solid rgba(28,40,20,0.10)",gap:7,display:"flex",alignItems:"center"}}>
-              <CrossLogo size={30} variant={(screen==="inbox"||screen==="messages") ? "dark" : "full"} />
+            <div className="logo" onClick={()=>nav("landing")} title="Go to Home" role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))} style={{height:40,minWidth:170,width:170,paddingRight:14,borderRight:"1px solid rgba(28,40,20,0.10)",gap:7,display:"flex",alignItems:"center"}}>
+              <CrossLogo size={38} variant="wordmark" />
             </div>
             <div className="nav-tabs" style={{height:48,margin:"0 8px",gap:4}}>
               {MAIN_TABS.map((t,i)=>{
@@ -43068,7 +43096,7 @@ function AuthShell({ nav, children, showProgress = false, step = 1, totalSteps =
     <div className="page-shell-dark fb-auth-shell-v2">
       <div className="fb-auth-layout">
         <div className="fb-auth-topbar">
-          <button type="button" className="fb-auth-brand" onClick={() => nav('landing')} aria-label="FaithBid home">FaithBid</button>
+          <button type="button" className="fb-auth-brand" onClick={() => nav('landing')} aria-label="FaithBid home"><CrossLogo size={34} variant="wordmark" /></button>
           {showProgress ? (
             <div className="fb-auth-progress" style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
               {Array.from({ length: totalSteps }).map((_, idx) => {

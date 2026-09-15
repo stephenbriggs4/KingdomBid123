@@ -6,9 +6,17 @@ const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../src/styles/marketplace-v2.css', import.meta.url), 'utf8');
 
 test('empty project inventory renders one intentional empty state without redundant controls', () => {
-  assert.match(app, /marketplaceIntelligenceStats\.open > 0 \|\| hasBrowseRefinements/);
+  assert.match(app, /liveAllProjects\.length > 0 \? <div className="kbm-mp-toolbar"/);
   assert.match(app, /mkt2-project-results\$\{liveAllProjects\.length === 0 \? ' is-empty'/);
   assert.match(css, /mkt2-project-results\.is-empty \.kb-live-all-head\s*\{[^}]*display:\s*none/s);
+});
+
+test('category filters use canonical project taxonomy and never a sample-data fallback', () => {
+  assert.match(app, /selectedCanonicalCats = catFilter === 'All'/);
+  assert.match(app, /__kbDeriveProjectCategories\(project\)/);
+  assert.match(app, /const sources = hasBrowseRefinements\s*\? \[filtered\]\s*:\s*\[filtered\.length \? filtered : open\]/s);
+  assert.match(app, /\.from\("projects"\)[\s\S]*?\.eq\("status", "open"\)/);
+  assert.match(app, /title="No matching briefs yet"/);
 });
 
 test('empty vendor inventory removes controls that cannot affect any records', () => {
@@ -25,4 +33,11 @@ test('empty states use one card rather than a decorated outer card around an inn
 test('populated result controls collapse into a compact utility row', () => {
   assert.match(css, /html body #root \.mkt2-root \.kb-vendor-toolbar,[\s\S]*width:\s*auto !important;/);
   assert.match(css, /\.mkt2-root \.kbm-mp-filter-row\s*\{[^}]*display:\s*flex !important;/s);
+});
+
+test('populated project results expose one truthful heading and one responsive card grid', () => {
+  assert.match(app, /className="mkt2-results-heading mkt2-project-results-heading"/);
+  assert.match(app, /Every card represents a real, published brief/);
+  assert.match(css, /\.mkt2-root \.kb-live-handpicked-hero,[\s\S]*\.kb-live-featured-detached\s*\{[^}]*display:\s*none !important;/s);
+  assert.match(css, /\.mkt2-root \.kb-live-all-grid\s*\{[^}]*repeat\(3, minmax\(0, 1fr\)\)/s);
 });

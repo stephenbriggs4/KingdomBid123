@@ -478,11 +478,19 @@ html body .fb-auth-shell-v2 .fb-auth-layout {
   padding: 4px;
   color: #173f33;
   cursor: pointer;
-  font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(30px, 2.5vw, 40px);
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  min-width: 136px;
   line-height: 1;
-  letter-spacing: -.045em;
+}
+
+.fb-auth-brand .kb-brand-logo-wordmark {
+  width: 146px !important;
+  height: 36px !important;
+  max-width: 146px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  background: #fff !important;
 }
 
 .fb-auth-top-actions {

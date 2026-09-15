@@ -5,6 +5,7 @@ import { readFileSync, existsSync } from 'node:fs';
 const source = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const styles = readFileSync(new URL('../src/styles/marketplace-v2.css', import.meta.url), 'utf8');
 const image = new URL('../public/images/faithbid-marketplace-church-v2.png', import.meta.url);
+const wordmark = new URL('../public/logos/faithbid-wordmark-black-v2.png', import.meta.url);
 
 test('marketplace uses its own photographic header asset', () => {
   assert.equal(existsSync(image), true);
@@ -30,4 +31,16 @@ test('new header remains responsive and keyboard-visible', () => {
   assert.match(styles, /@media \(max-width: 760px\)/);
   assert.match(styles, /\.mkt2-root \.mkt2-header__search:focus-within/);
   assert.match(source, /aria-label=\{isProjects \? 'Project categories' : 'Vendor categories'\}/);
+});
+
+test('both marketplace hero headlines override the legacy left-aligned heading rule', () => {
+  assert.match(styles, /\.mkt2-root \.mkt2-header__title\s*\{[^}]*text-align:\s*center !important;/s);
+  assert.match(styles, /\.mkt2-root \.mkt2-header__support\s*\{[^}]*text-align:\s*center !important;/s);
+});
+
+test('authenticated navigation and sign-in use the approved wordmark-only asset', () => {
+  assert.equal(existsSync(wordmark), true);
+  assert.match(source, /FAITHBID_LOGO_WORDMARK = "\/logos\/faithbid-wordmark-black-v2\.png"/);
+  assert.match(source, /<CrossLogo size=\{\d+\} variant="wordmark" \/>/);
+  assert.match(source, /className="fb-auth-brand"[\s\S]*?<CrossLogo size=\{34\} variant="wordmark" \/>/);
 });
