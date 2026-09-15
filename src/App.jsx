@@ -427,6 +427,8 @@ const PUBLIC_LEGAL_FOOTER_CONFIG = Object.freeze({
     "auth",
     "reset-password",
     "about",
+    "privacy",
+    "terms",
     "ambassador",
     "partner",
     "join",
@@ -435,12 +437,20 @@ const PUBLIC_LEGAL_FOOTER_CONFIG = Object.freeze({
   compactScreens: Object.freeze(["auth", "reset-password"]),
 });
 
-function PublicLegalFooter({ compact = false }) {
+function PublicLegalFooter({ compact = false, nav, screen }) {
   const cfg = PUBLIC_LEGAL_FOOTER_CONFIG;
   const currentYear = new Date().getFullYear();
+  const goToLandingSection = (sectionId) => {
+    if (screen === "landing" && typeof document !== "undefined") {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior:"smooth", block:"start" });
+      return;
+    }
+    try { sessionStorage.setItem("kb_landing_scroll_target", sectionId); } catch {}
+    nav?.("landing");
+  };
   return (
     <footer
-      className={`fb-public-footer-v2${compact ? " is-compact" : ""}`}
+      className={`land-footer fb-public-footer-v2${compact ? " is-compact" : ""}`}
       role="contentinfo"
       aria-label="FaithBid public disclaimer and contact"
     >
@@ -459,9 +469,15 @@ function PublicLegalFooter({ compact = false }) {
           font-family:var(--font-sans),sans-serif;
         }
         .fb-public-footer-v2.is-compact{padding-top:26px;padding-bottom:max(28px, env(safe-area-inset-bottom));}
-        .fb-public-footer-v2__inner{width:min(1180px,100%);margin:0 auto;display:grid;grid-template-columns:minmax(190px,.34fr) minmax(0,1fr);gap:clamp(30px,6vw,86px);align-items:start;}
+        .fb-public-footer-v2__inner{width:min(1180px,100%);margin:0 auto;display:grid;grid-template-columns:minmax(190px,.7fr) minmax(300px,1fr) minmax(280px,1.45fr);gap:clamp(28px,4vw,62px);align-items:start;}
         .fb-public-legal-footer__brand{font-family:var(--font-display),Georgia,serif;font-size:25px;font-weight:700;line-height:1;color:#fffaf0;letter-spacing:-.035em;margin-bottom:9px;}
         .fb-public-legal-footer__copyright{font-size:11.5px;font-weight:700;color:rgba(255,253,248,.78);letter-spacing:.01em;line-height:1.5;}
+        .fb-public-footer-v2__tagline{font-size:10px;line-height:1.5;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,253,248,.48);margin-top:10px;}
+        .fb-public-footer-v2__nav-title{font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#e0bd73;margin-bottom:12px;}
+        .fb-public-footer-v2__nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 22px;}
+        .fb-public-footer-v2__nav a,.fb-public-footer-v2__nav button{appearance:none;background:none;border:0;padding:0;color:rgba(255,253,248,.76);font:600 11.5px/1.5 var(--font-sans),sans-serif;text-align:left;text-decoration:none;cursor:pointer;width:max-content;max-width:100%;}
+        .fb-public-footer-v2__nav a:hover,.fb-public-footer-v2__nav button:hover{color:#fffaf0;}
+        .fb-public-footer-v2__nav a:focus-visible,.fb-public-footer-v2__nav button:focus-visible{outline:2px solid #e0bd73;outline-offset:4px;border-radius:2px;}
         .fb-public-legal-footer__disclaimers{display:grid;gap:7px;}
         .fb-public-legal-footer__copy{max-width:880px;font-size:11.5px;line-height:1.58;font-weight:400;color:rgba(255,253,248,.66);}
         .fb-public-legal-footer__links{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:13px;}
@@ -471,7 +487,8 @@ function PublicLegalFooter({ compact = false }) {
         @media(max-width:760px){
           .fb-public-footer-v2{padding:26px 22px max(30px, env(safe-area-inset-bottom));}
           .fb-public-footer-v2.is-compact{padding-top:24px;}
-          .fb-public-footer-v2__inner{grid-template-columns:1fr;gap:20px;}
+          .fb-public-footer-v2__inner{grid-template-columns:1fr;gap:24px;}
+          .fb-public-footer-v2__nav{grid-template-columns:repeat(2,minmax(0,1fr));}
           .fb-public-legal-footer__brand{font-size:23px;}
           .fb-public-legal-footer__copyright,.fb-public-legal-footer__copy,.fb-public-legal-footer__link{font-size:11px;}
           .fb-public-legal-footer__copy{line-height:1.55;}
@@ -481,17 +498,45 @@ function PublicLegalFooter({ compact = false }) {
         <div className="fb-public-legal-footer__identity">
           <div className="fb-public-legal-footer__brand">FaithBid</div>
           <div className="fb-public-legal-footer__copyright">© {currentYear} {cfg.owner}. All rights reserved.</div>
-          <div className="fb-public-legal-footer__links">
-            <a className="fb-public-legal-footer__link" href="#get-plugged-in">Get Plugged In</a>
-            <a className="fb-public-legal-footer__link" href={`mailto:${cfg.contactEmail}`} aria-label={`${cfg.contactLabel} ${cfg.owner} at ${cfg.contactEmail}`}>{cfg.contactLabel}</a>
-          </div>
+          <div className="fb-public-footer-v2__tagline">Faith founded. Service driven.</div>
         </div>
+        {!compact && <nav className="fb-public-footer-v2__nav-block" aria-label="FaithBid footer navigation">
+          <div className="fb-public-footer-v2__nav-title">Explore</div>
+          <div className="fb-public-footer-v2__nav">
+            <a href="#about" onClick={(event)=>{event.preventDefault();nav?.("about");}}>About</a>
+            <button type="button" onClick={()=>goToLandingSection("how-faithbid-works")}>How It Works</button>
+            <button type="button" onClick={()=>goToLandingSection("pricing-section")}>Pricing</button>
+            <button type="button" onClick={()=>goToLandingSection("landing-faq-section")}>FAQ</button>
+            <a href="#get-plugged-in" onClick={(event)=>{event.preventDefault();nav?.("get-plugged-in");}}>Get Plugged In</a>
+            <a href="#partner" onClick={(event)=>{event.preventDefault();nav?.("partner");}}>Partner</a>
+            <a href="#privacy" onClick={(event)=>{event.preventDefault();nav?.("privacy");}}>Privacy</a>
+            <a href="#terms" onClick={(event)=>{event.preventDefault();nav?.("terms");}}>Terms</a>
+          </div>
+        </nav>}
         <div className="fb-public-legal-footer__disclaimers">
           <div className="fb-public-legal-footer__copy">{cfg.earlyAccessDisclaimer}</div>
           <div className="fb-public-legal-footer__copy">{cfg.marketplaceDisclaimer}</div>
+          <div className="fb-public-legal-footer__links">
+            <a className="fb-public-legal-footer__link" href={`mailto:${cfg.contactEmail}`} aria-label={`${cfg.contactLabel} ${cfg.owner} at ${cfg.contactEmail}`}>{cfg.contactEmail}</a>
+          </div>
         </div>
       </div>
     </footer>
+  );
+}
+
+function PublicPolicyUnderReviewScreen({ nav, type }) {
+  const isPrivacy = type === "privacy";
+  return (
+    <main id="kb-main-content" style={{minHeight:"72vh",background:"#fffdf8",padding:"clamp(96px,12vw,150px) 24px 80px"}}>
+      <section style={{width:"min(760px,100%)",margin:"0 auto",padding:"clamp(30px,5vw,52px)",border:"1px solid rgba(28,40,20,.12)",borderRadius:24,background:"rgba(255,255,255,.78)",boxShadow:"0 24px 70px rgba(28,40,20,.08)"}} aria-labelledby="public-policy-title">
+        <div style={{fontSize:10,fontWeight:800,letterSpacing:".18em",textTransform:"uppercase",color:"#9b7129",marginBottom:14}}>Public policy</div>
+        <h1 id="public-policy-title" style={{fontFamily:"var(--font-display),Georgia,serif",fontSize:"clamp(36px,6vw,58px)",lineHeight:1.02,letterSpacing:"-.035em",color:"#1C2814",margin:"0 0 18px"}}>{isPrivacy ? "Privacy policy under review." : "Terms of service under review."}</h1>
+        <p style={{fontSize:16,lineHeight:1.8,color:"#5f6659",margin:"0 0 16px"}}>FaithBid is in a limited early-access phase. The final {isPrivacy ? "privacy policy" : "platform terms"} will be published before prospect-facing launch and will govern use of the service once effective.</p>
+        <p style={{fontSize:14,lineHeight:1.75,color:"#6f7569",margin:"0 0 30px"}}>Questions about {isPrivacy ? "information handling" : "early-access terms"} can be sent to <a href={`mailto:${BRAND.supportEmail}`} style={{color:"#74551f",fontWeight:800}}>{BRAND.supportEmail}</a>.</p>
+        <button type="button" className="btn-primary" onClick={()=>nav?.("landing")}>Return to FaithBid</button>
+      </section>
+    </main>
   );
 }
 
@@ -8098,6 +8143,7 @@ html.platform-shell-host-active body #kb-main-content>*>*{
 .platform-fullscreen-shell-messages{
   background:#fffdf8;
 }
+
 .kb-header-surface-work{
   min-height:calc(100dvh - 52px);
   background:#fffdf8;
@@ -22795,7 +22841,7 @@ const APP_PROJECT_SUBTAB_BY_ROUTE = Object.freeze({
   "vendors": "vendors",
 });
 const APP_HASH_ROUTES = Object.freeze([
-  "projects","my-projects","my-work","vendors","get-plugged-in","inbox","messages","reviews","profile","verify-profile","pricing","admin","settings","about","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
+  "projects","my-projects","my-work","vendors","get-plugged-in","inbox","messages","reviews","profile","verify-profile","pricing","admin","settings","about","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
 ]);
 const APP_HASH_ROUTE_SET = new Set(APP_HASH_ROUTES);
 
@@ -38605,6 +38651,8 @@ export default function App() {
         {screen==="verify-profile" && authReady && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Profile...</div>}><ProfileScreen role={role} currentUser={currentUser} userProfile={userProfile} setUserProfile={setUserProfile} showToast={showToast} nav={nav} initialTab="verify" dependencies={getProfileScreenDependencies()}/></React.Suspense>}
         {screen==="settings"  && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Settings...</div>}><SettingsScreen currentUser={currentUser} role={role} showToast={showToast} nav={nav} onSignOut={handleSignOut} dependencies={getSettingsScreenDependencies()} /></React.Suspense>}
         {screen==="about"     && <AboutScreen nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole}/>}
+        {screen==="privacy"   && <PublicPolicyUnderReviewScreen nav={nav} type="privacy"/>}
+        {screen==="terms"     && <PublicPolicyUnderReviewScreen nav={nav} type="terms"/>}
         {screen==="ambassador"&& <AmbassadorScreen nav={nav} showToast={showToast}/>}
         {screen==="partner"   && <PartnerScreen nav={nav}/>}
         {screen==="join"      && <JoinScreen nav={nav} setAuthDefaultRole={setAuthDefaultRole}/>}
@@ -38613,8 +38661,8 @@ export default function App() {
         </div>
         </PlatformScreenShell>
         </ScreenBoundary>
-        {showPublicLegalFooter && <PublicLegalFooter compact={compactPublicLegalFooter} />}
-        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","projects","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","verify-profile","settings","about","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
+        {showPublicLegalFooter && <PublicLegalFooter compact={compactPublicLegalFooter} nav={nav} screen={screen} />}
+        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","projects","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","verify-profile","settings","about","privacy","terms","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
           <div style={{minHeight:"80vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px",animation:"fadeUp 0.4s ease"}}>
             <div style={{fontFamily:"var(--font-display),serif",fontSize:72,fontWeight:700,color:"var(--navy)",opacity:0.08,lineHeight:1,marginBottom:24}}>404</div>
             <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"var(--navy)",marginBottom:10}}>Page not found</div>
