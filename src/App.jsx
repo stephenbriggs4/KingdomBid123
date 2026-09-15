@@ -681,6 +681,9 @@ function formatMoney(amount) {
 // of the full ChurchSignupFlow / VendorSignupFlow / GuestPostProjectScreen. Flip to
 // true at launch to activate the full signup paths.
 const LAUNCHED = false;
+const LANDING_HERO_SUBTITLE = LAUNCHED
+  ? "Churches find vetted Christian professionals who share their faith. Businesses find work that matters. Now serving Dallas–Fort Worth."
+  : "Churches find vetted Christian professionals who share their faith—from AV to accounting. Businesses find work that matters. Our first Dallas pilot is forming now.";
 
 // 853a — Growth Engine church-intake gate, separate from LAUNCHED.
 // Controls ONLY the `guest-post-project` screen, which is the landing
@@ -41601,8 +41604,8 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
           <div className="fb-landing-hero-mark" aria-label="FaithBid — Faith founded. Service driven.">
             <img className="fb-landing-hero-lockup" src="/logos/faithbid-final-wordmark.png" alt="FaithBid — Faith founded. Service driven." />
           </div>
-          <h1 id="faithbid-landing-title" className="land-h1 fb-landing-title">Find the right people.<br/>Build with shared purpose.</h1>
-          <p className="land-sub fb-landing-subtitle">FaithBid is forming its first Dallas pilot to help churches connect with trusted Christian professionals and businesses who understand their mission.</p>
+          <h1 id="faithbid-landing-title" className="land-h1 fb-landing-title">Where calling meets craft.</h1>
+          <p className="land-sub fb-landing-subtitle">{LANDING_HERO_SUBTITLE}</p>
           <div className="land-ctas fb-landing-ctas">
             <button type="button" className="fb-landing-cta fb-landing-cta-primary" onClick={()=>enterAccessFlow("church")}><span>{LAUNCHED ? "For Churches" : "Request Church Access"}</span><span aria-hidden="true">→</span></button>
             <button type="button" className="fb-landing-cta fb-landing-cta-secondary" onClick={()=>enterAccessFlow("vendor")}><span>{LAUNCHED ? "For Vendors" : "Apply as a Vendor"}</span><span aria-hidden="true">→</span></button>
