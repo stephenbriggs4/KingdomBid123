@@ -22896,6 +22896,56 @@ const KB_MARKETPLACE_DEV_PREVIEW_PROJECTS = Object.freeze([
   { id:'preview-project-finance', title:'Bookkeeping process cleanup', category:'Finance', city:'Frisco', state:'TX', budget:'$3K–$5K', timeline:'Within 30 days', description:'Illustrative finance brief for reconciliations, reporting, and repeatable monthly processes.', hero_image:'/gpi/mentoring.jpg', status:'open' },
   { id:'preview-project-ministry', title:'Volunteer onboarding system', category:'Ministry Support', city:'Dallas', state:'TX', budget:'Flexible', timeline:'This quarter', description:'Illustrative brief for a welcoming, consistent volunteer onboarding experience.', hero_image:'/gpi/outreach.jpg', status:'open' },
 ]);
+
+const KB_MARKETPLACE_DIRECTORY_CATEGORIES = Object.freeze([
+  'All',
+  'Facilities',
+  'Creative',
+  'Technology',
+  'Marketing',
+  'Finance',
+  'Events',
+  'Ministry Support',
+]);
+
+const KB_MARKETPLACE_DIRECTORY_CATEGORY_KEYS = Object.freeze({
+  Facilities: Object.freeze(['hvac','electrical','plumbing','construction','painting','roofing','cleaning','landscaping','security']),
+  Creative: Object.freeze(['branding','photography','video']),
+  Technology: Object.freeze(['audio_video','worship_media','streaming','web_design','it_services']),
+  Marketing: Object.freeze(['marketing','content']),
+  Finance: Object.freeze(['accounting','insurance']),
+  Events: Object.freeze(['event_production']),
+  'Ministry Support': Object.freeze(['consulting','coaching','music','childrens_ministry','curriculum','translation']),
+});
+
+function getMarketplaceDirectoryCategoryKeys(label = 'All') {
+  if (!label || label === 'All') return new Set();
+  const grouped = KB_MARKETPLACE_DIRECTORY_CATEGORY_KEYS[label];
+  if (grouped) return new Set(grouped);
+  return typeof __kbCanonicalizeToCategories === 'function' ? __kbCanonicalizeToCategories(label) : new Set();
+}
+
+function matchesMarketplaceDirectoryCategory(entity = {}, label = 'All') {
+  if (!label || label === 'All') return true;
+  const normalizedLabel = String(label).trim().toLowerCase();
+  const rawValues = [
+    entity?.primary_category,
+    entity?.specialty,
+    entity?.category,
+    entity?.role,
+    ...(Array.isArray(entity?.category_tags) ? entity.category_tags : []),
+    ...(Array.isArray(entity?.tags) ? entity.tags : []),
+    ...(Array.isArray(entity?.specialties) ? entity.specialties : []),
+    ...(Array.isArray(entity?.skills) ? entity.skills : []),
+  ].filter(Boolean);
+  if (rawValues.some(value => String(value).trim().toLowerCase() === normalizedLabel)) return true;
+  const desired = getMarketplaceDirectoryCategoryKeys(label);
+  if (!desired.size || typeof __kbCanonicalizeToCategories !== 'function') return false;
+  return rawValues.some(value => {
+    const actual = __kbCanonicalizeToCategories(value);
+    return Array.from(actual).some(category => desired.has(category));
+  });
+}
 // Route alias and subtab maps — lifted to module level so nav() doesn't
 // recreate them on every invocation (was previously inside the useCallback).
 const NAV_ALIAS = Object.freeze({
@@ -25510,7 +25560,6 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     // titles/churches/cities. Empty Set when the term doesn't match any
     // known synonym, in which case we keep the prior behavior.
     const termCanonicalCats = term ? __kbCanonicalizeToCategories(term) : new Set();
-    const selectedCanonicalCats = catFilter === 'All' ? new Set() : __kbCanonicalizeToCategories(catFilter);
     let next = openProjects.filter(project => {
       const projectLocation = String(getProjectLocationLabel(project) || '').toLowerCase();
       const matchesSearch = !term || [
@@ -25527,14 +25576,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
         for (const c of termCanonicalCats) if (projectCats.has(c)) return true;
         return false;
       })();
-      const matchesCat = catFilter === 'All'
-        || String(project.category || '') === catFilter
-        || (() => {
-          if (!selectedCanonicalCats.size) return false;
-          const projectCats = __kbDeriveProjectCategories(project);
-          for (const canonical of selectedCanonicalCats) if (projectCats.has(canonical)) return true;
-          return false;
-        })();
+      const matchesCat = matchesMarketplaceDirectoryCategory(project, catFilter);
       const matchesSaved = !savedOnly || savedIds.has(String(project.id || project.title));
       return matchesSearch && matchesCat && matchesSaved;
     });
@@ -25953,7 +25995,15 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   const handleToggleSave = async (project, e) => {
     if (e) { e.stopPropagation(); e.preventDefault(); }
     if (marketplaceDevPreview) {
-      showToast && showToast('Development preview only—nothing was saved.');
+      const previewId = String(project?.id || '');
+      if (!previewId) return;
+      setSavedIds(prev => {
+        const next = new Set(prev);
+        if (next.has(previewId)) next.delete(previewId);
+        else next.add(previewId);
+        return next;
+      });
+      showToast && showToast('Preview bookmark updated in this browser only.');
       return;
     }
     const projectId = project?.id || null;
@@ -26580,7 +26630,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
         onSavedProjects={() => typeof nav === 'function' && nav('saved-projects')}
         search={search}
         onSearchChange={setSearch}
-        categories={['All','Web & Technology','Creative Media','Marketing & Communications','Tech / AV / Production','Worship & Music','Construction & Renovation']}
+        categories={KB_MARKETPLACE_DIRECTORY_CATEGORIES}
         activeCategory={catFilter}
         onCategoryChange={setCatFilter}
       />
@@ -31772,7 +31822,7 @@ function computeMarketplaceDirectoryScore(vendor = {}, { selectedCategory = 'All
     .map(clean)
     .filter(Boolean);
   const desiredCategories = selectedCategory && selectedCategory !== 'All'
-    ? (typeof __kbCanonicalizeToCategories === 'function' ? __kbCanonicalizeToCategories(selectedCategory) : [clean(selectedCategory)])
+    ? Array.from(getMarketplaceDirectoryCategoryKeys(selectedCategory))
     : project
       ? [project.primary_category, project.category, ...(safeArray(project.category_tags))]
           .flatMap(value => typeof __kbCanonicalizeToCategories === 'function' ? __kbCanonicalizeToCategories(value) : [clean(value)])
@@ -32027,7 +32077,11 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
       directoryScore: computeMarketplaceDirectoryScore(withGeo, { selectedCategory:category, project:matchContextProject, viewerCity }),
     };
   }), [rawVendors, matchContextProject, viewerCity, geoFitByVendorId, distanceByVendorId, category]);
-  const effectiveSavedVendorIds = onToggleSave ? savedVendorIdsProp : localSavedVendorIds;
+  const effectiveSavedVendorIds = marketplaceDevPreview
+    ? localSavedVendorIds
+    : onToggleSave
+      ? savedVendorIdsProp
+      : localSavedVendorIds;
 
   const chips = useMemo(() => {
     const cats = ["All", ...Array.from(new Set(vendors.map(v => v.specialty).filter(Boolean)))];
@@ -32038,7 +32092,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     const term = debouncedSearch.trim().toLowerCase();
     let list = vendors.filter(v => {
       const matchesSearch = !term || [v.name, v.role, v.city, v.result, v.why, ...(v.tags || []), ...(v.specialties || []), v.specialty].some(val => String(val || '').toLowerCase().includes(term));
-      const matchesCategory = category === 'All' || v.specialty === category || (v.tags || []).includes(category) || (v.specialties || []).includes(category);
+      const matchesCategory = matchesMarketplaceDirectoryCategory(v, category);
       return matchesSearch && matchesCategory;
     });
     list = [...list].sort((a, b) => {
@@ -32158,7 +32212,15 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const toggleSave = (vendor, e) => {
     if (e) { e.stopPropagation(); e.preventDefault(); }
     if (marketplaceDevPreview) {
-      showToast && showToast('Development preview only—nothing was saved.');
+      const previewId = String(vendor?.id || vendor?.user_id || vendor?.name || '');
+      if (!previewId) return;
+      setLocalSavedVendorIds(prev => {
+        const next = new Set(prev);
+        if (next.has(previewId)) next.delete(previewId);
+        else next.add(previewId);
+        return next;
+      });
+      showToast && showToast('Preview bookmark updated in this browser only.');
       return;
     }
     const key = String(vendor?.id || vendor?.user_id || vendor?.name);
@@ -32709,7 +32771,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           onVendorWorkspace={() => typeof onBack === 'function' ? onBack() : null}
           search={search}
           onSearchChange={setSearch}
-          categories={chips.length > 1 ? chips.map(([label]) => label) : ['All','Facilities','Creative','Technology','Marketing','Finance','Events','Ministry Support']}
+          categories={KB_MARKETPLACE_DIRECTORY_CATEGORIES}
           activeCategory={category}
           onCategoryChange={setCategory}
           onBrowse={() => {

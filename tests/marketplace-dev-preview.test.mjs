@@ -59,6 +59,16 @@ test('preview cards cannot trigger persistence or live-detail navigation', () =>
   assert.match(app, /const openProject = \(project\) => \{\s*if \(marketplaceDevPreview\)[\s\S]*?return;/);
 });
 
+test('preview hearts respond locally without calling the live persistence handlers', () => {
+  const projectSave = app.slice(app.indexOf('const handleToggleSave = async'), app.indexOf('const handleSaveCurrentSearch'));
+  const vendorSave = app.slice(app.indexOf('const toggleSave = (vendor'), app.indexOf('const getInviteKey', app.indexOf('const toggleSave = (vendor')));
+  assert.match(projectSave, /if \(marketplaceDevPreview\)[\s\S]*?setSavedIds\(prev =>[\s\S]*?Preview bookmark updated in this browser only\.[\s\S]*?return;/);
+  assert.match(vendorSave, /if \(marketplaceDevPreview\)[\s\S]*?setLocalSavedVendorIds\(prev =>[\s\S]*?Preview bookmark updated in this browser only\.[\s\S]*?return;/);
+  assert.match(app, /const effectiveSavedVendorIds = marketplaceDevPreview[\s\S]*?\? localSavedVendorIds[\s\S]*?: onToggleSave/);
+  assert.match(projectSave, /await persistSavedProjectRecord/);
+  assert.match(vendorSave, /if \(typeof onToggleSave === 'function'\)/);
+});
+
 test('preview notice and grids stay responsive', () => {
   assert.match(css, /\.kb-marketplace-dev-preview\s*\{[\s\S]*?grid-template-columns:\s*auto auto minmax\(260px, 1fr\)/);
   assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.kb-marketplace-dev-preview\s*\{[\s\S]*?grid-template-columns:\s*auto 1fr/);

@@ -9,7 +9,8 @@ const nearbyMigration = readFileSync(new URL('../supabase/migrations/20260915170
 
 test('church marketplace keeps the existing hero and replaces only the body', () => {
   assert.match(app, /<ChurchMarketplaceHero[\s\S]*?<main className="kb-marketplace-directory-body"/);
-  assert.match(app, /\['All','Facilities','Creative','Technology','Marketing','Finance','Events','Ministry Support'\]/);
+  assert.match(app, /const KB_MARKETPLACE_DIRECTORY_CATEGORIES = Object\.freeze\(\[/);
+  assert.match(app, /<ChurchMarketplaceHero[\s\S]*?categories=\{KB_MARKETPLACE_DIRECTORY_CATEGORIES\}/);
 });
 
 test('featured rail uses real modes, arrows, and pointer drag controls', () => {
@@ -29,6 +30,22 @@ test('best match implements approved weights and honest missing-signal normaliza
   assert.match(app, /key:'faith_verified', weight:15/);
   assert.match(app, /earned \/ availableWeight/);
   for (const option of ['Best match', 'Available first', 'A–Z']) assert.match(app, new RegExp(`<option>${option}</option>`));
+});
+
+test('broad directory filters resolve to the existing canonical project and vendor taxonomy', () => {
+  for (const [label, keys] of [
+    ['Facilities', ['hvac', 'construction', 'cleaning', 'landscaping']],
+    ['Creative', ['branding', 'photography', 'video']],
+    ['Technology', ['audio_video', 'streaming', 'web_design', 'it_services']],
+    ['Marketing', ['marketing', 'content']],
+    ['Finance', ['accounting', 'insurance']],
+    ['Events', ['event_production']],
+    ['Ministry Support', ['consulting', 'coaching', 'childrens_ministry']],
+  ]) {
+    assert.match(app, new RegExp(`${label}'?:[\\s\\S]*?${keys.join('[\\s\\S]*?')}`));
+  }
+  assert.match(app, /function matchesMarketplaceDirectoryCategory\([\s\S]*?getMarketplaceDirectoryCategoryKeys\(label\)[\s\S]*?desired\.has\(category\)/);
+  assert.match(app, /const desiredCategories = selectedCategory && selectedCategory !== 'All'[\s\S]*?Array\.from\(getMarketplaceDirectoryCategoryKeys\(selectedCategory\)\)/);
 });
 
 test('availability is explicit and conversation state overrides it', () => {

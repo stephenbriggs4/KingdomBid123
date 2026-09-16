@@ -15,6 +15,18 @@ test('retains the existing project hero and replaces only its body', () => {
   assert.match(app, /const useStreamlinedProjectDirectory = true/);
 });
 
+test('project and vendor headers share the approved eight-category directory taxonomy', () => {
+  assert.match(app, /const KB_MARKETPLACE_DIRECTORY_CATEGORIES = Object\.freeze\(\[[\s\S]*?'All'[\s\S]*?'Facilities'[\s\S]*?'Creative'[\s\S]*?'Technology'[\s\S]*?'Marketing'[\s\S]*?'Finance'[\s\S]*?'Events'[\s\S]*?'Ministry Support'[\s\S]*?\]\)/);
+  assert.match(app, /<ChurchProjectsMarketplaceHero[\s\S]*?categories=\{KB_MARKETPLACE_DIRECTORY_CATEGORIES\}/);
+  assert.match(app, /<ChurchMarketplaceHero[\s\S]*?categories=\{KB_MARKETPLACE_DIRECTORY_CATEGORIES\}/);
+  assert.match(app, /const matchesCat = matchesMarketplaceDirectoryCategory\(project, catFilter\)/);
+  assert.match(app, /const matchesCategory = matchesMarketplaceDirectoryCategory\(v, category\)/);
+  assert.doesNotMatch(
+    app.slice(app.indexOf('<ChurchProjectsMarketplaceHero'), app.indexOf('{useStreamlinedProjectDirectory ?')),
+    /categories=\{\['All','Web & Technology'/,
+  );
+});
+
 test('project directory is sourced only from real open projects', () => {
   assert.match(app, /const openProjects = useMemo\(\(\) => normalizedProjects\.filter\(p => p\.status === 'open'\)/);
   assert.match(app, /const filtered = Array\.isArray\(filteredProjects\) \? filteredProjects : \[\]/);
