@@ -22916,6 +22916,16 @@ const KB_MARKETPLACE_DEV_PREVIEW_VENDORS = Object.freeze([
   { id:'preview-vendor-events', name:'Event production partner', category:'Events', category_tags:['Events','Event Production'], service_city:'Richardson', service_state:'TX', verified:false, availability_status:'unknown', tagline:'Event planning and production for ministry gatherings.', image_url:'/gpi/worship.jpg', created_at:'2026-09-12T15:00:00Z' },
   { id:'preview-vendor-finance', name:'Finance and operations practice', category:'Finance', category_tags:['Finance','Accounting','Bookkeeping'], service_city:'Frisco', service_state:'TX', verified:true, availability_status:'limited', tagline:'Bookkeeping and financial operations for growing churches.', image_url:'/gpi/mentoring.jpg', created_at:'2026-09-11T15:00:00Z' },
   { id:'preview-vendor-ministry', name:'Ministry support consultant', category:'Ministry Support', category_tags:['Ministry Support','Consulting','Coaching'], service_city:'Dallas', service_state:'TX', verified:false, availability_status:'available', tagline:'Operational guidance and team support for ministry leaders.', image_url:'/gpi/outreach.jpg', created_at:'2026-09-10T15:00:00Z' },
+  { id:'preview-vendor-roofing', name:'Roofing and envelope team', category:'Facilities', category_tags:['Facilities','Roofing','Construction'], service_city:'Garland', service_state:'TX', verified:true, availability_status:'available', tagline:'Roof, drainage, and exterior planning for active church campuses.', image_url:'/gpi/volunteer.jpg', created_at:'2026-09-09T15:00:00Z' },
+  { id:'preview-vendor-av', name:'Worship technology integrator', category:'Technology', category_tags:['Technology','AV','Worship Systems'], service_city:'Irving', service_state:'TX', verified:true, availability_status:'limited', tagline:'Audio, lighting, livestream, and volunteer-friendly system design.', image_url:'/gpi/worship.jpg', created_at:'2026-09-08T15:00:00Z' },
+  { id:'preview-vendor-marketing', name:'Community marketing partner', category:'Marketing', category_tags:['Marketing','Campaigns','Social Media'], service_city:'Dallas', service_state:'TX', verified:false, availability_status:'available', tagline:'Clear campaigns that help churches reach and welcome their neighbors.', image_url:'/gpi/outreach.jpg', created_at:'2026-09-07T15:00:00Z' },
+  { id:'preview-vendor-web', name:'Church web experience team', category:'Creative', category_tags:['Creative','Web Design','Content'], service_city:'McKinney', service_state:'TX', verified:true, availability_status:'available', tagline:'Accessible websites, content systems, and practical staff handoffs.', image_url:'/gpi/creative.jpg', created_at:'2026-09-06T15:00:00Z' },
+  { id:'preview-vendor-cleaning', name:'Campus cleaning crew', category:'Facilities', category_tags:['Facilities','Cleaning','Maintenance'], service_city:'Mesquite', service_state:'TX', verified:true, availability_status:'available', tagline:'Reliable recurring care for worship, classroom, and community spaces.', image_url:'/gpi/volunteer.jpg', created_at:'2026-09-05T15:00:00Z' },
+  { id:'preview-vendor-security', name:'Safety systems specialist', category:'Technology', category_tags:['Technology','Security','Access Control'], service_city:'Arlington', service_state:'TX', verified:false, availability_status:'limited', tagline:'Thoughtful camera, access, and safety systems for ministry environments.', image_url:'/gpi/professional.jpg', created_at:'2026-09-04T15:00:00Z' },
+  { id:'preview-vendor-payroll', name:'Church payroll advisor', category:'Finance', category_tags:['Finance','Payroll','Compliance'], service_city:'Addison', service_state:'TX', verified:true, availability_status:'available', tagline:'Payroll operations and reporting support for ministry staff teams.', image_url:'/gpi/mentoring.jpg', created_at:'2026-09-03T15:00:00Z' },
+  { id:'preview-vendor-photo', name:'Story and photography studio', category:'Creative', category_tags:['Creative','Photography','Video'], service_city:'Southlake', service_state:'TX', verified:true, availability_status:'limited', tagline:'Warm, organized visual storytelling for church life and outreach.', image_url:'/gpi/creative.jpg', created_at:'2026-09-02T15:00:00Z' },
+  { id:'preview-vendor-events-local', name:'Gathering logistics team', category:'Events', category_tags:['Events','Planning','Production'], service_city:'Plano', service_state:'TX', verified:false, availability_status:'available', tagline:'Planning and on-site coordination for meaningful ministry gatherings.', image_url:'/gpi/worship.jpg', created_at:'2026-09-01T15:00:00Z' },
+  { id:'preview-vendor-training', name:'Volunteer training partner', category:'Ministry Support', category_tags:['Ministry Support','Training','Volunteer Systems'], service_city:'Carrollton', service_state:'TX', verified:true, availability_status:'available', tagline:'Practical onboarding and team development for healthy volunteer cultures.', image_url:'/gpi/outreach.jpg', created_at:'2026-08-31T15:00:00Z' },
 ]);
 
 const KB_MARKETPLACE_DEV_PREVIEW_PROJECTS = Object.freeze([
@@ -22925,6 +22935,24 @@ const KB_MARKETPLACE_DEV_PREVIEW_PROJECTS = Object.freeze([
   { id:'preview-project-events', title:'Community event production', category:'Events', city:'Richardson', project_state:'TX', budget:'$5K–$9K', timeline:'November', description:'Illustrative project for planning, production coordination, and volunteer handoff.', hero_image:'/gpi/worship.jpg', status:'open', posted_at:'2026-09-12T15:00:00Z' },
   { id:'preview-project-finance', title:'Bookkeeping process cleanup', category:'Finance', city:'Frisco', project_state:'TX', budget:'$3K–$5K', timeline:'Within 30 days', description:'Illustrative finance brief for reconciliations, reporting, and repeatable monthly processes.', hero_image:'/gpi/mentoring.jpg', status:'open', posted_at:'2026-09-11T15:00:00Z' },
   { id:'preview-project-ministry', title:'Volunteer onboarding system', category:'Ministry Support', city:'Dallas', project_state:'TX', budget:'Flexible', timeline:'This quarter', description:'Illustrative brief for a welcoming, consistent volunteer onboarding experience.', hero_image:'/gpi/outreach.jpg', status:'open', posted_at:'2026-09-10T15:00:00Z' },
+  { id:'preview-project-hvac', title:'Sanctuary HVAC reliability upgrade', category:'Facilities', city:'Garland', project_state:'TX', budget:'$18K–$28K', timeline:'Before winter', description:'Illustrative facilities brief for load review, equipment options, phased installation, and warranty planning.', hero_image:'/gpi/professional.jpg', status:'open', urgent:true, bids_count:2, posted_at:'2026-09-16T14:30:00Z' },
+  { id:'preview-project-brand', title:'Ministry brand and signage refresh', category:'Creative', city:'McKinney', project_state:'TX', budget:'$7K–$11K', timeline:'Next 8 weeks', description:'Illustrative creative brief spanning visual identity, wayfinding, print templates, and launch-ready files.', hero_image:'/gpi/creative.jpg', status:'open', bids_count:4, posted_at:'2026-09-16T12:00:00Z' },
+  { id:'preview-project-security', title:'Campus security camera expansion', category:'Technology', city:'Arlington', project_state:'TX', budget:'$14K–$22K', timeline:'Within 90 days', description:'Illustrative systems brief for coverage planning, installation, staff access, and responsible retention.', hero_image:'/gpi/professional.jpg', status:'open', bids_count:3, posted_at:'2026-09-16T09:15:00Z' },
+  { id:'preview-project-social', title:'Community outreach campaign', category:'Marketing', city:'Dallas', project_state:'TX', budget:'$4K–$8K', timeline:'Six-week campaign', description:'Illustrative marketing brief for message development, digital creative, local promotion, and reporting.', hero_image:'/gpi/outreach.jpg', status:'open', bids_count:5, posted_at:'2026-09-15T18:00:00Z' },
+  { id:'preview-project-audit', title:'Annual financial controls review', category:'Finance', city:'Irving', project_state:'TX', budget:'$5K–$9K', timeline:'By year end', description:'Illustrative finance brief for control testing, policy updates, board reporting, and staff recommendations.', hero_image:'/gpi/mentoring.jpg', status:'open', bids_count:1, posted_at:'2026-09-15T11:40:00Z' },
+  { id:'preview-project-christmas', title:'Christmas service production support', category:'Events', city:'Plano', project_state:'TX', budget:'$9K–$15K', timeline:'December services', description:'Illustrative event brief for staging, lighting, audio support, rehearsals, and production-day coordination.', hero_image:'/gpi/worship.jpg', status:'open', urgent:true, bids_count:6, posted_at:'2026-09-14T20:00:00Z' },
+  { id:'preview-project-staffing', title:'Children’s ministry staffing plan', category:'Ministry Support', city:'Frisco', project_state:'TX', budget:'$3K–$6K', timeline:'Next 45 days', description:'Illustrative consulting brief for role design, recruiting workflow, volunteer ratios, and sustainable scheduling.', hero_image:'/gpi/volunteer.jpg', status:'open', bids_count:2, posted_at:'2026-09-14T10:30:00Z' },
+  { id:'preview-project-roof', title:'Education wing roof repair', category:'Facilities', city:'Mesquite', project_state:'TX', budget:'$24K–$38K', timeline:'Before rainy season', description:'Illustrative construction brief for inspection, repair options, drainage, scheduling, and site protection.', hero_image:'/gpi/volunteer.jpg', status:'open', urgent:true, bids_count:3, posted_at:'2026-09-13T17:10:00Z' },
+  { id:'preview-project-photo', title:'Church photography library', category:'Creative', city:'Southlake', project_state:'TX', budget:'$2K–$4K', timeline:'Two shoot days', description:'Illustrative photography brief for worship, groups, volunteers, facilities, and a reusable organized library.', hero_image:'/gpi/creative.jpg', status:'open', bids_count:7, posted_at:'2026-09-13T08:30:00Z' },
+  { id:'preview-project-network', title:'Office Wi-Fi and network redesign', category:'Technology', city:'Carrollton', project_state:'TX', budget:'$10K–$16K', timeline:'This quarter', description:'Illustrative IT brief for coverage, segmentation, equipment, installation, documentation, and support.', hero_image:'/gpi/professional.jpg', status:'open', bids_count:4, posted_at:'2026-09-12T16:45:00Z' },
+  { id:'preview-project-email', title:'Member email journey redesign', category:'Marketing', city:'Grapevine', project_state:'TX', budget:'$3K–$5K', timeline:'Within 6 weeks', description:'Illustrative communications brief for newcomer follow-up, member journeys, templates, and measurement.', hero_image:'/gpi/outreach.jpg', status:'open', bids_count:3, posted_at:'2026-09-12T09:00:00Z' },
+  { id:'preview-project-payroll', title:'Payroll and benefits process review', category:'Finance', city:'Richardson', project_state:'TX', budget:'$4K–$7K', timeline:'Before open enrollment', description:'Illustrative operations brief for payroll controls, benefits workflow, documentation, and staff training.', hero_image:'/gpi/mentoring.jpg', status:'open', bids_count:1, posted_at:'2026-09-11T19:20:00Z' },
+  { id:'preview-project-retreat', title:'Leadership retreat planning', category:'Events', city:'Denton', project_state:'TX', budget:'$6K–$10K', timeline:'January', description:'Illustrative event brief for venue sourcing, program flow, hospitality, travel details, and onsite coordination.', hero_image:'/gpi/worship.jpg', status:'open', bids_count:2, posted_at:'2026-09-11T12:15:00Z' },
+  { id:'preview-project-care', title:'Congregational care workflow', category:'Ministry Support', city:'Allen', project_state:'TX', budget:'$3K–$6K', timeline:'This fall', description:'Illustrative ministry brief for intake, assignment, follow-up, privacy, reporting, and leader training.', hero_image:'/gpi/mentoring.jpg', status:'open', bids_count:4, posted_at:'2026-09-10T16:00:00Z' },
+  { id:'preview-project-lighting', title:'Parking lot lighting improvements', category:'Facilities', city:'Grand Prairie', project_state:'TX', budget:'$12K–$20K', timeline:'Within 75 days', description:'Illustrative electrical brief for safety assessment, fixture selection, controls, installation, and closeout.', hero_image:'/gpi/professional.jpg', status:'open', bids_count:5, posted_at:'2026-09-09T14:20:00Z' },
+  { id:'preview-project-video', title:'Welcome video series', category:'Creative', city:'Dallas', project_state:'TX', budget:'$5K–$8K', timeline:'Six-week production', description:'Illustrative video brief for story development, filming, editing, captions, and delivery across channels.', hero_image:'/gpi/creative.jpg', status:'open', bids_count:8, posted_at:'2026-09-08T10:00:00Z' },
+  { id:'preview-project-crm', title:'Church management system migration', category:'Technology', city:'Flower Mound', project_state:'TX', budget:'$15K–$25K', timeline:'Four-month rollout', description:'Illustrative technology brief for data cleanup, migration, configuration, training, and launch support.', hero_image:'/gpi/professional.jpg', status:'open', bids_count:6, posted_at:'2026-09-07T13:00:00Z' },
+  { id:'preview-project-groups', title:'Small-groups launch campaign', category:'Marketing', city:'Rockwall', project_state:'TX', budget:'$4K–$7K', timeline:'Eight-week rollout', description:'Illustrative campaign brief for positioning, leader recruitment, creative assets, promotion, and follow-up.', hero_image:'/gpi/outreach.jpg', status:'open', bids_count:3, posted_at:'2026-09-06T09:30:00Z' },
 ]);
 
 const KB_MARKETPLACE_DIRECTORY_CATEGORIES = Object.freeze([
@@ -25167,17 +25195,6 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
   );
 }
 
-function MarketplaceDevPreviewNotice({ view }) {
-  return (
-    <div className="kb-marketplace-dev-preview" role="status">
-      <span>Development preview</span>
-      <strong>{view === 'projects' ? 'Illustrative project cards' : 'Illustrative vendor cards'}</strong>
-      <p>These examples exist only in this browser preview. They are never stored in Supabase or counted as live Marketplace inventory.</p>
-    </div>
-  );
-}
-
-
 function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, onMyBids, showToast, nav, vendorVerified, myBids, myActiveProjects, loadingMyBids, loadingMyProjects, myProjectsFetchError = false, onRetryMyProjects, onSelectSample, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null, marketplaceDevPreview = false}){
   const marketplaceProjectsLoading = loading && !marketplaceDevPreview;
   const STORAGE_KEY = KB_STORAGE_KEYS.marketplaceBoardState;
@@ -25762,12 +25779,16 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   }, [activeThemeKeys, featuredThemeBuckets]);
   const resolvedTheme = (featuredTheme && activeThemeKeys.includes(featuredTheme)) ? featuredTheme : autoTheme;
   const featuredBrowseProjects = featuredThemeBuckets[resolvedTheme] || [];
-  const shouldShowFeaturedProjects = !hasBrowseRefinements && filteredProjects.length >= 5 && activeThemeKeys.length > 0;
   const browseGridSource = filteredProjects;
+  const featuredProjectRows = useMemo(() => {
+    const source = marketplaceDevPreview ? filteredProjects : featuredBrowseProjects;
+    return safeArray(source).slice(0, 12);
+  }, [marketplaceDevPreview, filteredProjects, featuredBrowseProjects]);
+  const showFeaturedProjectRail = !hasBrowseRefinements && featuredProjectRows.length >= 4;
 
   const updateFeaturedCarouselState = () => {
     const el = featuredTrackRef.current;
-    if (!el || !shouldShowFeaturedProjects) {
+    if (!el || !showFeaturedProjectRail) {
       setFeaturedCanScrollPrev(false);
       setFeaturedCanScrollNext(false);
       return;
@@ -25788,7 +25809,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
       if (el) el.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
     };
-  }, [shouldShowFeaturedProjects, featuredBrowseProjects.length]);
+  }, [showFeaturedProjectRail, featuredProjectRows.length]);
 
   const scrollFeaturedCarousel = (direction = 1) => {
     const el = featuredTrackRef.current;
@@ -26756,7 +26777,6 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
       {useStreamlinedProjectDirectory ? (
         <main className="kb-marketplace-projects-body" ref={projectGridRef}>
-          {marketplaceDevPreview ? <MarketplaceDevPreviewNotice view="projects" /> : null}
           {marketplaceProjectsLoading ? (
             <KBSkeleton variant="list" count={6} style={{margin:'8px 0 0'}} />
           ) : openProjects.length === 0 ? (
@@ -26772,6 +26792,62 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               )}
             </section>
           ) : (
+            <>
+              {showFeaturedProjectRail ? (
+                <section className="kb-marketplace-featured-projects" aria-labelledby="kb-marketplace-featured-projects-title">
+                  <div className="kb-marketplace-featured-projects__head">
+                    <div>
+                      <p className="kb-marketplace-section-kicker">Featured projects</p>
+                      <h2 id="kb-marketplace-featured-projects-title">A closer look at current needs.</h2>
+                      <span>Grab and drag to explore the rail.</span>
+                    </div>
+                    <div className="kb-marketplace-featured-projects__actions" aria-label="Featured project controls">
+                      <button type="button" onClick={() => scrollFeaturedCarousel(-1)} disabled={!featuredCanScrollPrev} aria-label="Scroll featured projects left">←</button>
+                      <button type="button" onClick={() => scrollFeaturedCarousel(1)} disabled={!featuredCanScrollNext} aria-label="Scroll featured projects right">→</button>
+                    </div>
+                  </div>
+                  <div
+                    ref={featuredTrackRef}
+                    className={`kb-marketplace-featured-projects__rail${stripIsDragging ? ' is-dragging' : ''}`}
+                    onPointerDown={handleFeaturedPointerDown}
+                    onPointerMove={handleFeaturedPointerMove}
+                    onPointerUp={finishFeaturedPointer}
+                    onPointerCancel={finishFeaturedPointer}
+                    onPointerLeave={finishFeaturedPointer}
+                    onDragStart={(event) => event.preventDefault()}
+                  >
+                    {featuredProjectRows.map((project, index) => {
+                      const projectId = String(project?.id || project?.title || index);
+                      const ageDays = getProjectFreshness(project);
+                      const statusLabel = project?.urgent ? 'Urgent' : ageDays != null && ageDays <= 4 ? 'New' : 'Open';
+                      return (
+                        <div
+                          key={`featured-${projectId}`}
+                          className={`kb-marketplace-featured-projects__item${stripPressedCardId === projectId ? ' is-pressed' : ''}`}
+                          data-strip-card-id={projectId}
+                        >
+                          <MarketplaceProjectDirectoryCard
+                            project={project}
+                            image={pickImageForProject(project, index)}
+                            categoryLabel={getProjectCardCategoryLabel(project, project?.category || 'Project')}
+                            locationLabel={getProjectLocationLabel(project)}
+                            timelineLabel={getProjectTimelineLabel(project)}
+                            budgetLabel={formatProjectBudget(project?.budget)}
+                            statusLabel={statusLabel}
+                            saved={!marketplaceDevPreview && savedIds.has(projectId)}
+                            onToggleSave={marketplaceDevPreview ? undefined : (event) => handleToggleSave(project, event)}
+                            onOpen={marketplaceDevPreview ? undefined : () => {
+                              if (!featuredClickSuppressRef.current) openProject(project);
+                            }}
+                            role={role}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              ) : null}
+
             <section className="kb-marketplace-project-directory" aria-labelledby="kb-marketplace-project-directory-title">
               <div className="kb-marketplace-project-directory__head">
                 <div>
@@ -26843,6 +26919,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                 </div>
               ) : null}
             </section>
+            </>
           )}
         </main>
       ) : (
@@ -32090,6 +32167,12 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         'preview-vendor-technology',
         'preview-vendor-facilities',
         'preview-vendor-creative',
+        'preview-vendor-roofing',
+        'preview-vendor-av',
+        'preview-vendor-marketing',
+        'preview-vendor-web',
+        'preview-vendor-cleaning',
+        'preview-vendor-training',
       ];
       setCurationByVendorId(new Map(previewFeaturedVendorIds.map((vendorId, index) => [vendorId, { vendor_id:vendorId, featured_rank:index + 1 }])));
       return undefined;
@@ -32459,7 +32542,10 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     const rail = featuredRailRef.current;
     if (!drag.active || !rail || drag.pointerId !== event.pointerId) return;
     const delta = event.clientX - drag.startX;
-    if (Math.abs(delta) > 5) drag.moved = true;
+    if (Math.abs(delta) > 5) {
+      drag.moved = true;
+      event.preventDefault();
+    }
     rail.scrollLeft = drag.startScrollLeft - delta;
   };
 
@@ -32929,7 +33015,6 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
 
       {isChurchMarketplace ? (
         <main className="kb-marketplace-directory-body" ref={directoryRef}>
-          {marketplaceDevPreview ? <MarketplaceDevPreviewNotice view="vendors" /> : null}
           <section className="kb-marketplace-featured" aria-labelledby="kb-marketplace-featured-title">
             <div className="kb-marketplace-section-head">
               <div>
@@ -32964,6 +33049,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                 onPointerUp={finishRailDrag}
                 onPointerCancel={finishRailDrag}
                 onClickCapture={handleRailClickCapture}
+                onDragStart={(event) => event.preventDefault()}
               >
                 {railVendors.map((vendor, index) => renderMarketplaceVendorDirectoryCard(vendor, index, 'rail'))}
               </div>

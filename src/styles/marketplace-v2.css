@@ -1072,7 +1072,7 @@ html body #root .mkt2-root .kbm-mp-toolbar {
   max-width: none;
   min-height: 0;
   margin: 0 auto;
-  padding: 48px 0 84px;
+  padding: 30px 0 84px;
   color: #17251f;
 }
 
@@ -1109,6 +1109,112 @@ html body #root .mkt2-root .kbm-mp-toolbar {
   color: #68706a;
   font: 550 11px/1.45 var(--font-sans), sans-serif;
   text-align: right;
+}
+
+.kb-marketplace-featured-projects {
+  min-width: 0;
+  margin: 0 0 clamp(48px, 5vw, 76px);
+}
+
+.kb-marketplace-featured-projects__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.kb-marketplace-featured-projects__head h2 {
+  margin: 0;
+  color: #13261f;
+  font: 500 clamp(29px, 2.45vw, 43px)/1.04 var(--font-display), Georgia, serif;
+  letter-spacing: -.038em;
+}
+
+.kb-marketplace-featured-projects__head > div:first-child > span {
+  display: block;
+  margin-top: 8px;
+  color: #717873;
+  font: 600 12px/1.4 var(--font-sans), sans-serif;
+}
+
+.kb-marketplace-featured-projects__actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.kb-marketplace-featured-projects__actions button {
+  width: 43px;
+  height: 43px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(28, 40, 32, .13);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: 0 8px 22px rgba(32, 41, 35, .07);
+  color: #174b3b;
+  font: 500 18px/1 var(--font-sans), sans-serif;
+  cursor: pointer;
+  transition: transform .16s ease, background .16s ease, color .16s ease, opacity .16s ease;
+}
+
+.kb-marketplace-featured-projects__actions button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #174b3b;
+  color: #fff;
+}
+
+.kb-marketplace-featured-projects__actions button:disabled {
+  opacity: .34;
+  cursor: default;
+}
+
+.kb-marketplace-featured-projects__rail {
+  width: 100%;
+  padding: 4px 2px 18px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - (3 * clamp(17px, 1.45vw, 26px))) / 4);
+  gap: clamp(17px, 1.45vw, 26px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.kb-marketplace-featured-projects__rail::-webkit-scrollbar {
+  display: none;
+}
+
+.kb-marketplace-featured-projects__rail.is-dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;
+}
+
+.kb-marketplace-featured-projects__item {
+  min-width: 0;
+  scroll-snap-align: start;
+  transition: transform .16s ease, filter .16s ease;
+}
+
+.kb-marketplace-featured-projects__item.is-pressed {
+  transform: translateY(-3px) scale(1.008);
+  filter: drop-shadow(0 14px 18px rgba(32, 41, 35, .11));
+}
+
+.kb-marketplace-featured-projects__item .kb-marketplace-project-card {
+  height: 100%;
+}
+
+.kb-marketplace-featured-projects__item .kb-marketplace-project-card__media img {
+  pointer-events: none;
 }
 
 .kb-marketplace-project-directory__head {
@@ -1159,7 +1265,7 @@ html body #root .mkt2-root .kbm-mp-toolbar {
 
 .kb-marketplace-project-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(17px, 1.45vw, 26px);
   align-items: stretch;
 }
@@ -1476,13 +1582,8 @@ html body #root .mkt2-root .kbm-mp-toolbar {
   text-align: center;
 }
 
-@media (min-width: 1840px) {
-  .kb-marketplace-project-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 860px) {
+  .kb-marketplace-featured-projects__head,
   .kb-marketplace-project-directory__head {
     align-items: flex-start;
     flex-direction: column;
@@ -1494,6 +1595,26 @@ html body #root .mkt2-root .kbm-mp-toolbar {
     width: calc(100% - 28px);
     min-height: 0;
     padding: 30px 0 88px;
+  }
+
+  .kb-marketplace-featured-projects {
+    margin-bottom: 44px;
+  }
+
+  .kb-marketplace-featured-projects__head {
+    gap: 16px;
+    margin-bottom: 17px;
+  }
+
+  .kb-marketplace-featured-projects__actions {
+    align-self: flex-end;
+  }
+
+  .kb-marketplace-featured-projects__rail {
+    width: calc(100vw - 14px);
+    margin-right: -14px;
+    grid-auto-columns: min(84vw, 330px);
+    gap: 14px;
   }
 
   .kb-marketplace-project-directory__controls {
@@ -1524,6 +1645,12 @@ html body #root .mkt2-root .kbm-mp-toolbar {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .kb-marketplace-featured-projects__rail {
+    scroll-behavior: auto;
+  }
+
+  .kb-marketplace-featured-projects__actions button,
+  .kb-marketplace-featured-projects__item,
   .kb-marketplace-project-card,
   .kb-marketplace-project-card__media img {
     transition: none;
@@ -1545,7 +1672,7 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
   width: calc(100% - clamp(36px, 5vw, 112px));
   max-width: none;
   margin: 0 auto;
-  padding: clamp(34px, 4vw, 64px) 0 clamp(64px, 7vw, 110px);
+  padding: 30px 0 clamp(64px, 7vw, 110px);
   color: #17251f;
 }
 
@@ -1671,10 +1798,10 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
 
 .kb-marketplace-featured-rail {
   display: flex;
-  gap: clamp(14px, 1.25vw, 22px);
+  gap: clamp(16px, 1.45vw, 26px);
   overflow-x: auto;
-  padding: 2px 2px 20px;
-  margin: 0 -2px -20px;
+  padding: 2px 0 20px;
+  margin: 0 0 -20px;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
   cursor: grab;
@@ -1690,8 +1817,13 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
   display: none;
 }
 
+.kb-marketplace-featured-rail img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
 .kb-marketplace-featured-rail > .kb-marketplace-vendor-card {
-  flex: 0 0 clamp(270px, 22vw, 350px);
+  flex: 0 0 calc((100% - (3 * clamp(16px, 1.45vw, 26px))) / 4);
   scroll-snap-align: start;
 }
 
@@ -1751,7 +1883,7 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
 
 .kb-marketplace-vendor-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(16px, 1.45vw, 26px);
   align-items: stretch;
 }
@@ -2009,10 +2141,6 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
 @media (min-width: 1840px) {
   .kb-marketplace-directory-body {
     width: calc(100% - 128px);
-  }
-
-  .kb-marketplace-vendor-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
