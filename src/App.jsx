@@ -682,8 +682,8 @@ function formatMoney(amount) {
 // true at launch to activate the full signup paths.
 const LAUNCHED = false;
 const LANDING_HERO_SUBTITLE = LAUNCHED
-  ? "Churches find vetted Christian professionals who share their faith. Businesses find work that matters. Now serving Dallas–Fort Worth."
-  : "Churches find vetted Christian professionals who share their faith—from AV to accounting. Businesses find work that matters. Our first Dallas pilot is forming now.";
+  ? "Churches connect with vetted Christian professionals who share their faith. Businesses find work that matters across Dallas–Fort Worth."
+  : "Churches connect with vetted Christian professionals who share their faith. Businesses find work that matters as our first Dallas pilot takes shape.";
 
 // 853a — Growth Engine church-intake gate, separate from LAUNCHED.
 // Controls ONLY the `guest-post-project` screen, which is the landing
