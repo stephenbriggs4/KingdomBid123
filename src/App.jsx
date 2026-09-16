@@ -22880,12 +22880,12 @@ function isMarketplaceDevPreviewEnabled() {
 }
 
 const KB_MARKETPLACE_DEV_PREVIEW_VENDORS = Object.freeze([
-  { id:'preview-vendor-facilities', name:'Facilities service provider', category:'Facilities', category_tags:['Facilities'], service_city:'Dallas', service_state:'TX', verified:true, availability_status:'available', tagline:'Preventive care and facility support for ministry spaces.', image_url:'/gpi/volunteer.jpg', created_at:'2026-09-15T15:00:00Z' },
-  { id:'preview-vendor-creative', name:'Creative communications studio', category:'Creative', category_tags:['Creative'], service_city:'Plano', service_state:'TX', verified:false, availability_status:'limited', tagline:'Brand, web, and communication support for church teams.', image_url:'/gpi/creative.jpg', created_at:'2026-09-14T15:00:00Z' },
-  { id:'preview-vendor-technology', name:'Technology systems team', category:'Technology', category_tags:['Technology'], service_city:'Dallas', service_state:'TX', verified:true, availability_status:'available', tagline:'Church systems, web platforms, and technical planning.', image_url:'/gpi/professional.jpg', created_at:'2026-09-13T15:00:00Z' },
-  { id:'preview-vendor-events', name:'Event production partner', category:'Events', category_tags:['Events'], service_city:'Richardson', service_state:'TX', verified:false, availability_status:'unknown', tagline:'Event planning and production for ministry gatherings.', image_url:'/gpi/worship.jpg', created_at:'2026-09-12T15:00:00Z' },
-  { id:'preview-vendor-finance', name:'Finance and operations practice', category:'Finance', category_tags:['Finance'], service_city:'Frisco', service_state:'TX', verified:true, availability_status:'limited', tagline:'Bookkeeping and financial operations for growing churches.', image_url:'/gpi/mentoring.jpg', created_at:'2026-09-11T15:00:00Z' },
-  { id:'preview-vendor-ministry', name:'Ministry support consultant', category:'Ministry Support', category_tags:['Ministry Support'], service_city:'Dallas', service_state:'TX', verified:false, availability_status:'available', tagline:'Operational guidance and team support for ministry leaders.', image_url:'/gpi/outreach.jpg', created_at:'2026-09-10T15:00:00Z' },
+  { id:'preview-vendor-facilities', name:'Facilities service provider', category:'Facilities', category_tags:['Facilities','Cleaning','Construction'], service_city:'Dallas', service_state:'TX', verified:true, availability_status:'available', tagline:'Preventive care and facility support for ministry spaces.', image_url:'/gpi/volunteer.jpg', created_at:'2026-09-15T15:00:00Z' },
+  { id:'preview-vendor-creative', name:'Creative communications studio', category:'Creative', category_tags:['Creative','Branding','Photography'], service_city:'Plano', service_state:'TX', verified:false, availability_status:'limited', tagline:'Brand, web, and communication support for church teams.', image_url:'/gpi/creative.jpg', created_at:'2026-09-14T15:00:00Z' },
+  { id:'preview-vendor-technology', name:'Technology systems team', category:'Technology', category_tags:['Technology','AV','Livestream','IT Support'], service_city:'Dallas', service_state:'TX', verified:true, availability_status:'available', tagline:'Church systems, web platforms, and technical planning.', image_url:'/gpi/professional.jpg', created_at:'2026-09-13T15:00:00Z' },
+  { id:'preview-vendor-events', name:'Event production partner', category:'Events', category_tags:['Events','Event Production'], service_city:'Richardson', service_state:'TX', verified:false, availability_status:'unknown', tagline:'Event planning and production for ministry gatherings.', image_url:'/gpi/worship.jpg', created_at:'2026-09-12T15:00:00Z' },
+  { id:'preview-vendor-finance', name:'Finance and operations practice', category:'Finance', category_tags:['Finance','Accounting','Bookkeeping'], service_city:'Frisco', service_state:'TX', verified:true, availability_status:'limited', tagline:'Bookkeeping and financial operations for growing churches.', image_url:'/gpi/mentoring.jpg', created_at:'2026-09-11T15:00:00Z' },
+  { id:'preview-vendor-ministry', name:'Ministry support consultant', category:'Ministry Support', category_tags:['Ministry Support','Consulting','Coaching'], service_city:'Dallas', service_state:'TX', verified:false, availability_status:'available', tagline:'Operational guidance and team support for ministry leaders.', image_url:'/gpi/outreach.jpg', created_at:'2026-09-10T15:00:00Z' },
 ]);
 
 const KB_MARKETPLACE_DEV_PREVIEW_PROJECTS = Object.freeze([
@@ -22925,10 +22925,8 @@ function getMarketplaceDirectoryCategoryKeys(label = 'All') {
   return typeof __kbCanonicalizeToCategories === 'function' ? __kbCanonicalizeToCategories(label) : new Set();
 }
 
-function matchesMarketplaceDirectoryCategory(entity = {}, label = 'All') {
-  if (!label || label === 'All') return true;
-  const normalizedLabel = String(label).trim().toLowerCase();
-  const rawValues = [
+function getMarketplaceDirectoryEntityValues(entity = {}) {
+  return [
     entity?.primary_category,
     entity?.specialty,
     entity?.category,
@@ -22938,13 +22936,26 @@ function matchesMarketplaceDirectoryCategory(entity = {}, label = 'All') {
     ...(Array.isArray(entity?.specialties) ? entity.specialties : []),
     ...(Array.isArray(entity?.skills) ? entity.skills : []),
   ].filter(Boolean);
+}
+
+function getMarketplaceDirectoryEntityKeys(entity = {}) {
+  const keys = new Set();
+  if (typeof __kbCanonicalizeToCategories !== 'function') return keys;
+  getMarketplaceDirectoryEntityValues(entity).forEach(value => {
+    __kbCanonicalizeToCategories(value).forEach(category => keys.add(category));
+  });
+  return keys;
+}
+
+function matchesMarketplaceDirectoryCategory(entity = {}, label = 'All') {
+  if (!label || label === 'All') return true;
+  const normalizedLabel = String(label).trim().toLowerCase();
+  const rawValues = getMarketplaceDirectoryEntityValues(entity);
   if (rawValues.some(value => String(value).trim().toLowerCase() === normalizedLabel)) return true;
   const desired = getMarketplaceDirectoryCategoryKeys(label);
-  if (!desired.size || typeof __kbCanonicalizeToCategories !== 'function') return false;
-  return rawValues.some(value => {
-    const actual = __kbCanonicalizeToCategories(value);
-    return Array.from(actual).some(category => desired.has(category));
-  });
+  if (!desired.size) return false;
+  const actual = getMarketplaceDirectoryEntityKeys(entity);
+  return Array.from(actual).some(category => desired.has(category));
 }
 // Route alias and subtab maps — lifted to module level so nav() doesn't
 // recreate them on every invocation (was previously inside the useCallback).
@@ -32090,8 +32101,14 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
 
   const filteredVendors = useMemo(() => {
     const term = debouncedSearch.trim().toLowerCase();
+    const searchCategoryKeys = term && typeof __kbCanonicalizeToCategories === 'function'
+      ? __kbCanonicalizeToCategories(term)
+      : new Set();
     let list = vendors.filter(v => {
-      const matchesSearch = !term || [v.name, v.role, v.city, v.result, v.why, ...(v.tags || []), ...(v.specialties || []), v.specialty].some(val => String(val || '').toLowerCase().includes(term));
+      const matchesLiteralSearch = !term || [v.name, v.role, v.city, v.result, v.why, v.bio, v.headline, v.tagline, ...(v.tags || []), ...(v.specialties || []), v.specialty, v.category]
+        .some(val => String(val || '').toLowerCase().includes(term));
+      const matchesCategorySearch = !!term && searchCategoryKeys.size > 0 && Array.from(getMarketplaceDirectoryEntityKeys(v)).some(categoryKey => searchCategoryKeys.has(categoryKey));
+      const matchesSearch = matchesLiteralSearch || matchesCategorySearch;
       const matchesCategory = matchesMarketplaceDirectoryCategory(v, category);
       return matchesSearch && matchesCategory;
     });

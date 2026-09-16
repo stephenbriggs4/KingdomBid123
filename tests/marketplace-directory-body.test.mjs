@@ -48,6 +48,14 @@ test('broad directory filters resolve to the existing canonical project and vend
   assert.match(app, /const desiredCategories = selectedCategory && selectedCategory !== 'All'[\s\S]*?Array\.from\(getMarketplaceDirectoryCategoryKeys\(selectedCategory\)\)/);
 });
 
+test('vendor search understands canonical service synonyms without weakening literal search', () => {
+  const vendorFilter = app.slice(app.indexOf('const filteredVendors = useMemo'), app.indexOf('const railVendors = useMemo'));
+  assert.match(vendorFilter, /const searchCategoryKeys = term[\s\S]*?__kbCanonicalizeToCategories\(term\)/);
+  assert.match(vendorFilter, /matchesLiteralSearch[\s\S]*?v\.bio[\s\S]*?v\.tagline/);
+  assert.match(vendorFilter, /matchesCategorySearch[\s\S]*?getMarketplaceDirectoryEntityKeys\(v\)[\s\S]*?searchCategoryKeys\.has\(categoryKey\)/);
+  assert.match(vendorFilter, /const matchesSearch = matchesLiteralSearch \|\| matchesCategorySearch/);
+});
+
 test('availability is explicit and conversation state overrides it', () => {
   assert.match(app, /label:'In conversation'/);
   assert.match(app, /label:'Available'/);
