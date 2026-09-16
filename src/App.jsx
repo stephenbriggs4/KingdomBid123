@@ -22872,6 +22872,30 @@ function readProjectSubTabFromHash(hashValue) {
 function getProjectSubTabRoute(subTab) {
   return Object.entries(APP_PROJECT_SUBTAB_BY_ROUTE).find(([, value]) => value === subTab)?.[0] || "projects";
 }
+
+function isMarketplaceDevPreviewEnabled() {
+  if (!kbIsDevRuntime() || typeof window === 'undefined') return false;
+  const hashQuery = String(window.location.hash || '').split('?')[1] || '';
+  return new URLSearchParams(hashQuery).get('preview') === 'marketplace';
+}
+
+const KB_MARKETPLACE_DEV_PREVIEW_VENDORS = Object.freeze([
+  { id:'preview-vendor-facilities', name:'Illustrative facilities provider', category:'Facilities', category_tags:['Facilities'], service_city:'Dallas', service_state:'TX', verified:true, availability_status:'available', tagline:'Preventive care and facility support for ministry spaces.', image_url:'/images/faithbid-marketplace-church-v2.png', created_at:'2026-09-15T15:00:00Z' },
+  { id:'preview-vendor-creative', name:'Illustrative creative studio', category:'Creative', category_tags:['Creative'], service_city:'Plano', service_state:'TX', verified:false, availability_status:'limited', tagline:'Brand, web, and communication support for church teams.', image_url:'/images/faithbid-landing-church.png', created_at:'2026-09-14T15:00:00Z' },
+  { id:'preview-vendor-technology', name:'Illustrative technology team', category:'Technology', category_tags:['Technology'], service_city:'Dallas', service_state:'TX', verified:true, availability_status:'available', tagline:'Church systems, web platforms, and technical planning.', image_url:'/images/faithbid-marketplace-church-v2.png', created_at:'2026-09-13T15:00:00Z' },
+  { id:'preview-vendor-events', name:'Illustrative events partner', category:'Events', category_tags:['Events'], service_city:'Richardson', service_state:'TX', verified:false, availability_status:'unknown', tagline:'Event planning and production for ministry gatherings.', image_url:'/images/faithbid-landing-church.png', created_at:'2026-09-12T15:00:00Z' },
+  { id:'preview-vendor-finance', name:'Illustrative finance practice', category:'Finance', category_tags:['Finance'], service_city:'Frisco', service_state:'TX', verified:true, availability_status:'limited', tagline:'Bookkeeping and financial operations for growing churches.', image_url:'/images/faithbid-marketplace-church-v2.png', created_at:'2026-09-11T15:00:00Z' },
+  { id:'preview-vendor-ministry', name:'Illustrative ministry consultant', category:'Ministry Support', category_tags:['Ministry Support'], service_city:'Dallas', service_state:'TX', verified:false, availability_status:'available', tagline:'Operational guidance and team support for ministry leaders.', image_url:'/images/faithbid-landing-church.png', created_at:'2026-09-10T15:00:00Z' },
+]);
+
+const KB_MARKETPLACE_DEV_PREVIEW_PROJECTS = Object.freeze([
+  { id:'preview-project-facilities', title:'Facility maintenance planning', category:'Facilities', city:'Dallas', state:'TX', budget:'$8K–$12K', timeline:'Within 60 days', description:'Illustrative brief showing how a church can organize priorities, timing, and facility scope.', hero_image:'/images/faithbid-marketplace-church-v2.png', status:'open' },
+  { id:'preview-project-creative', title:'Church website refresh', category:'Creative', city:'Plano', state:'TX', budget:'$6K–$10K', timeline:'This fall', description:'Illustrative brief for content planning, design, migration, and a clean team handoff.', hero_image:'/images/faithbid-landing-church.png', status:'open' },
+  { id:'preview-project-technology', title:'Livestream system assessment', category:'Technology', city:'Dallas', state:'TX', budget:'$4K–$7K', timeline:'Next 45 days', description:'Illustrative technical brief covering reliability, workflow, and upgrade recommendations.', hero_image:'/images/faithbid-marketplace-church-v2.png', status:'open' },
+  { id:'preview-project-events', title:'Community event production', category:'Events', city:'Richardson', state:'TX', budget:'$5K–$9K', timeline:'November', description:'Illustrative project for planning, production coordination, and volunteer handoff.', hero_image:'/images/faithbid-landing-church.png', status:'open' },
+  { id:'preview-project-finance', title:'Bookkeeping process cleanup', category:'Finance', city:'Frisco', state:'TX', budget:'$3K–$5K', timeline:'Within 30 days', description:'Illustrative finance brief for reconciliations, reporting, and repeatable monthly processes.', hero_image:'/images/faithbid-marketplace-church-v2.png', status:'open' },
+  { id:'preview-project-ministry', title:'Volunteer onboarding system', category:'Ministry Support', city:'Dallas', state:'TX', budget:'Flexible', timeline:'This quarter', description:'Illustrative brief for a welcoming, consistent volunteer onboarding experience.', hero_image:'/images/faithbid-landing-church.png', status:'open' },
+]);
 // Route alias and subtab maps — lifted to module level so nav() doesn't
 // recreate them on every invocation (was previously inside the useCallback).
 const NAV_ALIAS = Object.freeze({
@@ -25015,8 +25039,20 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
   );
 }
 
+function MarketplaceDevPreviewNotice({ view }) {
+  return (
+    <div className="kb-marketplace-dev-preview" role="status">
+      <span>Development preview</span>
+      <strong>{view === 'projects' ? 'Illustrative project cards' : 'Illustrative vendor cards'}</strong>
+      <p>These examples exist only in this browser preview. They are never stored in Supabase or counted as live Marketplace inventory.</p>
+    </div>
+  );
+}
+
 
 function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, onMyBids, showToast, nav, vendorVerified, myBids, myActiveProjects, loadingMyBids, loadingMyProjects, myProjectsFetchError = false, onRetryMyProjects, onSelectSample, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null}){
+  const marketplaceDevPreview = isMarketplaceDevPreviewEnabled();
+  const marketplaceProjectsLoading = loading && !marketplaceDevPreview;
   const STORAGE_KEY = KB_STORAGE_KEYS.marketplaceBoardState;
   const SCROLL_KEY = KB_STORAGE_KEYS.marketplaceBoardScroll;
   const readSavedState = () => {
@@ -25198,7 +25234,10 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     } catch {}
   };
 
-  const normalizedProjects = useMemo(() => (projects || []).map(normalizeProjectEntity).filter(Boolean), [projects]);
+  const normalizedProjects = useMemo(
+    () => (marketplaceDevPreview ? KB_MARKETPLACE_DEV_PREVIEW_PROJECTS : (projects || [])).map(normalizeProjectEntity).filter(Boolean),
+    [projects, marketplaceDevPreview]
+  );
   const openProjects = useMemo(() => normalizedProjects.filter(p => p.status === 'open'), [normalizedProjects]);
   // Set of project IDs the vendor has already bid on — used to show a
   // "Proposal sent" badge on cards so vendors don't submit duplicates.
@@ -25912,6 +25951,10 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
   const handleToggleSave = async (project, e) => {
     if (e) { e.stopPropagation(); e.preventDefault(); }
+    if (marketplaceDevPreview) {
+      showToast && showToast('Development preview only—nothing was saved.');
+      return;
+    }
     const projectId = project?.id || null;
     if (!currentUser?.id) {
       showToast && showToast('Sign in to save projects.', 'error');
@@ -26084,6 +26127,10 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   };
 
   const openProject = (project) => {
+    if (marketplaceDevPreview) {
+      showToast && showToast('Development preview only—this is not a live project.');
+      return;
+    }
     stashBoardScroll();
     onSelect && onSelect(project);
   };
@@ -26535,7 +26582,8 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
       {useStreamlinedProjectDirectory ? (
         <main className="kb-marketplace-projects-body" ref={projectGridRef}>
-          {loading ? (
+          {marketplaceDevPreview ? <MarketplaceDevPreviewNotice view="projects" /> : null}
+          {marketplaceProjectsLoading ? (
             <KBSkeleton variant="list" count={6} style={{margin:'8px 0 0'}} />
           ) : openProjects.length === 0 ? (
             <section className="kb-marketplace-project-empty" aria-labelledby="kb-project-marketplace-empty-title">
@@ -26555,7 +26603,11 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                 <div>
                   <p className="kb-marketplace-section-kicker">Project opportunities</p>
                   <h2 id="kb-marketplace-project-directory-title">Open church projects</h2>
-                  <span>{filteredProjects.length} real brief{filteredProjects.length === 1 ? '' : 's'} currently accepting responses.</span>
+                  <span>
+                    {marketplaceDevPreview
+                      ? `${filteredProjects.length} illustrative brief${filteredProjects.length === 1 ? '' : 's'} for layout review.`
+                      : `${filteredProjects.length} real brief${filteredProjects.length === 1 ? '' : 's'} currently accepting responses.`}
+                  </span>
                 </div>
                 <div className="kb-marketplace-project-directory__controls">
                   <button
@@ -31797,6 +31849,8 @@ function MarketplaceVendorDirectoryCard({ vendor, image, categoryLabel, saved = 
 }
 
 function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendor, vendors: vendorInput = [], vendorsLoading = false, savedVendorIds: savedVendorIdsProp = new Set(), onToggleSave = null, currentUser = null, contextProjects = [], founderCoverageContext = null, onClearFounderCoverageContext = null, surface = 'default', isActive = true }) {
+  const marketplaceDevPreview = isMarketplaceDevPreviewEnabled();
+  const directoryLoading = vendorsLoading && !marketplaceDevPreview;
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 180);
   const [category, setCategory] = useState("All");
@@ -31821,7 +31875,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const isHirerMarketplace = role === 'church' || role === 'individual';
   const isChurchMarketplace = surface === 'church-vendors';
   const viewerCity = firstNonEmpty(currentUser?.city, currentUser?.profile?.city, currentUser?.user_metadata?.city, currentUser?.user_metadata?.location, '');
-  const viewerHasLocation = !!firstNonEmpty(currentUser?.place_id, currentUser?.profile?.place_id, currentUser?.user_metadata?.place_id, '');
+  const viewerHasLocation = marketplaceDevPreview || !!firstNonEmpty(currentUser?.place_id, currentUser?.profile?.place_id, currentUser?.user_metadata?.place_id, '');
   const inviteChurchId = String(currentUser?.id || '').trim();
   const [selectedVendorProjectMirror, setSelectedVendorProjectMirror] = useState(null);
   const normalizedContextProjects = useMemo(() => safeArray(contextProjects).map(p => normalizeProjectEntity(p)).filter(Boolean), [contextProjects]);
@@ -31856,6 +31910,10 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const hasProjectContext = !!inviteProjectId;
 
   useEffect(() => {
+    if (marketplaceDevPreview) {
+      setCurationByVendorId(new Map(KB_MARKETPLACE_DEV_PREVIEW_VENDORS.slice(0, 4).map((vendor, index) => [String(vendor.id), { vendor_id:vendor.id, featured_rank:index + 1 }])));
+      return undefined;
+    }
     let cancelled = false;
     supabase
       .from('marketplace_vendor_curation')
@@ -31878,10 +31936,14 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         }
       });
     return () => { cancelled = true; };
-  }, []);
+  }, [marketplaceDevPreview]);
 
   useEffect(() => {
     let cancelled = false;
+    if (marketplaceDevPreview) {
+      setDistanceByVendorId(new Map(KB_MARKETPLACE_DEV_PREVIEW_VENDORS.map((vendor, index) => [String(vendor.id), 4 + (index * 3.5)])));
+      return () => { cancelled = true; };
+    }
     if (!inviteChurchId || !viewerHasLocation) {
       setDistanceByVendorId(new Map());
       return () => { cancelled = true; };
@@ -31904,7 +31966,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         }
       });
     return () => { cancelled = true; };
-  }, [inviteChurchId, viewerHasLocation]);
+  }, [inviteChurchId, marketplaceDevPreview, viewerHasLocation]);
   const handleProjectContextRecovery = useCallback((event) => {
     if (event) { event.stopPropagation(); event.preventDefault(); }
     if (typeof onPost === 'function') {
@@ -31947,7 +32009,8 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     return () => { cancelled = true; };
   }, [inviteProjectId, inviteChurchId]);
 
-  const { directory: rawVendors } = useMemo(() => getMarketplaceVendorDataset(vendorInput), [vendorInput]);
+  const previewVendorInput = marketplaceDevPreview ? KB_MARKETPLACE_DEV_PREVIEW_VENDORS : vendorInput;
+  const { directory: rawVendors } = useMemo(() => getMarketplaceVendorDataset(previewVendorInput), [previewVendorInput]);
   const vendors = useMemo(() => rawVendors.map(vendor => {
     const geoFit = geoFitByVendorId.get(String(vendor?.id || '').trim()) || null;
     const distanceMiles = distanceByVendorId.get(String(vendor?.id || '').trim());
@@ -32088,6 +32151,10 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
 
   const toggleSave = (vendor, e) => {
     if (e) { e.stopPropagation(); e.preventDefault(); }
+    if (marketplaceDevPreview) {
+      showToast && showToast('Development preview only—nothing was saved.');
+      return;
+    }
     const key = String(vendor?.id || vendor?.user_id || vendor?.name);
     if (typeof onToggleSave === 'function') {
       onToggleSave(key, e);
@@ -32266,6 +32333,10 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   };
 
   const handleOpenVendor = (vendor) => {
+    if (marketplaceDevPreview) {
+      showToast && showToast('Development preview only—this is not a live vendor profile.');
+      return;
+    }
     const seeded = {
       ...buildVendorProfileSeed(vendor),
       recommendedFit: vendor?.recommendedFit || null,
@@ -32645,6 +32716,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
 
       {isChurchMarketplace ? (
         <main className="kb-marketplace-directory-body" ref={directoryRef}>
+          {marketplaceDevPreview ? <MarketplaceDevPreviewNotice view="vendors" /> : null}
           <section className="kb-marketplace-featured" aria-labelledby="kb-marketplace-featured-title">
             <div className="kb-marketplace-section-head">
               <div>
@@ -32667,7 +32739,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
 
             {!viewerHasLocation ? <p className="kb-marketplace-location-note">Add your church location to unlock distance-based Nearby results.</p> : null}
 
-            {vendorsLoading ? (
+            {directoryLoading ? (
               <KBSkeleton variant="list" count={4} style={{margin:'18px 0 0'}} />
             ) : railVendors.length ? (
               <div
@@ -32709,7 +32781,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               </label>
             </div>
 
-            {vendorsLoading ? (
+            {directoryLoading ? (
               <KBSkeleton variant="list" count={8} style={{margin:'18px 0'}} />
             ) : pagedVendors.length ? (
               <div className="kb-marketplace-vendor-grid">
@@ -32960,7 +33032,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           </div>
         ) : null}
 
-        {vendorsLoading ? (
+        {directoryLoading ? (
           <KBSkeleton variant="list" count={4} style={{maxWidth:920,margin:'20px auto'}} />
         ) : (
           <div className="kb-live-all-grid">
@@ -38384,7 +38456,10 @@ export default function App() {
   const handleMarketplaceSubTabChange = React.useCallback((nextSubTab) => {
     const normalizedSubTab = nextSubTab || null;
     setNavSubTab(normalizedSubTab);
-    try { window.location.hash = getProjectSubTabRoute(normalizedSubTab); } catch {}
+    try {
+      const previewQuery = isMarketplaceDevPreviewEnabled() ? "?preview=marketplace" : "";
+      window.location.hash = `${getProjectSubTabRoute(normalizedSubTab)}${previewQuery}`;
+    } catch {}
   }, []);
 
   useEffect(() => {

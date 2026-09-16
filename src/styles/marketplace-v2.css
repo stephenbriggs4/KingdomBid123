@@ -1076,6 +1076,41 @@ html body #root .mkt2-root .kbm-mp-toolbar {
   color: #17251f;
 }
 
+.kb-marketplace-dev-preview {
+  display: grid;
+  grid-template-columns: auto auto minmax(260px, 1fr);
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 28px;
+  padding: 12px 16px;
+  border: 1px solid rgba(154, 116, 47, .22);
+  border-radius: 14px;
+  background: linear-gradient(100deg, rgba(248, 241, 226, .96), rgba(255, 253, 248, .96));
+  box-shadow: 0 8px 22px rgba(39, 48, 42, .05);
+}
+
+.kb-marketplace-dev-preview > span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #174b3b;
+  color: #fff;
+  font: 800 9px/1 var(--font-sans), sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.kb-marketplace-dev-preview > strong {
+  color: #173f33;
+  font: 750 12px/1.3 var(--font-sans), sans-serif;
+}
+
+.kb-marketplace-dev-preview > p {
+  margin: 0;
+  color: #68706a;
+  font: 550 11px/1.45 var(--font-sans), sans-serif;
+  text-align: right;
+}
+
 .kb-marketplace-project-directory__head {
   display: flex;
   align-items: flex-end;
@@ -2016,6 +2051,17 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
   .kb-marketplace-directory-body {
     width: calc(100% - 28px);
     padding-top: 28px;
+  }
+
+  .kb-marketplace-dev-preview {
+    grid-template-columns: auto 1fr;
+    margin-bottom: 20px;
+    padding: 12px;
+  }
+
+  .kb-marketplace-dev-preview > p {
+    grid-column: 1 / -1;
+    text-align: left;
   }
 
   .kb-marketplace-all-vendors {
