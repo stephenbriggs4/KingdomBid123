@@ -22908,6 +22908,8 @@ const KB_MARKETPLACE_DIRECTORY_CATEGORIES = Object.freeze([
   'Ministry Support',
 ]);
 
+const KB_MARKETPLACE_ACTIVE_MARKET_KEY = 'dallas';
+
 const KB_MARKETPLACE_DIRECTORY_CATEGORY_KEYS = Object.freeze({
   Facilities: Object.freeze(['hvac','electrical','plumbing','construction','painting','roofing','cleaning','landscaping','security']),
   Creative: Object.freeze(['branding','photography','video']),
@@ -31978,14 +31980,24 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
 
   useEffect(() => {
     if (marketplaceDevPreview) {
-      setCurationByVendorId(new Map(KB_MARKETPLACE_DEV_PREVIEW_VENDORS.slice(0, 4).map((vendor, index) => [String(vendor.id), { vendor_id:vendor.id, featured_rank:index + 1 }])));
+      const previewFeaturedVendorIds = [
+        'preview-vendor-finance',
+        'preview-vendor-technology',
+        'preview-vendor-facilities',
+        'preview-vendor-creative',
+      ];
+      setCurationByVendorId(new Map(previewFeaturedVendorIds.map((vendorId, index) => [vendorId, { vendor_id:vendorId, featured_rank:index + 1 }])));
       return undefined;
     }
     let cancelled = false;
+    const curationNow = new Date().toISOString();
     supabase
       .from('marketplace_vendor_curation')
       .select('vendor_id,market_key,featured_rank,featured_reason,featured_from,featured_until')
+      .eq('market_key', KB_MARKETPLACE_ACTIVE_MARKET_KEY)
       .eq('active', true)
+      .lte('featured_from', curationNow)
+      .or(`featured_until.is.null,featured_until.gt.${curationNow}`)
       .order('featured_rank', { ascending:true })
       .then(({ data, error }) => {
         if (cancelled) return;
@@ -32008,7 +32020,14 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   useEffect(() => {
     let cancelled = false;
     if (marketplaceDevPreview) {
-      setDistanceByVendorId(new Map(KB_MARKETPLACE_DEV_PREVIEW_VENDORS.map((vendor, index) => [String(vendor.id), 4 + (index * 3.5)])));
+      setDistanceByVendorId(new Map([
+        ['preview-vendor-technology', 3],
+        ['preview-vendor-events', 6],
+        ['preview-vendor-finance', 9],
+        ['preview-vendor-facilities', 12],
+        ['preview-vendor-creative', 15],
+        ['preview-vendor-ministry', 18],
+      ]));
       return () => { cancelled = true; };
     }
     if (!inviteChurchId || !viewerHasLocation) {

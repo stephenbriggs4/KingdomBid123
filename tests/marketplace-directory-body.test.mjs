@@ -23,6 +23,21 @@ test('featured rail uses real modes, arrows, and pointer drag controls', () => {
   assert.match(app, /kb_marketplace_vendor_distances_for_church/);
 });
 
+test('featured curation is scoped to the active Dallas market and current display window', () => {
+  const curationEffect = app.slice(app.indexOf(".from('marketplace_vendor_curation')"), app.indexOf(".from('marketplace_vendor_curation')") + 900);
+  assert.match(app, /const KB_MARKETPLACE_ACTIVE_MARKET_KEY = 'dallas'/);
+  assert.match(curationEffect, /\.eq\('market_key', KB_MARKETPLACE_ACTIVE_MARKET_KEY\)/);
+  assert.match(curationEffect, /\.eq\('active', true\)/);
+  assert.match(curationEffect, /\.lte\('featured_from', curationNow\)/);
+  assert.match(curationEffect, /featured_until\.is\.null,featured_until\.gt\.\$\{curationNow\}/);
+});
+
+test('preview ordering fixtures make Featured, Newest, and Nearby visibly distinct', () => {
+  assert.match(app, /const previewFeaturedVendorIds = \[[\s\S]*?preview-vendor-finance[\s\S]*?preview-vendor-technology/);
+  assert.match(app, /\['preview-vendor-technology', 3\][\s\S]*?\['preview-vendor-events', 6\]/);
+  assert.match(app, /railMode === 'newest'[\s\S]*?created_at/);
+});
+
 test('best match implements approved weights and honest missing-signal normalization', () => {
   assert.match(app, /key:'category', weight:40/);
   assert.match(app, /key:'proximity', weight:25/);
