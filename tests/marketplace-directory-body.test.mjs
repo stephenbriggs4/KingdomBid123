@@ -6,6 +6,7 @@ const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../src/styles/marketplace-v2.css', import.meta.url), 'utf8');
 const directoryMigration = readFileSync(new URL('../supabase/migrations/20260915170203_marketplace_vendor_directory_body.sql', import.meta.url), 'utf8');
 const nearbyMigration = readFileSync(new URL('../supabase/migrations/20260915170828_marketplace_vendor_nearby_sort.sql', import.meta.url), 'utf8');
+const savedVendorMigration = readFileSync(new URL('../supabase/migrations/20260916145138_harden_saved_vendors_ownership.sql', import.meta.url), 'utf8');
 
 test('church marketplace keeps the existing hero and replaces only the body', () => {
   assert.match(app, /<ChurchMarketplaceHero[\s\S]*?<main className="kb-marketplace-directory-body"/);
@@ -85,6 +86,16 @@ test('saved hearts persist through the authenticated saved_vendors table', () =>
   assert.match(app, /from\('saved_vendors'\)\.delete\(\)\.eq\('user_id', userId\)\.eq\('vendor_id', key\)/);
   assert.match(app, /from\('saved_vendors'\)\.upsert\(\{ user_id:userId, vendor_id:key \}/);
   assert.match(app, /aria-pressed=\{saved\}/);
+});
+
+test('saved vendor ownership is non-null, owner-scoped, and unavailable to anon', () => {
+  assert.match(savedVendorMigration, /alter column user_id set not null/);
+  assert.match(savedVendorMigration, /alter column vendor_id set not null/);
+  assert.match(savedVendorMigration, /revoke all on table public\.saved_vendors from anon/);
+  assert.match(savedVendorMigration, /grant select, insert, update, delete on table public\.saved_vendors to authenticated/);
+  assert.match(savedVendorMigration, /for all[\s\S]*?to authenticated[\s\S]*?\(select auth\.uid\(\)\) = user_id/);
+  assert.match(savedVendorMigration, /Expected two cascading saved_vendors foreign keys/);
+  assert.match(savedVendorMigration, /Expected one saved_vendors user\/vendor uniqueness constraint/);
 });
 
 test('empty states are truthful and never invent listings', () => {
