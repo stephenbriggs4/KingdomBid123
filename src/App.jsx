@@ -210,11 +210,11 @@ const SENTRY_DSN =
   (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SENTRY_DSN)
   || "";
 
-const KB_BUILD_LABEL = "0941-close-the-loop-outcome-recurring-fees-giveback-cumulative";
+const KB_BUILD_LABEL = "0955-landing-header-preview-routing-stability-cumulative";
 // Phase-1 Charter workspace access only: completed Marketplace-Approved Charter Vendors
 // may enter the private Marketplace workspace without a project invitation. Eligibility is
 // re-derived from live profile/vendor reads; project-specific bid authorization is unchanged.
-const KB_BUILD_AT = "2026-09-01";
+const KB_BUILD_AT = "2026-09-16";
 const kbIsDevRuntime = () => {
   try {
     return !!(typeof import.meta !== "undefined" && import.meta.env && import.meta.env.DEV);
@@ -310,6 +310,12 @@ if (typeof window !== "undefined") {
         borderOrnamentLayers: q('[class*="' + 'vi' + 'ne' + '"],.kb-' + 'vi' + 'ne-border,.kb-' + 'vi' + 'ne-layer').length,
         botanicalSurfaces: q('[class*="' + 'cl' + 'ay' + '"],.kb-live-marketplace-page,.post-project-page').length,
         buttonsAndLinks: visibleButtons.length,
+      },
+      marketplacePreview: {
+        enabled: readMarketplaceDevPreviewFromHash(hash),
+        projectCards: q('.kb-marketplace-project-card').length,
+        vendorCards: q('.kb-marketplace-vendor-card').length,
+        notices: q('.kb-marketplace-dev-preview').length,
       },
       textFlags: {
         loadingWorkspaceVisible: bodyText.includes('Loading workspace…'),
@@ -682,7 +688,7 @@ function formatMoney(amount) {
 // true at launch to activate the full signup paths.
 const LAUNCHED = false;
 const LANDING_HERO_SUBTITLE = LAUNCHED
-  ? "Churches connect with vetted Christian professionals who share their faith. Businesses find work that matters across Dallas–Fort Worth."
+  ? "Churches find vetted Christian professionals who share their faith. Businesses find work that matters. Now serving Dallas–Fort Worth."
   : "Churches connect with vetted Christian professionals who share their faith. Businesses find work that matters as our first Dallas pilot takes shape.";
 
 // 853a — Growth Engine church-intake gate, separate from LAUNCHED.
@@ -4040,13 +4046,14 @@ function normalizeProjectEntity(p) {
   const categoryTags = [...safeArray(p.category_tags), ...safeArray(p.tags)].filter(Boolean);
   const primaryCategory = firstNonEmpty(p.primary_category, p.category, categoryTags[0], '');
   const projectCity = firstNonEmpty(p.project_city, p.city, '');
-  const projectState = firstNonEmpty(p.project_state, '');
+  const projectState = firstNonEmpty(p.project_state, p.state, p.region, '');
   const normalized = {
     id: p.id || p.num || null,
     church_id: p.church_id || null,
     title: firstNonEmpty(p.title, p.name, 'Untitled project'),
     church: firstNonEmpty(p.church, p.church_name, p.org_name, 'Ministry'),
     city: projectCity,
+    state: projectState,
     project_city: projectCity,
     project_state: projectState,
     project_place_id: p.project_place_id || null,
@@ -4062,7 +4069,9 @@ function normalizeProjectEntity(p) {
     bids_count: Number(p.bids_count || p.bids || 0) || 0,
     status: firstNonEmpty(p.status, 'draft'),
     urgent: !!p.urgent,
-    posted: p.posted || (p.posted_at ? new Date(p.posted_at).toLocaleDateString() : '//'),
+    posted_at: p.posted_at || null,
+    created_at: p.created_at || null,
+    posted: p.posted || (p.posted_at ? new Date(p.posted_at).toLocaleDateString() : p.created_at ? new Date(p.created_at).toLocaleDateString() : '//'),
     desc: firstNonEmpty(p.desc, p.description, p.body, ''),
     description: firstNonEmpty(p.description, p.desc, p.body, ''),
     skills: safeArray(p.skills),
@@ -22873,10 +22882,21 @@ function getProjectSubTabRoute(subTab) {
   return Object.entries(APP_PROJECT_SUBTAB_BY_ROUTE).find(([, value]) => value === subTab)?.[0] || "projects";
 }
 
-function isMarketplaceDevPreviewEnabled() {
-  if (!kbIsDevRuntime() || typeof window === 'undefined') return false;
-  const hashQuery = String(window.location.hash || '').split('?')[1] || '';
+function readMarketplaceDevPreviewFromHash(hashValue) {
+  if (!kbIsDevRuntime()) return false;
+  const hashQuery = String(hashValue || '').split('?')[1] || '';
   return new URLSearchParams(hashQuery).get('preview') === 'marketplace';
+}
+
+function isMarketplaceDevPreviewEnabled(hashValue = (typeof window !== 'undefined' ? window.location.hash : '')) {
+  return readMarketplaceDevPreviewFromHash(hashValue);
+}
+
+// 0955 — Preview routing is controlled by reactive App state. Hash generation
+// receives the state explicitly instead of re-reading window.location inside
+// memoized Marketplace children.
+function getMarketplaceDevPreviewHashSuffix(enabled = false) {
+  return enabled ? '?preview=marketplace' : '';
 }
 
 const KB_MARKETPLACE_DEV_PREVIEW_VENDORS = Object.freeze([
@@ -22889,12 +22909,12 @@ const KB_MARKETPLACE_DEV_PREVIEW_VENDORS = Object.freeze([
 ]);
 
 const KB_MARKETPLACE_DEV_PREVIEW_PROJECTS = Object.freeze([
-  { id:'preview-project-facilities', title:'Facility maintenance planning', category:'Facilities', city:'Dallas', state:'TX', budget:'$8K–$12K', timeline:'Within 60 days', description:'Illustrative brief showing how a church can organize priorities, timing, and facility scope.', hero_image:'/gpi/volunteer.jpg', status:'open' },
-  { id:'preview-project-creative', title:'Church website refresh', category:'Creative', city:'Plano', state:'TX', budget:'$6K–$10K', timeline:'This fall', description:'Illustrative brief for content planning, design, migration, and a clean team handoff.', hero_image:'/gpi/creative.jpg', status:'open' },
-  { id:'preview-project-technology', title:'Livestream system assessment', category:'Technology', city:'Dallas', state:'TX', budget:'$4K–$7K', timeline:'Next 45 days', description:'Illustrative technical brief covering reliability, workflow, and upgrade recommendations.', hero_image:'/gpi/professional.jpg', status:'open' },
-  { id:'preview-project-events', title:'Community event production', category:'Events', city:'Richardson', state:'TX', budget:'$5K–$9K', timeline:'November', description:'Illustrative project for planning, production coordination, and volunteer handoff.', hero_image:'/gpi/worship.jpg', status:'open' },
-  { id:'preview-project-finance', title:'Bookkeeping process cleanup', category:'Finance', city:'Frisco', state:'TX', budget:'$3K–$5K', timeline:'Within 30 days', description:'Illustrative finance brief for reconciliations, reporting, and repeatable monthly processes.', hero_image:'/gpi/mentoring.jpg', status:'open' },
-  { id:'preview-project-ministry', title:'Volunteer onboarding system', category:'Ministry Support', city:'Dallas', state:'TX', budget:'Flexible', timeline:'This quarter', description:'Illustrative brief for a welcoming, consistent volunteer onboarding experience.', hero_image:'/gpi/outreach.jpg', status:'open' },
+  { id:'preview-project-facilities', title:'Facility maintenance planning', category:'Facilities', city:'Dallas', project_state:'TX', budget:'$8K–$12K', timeline:'Within 60 days', description:'Illustrative brief showing how a church can organize priorities, timing, and facility scope.', hero_image:'/gpi/volunteer.jpg', status:'open', posted_at:'2026-09-15T15:00:00Z' },
+  { id:'preview-project-creative', title:'Church website refresh', category:'Creative', city:'Plano', project_state:'TX', budget:'$6K–$10K', timeline:'This fall', description:'Illustrative brief for content planning, design, migration, and a clean team handoff.', hero_image:'/gpi/creative.jpg', status:'open', posted_at:'2026-09-14T15:00:00Z' },
+  { id:'preview-project-technology', title:'Livestream system assessment', category:'Technology', city:'Dallas', project_state:'TX', budget:'$4K–$7K', timeline:'Next 45 days', description:'Illustrative technical brief covering reliability, workflow, and upgrade recommendations.', hero_image:'/gpi/professional.jpg', status:'open', posted_at:'2026-09-13T15:00:00Z' },
+  { id:'preview-project-events', title:'Community event production', category:'Events', city:'Richardson', project_state:'TX', budget:'$5K–$9K', timeline:'November', description:'Illustrative project for planning, production coordination, and volunteer handoff.', hero_image:'/gpi/worship.jpg', status:'open', posted_at:'2026-09-12T15:00:00Z' },
+  { id:'preview-project-finance', title:'Bookkeeping process cleanup', category:'Finance', city:'Frisco', project_state:'TX', budget:'$3K–$5K', timeline:'Within 30 days', description:'Illustrative finance brief for reconciliations, reporting, and repeatable monthly processes.', hero_image:'/gpi/mentoring.jpg', status:'open', posted_at:'2026-09-11T15:00:00Z' },
+  { id:'preview-project-ministry', title:'Volunteer onboarding system', category:'Ministry Support', city:'Dallas', project_state:'TX', budget:'Flexible', timeline:'This quarter', description:'Illustrative brief for a welcoming, consistent volunteer onboarding experience.', hero_image:'/gpi/outreach.jpg', status:'open', posted_at:'2026-09-10T15:00:00Z' },
 ]);
 
 const KB_MARKETPLACE_DIRECTORY_CATEGORIES = Object.freeze([
@@ -23049,7 +23069,7 @@ function applyProjectsScreenDependencies(dependencies = {}) {
   ({ __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computePlatformFee, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveProjectOperationalAlerts, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailPostedLabel, detailScopeItems, ensureInboxConversation, ExecutionActionStack, fetchLatestProjectOpsSnapshot, fetchLatestProjectWorkspaceSync, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, fmtMoney, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getConversationStatusBadgeLocal, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceModeMeta, getMarketplaceSummaryCards, getMarketplaceTabs, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getProjectPosterStats, getProjectWorkflowSummary, getRecommendedFitPresentation, getReturnNavigationTarget, getSignedChatFileUrl, getValidMediaUrl, getVendorIdentityBadges, getVendorPairSignalMapEntry, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMatchInlineText, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, loadCompareWorkspaceState, loadProjectOpsState, loadProjectWorkspace, logError, makeEmptyVendorPairSignalMaps, mergeProjectOpsSnapshots, mergeProjectWorkspaceSnapshots, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeProjectOpsSnapshot, normalizeProjectWorkspaceSnapshot, normalizeRefCode, normalizeVendorEntity, normalizeVendorPairInviteRow, openInboxThread, OperationalAlertList, parseProjectWorkspaceSync, persistProjectOpsSnapshot, persistProjectWorkspaceSync, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, projectOpsFingerprint, ProjectPrimaryEmptyState, projectWorkspaceFingerprint, pushProjectInteropSignal, queueActivityNavigation, queueDealRoomsHubNavigation, queueInboxNavigation, queueVendorNavigation, readLocalJson, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithFallback, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveCompareWorkspaceState, saveProjectOpsState, saveProjectWorkspace, scoreProjectForVendorLane, scoreVendorAgainstProject, selectConversationsSafe, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setAuthDefaultRole, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateConversationSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, clampVendorNarrative, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeDeliveryModel, normalizeSelectedVendorProjectMeta, openProjectContextBack, persistMatchmakerOutcomeEvent, persistRecommendedVendorMatchSnapshot, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks } = dependencies || {});
 }
 
-function ProjectsScreen({role, currentUser, showToast, nav, initialView="board", onMounted, navSubTab, onSubTabChange, forceProjectTab=null, privateMarketplaceAccess=false, isAdmin=false}){
+function ProjectsScreen({role, currentUser, showToast, nav, initialView="board", onMounted, navSubTab, onSubTabChange, forceProjectTab=null, privateMarketplaceAccess=false, isAdmin=false, marketplaceDevPreview=false}){
   const [view, setView] = useState(initialView);
   const [biddingEnabled, setBiddingEnabled] = useState(false);
   const [biddingSettingLoaded, setBiddingSettingLoaded] = useState(false);
@@ -23229,6 +23249,10 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
   };
 
   useEffect(() => {
+    if (marketplaceDevPreview) {
+      clearPendingProjectTarget();
+      return;
+    }
     const target = getPendingProjectTarget();
     const targetId = target?.projectId;
     const targetTitle = String(target?.projectTitle || '').trim().toLowerCase();
@@ -23296,14 +23320,18 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
       }
     })();
     return () => { cancelled = true; };
-  }, [projectPools, selectedProjectId]);
+  }, [projectPools, selectedProjectId, marketplaceDevPreview]);
 
   useEffect(() => {
+    if (marketplaceDevPreview) {
+      clearPendingVendorTarget();
+      return;
+    }
     const pendingVendor = getPendingVendorTarget();
     if (!pendingVendor?.id || selectedVendorProfile) return;
     clearPendingVendorTarget();
     openVendorProfile(pendingVendor);
-  }, [selectedVendorProfile]);
+  }, [selectedVendorProfile, marketplaceDevPreview]);
 
   const patchProjectEverywhere = (projectId, patch) => {
     if (!projectId) return;
@@ -23370,6 +23398,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
   };
 
   useEffect(() => {
+    if (marketplaceDevPreview) return;
     const pendingVendor = getPendingVendorTarget();
     if (pendingVendor?.source !== "founder-coverage-action") return;
     clearPendingVendorTarget();
@@ -23387,7 +23416,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
       const label = pendingVendor?.category || pendingVendor?.projectTitle || "coverage gap";
       showToast(`Opening vendor directory for ${label}`);
     }
-  }, [projectTab]);
+  }, [projectTab, marketplaceDevPreview]);
 
   const resetMarketplaceSurface = () => {
     setView("board");
@@ -23422,15 +23451,25 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
   }, [navSubTab]);
 
   useEffect(() => {
-    fetchProjects();
-    // Check vendor verification status
-    if (role === "vendor") {
-      Promise.resolve(currentUser ? { data: { user: currentUser } } : { data: { user: null } }).then(async ({data: authData}) => {
-        const user = authData?.user;
-        if (!user) return;
-        const {data} = await supabase.from("vendors").select("verified").eq("user_id", user.id).maybeSingle();
-        setVendorVerified(data?.verified === true);
-      });
+    if (marketplaceDevPreview) {
+      setProjects([]);
+      setLoading(false);
+      setHasMoreProjects(false);
+      setProjectsCursor(null);
+      projectsFetchedAtRef.current = Date.now();
+      setVendorVerified(false);
+      return undefined;
+    } else {
+      fetchProjects();
+      // Check vendor verification status only for the real Marketplace.
+      if (role === "vendor") {
+        Promise.resolve(currentUser ? { data: { user: currentUser } } : { data: { user: null } }).then(async ({data: authData}) => {
+          const user = authData?.user;
+          if (!user) return;
+          const {data} = await supabase.from("vendors").select("verified").eq("user_id", user.id).maybeSingle();
+          setVendorVerified(data?.verified === true);
+        });
+      }
     }
     // Real-time: new projects inserted by anyone → debounced refresh (avoids one refresh per row in a bulk operation)
     let refreshTimer = null;
@@ -23475,13 +23514,13 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
       })
       .subscribe();
     return () => { if (refreshTimer) clearTimeout(refreshTimer); projectSub.unsubscribe(); bidSub.unsubscribe(); };
-  }, [currentUser?.id, role]);
+  }, [currentUser?.id, role, marketplaceDevPreview]);
 
   // Pre-load my work data on mount so tabs are warm, but never refetch
   // blindly. The guarded fetchers below keep cached data visible and only hit
   // Supabase when the data is missing, stale, or explicitly forced.
   useEffect(() => {
-    if (!currentUser?.id) return;
+    if (marketplaceDevPreview || !currentUser?.id) return;
     if (role === "vendor") {
       fetchMyBids({ background: true });
       fetchMyActiveProjects({ background: true });
@@ -23489,7 +23528,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
     if (role === "church" || role === "individual") {
       fetchMyActiveProjects({ background: true });
     }
-  }, [role, currentUser?.id]);
+  }, [role, currentUser?.id, marketplaceDevPreview]);
 
   const fetchBids = async (projectId, projectContext = null) => {
     if (!projectId) return;
@@ -23608,6 +23647,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
     city: p.project_city || p.city || "",
     project_city: p.project_city || p.city || "",
     project_state: p.project_state || "",
+    state: p.project_state || "",
     primary_category: p.primary_category || p.category || "",
     category: p.primary_category || p.category || "",
     category_tags: Array.isArray(p.category_tags) ? p.category_tags : [],
@@ -23620,7 +23660,9 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
     bids: p.bids_count || 0,
     status: p.status || "draft",
     urgent: p.urgent || false,
-    posted: p.posted_at ? new Date(p.posted_at).toLocaleDateString() : "//",
+    posted_at: p.posted_at || null,
+    created_at: p.created_at || null,
+    posted: p.posted_at ? new Date(p.posted_at).toLocaleDateString() : (p.created_at ? new Date(p.created_at).toLocaleDateString() : "//"),
     desc: p.description || "",
     skills: p.skills || [],
     requirements: p.requirements || [],
@@ -23656,11 +23698,12 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
     if (cursor) query = query.lt("posted_at", cursor);
     const { data, error } = await query;
     if (error) throw error;
-    const rows = (data || []).map(mapProject);
-    // The last row's posted_at becomes the next cursor. Defensive: if a row
-    // has no posted_at (legacy data), don't set a cursor — we'd loop.
-    const nextCursor = rows.length > 0 ? (rows[rows.length - 1]?.posted_at || null) : null;
-    return { rows, nextCursor, exhausted: rows.length < PROJECTS_PAGE_SIZE };
+    const sourceRows = data || [];
+    const rows = sourceRows.map(mapProject);
+    // Cursor comes from the raw Supabase row so mapping can never erase the
+    // keyset field. Legacy rows without posted_at intentionally stop paging.
+    const nextCursor = sourceRows.length > 0 ? (sourceRows[sourceRows.length - 1]?.posted_at || null) : null;
+    return { rows, nextCursor, exhausted: sourceRows.length < PROJECTS_PAGE_SIZE };
   };
 
   const fetchProjects = async ({ force = false, background = false } = {}) => {
@@ -24795,7 +24838,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           className={`workspace-body-shell marketplace-body-shell kb-warm-tab-panel ${projectTab === "browse" ? "is-active" : "is-hidden"}`}
           aria-hidden={projectTab !== "browse"}
         >
-          <MemoProjectBoard projects={projects} loading={loading} role={role} currentUser={currentUser} onSelect={safeOpenProjectStable} onPost={goToPostProjectStable} onMyBids={myBidsRouteStable} showToast={showToast} nav={nav} vendorVerified={vendorVerified} myBids={myBids} myActiveProjects={myActiveProjects} loadingMyBids={loadingMyBids} loadingMyProjects={loadingMyProjects} myProjectsFetchError={myProjectsFetchError} onRetryMyProjects={retryMyProjectsStable} onSelectSample={setSelectedSampleStable} projectTab="browse" onTabSwitch={handleTabSwitchStable} loadMoreProjects={loadMoreProjectsStable} hasMoreServerProjects={hasMoreProjects} loadingMoreServerProjects={loadingMoreProjects} onSelectVendorProfile={openVendorProfileStable}/>
+          <MemoProjectBoard projects={projects} loading={loading} role={role} currentUser={currentUser} onSelect={safeOpenProjectStable} onPost={goToPostProjectStable} onMyBids={myBidsRouteStable} showToast={showToast} nav={nav} vendorVerified={vendorVerified} myBids={myBids} myActiveProjects={myActiveProjects} loadingMyBids={loadingMyBids} loadingMyProjects={loadingMyProjects} myProjectsFetchError={myProjectsFetchError} onRetryMyProjects={retryMyProjectsStable} onSelectSample={setSelectedSampleStable} projectTab="browse" onTabSwitch={handleTabSwitchStable} loadMoreProjects={loadMoreProjectsStable} hasMoreServerProjects={hasMoreProjects} loadingMoreServerProjects={loadingMoreProjects} onSelectVendorProfile={openVendorProfileStable} marketplaceDevPreview={marketplaceDevPreview}/>
         </div>
       )}
 
@@ -24804,7 +24847,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           className={`workspace-body-shell marketplace-body-shell kb-warm-tab-panel ${projectTab === "vendors" ? "is-active" : "is-hidden"}`}
           aria-hidden={projectTab !== "vendors"}
         >
-          <MemoVendorMarketplaceFastPanel role={role} currentUser={currentUser} showToast={showToast} nav={nav} onPost={goToPostProjectStable} onTabSwitch={handleTabSwitchStable} onSelectVendorProfile={openVendorProfileStable} contextProjects={myActiveProjects} founderCoverageContext={founderCoverageContext} onClearFounderCoverageContext={()=>setFounderCoverageContext(null)} isActive={projectTab === "vendors"}/>
+          <MemoVendorMarketplaceFastPanel role={role} currentUser={currentUser} showToast={showToast} nav={nav} onPost={goToPostProjectStable} onTabSwitch={handleTabSwitchStable} onSelectVendorProfile={openVendorProfileStable} contextProjects={myActiveProjects} founderCoverageContext={founderCoverageContext} onClearFounderCoverageContext={()=>setFounderCoverageContext(null)} isActive={projectTab === "vendors"} marketplaceDevPreview={marketplaceDevPreview}/>
         </div>
       )}
 
@@ -24868,7 +24911,7 @@ function KBMarketplaceRuntimeStyles() {
 // browse hook stack, then returned AllVendorsLanding at the end to avoid a hook
 // order crash. That made a simple Marketplace ↔ Vendors toggle pay for the
 // entire project board. This panel owns only vendor-directory state/fetching.
-function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast, onSelectVendorProfile, currentUser, contextProjects = [], founderCoverageContext = null, onClearFounderCoverageContext = null, isActive = true }) {
+function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast, onSelectVendorProfile, currentUser, contextProjects = [], founderCoverageContext = null, onClearFounderCoverageContext = null, isActive = true, marketplaceDevPreview = false }) {
   const STORAGE_KEY = KB_STORAGE_KEYS.marketplaceBoardState;
   const readSavedState = useCallback(() => {
     try {
@@ -24922,10 +24965,19 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
   }, [marketplaceVendors.length]);
 
   useEffect(() => {
+    if (marketplaceDevPreview) {
+      setMarketplaceVendors([]);
+      setVendorsLoading(false);
+      return;
+    }
     fetchMarketplaceVendorsFast({ background: true });
-  }, [fetchMarketplaceVendorsFast]);
+  }, [fetchMarketplaceVendorsFast, marketplaceDevPreview]);
 
   useEffect(() => {
+    if (marketplaceDevPreview) {
+      setSavedVendorIds(new Set());
+      return undefined;
+    }
     const userId = String(currentUser?.id || '').trim();
     if (!userId) {
       setSavedVendorIds(new Set());
@@ -24948,11 +25000,12 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
         if (!cancelled) logError('marketplace-saved-vendors-read', error);
       });
     return () => { cancelled = true; };
-  }, [currentUser?.id]);
+  }, [currentUser?.id, marketplaceDevPreview]);
 
 
   useEffect(() => {
     const handleAuthProfileRestored = (event) => {
+      if (marketplaceDevPreview) return;
       const restoredUserId = String(event?.detail?.userId || '').trim();
       const activeUserId = String(currentUser?.id || '').trim();
       if (restoredUserId && activeUserId && restoredUserId !== activeUserId) return;
@@ -24960,7 +25013,7 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
     };
     window.addEventListener('kb:auth-profile-restored', handleAuthProfileRestored);
     return () => window.removeEventListener('kb:auth-profile-restored', handleAuthProfileRestored);
-  }, [currentUser?.id, fetchMarketplaceVendorsFast]);
+  }, [currentUser?.id, fetchMarketplaceVendorsFast, marketplaceDevPreview]);
 
   useEffect(() => {
     try {
@@ -25050,17 +25103,18 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
       onPost={onPost}
       onBack={() => typeof onTabSwitch === 'function' ? onTabSwitch('browse') : null}
       showToast={showToast}
-      onSelectVendor={openVendorProfile}
+      onSelectVendor={marketplaceDevPreview ? null : openVendorProfile}
       vendors={marketplaceVendors}
       vendorsLoading={vendorsLoading}
       savedVendorIds={savedVendorIds}
-      onToggleSave={toggleVendorSave}
+      onToggleSave={marketplaceDevPreview ? null : toggleVendorSave}
       currentUser={currentUser}
       contextProjects={contextProjects}
       founderCoverageContext={founderCoverageContext}
       onClearFounderCoverageContext={onClearFounderCoverageContext}
       surface="church-vendors"
       isActive={isActive}
+      marketplaceDevPreview={marketplaceDevPreview}
     />
   );
 }
@@ -25075,19 +25129,19 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
       <div className="kb-marketplace-project-card__media">
         {image ? <img src={image} alt="" loading={isPreviewCard ? 'eager' : 'lazy'} /> : <span className="kb-marketplace-project-card__image-fallback" aria-hidden="true">FB</span>}
         <span className="kb-marketplace-project-card__category">{categoryLabel}</span>
-        <button
+        {typeof onToggleSave === 'function' ? <button
           type="button"
           className={`kb-marketplace-project-card__save${saved ? ' is-saved' : ''}`}
           aria-label={saved ? `Remove ${title} from saved projects` : `Save ${title}`}
           aria-pressed={saved}
-          onClick={(event) => onToggleSave?.(event)}
+          onClick={(event) => onToggleSave(event)}
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></svg>
-        </button>
+        </button> : null}
         {statusLabel ? <span className={`kb-marketplace-project-card__status${project?.urgent ? ' is-urgent' : ''}`}>{statusLabel}</span> : null}
       </div>
       <div className="kb-marketplace-project-card__body">
-        <button type="button" className="kb-marketplace-project-card__title" onClick={onOpen}>{title}</button>
+        {typeof onOpen === 'function' ? <button type="button" className="kb-marketplace-project-card__title" onClick={onOpen}>{title}</button> : <span className="kb-marketplace-project-card__title">{title}</span>}
         <p className="kb-marketplace-project-card__meta">
           <span>{locationLabel}</span>
           <span aria-hidden="true">·</span>
@@ -25096,7 +25150,7 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
         {description ? <p className="kb-marketplace-project-card__description">{description}</p> : null}
         <div className="kb-marketplace-project-card__footer">
           <div><span>Budget</span><strong>{budgetLabel}</strong></div>
-          <button type="button" className="kb-marketplace-project-card__open" aria-label={`${role === 'vendor' ? 'Open' : 'View'} ${title}`} onClick={onOpen}>→</button>
+          {typeof onOpen === 'function' ? <button type="button" className="kb-marketplace-project-card__open" aria-label={`${role === 'vendor' ? 'Open' : 'View'} ${title}`} onClick={onOpen}>→</button> : <span className="kb-marketplace-project-card__open" aria-hidden="true">→</span>}
         </div>
       </div>
     </article>
@@ -25114,8 +25168,7 @@ function MarketplaceDevPreviewNotice({ view }) {
 }
 
 
-function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, onMyBids, showToast, nav, vendorVerified, myBids, myActiveProjects, loadingMyBids, loadingMyProjects, myProjectsFetchError = false, onRetryMyProjects, onSelectSample, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null}){
-  const marketplaceDevPreview = isMarketplaceDevPreviewEnabled();
+function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, onMyBids, showToast, nav, vendorVerified, myBids, myActiveProjects, loadingMyBids, loadingMyProjects, myProjectsFetchError = false, onRetryMyProjects, onSelectSample, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null, marketplaceDevPreview = false}){
   const marketplaceProjectsLoading = loading && !marketplaceDevPreview;
   const STORAGE_KEY = KB_STORAGE_KEYS.marketplaceBoardState;
   const SCROLL_KEY = KB_STORAGE_KEYS.marketplaceBoardScroll;
@@ -25150,6 +25203,17 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   // Posted (with 30) was the better default.
   const [featuredTheme, setFeaturedTheme] = useState(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  useEffect(() => {
+    if (!marketplaceDevPreview) return;
+    setSearch('');
+    setCatFilter('All');
+    setLocationFilter('All Locations');
+    setBudgetFilter('Budget: Any');
+    setSortBy('best_match');
+    setSavedOnly(false);
+    setUrgentOnly(false);
+    setReviewingOnly(false);
+  }, [marketplaceDevPreview]);
   // UX: collapse density. The marketplace was rendering 7 horizontal bands
   // before the project grid. We move category, location, budget, and the
   // saved/urgent/reviewing toggles behind a single "Filters" sheet, hide
@@ -25298,9 +25362,15 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     } catch {}
   };
 
+  const marketplacePreviewProjects = useMemo(
+    () => KB_MARKETPLACE_DEV_PREVIEW_PROJECTS.map(normalizeProjectEntity).filter(Boolean),
+    []
+  );
   const normalizedProjects = useMemo(
-    () => (marketplaceDevPreview ? KB_MARKETPLACE_DEV_PREVIEW_PROJECTS : (projects || [])).map(normalizeProjectEntity).filter(Boolean),
-    [projects, marketplaceDevPreview]
+    () => marketplaceDevPreview
+      ? marketplacePreviewProjects
+      : (projects || []).map(normalizeProjectEntity).filter(Boolean),
+    [projects, marketplaceDevPreview, marketplacePreviewProjects]
   );
   const openProjects = useMemo(() => normalizedProjects.filter(p => p.status === 'open'), [normalizedProjects]);
   // Set of project IDs the vendor has already bid on — used to show a
@@ -25357,6 +25427,11 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
   useEffect(() => {
     let cancelled = false;
+    if (marketplaceDevPreview) {
+      setMarketplaceVendors([]);
+      setVendorsLoading(false);
+      return () => { cancelled = true; };
+    }
     const fetchMarketplaceVendors = async () => {
       setVendorsLoading(true);
       try {
@@ -25384,7 +25459,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     };
     fetchMarketplaceVendors();
     return () => { cancelled = true; };
-  }, []);
+  }, [marketplaceDevPreview]);
 
   useEffect(() => {
     const syncBoard = (event) => {
@@ -25430,12 +25505,16 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
   const parseBudgetNumber = (value) => {
     if (value == null) return 0;
-    if (typeof value === 'number') return value;
-    const nums = String(value).replace(/,/g, '').match(/\d+(?:\.\d+)?/g);
-    if (!nums || !nums.length) return 0;
-    const values = nums.map(Number).filter(n => Number.isFinite(n));
-    if (!values.length) return 0;
-    return Math.max(...values);
+    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+    const matches = Array.from(String(value).replace(/,/g, '').matchAll(/(\d+(?:\.\d+)?)\s*([kKmM])?/g));
+    if (!matches.length) return 0;
+    const values = matches.map((match) => {
+      const base = Number(match[1]);
+      if (!Number.isFinite(base)) return 0;
+      const suffix = String(match[2] || '').toLowerCase();
+      return suffix === 'm' ? base * 1000000 : suffix === 'k' ? base * 1000 : base;
+    }).filter(n => Number.isFinite(n) && n > 0);
+    return values.length ? Math.max(...values) : 0;
   };
 
   const formatMoneyCompact = (value) => {
@@ -25499,7 +25578,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
   const getProjectLocationLabel = (project) => {
     const city = String(project?.city || '').trim();
-    const state = String(project?.state || project?.region || '').trim();
+    const state = String(project?.project_state || project?.state || project?.region || '').trim();
     if (city && state && !city.toLowerCase().includes(state.toLowerCase())) return `${city}, ${state}`;
     return city || state || 'Remote';
   };
@@ -26357,6 +26436,22 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     return out;
   }, [filteredProjects, visibleCount]);
 
+  // 0955 — One display source drives the streamlined project directory in
+  // both real and preview modes. Preview swaps the source inventory above;
+  // filtering/pagination/card rendering are otherwise identical.
+  const projectDirectoryRows = useMemo(() => {
+    const seen = new Set();
+    const out = [];
+    for (const project of gridProjects) {
+      if (!project) continue;
+      const key = String(project.id ?? project.title ?? out.length);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(project);
+    }
+    return out;
+  }, [gridProjects]);
+
   // Pick a curated cover image based on the project's category/title — keeps
   // the All Projects grid visually consistent with the curated rows above.
   const pickImageForProject = (project, index = 0) => {
@@ -26646,6 +26741,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
         categories={KB_MARKETPLACE_DIRECTORY_CATEGORIES}
         activeCategory={catFilter}
         onCategoryChange={setCatFilter}
+        marketplaceDevPreview={marketplaceDevPreview}
       />
 
       {useStreamlinedProjectDirectory ? (
@@ -26678,14 +26774,14 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                   </span>
                 </div>
                 <div className="kb-marketplace-project-directory__controls">
-                  <button
+                  {!marketplaceDevPreview ? <button
                     type="button"
                     className={`kb-marketplace-project-saved${savedOnly ? ' is-active' : ''}`}
                     aria-pressed={savedOnly}
                     onClick={() => setSavedOnly(value => !value)}
                   >
                     Saved{savedIds.size ? ` (${savedIds.size})` : ''}
-                  </button>
+                  </button> : null}
                   <label className="kb-marketplace-sort">
                     <span>Sort</span>
                     <select aria-label="Sort project briefs" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
@@ -26698,9 +26794,9 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                 </div>
               </div>
 
-              {liveAllProjects.length ? (
+              {projectDirectoryRows.length ? (
                 <div className="kb-marketplace-project-grid">
-                  {liveAllProjects.map((project, index) => {
+                  {projectDirectoryRows.map((project, index) => {
                     const projectId = project?.id == null ? '' : String(project.id);
                     const ageDays = getProjectFreshness(project);
                     const statusLabel = project?.urgent ? 'Urgent' : ageDays != null && ageDays <= 4 ? 'New' : 'Open';
@@ -26714,9 +26810,9 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                         timelineLabel={getProjectTimelineLabel(project)}
                         budgetLabel={formatProjectBudget(project?.budget)}
                         statusLabel={statusLabel}
-                        saved={!!projectId && savedIds.has(projectId)}
-                        onToggleSave={(event) => handleToggleSave(project, event)}
-                        onOpen={() => openProject(project)}
+                        saved={!marketplaceDevPreview && !!projectId && savedIds.has(projectId)}
+                        onToggleSave={marketplaceDevPreview ? undefined : (event) => handleToggleSave(project, event)}
+                        onOpen={marketplaceDevPreview ? undefined : () => openProject(project)}
                         role={role}
                       />
                     );
@@ -31891,34 +31987,33 @@ function MarketplaceVendorDirectoryCard({ vendor, image, categoryLabel, saved = 
       <div className="kb-marketplace-vendor-card__media">
         {image ? <img src={image} alt="" loading={isPreviewCard ? 'eager' : 'lazy'} /> : <span className="kb-marketplace-vendor-card__image-fallback" aria-hidden="true">FB</span>}
         <span className="kb-marketplace-vendor-card__category">{categoryLabel}</span>
-        <button
+        {typeof onToggleSave === 'function' ? <button
           type="button"
           className={`kb-marketplace-vendor-card__save${saved ? ' is-saved' : ''}`}
           aria-label={saved ? `Remove ${vendorName} from saved vendors` : `Save ${vendorName}`}
           aria-pressed={saved}
-          onClick={(event) => onToggleSave?.(event)}
+          onClick={(event) => onToggleSave(event)}
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></svg>
-        </button>
+        </button> : null}
         {faithVerified ? <span className="kb-marketplace-vendor-card__verified"><span aria-hidden="true">✓</span> Faith Verified</span> : null}
       </div>
       <div className="kb-marketplace-vendor-card__body">
-        <button type="button" className="kb-marketplace-vendor-card__title" onClick={onOpen}>{vendorName}</button>
+        {typeof onOpen === 'function' ? <button type="button" className="kb-marketplace-vendor-card__title" onClick={onOpen}>{vendorName}</button> : <span className="kb-marketplace-vendor-card__title">{vendorName}</span>}
         <p className="kb-marketplace-vendor-card__location">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
           {location}
         </p>
         <div className="kb-marketplace-vendor-card__footer">
           <span className={`kb-marketplace-vendor-card__status is-${status?.tone || 'unknown'}`}><span aria-hidden="true" />{status?.label || 'Availability not confirmed'}</span>
-          <button type="button" className="kb-marketplace-vendor-card__open" aria-label={`Open ${vendorName} profile`} onClick={onOpen}>→</button>
+          {typeof onOpen === 'function' ? <button type="button" className="kb-marketplace-vendor-card__open" aria-label={`Open ${vendorName} profile`} onClick={onOpen}>→</button> : <span className="kb-marketplace-vendor-card__open" aria-hidden="true">→</span>}
         </div>
       </div>
     </article>
   );
 }
 
-function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendor, vendors: vendorInput = [], vendorsLoading = false, savedVendorIds: savedVendorIdsProp = new Set(), onToggleSave = null, currentUser = null, contextProjects = [], founderCoverageContext = null, onClearFounderCoverageContext = null, surface = 'default', isActive = true }) {
-  const marketplaceDevPreview = isMarketplaceDevPreviewEnabled();
+function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendor, vendors: vendorInput = [], vendorsLoading = false, savedVendorIds: savedVendorIdsProp = new Set(), onToggleSave = null, currentUser = null, contextProjects = [], founderCoverageContext = null, onClearFounderCoverageContext = null, surface = 'default', isActive = true, marketplaceDevPreview = false }) {
   const directoryLoading = vendorsLoading && !marketplaceDevPreview;
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 180);
@@ -31947,7 +32042,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const viewerHasLocation = marketplaceDevPreview || !!firstNonEmpty(currentUser?.place_id, currentUser?.profile?.place_id, currentUser?.user_metadata?.place_id, '');
   const inviteChurchId = String(currentUser?.id || '').trim();
   const [selectedVendorProjectMirror, setSelectedVendorProjectMirror] = useState(null);
-  const normalizedContextProjects = useMemo(() => safeArray(contextProjects).map(p => normalizeProjectEntity(p)).filter(Boolean), [contextProjects]);
+  const normalizedContextProjects = useMemo(() => marketplaceDevPreview ? [] : safeArray(contextProjects).map(p => normalizeProjectEntity(p)).filter(Boolean), [contextProjects, marketplaceDevPreview]);
   const selectedVendorProjectMirrorId = String(selectedVendorProjectMirror?.projectId || '').trim();
   const storedVendorProjectSelection = useMemo(
     () => selectedVendorProjectMirrorId ? selectedVendorProjectMirror : readSelectedVendorProject(inviteChurchId),
@@ -32066,7 +32161,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
 
   useEffect(() => {
     let cancelled = false;
-    if (!inviteProjectId || !inviteChurchId) {
+    if (marketplaceDevPreview || !inviteProjectId || !inviteChurchId) {
       setGeoFitByVendorId(new Map());
       return () => { cancelled = true; };
     }
@@ -32093,7 +32188,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         }
       });
     return () => { cancelled = true; };
-  }, [inviteProjectId, inviteChurchId]);
+  }, [inviteProjectId, inviteChurchId, marketplaceDevPreview]);
 
   const previewVendorInput = marketplaceDevPreview ? KB_MARKETPLACE_DEV_PREVIEW_VENDORS : vendorInput;
   const { directory: rawVendors } = useMemo(() => getMarketplaceVendorDataset(previewVendorInput), [previewVendorInput]);
@@ -32204,7 +32299,10 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   useEffect(() => { setPage(1); }, [search, category, sortBy]);
 
   useEffect(() => {
-    if (!inviteProjectId || !inviteSignalChurchId) return;
+    if (marketplaceDevPreview || !inviteProjectId || !inviteSignalChurchId) {
+      setInvitedVendorKeys(new Set());
+      return;
+    }
     let cancelled = false;
     supabase
       .from('vendor_invites')
@@ -32218,11 +32316,11 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [inviteProjectId, inviteSignalChurchId]);
+  }, [inviteProjectId, inviteSignalChurchId, marketplaceDevPreview]);
 
   useEffect(() => {
     let cancelled = false;
-    if (!inviteProjectId || !inviteSignalChurchId) {
+    if (marketplaceDevPreview || !inviteProjectId || !inviteSignalChurchId) {
       setVendorPairSignalMaps(makeEmptyVendorPairSignalMaps());
       setVendorPairSignalsLoading(false);
       return () => { cancelled = true; };
@@ -32243,7 +32341,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         }
       });
     return () => { cancelled = true; };
-  }, [inviteProjectId, inviteSignalChurchId, vendorPairSignalRefreshKey]);
+  }, [inviteProjectId, inviteSignalChurchId, vendorPairSignalRefreshKey, marketplaceDevPreview]);
 
   const toggleSave = (vendor, e) => {
     if (e) { e.stopPropagation(); e.preventDefault(); }
@@ -32395,8 +32493,8 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         image={vendorImageFor(vendor, index)}
         categoryLabel={getProjectCardCategoryLabel(vendorProjectShape(vendor), vendor.specialty || vendor.category || 'Vendor')}
         saved={effectiveSavedVendorIds.has(vendorKey)}
-        onToggleSave={(event) => toggleSave(vendor, event)}
-        onOpen={() => handleOpenVendor(vendor)}
+        onToggleSave={marketplaceDevPreview ? undefined : (event) => toggleSave(vendor, event)}
+        onOpen={marketplaceDevPreview ? undefined : () => handleOpenVendor(vendor)}
         status={getVendorDirectoryCardStatus(vendor, index)}
       />
     );
@@ -32810,6 +32908,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
           categories={KB_MARKETPLACE_DIRECTORY_CATEGORIES}
           activeCategory={category}
           onCategoryChange={setCategory}
+          marketplaceDevPreview={marketplaceDevPreview}
           onBrowse={() => {
             if (directoryRef.current && typeof directoryRef.current.scrollIntoView === 'function') {
               directoryRef.current.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -37651,6 +37750,7 @@ export default function App() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [autoPost, setAutoPost] = useState(false);
   const [navSubTab, setNavSubTab] = useState(() => readProjectSubTabFromHash(window.location.hash));
+  const [marketplaceDevPreview, setMarketplaceDevPreview] = useState(() => readMarketplaceDevPreviewFromHash(window.location.hash));
   const [vendorWinModal, setVendorWinModal] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
   const [unreadMsgs, setUnreadMsgs] = useState(0);
@@ -37676,6 +37776,27 @@ export default function App() {
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const syncMarketplacePreviewRoute = () => {
+      const hash = String(window.location.hash || '');
+      const nextPreview = readMarketplaceDevPreviewFromHash(hash);
+      setMarketplaceDevPreview(nextPreview);
+      if (!nextPreview) return;
+      const target = readAppScreenFromHash(hash, null);
+      if (target !== 'projects') return;
+      const targetSubTab = readProjectSubTabFromHash(hash) || 'browse';
+      setScreen('projects');
+      setNavSubTab(targetSubTab);
+      setAutoPost(false);
+      try { document.dispatchEvent(new CustomEvent('kb:marketplace-reset-surface')); } catch {}
+    };
+    // Important for Vite Fast Refresh: the URL may already contain the preview
+    // query before this build is installed, so synchronize immediately.
+    syncMarketplacePreviewRoute();
+    window.addEventListener('hashchange', syncMarketplacePreviewRoute);
+    return () => window.removeEventListener('hashchange', syncMarketplacePreviewRoute);
   }, []);
   const persistenceHydratedFor = React.useRef(null);
   const screenRef = React.useRef(screen);
@@ -38527,7 +38648,7 @@ export default function App() {
       if (!currentUser) { savePostAuthTarget({ screen:"projects", navSubTab:NAV_SUBTAB[navTarget], autoPost:false }); setAuthDefaultRole(NAV_SUBTAB[navTarget] === "work" ? "vendor" : "church"); setScreen("auth"); try { window.location.hash = "auth"; } catch {} closeNavChrome(); return; }
       setScreen("projects");
       setNavSubTab(NAV_SUBTAB[navTarget]);
-      try { window.location.hash = getProjectSubTabRoute(NAV_SUBTAB[navTarget]); } catch {}
+      try { window.location.hash = `${getProjectSubTabRoute(NAV_SUBTAB[navTarget])}${getMarketplaceDevPreviewHashSuffix(marketplaceDevPreview)}`; } catch {}
       // 852am: switching top-level Marketplace/My Projects/My Work CTAs must
       // clear any stale detail/vendor/chat-return surface without touching data.
       try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch {}
@@ -38549,22 +38670,21 @@ export default function App() {
     setScreen(target);
     const marketplaceDefaultSubTab = (role === "church" || role === "individual") ? "vendors" : "browse";
     const nextSubTab = target === "projects" ? marketplaceDefaultSubTab : null;
-    try { window.location.hash = target === "projects" ? getProjectSubTabRoute(nextSubTab) : target; } catch {}
+    try { window.location.hash = target === "projects" ? `${getProjectSubTabRoute(nextSubTab)}${getMarketplaceDevPreviewHashSuffix(marketplaceDevPreview)}` : target; } catch {}
     setNavSubTab(nextSubTab);
     if (target === "projects") {
       try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch {}
     }
     closeNavChrome();
-  }, [closeNavChrome, currentUser, userProfile, startFreeDefaultRole, authReady, marketplaceGateLoaded, screen, marketplacePublic, privateMarketplaceAccess]);
+  }, [closeNavChrome, currentUser, userProfile, role, startFreeDefaultRole, authReady, marketplaceGateLoaded, screen, marketplacePublic, privateMarketplaceAccess, marketplaceDevPreview]);
 
   const handleMarketplaceSubTabChange = React.useCallback((nextSubTab) => {
     const normalizedSubTab = nextSubTab || null;
     setNavSubTab(normalizedSubTab);
     try {
-      const previewQuery = isMarketplaceDevPreviewEnabled() ? "?preview=marketplace" : "";
-      window.location.hash = `${getProjectSubTabRoute(normalizedSubTab)}${previewQuery}`;
+      window.location.hash = `${getProjectSubTabRoute(normalizedSubTab)}${getMarketplaceDevPreviewHashSuffix(marketplaceDevPreview)}`;
     } catch {}
-  }, []);
+  }, [marketplaceDevPreview]);
 
   useEffect(() => {
     // location.hash writes made by nav() already update React state directly.
@@ -38573,6 +38693,7 @@ export default function App() {
     const onRouteHistoryNavigation = () => {
       const target = readAppScreenFromHash(window.location.hash, null);
       const targetSubTab = readProjectSubTabFromHash(window.location.hash);
+      setMarketplaceDevPreview(readMarketplaceDevPreviewFromHash(window.location.hash));
       // Ignore in-page anchors such as #kb-main-content rather than treating
       // them as application routes.
       if (!target || (target === screenRef.current && targetSubTab === navSubTabRef.current)) return;
@@ -39324,7 +39445,7 @@ export default function App() {
             </div>
           </div>
         )}
-        {(screen==="projects" && marketplaceWorkspaceReady) && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Marketplace...</div>}><ProjectsScreen role={role} currentUser={currentUser} showToast={showToast} nav={nav} initialView={autoPost?"post":"board"} onMounted={()=>setAutoPost(false)} navSubTab={navSubTab} onSubTabChange={handleMarketplaceSubTabChange} forceProjectTab={null} privateMarketplaceAccess={privateMarketplaceAccess} isAdmin={isAdmin} dependencies={getProjectsScreenDependencies()}/></React.Suspense>}
+        {(screen==="projects" && marketplaceWorkspaceReady) && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Marketplace...</div>}><ProjectsScreen role={role} currentUser={currentUser} showToast={showToast} nav={nav} initialView={autoPost?"post":"board"} onMounted={()=>setAutoPost(false)} navSubTab={navSubTab} onSubTabChange={handleMarketplaceSubTabChange} forceProjectTab={null} privateMarketplaceAccess={privateMarketplaceAccess} isAdmin={isAdmin} marketplaceDevPreview={marketplaceDevPreview} dependencies={getProjectsScreenDependencies()}/></React.Suspense>}
         {(screen==="inbox"||screen==="messages")   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Deal Rooms...</div>}><MessagesScreen role={role} currentUser={currentUser} nav={nav} normalizeProjectEntity={normalizeProjectEntity} mergeProjectWorkspaceSnapshots={mergeProjectWorkspaceSnapshots} isWorkspaceAffectingMessageText={isWorkspaceAffectingMessageText} fetchLatestProjectWorkspaceSync={fetchLatestProjectWorkspaceSync} getPendingInboxTarget={getPendingInboxTarget} clearPendingInboxTarget={clearPendingInboxTarget} setPendingProjectTarget={setPendingProjectTarget} onClearUnreadBadge={()=>setUnreadMsgs(0)} dependencies={getMessagesScreenDependencies()}/></React.Suspense>}
         {screen==="compare"   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Compare Workspace...</div>}><CompareWorkspaceScreen nav={nav} role={role} showToast={showToast} currentUser={currentUser} dependencies={getWorkspaceScreenDependencies()} /></React.Suspense>}
         {screen==="saved-projects" && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Saved Projects...</div>}><SavedProjectsScreen nav={nav} role={role} currentUser={currentUser} showToast={showToast} dependencies={getProjectsScreenDependencies()} /></React.Suspense>}
@@ -42156,6 +42277,77 @@ function LandingExampleReveal() {
   );
 }
 
+const LANDING_PRECISION_POLISH_CSS = `
+/* 0953 — Landing V2 precision polish. Route-scoped; no Marketplace behavior changes. */
+.fb-landing-v2{
+  --fb-landing-ivory:#f8f4ec;
+  --fb-landing-paper:#fffdf9;
+  --fb-landing-ink:#17352b;
+  --fb-landing-muted:#635f57;
+  --fb-landing-line:rgba(23,53,43,.13);
+  --fb-landing-gold:#a9843f;
+}
+.fb-landing-v2 .fb-landing-hero{min-height:clamp(610px,78svh,760px);background-color:#e9dfcc;}
+.fb-landing-v2 .fb-landing-hero::before{
+  background:
+    radial-gradient(ellipse 48% 47% at 50% 43%,rgba(251,248,240,.64) 0%,rgba(251,248,240,.46) 34%,rgba(251,248,240,.16) 66%,rgba(251,248,240,0) 100%),
+    linear-gradient(180deg,rgba(16,35,28,.02) 0%,rgba(16,35,28,0) 58%,rgba(16,35,28,.08) 100%);
+}
+.fb-landing-v2 .fb-landing-hero-body{min-height:clamp(610px,78svh,760px);justify-content:center;padding:110px 28px 62px;}
+.fb-landing-v2 .fb-landing-hero-mark{margin-bottom:12px;}
+.fb-landing-v2 .fb-landing-hero-lockup{width:clamp(166px,15.5vw,236px);max-width:236px;opacity:.93;filter:contrast(.93) saturate(.9);}
+.fb-landing-v2 .fb-landing-title{font-size:clamp(48px,4.55vw,72px);line-height:.98;letter-spacing:-.035em;margin-bottom:14px;text-wrap:balance;}
+.fb-landing-v2 .fb-landing-subtitle{width:min(760px,92vw);max-width:760px;font-size:clamp(15px,1.18vw,18px);line-height:1.65;color:rgba(31,42,36,.79);text-wrap:balance;margin-bottom:22px;}
+.fb-landing-v2 .fb-landing-ctas{gap:12px;}
+.fb-landing-v2 .fb-landing-cta{min-height:52px;padding-inline:24px;border-radius:11px;transition:transform .16s ease,box-shadow .16s ease,background-color .16s ease,border-color .16s ease;}
+.fb-landing-v2 .fb-landing-cta:hover{transform:translateY(-1px);}
+.fb-landing-v2 .fb-landing-cta-primary:hover{box-shadow:0 10px 22px rgba(23,53,43,.16);}
+.fb-landing-v2 .fb-landing-cta-secondary{background:rgba(255,253,249,.74);border-color:rgba(23,53,43,.48);color:#17352b;box-shadow:0 4px 12px rgba(23,53,43,.035);}
+.fb-landing-v2 .fb-landing-cta-secondary:hover{background:rgba(255,253,249,.94);border-color:rgba(23,53,43,.72);box-shadow:0 8px 18px rgba(23,53,43,.08);}
+.fb-landing-v2 .fb-landing-scroll{width:auto;min-width:44px;min-height:44px;margin-top:13px;padding:7px 12px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:999px;color:#7e5e28;}
+.fb-landing-v2 .fb-landing-scroll > em{font:650 10px/1 var(--font-sans),sans-serif;font-style:normal;letter-spacing:.08em;text-transform:uppercase;opacity:.82;}
+.fb-landing-v2 .fb-how-it-works{position:relative;background:var(--fb-landing-ivory);border-top:0;padding:44px 28px 54px;}
+.fb-landing-v2 .fb-how-it-works-inner{width:min(1180px,100%);margin:0 auto;}
+.fb-landing-v2 .fb-how-it-works h2{margin:0 0 24px;font-size:clamp(34px,3.1vw,48px);line-height:1;letter-spacing:-.025em;}
+.fb-landing-v2 .fb-how-it-works-grid{gap:clamp(28px,4.6vw,72px);align-items:start;}
+.fb-landing-v2 .fb-how-step{padding:0 clamp(4px,1vw,12px);}
+.fb-landing-v2 .fb-how-step-number{margin-bottom:8px;font-size:11px;letter-spacing:.05em;color:#8a6b34;font-weight:750;}
+.fb-landing-v2 .fb-how-step-icon{width:38px;height:38px;margin:0 auto 10px;transform:scale(1.08);transform-origin:center;}
+.fb-landing-v2 .fb-how-step h3{margin:0 0 6px;font-size:clamp(17px,1.4vw,21px);line-height:1.2;}
+.fb-landing-v2 .fb-how-step p{max-width:330px;margin:0 auto;font-size:13.5px;line-height:1.58;color:rgba(53,52,48,.68);}
+.fb-landing-v2 .fb-example-reveal{padding-top:68px;}
+.fb-landing-v2 .fb-example-reveal__head{margin-bottom:32px;}
+.fb-landing-v2 button:focus-visible,.fb-landing-v2 a:focus-visible,.fb-landing-v2 [tabindex="0"]:focus-visible{outline:3px solid rgba(169,132,63,.48);outline-offset:3px;}
+@media (max-width:900px){
+  .fb-landing-v2 .fb-landing-hero{min-height:92svh;}
+  .fb-landing-v2 .fb-landing-hero-body{min-height:92svh;padding:96px 22px 42px!important;}
+  .fb-landing-v2 .fb-landing-title{font-size:clamp(42px,8.4vw,58px);max-width:12ch;}
+  .fb-landing-v2 .fb-landing-subtitle{width:min(620px,92vw);font-size:15px;line-height:1.62;}
+  .fb-landing-v2 .fb-how-it-works{padding:40px 22px 46px;}
+  .fb-landing-v2 .fb-how-it-works-grid{gap:28px;}
+}
+@media (max-width:600px){
+  .fb-landing-v2 .fb-landing-hero{min-height:100svh;}
+  .fb-landing-v2 .fb-landing-hero-body{min-height:100svh;padding:92px 16px 34px!important;}
+  .fb-landing-v2 .fb-landing-hero-lockup{width:156px;}
+  .fb-landing-v2 .fb-landing-title{font-size:clamp(39px,12vw,52px);line-height:1;max-width:10.5ch;}
+  .fb-landing-v2 .fb-landing-subtitle{max-width:34ch;font-size:14.5px;}
+  .fb-landing-v2 .fb-landing-ctas{width:min(100%,360px);display:grid;grid-template-columns:1fr;gap:10px;}
+  .fb-landing-v2 .fb-landing-cta{width:100%;min-height:48px;justify-content:center;}
+  .fb-landing-v2 .fb-landing-scroll > em{display:none;}
+  .fb-landing-v2 .fb-how-it-works{padding:34px 18px 40px;}
+  .fb-landing-v2 .fb-how-it-works h2{margin-bottom:24px;}
+  .fb-landing-v2 .fb-how-it-works-grid{grid-template-columns:1fr!important;gap:24px;}
+  .fb-landing-v2 .fb-how-step{max-width:360px;margin:0 auto;}
+  .fb-landing-v2 .fb-how-step-icon{margin-bottom:8px;}
+  .fb-landing-v2 .fb-example-reveal{padding-top:54px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .fb-landing-v2 .fb-landing-cta{transition:none!important;}
+  .fb-landing-v2 .fb-landing-cta:hover{transform:none;}
+}
+`;
+
 function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, telemetryEnabled = false}){
   const [stats, setStats] = useState({ churches:0, vendors:0, projects:0, founding:0, rating:null, reviewCount:0, loaded:false });
 
@@ -42272,6 +42464,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
   return (
     <div className="fb-landing-v2">
+      <style>{LANDING_PRECISION_POLISH_CSS}</style>
       <section className="land-hero fb-landing-hero" aria-labelledby="faithbid-landing-title">
         <nav className="land-nav fb-landing-nav" aria-label="FaithBid home navigation">
           <button type="button" className="fb-landing-nav-brand" onClick={()=>nav("landing")} aria-label="FaithBid home">
@@ -42300,7 +42493,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
             <button type="button" className="fb-landing-cta fb-landing-cta-primary" onClick={()=>enterAccessFlow("church")}><span>{LAUNCHED ? "For Churches" : "Request Church Access"}</span><span aria-hidden="true">→</span></button>
             <button type="button" className="fb-landing-cta fb-landing-cta-secondary" onClick={()=>enterAccessFlow("vendor")}><span>{LAUNCHED ? "For Vendors" : "Apply as a Vendor"}</span><span aria-hidden="true">→</span></button>
           </div>
-          <button type="button" className="fb-landing-scroll" onClick={scrollToHowItWorks} aria-label="Learn how FaithBid works"><span aria-hidden="true"/></button>
+          <button type="button" className="fb-landing-scroll" onClick={scrollToHowItWorks} aria-label="Learn how FaithBid works"><em>See how it works</em><span aria-hidden="true"/></button>
         </div>
       </section>
 
@@ -42446,8 +42639,8 @@ function LandingChurchTrustStrip() {
 
 function FirstSessionTrustRail() {
   const items = [
-    { num: "01", icon: "brief", title: "Post your need", body: "Tell us what your church needs, including the scope, timing, budget, and context." },
-    { num: "02", icon: "people", title: "Meet trusted vendors", body: "Review aligned professionals, proposals, references, and the details that matter." },
+    { num: "01", icon: "brief", title: "Post your need", body: "Share the work, timing, budget, and context." },
+    { num: "02", icon: "people", title: "Meet trusted vendors", body: "Review aligned professionals, proposals, references, and trust signals." },
     { num: "03", icon: "handshake", title: "Move forward confidently", body: "Compare, communicate, choose, and keep the work organized through handoff." },
   ];
   return (
@@ -45665,6 +45858,7 @@ function MarketplaceCategoryGlyph({ index = 0 }) {
 function MarketplaceV2Header({
   view = 'vendors',
   isVendor = false,
+  marketplaceDevPreview = false,
   onPost,
   onVendors,
   onProjects,
@@ -45678,8 +45872,8 @@ function MarketplaceV2Header({
   const isProjects = view === 'projects';
   const title = isProjects ? 'Find work that fits your trade.' : 'What does your church need?';
   const support = isProjects
-    ? 'Browse real ministry needs and respond where your work is a strong fit.'
-    : 'Find trusted Christian professionals and businesses who understand your mission.';
+    ? (marketplaceDevPreview ? 'Illustrative project briefs for layout review — nothing here is live inventory.' : 'Browse real ministry needs and respond where your work is a strong fit.')
+    : (marketplaceDevPreview ? 'Illustrative vendor cards for layout review — nothing here is live inventory.' : 'Find trusted Christian professionals and businesses who understand your mission.');
   const actionLabel = isVendor ? 'My Work' : 'Post a Project';
   const actionHandler = isVendor ? onVendorWorkspace : onPost;
   const searchRef = useRef(null);
@@ -45721,12 +45915,12 @@ function MarketplaceV2Header({
   );
 }
 
-function ChurchMarketplaceHero({ onPost, onChurchProjects, search, onSearchChange, categories, activeCategory, onCategoryChange, isVendor = false, onVendorWorkspace }) {
-  return <MarketplaceV2Header view="vendors" isVendor={isVendor} onPost={onPost} onVendors={()=>{}} onProjects={onChurchProjects} onVendorWorkspace={onVendorWorkspace} search={search} onSearchChange={onSearchChange} categories={categories} activeCategory={activeCategory} onCategoryChange={onCategoryChange}/>;
+function ChurchMarketplaceHero({ onPost, onChurchProjects, search, onSearchChange, categories, activeCategory, onCategoryChange, isVendor = false, onVendorWorkspace, marketplaceDevPreview = false }) {
+  return <MarketplaceV2Header view="vendors" isVendor={isVendor} marketplaceDevPreview={marketplaceDevPreview} onPost={onPost} onVendors={()=>{}} onProjects={onChurchProjects} onVendorWorkspace={onVendorWorkspace} search={search} onSearchChange={onSearchChange} categories={categories} activeCategory={activeCategory} onCategoryChange={onCategoryChange}/>;
 }
 
-function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors, onBrowseProjects, onMyWork, search, onSearchChange, categories, activeCategory, onCategoryChange }) {
-  return <MarketplaceV2Header view="projects" isVendor={isVendor} onPost={onPost} onVendors={onFindVendors} onProjects={onBrowseProjects} onVendorWorkspace={onMyWork} search={search} onSearchChange={onSearchChange} categories={categories} activeCategory={activeCategory} onCategoryChange={onCategoryChange}/>;
+function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors, onBrowseProjects, onMyWork, search, onSearchChange, categories, activeCategory, onCategoryChange, marketplaceDevPreview = false }) {
+  return <MarketplaceV2Header view="projects" isVendor={isVendor} marketplaceDevPreview={marketplaceDevPreview} onPost={onPost} onVendors={onFindVendors} onProjects={onBrowseProjects} onVendorWorkspace={onMyWork} search={search} onSearchChange={onSearchChange} categories={categories} activeCategory={activeCategory} onCategoryChange={onCategoryChange}/>;
 }
 
 // v63 — lightweight remote category image presets.
