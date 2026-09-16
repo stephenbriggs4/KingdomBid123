@@ -905,81 +905,70 @@ html body .fb-final-access-v2 {
 .fb-example-reveal__head p { margin: 0; color: #66736e; font-size: 14px; line-height: 1.7; }
 
 .fb-product-peek {
-  margin: 0;
-  overflow: hidden;
-  border: 1px solid rgba(27,54,44,.14);
-  border-radius: 24px;
-  background: #f4f0e8;
-  box-shadow: 0 30px 80px rgba(28,46,38,.14), 0 4px 16px rgba(28,46,38,.06);
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity .55s ease, transform .55s ease;
+  width: min(880px,calc(100% - 360px));
+  margin: 0 auto;
+  overflow: visible;
 }
-.fb-example-reveal.is-revealed .fb-product-peek { opacity: 1; transform: translateY(0); }
-.fb-product-peek__chrome { position: relative; display: flex; align-items: center; gap: 7px; height: 42px; padding: 0 16px; border-bottom: 1px solid rgba(27,54,44,.11); background: #eeeae2; color: #778079; }
-.fb-product-peek__chrome > span { width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; background: #c7bfb2; }
-.fb-product-peek__chrome > span:first-child { background: #b58065; }
-.fb-product-peek__chrome > span:nth-child(2) { background: #c5a45a; }
-.fb-product-peek__chrome > span:nth-child(3) { background: #71927f; }
-.fb-product-peek__chrome > div { position: absolute; left: 50%; width: min(360px,42%); padding: 6px 16px; transform: translateX(-50%); border: 1px solid rgba(27,54,44,.09); border-radius: 999px; background: rgba(255,255,255,.72); font: 600 9px/1 var(--font-sans),sans-serif; letter-spacing: .02em; text-align: center; }
-.fb-product-peek__chrome > strong { margin-left: auto; color: #80642d; font: 800 8px/1 var(--font-sans),sans-serif; letter-spacing: .14em; text-transform: uppercase; }
-.fb-product-peek__app { overflow: hidden; background: #f5f1e9; }
-.fb-product-peek__nav { display: grid; grid-template-columns: 150px 1fr 150px; align-items: center; min-height: 58px; padding: 0 24px; border-bottom: 1px solid rgba(28,40,32,.1); background: rgba(255,255,255,.94); color: #3e4842; }
-.fb-product-peek__brand { color: #143a30; font: 600 25px/1 var(--font-display),Georgia,serif; letter-spacing: -.04em; }
-.fb-product-peek__nav > div { display: flex; justify-content: center; gap: clamp(14px,2.2vw,30px); font: 650 10px/1 var(--font-sans),sans-serif; }
-.fb-product-peek__nav > div b { position: relative; color: #173f33; }
-.fb-product-peek__nav > div b::after { content: ""; position: absolute; right: 0; bottom: -20px; left: 0; height: 2px; background: #a98237; }
-.fb-product-peek__account { justify-self: end; font: 700 9px/1 var(--font-sans),sans-serif; }
-.fb-product-peek__hero { position: relative; min-height: 250px; padding: 38px 9% 30px; overflow: hidden; text-align: center; background: linear-gradient(90deg,rgba(255,253,248,.96),rgba(255,250,241,.78)), url('/images/faithbid-marketplace-church-v2.png') center 56%/cover no-repeat; }
-.fb-product-peek__mode { position: absolute; top: 18px; right: 22px; display: flex; padding: 3px; border: 1px solid rgba(24,61,49,.12); border-radius: 999px; background: rgba(255,255,255,.82); box-shadow: 0 8px 22px rgba(30,48,40,.08); }
-.fb-product-peek__mode button { min-width: 70px; padding: 8px 13px; border: 0; border-radius: 999px; background: transparent; color: #5e6761; font: 800 9px/1 var(--font-sans),sans-serif; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
-.fb-product-peek__mode button.is-active { background: #174b3b; color: #fff; box-shadow: 0 5px 14px rgba(18,55,45,.16); }
-.fb-product-peek__mode button:focus-visible { outline: 3px solid rgba(165,125,49,.42); outline-offset: 3px; }
-.fb-product-peek__eyebrow { margin: 10px 0 12px; color: #9a7228; font: 800 9px/1 var(--font-sans),sans-serif; letter-spacing: .24em; text-transform: uppercase; }
-.fb-product-peek__hero h3 { margin: 0; color: #123a2f; font: 500 clamp(30px,4vw,50px)/1.02 var(--font-display),Georgia,serif; letter-spacing: -.035em; }
-.fb-product-peek__hero > p { margin: 10px auto 17px; color: #5f6b66; font: 500 12px/1.5 var(--font-sans),sans-serif; }
-.fb-product-peek__search { display: grid; grid-template-columns: 30px 1fr auto 112px; align-items: center; width: min(760px,100%); height: 56px; margin: 0 auto; padding: 4px 4px 4px 16px; overflow: hidden; border: 1px solid rgba(25,61,49,.2); border-radius: 12px; background: rgba(255,255,255,.94); box-shadow: 0 10px 30px rgba(26,45,37,.1); color: #25473c; text-align: left; }
-.fb-product-peek__search span { font: 600 24px/1 var(--font-display),Georgia,serif; transform: rotate(-20deg); }
-.fb-product-peek__search em { overflow: hidden; color: #8a918d; font: 500 11px/1 var(--font-sans),sans-serif; text-overflow: ellipsis; white-space: nowrap; }
-.fb-product-peek__search i { padding: 0 18px; border-left: 1px solid rgba(28,40,32,.11); color: #56615b; font: 700 10px/32px var(--font-sans),sans-serif; font-style: normal; white-space: nowrap; }
-.fb-product-peek__search b { align-self: stretch; display: grid; place-items: center; border-radius: 9px; background: #174b3b; color: #fff; font: 750 10px/1 var(--font-sans),sans-serif; }
-.fb-product-peek__categories { display: grid; grid-template-columns: repeat(8,minmax(0,1fr)); min-height: 64px; overflow: hidden; border-top: 1px solid rgba(28,40,32,.06); border-bottom: 1px solid rgba(28,40,32,.1); background: #fff; }
-.fb-product-peek__categories span { position: relative; display: grid; place-items: center; padding: 0 6px; border-right: 1px solid rgba(28,40,32,.07); color: #59645e; font: 700 9px/1.2 var(--font-sans),sans-serif; text-align: center; }
-.fb-product-peek__categories span.is-active { color: #174b3b; }
-.fb-product-peek__categories span.is-active::after { content: ""; position: absolute; right: 17%; bottom: 0; left: 17%; height: 2px; background: #a98237; }
-.fb-product-peek__results { padding: 32px clamp(24px,4vw,54px) 42px; }
-.fb-product-peek__results-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
-.fb-product-peek__results-head small { display: block; margin-bottom: 7px; color: #9a7228; font: 800 8px/1 var(--font-sans),sans-serif; letter-spacing: .2em; text-transform: uppercase; }
-.fb-product-peek__results-head h4 { margin: 0; color: #173f33; font: 500 clamp(25px,3vw,38px)/1 var(--font-display),Georgia,serif; letter-spacing: -.035em; }
-.fb-product-peek__segments { display: flex; align-items: center; gap: 4px; padding: 3px; border: 1px solid rgba(28,40,32,.09); border-radius: 999px; background: #fff; font: 750 8px/1 var(--font-sans),sans-serif; }
-.fb-product-peek__segments b,.fb-product-peek__segments span { padding: 9px 12px; border-radius: 999px; }
-.fb-product-peek__segments b { background: #174b3b; color: #fff; }
-.fb-product-peek__segments span { color: #778078; }
-.fb-product-peek__segments i { display: grid; place-items: center; width: 29px; height: 29px; border: 1px solid rgba(28,40,32,.1); border-radius: 50%; color: #174b3b; font: 700 12px/1 var(--font-sans),sans-serif; font-style: normal; }
-.fb-product-peek__cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; max-width: 850px; }
-.fb-product-peek__cards .kb-marketplace-vendor-card,
-.fb-product-peek__cards .kb-marketplace-project-card { border-radius: 14px; pointer-events: none; box-shadow: 0 10px 26px rgba(32,41,35,.08); }
-.fb-product-peek__cards .kb-marketplace-vendor-card:hover,
-.fb-product-peek__cards .kb-marketplace-project-card:hover { transform: none; }
-.fb-product-peek__cards .kb-marketplace-vendor-card__media,
-.fb-product-peek__cards .kb-marketplace-project-card__media { aspect-ratio: 2.15/1; }
-.fb-product-peek__cards .kb-marketplace-vendor-card__body,
-.fb-product-peek__cards .kb-marketplace-project-card__body { padding: 13px 14px 12px; }
-.fb-product-peek__cards .kb-marketplace-vendor-card__title,
-.fb-product-peek__cards .kb-marketplace-project-card__title { min-height: 0; font-size: 18px; }
-.fb-product-peek__cards .kb-marketplace-project-card__description { min-height: 36px; margin-top: 8px; font-size: 10px; }
-.fb-product-peek__cards .kb-marketplace-project-card__footer { min-height: 42px; margin-top: 9px; padding-top: 9px; }
-.fb-product-peek__cards .kb-marketplace-project-card__footer strong { font-size: 13px; }
-.fb-product-peek__cards .kb-marketplace-project-card__meta { margin-top: 6px; font-size: 9px; }
+.fb-product-peek figcaption { display: table; margin: 0 auto 42px; padding: 10px 16px; border: 1px solid rgba(138,101,40,.24); border-radius: 999px; background: #f4ecdf; color: #203d34; font: 750 11px/1.25 var(--font-sans),sans-serif; letter-spacing: .01em; text-align: center; }
+.fb-product-peek__cards { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; padding-bottom: 64px; }
+.fb-product-peek__card-wrap { position: relative; min-width: 0; }
+.fb-product-peek__cards .kb-marketplace-vendor-card { height: 100%; overflow: hidden; border: 1px solid rgba(23,63,51,.11); border-radius: 13px; background: #fff; box-shadow: 0 16px 38px rgba(32,41,35,.10); transition: box-shadow .25s ease, transform .25s ease; }
+.fb-product-peek__cards .kb-marketplace-vendor-card:hover { transform: none; }
+.fb-product-peek__cards .kb-marketplace-vendor-card:focus-visible,
+.fb-product-peek__callout:focus-visible { outline: 3px solid rgba(138,101,40,.52); outline-offset: 4px; }
+.fb-product-peek__cards .kb-marketplace-vendor-card__media { aspect-ratio: 1.9/1; }
+.fb-product-peek__cards .kb-marketplace-vendor-card__media img { filter: saturate(.82) contrast(.96); }
+.fb-product-peek__cards .kb-marketplace-vendor-card__body { padding: 13px 14px 12px; }
+.fb-product-peek__cards .kb-marketplace-vendor-card__title { min-height: 0; font-size: 18px; line-height: 1.08; }
 .fb-product-peek__cards .kb-marketplace-vendor-card__location { margin: 7px 0 10px; }
-.fb-product-peek__cards .kb-marketplace-vendor-card__footer { padding-top: 9px; }
-.fb-product-peek figcaption { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 54px; padding: 12px 24px; border-top: 1px solid rgba(27,54,44,.1); background: #fff; color: #68736d; font: 600 10px/1.45 var(--font-sans),sans-serif; }
-.fb-product-peek figcaption > div { display: flex; align-items: center; gap: 22px; }
-.fb-product-peek figcaption b { position: relative; color: #24483c; font-weight: 750; }
-.fb-product-peek figcaption b::before { content: "✓"; margin-right: 6px; color: #9a7228; }
+.fb-product-peek__cards .kb-marketplace-vendor-card__footer { min-height: 37px; padding-top: 9px; }
+.fb-product-peek__service-line { min-height: 26px; margin: 0 0 8px; color: #64716b; font: 550 9.5px/1.4 var(--font-sans),sans-serif; }
+.fb-product-peek__review { display: flex; align-items: center; gap: 7px; min-height: 20px; margin: -1px 0 7px; color: #6d756f; font: 650 8.5px/1.2 var(--font-sans),sans-serif; }
+.fb-product-peek__review span { color: #8a6528; font-size: 14px; line-height: 1; }
+.fb-product-peek__review b { font-weight: 700; }
+.fb-product-peek__callout { position: absolute; z-index: 2; color: #2d433a; font: 750 12px/1.45 var(--font-sans),sans-serif; transition: color .2s ease, transform .2s ease; }
+.fb-product-peek__callout > span { position: absolute; display: block; background: #8a6528; transform-origin: center; transition: background .2s ease, transform .2s ease; }
+.fb-product-peek__callout::after { content: ""; position: absolute; width: 7px; height: 7px; border: 2px solid #fffdf8; border-radius: 50%; background: #8a6528; box-shadow: 0 0 0 1px #8a6528; transition: background .2s ease, box-shadow .2s ease, transform .2s ease; }
+.fb-product-peek__card-wrap.is-vetting .fb-product-peek__callout { top: 112px; right: calc(100% + 26px); width: 150px; text-align: right; }
+.fb-product-peek__card-wrap.is-vetting .fb-product-peek__callout > span { top: 17px; right: -21px; width: 17px; height: 1px; }
+.fb-product-peek__card-wrap.is-vetting .fb-product-peek__callout::after { top: 14px; right: -27px; }
+.fb-product-peek__card-wrap.is-availability .fb-product-peek__callout { top: calc(100% + 22px); left: 50%; width: 230px; transform: translateX(-50%); text-align: center; }
+.fb-product-peek__card-wrap.is-availability .fb-product-peek__callout > span { top: -18px; left: 50%; width: 1px; height: 13px; }
+.fb-product-peek__card-wrap.is-availability .fb-product-peek__callout::after { top: -23px; left: calc(50% - 3px); }
+.fb-product-peek__card-wrap.is-reviews .fb-product-peek__callout { top: 214px; left: calc(100% + 26px); width: 150px; }
+.fb-product-peek__card-wrap.is-reviews .fb-product-peek__callout > span { top: 17px; left: -21px; width: 17px; height: 1px; }
+.fb-product-peek__card-wrap.is-reviews .fb-product-peek__callout::after { top: 14px; left: -27px; }
+.fb-product-peek__card-wrap.is-vetting .kb-marketplace-vendor-card__verified,
+.fb-product-peek__card-wrap.is-availability .kb-marketplace-vendor-card__status,
+.fb-product-peek__card-wrap.is-reviews .fb-product-peek__review { box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(138,101,40,.28); transition: box-shadow .2s ease, transform .2s ease; }
+.fb-product-peek__card-wrap:hover .kb-marketplace-vendor-card,
+.fb-product-peek__card-wrap:focus-within .kb-marketplace-vendor-card { transform: translateY(-4px); box-shadow: 0 22px 48px rgba(32,41,35,.15); }
+.fb-product-peek__card-wrap:hover .fb-product-peek__callout,
+.fb-product-peek__card-wrap:focus-within .fb-product-peek__callout { color: #173f33; }
+.fb-product-peek__card-wrap:hover .fb-product-peek__callout > span,
+.fb-product-peek__card-wrap:focus-within .fb-product-peek__callout > span { background: #173f33; transform: scaleX(1.12); }
+.fb-product-peek__card-wrap:hover .fb-product-peek__callout::after,
+.fb-product-peek__card-wrap:focus-within .fb-product-peek__callout::after { background: #173f33; box-shadow: 0 0 0 1px #173f33; transform: scale(1.18); }
+.fb-product-peek__card-wrap:hover.is-vetting .kb-marketplace-vendor-card__verified,
+.fb-product-peek__card-wrap:focus-within.is-vetting .kb-marketplace-vendor-card__verified,
+.fb-product-peek__card-wrap:hover.is-availability .kb-marketplace-vendor-card__status,
+.fb-product-peek__card-wrap:focus-within.is-availability .kb-marketplace-vendor-card__status,
+.fb-product-peek__card-wrap:hover.is-reviews .fb-product-peek__review,
+.fb-product-peek__card-wrap:focus-within.is-reviews .fb-product-peek__review { animation: fb-product-peek-pulse 1s ease-in-out 2; box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(138,101,40,.46); }
+.fb-product-peek.is-motion-ready:not(.is-revealed) .fb-product-peek__card-wrap { opacity: 0; transform: translateY(16px); }
+.fb-product-peek.is-motion-ready .fb-product-peek__card-wrap { transition: opacity .55s ease, transform .55s ease; }
+.fb-product-peek.is-motion-ready .fb-product-peek__card-wrap:nth-child(2) { transition-delay: .08s; }
+.fb-product-peek.is-motion-ready .fb-product-peek__card-wrap:nth-child(3) { transition-delay: .16s; }
+.fb-product-peek.is-motion-ready:not(.is-revealed) .fb-product-peek__callout > span { transform: scaleX(0); }
+.fb-product-peek.is-motion-ready:not(.is-revealed) .fb-product-peek__card-wrap.is-availability .fb-product-peek__callout > span { transform: scaleY(0); }
+@keyframes fb-product-peek-pulse { 50% { transform: scale(1.025); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .fb-product-peek { opacity: 1; transform: none; transition: none; }
+  .fb-product-peek *,
+  .fb-product-peek *::before,
+  .fb-product-peek *::after { animation: none !important; transition: none !important; }
+  .fb-product-peek.is-motion-ready:not(.is-revealed) .fb-product-peek__card-wrap { opacity: 1; transform: none; }
+  .fb-product-peek.is-motion-ready:not(.is-revealed) .fb-product-peek__callout > span { transform: none; }
 }
 
 html body .fb-final-access-v2 > div { max-width: 1180px !important; }
@@ -1010,34 +999,37 @@ html body .fb-final-access-v2 button { border-radius: 10px !important; backgroun
   .fb-trust-v2__note { align-items: flex-start; flex-direction: column; }
 }
 
+@media (max-width: 1100px) {
+  .fb-product-peek { width: min(500px,100%); }
+  .fb-product-peek figcaption { margin-bottom: 24px; }
+  .fb-product-peek__cards { grid-template-columns: 1fr; gap: 24px; padding-bottom: 0; }
+  .fb-product-peek__cards .kb-marketplace-vendor-card { height: auto; }
+  .fb-product-peek__card-wrap.is-vetting .fb-product-peek__callout,
+  .fb-product-peek__card-wrap.is-availability .fb-product-peek__callout,
+  .fb-product-peek__card-wrap.is-reviews .fb-product-peek__callout {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: auto;
+    margin: 11px 2px 0;
+    padding: 3px 0 3px 11px;
+    transform: none;
+    border-left: 2px solid #8a6528;
+    text-align: left;
+  }
+  .fb-product-peek__callout > span,
+  .fb-product-peek__callout::before,
+  .fb-product-peek__callout::after { display: none; }
+}
+
 @media (max-width: 760px) {
   .fb-example-reveal { padding: 54px 22px; }
   .fb-example-reveal__head { text-align: left; }
-  .fb-product-peek { border-radius: 18px; }
-  .fb-product-peek__chrome { height: 36px; padding-inline: 12px; }
-  .fb-product-peek__chrome > div { display: none; }
-  .fb-product-peek__nav { grid-template-columns: 1fr auto; min-height: 50px; padding: 0 15px; }
-  .fb-product-peek__brand { font-size: 22px; }
-  .fb-product-peek__nav > div { display: none; }
-  .fb-product-peek__account { font-size: 8px; }
-  .fb-product-peek__hero { min-height: 250px; padding: 72px 16px 22px; }
-  .fb-product-peek__mode { top: 16px; right: 14px; }
-  .fb-product-peek__mode button { min-width: 63px; padding: 7px 10px; font-size: 8px; }
-  .fb-product-peek__hero h3 { font-size: clamp(28px,10vw,38px); }
-  .fb-product-peek__hero > p { max-width: 270px; }
-  .fb-product-peek__search { grid-template-columns: 24px 1fr 82px; height: 49px; padding-left: 10px; }
-  .fb-product-peek__search i { display: none; }
-  .fb-product-peek__categories { grid-template-columns: repeat(4,1fr); min-height: 104px; }
-  .fb-product-peek__categories span:nth-child(n+5) { display: none; }
-  .fb-product-peek__results { padding: 26px 14px 30px; }
-  .fb-product-peek__results-head { display: block; }
-  .fb-product-peek__segments { width: max-content; margin-top: 16px; }
-  .fb-product-peek__cards { grid-template-columns: 1fr; }
-  .fb-product-peek__cards > article:nth-child(2) { display: none; }
-  .fb-product-peek__cards .kb-marketplace-vendor-card__media,
-  .fb-product-peek__cards .kb-marketplace-project-card__media { aspect-ratio: 1.85/1; }
-  .fb-product-peek figcaption { align-items: flex-start; flex-direction: column; padding: 15px; }
-  .fb-product-peek figcaption > div { flex-wrap: wrap; gap: 10px 16px; }
+  .fb-product-peek figcaption { display: block; padding: 10px 13px; border-radius: 12px; text-align: left; }
+  .fb-product-peek__cards { gap: 20px; }
+  .fb-product-peek__cards .kb-marketplace-vendor-card__media { aspect-ratio: 1.85/1; }
   html body .fb-pricing-v2,
   html body .fb-faq-v2,
   html body .fb-final-access-v2 { padding: 60px 22px !important; }
