@@ -22884,8 +22884,18 @@ function getProjectSubTabRoute(subTab) {
 
 function readMarketplaceDevPreviewFromHash(hashValue) {
   if (!kbIsDevRuntime()) return false;
-  const hashQuery = String(hashValue || '').split('?')[1] || '';
-  return new URLSearchParams(hashQuery).get('preview') === 'marketplace';
+  const hash = String(hashValue || '');
+  const hashQuery = hash.split('?')[1] || '';
+  const previewMode = new URLSearchParams(hashQuery).get('preview');
+  if (previewMode === 'live') return false;
+  if (previewMode === 'marketplace') return true;
+
+  // Local Vite/VS Code/Chrome previews should show the illustrative Marketplace
+  // inventory without requiring a hidden query string. Production never enters
+  // this branch, and developers can still inspect the honest live-empty state
+  // explicitly with #projects?preview=live or #vendors?preview=live.
+  const route = hash.replace(/^#\/?/, '').split('/')[0].split('?')[0];
+  return route === 'projects' || route === 'vendors';
 }
 
 function isMarketplaceDevPreviewEnabled(hashValue = (typeof window !== 'undefined' ? window.location.hash : '')) {
@@ -39445,7 +39455,7 @@ export default function App() {
             </div>
           </div>
         )}
-        {(screen==="projects" && marketplaceWorkspaceReady) && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Marketplace...</div>}><ProjectsScreen role={role} currentUser={currentUser} showToast={showToast} nav={nav} initialView={autoPost?"post":"board"} onMounted={()=>setAutoPost(false)} navSubTab={navSubTab} onSubTabChange={handleMarketplaceSubTabChange} forceProjectTab={null} privateMarketplaceAccess={privateMarketplaceAccess} isAdmin={isAdmin} marketplaceDevPreview={marketplaceDevPreview} dependencies={getProjectsScreenDependencies()}/></React.Suspense>}
+        {(screen==="projects" && marketplaceWorkspaceReady) && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Marketplace...</div>}><ProjectsScreen role={role} currentUser={currentUser} showToast={showToast} nav={nav} initialView={autoPost?"post":"board"} onMounted={()=>setAutoPost(false)} navSubTab={navSubTab} onSubTabChange={handleMarketplaceSubTabChange} forceProjectTab={marketplaceDevPreview ? readProjectSubTabFromHash(window.location.hash) : null} privateMarketplaceAccess={privateMarketplaceAccess} isAdmin={isAdmin} marketplaceDevPreview={marketplaceDevPreview} dependencies={getProjectsScreenDependencies()}/></React.Suspense>}
         {(screen==="inbox"||screen==="messages")   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Deal Rooms...</div>}><MessagesScreen role={role} currentUser={currentUser} nav={nav} normalizeProjectEntity={normalizeProjectEntity} mergeProjectWorkspaceSnapshots={mergeProjectWorkspaceSnapshots} isWorkspaceAffectingMessageText={isWorkspaceAffectingMessageText} fetchLatestProjectWorkspaceSync={fetchLatestProjectWorkspaceSync} getPendingInboxTarget={getPendingInboxTarget} clearPendingInboxTarget={clearPendingInboxTarget} setPendingProjectTarget={setPendingProjectTarget} onClearUnreadBadge={()=>setUnreadMsgs(0)} dependencies={getMessagesScreenDependencies()}/></React.Suspense>}
         {screen==="compare"   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Compare Workspace...</div>}><CompareWorkspaceScreen nav={nav} role={role} showToast={showToast} currentUser={currentUser} dependencies={getWorkspaceScreenDependencies()} /></React.Suspense>}
         {screen==="saved-projects" && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Saved Projects...</div>}><SavedProjectsScreen nav={nav} role={role} currentUser={currentUser} showToast={showToast} dependencies={getProjectsScreenDependencies()} /></React.Suspense>}
