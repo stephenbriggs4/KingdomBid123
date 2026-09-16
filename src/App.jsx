@@ -22880,21 +22880,21 @@ function isMarketplaceDevPreviewEnabled() {
 }
 
 const KB_MARKETPLACE_DEV_PREVIEW_VENDORS = Object.freeze([
-  { id:'preview-vendor-facilities', name:'Illustrative facilities provider', category:'Facilities', category_tags:['Facilities'], service_city:'Dallas', service_state:'TX', verified:true, availability_status:'available', tagline:'Preventive care and facility support for ministry spaces.', image_url:'/images/faithbid-marketplace-church-v2.png', created_at:'2026-09-15T15:00:00Z' },
-  { id:'preview-vendor-creative', name:'Illustrative creative studio', category:'Creative', category_tags:['Creative'], service_city:'Plano', service_state:'TX', verified:false, availability_status:'limited', tagline:'Brand, web, and communication support for church teams.', image_url:'/images/faithbid-landing-church.png', created_at:'2026-09-14T15:00:00Z' },
-  { id:'preview-vendor-technology', name:'Illustrative technology team', category:'Technology', category_tags:['Technology'], service_city:'Dallas', service_state:'TX', verified:true, availability_status:'available', tagline:'Church systems, web platforms, and technical planning.', image_url:'/images/faithbid-marketplace-church-v2.png', created_at:'2026-09-13T15:00:00Z' },
-  { id:'preview-vendor-events', name:'Illustrative events partner', category:'Events', category_tags:['Events'], service_city:'Richardson', service_state:'TX', verified:false, availability_status:'unknown', tagline:'Event planning and production for ministry gatherings.', image_url:'/images/faithbid-landing-church.png', created_at:'2026-09-12T15:00:00Z' },
-  { id:'preview-vendor-finance', name:'Illustrative finance practice', category:'Finance', category_tags:['Finance'], service_city:'Frisco', service_state:'TX', verified:true, availability_status:'limited', tagline:'Bookkeeping and financial operations for growing churches.', image_url:'/images/faithbid-marketplace-church-v2.png', created_at:'2026-09-11T15:00:00Z' },
-  { id:'preview-vendor-ministry', name:'Illustrative ministry consultant', category:'Ministry Support', category_tags:['Ministry Support'], service_city:'Dallas', service_state:'TX', verified:false, availability_status:'available', tagline:'Operational guidance and team support for ministry leaders.', image_url:'/images/faithbid-landing-church.png', created_at:'2026-09-10T15:00:00Z' },
+  { id:'preview-vendor-facilities', name:'Facilities service provider', category:'Facilities', category_tags:['Facilities'], service_city:'Dallas', service_state:'TX', verified:true, availability_status:'available', tagline:'Preventive care and facility support for ministry spaces.', image_url:'/gpi/volunteer.jpg', created_at:'2026-09-15T15:00:00Z' },
+  { id:'preview-vendor-creative', name:'Creative communications studio', category:'Creative', category_tags:['Creative'], service_city:'Plano', service_state:'TX', verified:false, availability_status:'limited', tagline:'Brand, web, and communication support for church teams.', image_url:'/gpi/creative.jpg', created_at:'2026-09-14T15:00:00Z' },
+  { id:'preview-vendor-technology', name:'Technology systems team', category:'Technology', category_tags:['Technology'], service_city:'Dallas', service_state:'TX', verified:true, availability_status:'available', tagline:'Church systems, web platforms, and technical planning.', image_url:'/gpi/professional.jpg', created_at:'2026-09-13T15:00:00Z' },
+  { id:'preview-vendor-events', name:'Event production partner', category:'Events', category_tags:['Events'], service_city:'Richardson', service_state:'TX', verified:false, availability_status:'unknown', tagline:'Event planning and production for ministry gatherings.', image_url:'/gpi/worship.jpg', created_at:'2026-09-12T15:00:00Z' },
+  { id:'preview-vendor-finance', name:'Finance and operations practice', category:'Finance', category_tags:['Finance'], service_city:'Frisco', service_state:'TX', verified:true, availability_status:'limited', tagline:'Bookkeeping and financial operations for growing churches.', image_url:'/gpi/mentoring.jpg', created_at:'2026-09-11T15:00:00Z' },
+  { id:'preview-vendor-ministry', name:'Ministry support consultant', category:'Ministry Support', category_tags:['Ministry Support'], service_city:'Dallas', service_state:'TX', verified:false, availability_status:'available', tagline:'Operational guidance and team support for ministry leaders.', image_url:'/gpi/outreach.jpg', created_at:'2026-09-10T15:00:00Z' },
 ]);
 
 const KB_MARKETPLACE_DEV_PREVIEW_PROJECTS = Object.freeze([
-  { id:'preview-project-facilities', title:'Facility maintenance planning', category:'Facilities', city:'Dallas', state:'TX', budget:'$8K–$12K', timeline:'Within 60 days', description:'Illustrative brief showing how a church can organize priorities, timing, and facility scope.', hero_image:'/images/faithbid-marketplace-church-v2.png', status:'open' },
-  { id:'preview-project-creative', title:'Church website refresh', category:'Creative', city:'Plano', state:'TX', budget:'$6K–$10K', timeline:'This fall', description:'Illustrative brief for content planning, design, migration, and a clean team handoff.', hero_image:'/images/faithbid-landing-church.png', status:'open' },
-  { id:'preview-project-technology', title:'Livestream system assessment', category:'Technology', city:'Dallas', state:'TX', budget:'$4K–$7K', timeline:'Next 45 days', description:'Illustrative technical brief covering reliability, workflow, and upgrade recommendations.', hero_image:'/images/faithbid-marketplace-church-v2.png', status:'open' },
-  { id:'preview-project-events', title:'Community event production', category:'Events', city:'Richardson', state:'TX', budget:'$5K–$9K', timeline:'November', description:'Illustrative project for planning, production coordination, and volunteer handoff.', hero_image:'/images/faithbid-landing-church.png', status:'open' },
-  { id:'preview-project-finance', title:'Bookkeeping process cleanup', category:'Finance', city:'Frisco', state:'TX', budget:'$3K–$5K', timeline:'Within 30 days', description:'Illustrative finance brief for reconciliations, reporting, and repeatable monthly processes.', hero_image:'/images/faithbid-marketplace-church-v2.png', status:'open' },
-  { id:'preview-project-ministry', title:'Volunteer onboarding system', category:'Ministry Support', city:'Dallas', state:'TX', budget:'Flexible', timeline:'This quarter', description:'Illustrative brief for a welcoming, consistent volunteer onboarding experience.', hero_image:'/images/faithbid-landing-church.png', status:'open' },
+  { id:'preview-project-facilities', title:'Facility maintenance planning', category:'Facilities', city:'Dallas', state:'TX', budget:'$8K–$12K', timeline:'Within 60 days', description:'Illustrative brief showing how a church can organize priorities, timing, and facility scope.', hero_image:'/gpi/volunteer.jpg', status:'open' },
+  { id:'preview-project-creative', title:'Church website refresh', category:'Creative', city:'Plano', state:'TX', budget:'$6K–$10K', timeline:'This fall', description:'Illustrative brief for content planning, design, migration, and a clean team handoff.', hero_image:'/gpi/creative.jpg', status:'open' },
+  { id:'preview-project-technology', title:'Livestream system assessment', category:'Technology', city:'Dallas', state:'TX', budget:'$4K–$7K', timeline:'Next 45 days', description:'Illustrative technical brief covering reliability, workflow, and upgrade recommendations.', hero_image:'/gpi/professional.jpg', status:'open' },
+  { id:'preview-project-events', title:'Community event production', category:'Events', city:'Richardson', state:'TX', budget:'$5K–$9K', timeline:'November', description:'Illustrative project for planning, production coordination, and volunteer handoff.', hero_image:'/gpi/worship.jpg', status:'open' },
+  { id:'preview-project-finance', title:'Bookkeeping process cleanup', category:'Finance', city:'Frisco', state:'TX', budget:'$3K–$5K', timeline:'Within 30 days', description:'Illustrative finance brief for reconciliations, reporting, and repeatable monthly processes.', hero_image:'/gpi/mentoring.jpg', status:'open' },
+  { id:'preview-project-ministry', title:'Volunteer onboarding system', category:'Ministry Support', city:'Dallas', state:'TX', budget:'Flexible', timeline:'This quarter', description:'Illustrative brief for a welcoming, consistent volunteer onboarding experience.', hero_image:'/gpi/outreach.jpg', status:'open' },
 ]);
 // Route alias and subtab maps — lifted to module level so nav() doesn't
 // recreate them on every invocation (was previously inside the useCallback).
@@ -25006,10 +25006,11 @@ const MemoVendorMarketplaceFastPanel = React.memo(VendorMarketplaceFastPanel);
 function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locationLabel, timelineLabel, budgetLabel, statusLabel, saved = false, onToggleSave, onOpen, role = 'vendor' }) {
   const title = String(project?.title || 'Untitled project');
   const description = String(project?.description || project?.desc || '').replace(/\s+/g, ' ').trim();
+  const isPreviewCard = String(project?.id || '').startsWith('preview-project-');
   return (
     <article className="kb-marketplace-project-card">
       <div className="kb-marketplace-project-card__media">
-        {image ? <img src={image} alt="" loading="lazy" /> : <span className="kb-marketplace-project-card__image-fallback" aria-hidden="true">FB</span>}
+        {image ? <img src={image} alt="" loading={isPreviewCard ? 'eager' : 'lazy'} /> : <span className="kb-marketplace-project-card__image-fallback" aria-hidden="true">FB</span>}
         <span className="kb-marketplace-project-card__category">{categoryLabel}</span>
         <button
           type="button"
@@ -26296,6 +26297,10 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   // Pick a curated cover image based on the project's category/title — keeps
   // the All Projects grid visually consistent with the curated rows above.
   const pickImageForProject = (project, index = 0) => {
+    if (marketplaceDevPreview) {
+      const previewImage = getValidMediaUrl(project?.hero_image || project?.image_url || '');
+      if (previewImage) return previewImage;
+    }
     return pickMarketplacePresetImage(project, index);
   };
 
@@ -31817,10 +31822,11 @@ function MarketplaceVendorDirectoryCard({ vendor, image, categoryLabel, saved = 
   const vendorName = String(vendor?.name || 'Vendor');
   const location = [vendor?.service_city || vendor?.city, vendor?.service_state].filter(Boolean).join(', ') || 'Service area not listed';
   const faithVerified = vendor?.verified === true;
+  const isPreviewCard = String(vendor?.id || '').startsWith('preview-vendor-');
   return (
     <article className="kb-marketplace-vendor-card">
       <div className="kb-marketplace-vendor-card__media">
-        {image ? <img src={image} alt="" loading="lazy" /> : <span className="kb-marketplace-vendor-card__image-fallback" aria-hidden="true">FB</span>}
+        {image ? <img src={image} alt="" loading={isPreviewCard ? 'eager' : 'lazy'} /> : <span className="kb-marketplace-vendor-card__image-fallback" aria-hidden="true">FB</span>}
         <span className="kb-marketplace-vendor-card__category">{categoryLabel}</span>
         <button
           type="button"

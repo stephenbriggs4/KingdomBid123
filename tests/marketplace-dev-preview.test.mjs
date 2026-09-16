@@ -20,6 +20,35 @@ test('preview fixtures are isolated from live inventory', () => {
   assert.match(app, /illustrative brief\$\{filteredProjects\.length === 1 \? '' : 's'\} for layout review/);
 });
 
+test('vendor preview cards use service-context photography instead of church hero imagery', () => {
+  const vendorFixtures = app.slice(
+    app.indexOf('const KB_MARKETPLACE_DEV_PREVIEW_VENDORS'),
+    app.indexOf('const KB_MARKETPLACE_DEV_PREVIEW_PROJECTS'),
+  );
+  assert.match(vendorFixtures, /image_url:'\/gpi\/volunteer\.jpg'/);
+  assert.match(vendorFixtures, /image_url:'\/gpi\/creative\.jpg'/);
+  assert.match(vendorFixtures, /image_url:'\/gpi\/professional\.jpg'/);
+  assert.match(vendorFixtures, /image_url:'\/gpi\/worship\.jpg'/);
+  assert.match(vendorFixtures, /image_url:'\/gpi\/mentoring\.jpg'/);
+  assert.match(vendorFixtures, /image_url:'\/gpi\/outreach\.jpg'/);
+  assert.doesNotMatch(vendorFixtures, /faithbid-(?:marketplace|landing)-church/i);
+  assert.match(app, /const isPreviewCard = String\(vendor\?\.id \|\| ''\)\.startsWith\('preview-vendor-'\)/);
+  assert.match(app, /loading=\{isPreviewCard \? 'eager' : 'lazy'\}/);
+});
+
+test('project preview cards use complete local work-context imagery without changing live image resolution', () => {
+  const projectFixtures = app.slice(
+    app.indexOf('const KB_MARKETPLACE_DEV_PREVIEW_PROJECTS'),
+    app.indexOf('// Route alias and subtab maps'),
+  );
+  for (const file of ['volunteer', 'creative', 'professional', 'worship', 'mentoring', 'outreach']) {
+    assert.match(projectFixtures, new RegExp(`hero_image:'/gpi/${file}\\.jpg'`));
+  }
+  assert.doesNotMatch(projectFixtures, /faithbid-(?:marketplace|landing)-church/i);
+  assert.match(app, /if \(marketplaceDevPreview\) \{[\s\S]*?const previewImage = getValidMediaUrl\(project\?\.hero_image \|\| project\?\.image_url \|\| ''\);[\s\S]*?if \(previewImage\) return previewImage;[\s\S]*?return pickMarketplacePresetImage\(project, index\);/);
+  assert.match(app, /String\(project\?\.id \|\| ''\)\.startsWith\('preview-project-'\)/);
+});
+
 test('preview cards cannot trigger persistence or live-detail navigation', () => {
   const projectSave = app.slice(app.indexOf('const handleToggleSave = async'), app.indexOf('const handleSaveCurrentSearch'));
   const vendorSave = app.slice(app.indexOf('const toggleSave = (vendor'), app.indexOf('const getInviteKey', app.indexOf('const toggleSave = (vendor')));
