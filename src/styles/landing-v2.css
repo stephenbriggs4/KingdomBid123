@@ -11,7 +11,7 @@
 
 html body .fb-landing-v2 .fb-landing-hero {
   --fb-hero-photo-position: center 61%;
-  min-height: clamp(680px, 77svh, 790px) !important;
+  min-height: 100svh !important;
   background-color: #f8f2e8 !important;
   background-image: none !important;
   isolation: isolate;
@@ -49,9 +49,11 @@ html body .fb-landing-v2 .fb-landing-hero::after {
 }
 
 .fb-landing-nav-brand {
-  display: grid;
-  place-items: center;
-  width: 68px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: auto;
   height: 54px;
   appearance: none;
   border: 0;
@@ -63,10 +65,17 @@ html body .fb-landing-v2 .fb-landing-hero::after {
 
 .fb-landing-nav-brand img {
   display: block;
-  width: 72px;
-  height: 72px;
+  width: 52px;
+  height: 52px;
   max-width: none;
   object-fit: contain;
+}
+
+.fb-landing-nav-wordmark {
+  color: #102f2b;
+  font: 600 28px/1 var(--font-display), Georgia, serif;
+  letter-spacing: -.035em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .4);
 }
 
 .fb-landing-v2 .fb-landing-nav-links {
@@ -128,27 +137,17 @@ html body .fb-landing-v2 .fb-landing-hero-body {
   padding: 32px 24px 58px !important;
   box-sizing: border-box !important;
   overflow: hidden !important;
-  transform: translateY(-46px) !important;
+  transform: translateY(-12px) !important;
   text-align: center !important;
   z-index: 2 !important;
 }
 
-.fb-landing-hero-mark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-width: 0;
-  height: 88px;
-  margin-bottom: 8px;
-  overflow: visible;
-}
-
-.fb-landing-hero-lockup {
-  display: block;
-  width: min(390px, 62vw);
-  height: auto;
-  max-width: none;
+.fb-landing-hero-kicker {
+  margin: 0 0 16px;
+  color: #704b14;
+  font: 800 10px/1 var(--font-sans), sans-serif;
+  letter-spacing: .2em;
+  text-transform: uppercase;
 }
 
 html body .fb-landing-v2 .fb-landing-title {
@@ -395,9 +394,14 @@ html body .fb-landing-v2 .fb-how-it-works-grid {
   .fb-landing-v2 .land-nav .hamburger span { background: var(--fb-landing-green) !important; }
 }
 
+@media (max-width: 600px) {
+  .fb-landing-nav-wordmark { display: none; }
+  .fb-landing-nav-brand { width: 52px; }
+}
+
 @media (min-width: 1700px) {
   html body .fb-landing-v2 .fb-landing-hero {
-    --fb-hero-photo-position: center 53%;
+    --fb-hero-photo-position: center 61%;
   }
 }
 
@@ -416,11 +420,8 @@ html body .fb-landing-v2 .fb-how-it-works-grid {
   html body .fb-landing-v2 .fb-landing-hero-body {
     justify-content: center !important;
     padding: 24px 18px 38px !important;
-    transform: translateY(-22px) !important;
+    transform: translateY(-8px) !important;
   }
-
-  .fb-landing-hero-mark { height: 76px; margin-bottom: 8px; }
-  .fb-landing-hero-lockup { width: min(330px, 78vw); }
 
   html body .fb-landing-v2 .fb-landing-title {
     font-size: clamp(34px, 10vw, 48px) !important;
@@ -456,7 +457,6 @@ html body .fb-landing-v2 .fb-how-it-works-grid {
   html body .fb-landing-v2 .fb-landing-hero { min-height: 690px !important; }
   html body .fb-landing-v2 .fb-landing-hero-body { padding-top: 24px !important; padding-bottom: 36px !important; }
   html body .fb-landing-v2 .fb-landing-title { font-size: 44px !important; }
-  .fb-landing-hero-mark { height: 82px; margin-bottom: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

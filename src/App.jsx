@@ -24743,7 +24743,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
 
   // Sample project detail // read-only, no bid form
   if(selectedSample) return (
-    <SampleProjectDetail
+    <MarketplaceProjectPreviewDetail
       project={selectedSample}
       role={role}
       nav={nav}
@@ -25192,6 +25192,97 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
         </div>
       </div>
     </article>
+  );
+}
+
+function getMarketplacePreviewScope(project = {}) {
+  const category = String(project?.category || '').toLowerCase();
+  if (category.includes('facilit')) return ['Assess the current site and priorities', 'Present options with schedule and pricing', 'Complete the work with a clean handoff'];
+  if (category.includes('creative')) return ['Align on audience, message, and visual direction', 'Develop and review the core deliverables', 'Deliver organized files and staff guidance'];
+  if (category.includes('technolog')) return ['Document systems, users, and reliability needs', 'Recommend a practical implementation plan', 'Install, test, train, and hand off documentation'];
+  if (category.includes('market')) return ['Clarify the audience and campaign objective', 'Build the message and channel plan', 'Launch, measure, and share results'];
+  if (category.includes('finance')) return ['Review the current process and controls', 'Resolve gaps and document recommendations', 'Train the team on a repeatable workflow'];
+  if (category.includes('event')) return ['Confirm program, production, and guest needs', 'Coordinate vendors, volunteers, and timing', 'Execute the event and complete closeout'];
+  if (category.includes('ministry')) return ['Understand the ministry goal and current workflow', 'Design a practical team-ready approach', 'Support rollout, training, and follow-through'];
+  return ['Confirm the goals, constraints, and success criteria', 'Develop a clear plan with pricing and timing', 'Complete the work and provide a usable handoff'];
+}
+
+function MarketplaceProjectPreviewDetail({ project = {}, onBack, role, nav }) {
+  const isVendor = role === 'vendor';
+  const image = getProjectHeroImage(project) || project?.hero_image || '/gpi/professional.jpg';
+  const category = getProjectCardCategoryLabel(project, project?.category || 'Project');
+  const city = firstNonEmpty(project?.city, project?.location_city, project?.project_city, 'Dallas');
+  const state = firstNonEmpty(project?.project_state, project?.state, project?.location_state, 'TX');
+  const location = [city, state].filter(Boolean).join(', ');
+  const timeline = firstNonEmpty(project?.timeline, project?.timeline_label, project?.desired_timeline, 'Timing to be confirmed');
+  const rawBudget = project?.budget;
+  const budget = typeof rawBudget === 'string'
+    ? rawBudget
+    : firstNonEmpty(project?.budget_label, project?.budget_range, rawBudget?.label, rawBudget?.display, 'Flexible');
+  const scopeItems = getMarketplacePreviewScope(project);
+  const responseCount = Number(project?.bids_count || 0);
+  const description = project?.description || project?.desc || 'An illustrative church project brief showing how goals, timing, budget, and context come together before a vendor responds.';
+  const handlePrimary = () => {
+    if (isVendor) {
+      onBack?.();
+      return;
+    }
+    if (typeof nav === 'function') nav('projects:post');
+  };
+
+  return (
+    <main className="kb-project-preview-page" id="kb-main-content">
+      <div className="kb-project-preview-page__shell">
+        <div className="kb-project-preview-page__topbar">
+          <button type="button" className="kb-project-preview-page__back" onClick={onBack}>← <span>Back to projects</span></button>
+          <span className="kb-project-preview-page__truth">Illustrative preview · Not a live project</span>
+        </div>
+
+        <article className="kb-project-preview-detail" aria-labelledby="kb-project-preview-title">
+          <div className="kb-project-preview-detail__media">
+            <img src={image} alt="Illustrative project context" onError={handleKbImageError} />
+            <span className="kb-project-preview-detail__category">{category}</span>
+            <span className={`kb-project-preview-detail__status${project?.urgent ? ' is-urgent' : ''}`}>{project?.urgent ? 'Priority example' : 'Example brief'}</span>
+          </div>
+
+          <div className="kb-project-preview-detail__content">
+            <p className="kb-marketplace-section-kicker">Project brief</p>
+            <h1 id="kb-project-preview-title">{project?.title || 'Church project example'}</h1>
+            <div className="kb-project-preview-detail__meta" aria-label="Project location and timing">
+              <span>⌖ {location}</span>
+              <span>{timeline}</span>
+            </div>
+            <p className="kb-project-preview-detail__summary">{description}</p>
+
+            <dl className="kb-project-preview-detail__snapshot">
+              <div><dt>Budget</dt><dd>{budget}</dd></div>
+              <div><dt>Timeline</dt><dd>{timeline}</dd></div>
+              <div><dt>Example interest</dt><dd>{responseCount ? `${responseCount} response${responseCount === 1 ? '' : 's'}` : 'Open for responses'}</dd></div>
+            </dl>
+          </div>
+        </article>
+
+        <div className="kb-project-preview-detail__lower">
+          <section className="kb-project-preview-detail__scope" aria-labelledby="kb-project-preview-scope-title">
+            <p className="kb-marketplace-section-kicker">Expected scope</p>
+            <h2 id="kb-project-preview-scope-title">What a strong response would cover</h2>
+            <ol>
+              {scopeItems.map((item, index) => (
+                <li key={item}><span>{String(index + 1).padStart(2, '0')}</span><strong>{item}</strong></li>
+              ))}
+            </ol>
+          </section>
+
+          <aside className="kb-project-preview-detail__next" aria-label="Preview guidance">
+            <span className="kb-project-preview-detail__next-mark" aria-hidden="true">✦</span>
+            <p>How real projects work</p>
+            <h2>Clear context before the first conversation.</h2>
+            <span>Live briefs can include church-approved scope, timing, files, questions, and proposal activity. This example cannot receive messages or bids.</span>
+            <button type="button" onClick={handlePrimary}>{isVendor ? 'Return to projects' : 'Post a similar need'} <span aria-hidden="true">→</span></button>
+          </aside>
+        </div>
+      </div>
+    </main>
   );
 }
 
@@ -26836,8 +26927,10 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                             statusLabel={statusLabel}
                             saved={!marketplaceDevPreview && savedIds.has(projectId)}
                             onToggleSave={marketplaceDevPreview ? undefined : (event) => handleToggleSave(project, event)}
-                            onOpen={marketplaceDevPreview ? undefined : () => {
-                              if (!featuredClickSuppressRef.current) openProject(project);
+                            onOpen={() => {
+                              if (featuredClickSuppressRef.current) return;
+                              if (marketplaceDevPreview) onSelectSample?.(project);
+                              else openProject(project);
                             }}
                             role={role}
                           />
@@ -26898,7 +26991,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                         statusLabel={statusLabel}
                         saved={!marketplaceDevPreview && !!projectId && savedIds.has(projectId)}
                         onToggleSave={marketplaceDevPreview ? undefined : (event) => handleToggleSave(project, event)}
-                        onOpen={marketplaceDevPreview ? undefined : () => openProject(project)}
+                        onOpen={() => marketplaceDevPreview ? onSelectSample?.(project) : openProject(project)}
                         role={role}
                       />
                     );
@@ -42565,6 +42658,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
         <nav className="land-nav fb-landing-nav" aria-label="FaithBid home navigation">
           <button type="button" className="fb-landing-nav-brand" onClick={()=>nav("landing")} aria-label="FaithBid home">
             <img src="/logos/faithbid-fb-monogram.png" alt="" aria-hidden="true" />
+            <span className="fb-landing-nav-wordmark">FaithBid</span>
           </button>
           <div className="land-nav-links fb-landing-nav-links">
             <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>For Churches</button>
@@ -42580,9 +42674,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
         </nav>
 
         <div className="land-hero-body fb-landing-hero-body">
-          <div className="fb-landing-hero-mark" aria-label="FaithBid — Faith founded. Service driven.">
-            <img className="fb-landing-hero-lockup" src="/logos/faithbid-final-wordmark.png" alt="FaithBid — Faith founded. Service driven." />
-          </div>
+          <div className="fb-landing-hero-kicker">Faith founded. Service driven.</div>
           <h1 id="faithbid-landing-title" className="land-h1 fb-landing-title">Where calling meets craft.</h1>
           <p className="land-sub fb-landing-subtitle">{LANDING_HERO_SUBTITLE}</p>
           <div className="land-ctas fb-landing-ctas">
