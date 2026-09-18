@@ -44811,7 +44811,6 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
       <FirstSessionTrustRail />
       <LandingExampleReveal />
-      <LandingAudienceSection role="church" onCta={()=>enterAccessFlow("church", "for_churches")} />
 
       {/* ── STATS + BROWSE ALL ROW ── */}
       {(()=>{
@@ -44860,6 +44859,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
       {/* ── PRICING ── */}
       <LandingPricing nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole} initialView={pricingView}/>
 
+      <LandingAudienceSection role="church" onCta={()=>enterAccessFlow("church", "for_churches")} />
       <LandingAudienceSection role="vendor" onCta={()=>enterAccessFlow("vendor", "for_vendors")} />
 
       {SHOW_PLACEHOLDER_TESTIMONIALS && <LandingTestimonials/>}

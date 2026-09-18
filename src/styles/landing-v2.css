@@ -1269,3 +1269,17 @@ html body .fb-landing-v2 .fb-landing-hero-wordmark {
   user-select: none;
 }
 html body .fb-landing-v2 .fb-landing-nav-brand { min-width: 0 !important; }
+
+/* Audience sections: a little taller (still compact). */
+.kb-audience { padding: clamp(56px, 5.4vw, 80px) 24px; }
+.kb-audience h2 { font-size: clamp(30px, 2.9vw, 44px); }
+.kb-audience__body { margin-top: 18px; font-size: clamp(14.5px, 1vw, 16.5px); }
+.kb-audience__cta { height: 48px; margin-top: 26px; }
+.kb-audience__micro { margin-top: 16px; }
+.kb-audience__steps { gap: 26px; }
+.kb-audience__steps li { grid-template-columns: 52px minmax(0, 1fr); gap: 18px; }
+.kb-audience__icon { width: 52px; height: 52px; }
+.kb-audience__icon svg { width: 23px; height: 23px; }
+.kb-audience__text strong { font-size: 16px; }
+.kb-audience__text span { font-size: 13.5px; margin-top: 4px; }
+@media (max-width: 900px) { .kb-audience { padding: 48px 22px; } }
