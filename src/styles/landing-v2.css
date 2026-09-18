@@ -1500,3 +1500,10 @@ html body .fb-landing-v2 .fb-landing-nav-actions { gap: 16px; }
 
 /* Hero eyebrow: larger. */
 html body .fb-landing-v2 .fb-landing-hero-kicker { font-size: 13.5px; letter-spacing: .26em; margin-bottom: 20px; }
+
+/* Faith Verified: eyebrow matches "A glimpse inside"; white cards; no rule above the note. */
+.fb-trust-v2__eyebrow { display: block; font: 700 11px/1 var(--font-sans), sans-serif; letter-spacing: .48em; color: #9a6f22; text-align: center; }
+.fb-trust-v2__eyebrow span { display: none; }
+.fb-trust-v2__eyebrow b { display: inline; padding-left: .48em; font: inherit; font-weight: 700; letter-spacing: inherit; }
+.fb-trust-v2__card { background: #fff; }
+.fb-trust-v2__note { border-top: 0; }
