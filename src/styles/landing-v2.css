@@ -1052,6 +1052,7 @@ html body .fb-landing-v2 .fb-landing-hero::before {
 }
 html body .fb-landing-v2 .fb-landing-hero::after {
   background:
+    radial-gradient(ellipse 26% 20% at 7% 3%, rgba(251, 246, 236, .92) 0%, rgba(251, 246, 236, .6) 45%, transparent 100%),
     linear-gradient(180deg, rgba(255, 250, 240, .14) 0%, transparent 22%, transparent 74%, rgba(237, 218, 188, .22) 100%),
     radial-gradient(ellipse 46% 40% at 50% 42%, rgba(255, 251, 242, .58) 0%, rgba(255, 249, 236, .32) 55%, transparent 100%),
     radial-gradient(ellipse 78% 74% at 50% 44%, rgba(255, 250, 239, .6) 0%, rgba(255, 248, 234, .42) 36%, rgba(92, 83, 62, .06) 72%, rgba(34, 45, 37, .2) 100%);
