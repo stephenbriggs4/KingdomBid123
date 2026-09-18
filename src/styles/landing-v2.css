@@ -1446,3 +1446,13 @@ html body #root footer.fb-public-footer-v2 { padding: 52px clamp(26px, 3vw, 56px
   .fb-foot__bar { margin-top: 10px; padding-top: 0; }
   .fb-foot__legal { gap: 6px; padding-top: 0; }
 }
+
+/* Footer: logo sits right above the copyright line; link columns and legal text drop a little further. */
+@media (min-width: 901px) {
+  .fb-foot { align-items: end; }
+  .fb-foot__brand { align-self: end; }
+  .fb-foot__brand .fb-public-legal-footer__brand { margin-bottom: 0; }
+  .fb-foot__nav { padding-top: 16px; }
+  .fb-foot__legal { padding-top: 16px; align-self: end; }
+  .fb-foot__bar { margin-top: 6px; }
+}
