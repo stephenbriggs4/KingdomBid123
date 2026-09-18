@@ -2807,3 +2807,10 @@ html body #root .mkt2-root main.kb-marketplace-projects-body { padding-top: 16px
 }
 .kb-rail-wrap::before { box-shadow: 0 6px 0 rgba(222, 196, 133, .5) !important; }
 .kb-rail-wrap::after { box-shadow: 0 -6px 0 rgba(222, 196, 133, .5) !important; }
+
+/* Rails: back to the deeper gold. */
+.kb-rail-wrap::before, .kb-rail-wrap::after {
+  background: linear-gradient(90deg, rgba(176, 132, 52, 0) 0%, rgba(168, 121, 40, .95) 4%, rgba(168, 121, 40, .95) 96%, rgba(176, 132, 52, 0) 100%) !important;
+}
+.kb-rail-wrap::before { box-shadow: 0 6px 0 rgba(168, 121, 40, .4) !important; }
+.kb-rail-wrap::after { box-shadow: 0 -6px 0 rgba(168, 121, 40, .4) !important; }
