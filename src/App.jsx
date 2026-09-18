@@ -44806,32 +44806,52 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 }
 
 
+function LandingTrustIcon({ kind }) {
+  if (kind === "book") {
+    return (
+      <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M24 14.5C20 11.6 14.5 11 8.5 11.8v22.4c6-.8 11.5-.2 15.5 2.6 4-2.8 9.5-3.4 15.5-2.6V11.8C33.5 11 28 11.6 24 14.5Z" /><path d="M24 14.5v22.3" /></svg>
+    );
+  }
+  if (kind === "people") {
+    return (
+      <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="15.5" r="5.6" /><path d="M14.5 33.5c0-5.4 4.2-9 9.5-9s9.5 3.6 9.5 9" /><circle cx="10.5" cy="21" r="3.6" /><path d="M4.4 33c.2-3.7 2.6-6 6.1-6.2" /><circle cx="37.5" cy="21" r="3.6" /><path d="M43.6 33c-.2-3.7-2.6-6-6.1-6.2" /></svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M13 7.5h15l8.5 8.5v24.5H13Z" /><path d="M28 7.5V16h8.5" /><path d="M18.5 24h13M18.5 29.5h13M18.5 35h8" /></svg>
+  );
+}
+
 function LandingChurchTrustStrip() {
   const steps = [
-    { num: "01", title: "Business review", body: "We review core business and profile information before marketplace access is approved." },
-    { num: "02", title: "Faith review", body: "Faith Verified applicants provide a faith statement and ministry reference. The badge is earned, never purchased." },
-    { num: "03", title: "Ongoing accountability", body: "Verified vendors commit to integrity, Christlike conduct, local-church accountability, and continued review." },
+    { num: "01", icon: "document", title: "Business review", body: ["We review core business and profile information before marketplace access is approved."] },
+    { num: "02", icon: "book", title: "Faith review", body: ["Faith Verified applicants provide a faith statement and ministry reference.", "The badge is earned, never purchased."] },
+    { num: "03", icon: "people", title: "Ongoing accountability", body: ["Verified vendors commit to integrity, Christlike conduct, local-church accountability, and continued review."] },
   ];
   return (
     <section data-kb-funnel-section="trust" aria-labelledby="landing-trust-title" className="fb-trust-v2">
       <div className="fb-trust-v2__inner">
         <div className="fb-trust-v2__head">
-          <div className="fb-section-eyebrow">Faith Verified</div>
+          <div className="fb-trust-v2__eyebrow"><span aria-hidden="true" /><b>Faith Verified</b><span aria-hidden="true" /></div>
           <h2 id="landing-trust-title">Faith alignment, thoughtfully reviewed.</h2>
           <p>A clear, human review process gives churches a stronger starting point—without replacing their judgment.</p>
         </div>
         <div className="fb-trust-v2__steps">
+          <div className="fb-trust-v2__line" aria-hidden="true" />
           {steps.map((item) => (
             <article key={item.num} className="fb-trust-v2__step">
               <div className="fb-trust-v2__number">{item.num}</div>
-              <h3>{item.title}</h3>
-              <p>{item.body}</p>
+              <div className="fb-trust-v2__card">
+                <div className="fb-trust-v2__icon" aria-hidden="true"><LandingTrustIcon kind={item.icon} /></div>
+                <h3>{item.title}</h3>
+                <p>{item.body.map((line) => <span key={line}>{line}</span>)}</p>
+              </div>
             </article>
           ))}
         </div>
         <div className="fb-trust-v2__note">
-          <div><strong>Your church still makes the decision.</strong> Faith Verified is a trust signal—not a certification, guarantee, or replacement for due diligence.</div>
-          <a href={`mailto:${BRAND.supportEmail}`}>Questions? {BRAND.supportEmail}</a>
+          <div className="fb-trust-v2__note-copy"><strong>Your church still makes the decision.</strong> Faith Verified is a trust signal—not a certification, guarantee, or replacement for due diligence.</div>
+          <a className="fb-trust-v2__contact" href={`mailto:${BRAND.supportEmail}`}><span>Questions? <u>{BRAND.supportEmail}</u></span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h15M13.5 6.5 19 12l-5.5 5.5" /></svg></a>
         </div>
       </div>
     </section>
