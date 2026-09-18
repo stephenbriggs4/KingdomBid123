@@ -2794,3 +2794,4 @@ html body #root .mkt2-root section.mkt2-header { background: transparent !import
 }
 .kb-rail-wrap::before { box-shadow: 0 6px 0 rgba(168, 121, 40, .4) !important; }
 .kb-rail-wrap::after { box-shadow: 0 -6px 0 rgba(168, 121, 40, .4) !important; }
+html body #root .mkt2-root { background: transparent !important; }
