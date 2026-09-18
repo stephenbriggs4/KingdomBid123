@@ -2830,3 +2830,15 @@ html body #root .mkt2-root main.kb-marketplace-projects-body { padding-top: 16px
   width: 8px !important; height: 8px !important; background: #a87928 !important; box-shadow: none !important;
   transform: rotate(45deg);
 }
+
+/* Same gold rule + diamond above the All Vendors / All Projects grids. */
+.kb-marketplace-all-vendors .kb-marketplace-project-grid,
+.kb-marketplace-project-directory .kb-marketplace-project-grid { position: relative; }
+.kb-marketplace-all-vendors .kb-marketplace-project-grid::before,
+.kb-marketplace-project-directory .kb-marketplace-project-grid::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -12px; height: 1px; background: rgba(168, 121, 40, .85); pointer-events: none;
+}
+.kb-marketplace-all-vendors .kb-marketplace-project-grid::after,
+.kb-marketplace-project-directory .kb-marketplace-project-grid::after {
+  content: ""; position: absolute; right: -3px; top: -16px; width: 8px; height: 8px; background: #a87928; transform: rotate(45deg); pointer-events: none;
+}
