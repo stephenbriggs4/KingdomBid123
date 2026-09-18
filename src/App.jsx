@@ -28343,7 +28343,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                   <div className="kb-marketplace-featured-projects__head">
                     <div>
                       <p className="kb-marketplace-section-kicker">Featured</p>
-                      <h2 id="kb-marketplace-featured-projects-title">A closer look at current needs.</h2>
+                      <h2 id="kb-marketplace-featured-projects-title">{catFilter && catFilter !== 'All' ? `Featured ${formatMarketplaceCategoryLabel(catFilter, catFilter)}` : 'Featured projects'}</h2>
                       <span>Grab and drag to explore.</span>
                     </div>
                   </div>
@@ -35153,7 +35153,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               <div>
                 <p className="kb-marketplace-section-kicker">Featured</p>
                 <div className="kb-marketplace-section-title-line">
-                  <h2 id="kb-marketplace-featured-title">Featured for your church</h2>
+                  <h2 id="kb-marketplace-featured-title">{category && category !== 'All' ? `Featured ${formatMarketplaceCategoryLabel(category, category)}` : 'Featured for your church'}</h2>
                   <span>Drag to explore →</span>
                 </div>
               </div>
