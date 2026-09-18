@@ -1255,3 +1255,15 @@ html body .fb-landing-v2 section.fb-how-it-works {
 .kb-audience__text strong { font-size: 15px; }
 .kb-audience__text span { max-width: 290px; margin-top: 3px; font-size: 13px; line-height: 1.45; }
 @media (max-width: 900px) { .kb-audience { padding: 36px 22px; } .kb-audience__inner { gap: 26px; } .kb-audience__steps { padding-top: 22px; } .kb-audience__cta { width: auto; } }
+
+/* Hero wordmark sits above the eyebrow (tagline cropped out of the lockup); header shows the FB monogram. */
+html body .fb-landing-v2 .fb-landing-hero-wordmark {
+  display: block;
+  width: clamp(190px, 15vw, 250px);
+  height: clamp(48px, 3.9vw, 65px);
+  margin: 0 auto 14px;
+  object-fit: cover;
+  object-position: 50% 10%;
+  user-select: none;
+}
+html body .fb-landing-v2 .fb-landing-nav-brand { min-width: 0 !important; }

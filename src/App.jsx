@@ -44781,7 +44781,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
       <section className="land-hero fb-landing-hero" aria-labelledby="faithbid-landing-title">
         <nav className="land-nav fb-landing-nav" aria-label="FaithBid home navigation">
           <button type="button" className="fb-landing-nav-brand" onClick={()=>nav("landing")} aria-label="FaithBid home">
-            <CrossLogo size={52} variant="full" />
+            <CrossLogo size={46} variant="monogram" />
           </button>
           <div className="land-nav-links fb-landing-nav-links">
             <button type="button" className="land-nav-btn" onClick={()=>scrollToAudience("for-churches")}>For Churches</button>
@@ -44797,6 +44797,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
         </nav>
 
         <div className="land-hero-body fb-landing-hero-body">
+          <img className="fb-landing-hero-wordmark" src={FAITHBID_LOGO_FULL} alt="FaithBid" draggable="false" />
           <div className="fb-landing-hero-kicker">Faith founded. Service driven.</div>
           <h1 id="faithbid-landing-title" className="land-h1 fb-landing-title">Where calling meets craft.</h1>
           <p className="land-sub fb-landing-subtitle">{LANDING_HERO_SUBTITLE}</p>
