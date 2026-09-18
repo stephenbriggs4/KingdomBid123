@@ -57,7 +57,6 @@ test('three annotations are real elements with decorative connectors', () => {
   assert.equal((reveal.match(/<svg className="kb-landing-glimpse__line"[^>]*aria-hidden="true"/g) || []).length, 3);
   assert.match(reveal, /kb-landing-glimpse__halo" aria-hidden="true"/);
   assert.match(reveal, /kb-landing-glimpse__ground" aria-hidden="true"/);
-  assert.match(reveal, /kb-landing-glimpse__foliage[\s\S]*aria-hidden="true"/);
 });
 
 test('composition scales continuously so a laptop shows the same picture as a monitor', () => {

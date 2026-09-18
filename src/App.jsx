@@ -44268,40 +44268,6 @@ const LANDING_GLIMPSE_CARDS = [
   },
 ];
 
-const LANDING_GLIMPSE_FRONDS = {
-  left: { view: "0 0 320 420", rachis: [[74, -30], [104, 170], [34, 402]], count: 7, longSide: -1, long: 140, short: 52 },
-  right: { view: "0 0 320 440", rachis: [[314, 452], [238, 300], [150, 0]], count: 7, longSide: -1, long: 146, short: 50 },
-};
-
-function LandingGlimpseFoliage({ side }) {
-  const cfg = LANDING_GLIMPSE_FRONDS[side];
-  const [A, C, B] = cfg.rachis;
-  const leaves = [];
-  for (let i = 1; i <= cfg.count; i += 1) {
-    const s = i / (cfg.count + 1);
-    const x = (1 - s) * (1 - s) * A[0] + 2 * (1 - s) * s * C[0] + s * s * B[0];
-    const y = (1 - s) * (1 - s) * A[1] + 2 * (1 - s) * s * C[1] + s * s * B[1];
-    const dx = 2 * (1 - s) * (C[0] - A[0]) + 2 * s * (B[0] - C[0]);
-    const dy = 2 * (1 - s) * (C[1] - A[1]) + 2 * s * (B[1] - C[1]);
-    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-    const taper = 0.62 + 0.38 * Math.sin(s * Math.PI);
-    [-1, 1].forEach((dir) => {
-      const jitter = Math.sin(i * 12.9898 + dir * 78.233 + (cfg.count * 3.7)) * 0.5 + 0.5;
-      const len = (dir === cfg.longSide ? cfg.long : cfg.short) * taper * (0.8 + jitter * 0.38);
-      const rot = angle + dir * (46 + jitter * 22);
-      const rad = (rot * Math.PI) / 180;
-      const cx = x + Math.cos(rad) * len * 0.9;
-      const cy = y + Math.sin(rad) * len * 0.9;
-      leaves.push(<ellipse key={`${i}-${dir}`} cx={cx.toFixed(1)} cy={cy.toFixed(1)} rx={(len * 0.2 + 3).toFixed(1)} ry={len.toFixed(1)} transform={`rotate(${(rot - 90).toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})`} fillOpacity={i % 2 ? 1 : 0.72} />);
-    });
-  }
-  return (
-    <svg className={`kb-landing-glimpse__foliage is-${side}`} viewBox={cfg.view} aria-hidden="true" focusable="false">
-      {leaves}
-    </svg>
-  );
-}
-
 function LandingGlimpseConnector({ position }) {
   if (position === "left") {
     return (
@@ -44389,8 +44355,6 @@ function LandingExampleReveal() {
 
   return (
     <section id="landing-example-reveal" ref={sectionRef} className={`kb-landing-glimpse${motionReady ? " is-motion-ready" : ""}${revealed ? " is-revealed" : ""}`} aria-labelledby="landing-example-reveal-title">
-      <LandingGlimpseFoliage side="left" />
-      <LandingGlimpseFoliage side="right" />
       <div className="kb-landing-glimpse__inner">
         <header className="kb-landing-glimpse__head">
           <div className="kb-landing-glimpse__eyebrow">A glimpse inside</div>
@@ -44755,51 +44719,6 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
       {/* ── FAQ ── */}
       <LandingFAQ/>
 
-      <section className="landing-final-proof fb-final-access-v2">
-        <div className="fb-final-access-v2__inner">
-          <header className="fb-final-access-v2__head">
-            <div className="fb-section-eyebrow">Before you sign up</div>
-            <h2>See the kind of work FaithBid is built to organize.</h2>
-            <p>These examples show the shape of a project brief—not live inventory. Real projects only appear after a church chooses to publish.</p>
-          </header>
-          <div className="fb-final-access-v2__cards" aria-label="Illustrative FaithBid project briefs">
-            <FaithBidCard11A
-              variant="marketplace"
-              image="/images/faithbid-marketplace-church-v2.png"
-              imageAlt=""
-              title="Sanctuary audio assessment"
-              topLabel="Example — not a live listing"
-              trustLabel="AV & Tech"
-              detail="Assess coverage, speech clarity, and upgrade priorities before requesting proposals."
-              avatarText="FB"
-              meta="Illustrative Dallas-area brief"
-              valueLabel="Stage"
-              value="Planning"
-              actionLabel="How it works"
-              onAction={scrollToHowItWorks}
-            />
-            <FaithBidCard11A
-              variant="marketplace"
-              image="/images/faithbid-landing-church.png"
-              imageAlt=""
-              title="Church website refresh"
-              topLabel="Example — not a live listing"
-              trustLabel="Web & Creative"
-              detail="Clarify goals, content needs, timing, and handoff expectations in one organized brief."
-              avatarText="FB"
-              meta="Illustrative Dallas-area brief"
-              valueLabel="Stage"
-              value="Scoping"
-              actionLabel="How it works"
-              onAction={scrollToHowItWorks}
-            />
-          </div>
-          <div className="fb-final-access-v2__cta-row">
-            <p>Reserve a place in the first Dallas pilot. Nothing is posted until your church is ready.</p>
-            <button type="button" onClick={()=>{ trackLandingCta("church", "final_proof", "church-signup"); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }}>Reserve church access →</button>
-          </div>
-        </div>
-      </section>
 
     </div>
   );

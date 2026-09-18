@@ -881,9 +881,6 @@ html body .fb-final-access-v2 {
   border-bottom: 1px solid rgba(18, 55, 45, .08);
   color: #17352b;
 }
-.kb-landing-glimpse__foliage { position: absolute; z-index: 0; max-width: none; height: auto; color: #6b5d43; opacity: .15; fill: currentColor; filter: blur(calc(10 * var(--px))); pointer-events: none; }
-.kb-landing-glimpse__foliage.is-left { left: 0; top: 0; width: calc(320 * var(--px)); }
-.kb-landing-glimpse__foliage.is-right { right: 0; top: calc(360 * var(--px)); width: calc(320 * var(--px)); }
 .kb-landing-glimpse__inner { position: relative; z-index: 1; width: min(1600px, 100%); margin: 0 auto; }
 
 .kb-landing-glimpse__head { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; text-align: center; }
@@ -989,7 +986,6 @@ html body .fb-final-access-v2 {
   .kb-landing-glimpse__stage { width: 100%; margin-top: 34px; }
   .kb-landing-glimpse__halo,
   .kb-landing-glimpse__ground,
-  .kb-landing-glimpse__foliage,
   .kb-landing-glimpse__motif span { display: none; }
   .kb-landing-glimpse__cards { flex-direction: column; align-items: center; gap: 34px; }
   .kb-landing-glimpse__item,
