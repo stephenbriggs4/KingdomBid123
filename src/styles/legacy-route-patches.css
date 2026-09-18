@@ -9934,3 +9934,5 @@ html body .kb-topnav-account-head-avatar {
 }
 html body .topnav .kb-topnav-account-trigger:hover .kb-topnav-account-avatar { box-shadow: 0 0 0 2px rgba(168, 121, 40, .85), 0 8px 18px rgba(28, 40, 20, .22) !important; }
 html body .topnav .kb-topnav-account-avatar .nav-av-online { text-indent: 0; right: -1px !important; bottom: -1px !important; width: 10px !important; height: 10px !important; border: 2px solid #fffdf8 !important; }
+html body .topnav .kb-topnav-account-avatar,
+html body .kb-topnav-account-head-avatar { background-size: 420% !important; background-position: 87% 42% !important; }
