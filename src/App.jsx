@@ -44415,6 +44415,67 @@ function LandingGlimpseCard({ item }) {
   );
 }
 
+const LANDING_AUDIENCE = {
+  church: {
+    id: "for-churches",
+    eyebrow: "For churches",
+    title: ["Find the right people", "for what matters most."],
+    body: "Share your needs, connect with thoughtfully reviewed Christian professionals, and keep your church projects organized from start to finish.",
+    cta: "Request Church Access",
+    steps: [
+      { icon: "document", title: "Share a project", body: "Tell us what you’re looking for in a few simple steps." },
+      { icon: "people", title: "Review options", body: "Explore professionals who align with your needs." },
+      { icon: "check", title: "Move forward", body: "Choose the right fit and keep everything organized in one place." },
+    ],
+  },
+  vendor: {
+    id: "for-vendors",
+    eyebrow: "For vendors",
+    title: ["Put your skills to work", "for a higher purpose."],
+    body: "Apply to join FaithBid, complete your profile, and get considered for church projects in our first Dallas pilot. Build your portfolio, grow your reputation, and make a real impact.",
+    cta: "Apply as a Vendor",
+    steps: [
+      { icon: "document", title: "Apply to join", body: "Tell us about your business and areas of expertise." },
+      { icon: "person", title: "Complete your profile", body: "Showcase your work, specialties, and values." },
+      { icon: "bars", title: "Get considered", body: "Be notified of relevant church opportunities as our community grows." },
+    ],
+  },
+};
+
+function LandingAudienceIcon({ kind }) {
+  const p = { viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" };
+  if (kind === "people") return <svg {...p}><circle cx="9" cy="8.5" r="3.2" /><path d="M3 20c.4-3.4 2.8-5.4 6-5.4s5.6 2 6 5.4" /><path d="M15.5 5.6a3.1 3.1 0 0 1 0 5.8M17 14.8c2.2.5 3.7 2.2 4 5.2" /></svg>;
+  if (kind === "check") return <svg {...p}><circle cx="12" cy="12" r="8.6" /><path d="m8.2 12.4 2.6 2.6 5-5.4" /></svg>;
+  if (kind === "person") return <svg {...p}><circle cx="12" cy="8.2" r="3.6" /><path d="M4.6 20.4c.5-4 3.4-6.2 7.4-6.2s6.9 2.2 7.4 6.2" /></svg>;
+  if (kind === "bars") return <svg {...p}><path d="M5 20V12M11 20V5M17 20v-9M3.5 20.5h17" /></svg>;
+  return <svg {...p}><path d="M6.5 3.5h8l4 4v13h-12v-17Z" /><path d="M14.5 3.5v4h4M9 12h6M9 15.5h6M9 8.5h2.5" /></svg>;
+}
+
+function LandingAudienceSection({ role, onCta }) {
+  const c = LANDING_AUDIENCE[role];
+  return (
+    <section id={c.id} className={`kb-audience kb-audience--${role}`} aria-labelledby={`${c.id}-title`}>
+      <div className="kb-audience__inner">
+        <div className="kb-audience__copy">
+          <p className="kb-audience__eyebrow"><span>{c.eyebrow}</span><i aria-hidden="true" /></p>
+          <h2 id={`${c.id}-title`}>{c.title.map((line) => <span key={line}>{line}</span>)}</h2>
+          <p className="kb-audience__body">{c.body}</p>
+          <button type="button" className={`kb-audience__cta${role === "vendor" ? " is-secondary" : ""}`} onClick={onCta}><span>{c.cta}</span><span aria-hidden="true">→</span></button>
+          {!LAUNCHED ? <p className="kb-audience__micro">Dallas pilot · Limited early access</p> : null}
+        </div>
+        <ol className="kb-audience__steps">
+          {c.steps.map((s) => (
+            <li key={s.title}>
+              <span className="kb-audience__icon"><LandingAudienceIcon kind={s.icon} /></span>
+              <span className="kb-audience__text"><strong>{s.title}</strong><span>{s.body}</span></span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
 function LandingExampleReveal() {
   const sectionRef = useRef(null);
   const [revealed, setRevealed] = useState(false);
@@ -44635,6 +44696,11 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
     document.getElementById("pricing-section")?.scrollIntoView({ behavior:"smooth", block:"start" });
   };
 
+  const scrollToAudience = (id) => {
+    if (typeof document === "undefined") return;
+    document.getElementById(id)?.scrollIntoView({ behavior:"smooth", block:"start" });
+  };
+
   const scrollToHowItWorks = () => {
     if (typeof document === "undefined") return;
     document.getElementById("how-faithbid-works")?.scrollIntoView({ behavior:"smooth", block:"start" });
@@ -44718,8 +44784,8 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
             <CrossLogo size={52} variant="full" />
           </button>
           <div className="land-nav-links fb-landing-nav-links">
-            <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>For Churches</button>
-            <button type="button" className="land-nav-btn" onClick={scrollToVendorPricing}>For Vendors</button>
+            <button type="button" className="land-nav-btn" onClick={()=>scrollToAudience("for-churches")}>For Churches</button>
+            <button type="button" className="land-nav-btn" onClick={()=>scrollToAudience("for-vendors")}>For Vendors</button>
             <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>How It Works</button>
             <button type="button" className="land-nav-btn" onClick={()=>nav("about")}>About</button>
           </div>
@@ -44743,8 +44809,10 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
         </div>
       </section>
 
+      <LandingAudienceSection role="church" onCta={()=>enterAccessFlow("church", "for_churches")} />
       <FirstSessionTrustRail />
       <LandingExampleReveal />
+      <LandingAudienceSection role="vendor" onCta={()=>enterAccessFlow("vendor", "for_vendors")} />
 
       {/* ── STATS + BROWSE ALL ROW ── */}
       {(()=>{
