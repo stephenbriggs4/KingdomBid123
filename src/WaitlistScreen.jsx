@@ -10,29 +10,29 @@ function applyWaitlistScreenDependencies(values = {}) {
 function getWaitlistRoleMeta() {
   return Object.freeze({
   church: {
-    eyebrow: "Founding Church access",
-    headline: "Reserve access for your church.",
-    subhead: `Opening ${LAUNCH_LABEL}. Reserve a place for your church before public launch. This is not a live project post, not a commitment, and not a vendor inquiry — it simply holds early access for your ministry.`,
+    eyebrow: "Dallas pilot · Limited early access",
+    headline: "Request access for your church.",
+    subhead: "We’re welcoming a small group of Dallas-area churches to our pilot. Tell us about your church and we’ll follow up. This isn’t a project post or a commitment, and it doesn’t create an account yet.",
     benefits: [
-      { title: "No project posted yet", body: "Your church is only reserving access. You can create a project later, when the need, budget, and timing are clear." },
+      { title: "No project posted yet", body: "Your church is only requesting access. You can create a project later, when the need, budget, and timing are clear." },
       { title: "Built for church hiring", body: "Compare vendors who understand ministry work instead of chasing referrals across texts, spreadsheets, and inboxes." },
       { title: "Free during early access", body: "Founding churches can join before public launch and help shape the marketplace before it opens broadly." },
     ],
     bullets: [
-      "Reserve access now; publish your first project later.",
+      "Request access now; publish your first project later.",
       "Founding churches receive early vendor access as launch waves open.",
       "Your church is not committing to hire anyone by joining early access.",
     ],
     steps: [
-      "Reserve your church's access with a short form.",
+      "Request access for your church with a short form.",
       "We invite churches in focused launch waves by geography and project demand.",
       "When your wave opens, you can post your first project inside a guided workspace.",
     ],
-    primaryLabel: "Reserve my church's access →",
+    primaryLabel: "Request access →",
     secondaryLabel: "Back to FaithBid",
     requiredSummary: "5 required fields",
     microcopy: "No live project is posted. No vendor will contact you from this form.",
-    doneTitle: "Your church access is reserved.",
+    doneTitle: "Your access request is received.",
     doneBody: "Your first project can be created once your launch invite arrives — we'll email you the moment your wave opens.",
     positionLabel: "Church access spot",
     shareTitle: "Invite another church",
@@ -764,6 +764,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
         @keyframes kbWaitlistOrb { 0%, 100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 0.85; transform: scale(1.06); } }
         .kb-waitlist-rise { animation: kbWaitlistRise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
         .kb-waitlist-dot { animation: kbWaitlistPulse 2.4s ease-in-out infinite; }
+        .kb-waitlist-input { min-height: 52px; font-size: 15px; }
         .kb-waitlist-input::placeholder { color: rgba(34,48,27,0.34); }
         .kb-waitlist-page { position: relative; overflow: hidden; }
         .kb-waitlist-page::before { content:""; position: fixed; inset: 0; pointer-events: none; z-index: 0; }
@@ -816,7 +817,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           .kb-waitlist-hero-meta-clean { width: 100% !important; max-width: 100% !important; gap: 7px !important; }
         }
       `}</style>
-      <div className="kb-waitlist-shell kb-waitlist-landing-clean" style={{ maxWidth: 700, margin: "0 auto", padding: "18px 28px 64px" }}>
+      <div className="kb-waitlist-shell kb-waitlist-landing-clean" style={{ maxWidth: 780, margin: "0 auto", padding: "18px 28px 64px" }}>
 
         <div className="kb-waitlist-topline" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 26, width: "100vw", maxWidth: "100vw", marginLeft: "calc(50% - 50vw)", padding: "0 clamp(18px, 3vw, 48px)", boxSizing: "border-box" }}>
           <button
@@ -889,7 +890,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
 
             <div className="kb-waitlist-hero-meta-clean" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap", maxWidth: 680, margin: "0 auto", padding: "9px 14px", borderRadius: 999, border: `1px solid ${border}`, background: "rgba(255,255,255,0.68)", color: muted, fontSize: 11.8, lineHeight: 1.45, fontWeight: 600, letterSpacing: "0.01em", boxShadow: "0 12px 28px rgba(21,28,24,0.045)" }}>
               <span style={{ width: 6, height: 6, borderRadius: 999, background: accent, boxShadow: `0 0 0 3px ${accentSoft}`, flex: "0 0 auto" }} />
-              <span style={{ color: accent, fontWeight: 800 }}>{isVendor ? "Charter review" : "Access reservation"}</span>
+              <span style={{ color: accent, fontWeight: 800 }}>{isVendor ? "Charter review" : "Access request"}</span>
               <span style={{ width: 3, height: 3, borderRadius: 999, background: "rgba(34,48,27,0.22)", flex: "0 0 auto" }} />
               <span>{isVendor ? "Free to apply · profile after acceptance" : "No project posted · free to reserve"}</span>
               <span style={{ width: 3, height: 3, borderRadius: 999, background: "rgba(34,48,27,0.22)", flex: "0 0 auto" }} />
@@ -904,7 +905,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
             background: cardBg,
             borderRadius: 20,
             border: `1px solid ${formBorder}`,
-            padding: "24px 24px 21px",
+            padding: "34px 34px 30px",
             boxShadow: "0 24px 64px rgba(21,28,24,0.11), 0 0 0 1px rgba(255,255,255,0.75) inset",
             animationDelay: "0.08s",
             opacity: mounted ? 1 : 0,
@@ -913,7 +914,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:16,marginBottom:16,paddingBottom:14,borderBottom:`1px solid ${formBorder}`}}>
             <div>
               <div style={{fontSize:10.5,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:formAccent,marginBottom:5}}>{isVendor ? "Charter review" : "Access reservation"}</div>
-              <div style={{fontFamily:"var(--font-display), serif",fontSize:20,fontWeight:700,lineHeight:1.08,letterSpacing:"-0.02em",color:formText}}>{isVendor ? "Submit the essentials." : "Reserve your church's spot."}</div>
+              <div style={{fontFamily:"var(--font-display), serif",fontSize:20,fontWeight:700,lineHeight:1.08,letterSpacing:"-0.02em",color:formText}}>{isVendor ? "Submit the essentials." : "Tell us about your church."}</div>
             </div>
             <div style={{padding:"7px 10px",borderRadius:999,background:softBg,border:`1px solid ${formBorder}`,color:formMuted,fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>{meta.requiredSummary}</div>
           </div>
@@ -1205,7 +1206,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
               <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(34,48,27,0.22)" }} />
               <span>Unsubscribe anytime</span>
               <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(34,48,27,0.22)" }} />
-              <span>{isVendor ? "Reviewed in 5 days" : "Reply in 24 hours"}</span>
+              <span>{isVendor ? "Reviewed in 5 days" : "We’ll follow up by email"}</span>
             </div>
           </div>
         </div>

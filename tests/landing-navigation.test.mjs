@@ -12,7 +12,7 @@ test("desktop landing navigation has the agreed destination set", () => {
 
 test("mobile landing navigation mirrors desktop and preserves sign-in and access", () => {
   const menu = source.match(/function LandingMobileMenu[\s\S]*?function LandingCoverageMap/)?.[0] || "";
-  for (const label of ["For Churches", "For Vendors", "How It Works", "Faith Verified", "About", "Sign In", "Reserve Church Access"]) assert.match(menu, new RegExp(`>${label}<`));
+  for (const label of ["For Churches", "For Vendors", "How It Works", "Faith Verified", "About", "Sign In", "Request Church Access"]) assert.match(menu, new RegExp(`>${label}<`));
   assert.match(menu, /closeAndScrollTo\("how-faithbid-works"\)/);
   assert.match(menu, /closeAndScrollTo\("faith-verified"\)/);
   assert.match(menu, /closeAndScrollTo\("for-churches"\)/);

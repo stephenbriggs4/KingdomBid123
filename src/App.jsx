@@ -44172,7 +44172,7 @@ function LandingMobileMenu({nav, setAuthDefaultRole, setStartFreeDefaultRole}){
                 className="land-menu-primary-action is-church"
                 onClick={()=>closeAndNav("church-signup", ()=>{ if (typeof setStartFreeDefaultRole === "function") setStartFreeDefaultRole("church"); })}
               >
-                <span>Reserve Church Access</span>
+                <span>Request Church Access</span>
                 <span aria-hidden="true">→</span>
               </button>
             </div>
