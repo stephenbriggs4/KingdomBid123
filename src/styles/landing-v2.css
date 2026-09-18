@@ -1200,3 +1200,7 @@ html body #root footer.fb-public-footer-v2 .fb-public-footer-v2__nav button { co
 
 /* Glimpse shares the How It Works background; the divider between them stays. */
 .fb-landing-v2 .kb-landing-glimpse { background: var(--fb-landing-ivory, #f8f4ec); border-top: 0; border-bottom: 0; }
+
+/* Glimpse: pure white, and no halo ring (its curved outline ran through the sub-heading). */
+.fb-landing-v2 .kb-landing-glimpse { background: #fff; }
+.kb-landing-glimpse__halo { display: none; }
