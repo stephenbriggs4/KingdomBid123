@@ -1413,3 +1413,23 @@ html body #root footer.fb-public-footer-v2 { padding: 34px clamp(26px, 3vw, 56px
   .fb-foot__group a, .fb-foot__group button { font-size: 13px; }
   .fb-foot__brand .kb-brand-logo { height: 46px !important; }
 }
+
+/* Footer tweaks: logo a touch lower, columns slightly closer, no vertical rule. */
+@media (min-width: 901px) {
+  .fb-foot__brand { padding-top: 10px; }
+  .fb-foot__nav { gap: clamp(20px, 2.4vw, 40px); }
+  .fb-foot__legal { border-left: 0; }
+}
+
+/* Landing nav: barely-visible light dividers between links. */
+html body .fb-landing-v2 .fb-landing-nav-links .land-nav-btn { position: relative; }
+html body .fb-landing-v2 .fb-landing-nav-links .land-nav-btn + .land-nav-btn::before {
+  content: "";
+  position: absolute;
+  left: calc(-0.5 * clamp(14px, 2.2vw, 34px) - 2px);
+  top: 50%;
+  width: 1px;
+  height: 16px;
+  transform: translateY(-50%);
+  background: rgba(18, 55, 45, .14);
+}
