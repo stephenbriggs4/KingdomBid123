@@ -1237,3 +1237,21 @@ html body .fb-landing-v2 section.fb-how-it-works {
   .kb-audience__steps { padding: 34px 0 0; border-left: 0; border-top: 1px solid rgba(18, 55, 45, .14); }
   .kb-audience__cta { width: 100%; min-width: 0; }
 }
+
+/* Audience sections: compact. */
+.kb-audience { padding: clamp(34px, 3.6vw, 52px) 24px; }
+.kb-audience__inner { width: min(1040px, 100%); }
+.kb-audience__copy { padding-right: clamp(24px, 3.4vw, 52px); }
+.kb-audience__eyebrow { gap: 12px; margin: 0 0 14px; font-size: 10.5px; }
+.kb-audience__eyebrow i { width: 44px; }
+.kb-audience h2 { font-size: clamp(26px, 2.5vw, 38px); line-height: 1.06; }
+.kb-audience__body { max-width: 470px; margin: 14px 0 0; font-size: clamp(14px, .95vw, 15.5px); line-height: 1.55; }
+.kb-audience__cta { min-width: 0; height: 44px; margin-top: 20px; padding: 0 22px; gap: 14px; border-radius: 10px; font-size: 13.5px; box-shadow: 0 10px 22px rgba(18, 55, 45, .14); }
+.kb-audience__micro { margin: 12px 0 0; font-size: 9.5px; }
+.kb-audience__steps { padding: 2px 0 2px clamp(24px, 3.4vw, 52px); gap: 16px; }
+.kb-audience__steps li { grid-template-columns: 44px minmax(0, 1fr); gap: 16px; }
+.kb-audience__icon { width: 44px; height: 44px; }
+.kb-audience__icon svg { width: 20px; height: 20px; }
+.kb-audience__text strong { font-size: 15px; }
+.kb-audience__text span { max-width: 290px; margin-top: 3px; font-size: 13px; line-height: 1.45; }
+@media (max-width: 900px) { .kb-audience { padding: 36px 22px; } .kb-audience__inner { gap: 26px; } .kb-audience__steps { padding-top: 22px; } .kb-audience__cta { width: auto; } }
