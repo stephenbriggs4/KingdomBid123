@@ -2814,3 +2814,6 @@ html body #root .mkt2-root main.kb-marketplace-projects-body { padding-top: 16px
 }
 .kb-rail-wrap::before { box-shadow: 0 6px 0 rgba(168, 121, 40, .4) !important; }
 .kb-rail-wrap::after { box-shadow: 0 -6px 0 rgba(168, 121, 40, .4) !important; }
+
+/* Rails: drop the outer, darker line; keep only the inner one. */
+.kb-rail-wrap::before, .kb-rail-wrap::after { background: none !important; }
