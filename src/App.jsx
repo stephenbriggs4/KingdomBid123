@@ -26192,7 +26192,7 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
         {description ? <p className="kb-marketplace-project-card__description">{description}</p> : null}
         <div className="kb-marketplace-project-card__footer">
           <div><span>{footerLabel}</span><strong>{footerValue ?? budgetLabel}</strong></div>
-          <span className="kb-marketplace-project-card__open" aria-hidden="true">→</span>
+          <span className="kb-marketplace-project-card__open" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h13M13 6.5 18.5 12 13 17.5" /></svg></span>
         </div>
       </div>
     </article>
