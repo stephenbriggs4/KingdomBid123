@@ -2717,3 +2717,19 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
 @media (min-width: 1280px) {
   .kb-rail-wrap::before, .kb-rail-wrap::after { display: block; }
 }
+
+/* Railings: bolder and more ornate. */
+.kb-rail-wrap::before, .kb-rail-wrap::after {
+  width: 24px; top: -10px; bottom: -10px;
+  background:
+    radial-gradient(circle at 50% 9px, #f0d58f 0 3px, #d0a44a 3.5px 6px, #8f6a24 6.5px 8px, transparent 8.5px),
+    radial-gradient(circle at 50% calc(100% - 9px), #f0d58f 0 3px, #d0a44a 3.5px 6px, #8f6a24 6.5px 8px, transparent 8.5px),
+    linear-gradient(90deg, transparent 10px, #e6c67a 10px 11px, #b48a3e 11px 13px, #8f6a24 13px 14px, transparent 14px),
+    repeating-linear-gradient(180deg, transparent 0 22px, rgba(180, 138, 62, .85) 22px 24px, transparent 24px 26px);
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  -webkit-mask-image: linear-gradient(90deg, transparent 2px, #000 2px calc(100% - 2px), transparent calc(100% - 2px));
+  filter: drop-shadow(0 2px 6px rgba(143, 106, 36, .35));
+}
+.kb-rail-wrap::before { left: -44px; }
+.kb-rail-wrap::after { right: -44px; }
