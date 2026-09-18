@@ -182,7 +182,7 @@ html body #root .mkt2-root .mkt2-header {
 .mkt2-root .mkt2-header__inner {
   width: 100%;
   min-height: 0;
-  padding: clamp(28px, 2.2vw, 42px) clamp(44px, 5vw, 96px) clamp(18px, 1.4vw, 26px);
+  padding: clamp(28px, 2.2vw, 42px) clamp(80px, 9vw, 180px) clamp(18px, 1.4vw, 26px);
   display: block;
   background-color: #f4efe4;
   background-image:
@@ -327,11 +327,14 @@ html body #root .mkt2-root .mkt2-header {
 }
 
 .mkt2-root .mkt2-categories {
-  width: calc(100% - clamp(32px, 4vw, 96px));
+  /* Per-side inset must equal .mkt2-header__inner's horizontal padding,
+     clamp(80px, 9vw, 180px), so the total width reduction (split evenly by
+     margin: auto) is double that. */
+  width: calc(100% - clamp(160px, 18vw, 360px));
   max-width: none;
-  min-height: clamp(92px, 7vw, 112px);
+  min-height: clamp(64px, 4.6vw, 78px);
   margin: 0 auto;
-  padding: 12px 0 10px;
+  padding: 8px 0 7px;
   display: grid;
   grid-template-columns: repeat(8, minmax(110px, 1fr));
   overflow-x: auto;
@@ -344,12 +347,12 @@ html body #root .mkt2-root .mkt2-header {
 .mkt2-root .mkt2-categories button {
   position: relative;
   min-width: 110px;
-  padding: 7px 14px 12px;
+  padding: 5px 14px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 4px;
   border: 0;
   border-right: 1px solid rgba(55, 65, 58, 0.11);
   background: transparent;
@@ -366,7 +369,7 @@ html body #root .mkt2-root .mkt2-header {
   position: absolute;
   left: 24px;
   right: 24px;
-  bottom: 3px;
+  bottom: 2px;
   height: 2px;
   border-radius: 99px;
   background: transparent;
@@ -375,8 +378,8 @@ html body #root .mkt2-root .mkt2-header {
 .mkt2-root .mkt2-categories button.is-active::after { background: #a87928; }
 
 .mkt2-root .mkt2-categories svg {
-  width: 24px;
-  height: 24px;
+  width: 19px;
+  height: 19px;
 }
 
 .mkt2-root .mkt2-results-heading {
@@ -2020,9 +2023,12 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
   background: #fff !important;
 }
 
-/* Marketplace directory body — the photographic header above remains untouched. */
+/* Marketplace directory body — the photographic header above remains untouched.
+   Uses the same clamp() formula as .mkt2-header__inner/.mkt2-categories so the
+   Featured/All Vendors sections line up exactly under the header on both edges
+   instead of using a different, unrelated indentation amount. */
 .kb-marketplace-directory-body {
-  width: calc(100% - clamp(36px, 5vw, 112px));
+  width: calc(100% - clamp(160px, 18vw, 360px));
   max-width: none;
   margin: 0 auto;
   padding: 30px 0 clamp(64px, 7vw, 110px);

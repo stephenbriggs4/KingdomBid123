@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { supabase } from './supabaseClient'
 import * as Sentry from "@sentry/react";
-import { loadPendingWaitlistInvitationContext, normalizeWaitlistInvitationRole, restorePendingWaitlistInvitationRoute } from "./waitlistInvitationContext";
+import { clearPendingWaitlistInvitationContext, loadPendingWaitlistInvitationContext, normalizeWaitlistInvitationRole, restorePendingWaitlistInvitationRoute } from "./waitlistInvitationContext";
 import KBWorkspaceEmptyState from "./KBWorkspaceEmptyState";
 import "./styles/marketplace.css";
 import "./styles/legacy-route-patches.css";
 import "./styles/landing-v2.css";
 import "./styles/controls.css";
 import "./styles/marketplace-v2.css";
+// FaithBid cumulative checkpoint 0968 — marketplace compact card scale + tidy spacing lock.
+// 0977 — Project Detail canonical desktop POV lock: 1320px stage, fixed desktop geometry, monitor adds outer margin only.
 // Inlined 11A card implementation — cumulative single-file delivery.
 
 function FaithBidCard11A({
@@ -40,12 +42,18 @@ function FaithBidCard11A({
   const normalizedTopLabel = String(topLabel || "").trim();
   const isReviewStatus = /^bid under review$/i.test(normalizedTopLabel);
   const topColor = topTone === "green" ? "oklch(0.85 0.13 145)" : "oklch(0.85 0.1 85)";
-  const canOpen = typeof onOpen === "function";
+  // 0964 — one click contract for every card surface. Some older/illustrative
+  // card call sites only supplied onAction, which left the rest of the card
+  // inert. Use onOpen when present and otherwise promote the card action.
+  const cardOpenHandler = typeof onOpen === "function"
+    ? onOpen
+    : (!actionDisabled && typeof onAction === "function" ? onAction : null);
+  const canOpen = typeof cardOpenHandler === "function";
   const activate = (event) => {
     if (!canOpen) return;
     if (event?.type === "keydown" && event.key !== "Enter" && event.key !== " ") return;
     if (event?.type === "keydown") event.preventDefault();
-    onOpen(event);
+    cardOpenHandler(event);
   };
 
   if (variant === "marketplace") {
@@ -396,7 +404,7 @@ function recordPublicFunnelEvent(eventName, attributes = {}) {
 
 /* Inlined shared modules for single-file drop-in build */
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');`;
 
 // 853c — single source of truth for the public-facing FaithBid brand.
 // Internal KB/kb technical namespaces remain unchanged for persistence, RPC,
@@ -476,7 +484,8 @@ function PublicLegalFooter({ compact = false, nav, screen }) {
         }
         .fb-public-footer-v2.is-compact{padding-top:26px;padding-bottom:max(28px, env(safe-area-inset-bottom));}
         .fb-public-footer-v2__inner{width:min(1180px,100%);margin:0 auto;display:grid;grid-template-columns:minmax(190px,.7fr) minmax(300px,1fr) minmax(280px,1.45fr);gap:clamp(28px,4vw,62px);align-items:start;}
-        .fb-public-legal-footer__brand{font-family:var(--font-display),Georgia,serif;font-size:25px;font-weight:700;line-height:1;color:#fffaf0;letter-spacing:-.035em;margin-bottom:9px;}
+        .fb-public-legal-footer__brand{display:flex;align-items:center;min-height:60px;margin-bottom:10px;}
+        .fb-public-legal-footer__brand .kb-brand-logo{height:60px!important;width:auto!important;max-width:220px!important;}
         .fb-public-legal-footer__copyright{font-size:11.5px;font-weight:700;color:rgba(255,253,248,.78);letter-spacing:.01em;line-height:1.5;}
         .fb-public-footer-v2__tagline{font-size:10px;line-height:1.5;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,253,248,.48);margin-top:10px;}
         .fb-public-footer-v2__nav-title{font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#e0bd73;margin-bottom:12px;}
@@ -495,16 +504,16 @@ function PublicLegalFooter({ compact = false, nav, screen }) {
           .fb-public-footer-v2.is-compact{padding-top:24px;}
           .fb-public-footer-v2__inner{grid-template-columns:1fr;gap:24px;}
           .fb-public-footer-v2__nav{grid-template-columns:repeat(2,minmax(0,1fr));}
-          .fb-public-legal-footer__brand{font-size:23px;}
+          .fb-public-legal-footer__brand{min-height:50px;}
+          .fb-public-legal-footer__brand .kb-brand-logo{height:50px!important;max-width:184px!important;}
           .fb-public-legal-footer__copyright,.fb-public-legal-footer__copy,.fb-public-legal-footer__link{font-size:11px;}
           .fb-public-legal-footer__copy{line-height:1.55;}
         }
       `}</style>
       <div className="fb-public-footer-v2__inner">
         <div className="fb-public-legal-footer__identity">
-          <div className="fb-public-legal-footer__brand">FaithBid</div>
+          <div className="fb-public-legal-footer__brand"><CrossLogo size={compact ? 50 : 60} tone="inverse" /></div>
           <div className="fb-public-legal-footer__copyright">© {currentYear} {cfg.owner}. All rights reserved.</div>
-          <div className="fb-public-footer-v2__tagline">Faith founded. Service driven.</div>
         </div>
         {!compact && <nav className="fb-public-footer-v2__nav-block" aria-label="FaithBid footer navigation">
           <div className="fb-public-footer-v2__nav-title">Explore</div>
@@ -513,7 +522,6 @@ function PublicLegalFooter({ compact = false, nav, screen }) {
             <button type="button" onClick={()=>goToLandingSection("how-faithbid-works")}>How It Works</button>
             <button type="button" onClick={()=>goToLandingSection("pricing-section")}>Pricing</button>
             <button type="button" onClick={()=>goToLandingSection("landing-faq-section")}>FAQ</button>
-            <a href="#get-plugged-in" onClick={(event)=>{event.preventDefault();nav?.("get-plugged-in");}}>Get Plugged In</a>
             <a href="#partner" onClick={(event)=>{event.preventDefault();nav?.("partner");}}>Partner</a>
             <a href="#privacy" onClick={(event)=>{event.preventDefault();nav?.("privacy");}}>Privacy</a>
             <a href="#terms" onClick={(event)=>{event.preventDefault();nav?.("terms");}}>Terms</a>
@@ -705,6 +713,18 @@ const LANDING_HERO_SUBTITLE = LAUNCHED
 // Flip independently of LAUNCHED once you intend Growth Engine church links
 // to publish live projects again.
 const CHURCH_GROWTH_INTAKE_LIVE = false;
+
+// Church self-serve signup gate, separate from LAUNCHED and from the public
+// landing page's waitlist framing. Controls ONLY the `start-free` screen,
+// which is a real, working church signup (supabase.auth.signUp + profile
+// creation) with no in-app nav() entry point — every in-app "request access"
+// button still redirects to the church-signup/vendor-signup waitlist stubs.
+// The only way to reach it is a direct #/start-free link, which is exactly
+// the point: a link the team can hand a church directly, or fill out on a
+// church's behalf, without opening self-serve signup to public traffic.
+// Vendor signup stays invitation-only regardless of this flag — see the
+// 0162 guard inside StartFreeScreen's handleSubmit, which is unconditional.
+const CHURCH_SELF_SERVE_LIVE = true;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Reference-check automation — required Supabase schema
@@ -2957,6 +2977,40 @@ const KB_STORAGE_KEYS = Object.freeze({
   projectInterop: "kb_project_interop_v1",
   reviewTarget: "kb_review_target_v1",
 });
+// Keys that hold one account's data and must not survive into a different
+// account signing in on the same browser (B5: cross-account localStorage
+// persistence). Excludes pre-auth/device-global keys that are meant to
+// survive sign-out: pendingSignup, waitlistInvitation, guestProjectResume,
+// postAuthTarget (all consumed/cleared by their own dedicated flows).
+const KB_ACCOUNT_DERIVED_STORAGE_KEYS = Object.freeze([
+  KB_STORAGE_KEYS.projectWorkspace,
+  KB_STORAGE_KEYS.compareWorkspace,
+  KB_STORAGE_KEYS.projectOps,
+  KB_STORAGE_KEYS.returnContext,
+  KB_STORAGE_KEYS.inboxTarget,
+  KB_STORAGE_KEYS.projectTarget,
+  KB_STORAGE_KEYS.vendorTarget,
+  KB_STORAGE_KEYS.reviewTarget,
+  KB_STORAGE_KEYS.marketplaceBoardState,
+  KB_STORAGE_KEYS.marketplaceBoardScroll,
+  KB_STORAGE_KEYS.vendorDirectoryCache,
+  KB_STORAGE_KEYS.inboxDrafts,
+  KB_STORAGE_KEYS.inboxStarred,
+  KB_STORAGE_KEYS.inboxNextDismissed,
+  KB_STORAGE_KEYS.inboxSnoozed,
+  KB_STORAGE_KEYS.inboxMuted,
+  KB_STORAGE_KEYS.inboxAssigned,
+  KB_STORAGE_KEYS.inboxResolved,
+  KB_STORAGE_KEYS.inboxPinned,
+  KB_STORAGE_KEYS.inboxLastViewed,
+  KB_STORAGE_KEYS.persistenceManifest,
+  KB_STORAGE_KEYS.projectInterop,
+]);
+function clearAccountDerivedLocalStorage() {
+  KB_ACCOUNT_DERIVED_STORAGE_KEYS.forEach(key => {
+    try { localStorage.removeItem(key); } catch {}
+  });
+}
 const KB_SESSION_TARGET_KEYS = Object.freeze({
   inbox: KB_STORAGE_KEYS.inboxTarget,
   project: KB_STORAGE_KEYS.projectTarget,
@@ -3938,6 +3992,141 @@ function getValidMediaUrl(value = '') {
   return /^(https?:\/\/|data:image\/|blob:|\/)/i.test(url) ? url : '';
 }
 
+// 0960 — Canonical project-media contract. Live projects persist only the
+// private Storage object path (`projects.hero_image_path`). Signed URLs are
+// runtime presentation data and are never written back to the project row.
+// This keeps church-owned media private while letting existing project access
+// rules determine who may request a short-lived image URL.
+const KB_PROJECT_MEDIA_BUCKET = 'project-media';
+const KB_PROJECT_MEDIA_MAX_BYTES = 5 * 1024 * 1024;
+const KB_PROJECT_MEDIA_SIGNED_URL_TTL_SECONDS = 60 * 60;
+const KB_PROJECT_MEDIA_ALLOWED_TYPES = new Set(['image/jpeg','image/png','image/webp']);
+
+function validateProjectImageFile(file) {
+  if (!file) return '';
+  if (!KB_PROJECT_MEDIA_ALLOWED_TYPES.has(String(file.type || '').toLowerCase())) return 'Please choose a JPG, PNG, or WebP image.';
+  if (Number(file.size || 0) > KB_PROJECT_MEDIA_MAX_BYTES) return 'Project photo must be under 5 MB.';
+  return '';
+}
+
+function getProjectImageExtension(file) {
+  const type = String(file?.type || '').toLowerCase();
+  if (type === 'image/png') return 'png';
+  if (type === 'image/webp') return 'webp';
+  return 'jpg';
+}
+
+async function signProjectMediaPath(path) {
+  const cleanPath = String(path || '').trim();
+  if (!cleanPath) return '';
+  try {
+    const { data, error } = await supabase.storage
+      .from(KB_PROJECT_MEDIA_BUCKET)
+      .createSignedUrl(cleanPath, KB_PROJECT_MEDIA_SIGNED_URL_TTL_SECONDS);
+    if (error) throw error;
+    return data?.signedUrl || data?.signedURL || '';
+  } catch (error) {
+    logError('project-media-sign', error, { path: cleanPath });
+    return '';
+  }
+}
+
+async function hydrateProjectMediaUrls(rows = []) {
+  const source = Array.isArray(rows) ? rows : [];
+  const paths = Array.from(new Set(source.map(row => String(row?.hero_image_path || '').trim()).filter(Boolean)));
+  if (!paths.length) return source;
+  try {
+    const { data, error } = await supabase.storage
+      .from(KB_PROJECT_MEDIA_BUCKET)
+      .createSignedUrls(paths, KB_PROJECT_MEDIA_SIGNED_URL_TTL_SECONDS);
+    if (error) throw error;
+    const signedByPath = new Map();
+    (data || []).forEach(item => {
+      const key = String(item?.path || '').trim();
+      const signed = item?.signedUrl || item?.signedURL || '';
+      if (key && signed) signedByPath.set(key, signed);
+    });
+    return source.map(row => {
+      const path = String(row?.hero_image_path || '').trim();
+      const signed = signedByPath.get(path) || '';
+      return signed ? { ...row, hero_image_signed_url: signed, hero_image: signed } : row;
+    });
+  } catch (error) {
+    logError('project-media-sign-batch', error, { count: paths.length });
+    return source;
+  }
+}
+
+async function uploadProjectHeroImageSafe(projectId, file) {
+  const cleanProjectId = String(projectId || '').trim();
+  if (!cleanProjectId || !file) return { path:'', signedUrl:'', error:null };
+  const validationError = validateProjectImageFile(file);
+  if (validationError) return { path:'', signedUrl:'', error:new Error(validationError) };
+  const ext = getProjectImageExtension(file);
+  const path = `${cleanProjectId}/hero-${Date.now()}.${ext}`;
+  try {
+    const { error: uploadError } = await supabase.storage
+      .from(KB_PROJECT_MEDIA_BUCKET)
+      .upload(path, file, { upsert:false, contentType:file.type, cacheControl:'3600' });
+    if (uploadError) throw uploadError;
+
+    const { data: updatedProject, error: attachError } = await supabase.rpc('kb_set_project_hero_image', {
+      p_project_id: cleanProjectId,
+      p_path: path,
+    });
+    if (attachError) {
+      try { await supabase.storage.from(KB_PROJECT_MEDIA_BUCKET).remove([path]); } catch {}
+      throw attachError;
+    }
+
+    const signedUrl = await signProjectMediaPath(path);
+    return { path, signedUrl, project:updatedProject || null, error:null };
+  } catch (error) {
+    logError('project-media-upload', error, { projectId: cleanProjectId });
+    return { path:'', signedUrl:'', error };
+  }
+}
+
+function getProjectMediaUrl(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return getValidMediaUrl(value);
+  if (typeof value !== 'object') return '';
+  return getValidMediaUrl(
+    value.url ||
+    value.public_url ||
+    value.publicUrl ||
+    value.image_url ||
+    value.imageUrl ||
+    value.thumb_url ||
+    value.thumbUrl ||
+    value.src ||
+    ''
+  );
+}
+
+function getPersistedProjectMedia(project = {}) {
+  const direct = [project?.hero_image_signed_url, project?.hero_image, project?.image_url, project?.thumb_url];
+  for (const candidate of direct) {
+    const resolved = getProjectMediaUrl(candidate);
+    if (resolved) return resolved;
+  }
+  for (const collection of [project?.media, project?.gallery]) {
+    for (const item of safeArray(collection)) {
+      const resolved = getProjectMediaUrl(item);
+      if (resolved) return resolved;
+    }
+  }
+  return '';
+}
+
+function isIllustrativeMarketplaceProject(project = {}) {
+  return String(project?.id || '').startsWith('preview-project-');
+}
+
+function isIllustrativeMarketplaceId(value) {
+  return /^preview-(project|vendor)-/.test(String(value || '').trim());
+}
+
 function getVendorPrimaryImage(vendor = {}) {
   return getValidMediaUrl(vendor?.image_url) || getValidMediaUrl(vendor?.thumb_url) || '';
 }
@@ -4077,8 +4266,13 @@ function normalizeProjectEntity(p) {
     skills: safeArray(p.skills),
     requirements: safeArray(p.requirements),
     scope: firstNonEmpty(p.scope, ''),
-    hero_image: getValidMediaUrl(p.hero_image || p.image_url || p.thumb_url || ''),
-    media: safeArray(p.media || p.gallery).map(getValidMediaUrl).filter(Boolean),
+    hero_image_path: firstNonEmpty(p.hero_image_path, ''),
+    hero_image_signed_url: getProjectMediaUrl(p.hero_image_signed_url),
+    hero_image: getProjectMediaUrl(p.hero_image_signed_url) || getProjectMediaUrl(p.hero_image),
+    image_url: getProjectMediaUrl(p.image_url),
+    thumb_url: getProjectMediaUrl(p.thumb_url),
+    media: safeArray(p.media).map(getProjectMediaUrl).filter(Boolean),
+    gallery: safeArray(p.gallery).map(getProjectMediaUrl).filter(Boolean),
     hired_vendor_id: p.hired_vendor_id || null,
     hired_vendor_name: firstNonEmpty(p.hired_vendor_name, ''),
     hired_bid_id: p.hired_bid_id || null,
@@ -6564,6 +6758,7 @@ async function persistMatchmakerOutcomeEvent({
     const vendorUserId = clean(firstNonEmpty(vendor?.user_id, vendor?.vendor_user_id));
     const fit = vendor?.recommendedFit || {};
     if (!projectId || !actorUserId || !vendorId) return { ok: false, skipped: true, reason: 'missing_required_context' };
+    if ([projectId, vendorId, vendorUserId].some(isIllustrativeMarketplaceId)) return { ok: false, skipped: true, reason: 'illustrative_preview' };
 
     const payload = {
       event_type: event,
@@ -6618,6 +6813,7 @@ async function persistRecommendedVendorMatchSnapshot({ compareItemId, vendor, pr
     if (!projectId || !churchId || !vendorId || !createdBy || !fit?.label || !fit?.labelKey || !fit?.confidenceLevel) return null;
 
     const vendorUserId = clean(firstNonEmpty(vendor?.user_id, vendor?.vendor_user_id));
+    if ([projectId, vendorId, vendorUserId].some(isIllustrativeMarketplaceId)) return null;
     const payload = {
       project_id: projectId,
       church_id: churchId,
@@ -6714,6 +6910,7 @@ async function createRecommendedVendorInviteRecord({ vendor, project, currentUse
     const createdBy = clean(currentUser?.id);
     const vendorId = clean(firstNonEmpty(vendor?.id, vendor?.vendor_id, vendor?.user_id));
     if (!projectId || !churchId || !vendorId || !createdBy) return { ok: false, skipped: true, reason: 'missing_required_context' };
+    if ([projectId, vendorId, clean(firstNonEmpty(vendor?.user_id, vendor?.vendor_user_id))].some(isIllustrativeMarketplaceId)) return { ok: false, skipped: true, reason: 'illustrative_preview' };
 
     const matchSnapshotId = await persistRecommendedVendorMatchSnapshot({
       compareItemId: null,
@@ -10259,6 +10456,37 @@ html.gpi-public-host-active body #kb-main-content>*>*{
 .topnav-brand-wordmark{font-family:var(--font-display),serif;font-size:19px;font-weight:600;letter-spacing:-0.018em;color:#1C2814;line-height:1;display:block;}
 .topnav-brand-crown{position:absolute;left:1px;top:-8px;width:30px;height:18px;color:#C4973A;overflow:visible;opacity:0.85;}
 .topnav-brand-swoosh{display:none;}
+/* V961 — canonical logo transparency lock. The approved artwork is already
+   alpha-transparent; these rules prevent legacy/global button/image styles
+   from painting a white/gray rectangle around it on any surface. */
+.kb-brand-logo{
+  background:transparent!important;
+  background-color:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+  outline:0!important;
+}
+.fb-landing-nav-brand,.fb-auth-brand{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.fb-landing-nav-brand::before,.fb-landing-nav-brand::after,
+.fb-auth-brand::before,.fb-auth-brand::after{
+  display:none!important;
+  content:none!important;
+}
+.fb-public-legal-footer__brand,.topnav .logo,.topnav-brand{
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+}
 .nav-tabs{display:flex;align-items:center;gap:3px;flex:1;min-width:0;margin:0 14px 0 18px;height:58px;}
 .nav-tab-sep{display:none;}
 .nav-tab{display:flex;align-items:center;gap:6px;padding:0 11px;height:58px;border-radius:0;font-size:12.25px;font-weight:600;color:rgba(28,40,20,0.50);border:none;background:none;cursor:pointer;font-family:var(--font-sans),sans-serif;transition:color 0.18s,background 0.18s;white-space:nowrap;letter-spacing:-0.003em;position:relative;}
@@ -20200,18 +20428,28 @@ function getProjectCardTimelineLabel(project = {}, fallback = "Draft") {
   return raw.length > 26 ? `${raw.slice(0, 23)}…` : raw;
 }
 
+// One neutral fallback for real projects that do not yet have persisted media.
+// This is intentionally brand-neutral and stable across card/detail surfaces.
+const KB_PROJECT_MEDIA_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Crect width='1200' height='800' fill='%23f8f3ea'/%3E%3Cpath d='M0 642 C235 545 405 710 635 600 C870 488 990 520 1200 620 V800 H0 Z' fill='%23dfd5c2'/%3E%3Ccircle cx='930' cy='210' r='118' fill='%23c9a45c' opacity='.28'/%3E%3Cpath d='M165 178 H1035 V622 H165 Z' fill='none' stroke='%23b9aa8d' stroke-width='14' opacity='.42'/%3E%3C/svg%3E";
+
 function getProjectHeroImage(project = {}, _variant = 0){
-  // v765: approved category board. One canonical image per category across
-  // Marketplace, Hand-picked, All Project Briefs, Vendor POV, and project detail.
-  // Keep the resolver as the single source of truth so tags and photos stay aligned.
-  const categoryKey = getProjectCardCategoryKey(project);
-  if (categoryKey && CATEGORY_HERO[categoryKey]) return CATEGORY_HERO[categoryKey];
-  const titleKey = String(project?.title || "").trim();
-  if (titleKey && PROJECT_CARD_HEROES[titleKey]) return PROJECT_CARD_HEROES[titleKey];
-  return KB_PROJECT_CARD_IMAGE_RESET_EMPTY;
+  // 0960: signed canonical project media always wins for real and preview records.
+  const persisted = getPersistedProjectMedia(project);
+  if (persisted) return persisted;
+
+  // Browser-only illustrative preview inventory may use the curated category
+  // image board. It is explicitly not live Supabase inventory.
+  if (isIllustrativeMarketplaceProject(project)) {
+    const previewCategoryKey = getProjectCardCategoryKey(project);
+    if (previewCategoryKey && CATEGORY_HERO[previewCategoryKey]) return CATEGORY_HERO[previewCategoryKey];
+  }
+
+  // Real projects without an uploaded/persisted image never borrow a category
+  // stock image. They use one honest neutral fallback until project media exists.
+  return KB_PROJECT_MEDIA_FALLBACK;
 }
 
-const KB_IMAGE_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Crect width='1200' height='800' fill='%23f8f3ea'/%3E%3Cpath d='M0 642 C235 545 405 710 635 600 C870 488 990 520 1200 620 V800 H0 Z' fill='%23dfd5c2'/%3E%3Ccircle cx='930' cy='210' r='118' fill='%23c9a45c' opacity='.28'/%3E%3Cpath d='M165 178 H1035 V622 H165 Z' fill='none' stroke='%23b9aa8d' stroke-width='14' opacity='.42'/%3E%3C/svg%3E";
+const KB_IMAGE_FALLBACK = KB_PROJECT_MEDIA_FALLBACK;
 
 function handleKbImageError(e) {
   try {
@@ -20245,29 +20483,26 @@ function statusBadge(status,urgent){
 }
 function formatNow(){return new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});}
 
-/* V886 — FaithBid wordmark surface integration lock.
-   Light surfaces use the refined forest-green/gold master.
-   Dark surfaces use the same exact geometry in warm-ivory/gold.
-   Landing keeps its existing home variant; Inbox/Messages opt into dark explicitly. */
-const FAITHBID_LOGO_FULL = "/logos/faithbid-logo-full.png";
-const FAITHBID_LOGO_DARK = "/logos/faithbid-logo-dark.png";
-const FAITHBID_LOGO_MARK = "/logos/faithbid-logo-mark.png";
-const FAITHBID_LOGO_WORDMARK = "/logos/faithbid-wordmark-black-v2.png";
-
-const FAITHBID_LOGO_HOME = "/logos/faithbid-logo-home.png";
+/* V957 — canonical FaithBid brand lock.
+   Stephen-approved source artwork only: the interlocking FB monogram and the
+   full FaithBid + "FAITH FOUNDED. SERVICE DRIVEN." lockup. Both are tightly
+   cropped transparent PNGs derived from the supplied canonical artwork and
+   embedded here so the cumulative App.jsx remains self-contained. */
+const FAITHBID_LOGO_MONOGRAM = "data:image/png;base64,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";
+const FAITHBID_LOGO_FULL = "data:image/png;base64,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";
 
 function CrossLogo({ size = 36, variant = "full", tone = "light", color, wordmarkColor, style = {} }) {
   const raw = Math.max(18, Number(size) || 36);
-  const isDarkWordmark = variant === "home" || variant === "dark";
-  const isFinalWordmark = variant === "wordmark";
-  const resolvedVariant = isFinalWordmark ? "wordmark" : isDarkWordmark ? "dark" : "full";
+  const isMonogram = variant === "monogram" || variant === "mark";
+  const resolvedVariant = isMonogram ? "monogram" : "full";
+  const isInverse = tone === "inverse" || tone === "dark";
   return (
     <img
-      src={isFinalWordmark ? FAITHBID_LOGO_WORDMARK : isDarkWordmark ? FAITHBID_LOGO_DARK : FAITHBID_LOGO_FULL}
+      src={isMonogram ? FAITHBID_LOGO_MONOGRAM : FAITHBID_LOGO_FULL}
       alt={BRAND.name}
       draggable="false"
       className={`kb-brand-logo kb-brand-logo-${resolvedVariant}`}
-      data-kb-brand-lockup="text-only"
+      data-kb-brand-lockup={resolvedVariant}
       style={{
         height: raw,
         width: "auto",
@@ -20275,9 +20510,18 @@ function CrossLogo({ size = 36, variant = "full", tone = "light", color, wordmar
         objectFit: "contain",
         display: "block",
         flexShrink: 0,
-        filter: "none",
+        filter: isInverse ? "brightness(0) invert(1)" : "none",
         userSelect: "none",
         ...style,
+        /* V961 — logo pixels only. Never allow a caller/style cascade to
+           paint a box, panel, border, radius, or shadow behind the artwork. */
+        background: "transparent",
+        backgroundColor: "transparent",
+        border: "none",
+        borderRadius: 0,
+        boxShadow: "none",
+        padding: 0,
+        mixBlendMode: "normal",
       }}
     />
   );
@@ -20313,7 +20557,12 @@ function isAdminUser(user, _profileUnused){
 const KB_DENIED_ACCOUNT_ACCESS_STATUSES = new Set(["blocked", "disabled", "inactive", "rejected", "revoked", "suspended"]);
 
 function hasActiveChurchWorkspaceAccess(profile) {
+  // A church must hold the real server-recognized private_marketplace_access
+  // entitlement (granted by waitlist conversion or an admin grant) -- not
+  // merely "not suspended," which would grant every church account access
+  // regardless of admission status. Mirrors kb_has_private_marketplace_access.
   if (normalizeAuthRole(profile?.role) !== "church") return false;
+  if (profile?.private_marketplace_access !== true) return false;
   const accountStatus = String(profile?.account_status || "active").trim().toLowerCase();
   const accessStatus = String(profile?.access_status || "active").trim().toLowerCase();
   return !KB_DENIED_ACCOUNT_ACCESS_STATUSES.has(accountStatus) && !KB_DENIED_ACCOUNT_ACCESS_STATUSES.has(accessStatus);
@@ -20417,6 +20666,18 @@ function queueCompareNavigation(nav, { returnContext = null } = {}) {
   if (returnContext) rememberReturnContext(returnContext);
   if (typeof nav === 'function') nav(KB_NAV_SCREENS.compare);
   return { screen: KB_NAV_SCREENS.compare };
+}
+
+const KB_MY_PROJECTS_LENS_KEY = 'kb_my_projects_lens_v1';
+function queueMyProjectsLens(nav, role, lens = 'active') {
+  try { kbSafeSessionSet(KB_MY_PROJECTS_LENS_KEY, String(lens || 'active')); } catch {}
+  if (typeof nav === 'function') nav(role === 'vendor' ? 'my-work' : 'my-projects');
+  return { screen: role === 'vendor' ? 'my-work' : 'my-projects', lens };
+}
+function consumeMyProjectsLens(fallback = 'active') {
+  let lens = '';
+  try { lens = String(kbSafeSessionGet(KB_MY_PROJECTS_LENS_KEY) || ''); kbSafeSessionRemove(KB_MY_PROJECTS_LENS_KEY); } catch {}
+  return ['active','saved','completed','drafts','archived'].includes(lens) ? lens : fallback;
 }
 function queueActivityNavigation(nav, { projectId = null, returnContext = null } = {}) {
   return queueProjectNavigation(nav, { projectId, screen: KB_NAV_SCREENS.activity, returnContext });
@@ -22307,7 +22568,7 @@ async function hydratePersistenceFromSupabase(userOrId){
     if(vendorUserIds.length){
       try {
         const [{ data: profileRows }, { data: vendorRows }] = await Promise.all([
-          selectProfilesSafe('id,org_name', 'id', query => query.in('id', vendorUserIds)),
+          supabase.rpc('kb_profiles_public', { p_ids: vendorUserIds }),
           supabase.from('vendors').select('user_id,name,category,primary_category,category_tags,city,service_city,service_state,service_model,min_project_budget,max_project_budget,church_experience_count,completed_project_count,reference_count,response_speed_label,rating,reviews_count,tagline,verified,tier,image_url').in('user_id', vendorUserIds),
         ]);
         profileMap = (profileRows || []).reduce((acc, row) => { acc[String(row.id)] = row; return acc; }, {});
@@ -22850,14 +23111,14 @@ function setPageMeta({ title, description } = {}) {
   };
 }
 
-const PROTECTED_ROUTES = ["projects","inbox","messages","reviews","profile","verify-profile","settings","admin","growth","concierge","compare","saved-projects","activity","analytics","qa","my-projects","my-work"];
+const PROTECTED_ROUTES = ["projects","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","settings","admin","growth","concierge","compare","saved-projects","activity","analytics","qa","my-projects","my-work"];
 const APP_PROJECT_SUBTAB_BY_ROUTE = Object.freeze({
   "my-projects": "mine",
   "my-work": "work",
   "vendors": "vendors",
 });
 const APP_HASH_ROUTES = Object.freeze([
-  "projects","my-projects","my-work","vendors","get-plugged-in","inbox","messages","reviews","profile","verify-profile","pricing","admin","settings","about","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
+  "projects","my-projects","my-work","vendors","vendor","get-plugged-in","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","pricing","admin","settings","about","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
 ]);
 const APP_HASH_ROUTE_SET = new Set(APP_HASH_ROUTES);
 
@@ -22929,30 +23190,30 @@ const KB_MARKETPLACE_DEV_PREVIEW_VENDORS = Object.freeze([
 ]);
 
 const KB_MARKETPLACE_DEV_PREVIEW_PROJECTS = Object.freeze([
-  { id:'preview-project-facilities', title:'Facility maintenance planning', category:'Facilities', city:'Dallas', project_state:'TX', budget:'$8K–$12K', timeline:'Within 60 days', description:'Illustrative brief showing how a church can organize priorities, timing, and facility scope.', hero_image:'/gpi/volunteer.jpg', status:'open', posted_at:'2026-09-15T15:00:00Z' },
-  { id:'preview-project-creative', title:'Church website refresh', category:'Creative', city:'Plano', project_state:'TX', budget:'$6K–$10K', timeline:'This fall', description:'Illustrative brief for content planning, design, migration, and a clean team handoff.', hero_image:'/gpi/creative.jpg', status:'open', posted_at:'2026-09-14T15:00:00Z' },
-  { id:'preview-project-technology', title:'Livestream system assessment', category:'Technology', city:'Dallas', project_state:'TX', budget:'$4K–$7K', timeline:'Next 45 days', description:'Illustrative technical brief covering reliability, workflow, and upgrade recommendations.', hero_image:'/gpi/professional.jpg', status:'open', posted_at:'2026-09-13T15:00:00Z' },
-  { id:'preview-project-events', title:'Community event production', category:'Events', city:'Richardson', project_state:'TX', budget:'$5K–$9K', timeline:'November', description:'Illustrative project for planning, production coordination, and volunteer handoff.', hero_image:'/gpi/worship.jpg', status:'open', posted_at:'2026-09-12T15:00:00Z' },
-  { id:'preview-project-finance', title:'Bookkeeping process cleanup', category:'Finance', city:'Frisco', project_state:'TX', budget:'$3K–$5K', timeline:'Within 30 days', description:'Illustrative finance brief for reconciliations, reporting, and repeatable monthly processes.', hero_image:'/gpi/mentoring.jpg', status:'open', posted_at:'2026-09-11T15:00:00Z' },
-  { id:'preview-project-ministry', title:'Volunteer onboarding system', category:'Ministry Support', city:'Dallas', project_state:'TX', budget:'Flexible', timeline:'This quarter', description:'Illustrative brief for a welcoming, consistent volunteer onboarding experience.', hero_image:'/gpi/outreach.jpg', status:'open', posted_at:'2026-09-10T15:00:00Z' },
-  { id:'preview-project-hvac', title:'Sanctuary HVAC reliability upgrade', category:'Facilities', city:'Garland', project_state:'TX', budget:'$18K–$28K', timeline:'Before winter', description:'Illustrative facilities brief for load review, equipment options, phased installation, and warranty planning.', hero_image:'/gpi/professional.jpg', status:'open', urgent:true, bids_count:2, posted_at:'2026-09-16T14:30:00Z' },
-  { id:'preview-project-brand', title:'Ministry brand and signage refresh', category:'Creative', city:'McKinney', project_state:'TX', budget:'$7K–$11K', timeline:'Next 8 weeks', description:'Illustrative creative brief spanning visual identity, wayfinding, print templates, and launch-ready files.', hero_image:'/gpi/creative.jpg', status:'open', bids_count:4, posted_at:'2026-09-16T12:00:00Z' },
-  { id:'preview-project-security', title:'Campus security camera expansion', category:'Technology', city:'Arlington', project_state:'TX', budget:'$14K–$22K', timeline:'Within 90 days', description:'Illustrative systems brief for coverage planning, installation, staff access, and responsible retention.', hero_image:'/gpi/professional.jpg', status:'open', bids_count:3, posted_at:'2026-09-16T09:15:00Z' },
-  { id:'preview-project-social', title:'Community outreach campaign', category:'Marketing', city:'Dallas', project_state:'TX', budget:'$4K–$8K', timeline:'Six-week campaign', description:'Illustrative marketing brief for message development, digital creative, local promotion, and reporting.', hero_image:'/gpi/outreach.jpg', status:'open', bids_count:5, posted_at:'2026-09-15T18:00:00Z' },
-  { id:'preview-project-audit', title:'Annual financial controls review', category:'Finance', city:'Irving', project_state:'TX', budget:'$5K–$9K', timeline:'By year end', description:'Illustrative finance brief for control testing, policy updates, board reporting, and staff recommendations.', hero_image:'/gpi/mentoring.jpg', status:'open', bids_count:1, posted_at:'2026-09-15T11:40:00Z' },
-  { id:'preview-project-christmas', title:'Christmas service production support', category:'Events', city:'Plano', project_state:'TX', budget:'$9K–$15K', timeline:'December services', description:'Illustrative event brief for staging, lighting, audio support, rehearsals, and production-day coordination.', hero_image:'/gpi/worship.jpg', status:'open', urgent:true, bids_count:6, posted_at:'2026-09-14T20:00:00Z' },
-  { id:'preview-project-staffing', title:'Children’s ministry staffing plan', category:'Ministry Support', city:'Frisco', project_state:'TX', budget:'$3K–$6K', timeline:'Next 45 days', description:'Illustrative consulting brief for role design, recruiting workflow, volunteer ratios, and sustainable scheduling.', hero_image:'/gpi/volunteer.jpg', status:'open', bids_count:2, posted_at:'2026-09-14T10:30:00Z' },
-  { id:'preview-project-roof', title:'Education wing roof repair', category:'Facilities', city:'Mesquite', project_state:'TX', budget:'$24K–$38K', timeline:'Before rainy season', description:'Illustrative construction brief for inspection, repair options, drainage, scheduling, and site protection.', hero_image:'/gpi/volunteer.jpg', status:'open', urgent:true, bids_count:3, posted_at:'2026-09-13T17:10:00Z' },
-  { id:'preview-project-photo', title:'Church photography library', category:'Creative', city:'Southlake', project_state:'TX', budget:'$2K–$4K', timeline:'Two shoot days', description:'Illustrative photography brief for worship, groups, volunteers, facilities, and a reusable organized library.', hero_image:'/gpi/creative.jpg', status:'open', bids_count:7, posted_at:'2026-09-13T08:30:00Z' },
-  { id:'preview-project-network', title:'Office Wi-Fi and network redesign', category:'Technology', city:'Carrollton', project_state:'TX', budget:'$10K–$16K', timeline:'This quarter', description:'Illustrative IT brief for coverage, segmentation, equipment, installation, documentation, and support.', hero_image:'/gpi/professional.jpg', status:'open', bids_count:4, posted_at:'2026-09-12T16:45:00Z' },
-  { id:'preview-project-email', title:'Member email journey redesign', category:'Marketing', city:'Grapevine', project_state:'TX', budget:'$3K–$5K', timeline:'Within 6 weeks', description:'Illustrative communications brief for newcomer follow-up, member journeys, templates, and measurement.', hero_image:'/gpi/outreach.jpg', status:'open', bids_count:3, posted_at:'2026-09-12T09:00:00Z' },
-  { id:'preview-project-payroll', title:'Payroll and benefits process review', category:'Finance', city:'Richardson', project_state:'TX', budget:'$4K–$7K', timeline:'Before open enrollment', description:'Illustrative operations brief for payroll controls, benefits workflow, documentation, and staff training.', hero_image:'/gpi/mentoring.jpg', status:'open', bids_count:1, posted_at:'2026-09-11T19:20:00Z' },
-  { id:'preview-project-retreat', title:'Leadership retreat planning', category:'Events', city:'Denton', project_state:'TX', budget:'$6K–$10K', timeline:'January', description:'Illustrative event brief for venue sourcing, program flow, hospitality, travel details, and onsite coordination.', hero_image:'/gpi/worship.jpg', status:'open', bids_count:2, posted_at:'2026-09-11T12:15:00Z' },
-  { id:'preview-project-care', title:'Congregational care workflow', category:'Ministry Support', city:'Allen', project_state:'TX', budget:'$3K–$6K', timeline:'This fall', description:'Illustrative ministry brief for intake, assignment, follow-up, privacy, reporting, and leader training.', hero_image:'/gpi/mentoring.jpg', status:'open', bids_count:4, posted_at:'2026-09-10T16:00:00Z' },
-  { id:'preview-project-lighting', title:'Parking lot lighting improvements', category:'Facilities', city:'Grand Prairie', project_state:'TX', budget:'$12K–$20K', timeline:'Within 75 days', description:'Illustrative electrical brief for safety assessment, fixture selection, controls, installation, and closeout.', hero_image:'/gpi/professional.jpg', status:'open', bids_count:5, posted_at:'2026-09-09T14:20:00Z' },
-  { id:'preview-project-video', title:'Welcome video series', category:'Creative', city:'Dallas', project_state:'TX', budget:'$5K–$8K', timeline:'Six-week production', description:'Illustrative video brief for story development, filming, editing, captions, and delivery across channels.', hero_image:'/gpi/creative.jpg', status:'open', bids_count:8, posted_at:'2026-09-08T10:00:00Z' },
-  { id:'preview-project-crm', title:'Church management system migration', category:'Technology', city:'Flower Mound', project_state:'TX', budget:'$15K–$25K', timeline:'Four-month rollout', description:'Illustrative technology brief for data cleanup, migration, configuration, training, and launch support.', hero_image:'/gpi/professional.jpg', status:'open', bids_count:6, posted_at:'2026-09-07T13:00:00Z' },
-  { id:'preview-project-groups', title:'Small-groups launch campaign', category:'Marketing', city:'Rockwall', project_state:'TX', budget:'$4K–$7K', timeline:'Eight-week rollout', description:'Illustrative campaign brief for positioning, leader recruitment, creative assets, promotion, and follow-up.', hero_image:'/gpi/outreach.jpg', status:'open', bids_count:3, posted_at:'2026-09-06T09:30:00Z' },
+  { id:'preview-project-facilities', title:'Facility maintenance planning', category:'Facilities', city:'Dallas', project_state:'TX', budget:'$8K–$12K', timeline:'Within 60 days', description:'Illustrative brief showing how a church can organize priorities, timing, and facility scope.', status:'open', posted_at:'2026-09-15T15:00:00Z' },
+  { id:'preview-project-creative', title:'Church website refresh', category:'Creative', city:'Plano', project_state:'TX', budget:'$6K–$10K', timeline:'This fall', description:'Illustrative brief for content planning, design, migration, and a clean team handoff.', status:'open', posted_at:'2026-09-14T15:00:00Z' },
+  { id:'preview-project-technology', title:'Livestream system assessment', category:'Technology', city:'Dallas', project_state:'TX', budget:'$4K–$7K', timeline:'Next 45 days', description:'Illustrative technical brief covering reliability, workflow, and upgrade recommendations.', status:'open', posted_at:'2026-09-13T15:00:00Z' },
+  { id:'preview-project-events', title:'Community event production', category:'Events', city:'Richardson', project_state:'TX', budget:'$5K–$9K', timeline:'November', description:'Illustrative project for planning, production coordination, and volunteer handoff.', status:'open', posted_at:'2026-09-12T15:00:00Z' },
+  { id:'preview-project-finance', title:'Bookkeeping process cleanup', category:'Finance', city:'Frisco', project_state:'TX', budget:'$3K–$5K', timeline:'Within 30 days', description:'Illustrative finance brief for reconciliations, reporting, and repeatable monthly processes.', status:'open', posted_at:'2026-09-11T15:00:00Z' },
+  { id:'preview-project-ministry', title:'Volunteer onboarding system', category:'Ministry Support', city:'Dallas', project_state:'TX', budget:'Flexible', timeline:'This quarter', description:'Illustrative brief for a welcoming, consistent volunteer onboarding experience.', status:'open', posted_at:'2026-09-10T15:00:00Z' },
+  { id:'preview-project-hvac', title:'Sanctuary HVAC reliability upgrade', category:'Facilities', city:'Garland', project_state:'TX', budget:'$18K–$28K', timeline:'Before winter', description:'Illustrative facilities brief for load review, equipment options, phased installation, and warranty planning.', status:'open', urgent:true, bids_count:2, posted_at:'2026-09-16T14:30:00Z' },
+  { id:'preview-project-brand', title:'Ministry brand and signage refresh', category:'Creative', city:'McKinney', project_state:'TX', budget:'$7K–$11K', timeline:'Next 8 weeks', description:'Illustrative creative brief spanning visual identity, wayfinding, print templates, and launch-ready files.', status:'open', bids_count:4, posted_at:'2026-09-16T12:00:00Z' },
+  { id:'preview-project-security', title:'Campus security camera expansion', category:'Technology', city:'Arlington', project_state:'TX', budget:'$14K–$22K', timeline:'Within 90 days', description:'Illustrative systems brief for coverage planning, installation, staff access, and responsible retention.', status:'open', bids_count:3, posted_at:'2026-09-16T09:15:00Z' },
+  { id:'preview-project-social', title:'Community outreach campaign', category:'Marketing', city:'Dallas', project_state:'TX', budget:'$4K–$8K', timeline:'Six-week campaign', description:'Illustrative marketing brief for message development, digital creative, local promotion, and reporting.', status:'open', bids_count:5, posted_at:'2026-09-15T18:00:00Z' },
+  { id:'preview-project-audit', title:'Annual financial controls review', category:'Finance', city:'Irving', project_state:'TX', budget:'$5K–$9K', timeline:'By year end', description:'Illustrative finance brief for control testing, policy updates, board reporting, and staff recommendations.', status:'open', bids_count:1, posted_at:'2026-09-15T11:40:00Z' },
+  { id:'preview-project-christmas', title:'Christmas service production support', category:'Events', city:'Plano', project_state:'TX', budget:'$9K–$15K', timeline:'December services', description:'Illustrative event brief for staging, lighting, audio support, rehearsals, and production-day coordination.', status:'open', urgent:true, bids_count:6, posted_at:'2026-09-14T20:00:00Z' },
+  { id:'preview-project-staffing', title:'Children’s ministry staffing plan', category:'Ministry Support', city:'Frisco', project_state:'TX', budget:'$3K–$6K', timeline:'Next 45 days', description:'Illustrative consulting brief for role design, recruiting workflow, volunteer ratios, and sustainable scheduling.', status:'open', bids_count:2, posted_at:'2026-09-14T10:30:00Z' },
+  { id:'preview-project-roof', title:'Education wing roof repair', category:'Facilities', city:'Mesquite', project_state:'TX', budget:'$24K–$38K', timeline:'Before rainy season', description:'Illustrative construction brief for inspection, repair options, drainage, scheduling, and site protection.', status:'open', urgent:true, bids_count:3, posted_at:'2026-09-13T17:10:00Z' },
+  { id:'preview-project-photo', title:'Church photography library', category:'Creative', city:'Southlake', project_state:'TX', budget:'$2K–$4K', timeline:'Two shoot days', description:'Illustrative photography brief for worship, groups, volunteers, facilities, and a reusable organized library.', status:'open', bids_count:7, posted_at:'2026-09-13T08:30:00Z' },
+  { id:'preview-project-network', title:'Office Wi-Fi and network redesign', category:'Technology', city:'Carrollton', project_state:'TX', budget:'$10K–$16K', timeline:'This quarter', description:'Illustrative IT brief for coverage, segmentation, equipment, installation, documentation, and support.', status:'open', bids_count:4, posted_at:'2026-09-12T16:45:00Z' },
+  { id:'preview-project-email', title:'Member email journey redesign', category:'Marketing', city:'Grapevine', project_state:'TX', budget:'$3K–$5K', timeline:'Within 6 weeks', description:'Illustrative communications brief for newcomer follow-up, member journeys, templates, and measurement.', status:'open', bids_count:3, posted_at:'2026-09-12T09:00:00Z' },
+  { id:'preview-project-payroll', title:'Payroll and benefits process review', category:'Finance', city:'Richardson', project_state:'TX', budget:'$4K–$7K', timeline:'Before open enrollment', description:'Illustrative operations brief for payroll controls, benefits workflow, documentation, and staff training.', status:'open', bids_count:1, posted_at:'2026-09-11T19:20:00Z' },
+  { id:'preview-project-retreat', title:'Leadership retreat planning', category:'Events', city:'Denton', project_state:'TX', budget:'$6K–$10K', timeline:'January', description:'Illustrative event brief for venue sourcing, program flow, hospitality, travel details, and onsite coordination.', status:'open', bids_count:2, posted_at:'2026-09-11T12:15:00Z' },
+  { id:'preview-project-care', title:'Congregational care workflow', category:'Ministry Support', city:'Allen', project_state:'TX', budget:'$3K–$6K', timeline:'This fall', description:'Illustrative ministry brief for intake, assignment, follow-up, privacy, reporting, and leader training.', status:'open', bids_count:4, posted_at:'2026-09-10T16:00:00Z' },
+  { id:'preview-project-lighting', title:'Parking lot lighting improvements', category:'Facilities', city:'Grand Prairie', project_state:'TX', budget:'$12K–$20K', timeline:'Within 75 days', description:'Illustrative electrical brief for safety assessment, fixture selection, controls, installation, and closeout.', status:'open', bids_count:5, posted_at:'2026-09-09T14:20:00Z' },
+  { id:'preview-project-video', title:'Welcome video series', category:'Creative', city:'Dallas', project_state:'TX', budget:'$5K–$8K', timeline:'Six-week production', description:'Illustrative video brief for story development, filming, editing, captions, and delivery across channels.', status:'open', bids_count:8, posted_at:'2026-09-08T10:00:00Z' },
+  { id:'preview-project-crm', title:'Church management system migration', category:'Technology', city:'Flower Mound', project_state:'TX', budget:'$15K–$25K', timeline:'Four-month rollout', description:'Illustrative technology brief for data cleanup, migration, configuration, training, and launch support.', status:'open', bids_count:6, posted_at:'2026-09-07T13:00:00Z' },
+  { id:'preview-project-groups', title:'Small-groups launch campaign', category:'Marketing', city:'Rockwall', project_state:'TX', budget:'$4K–$7K', timeline:'Eight-week rollout', description:'Illustrative campaign brief for positioning, leader recruitment, creative assets, promotion, and follow-up.', status:'open', bids_count:3, posted_at:'2026-09-06T09:30:00Z' },
 ]);
 
 const KB_MARKETPLACE_DIRECTORY_CATEGORIES = Object.freeze([
@@ -23099,6 +23360,31 @@ const QAConsoleScreen = React.lazy(() => import("./QAConsoleScreen.jsx"));
 const AdminScreen = React.lazy(() => import("./AdminScreen.jsx"));
 const MessagesScreen = React.lazy(() => import("./MessagesScreen.jsx"));
 const ProfileScreen = React.lazy(() => import("./ProfileScreen.jsx"));
+const VENDOR_PROFILE_PRIMARY_BUTTON_STYLE = {
+  height: 38,
+  padding: "0 16px",
+  borderRadius: 999,
+  border: "none",
+  background: "linear-gradient(180deg,#203018,#142110)",
+  color: "#fffdf8",
+  fontSize: 12.5,
+  fontWeight: 800,
+  cursor: "pointer",
+  boxShadow: "0 10px 22px rgba(28,40,20,0.14)",
+};
+
+const VENDOR_PROFILE_SECONDARY_BUTTON_STYLE = {
+  height: 38,
+  padding: "0 14px",
+  borderRadius: 999,
+  border: "1px solid rgba(28,40,20,0.14)",
+  background: "#fffdf8",
+  color: "#1C2814",
+  fontSize: 12.5,
+  fontWeight: 700,
+  cursor: "pointer",
+};
+
 // Inlined Projects routes — keeps all 11A marketplace/project-card changes in App.jsx.
 const { ProjectsScreenRoute: ProjectsScreen, SavedProjectsScreenRoute: SavedProjectsScreen } = (() => {
 let __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computePlatformFee, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveProjectOperationalAlerts, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailPostedLabel, detailScopeItems, ensureInboxConversation, ExecutionActionStack, fetchLatestProjectOpsSnapshot, fetchLatestProjectWorkspaceSync, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, fmtMoney, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getConversationStatusBadgeLocal, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceModeMeta, getMarketplaceSummaryCards, getMarketplaceTabs, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getProjectPosterStats, getProjectWorkflowSummary, getRecommendedFitPresentation, getReturnNavigationTarget, getSignedChatFileUrl, getValidMediaUrl, getVendorIdentityBadges, getVendorPairSignalMapEntry, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMatchInlineText, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, loadCompareWorkspaceState, loadProjectOpsState, loadProjectWorkspace, logError, makeEmptyVendorPairSignalMaps, mergeProjectOpsSnapshots, mergeProjectWorkspaceSnapshots, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeProjectOpsSnapshot, normalizeProjectWorkspaceSnapshot, normalizeRefCode, normalizeVendorEntity, normalizeVendorPairInviteRow, openInboxThread, OperationalAlertList, parseProjectWorkspaceSync, persistProjectOpsSnapshot, persistProjectWorkspaceSync, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, projectOpsFingerprint, ProjectPrimaryEmptyState, projectWorkspaceFingerprint, pushProjectInteropSignal, queueActivityNavigation, queueDealRoomsHubNavigation, queueInboxNavigation, queueVendorNavigation, readLocalJson, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithFallback, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveCompareWorkspaceState, saveProjectOpsState, saveProjectWorkspace, scoreProjectForVendorLane, scoreVendorAgainstProject, selectConversationsSafe, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setAuthDefaultRole, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateConversationSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, clampVendorNarrative, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeDeliveryModel, normalizeSelectedVendorProjectMeta, openProjectContextBack, persistMatchmakerOutcomeEvent, persistRecommendedVendorMatchSnapshot, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks;
@@ -23323,13 +23609,14 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
       try {
         const { data, error } = await supabase
           .from("projects")
-          .select("id,church_id,title,description,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,posted_at,urgent,scope,hired_vendor_id,hired_vendor_name,hired_bid_id,amount")
+          .select("id,church_id,title,description,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,posted_at,urgent,scope,hired_vendor_id,hired_vendor_name,hired_bid_id,amount,hero_image_path")
           .eq("id", targetId)
           .maybeSingle();
         if (!cancelled && data) {
+          const [hydratedProject] = await hydrateProjectMediaUrls([data]);
           clearPendingProjectTarget();
-          if (targetWantsBidReview) openProjectBidReview(data);
-          else openProject(data, { tab: target?.tab || 'overview' });
+          if (targetWantsBidReview) openProjectBidReview(hydratedProject || data);
+          else openProject(hydratedProject || data, { tab: target?.tab || 'overview' });
           return;
         }
         if (!cancelled) {
@@ -23388,12 +23675,12 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
     setSelectedVendorProfile(null);
     if (returnTarget?.screen === 'compare') {
       setView('board');
-      nav('activity');
+      nav('compare');
       return;
     }
     if (returnTarget?.screen === 'activity') {
       setView('board');
-      nav('activity');
+      nav(role === 'vendor' ? 'my-work' : 'my-projects');
       return;
     }
     if (returnTarget?.screen === 'projects' && returnTarget?.projectId) {
@@ -23660,11 +23947,17 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
     try {
     const { data, error } = await supabase
       .from("bids")
-      .select("*, projects(id, title, description, church_name, city, project_city, project_state, project_place_id, hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by, budget, budget_min, budget_max, delivery_preference, status, skills, requirements, category, primary_category, category_tags)")
+      .select("*, projects(id, title, description, church_name, city, project_city, project_state, project_place_id, hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by, budget, budget_min, budget_max, delivery_preference, status, skills, requirements, category, primary_category, category_tags, hero_image_path)")
       .eq("vendor_id", user.id)
       .order("created_at", { ascending: false });
     if (!error && data) {
-      setMyBids(data);
+      const nestedProjects = data.map(row => row?.projects).filter(Boolean);
+      const hydratedNested = await hydrateProjectMediaUrls(nestedProjects);
+      const hydratedById = new Map(hydratedNested.map(project => [String(project?.id || ''), project]));
+      const rowsWithMedia = data.map(row => row?.projects?.id
+        ? { ...row, projects: hydratedById.get(String(row.projects.id)) || row.projects }
+        : row);
+      setMyBids(rowsWithMedia);
       myBidsFetchedAtRef.current = Date.now();
     } else if (error) {
       logError("fetch-my-bids-response", error, { userId: user.id });
@@ -23705,6 +23998,9 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
     skills: p.skills || [],
     requirements: p.requirements || [],
     scope: p.scope || "",
+    hero_image_path: p.hero_image_path || "",
+    hero_image_signed_url: getProjectMediaUrl(p.hero_image_signed_url),
+    hero_image: getProjectMediaUrl(p.hero_image_signed_url) || getProjectMediaUrl(p.hero_image),
     hired_vendor_id: p.hired_vendor_id || null,
     hired_vendor_name: p.hired_vendor_name || "",
     hired_bid_id: p.hired_bid_id || null,
@@ -23729,7 +24025,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
   const fetchOpenProjectsPage = async (cursor = null) => {
     let query = supabase
       .from("projects")
-      .select("id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements")
+      .select("id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements,hero_image_path")
       .eq("status", "open")
       .order("posted_at", { ascending: false })
       .limit(PROJECTS_PAGE_SIZE);
@@ -23737,7 +24033,8 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
     const { data, error } = await query;
     if (error) throw error;
     const sourceRows = data || [];
-    const rows = sourceRows.map(mapProject);
+    const hydratedRows = await hydrateProjectMediaUrls(sourceRows);
+    const rows = hydratedRows.map(mapProject);
     // Cursor comes from the raw Supabase row so mapping can never erase the
     // keyset field. Legacy rows without posted_at intentionally stop paging.
     const nextCursor = sourceRows.length > 0 ? (sourceRows[sourceRows.length - 1]?.posted_at || null) : null;
@@ -23834,7 +24131,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
       const { data: wonBids, error: wonBidsError } = await runSupabaseWithTimeout(
         supabase
           .from("bids")
-          .select("id,vendor_id,vendor_name,timeline,amount,status,projects(id,church_id,title,description,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,posted_at,urgent,scope,skills,requirements)")
+          .select("id,vendor_id,vendor_name,timeline,amount,status,projects(id,church_id,title,description,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,posted_at,urgent,scope,skills,requirements,hero_image_path)")
           .eq("vendor_id", user.id)
           .eq("status", "hired"),
         "My vendor projects",
@@ -23866,6 +24163,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           scope: proj.scope || "",
           skills: Array.isArray(proj.skills) ? proj.skills : [],
           requirements: Array.isArray(proj.requirements) ? proj.requirements : [],
+          hero_image_path: proj.hero_image_path || "",
           hired_bid_id: b.id,
           hired_vendor_id: b.vendor_id || null,
           hired_vendor_name: b.vendor_name || "",
@@ -23879,7 +24177,8 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           amount: b.amount || null,
         };
       }).filter(p => p.id);
-      setMyActiveProjects(normalizedWonProjects);
+      const hydratedWonProjects = await hydrateProjectMediaUrls(normalizedWonProjects);
+      setMyActiveProjects(hydratedWonProjects);
       myProjectsFetchedAtRef.current = Date.now();
       setMyProjectsFetchError(false);
     } else {
@@ -23888,7 +24187,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         Promise.all([
           supabase
             .from("projects")
-            .select("id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements")
+            .select("id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements,hero_image_path")
             .eq("church_id", user.id)
             .order("posted_at", { ascending: false }),
           supabase
@@ -23908,7 +24207,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         "My church projects",
         4500
       );
-      const data = projectsRes.data || [];
+      const data = await hydrateProjectMediaUrls(projectsRes.data || []);
       const error = projectsRes.error || bidRowsRes.error;
       const hiredMap = {};
       (hiredRes.data || []).forEach(row => {
@@ -23987,11 +24286,26 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
       }
 
       if (!error) {
+        let createdWithMedia = created;
+        if (data?.hero_image_file && created?.id) {
+          const mediaResult = await uploadProjectHeroImageSafe(created.id, data.hero_image_file);
+          if (mediaResult?.path) {
+            createdWithMedia = {
+              ...created,
+              hero_image_path: mediaResult.path,
+              hero_image_signed_url: mediaResult.signedUrl || '',
+              hero_image: mediaResult.signedUrl || '',
+            };
+          } else if (mediaResult?.error) {
+            showToast('Project posted, but the photo could not be uploaded. You can add it again later.', 'error');
+          }
+        }
+
         // Optimistically append using the REAL id, so the row is clickable
         // immediately. The `optimistic: true` flag is no longer set because
         // we have a real database row.
         const optimisticBase = buildOptimisticProjectRecord(data, { user, profile, role });
-        const newProject = mapProject({ ...optimisticBase, ...created, optimistic: false });
+        const newProject = mapProject({ ...optimisticBase, ...createdWithMedia, optimistic: false });
         setSelectedProjectId(newProject.id);
         setSelectedProjectFallback(newProject);
         rememberProjectForVendorMatching(user.id, newProject, 'post_project_success');
@@ -24006,7 +24320,10 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         }));
 
         // Trusted self-notification derived from the committed project row.
-        const { error: notifError } = await createTrustedNotificationSafe("project_posted", created?.id);
+        // This project is still a draft (status='draft') -- publishing is a
+        // separate action (marketplace_publish_project), which is what fires
+        // the "is now live" notification.
+        const { error: notifError } = await createTrustedNotificationSafe("project_draft_created", created?.id);
         if (notifError) logError("project-post-notification", notifError);
 
         // Refresh in the background to pick up server-computed fields
@@ -24159,12 +24476,12 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
     setBidSuccess(false);
     if (view === "detail" && returnTarget?.screen === 'compare') {
       setView("board");
-      nav('activity');
+      nav('compare');
       return;
     }
     if (view === "detail" && returnTarget?.screen === 'activity') {
       setView("board");
-      nav('activity');
+      nav(role === 'vendor' ? 'my-work' : 'my-projects');
       return;
     }
     setView("board");
@@ -24522,8 +24839,8 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           <button type="button" onClick={()=>openVendorMatchesForProject(selectedProject || selectedProjectFallback)} style={{height:48, padding:'0 18px', borderRadius:12, border:'1px solid rgba(28,40,20,0.12)', background:'#fff', fontSize:13, fontWeight:700, color:'#1C2814', cursor:'pointer'}}>
             Browse vendors
           </button>
-          <button type="button" onClick={()=>queueActivityNavigation(nav, { projectId:selectedProject?.id || null, returnContext:{ source:'project-post-success', screen:'activity', projectId:selectedProject?.id || null } })} style={{height:48, padding:'0 18px', borderRadius:12, border:'1px solid rgba(28,40,20,0.12)', background:'#fff', fontSize:13, fontWeight:700, color:'#1C2814', cursor:'pointer'}}>
-            Open activity center
+          <button type="button" onClick={()=>{ setPostSuccess(false); if (selectedProject || selectedProjectFallback) openProject(selectedProject || selectedProjectFallback, { tab:'overview' }); else nav('my-projects'); }} style={{height:48, padding:'0 18px', borderRadius:12, border:'1px solid rgba(28,40,20,0.12)', background:'#fff', fontSize:13, fontWeight:700, color:'#1C2814', cursor:'pointer'}}>
+            Open project
           </button>
         </div>
       </div>
@@ -24732,7 +25049,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
       {successMomentModal}
     </>
   );
-  if(view==="detail" && selectedProject) return (<ProjectDetail project={selectedProject} initialTab={selectedProjectInitialTab} role={role} nav={handleProjectDetailNav} showToast={showToast} onBack={reset} onPost={goToPostProject} onBid={openBidWhenEnabled} biddingEnabled={biddingEnabled || privateMarketplaceAccess || isAdmin} biddingSettingLoaded={biddingSettingLoaded || privateMarketplaceAccess || isAdmin} onNotifyBidding={requestBidOpeningNotification} bidNotifyPendingId={bidNotifyPendingId} onManageBids={(p)=>openProjectBidReview(p || selectedProject)} onProjectUpdate={(updated)=>{const normalized = normalizeProjectEntity(updated); if (normalized?.id) { setSelectedProjectId(normalized.id); setSelectedProjectFallback(normalized); patchProjectEverywhere(normalized.id, updated); }}} onComplete={(projectId)=>setConfirmCompleteId(projectId)} onCancel={(projectId)=>setConfirmCancelId(projectId)} currentUser={currentUser}/>);
+  if(view==="detail" && selectedProject) return (<ProjectDetail project={selectedProject} initialTab={selectedProjectInitialTab} role={role} nav={handleProjectDetailNav} showToast={showToast} onBack={reset} onPost={goToPostProject} onBid={openBidWhenEnabled} onViewMyBids={()=>setView("mybids")} biddingEnabled={biddingEnabled || privateMarketplaceAccess || isAdmin} biddingSettingLoaded={biddingSettingLoaded || privateMarketplaceAccess || isAdmin} onNotifyBidding={requestBidOpeningNotification} bidNotifyPendingId={bidNotifyPendingId} onManageBids={(p)=>openProjectBidReview(p || selectedProject)} onProjectUpdate={(updated)=>{const normalized = normalizeProjectEntity(updated); if (normalized?.id) { setSelectedProjectId(normalized.id); setSelectedProjectFallback(normalized); patchProjectEverywhere(normalized.id, updated); }}} onComplete={(projectId)=>setConfirmCompleteId(projectId)} onCancel={(projectId)=>setConfirmCancelId(projectId)} currentUser={currentUser}/>);
   if(view==="mybids") return (
     <MyBidsScreen bids={myBids} loading={loadingMyBids} currentUser={currentUser} showToast={showToast} onBack={()=>setView("board")} onEditSuccess={()=>fetchMyBids({ force: true })}/>
   );
@@ -24747,7 +25064,9 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
       project={selectedSample}
       role={role}
       nav={nav}
+      currentUser={currentUser}
       onBack={()=>setSelectedSample(null)}
+      onSelectProject={setSelectedSample}
     />
   );
 
@@ -24827,7 +25146,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
     patchProjectEverywhere(projectId, lifecycleProject || { status:"completed" });
     invalidateCache('projects-board');
     saveProjectOpsState(projectId, prev => ({ ...prev, closeout: { ...(prev.closeout || {}), status:'completed', finalReview:'requested', reviewRequested:true } }), lifecycleProject || selectedProject || {});
-    showToast("Project completion confirmed. Head to Reviews to rate your vendor.");
+    showToast("Project completion confirmed. You can review the vendor from Completed in My Projects.");
     if (reviewNavTimerRef.current) clearTimeout(reviewNavTimerRef.current);
     reviewNavTimerRef.current = setTimeout(()=>{
       setPendingReviewTarget({
@@ -24837,7 +25156,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
         project:    selectedProject?.title || "",
         project_id: selectedProject?.id || projectId || null,
       });
-      nav("reviews");
+      nav("my-projects");
     }, 1800);
   };
 
@@ -24891,13 +25210,13 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
 
       {visitedProjectTabs.has("mine") && (role==="church"||role==="individual") && (
         <div className={`kb-warm-tab-panel ${projectTab === "mine" ? "is-active" : "is-hidden"}`} aria-hidden={projectTab !== "mine"}>
-          <MemoMyProjectsCommand projects={myActiveProjects} loading={loadingMyProjects} onSelect={safeOpenProjectStable} onPost={goToPostProjectStable} onManageBids={openProjectBidReviewStable} nav={nav} role={role} showToast={showToast} currentUser={currentUser} myProjectsFetchError={myProjectsFetchError} onRetryMyProjects={retryMyProjectsStable}/>
+          <MemoChurchMyProjectsRenderPanel projects={myActiveProjects} loading={loadingMyProjects} onSelect={safeOpenProjectStable} onPost={goToPostProjectStable} onManageBids={openProjectBidReviewStable} nav={nav} role={role} showToast={showToast} currentUser={currentUser} myProjectsFetchError={myProjectsFetchError} onRetryMyProjects={retryMyProjectsStable}/>
         </div>
       )}
 
       {visitedProjectTabs.has("work") && role==="vendor" && (
         <div className={`kb-warm-tab-panel ${projectTab === "work" ? "is-active" : "is-hidden"}`} aria-hidden={projectTab !== "work"}>
-          <MemoMyWorkPanel bids={myBids} loading={loadingMyBids} projects={myActiveProjects} loadingProjects={loadingMyProjects} onBrowse={browseProjectsStable} onSelectProject={safeOpenProjectStable} nav={nav} onFetchBids={ensureMyWorkDataStable} showToast={showToast}/>
+          <MemoMyWorkPanel bids={myBids} loading={loadingMyBids} projects={myActiveProjects} loadingProjects={loadingMyProjects} onBrowse={browseProjectsStable} onSelectProject={safeOpenProjectStable} nav={nav} onFetchBids={ensureMyWorkDataStable} showToast={showToast} currentUser={currentUser}/>
         </div>
       )}
 
@@ -24942,6 +25261,608 @@ function ensureKBMarketplaceRuntimeStyles() {
 
 function KBMarketplaceRuntimeStyles() {
   return null;
+}
+
+
+// 0958 — Marketplace project-card geometry lock.
+// One canonical desktop footprint is used by both the featured rail and the
+// project directory grid. Breakpoints change how many cards fit; they do not
+// stretch individual cards into different laptop/monitor proportions.
+const KB_MARKETPLACE_PROJECT_CARD_GEOMETRY_CSS = `
+  /* 0969 — Marketplace body density + unified project-card system.
+     Featured + All Projects use one exact card footprint at every desktop width.
+     Laptop/monitor parity is literal: only the number of columns changes. */
+  .kb-live-marketplace-page{
+    --kb-project-card-w:206px;
+    --kb-project-card-h:276px;
+    --kb-project-card-media-h:108px;
+    --kb-project-card-gap-x:10px;
+    --kb-project-card-gap-y:12px;
+    --kb-project-body-max:1720px;
+  }
+
+  /* One shared body width for Featured and All Projects. This gives ~6 cards
+     across on 1366/1440 laptop widths and 8 across at 1920 without stretching. */
+  /* 0994 — Marketplace exact normalized beige-texture single-canvas lock.
+     IMPORTANT: this uses the SAME normalized beige/plaster workspace texture
+     already defined by the app's 852bf system (the light FaithBid clay surface),
+     not the dark --clay-bg and not any screenshot-derived/generated image.
+     One full-bleed pseudo-element owns the entire area below the category strip;
+     Featured + directory descendants remain transparent. No tiling, no repeated
+     boxes, no Marketplace geometry changes. */
+  .kb-live-marketplace-page .kb-marketplace-projects-body{
+    box-sizing:border-box!important;
+    position:relative!important;
+    isolation:isolate!important;
+    /* Match .mkt2-header__inner's horizontal padding, clamp(80px,9vw,180px)
+       per side (parent-relative, not viewport-relative), so Featured/All
+       Projects line up under the header title on both edges. */
+    width:calc(100% - clamp(160px,18vw,360px))!important;
+    max-width:none!important;
+    margin:0 auto!important;
+    padding:24px 0 64px!important;
+    background:transparent!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-projects-body::before{
+    content:"";
+    position:absolute!important;
+    z-index:-1!important;
+    inset:0 auto 0 50%!important;
+    width:100vw!important;
+    transform:translateX(-50%)!important;
+    background-color:var(--kb852bf-beige-texture-color,#eee6d9)!important;
+    background-image:var(--kb852bf-beige-texture-image,var(--kb-workspace-clay-layer))!important;
+    background-size:cover!important;
+    background-position:center top!important;
+    background-repeat:no-repeat!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects,
+  .kb-live-marketplace-page .kb-marketplace-project-directory{
+    background:transparent!important;
+  }
+
+  /* Vendor sub-tab parity: the same one-piece normalized beige/plaster canvas
+     below the category strip. The hero/category strip, cards, search, filters
+     and layout remain untouched. */
+  .kb-vendor-marketplace-page.kb-church-marketplace-page .kb-marketplace-directory-body{
+    position:relative!important;
+    isolation:isolate!important;
+    background:transparent!important;
+  }
+  .kb-vendor-marketplace-page.kb-church-marketplace-page .kb-marketplace-directory-body::before{
+    content:"";
+    position:absolute!important;
+    z-index:-1!important;
+    inset:0 auto 0 50%!important;
+    width:100vw!important;
+    transform:translateX(-50%)!important;
+    background-color:var(--kb852bf-beige-texture-color,#eee6d9)!important;
+    background-image:var(--kb852bf-beige-texture-image,var(--kb-workspace-clay-layer))!important;
+    background-size:cover!important;
+    background-position:center top!important;
+    background-repeat:no-repeat!important;
+  }
+  .kb-vendor-marketplace-page.kb-church-marketplace-page .kb-marketplace-featured,
+  .kb-vendor-marketplace-page.kb-church-marketplace-page .kb-marketplace-all-vendors{
+    background:transparent!important;
+  }
+
+  /* Cards stay light. The surrounding project-floor chrome returns to the
+     normal dark-ink contrast used on the beige Faith Verified clay surface. */
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__head h2,
+  .kb-live-marketplace-page .kb-marketplace-project-directory__head h2{
+    color:#17352b!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__head > div:first-child > span,
+  .kb-live-marketplace-page .kb-marketplace-project-directory__head > div:first-child > span{
+    color:rgba(31,42,36,.68)!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-directory__head{
+    border-bottom-color:rgba(23,53,43,.13)!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-sort > span{
+    color:rgba(31,42,36,.62)!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-load-more{
+    display:flex!important;
+    justify-content:center!important;
+    margin:28px 0 4px!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-load-more button{
+    height:42px!important;
+    padding:0 26px!important;
+    border-radius:999px!important;
+    border:1px solid #0b5b43!important;
+    background:#fff!important;
+    color:#0b5b43!important;
+    font-size:12.5px!important;
+    font-weight:700!important;
+    cursor:pointer!important;
+    transition:background .16s ease,color .16s ease!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-load-more button:hover:not(:disabled){
+    background:#0b5b43!important;
+    color:#fff!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-load-more button:disabled{
+    opacity:.6!important;
+    cursor:default!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-filter-empty,
+  .kb-live-marketplace-page .kb-marketplace-project-empty{
+    color:#17352b!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-filter-empty h3,
+  .kb-live-marketplace-page .kb-marketplace-project-empty h2{
+    color:#17352b!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-filter-empty p,
+  .kb-live-marketplace-page .kb-marketplace-project-empty > span:not(.kb-marketplace-project-empty__mark){
+    color:rgba(31,42,36,.68)!important;
+  }
+
+  .kb-live-marketplace-page .kb-marketplace-featured-projects{
+    margin:0 0 38px!important;
+    padding:0!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__head{
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:space-between!important;
+    gap:20px!important;
+    /* Match the card row's own width/centering exactly, so the heading text
+       sits flush over the far-left card and the arrows sit flush over the
+       far-right card, instead of spanning the wider full body. */
+    width:min(100%,calc(4 * var(--kb-project-card-w) + 3 * var(--kb-project-card-gap-x)))!important;
+    margin:0 auto 20px!important;
+    padding:0!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__head > div:first-child{
+    min-width:0!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__head .kb-marketplace-section-kicker{
+    display:flex!important;
+    align-items:center!important;
+    gap:9px!important;
+    margin:0 0 8px!important;
+    font-size:9px!important;
+    font-weight:800!important;
+    letter-spacing:.18em!important;
+    text-transform:uppercase!important;
+    color:#587562!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__head .kb-marketplace-section-kicker::after{
+    content:""!important;
+    width:42px!important;
+    height:1px!important;
+    background:#b88a38!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__head h2{
+    margin:0!important;
+    font-size:clamp(31px,2.15vw,42px)!important;
+    line-height:1.02!important;
+    letter-spacing:-.028em!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__head > div:first-child > span{
+    display:block!important;
+    margin-top:7px!important;
+    font-size:13px!important;
+    line-height:1.35!important;
+    color:#747b77!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__actions{
+    display:flex!important;
+    align-items:center!important;
+    gap:8px!important;
+    flex:0 0 auto!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__actions button{
+    width:44px!important;
+    height:44px!important;
+    min-width:44px!important;
+    min-height:44px!important;
+    padding:0!important;
+    border-radius:13px!important;
+    font-size:18px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  /* Featured is a tightly packed horizontal version of the exact same card. */
+  /* The rail is capped to the exact width of 5 real (fixed-size) cards and
+     centered like the All Projects grid below it, instead of stretching
+     full-width -- so Featured cards are the identical size as All Projects
+     cards, and both sections line up in the same columns. Cards 6+ are
+     still reachable by dragging inside that fixed-width viewport; only the
+     visible strip's own width is capped, not the scrollable content. */
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__rail{
+    display:flex!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    gap:var(--kb-project-card-gap-x)!important;
+    column-gap:var(--kb-project-card-gap-x)!important;
+    width:min(100%,calc(4 * var(--kb-project-card-w) + 3 * var(--kb-project-card-gap-x)))!important;
+    padding:0 1px 6px 0!important;
+    margin:0 auto!important;
+    scroll-padding-inline:0!important;
+    scrollbar-width:none!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__rail::-webkit-scrollbar{display:none!important;}
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__item{
+    box-sizing:border-box!important;
+    flex:0 0 var(--kb-project-card-w)!important;
+    width:var(--kb-project-card-w)!important;
+    min-width:var(--kb-project-card-w)!important;
+    max-width:var(--kb-project-card-w)!important;
+    margin:0!important;
+    padding:0!important;
+  }
+
+  /* All Projects is one fixed-card grid. Never use fractional tracks here. */
+  .kb-live-marketplace-page .kb-marketplace-project-directory{
+    margin:0!important;
+    padding:0!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-directory__head{
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:space-between!important;
+    gap:18px!important;
+    width:min(100%,calc(5 * var(--kb-project-card-w) + 4 * var(--kb-project-card-gap-x)))!important;
+    margin:0 auto 18px!important;
+    padding:0 0 13px!important;
+    border-bottom:1px solid rgba(18,48,39,.10)!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-directory__head > div:first-child{
+    display:flex!important;
+    align-items:baseline!important;
+    gap:12px!important;
+    min-width:0!important;
+    flex-wrap:wrap!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-directory__head .kb-marketplace-section-kicker{
+    display:none!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-directory__head h2{
+    margin:0!important;
+    font-size:clamp(28px,1.8vw,36px)!important;
+    line-height:1!important;
+    letter-spacing:-.025em!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-directory__head > div:first-child > span{
+    margin:0!important;
+    font-size:12px!important;
+    line-height:1.2!important;
+    color:#7b827e!important;
+    white-space:nowrap!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-directory__controls{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:8px!important;
+    flex:0 0 auto!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-saved{
+    min-height:36px!important;
+    padding:0 12px!important;
+    border-radius:10px!important;
+    font-size:11px!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-sort{
+    min-height:36px!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:7px!important;
+    padding:0!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-sort > span{
+    font-size:10px!important;
+    letter-spacing:.08em!important;
+    text-transform:uppercase!important;
+    color:#858b87!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-sort select{
+    min-height:36px!important;
+    height:36px!important;
+    border-radius:10px!important;
+    padding:0 30px 0 11px!important;
+    font-size:11px!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-grid{
+    display:grid!important;
+    grid-template-columns:repeat(auto-fill,var(--kb-project-card-w))!important;
+    gap:var(--kb-project-card-gap-y) var(--kb-project-card-gap-x)!important;
+    justify-content:center!important;
+    align-items:stretch!important;
+    margin:0!important;
+    padding:0!important;
+  }
+
+  /* Canonical card shell — exact same component in rail and grid. */
+  .kb-live-marketplace-page .kb-marketplace-project-card{
+    box-sizing:border-box!important;
+    position:relative!important;
+    pointer-events:auto!important;
+    isolation:isolate!important;
+    display:flex!important;
+    flex-direction:column!important;
+    width:var(--kb-project-card-w)!important;
+    min-width:var(--kb-project-card-w)!important;
+    max-width:var(--kb-project-card-w)!important;
+    height:var(--kb-project-card-h)!important;
+    min-height:var(--kb-project-card-h)!important;
+    max-height:var(--kb-project-card-h)!important;
+    overflow:hidden!important;
+    cursor:pointer!important;
+    border-radius:12px!important;
+    transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card:hover{
+    transform:translateY(-2px)!important;
+    box-shadow:0 10px 26px rgba(30,42,37,.10)!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card:focus-visible,
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace:focus-visible{
+    outline:3px solid rgba(177,133,43,.42)!important;
+    outline-offset:3px!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__item > .kb-marketplace-project-card{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+  }
+
+  .kb-live-marketplace-page .kb-marketplace-project-card__media{
+    box-sizing:border-box!important;
+    pointer-events:none!important;
+    flex:0 0 var(--kb-project-card-media-h)!important;
+    width:100%!important;
+    height:var(--kb-project-card-media-h)!important;
+    min-height:var(--kb-project-card-media-h)!important;
+    max-height:var(--kb-project-card-media-h)!important;
+    overflow:hidden!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__media > img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center!important;
+    transition:transform .18s ease!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card:hover .kb-marketplace-project-card__media > img{
+    transform:scale(1.01)!important;
+  }
+
+  .kb-live-marketplace-page .kb-marketplace-project-card__category,
+  .kb-live-marketplace-page .kb-marketplace-project-card__status{
+    font-size:9px!important;
+    line-height:1!important;
+    min-height:24px!important;
+    padding:0 8px!important;
+    border-radius:999px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__category{top:9px!important;left:9px!important;}
+  .kb-live-marketplace-page .kb-marketplace-project-card__status{left:9px!important;bottom:9px!important;}
+  .kb-live-marketplace-page .kb-marketplace-project-card__save{
+    z-index:40!important;
+    pointer-events:auto!important;
+    top:8px!important;
+    right:8px!important;
+    width:27px!important;
+    height:27px!important;
+    min-width:27px!important;
+    min-height:27px!important;
+    padding:6px!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__save svg{width:13px!important;height:13px!important;}
+
+  .kb-live-marketplace-page .kb-marketplace-project-card__body{
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex:1 1 auto!important;
+    flex-direction:column!important;
+    min-height:0!important;
+    padding:9px 10px 8px!important;
+    pointer-events:none!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__title{
+    display:-webkit-box!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    overflow:hidden!important;
+    height:38px!important;
+    margin:0 0 4px!important;
+    font-size:18.5px!important;
+    line-height:1.02!important;
+    letter-spacing:-.026em!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__meta{
+    flex:0 0 auto!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:4px!important;
+    min-height:14px!important;
+    margin:0 0 6px!important;
+    font-size:10px!important;
+    line-height:1.2!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__meta > span:not([aria-hidden="true"]){
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__description{
+    display:-webkit-box!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    overflow:hidden!important;
+    min-height:28px!important;
+    max-height:28px!important;
+    margin:0!important;
+    font-size:10.25px!important;
+    line-height:1.34!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__footer{
+    margin-top:auto!important;
+    padding-top:7px!important;
+    min-height:43px!important;
+    flex:0 0 auto!important;
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:space-between!important;
+    gap:7px!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__footer > div > span{
+    display:block!important;
+    margin-bottom:1px!important;
+    font-size:8px!important;
+    line-height:1.05!important;
+    letter-spacing:.12em!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__footer strong{
+    font-size:17px!important;
+    line-height:1!important;
+    letter-spacing:-.022em!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-card__open{
+    width:31px!important;
+    height:31px!important;
+    min-width:31px!important;
+    min-height:31px!important;
+    border-radius:50%!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    font-size:11px!important;
+  }
+  .kb-live-marketplace-page .kb-marketplace-project-grid,
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__rail,
+  .kb-live-marketplace-page .kb-marketplace-featured-projects__item{pointer-events:auto!important;}
+
+  /* Legacy 11A route: preserve one identical footprint if that path is surfaced. */
+  .kb-live-marketplace-page .faithbid-card-11a-rail-item,
+  .kb-live-marketplace-page .kb-live-card-wrap{
+    width:var(--kb-project-card-w)!important;
+    min-width:var(--kb-project-card-w)!important;
+    max-width:var(--kb-project-card-w)!important;
+    margin:0!important;
+  }
+  .kb-live-marketplace-page .kb-live-featured-row{
+    gap:var(--kb-project-card-gap-x)!important;
+    justify-content:flex-start!important;
+  }
+  .kb-live-marketplace-page .kb-live-featured-row .faithbid-card-11a-rail-item{flex:0 0 var(--kb-project-card-w)!important;}
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace{
+    box-sizing:border-box!important;
+    width:var(--kb-project-card-w)!important;
+    min-width:var(--kb-project-card-w)!important;
+    max-width:var(--kb-project-card-w)!important;
+    height:var(--kb-project-card-h)!important;
+    min-height:var(--kb-project-card-h)!important;
+    max-height:var(--kb-project-card-h)!important;
+    border-radius:12px!important;
+    cursor:pointer!important;
+  }
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__media{
+    height:var(--kb-project-card-media-h)!important;
+    min-height:var(--kb-project-card-media-h)!important;
+    max-height:var(--kb-project-card-media-h)!important;
+  }
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__body{padding:9px 10px 8px!important;}
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__category,
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__trust,
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__match{
+    font-size:8.5px!important;min-height:23px!important;padding:0 7px!important;
+  }
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__title{
+    font-size:18px!important;line-height:1.03!important;margin-bottom:4px!important;
+  }
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__detail,
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__meta,
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__reviews{
+    font-size:10px!important;line-height:1.25!important;
+  }
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__avatar{
+    width:19px!important;height:19px!important;flex-basis:19px!important;font-size:8px!important;
+  }
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__value-label{font-size:8px!important;}
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__value{font-size:17px!important;}
+  .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__action{font-size:9.5px!important;}
+  .kb-live-marketplace-page .kb-live-all-grid{
+    display:grid!important;
+    grid-template-columns:repeat(auto-fill,var(--kb-project-card-w))!important;
+    gap:var(--kb-project-card-gap-y) var(--kb-project-card-gap-x)!important;
+    justify-content:center!important;
+    align-items:stretch!important;
+  }
+
+  /* Mobile remains its own readable stack. Desktop parity starts at 760px. */
+  @media (max-width:759px){
+    .kb-live-marketplace-page{
+      --kb-project-card-gap-x:12px;
+      --kb-project-card-gap-y:12px;
+    }
+    .kb-live-marketplace-page .kb-marketplace-projects-body{
+      width:calc(100vw - 28px)!important;
+      padding:18px 0 44px!important;
+    }
+    .kb-live-marketplace-page .kb-marketplace-featured-projects{margin-bottom:28px!important;}
+    .kb-live-marketplace-page .kb-marketplace-featured-projects__head{
+      align-items:flex-start!important;
+      margin-bottom:14px!important;
+    }
+    .kb-live-marketplace-page .kb-marketplace-featured-projects__head h2{font-size:30px!important;}
+    .kb-live-marketplace-page .kb-marketplace-featured-projects__actions button{
+      width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;
+    }
+    .kb-live-marketplace-page .kb-marketplace-featured-projects__rail{gap:12px!important;}
+    .kb-live-marketplace-page .kb-marketplace-featured-projects__item{
+      flex:0 0 min(80vw,276px)!important;
+      width:min(80vw,276px)!important;
+      min-width:min(80vw,276px)!important;
+      max-width:min(80vw,276px)!important;
+    }
+    .kb-live-marketplace-page .kb-marketplace-project-directory__head{
+      align-items:flex-start!important;
+      flex-direction:column!important;
+      gap:11px!important;
+    }
+    .kb-live-marketplace-page .kb-marketplace-project-directory__controls{width:100%!important;justify-content:flex-start!important;}
+    .kb-live-marketplace-page .kb-marketplace-project-grid,
+    .kb-live-marketplace-page .kb-live-all-grid{
+      grid-template-columns:minmax(0,1fr)!important;
+      gap:12px!important;
+      justify-content:stretch!important;
+    }
+    .kb-live-marketplace-page .kb-marketplace-project-grid > .kb-marketplace-project-card,
+    .kb-live-marketplace-page .kb-marketplace-featured-projects__item > .kb-marketplace-project-card,
+    .kb-live-marketplace-page .kb-live-all-grid > .kb-live-card-wrap,
+    .kb-live-marketplace-page .faithbid-card-11a-rail-item{
+      width:100%!important;min-width:0!important;max-width:none!important;
+    }
+    .kb-live-marketplace-page .kb-marketplace-project-grid > .kb-marketplace-project-card,
+    .kb-live-marketplace-page .kb-marketplace-featured-projects__item > .kb-marketplace-project-card,
+    .kb-live-marketplace-page .faithbid-card-11a--marketplace{
+      height:326px!important;min-height:326px!important;max-height:326px!important;
+    }
+    .kb-live-marketplace-page .kb-marketplace-project-card__media,
+    .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__media{
+      flex-basis:138px!important;height:138px!important;min-height:138px!important;max-height:138px!important;
+    }
+    .kb-live-marketplace-page .kb-marketplace-project-card__body,
+    .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__body{padding:12px 13px 11px!important;}
+    .kb-live-marketplace-page .kb-marketplace-project-card__title,
+    .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__title{font-size:22px!important;height:auto!important;}
+  }
+`
+
+function KBMarketplaceProjectCardGeometryStyles() {
+  return <style>{KB_MARKETPLACE_PROJECT_CARD_GEOMETRY_CSS}</style>;
 }
 
 // V808 NAV PERFORMANCE PATCH — vendor directory fast path.
@@ -25141,7 +26062,7 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
       onPost={onPost}
       onBack={() => typeof onTabSwitch === 'function' ? onTabSwitch('browse') : null}
       showToast={showToast}
-      onSelectVendor={marketplaceDevPreview ? null : openVendorProfile}
+      onSelectVendor={openVendorProfile}
       vendors={marketplaceVendors}
       vendorsLoading={vendorsLoading}
       savedVendorIds={savedVendorIds}
@@ -25158,13 +26079,67 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
 }
 const MemoVendorMarketplaceFastPanel = React.memo(VendorMarketplaceFastPanel);
 
-function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locationLabel, timelineLabel, budgetLabel, statusLabel, saved = false, onToggleSave, onOpen, role = 'vendor' }) {
+function getMarketplaceProjectFreshnessDays(project = {}) {
+  const raw = firstNonEmpty(project?.posted_at, project?.created_at, project?.published_at, project?.updated_at, '');
+  if (!raw) return null;
+  const stamp = new Date(raw).getTime();
+  if (!Number.isFinite(stamp)) return null;
+  return Math.max(0, Math.floor((Date.now() - stamp) / 86400000));
+}
+
+function getMarketplaceProjectLocationLabel(project = {}) {
+  const city = String(firstNonEmpty(project?.project_city, project?.city, project?.location_city, '')).trim();
+  const state = String(firstNonEmpty(project?.project_state, project?.state, project?.location_state, project?.region, '')).trim();
+  if (city && state && !city.toLowerCase().includes(state.toLowerCase())) return `${city}, ${state}`;
+  return city || state || 'Remote';
+}
+
+function getMarketplaceProjectTimelineLabel(project = {}) {
+  const raw = String(firstNonEmpty(project?.timeline, project?.timeline_label, project?.desired_timeline, '')).trim();
+  if (!raw) return 'Flexible';
+  return raw.length > 24 ? `${raw.slice(0, 24).trim()}…` : raw;
+}
+
+function formatMarketplaceProjectBudgetLabel(value) {
+  if (value && typeof value === 'object') {
+    const direct = firstNonEmpty(value?.range, value?.label, value?.display, value?.text, '');
+    if (direct) return String(direct);
+    const min = Number(firstNonEmpty(value?.min, value?.budget_min, 0));
+    const max = Number(firstNonEmpty(value?.max, value?.budget_max, 0));
+    const compact = (n) => n >= 1000000 ? `$${(n/1000000).toFixed(n%1000000?1:0)}M` : n >= 1000 ? `$${Math.round(n/1000)}K` : `$${Math.round(n)}`;
+    if (min > 0 && max > 0) return `${compact(min)}–${compact(max)}`;
+    if (max > 0) return `Up to ${compact(max)}`;
+    if (min > 0) return `From ${compact(min)}`;
+  }
+  const str = String(value || '').trim();
+  if (!str) return 'Flexible';
+  return str;
+}
+
+function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locationLabel, timelineLabel, budgetLabel, statusLabel, saved = false, onToggleSave, onOpen, role = 'vendor', footerLabel = 'Budget', footerValue = null }) {
   const title = String(project?.title || 'Untitled project');
   const description = String(project?.description || project?.desc || '').replace(/\s+/g, ' ').trim();
   const isPreviewCard = String(project?.id || '').startsWith('preview-project-');
+  const cardIsOpenable = typeof onOpen === 'function';
+  const openCard = (event) => {
+    if (!cardIsOpenable) return;
+    try { event?.preventDefault?.(); } catch {}
+    try { event?.stopPropagation?.(); } catch {}
+    onOpen();
+  };
   return (
-    <article className="kb-marketplace-project-card">
-      <div className="kb-marketplace-project-card__media">
+    <article
+      className={`kb-marketplace-project-card${cardIsOpenable ? ' is-openable' : ''}`}
+      role={cardIsOpenable ? 'button' : undefined}
+      tabIndex={cardIsOpenable ? 0 : undefined}
+      aria-label={cardIsOpenable ? `${role === 'vendor' ? 'Open' : 'View'} ${title}` : undefined}
+      onClick={cardIsOpenable ? openCard : undefined}
+      onKeyDown={cardIsOpenable ? (event) => {
+        if (event.key === 'Enter' || event.key === ' ') openCard(event);
+      } : undefined}
+      style={{position:'relative',isolation:'isolate',pointerEvents:'auto',cursor:cardIsOpenable?'pointer':'default'}}
+    >
+      <div className="kb-marketplace-project-card__media" style={{position:'relative',zIndex:1,pointerEvents:'none'}}>
         {image ? <img src={image} alt="" loading={isPreviewCard ? 'eager' : 'lazy'} /> : <span className="kb-marketplace-project-card__image-fallback" aria-hidden="true">FB</span>}
         <span className="kb-marketplace-project-card__category">{categoryLabel}</span>
         {typeof onToggleSave === 'function' ? <button
@@ -25172,14 +26147,19 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
           className={`kb-marketplace-project-card__save${saved ? ' is-saved' : ''}`}
           aria-label={saved ? `Remove ${title} from saved projects` : `Save ${title}`}
           aria-pressed={saved}
-          onClick={(event) => onToggleSave(event)}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onToggleSave(event);
+          }}
+          style={{position:'absolute',zIndex:40,pointerEvents:'auto'}}
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></svg>
         </button> : null}
         {statusLabel ? <span className={`kb-marketplace-project-card__status${project?.urgent ? ' is-urgent' : ''}`}>{statusLabel}</span> : null}
       </div>
-      <div className="kb-marketplace-project-card__body">
-        {typeof onOpen === 'function' ? <button type="button" className="kb-marketplace-project-card__title" onClick={onOpen}>{title}</button> : <span className="kb-marketplace-project-card__title">{title}</span>}
+      <div className="kb-marketplace-project-card__body" style={{position:'relative',zIndex:1,pointerEvents:'none'}}>
+        <span className="kb-marketplace-project-card__title">{title}</span>
         <p className="kb-marketplace-project-card__meta">
           <span>{locationLabel}</span>
           <span aria-hidden="true">·</span>
@@ -25187,8 +26167,8 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
         </p>
         {description ? <p className="kb-marketplace-project-card__description">{description}</p> : null}
         <div className="kb-marketplace-project-card__footer">
-          <div><span>Budget</span><strong>{budgetLabel}</strong></div>
-          {typeof onOpen === 'function' ? <button type="button" className="kb-marketplace-project-card__open" aria-label={`${role === 'vendor' ? 'Open' : 'View'} ${title}`} onClick={onOpen}>→</button> : <span className="kb-marketplace-project-card__open" aria-hidden="true">→</span>}
+          <div><span>{footerLabel}</span><strong>{footerValue ?? budgetLabel}</strong></div>
+          <span className="kb-marketplace-project-card__open" aria-hidden="true">→</span>
         </div>
       </div>
     </article>
@@ -25197,91 +26177,532 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
 
 function getMarketplacePreviewScope(project = {}) {
   const category = String(project?.category || '').toLowerCase();
-  if (category.includes('facilit')) return ['Assess the current site and priorities', 'Present options with schedule and pricing', 'Complete the work with a clean handoff'];
-  if (category.includes('creative')) return ['Align on audience, message, and visual direction', 'Develop and review the core deliverables', 'Deliver organized files and staff guidance'];
-  if (category.includes('technolog')) return ['Document systems, users, and reliability needs', 'Recommend a practical implementation plan', 'Install, test, train, and hand off documentation'];
-  if (category.includes('market')) return ['Clarify the audience and campaign objective', 'Build the message and channel plan', 'Launch, measure, and share results'];
-  if (category.includes('finance')) return ['Review the current process and controls', 'Resolve gaps and document recommendations', 'Train the team on a repeatable workflow'];
-  if (category.includes('event')) return ['Confirm program, production, and guest needs', 'Coordinate vendors, volunteers, and timing', 'Execute the event and complete closeout'];
-  if (category.includes('ministry')) return ['Understand the ministry goal and current workflow', 'Design a practical team-ready approach', 'Support rollout, training, and follow-through'];
-  return ['Confirm the goals, constraints, and success criteria', 'Develop a clear plan with pricing and timing', 'Complete the work and provide a usable handoff'];
+  if (category.includes('facilit')) return ['Assess the current site and priorities', 'Present options with schedule and pricing', 'Coordinate installation with minimal disruption', 'Complete testing and quality checks', 'Provide a clean handoff and operating guidance'];
+  if (category.includes('creative')) return ['Align on audience, message, and visual direction', 'Develop and review the core deliverables', 'Refine the preferred direction with church feedback', 'Prepare production-ready assets and templates', 'Deliver organized files and staff guidance'];
+  if (category.includes('technolog')) return ['Document systems, users, and reliability needs', 'Recommend a practical implementation plan', 'Confirm security, access, and migration requirements', 'Install and test the approved solution', 'Train staff and hand off documentation'];
+  if (category.includes('market')) return ['Clarify the audience and campaign objective', 'Build the message and channel plan', 'Develop the campaign assets and launch calendar', 'Launch and monitor performance', 'Share results and reusable recommendations'];
+  if (category.includes('finance')) return ['Review the current process and controls', 'Identify gaps and priority risks', 'Document the recommended workflow', 'Implement reporting and review checkpoints', 'Train the team on a repeatable process'];
+  if (category.includes('event')) return ['Confirm program, production, and guest needs', 'Build the production plan and run of show', 'Coordinate vendors, volunteers, and timing', 'Execute the event with onsite support', 'Complete closeout and hand off final files'];
+  if (category.includes('ministry')) return ['Understand the ministry goal and current workflow', 'Map roles, handoffs, and communication needs', 'Design a practical team-ready approach', 'Support rollout and leader training', 'Document the repeatable process for staff'];
+  return ['Confirm the goals, constraints, and success criteria', 'Develop a clear plan with pricing and timing', 'Coordinate the work around ministry needs', 'Complete testing or final review', 'Provide a usable handoff and next steps'];
 }
 
-function MarketplaceProjectPreviewDetail({ project = {}, onBack, role, nav }) {
-  const isVendor = role === 'vendor';
-  const image = getProjectHeroImage(project) || project?.hero_image || '/gpi/professional.jpg';
+// 0984 — Project-details readability + hero focal framing lock on top of the frozen universal desktop POV.
+// Project Detail keeps the canonical authenticated
+// app topnav, then scales one desktop reference canvas as a single unit so laptop
+// and monitor captures preserve the exact same composition instead of zooming out.
+function MarketplaceProjectPreviewDetail({ project = {}, onBack, role, nav, currentUser = null, onSelectProject = null }) {
+  const viewportWidth = useViewportWidth(1440);
+  const isMobile = viewportWidth < 720;
+  const isTablet = viewportWidth < 1040;
+  const isDesktopReference = viewportWidth >= 1180;
+  const PROJECT_DETAIL_DESKTOP_REFERENCE_WIDTH = 1484;
+  const projectDetailDesktopScale = isDesktopReference
+    ? viewportWidth / PROJECT_DETAIL_DESKTOP_REFERENCE_WIDTH
+    : 1;
+  const projectDetailRootStyle = isDesktopReference
+    ? {
+        width:`${PROJECT_DETAIL_DESKTOP_REFERENCE_WIDTH}px`,
+        maxWidth:'none',
+        minHeight:0,
+        margin:0,
+        zoom:projectDetailDesktopScale,
+      }
+    : undefined;
+  const [previewSaved, setPreviewSaved] = useState(false);
+  const [previewGalleryOpen, setPreviewGalleryOpen] = useState(false);
+  const [previewTab, setPreviewTab] = useState('overview');
+
+  const pIcon = (kind, size = 15) => {
+    const common = { width:size, height:size, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:"1.8", strokeLinecap:"round", strokeLinejoin:"round", "aria-hidden":"true" };
+    if (kind === 'pin') return <svg {...common}><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>;
+    if (kind === 'budget') return <svg {...common}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h.01M17 15h.01"/><circle cx="12" cy="12" r="2.6"/></svg>;
+    if (kind === 'clock') return <svg {...common}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>;
+    if (kind === 'calendar') return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>;
+    if (kind === 'people') return <svg {...common}><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M18 13a5 5 0 0 1 3 5v2"/></svg>;
+    if (kind === 'shield') return <svg {...common}><path d="M12 3 20 6v6c0 5-3.4 8-8 10-4.6-2-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-5"/></svg>;
+    if (kind === 'home') return <svg {...common}><path d="M12 2v3"/><path d="M10.5 4.5h3"/><path d="M4 12.5 12 6l8 6.5"/><path d="M6 11v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9"/><path d="M11 21v-6h2v6"/></svg>;
+    if (kind === 'flag') return <svg {...common}><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg>;
+    if (kind === 'bookmark') return <svg {...common}><path d="M6 3h12v18l-6-4-6 4V3Z"/></svg>;
+    if (kind === 'share') return <svg {...common}><circle cx="18" cy="5" r="2.2"/><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="m8 11 8-5M8 13l8 5"/></svg>;
+    if (kind === 'bell') return <svg {...common}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>;
+    if (kind === 'search') return <svg {...common}><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>;
+    if (kind === 'lightbulb') return <svg {...common}><path d="M9 18h6M10 22h4"/><path d="M8.2 14.5A7 7 0 1 1 15.8 14.5c-.9.8-1.8 1.8-1.8 3.5h-4c0-1.7-.9-2.7-1.8-3.5Z"/></svg>;
+    return <svg {...common}><path d="M21 15a4 4 0 0 1-4 4H9l-6 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"/></svg>;
+  };
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    document.body.classList.add('kb-project-detail-open');
+    return () => document.body.classList.remove('kb-project-detail-open');
+  }, []);
+
+  const image = getProjectHeroImage(project) || KB_PROJECT_MEDIA_FALLBACK;
+  // 0984 — keep the compact hero geometry, but use a project-aware focal point so
+  // shortening the banner does not blindly crop the subject out of frame. These
+  // positions affect only image framing; the hero box size / page structure stay frozen.
+  const heroFocalY = (() => {
+    const byId = {
+      'preview-project-hvac': 38,
+      'preview-project-security': 42,
+      'preview-project-roof': 40,
+      'preview-project-photo': 47,
+      'preview-project-brand': 48,
+      'preview-project-social': 56,
+      'preview-project-video': 45,
+      'preview-project-events': 46,
+      'preview-project-retreat': 50,
+      'preview-project-lighting': 46,
+      'preview-project-network': 44,
+      'preview-project-crm': 45,
+      'preview-project-audit': 50,
+      'preview-project-payroll': 50,
+      'preview-project-finance': 50,
+      'preview-project-ministry': 48,
+      'preview-project-staffing': 48,
+      'preview-project-care': 48,
+    };
+    const explicit = byId[String(project?.id || '')];
+    if (Number.isFinite(explicit)) return explicit;
+    const cat = String(project?.category || '').toLowerCase();
+    if (cat.includes('market')) return 55;
+    if (cat.includes('finance')) return 51;
+    if (cat.includes('event')) return 48;
+    if (cat.includes('facilit') || cat.includes('roof') || cat.includes('hvac')) return 42;
+    if (cat.includes('technolog') || cat.includes('security')) return 43;
+    if (cat.includes('creative')) return 48;
+    return 48;
+  })();
+  const heroObjectPosition = `center ${heroFocalY}%`;
+  const categoryKey = getProjectCardCategoryKey(project);
   const category = getProjectCardCategoryLabel(project, project?.category || 'Project');
   const city = firstNonEmpty(project?.city, project?.location_city, project?.project_city, 'Dallas');
   const state = firstNonEmpty(project?.project_state, project?.state, project?.location_state, 'TX');
   const location = [city, state].filter(Boolean).join(', ');
-  const timeline = firstNonEmpty(project?.timeline, project?.timeline_label, project?.desired_timeline, 'Timing to be confirmed');
+  const timeline = firstNonEmpty(project?.timeline, project?.timeline_label, project?.desired_timeline, '4 – 6 weeks');
   const rawBudget = project?.budget;
   const budget = typeof rawBudget === 'string'
     ? rawBudget
-    : firstNonEmpty(project?.budget_label, project?.budget_range, rawBudget?.label, rawBudget?.display, 'Flexible');
+    : firstNonEmpty(project?.budget_label, project?.budget_range, rawBudget?.label, rawBudget?.display, '$15,000 – $25,000');
   const scopeItems = getMarketplacePreviewScope(project);
-  const responseCount = Number(project?.bids_count || 0);
-  const description = project?.description || project?.desc || 'An illustrative church project brief showing how goals, timing, budget, and context come together before a vendor responds.';
-  const handlePrimary = () => {
-    if (isVendor) {
-      onBack?.();
-      return;
-    }
-    if (typeof nav === 'function') nav('projects:post');
+  const description = project?.description || project?.desc || 'Our church is looking for an experienced partner who can help us complete this work thoughtfully, clearly, and with minimal disruption to ministry.';
+
+  const relatedPreviewProjects = KB_MARKETPLACE_DEV_PREVIEW_PROJECTS
+    .filter(item => String(item?.id || '') !== String(project?.id || ''))
+    .sort((a,b) => Number(String(b?.category||'').toLowerCase() === String(project?.category||'').toLowerCase()) - Number(String(a?.category||'').toLowerCase() === String(project?.category||'').toLowerCase()))
+    .slice(0,5);
+
+  const mediaCandidates = [
+    ...(Array.isArray(project?.gallery) ? project.gallery : []),
+    ...(Array.isArray(project?.media) ? project.media : []),
+  ].map(item => typeof item === 'string' ? item : firstNonEmpty(item?.url, item?.src, item?.image_url, item?.path)).filter(Boolean);
+  const previewGallery = Array.from(new Set([image, ...mediaCandidates].filter(Boolean)));
+
+  const attachmentPresets = {
+    audio_video: ['Production Requirements.pdf', 'Existing AV Overview.pdf'],
+    event_production: ['Production Requirements.pdf', 'Run of Show.pdf'],
+    roofing: ['Roof Inspection Notes.pdf', 'Site Photos.pdf'],
+    hvac: ['Current Equipment Schedule.pdf', 'Facility Load Notes.pdf'],
+    branding: ['Brand Direction Brief.pdf', 'Signage Locations.pdf'],
+    photography: ['Photography Shot List.pdf', 'Usage Requirements.pdf'],
+    video: ['Video Creative Brief.pdf', 'Delivery Specifications.pdf'],
+    web_design: ['Website Content Inventory.pdf', 'Technical Requirements.pdf'],
+    security: ['Coverage Requirements.pdf', 'Existing Camera Plan.pdf'],
+    it_services: ['Network Overview.pdf', 'Technology Requirements.pdf'],
+    accounting: ['Process Overview.pdf', 'Reporting Requirements.pdf'],
+    marketing: ['Campaign Brief.pdf', 'Audience Notes.pdf'],
+  };
+  const previewAttachments = attachmentPresets[categoryKey] || ['Project Brief.pdf', 'Scope Notes.pdf'];
+
+  const sharePreview = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title:project?.title || 'FaithBid project preview', url });
+        return;
+      }
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) await navigator.clipboard.writeText(url);
+    } catch {}
   };
 
+  const openRelatedPreview = (item) => {
+    if (typeof onSelectProject === 'function') {
+      onSelectProject(item);
+      try { window.scrollTo({ top:0, behavior:'smooth' }); } catch {}
+    }
+  };
+
+  const goLanding = () => nav?.('landing');
+  const userInitials = (() => {
+    const name = firstNonEmpty(currentUser?.user_metadata?.full_name, currentUser?.user_metadata?.name, currentUser?.email, 'FB');
+    const parts = String(name || 'FB').replace(/@.*$/,'').trim().split(/\s+/).filter(Boolean);
+    return (parts.length > 1 ? `${parts[0][0] || ''}${parts[parts.length-1][0] || ''}` : String(parts[0] || 'FB').slice(0,2)).toUpperCase();
+  })();
+
   return (
-    <main className="kb-project-preview-page" id="kb-main-content">
-      <div className="kb-project-preview-page__shell">
-        <div className="kb-project-preview-page__topbar">
-          <button type="button" className="kb-project-preview-page__back" onClick={onBack}>← <span>Back to projects</span></button>
-          <span className="kb-project-preview-page__truth">Illustrative preview · Not a live project</span>
+    <main className="kb-project-preview-page kb-project-detail-reference" id="kb-project-detail-main" style={projectDetailRootStyle}>
+      <style>{`
+        /* Keep the exact shared workspace nav, but disable sticky capture only on
+           Project Detail so full-page screenshots never stitch it into the middle. */
+        body.kb-project-detail-open .topnav{display:flex!important;position:relative!important;top:auto!important;}
+        body.kb-project-detail-open{overflow-x:hidden!important;}
+        /* 0980 — Project Detail uses the outer app #kb-main-content only. The prior
+           nested duplicate id caused the fullscreen-host reset to force every
+           direct detail child to width:100% and margin:0, pinning the composition
+           to the left and leaving the unused design width on the right. Keep every
+           route wrapper flush so the hero begins immediately beneath the shared nav. */
+        body.kb-project-detail-open #kb-main-content,
+        body.kb-project-detail-open #kb-main-content > *,
+        body.kb-project-detail-open .platform-fullscreen-shell,
+        body.kb-project-detail-open .kb-header-surface,
+        body.kb-project-detail-open .kb-project-detail-reference{margin-top:0!important;padding-top:0!important;}
+        .kb-project-detail-reference{
+          min-height:0;overflow-x:clip;background:#fbfaf6;color:#10261f;
+          font-family:'DM Sans',var(--font-sans),-apple-system,BlinkMacSystemFont,sans-serif;
+          --pd-ink:#0e3128;--pd-green:#0b5b43;--pd-gold:#b88a38;--pd-copy:#59635f;--pd-border:rgba(16,38,31,.13);
+          --pd-stage:1320px;--pd-shell:1320px;--pd-side:318px;
+        }
+        .kb-project-detail-reference *{box-sizing:border-box;min-width:0}
+        .kb-project-detail-reference button{font:inherit}
+        .kb-project-detail-reference button:focus-visible,.kb-project-detail-reference a:focus-visible{outline:2px solid var(--pd-green);outline-offset:3px}
+        .kb-pdr-shell{width:var(--pd-shell);margin:0 auto}
+        .kb-pdr-serif{font-family:'Bodoni Moda',Georgia,serif;color:var(--pd-ink);font-weight:500;letter-spacing:-.028em}
+        .kb-pdr-hero-top{position:absolute;left:16px;right:16px;top:14px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:14px;pointer-events:none}
+        .kb-pdr-backoverlay,.kb-pdr-previewtruth{pointer-events:auto;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+        .kb-pdr-backoverlay{height:34px;padding:0 12px;border:1px solid rgba(255,255,255,.72);border-radius:999px;background:rgba(255,253,248,.90);box-shadow:0 4px 14px rgba(12,28,22,.10);color:#173d31;font-size:11px;font-weight:750;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+        .kb-pdr-previewtruth{min-height:30px;padding:0 11px;border:1px solid rgba(255,255,255,.56);border-radius:999px;background:rgba(255,253,248,.84);box-shadow:0 4px 14px rgba(12,28,22,.08);display:inline-flex;align-items:center;font-size:8px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:#8b672e;white-space:nowrap}
+        .kb-pdr-hero{width:var(--pd-shell);height:270px;margin:0 auto;position:relative;overflow:hidden;background:#d8d1c4}
+        .kb-pdr-hero img{width:100%;height:100%;object-fit:cover;display:block;transition:object-position .18s ease}
+        .kb-pdr-head{padding:16px 0 14px;display:grid;grid-template-columns:minmax(0,814px) 416px;gap:90px;align-items:start}
+        .kb-pdr-eyebrow{display:flex;align-items:center;gap:9px;margin-bottom:6px;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#587562}
+        .kb-pdr-eyebrow::after{content:"";width:42px;height:1px;background:var(--pd-gold)}
+        .kb-pdr-h1{font-size:40px;line-height:1.01;margin:0 0 8px;max-width:760px;text-wrap:balance}
+        .kb-pdr-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 11px;font-size:12px;color:#173d31;font-weight:600;margin-bottom:5px}
+        .kb-pdr-meta-sep{color:#bcc4bf}
+        .kb-pdr-privacy{display:flex;gap:6px;flex-wrap:wrap;font-size:10px;color:#737d78;line-height:1.35}
+        .kb-pdr-actions{display:grid;gap:7px;padding-top:20px;width:100%}
+        .kb-pdr-primary{height:42px;border:0;border-radius:6px;background:var(--pd-green);color:#fff;font-size:11.75px;font-weight:750;display:flex;align-items:center;justify-content:center;gap:13px;cursor:default;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+        .kb-pdr-utils{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+        .kb-pdr-utils button{height:32px;border:1px solid rgba(16,38,31,.15);border-radius:7px;background:#fffdfa;color:#173d31;font-size:10px;font-weight:650;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+        .kb-pdr-bodygrid{display:grid;grid-template-columns:minmax(0,817px) 453px;gap:50px;align-items:start;padding-bottom:18px}
+        .kb-pdr-tabs{display:flex;align-items:flex-end;gap:24px;height:37px;border-bottom:1px solid rgba(16,38,31,.13);margin-bottom:14px}
+        .kb-pdr-tabs button{height:37px;border:0;border-bottom:2px solid transparent;background:none;padding:0 9px 0 0;color:#7c8580;font-size:10.75px;font-weight:600;cursor:pointer;white-space:nowrap}
+        .kb-pdr-tabs button.is-active{color:#13372d;border-bottom-color:var(--pd-green)}
+        .kb-pdr-section-title{font-size:25px;line-height:1.04;margin:0 0 6px}
+        .kb-pdr-copy{font-size:13px;line-height:1.46;color:#59625e;margin:0 0 8px;max-width:780px}
+        .kb-pdr-scope-title{font-size:25px;line-height:1.04;margin:17px 0 7px}
+        .kb-pdr-scope{display:grid;gap:4px}
+        .kb-pdr-scope-row{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;min-height:25px}
+        .kb-pdr-scope-num{width:24px;height:24px;border-radius:50%;background:#e8ecdb;color:#355447;display:grid;place-items:center;font-size:8px;font-weight:800}
+        .kb-pdr-scope-text{font-size:12.5px;line-height:1.3;color:#59625e;font-weight:450}
+        .kb-pdr-side{display:grid;gap:11px}
+        .kb-pdr-card{border:1px solid rgba(16,38,31,.12);border-radius:9px;background:#fffdfa;padding:14px}
+        .kb-pdr-card-title{font-family:'Bodoni Moda',Georgia,serif;font-size:16.5px;line-height:1.08;font-weight:500;color:#10261f;margin:0 0 10px;letter-spacing:-.022em}
+        .kb-pdr-church-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid rgba(16,38,31,.10)}
+        .kb-pdr-church-icon{width:40px;height:40px;border-radius:50%;background:#edf0e1;color:#37604f;display:grid;place-items:center;flex:0 0 40px}
+        .kb-pdr-church-name{font-size:13.5px;font-weight:800;color:#1a4537;margin-bottom:2px}
+        .kb-pdr-church-sub{font-size:10px;line-height:1.35;color:#7f8984}
+        .kb-pdr-church-stats{display:grid;gap:7px;padding:10px 0;border-bottom:1px solid rgba(16,38,31,.10)}
+        .kb-pdr-church-stat{display:flex;align-items:center;gap:8px;font-size:10.5px;color:#59645f}
+        .kb-pdr-church-copy{font-size:10px;line-height:1.42;color:#7d8782;margin:10px 0 0}
+        .kb-pdr-similar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+        .kb-pdr-similar-head .kb-pdr-card-title{margin:0}
+        .kb-pdr-viewmore{border:0;background:none;color:var(--pd-green);font-size:10.5px;font-weight:800;padding:0;cursor:pointer;white-space:nowrap}
+        .kb-pdr-similar-list{display:grid;gap:7px}
+        .kb-pdr-similar-row{display:grid;grid-template-columns:70px minmax(0,1fr);gap:9px;align-items:center;border:0;background:transparent;padding:0;text-align:left;cursor:pointer}
+        .kb-pdr-similar-img{width:70px;height:44px;border-radius:7px;overflow:hidden;background:#e8e2d7}
+        .kb-pdr-similar-img img{width:100%;height:100%;object-fit:cover;display:block}
+        .kb-pdr-similar-title{display:block;font-size:10.5px;font-weight:700;color:#173d31;line-height:1.22}
+        .kb-pdr-similar-meta{display:block;font-size:9px;color:#87908b;line-height:1.25;margin-top:2px}
+        .kb-pdr-question{background:#f1f2e9;border:0;padding:14px}
+        .kb-pdr-question-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:7px}
+        .kb-pdr-question-icon{color:#1d5d49;flex:0 0 auto}
+        .kb-pdr-question h3{font-family:'Bodoni Moda',Georgia,serif;font-size:15px;line-height:1.08;font-weight:500;color:#15382d;margin:0;max-width:250px}
+        .kb-pdr-question p{font-size:9.75px;line-height:1.4;color:#65706a;margin:0 0 9px 34px;max-width:310px}
+        .kb-pdr-question button{height:30px;padding:0 14px;margin-left:34px;border-radius:5px;border:1px solid rgba(16,38,31,.32);background:transparent;color:#0b5b43;font-size:10px;font-weight:800}
+        .kb-pdr-files{display:grid;border-top:1px solid rgba(16,38,31,.10)}
+        .kb-pdr-file{min-height:58px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border-bottom:1px solid rgba(16,38,31,.10);padding:10px 0}
+        .kb-pdr-file strong{display:block;font-size:12.5px;color:#234438}
+        .kb-pdr-file small{display:block;font-size:10px;color:#929a95;margin-top:2px}
+        .kb-pdr-file button{border:0;background:none;color:#0d5b43;font-size:10.5px;font-weight:800}
+        .kb-pdr-qtab{display:grid;gap:10px}
+        .kb-pdr-qitem{border:1px solid rgba(16,38,31,.10);border-radius:7px;background:#fffdfa;padding:12px 14px}
+        .kb-pdr-qitem strong{display:block;font-size:12.5px;color:#234438;margin-bottom:3px}
+        .kb-pdr-qitem span{font-size:11.5px;color:#747d78;line-height:1.45}
+        .kb-pdr-detailmap{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(0,1fr);gap:10px;margin-top:18px;align-items:stretch}
+        .kb-pdr-details-card{border:1px solid rgba(16,38,31,.12);border-radius:9px;background:#fffdfa;padding:14px 17px}
+        .kb-pdr-details-title{font-family:'Bodoni Moda',Georgia,serif;font-size:17px;line-height:1.05;font-weight:500;color:#173d31;margin:0 0 11px}
+        .kb-pdr-detailrows{display:grid;gap:9px}
+        .kb-pdr-detailrow{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:center;min-height:27px}
+        .kb-pdr-detailrow .icon{color:#2f6653}
+        .kb-pdr-detailrow small{display:block;font-size:9.5px;line-height:1.15;color:#88918c;margin-bottom:2px}
+        .kb-pdr-detailrow strong{display:block;font-size:12px;line-height:1.22;color:#29483d;font-weight:700}
+        .kb-pdr-mapwrap{display:grid;gap:6px}
+        .kb-pdr-map{position:relative;min-height:154px;border-radius:9px;overflow:hidden;background:#f2f0e8;border:1px solid rgba(16,38,31,.08)}
+        .kb-pdr-map::before,.kb-pdr-map::after{content:none}
+        .kb-pdr-map-art{position:absolute;inset:0;width:100%;height:100%;display:block}.kb-pdr-map-pin{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);z-index:3;color:#0b5b43;filter:drop-shadow(0 2px 3px rgba(0,0,0,.16))}
+        .kb-pdr-map-city{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:3;font-size:10.5px;font-weight:700;color:#173d31;background:rgba(255,253,248,.94);padding:3px 9px;border-radius:999px;box-shadow:0 1px 4px rgba(16,38,31,.08)}
+        .kb-pdr-map-note{font-size:8.75px;color:#87908b;display:flex;align-items:center;justify-content:center;gap:5px}
+        .kb-pdr-cta{position:relative;overflow:hidden;background:#075440;color:#fffdfa}
+        .kb-pdr-cta-inner{width:var(--pd-shell);margin:0 auto;min-height:92px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:34px;align-items:center;position:relative;z-index:2}
+        .kb-pdr-cta h2{font-family:'Bodoni Moda',Georgia,serif;font-size:29px;line-height:1.01;font-weight:500;letter-spacing:-.03em;margin:0 0 4px;color:#fffdfa}
+        .kb-pdr-cta p{font-size:10.5px;line-height:1.36;color:rgba(255,253,248,.80);margin:0}
+        .kb-pdr-cta button{height:40px;border-radius:6px;border:1px solid rgba(255,255,255,.88);background:#fffdfa;color:#15382d;font-size:10.75px;font-weight:800}
+        .kb-pdr-leaves{position:absolute;left:-10px;bottom:-28px;width:260px;height:185px;opacity:.46;pointer-events:none}
+        .kb-pdr-leaf{position:absolute;width:88px;height:38px;border-radius:100% 0 100% 0;background:linear-gradient(135deg,#8fa66c 0%,#547443 45%,#2e6047 100%);transform-origin:100% 50%;box-shadow:inset -10px -4px 18px rgba(0,0,0,.15)}
+        .kb-pdr-leaf::after{content:"";position:absolute;left:12%;right:8%;top:50%;height:1px;background:rgba(238,244,217,.55);transform:rotate(-4deg)}
+        .kb-pdr-leaf.l1{left:12px;bottom:64px;transform:rotate(18deg)}
+        .kb-pdr-leaf.l2{left:62px;bottom:94px;transform:rotate(-18deg) scale(.86)}
+        .kb-pdr-leaf.l3{left:92px;bottom:46px;transform:rotate(34deg) scale(.72)}
+        .kb-pdr-leaf.l4{left:18px;bottom:16px;transform:rotate(-30deg) scale(.78)}
+        .kb-pdr-footer{height:54px;background:#fffdfa;border-top:1px solid rgba(16,38,31,.08)}
+        .kb-pdr-footer-inner{width:var(--pd-shell);height:100%;margin:0 auto;display:grid;grid-template-columns:180px 1fr auto;align-items:center;gap:24px}
+        .kb-pdr-footer .kb-brand-logo{height:26px!important;width:auto!important;max-width:120px!important}
+        .kb-pdr-footer-copy{font-size:9.75px;color:#858e89;justify-self:center}
+        .kb-pdr-footer-links{display:flex;gap:24px;align-items:center}
+        .kb-pdr-footer-links button{border:0;background:none;padding:0;color:#65706a;font-size:9.5px;font-weight:500;cursor:pointer}
+        @media(max-width:1179px){
+          .kb-project-detail-reference{--pd-shell:min(calc(100vw - 40px),1080px);--pd-side:330px}
+          .kb-pdr-hero{height:270px}
+          .kb-pdr-head{grid-template-columns:minmax(0,1fr) 330px;gap:34px}
+          .kb-pdr-h1{font-size:38px;max-width:700px}
+          .kb-pdr-actions{width:100%}
+          .kb-pdr-bodygrid{grid-template-columns:minmax(0,1fr) 330px;gap:34px}
+          .kb-pdr-detailmap{grid-template-columns:minmax(0,1.45fr) minmax(180px,.85fr)}
+        }
+        @media(max-width:820px){
+          .kb-pdr-head,.kb-pdr-bodygrid,.kb-pdr-cta-inner{grid-template-columns:1fr}
+          .kb-pdr-actions{padding-top:0;max-width:380px}
+          .kb-pdr-side{grid-row:auto}
+          .kb-pdr-detailmap{grid-template-columns:1fr}
+          .kb-pdr-map{min-height:154px}
+          .kb-pdr-cta-inner{padding:24px 0}
+          .kb-pdr-footer-inner{grid-template-columns:1fr auto}
+          .kb-pdr-footer-copy{display:none}
+        }
+        @media(max-width:719px){
+          .kb-project-detail-reference{--pd-shell:calc(100vw - 28px);--pd-side:100%}
+          .kb-pdr-hero-top{left:10px;right:10px;top:10px;gap:8px}
+          .kb-pdr-backoverlay{height:31px;padding:0 10px;font-size:10px}
+          .kb-pdr-previewtruth{min-height:27px;padding:0 8px;font-size:7px;letter-spacing:.10em}
+          .kb-pdr-hero{height:220px}
+          .kb-pdr-head{padding:18px 0 17px}
+          .kb-pdr-h1{font-size:34px}
+          .kb-pdr-meta{font-size:12px}
+          .kb-pdr-utils{grid-template-columns:repeat(3,1fr)}
+          .kb-pdr-tabs{gap:18px;overflow-x:auto}
+          .kb-pdr-section-title,.kb-pdr-scope-title{font-size:25px}
+          .kb-pdr-copy{font-size:13.5px}
+          .kb-pdr-scope-text{font-size:13px}
+          .kb-pdr-side{margin-top:4px}
+          .kb-pdr-detailmap{margin-top:24px}
+          .kb-pdr-cta-inner{min-height:0;padding:24px 0}
+          .kb-pdr-cta h2{font-size:30px}
+          .kb-pdr-cta button{width:100%}
+          .kb-pdr-footer{height:auto;min-height:64px}
+          .kb-pdr-footer-inner{grid-template-columns:1fr;justify-items:start;padding:12px 0;gap:10px}
+          .kb-pdr-footer-links{gap:14px;flex-wrap:wrap}
+        }
+      `}</style>
+
+      <section className="kb-pdr-hero">
+        <img src={image} alt="Illustrative project context" onError={handleKbImageError} style={{objectPosition:heroObjectPosition}}/>
+        <div className="kb-pdr-hero-top">
+          <button type="button" className="kb-pdr-backoverlay" onClick={onBack}><span aria-hidden="true">←</span> Back to Marketplace</button>
+          <span className="kb-pdr-previewtruth">Illustrative preview · not a live project</span>
         </div>
+      </section>
 
-        <article className="kb-project-preview-detail" aria-labelledby="kb-project-preview-title">
-          <div className="kb-project-preview-detail__media">
-            <img src={image} alt="Illustrative project context" onError={handleKbImageError} />
-            <span className="kb-project-preview-detail__category">{category}</span>
-            <span className={`kb-project-preview-detail__status${project?.urgent ? ' is-urgent' : ''}`}>{project?.urgent ? 'Priority example' : 'Example brief'}</span>
-          </div>
-
-          <div className="kb-project-preview-detail__content">
-            <p className="kb-marketplace-section-kicker">Project brief</p>
-            <h1 id="kb-project-preview-title">{project?.title || 'Church project example'}</h1>
-            <div className="kb-project-preview-detail__meta" aria-label="Project location and timing">
-              <span>⌖ {location}</span>
-              <span>{timeline}</span>
+      <div className="kb-pdr-shell">
+        <section className="kb-pdr-head">
+          <div>
+            <div className="kb-pdr-eyebrow">{category}</div>
+            <h1 className="kb-pdr-serif kb-pdr-h1">{project?.title || 'Church project brief'}</h1>
+            <div className="kb-pdr-meta">
+              <span style={{display:'inline-flex',alignItems:'center',gap:7}}>{pIcon('pin',17)}{location}</span>
+              <span className="kb-pdr-meta-sep">|</span>
+              <span style={{display:'inline-flex',alignItems:'center',gap:7}}>{pIcon('budget',17)}{budget}</span>
+              <span className="kb-pdr-meta-sep">|</span>
+              <span style={{display:'inline-flex',alignItems:'center',gap:7}}>{pIcon('clock',17)}{timeline}</span>
             </div>
-            <p className="kb-project-preview-detail__summary">{description}</p>
-
-            <dl className="kb-project-preview-detail__snapshot">
-              <div><dt>Budget</dt><dd>{budget}</dd></div>
-              <div><dt>Timeline</dt><dd>{timeline}</dd></div>
-              <div><dt>Example interest</dt><dd>{responseCount ? `${responseCount} response${responseCount === 1 ? '' : 's'}` : 'Open for responses'}</dd></div>
-            </dl>
+            <div className="kb-pdr-privacy"><span>Posted by a Dallas-area church</span><span aria-hidden="true">·</span><span>Church details are shared according to the church’s visibility settings.</span></div>
           </div>
-        </article>
 
-        <div className="kb-project-preview-detail__lower">
-          <section className="kb-project-preview-detail__scope" aria-labelledby="kb-project-preview-scope-title">
-            <p className="kb-marketplace-section-kicker">Expected scope</p>
-            <h2 id="kb-project-preview-scope-title">What a strong response would cover</h2>
-            <ol>
-              {scopeItems.map((item, index) => (
-                <li key={item}><span>{String(index + 1).padStart(2, '0')}</span><strong>{item}</strong></li>
+          <div className="kb-pdr-actions">
+            <button type="button" className="kb-pdr-primary" title="Illustrative preview only">Respond to project <span aria-hidden="true">→</span></button>
+            <div className="kb-pdr-utils">
+              <button type="button" onClick={()=>setPreviewSaved(v=>!v)}>{pIcon('bookmark',15)} {previewSaved?'Saved':'Save'}</button>
+              <button type="button" onClick={sharePreview}>{pIcon('share',15)} Share</button>
+              <button type="button" title="Illustrative preview only">{pIcon('flag',15)} Report</button>
+            </div>
+          </div>
+        </section>
+
+        <section className="kb-pdr-bodygrid">
+          <div>
+            <div className="kb-pdr-tabs" role="tablist" aria-label="Project information">
+              {[
+                {key:'overview', label:'Overview'},
+                {key:'attachments', label:`Attachments (${previewAttachments.length})`},
+                {key:'questions', label:'Questions (3)'},
+              ].map(t => (
+                <button key={t.key} type="button" role="tab" aria-selected={previewTab===t.key} className={previewTab===t.key?'is-active':''} onClick={()=>setPreviewTab(t.key)}>{t.label}</button>
               ))}
-            </ol>
-          </section>
+            </div>
 
-          <aside className="kb-project-preview-detail__next" aria-label="Preview guidance">
-            <span className="kb-project-preview-detail__next-mark" aria-hidden="true">✦</span>
-            <p>How real projects work</p>
-            <h2>Clear context before the first conversation.</h2>
-            <span>Live briefs can include church-approved scope, timing, files, questions, and proposal activity. This example cannot receive messages or bids.</span>
-            <button type="button" onClick={handlePrimary}>{isVendor ? 'Return to projects' : 'Post a similar need'} <span aria-hidden="true">→</span></button>
+            {previewTab === 'overview' && (
+              <>
+                <h2 className="kb-pdr-serif kb-pdr-section-title">About this project</h2>
+                <p className="kb-pdr-copy">{description}</p>
+                <p className="kb-pdr-copy">We’re looking for a vendor with experience in church environments who can help us plan the work clearly, coordinate around ministry schedules, and deliver a clean handoff.</p>
+
+                <h2 className="kb-pdr-serif kb-pdr-scope-title">What we’re looking for</h2>
+                <div className="kb-pdr-scope">
+                  {scopeItems.slice(0,6).map((item,index)=>(
+                    <div className="kb-pdr-scope-row" key={`${item}-${index}`}>
+                      <span className="kb-pdr-scope-num">{String(index+1).padStart(2,'0')}</span>
+                      <span className="kb-pdr-scope-text">{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="kb-pdr-detailmap">
+                  <div className="kb-pdr-details-card">
+                    <h3 className="kb-pdr-details-title">Project details</h3>
+                    <div className="kb-pdr-detailrows">
+                      <div className="kb-pdr-detailrow"><span className="icon">{pIcon('calendar',18)}</span><span><small>Target timeline</small><strong>{timeline}</strong></span></div>
+                      <div className="kb-pdr-detailrow"><span className="icon">{pIcon('budget',18)}</span><span><small>Estimated budget</small><strong>{budget}</strong></span></div>
+                      <div className="kb-pdr-detailrow"><span className="icon">{pIcon('pin',18)}</span><span><small>Location</small><strong>{location}</strong></span></div>
+                      <div className="kb-pdr-detailrow"><span className="icon">{pIcon('flag',18)}</span><span><small>Service category</small><strong>{category}</strong></span></div>
+                    </div>
+                  </div>
+                  <div className="kb-pdr-mapwrap">
+                    <div className="kb-pdr-map">
+                      <svg className="kb-pdr-map-art" viewBox="0 0 320 190" preserveAspectRatio="none" aria-hidden="true">
+                        <rect width="320" height="190" fill="#f3f1ea"/>
+                        <path d="M0 34 C56 31 86 38 140 33 S255 25 320 30" fill="none" stroke="#d4d0c5" strokeWidth="9"/>
+                        <path d="M0 34 C56 31 86 38 140 33 S255 25 320 30" fill="none" stroke="#fbfaf6" strokeWidth="5"/>
+                        <path d="M36 0 C35 44 45 69 42 111 S34 158 38 190" fill="none" stroke="#d7d3c8" strokeWidth="8"/>
+                        <path d="M36 0 C35 44 45 69 42 111 S34 158 38 190" fill="none" stroke="#fffefa" strokeWidth="4"/>
+                        <path d="M184 -8 C175 31 183 67 179 101 S168 158 177 198" fill="none" stroke="#d2cec3" strokeWidth="10"/>
+                        <path d="M184 -8 C175 31 183 67 179 101 S168 158 177 198" fill="none" stroke="#fbfaf7" strokeWidth="5"/>
+                        <path d="M0 132 C62 126 97 135 150 126 S252 114 320 122" fill="none" stroke="#d8d4ca" strokeWidth="7"/>
+                        <path d="M0 132 C62 126 97 135 150 126 S252 114 320 122" fill="none" stroke="#fffefa" strokeWidth="3.5"/>
+                        <path d="M234 0 C233 39 224 62 230 96 S248 145 246 190" fill="none" stroke="#dedad0" strokeWidth="5"/>
+                        <path d="M92 0 C91 27 86 54 92 81 S104 132 102 190" fill="none" stroke="#dedad0" strokeWidth="4"/>
+                        <path d="M0 76 C48 78 75 71 122 77 S218 88 320 78" fill="none" stroke="#dedad0" strokeWidth="4"/>
+                        <path d="M0 161 C44 158 73 165 115 160 S217 151 320 158" fill="none" stroke="#e1ddd3" strokeWidth="3"/>
+                        <path d="M130 0 L118 190 M284 0 L270 190" fill="none" stroke="#e3dfd5" strokeWidth="2"/>
+                        <path d="M0 54 L320 47 M0 106 L320 100 M0 145 L320 139" fill="none" stroke="#e6e2d9" strokeWidth="2"/>
+                        <rect x="54" y="48" width="74" height="36" rx="5" fill="#dfe7d7"/>
+                        <rect x="205" y="129" width="70" height="34" rx="5" fill="#e2e8d9"/>
+                        <path d="M286 86 C299 82 309 85 320 81 L320 109 C307 111 299 107 286 111Z" fill="#e7ecdf"/>
+                        <g fill="#ddd8cd" opacity=".7">
+                          <rect x="8" y="88" width="20" height="11" rx="2"/><rect x="55" y="101" width="26" height="13" rx="2"/><rect x="112" y="96" width="24" height="12" rx="2"/>
+                          <rect x="198" y="49" width="22" height="11" rx="2"/><rect x="253" y="53" width="28" height="13" rx="2"/><rect x="138" y="147" width="23" height="12" rx="2"/>
+                        </g>
+                      </svg>
+                      <span className="kb-pdr-map-pin">{pIcon('pin',30)}</span>
+                      <span className="kb-pdr-map-city">{city}</span>
+                    </div>
+                    <div className="kb-pdr-map-note">{pIcon('search',11)} <span>Exact address shared after response</span></div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {previewTab === 'attachments' && (
+              <>
+                <h2 className="kb-pdr-serif kb-pdr-section-title">Attachments</h2>
+                <div className="kb-pdr-files">
+                  {previewAttachments.map((name,idx)=>(
+                    <div className="kb-pdr-file" key={name}>
+                      <span><strong>{name}</strong><small>{idx===0?'PDF · 1.8 MB':'PDF · 640 KB'}</small></span>
+                      <button type="button" title="Illustrative preview only">View →</button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {previewTab === 'questions' && (
+              <>
+                <h2 className="kb-pdr-serif kb-pdr-section-title">Questions</h2>
+                <div className="kb-pdr-qtab">
+                  <div className="kb-pdr-qitem"><strong>Can the work be scheduled around weekend services?</strong><span>Yes — the brief assumes coordination around the church’s regular ministry schedule.</span></div>
+                  <div className="kb-pdr-qitem"><strong>Will vendors receive exact site details?</strong><span>Qualified respondents can receive additional project details according to the church’s visibility settings.</span></div>
+                  <div className="kb-pdr-qitem"><strong>Can we ask a private question first?</strong><span>Yes. FaithBid supports a private question before a response is submitted.</span></div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <aside className="kb-pdr-side">
+            <div className="kb-pdr-card">
+              <h3 className="kb-pdr-card-title">About the church</h3>
+              <div className="kb-pdr-church-head">
+                <span className="kb-pdr-church-icon">{pIcon('home',22)}</span>
+                <span><div className="kb-pdr-church-name">Dallas-area church</div><div className="kb-pdr-church-sub">A Christ-centered community<br/>serving our city.</div></span>
+              </div>
+              <div className="kb-pdr-church-stats">
+                <div className="kb-pdr-church-stat">{pIcon('shield',15)}<span>Active on FaithBid since 2024</span></div>
+                <div className="kb-pdr-church-stat">{pIcon('calendar',15)}<span>Multiple projects posted</span></div>
+                <div className="kb-pdr-church-stat">{pIcon('clock',15)}<span>Typically responds within 2–3 days</span></div>
+              </div>
+              <p className="kb-pdr-church-copy">This church is committed to maintaining a welcoming and functional space for their congregation and community.</p>
+            </div>
+
+            {relatedPreviewProjects.length > 0 && (
+              <div className="kb-pdr-card">
+                <div className="kb-pdr-similar-head"><h3 className="kb-pdr-card-title">Similar projects</h3><button type="button" className="kb-pdr-viewmore" onClick={onBack}>View more&nbsp; →</button></div>
+                <div className="kb-pdr-similar-list">
+                  {relatedPreviewProjects.slice(0,3).map((item,idx)=>{
+                    const relImage = getProjectHeroImage(item,idx) || KB_PROJECT_MEDIA_FALLBACK;
+                    const relLocation = getMarketplaceProjectLocationLabel(item);
+                    const relBudget = formatMarketplaceProjectBudgetLabel(item?.budget);
+                    return (
+                      <button key={item?.id || item?.title || idx} type="button" className="kb-pdr-similar-row" onClick={()=>openRelatedPreview(item)}>
+                        <span className="kb-pdr-similar-img"><img src={relImage} alt="" onError={handleKbImageError}/></span>
+                        <span><span className="kb-pdr-similar-title">{item?.title || 'Project'}</span><span className="kb-pdr-similar-meta">{relLocation}{relBudget?` · ${relBudget}`:''}</span></span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="kb-pdr-card kb-pdr-question">
+              <div className="kb-pdr-question-head"><span className="kb-pdr-question-icon">{pIcon('lightbulb',27)}</span><h3>Have questions before responding?</h3></div>
+              <p>You can ask the church a question (anonymously) before sending your response.</p>
+              <button type="button" title="Illustrative preview only">Ask a question</button>
+            </div>
           </aside>
-        </div>
+        </section>
       </div>
+
+      <section className="kb-pdr-cta">
+        <div className="kb-pdr-leaves" aria-hidden="true"><span className="kb-pdr-leaf l1"/><span className="kb-pdr-leaf l2"/><span className="kb-pdr-leaf l3"/><span className="kb-pdr-leaf l4"/></div>
+        <div className="kb-pdr-cta-inner">
+          <div><h2>Interested in this project?</h2><p>Share your experience and get in touch with the church.</p></div>
+          <button type="button" title="Illustrative preview only">Respond to project&nbsp;&nbsp; →</button>
+        </div>
+      </section>
+
+      <footer className="kb-pdr-footer">
+        <div className="kb-pdr-footer-inner">
+          <span><CrossLogo size={26} variant="full"/></span>
+          <span className="kb-pdr-footer-copy">Connecting churches with trusted Christian vendors.</span>
+          <div className="kb-pdr-footer-links">
+            <button type="button" onClick={onBack}>Marketplace</button>
+            <button type="button" onClick={goLanding}>How It Works</button>
+            <button type="button" onClick={goLanding}>For Churches</button>
+            <button type="button" onClick={goLanding}>For Vendors</button>
+            <button type="button" onClick={()=>nav?.('about')}>About</button>
+          </div>
+        </div>
+      </footer>
+
+      {previewGalleryOpen && <div className="modal-bg" role="button" tabIndex={0} onClick={()=>setPreviewGalleryOpen(false)} onKeyDown={(e)=>{if(e.key==='Escape')setPreviewGalleryOpen(false);}}><div className="modal" role="dialog" aria-modal="true" aria-label="Project photos" onClick={e=>e.stopPropagation()} style={{maxWidth:980}}><div className="modal-hd"><div className="modal-title">Illustrative project photos</div><button type="button" className="modal-close" onClick={()=>setPreviewGalleryOpen(false)}>×</button></div><div className="modal-body"><div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(2,minmax(0,1fr))',gap:12}}>{previewGallery.map((src,idx)=><img key={`${src}-${idx}`} src={src} alt="Illustrative project" style={{width:'100%',height:260,objectFit:'cover',borderRadius:8}}/>)}</div></div></div></div>}
     </main>
   );
 }
@@ -25341,6 +26762,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [featuredCollapsed, setFeaturedCollapsed] = useState(() => savedState.featuredCollapsed !== false);
   const [saveSearchModal, setSaveSearchModal] = useState(null); // { suggested } | null
+  const saveSearchInputRef = useRef(null);
 
   // Scroll lock: prevent the page behind the filter sheet from scrolling
   // on iOS and Android. We apply/remove overflow:hidden on document.body.
@@ -25873,7 +27295,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   const browseGridSource = filteredProjects;
   const featuredProjectRows = useMemo(() => {
     const source = marketplaceDevPreview ? filteredProjects : featuredBrowseProjects;
-    return safeArray(source).slice(0, 12);
+    return safeArray(source).slice(0, 5);
   }, [marketplaceDevPreview, filteredProjects, featuredBrowseProjects]);
   const showFeaturedProjectRail = !hasBrowseRefinements && featuredProjectRows.length >= 4;
 
@@ -25926,6 +27348,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
       startX:e.clientX,
       scrollLeft:el.scrollLeft,
       moved:false,
+      cardId:cardId || null,
     };
     const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     stripVelocityRef.current = { samples: [{ x: e.clientX, t: now }], lastX: e.clientX, lastT: now };
@@ -25966,6 +27389,9 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     el.style.scrollSnapType = '';
     setStripPressedCardId(null);
     setStripIsDragging(false);
+    // Pure taps/clicks are handled by the featured-card wrapper's click-capture
+    // bridge below. Keeping navigation in one place avoids duplicate opens while
+    // preserving drag suppression and save-button behavior.
     // Compute release velocity from the most recent samples and start
     // momentum if the user flicked. Pure click-with-no-drag skips this
     // entirely so click-through stays snappy.
@@ -26013,53 +27439,32 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     };
   }, []);
 
-  // Infinite-scroll replaces page-based pagination. Vendors scan a project
-  // marketplace; they don't navigate it. We render the first PROJECTS_PER_PAGE
-  // up front, then load another batch each time the sentinel comes into view.
-  // Resets to the initial batch whenever filters change, so a vendor doesn't
-  // get stranded scrolling stale results after they refine.
+  // "Load more" button, not infinite scroll — at pilot inventory (10-20
+  // projects), auto-loading on scroll solves a problem that doesn't exist
+  // yet. We render the first PROJECTS_PER_PAGE up front, then a click
+  // advances the client-side window and, once that's exhausted, asks the
+  // server for the next batch. Resets to the initial batch whenever filters
+  // change, so a vendor doesn't get stranded on stale results after they refine.
   const PROJECTS_PER_PAGE = 24;
   const [visibleCount, setVisibleCount] = useState(PROJECTS_PER_PAGE);
-  const loadMoreSentinelRef = useRef(null);
   const gridProjects = useMemo(
     () => browseGridSource.slice(0, visibleCount),
     [browseGridSource, visibleCount]
   );
-  // Two reasons the sentinel could fire: the client window has more
-  // already-loaded projects to reveal (cheap), or the client window is at
-  // the end of what we've fetched and we need to ask the server for more
-  // (network cost). hasMoreToLoad covers either: the load-more sentinel
-  // stays in the DOM, the observer keeps watching, and the callback decides
-  // which action to take.
   const hasMoreToLoad = visibleCount < browseGridSource.length || hasMoreServerProjects;
   useEffect(() => {
     setVisibleCount(PROJECTS_PER_PAGE);
   }, [search, catFilter, locationFilter, budgetFilter, sortBy, savedOnly, urgentOnly, reviewingOnly]);
-  useEffect(() => {
-    if (!hasMoreToLoad) return undefined;
-    const node = loadMoreSentinelRef.current;
-    if (!node || typeof IntersectionObserver !== 'function') return undefined;
-    const observer = new IntersectionObserver((entries) => {
-      const entry = entries[0];
-      if (!entry || !entry.isIntersecting) return;
-      // First, advance the client-side window. If this exhausts what we have
-      // and there's more on the server, also trigger the server fetch.
-      // Doing both in one tick avoids a "scroll, wait, scroll, wait" feel —
-      // the next batch starts loading before the vendor reaches the bottom.
-      setVisibleCount(prev => {
-        const next = Math.min(prev + PROJECTS_PER_PAGE, browseGridSource.length);
-        const exhaustedClient = next >= browseGridSource.length;
-        if (exhaustedClient && hasMoreServerProjects && !loadingMoreServerProjects && typeof loadMoreProjects === 'function') {
-          // Defer to next tick so the setState above commits cleanly before
-          // the parent's loadMoreProjects fires its own state updates.
-          Promise.resolve().then(() => loadMoreProjects());
-        }
-        return next;
-      });
-    }, { rootMargin: '600px 0px' }); // start loading well before the user hits the bottom
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [hasMoreToLoad, browseGridSource.length, hasMoreServerProjects, loadingMoreServerProjects, loadMoreProjects]);
+  const handleLoadMoreProjects = () => {
+    setVisibleCount(prev => {
+      const next = Math.min(prev + PROJECTS_PER_PAGE, browseGridSource.length);
+      const exhaustedClient = next >= browseGridSource.length;
+      if (exhaustedClient && hasMoreServerProjects && !loadingMoreServerProjects && typeof loadMoreProjects === 'function') {
+        Promise.resolve().then(() => loadMoreProjects());
+      }
+      return next;
+    });
+  };
 
   const totalOpen = openProjects.length;
   const urgentCount = openProjects.filter(p => !!p.urgent).length;
@@ -26577,11 +27982,28 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   // Pick a curated cover image based on the project's category/title — keeps
   // the All Projects grid visually consistent with the curated rows above.
   const pickImageForProject = (project, index = 0) => {
-    if (marketplaceDevPreview) {
-      const previewImage = getValidMediaUrl(project?.hero_image || project?.image_url || '');
-      if (previewImage) return previewImage;
+    return getProjectHeroImage(project, index);
+  };
+
+  // 0964 — single project-open bridge for the active Marketplace directory.
+  // Preview cards always open the illustrative detail surface; live cards always
+  // use the existing backend-connected project detail path.
+  const openMarketplaceDirectoryProject = (project) => {
+    if (!project) {
+      showToast && showToast('Project unavailable.', 'error');
+      return;
     }
-    return pickMarketplacePresetImage(project, index);
+    if (marketplaceDevPreview) {
+      if (typeof onSelectSample === 'function') {
+        onSelectSample(project);
+        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+        return;
+      }
+      showToast && showToast('Preview detail is unavailable.', 'error');
+      return;
+    }
+    openProject(project);
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
   };
 
   // Click handler for All Projects cards: opens the actual project, not via the
@@ -26637,7 +28059,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
         nav && nav('marketplace');
         break;
       case 'nav-notifications':
-        nav && nav('activity');
+        nav && nav(role === 'vendor' ? 'my-work' : 'my-projects');
         break;
       case 'nav-profile':
         nav && nav('profile');
@@ -26724,6 +28146,14 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
       avgBudget,
     };
   }, [openProjects]);
+
+  useEffect(() => {
+    kbPerfAfterPaint("project-board-painted", {
+      role,
+      projectCount: Array.isArray(projects) ? projects.length : 0,
+      filteredCount: Array.isArray(filteredProjects) ? filteredProjects.length : 0,
+    });
+  }, [role, projects?.length, filteredProjects?.length]);
 
   // V56 — vendor tab crash fix: keep this return AFTER every hook in ProjectBoard.
   // Previously the Vendors sub-tab returned before the later useMemo/useRef/useState calls below,
@@ -26833,20 +28263,13 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     row.scrollBy({ left: dir * (cardW + 12), behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    kbPerfAfterPaint("project-board-painted", {
-      role,
-      projectCount: Array.isArray(projects) ? projects.length : 0,
-      filteredCount: Array.isArray(filteredProjects) ? filteredProjects.length : 0,
-    });
-  }, [role, projects?.length, filteredProjects?.length]);
-
   const useStreamlinedProjectDirectory = true;
 
   return (
     <div className={`mkt2-root kb-live-marketplace-page${role === 'vendor' ? ' kb-vendor-open-projects-page' : ''} kb-church-projects-marketplace-page kb-mp-mobile-unified-page kb-mp-mobile-unified-churchprojects kb-mp-exact-marketplace-page kb-mp-exact-marketplace-churchprojects`}>
       
       <KBMarketplaceRuntimeStyles />
+      <KBMarketplaceProjectCardGeometryStyles />
 
       <ChurchProjectsMarketplaceHero
         isVendor={role === 'vendor'}
@@ -26857,7 +28280,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
           const target = typeof document !== 'undefined' ? document.querySelector('.kb-live-handpicked-hero') : null;
           if (target && typeof target.scrollIntoView === 'function') target.scrollIntoView({ behavior:'smooth', block:'start' });
         }}
-        onSavedProjects={() => typeof nav === 'function' && nav('saved-projects')}
+        onSavedProjects={() => queueMyProjectsLens(nav, role, 'saved')}
         search={search}
         onSearchChange={setSearch}
         categories={KB_MARKETPLACE_DIRECTORY_CATEGORIES}
@@ -26877,7 +28300,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               <h2 id="kb-project-marketplace-empty-title">No open church projects yet</h2>
               <span>FaithBid only shows real, published church needs. New opportunities will appear here as churches post them.</span>
               {role === 'vendor' ? (
-                <button type="button" className="kb-marketplace-project-empty__secondary" onClick={() => typeof nav === 'function' && nav('saved-projects')}>View saved projects</button>
+                <button type="button" className="kb-marketplace-project-empty__secondary" onClick={() => queueMyProjectsLens(nav, role, 'saved')}>View saved in My Projects</button>
               ) : (
                 <button type="button" className="kb-marketplace-project-empty__primary" onClick={onPost}>Post a project</button>
               )}
@@ -26888,9 +28311,9 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                 <section className="kb-marketplace-featured-projects" aria-labelledby="kb-marketplace-featured-projects-title">
                   <div className="kb-marketplace-featured-projects__head">
                     <div>
-                      <p className="kb-marketplace-section-kicker">Featured projects</p>
+                      <p className="kb-marketplace-section-kicker">Featured</p>
                       <h2 id="kb-marketplace-featured-projects-title">A closer look at current needs.</h2>
-                      <span>Grab and drag to explore the rail.</span>
+                      <span>Grab and drag to explore.</span>
                     </div>
                     <div className="kb-marketplace-featured-projects__actions" aria-label="Featured project controls">
                       <button type="button" onClick={() => scrollFeaturedCarousel(-1)} disabled={!featuredCanScrollPrev} aria-label="Scroll featured projects left">←</button>
@@ -26916,6 +28339,18 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                           key={`featured-${projectId}`}
                           className={`kb-marketplace-featured-projects__item${stripPressedCardId === projectId ? ' is-pressed' : ''}`}
                           data-strip-card-id={projectId}
+                          onClickCapture={(event) => {
+                            const saveControl = event?.target?.closest?.('.kb-marketplace-project-card__save');
+                            if (saveControl) return;
+                            if (featuredClickSuppressRef.current) {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              return;
+                            }
+                            event.preventDefault();
+                            event.stopPropagation();
+                            openMarketplaceDirectoryProject(project);
+                          }}
                         >
                           <MarketplaceProjectDirectoryCard
                             project={project}
@@ -26929,8 +28364,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                             onToggleSave={marketplaceDevPreview ? undefined : (event) => handleToggleSave(project, event)}
                             onOpen={() => {
                               if (featuredClickSuppressRef.current) return;
-                              if (marketplaceDevPreview) onSelectSample?.(project);
-                              else openProject(project);
+                              openMarketplaceDirectoryProject(project);
                             }}
                             role={role}
                           />
@@ -26945,11 +28379,11 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               <div className="kb-marketplace-project-directory__head">
                 <div>
                   <p className="kb-marketplace-section-kicker">Project opportunities</p>
-                  <h2 id="kb-marketplace-project-directory-title">Open church projects</h2>
+                  <h2 id="kb-marketplace-project-directory-title">All projects</h2>
                   <span>
                     {marketplaceDevPreview
-                      ? `${filteredProjects.length} illustrative brief${filteredProjects.length === 1 ? '' : 's'} for layout review.`
-                      : `${filteredProjects.length} real brief${filteredProjects.length === 1 ? '' : 's'} currently accepting responses.`}
+                      ? `${filteredProjects.length} illustrative opportunit${filteredProjects.length === 1 ? 'y' : 'ies'}`
+                      : `${filteredProjects.length} opportunit${filteredProjects.length === 1 ? 'y' : 'ies'}`}
                   </span>
                 </div>
                 <div className="kb-marketplace-project-directory__controls">
@@ -26961,6 +28395,11 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                   >
                     Saved{savedIds.size ? ` (${savedIds.size})` : ''}
                   </button> : null}
+                  {!marketplaceDevPreview && hasBrowseRefinements ? (
+                    <button type="button" className="kb-marketplace-project-saved" onClick={handleSaveCurrentSearch}>
+                      Save search
+                    </button>
+                  ) : null}
                   <label className="kb-marketplace-sort">
                     <span>Sort</span>
                     <select aria-label="Sort project briefs" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
@@ -26972,6 +28411,45 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                   </label>
                 </div>
               </div>
+
+              {!marketplaceDevPreview && (savedSearches.length > 0 || deletedSearch) ? (
+                <div style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:8,margin:'0 0 16px'}}>
+                  {savedSearches.map(entry => (
+                    <span key={entry.id} style={{display:'inline-flex',alignItems:'center',gap:6,height:30,padding:'0 6px 0 12px',borderRadius:999,border:'1px solid #ded8cc',background:'#fff',fontSize:11.5}}>
+                      <button type="button" onClick={()=>applySavedSearch(entry)} style={{border:0,background:'transparent',color:'#173d31',fontWeight:700,cursor:'pointer',padding:0}}>{entry.name}</button>
+                      <button type="button" aria-label={`Delete saved search ${entry.name}`} onClick={()=>deleteSavedSearch(entry.id)} style={{border:0,background:'transparent',color:'#8a938e',cursor:'pointer',fontSize:14,lineHeight:1,padding:'0 4px'}}>×</button>
+                    </span>
+                  ))}
+                  {deletedSearch ? (
+                    <span style={{display:'inline-flex',alignItems:'center',gap:6,height:30,padding:'0 12px',borderRadius:999,background:'#f1f0ea',fontSize:11.5,color:'#66716c'}}>
+                      Removed "{deletedSearch.entry.name}"
+                      <button type="button" onClick={undoDeleteSavedSearch} style={{border:0,background:'transparent',color:'#0b5b43',fontWeight:800,cursor:'pointer',padding:0}}>Undo</button>
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {saveSearchModal && (
+                <div className="modal-bg" role="button" tabIndex={0} onClick={()=>setSaveSearchModal(null)} onKeyDown={(e)=>{if(e.key==='Escape')setSaveSearchModal(null);}}>
+                  <div className="modal" role="dialog" aria-modal="true" aria-label="Save search" onClick={e=>e.stopPropagation()} style={{maxWidth:420}}>
+                    <div className="modal-hd"><div className="modal-title">Save this search</div><button type="button" className="modal-close" aria-label="Close" onClick={()=>setSaveSearchModal(null)}>×</button></div>
+                    <div className="modal-body">
+                      <input
+                        ref={saveSearchInputRef}
+                        autoFocus
+                        defaultValue={saveSearchModal.suggested}
+                        maxLength={60}
+                        onKeyDown={(e)=>{ if(e.key==='Enter') commitSaveSearch(e.currentTarget.value); }}
+                        style={{width:'100%',height:42,padding:'0 12px',borderRadius:8,border:'1px solid #ded8cc',fontSize:13,boxSizing:'border-box'}}
+                      />
+                    </div>
+                    <div className="modal-footer">
+                      <button type="button" className="btn-cancel-modal" onClick={()=>setSaveSearchModal(null)}>Cancel</button>
+                      <button type="button" className="btn-approve-modal" onClick={()=>commitSaveSearch(saveSearchInputRef.current?.value)}>Save</button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {projectDirectoryRows.length ? (
                 <div className="kb-marketplace-project-grid">
@@ -26991,7 +28469,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                         statusLabel={statusLabel}
                         saved={!marketplaceDevPreview && !!projectId && savedIds.has(projectId)}
                         onToggleSave={marketplaceDevPreview ? undefined : (event) => handleToggleSave(project, event)}
-                        onOpen={() => marketplaceDevPreview ? onSelectSample?.(project) : openProject(project)}
+                        onOpen={() => openMarketplaceDirectoryProject(project)}
                         role={role}
                       />
                     );
@@ -27007,8 +28485,10 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               )}
 
               {hasMoreToLoad ? (
-                <div ref={loadMoreSentinelRef} className="kb-marketplace-project-load-more" aria-live="polite">
-                  {loadingMoreServerProjects ? 'Loading more projects…' : 'More projects load as you browse'}
+                <div className="kb-marketplace-project-load-more" aria-live="polite">
+                  <button type="button" onClick={handleLoadMoreProjects} disabled={loadingMoreServerProjects}>
+                    {loadingMoreServerProjects ? 'Loading more…' : 'Load more'}
+                  </button>
                 </div>
               ) : null}
             </section>
@@ -27055,7 +28535,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               const leadImage = getProjectHeroImage(leadProject) || lead.image || '';
               const leadTimelineLabel = lead.timeline || getProjectCardTimelineLabel(leadProject);
               return (
-                <div className="faithbid-card-11a-rail-item">
+                <div className="faithbid-card-11a-rail-item" data-live-project-target="0">
                   <FaithBidCard11A
                     variant="marketplace"
                     image={leadImage}
@@ -27081,7 +28561,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               const cardImage = getProjectHeroImage(m.project || {}) || m.image || '';
               const timelineLabel = m.timeline || getProjectCardTimelineLabel(m.project || {});
               return (
-                <div key={m.project?.id || card.target} className="faithbid-card-11a-rail-item">
+                <div key={m.project?.id || card.target} className="faithbid-card-11a-rail-item" data-live-project-target={card.target}>
                   <FaithBidCard11A
                     variant="marketplace"
                     image={cardImage}
@@ -27176,11 +28656,11 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
             <button
               type="button"
               className="kb-marketplace-saved-route-link"
-              onClick={() => typeof nav === 'function' && nav('saved-projects')}
+              onClick={() => queueMyProjectsLens(nav, role, 'saved')}
               title="Open your saved project list"
               style={{height:34,border:'none',background:'transparent',padding:'0 2px',fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A6729',cursor:'pointer',whiteSpace:'nowrap',boxShadow:'none'}}
             >
-              Saved Projects →
+              Saved in My Projects →
             </button>
 
             {hasBrowseRefinements ? (
@@ -29315,7 +30795,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
             const primaryAction = (()=>{
               if (project.laneKey === 'comparing') return { key:'review-bids', label: project.bidsCount > 0 ? `Review ${project.bidsCount} bid${project.bidsCount===1?'':'s'} →` : 'Review bids →', onClick: (e)=>{ e.stopPropagation(); onManageBids(project); } };
               if (['hired','active'].includes(project.laneKey) || ['milestone_pending','disputed'].includes(project.deal_state) || hasDealRoomAccess(project)) return { key:'deal-room', label:'Open deal room →', onClick:(e)=>{ e.stopPropagation(); openDealRoom(project); } };
-              if (project.laneKey === 'completed') return { key:'leave-review', label:'Leave a review →', onClick:(e)=>{ e.stopPropagation(); setPendingReviewTarget({ vendor_id: project.hired_vendor_id || null, name: project.hired_vendor_name || '', emoji: '', project: project.title || '', project_id: project.id || null }); nav('reviews'); } };
+              if (project.laneKey === 'completed') return { key:'leave-review', label:'Leave a review →', onClick:(e)=>{ e.stopPropagation(); setPendingReviewTarget({ vendor_id: project.hired_vendor_id || null, name: project.hired_vendor_name || '', emoji: '', project: project.title || '', project_id: project.id || null }); nav('my-projects'); } };
               if ((Number(project?.attachedVendorCount || 0) || 0) > 0) return { key:'manage-vendors', label:'Manage vendors →', onClick:(e)=>{ e.stopPropagation(); manageProjectVendors(project); } };
               return { key:'workspace', label:'Open project →', onClick:(e)=>{ e.stopPropagation(); onSelect(project); } };
             })();
@@ -29417,17 +30897,154 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
 }
 const MemoMyProjectsCommand = React.memo(MyProjectsCommand);
 
-function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, onFetchBids, onSelectProject, showToast}){
-  const [bucket, setBucket] = useState("active");
+function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, onFetchBids, onSelectProject, showToast, currentUser}){
+  const [bucket, setBucket] = useState(() => consumeMyProjectsLens("active"));
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("next");
+  const [viewMode, setViewMode] = useState("grid");
   const [withdrawingBid, setWithdrawingBid] = useState(null);
   const [withdrawWorkPanelConfirm, setWithdrawWorkPanelConfirm] = useState(null);
   const [expandedBidId, setExpandedBidId] = useState(null);
   const [editingBid, setEditingBid] = useState(null);
   const [editSaving, setEditSaving] = useState(false);
+  const [cardMenuId, setCardMenuId] = useState(null);
+  const [vendorRow, setVendorRow] = useState(null);
+  const [portfolioItems, setPortfolioItems] = useState([]);
+  const [portfolioCount, setPortfolioCount] = useState(0);
+  const [portfolioAddingProjectId, setPortfolioAddingProjectId] = useState(null);
+  const [churchFeedbackProject, setChurchFeedbackProject] = useState(null);
+  const [savedProjects, setSavedProjects] = useState([]);
+  const [savedLoading, setSavedLoading] = useState(false);
+  const [savedError, setSavedError] = useState(null);
+  const [savedRemovingId, setSavedRemovingId] = useState(null);
 
   useEffect(()=>{
     if (typeof onFetchBids === 'function') onFetchBids({ background: true });
   },[]);
+
+  // 1006 — Saved lens live-source lock.
+  // Keep profile/portfolio support data independent from saved-project loading so a
+  // profile-side failure can never blank the Saved lens. Saved projects are durable,
+  // user-owned state and remain synchronized with the canonical saved_projects table.
+  useEffect(() => {
+    let cancelled = false;
+    const loadVendorSupportData = async () => {
+      if (!currentUser?.id) {
+        setVendorRow(null);
+        setPortfolioItems([]);
+        setPortfolioCount(0);
+        return;
+      }
+      try {
+        const { data: vendorData, error: vendorError } = await supabase
+          .from('vendors')
+          .select('id,name,bio,faith_statement,city,service_city,service_state,tags,tagline,min_project_budget,response_time,primary_category,category_tags,image_url')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+        if (vendorError) throw vendorError;
+        if (cancelled) return;
+        setVendorRow(vendorData || null);
+
+        if (vendorData?.id) {
+          const { data: portfolioRows, error: portfolioError } = await supabase
+            .from('vendor_portfolio_items')
+            .select('id,type,source,source_project_id,display_order,created_at')
+            .eq('vendor_id', currentUser.id)
+            .order('display_order', { ascending:true })
+            .order('created_at', { ascending:true });
+          if (portfolioError) throw portfolioError;
+          if (!cancelled) {
+            const safePortfolio = Array.isArray(portfolioRows) ? portfolioRows : [];
+            setPortfolioItems(safePortfolio);
+            setPortfolioCount(safePortfolio.filter(item => item?.type !== 'link').length);
+          }
+        } else if (!cancelled) {
+          setPortfolioItems([]);
+          setPortfolioCount(0);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          logError('my-projects-vendor-profile-support-data', err, { userId:currentUser?.id || null });
+          setVendorRow(null);
+          setPortfolioItems([]);
+          setPortfolioCount(0);
+        }
+      }
+    };
+    loadVendorSupportData();
+    return () => { cancelled = true; };
+  }, [currentUser?.id]);
+
+  const loadSavedProjects = useCallback(async ({ background = false } = {}) => {
+    if (!currentUser?.id) {
+      setSavedProjects([]);
+      setSavedError(null);
+      setSavedLoading(false);
+      return;
+    }
+    if (!background) setSavedLoading(true);
+    setSavedError(null);
+    try {
+      const { data: savedRows, error: savedRowsError } = await supabase
+        .from('saved_projects')
+        .select('project_id,created_at,updated_at,is_saved,notify_on_bidding_open')
+        .eq('user_id', currentUser.id)
+        .eq('is_saved', true)
+        .order('updated_at', { ascending:false })
+        .limit(60);
+      if (savedRowsError) throw savedRowsError;
+
+      const orderedSavedRows = Array.isArray(savedRows) ? savedRows.filter(row => row?.project_id) : [];
+      const ids = orderedSavedRows.map(row => row.project_id);
+      if (!ids.length) {
+        setSavedProjects([]);
+        return;
+      }
+
+      const { data: projectRows, error: projectError } = await supabase
+        .from('projects')
+        .select('id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,timeline,status,church_id,church_name,city,project_city,project_state,posted_at,hero_image_path,completed_at')
+        .in('id', ids);
+      if (projectError) throw projectError;
+
+      const hydrated = await hydrateProjectMediaUrls(projectRows || []);
+      const byId = new Map(hydrated.map(project => [String(project.id), normalizeProjectEntity(project) || project]));
+      const ordered = orderedSavedRows.map(row => {
+        const project = byId.get(String(row.project_id));
+        return project ? {
+          ...project,
+          saved_at: row.updated_at || row.created_at || null,
+          notify_on_bidding_open: !!row.notify_on_bidding_open,
+        } : null;
+      }).filter(Boolean);
+      setSavedProjects(ordered);
+    } catch (err) {
+      logError('my-projects-saved-lens-load', err, { userId:currentUser?.id || null });
+      setSavedError(err);
+      // Preserve any already-rendered saved rows during a background refresh failure.
+      if (!background) setSavedProjects([]);
+    } finally {
+      if (!background) setSavedLoading(false);
+    }
+  }, [currentUser?.id]);
+
+  useEffect(() => {
+    loadSavedProjects();
+  }, [loadSavedProjects]);
+
+  useEffect(() => {
+    if (!currentUser?.id) return undefined;
+    const userId = String(currentUser.id);
+    const channel = supabase
+      .channel(`kb-my-projects-saved-lens-${userId}`)
+      .on('postgres_changes', { event:'*', schema:'public', table:'saved_projects', filter:`user_id=eq.${userId}` }, () => {
+        loadSavedProjects({ background:true });
+      })
+      .subscribe();
+    return () => {
+      try { channel.unsubscribe(); } catch {}
+    };
+  }, [currentUser?.id, loadSavedProjects]);
 
   const doWithdrawFromWorkPanel = async (bidId) => {
     setWithdrawWorkPanelConfirm(null);
@@ -29443,8 +31060,6 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
         p_action: "withdraw",
       });
       if (error) throw error;
-      // Refresh bids so MyWorkPanel reflects the withdrawal. Force bypasses
-      // the nav cache because this is a user mutation, not a passive tab visit.
       if (typeof onFetchBids === 'function') onFetchBids({ force: true, background: true });
       showToast && showToast("Proposal withdrawn.");
     } catch (err) {
@@ -29490,16 +31105,6 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
     }
   };
 
-  const { won, pending, lost, totalEarned, winRate } = useMemo(() => {
-    const list = Array.isArray(bids) ? bids : [];
-    const wonRows = list.filter(b=>b.status==="hired");
-    const pendingRows = list.filter(b=>b.status==="pending");
-    const lostRows = list.filter(b=>b.status==="declined");
-    const earned = wonRows.reduce((s,b)=>s+(Number(b.amount)||0),0);
-    const rate = list.length > 0 ? Math.round(wonRows.length/list.length*100) : 0;
-    return { won: wonRows, pending: pendingRows, lost: lostRows, totalEarned: earned, winRate: rate };
-  }, [bids]);
-
   const openBidProject = (proj) => {
     if (!proj?.id) return;
     if (typeof onSelectProject === 'function') {
@@ -29510,374 +31115,614 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
     nav && nav('projects');
   };
 
-  const BUCKETS = [
-    {key:"active",  label:"Active",       count:won.length},
-    {key:"pending", label:"Pending bids", count:pending.length},
-    {key:"lost",    label:"Not selected", count:lost.length},
+  const openVendorConversation = (project) => {
+    if (!project?.id) return;
+    openInboxThread(nav, {
+      projectId: project.id,
+      churchId: project.church_id || null,
+      churchName: project.church_name || project.church || 'Church',
+      createIfMissing: false,
+    });
+  };
+
+  const formatProjectBudget = (project = {}) => {
+    const entered = String(project?.budget || '').trim();
+    if (entered) return entered;
+    const min = Number(project?.budget_min || 0);
+    const max = Number(project?.budget_max || 0);
+    if (min > 0 && max > 0 && min !== max) return `${formatMoney(min)} – ${formatMoney(max)}`;
+    if (max > 0) return `Up to ${formatMoney(max)}`;
+    if (min > 0) return `From ${formatMoney(min)}`;
+    return 'Budget not listed';
+  };
+
+  const projectLocation = (project = {}) => {
+    const city = project?.project_city || project?.city || '';
+    const state = project?.project_state || '';
+    return [city, state].filter(Boolean).join(', ') || 'Location not listed';
+  };
+
+  const formatShortDate = (value) => {
+    if (!value) return '';
+    try { return new Date(value).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' }); }
+    catch { return ''; }
+  };
+
+  const bidRows = Array.isArray(bids) ? bids : [];
+  const portfolioSourceIds = useMemo(() => new Set(portfolioItems.filter(item => item?.source === 'faithbid_project' && item?.source_project_id).map(item => String(item.source_project_id))), [portfolioItems]);
+
+  const addCompletedProjectToPortfolio = async (project = {}) => {
+    const projectId = project?.id || null;
+    if (!projectId || !currentUser?.id || portfolioAddingProjectId) return;
+    if (!(String(project?.status || '').toLowerCase() === 'completed' || Boolean(project?.completed_at))) {
+      showToast && showToast('Only completed FaithBid work can carry the platform-backed portfolio label.', 'error');
+      return;
+    }
+    if (portfolioSourceIds.has(String(projectId))) {
+      nav && nav('profile-proof');
+      return;
+    }
+    setPortfolioAddingProjectId(projectId);
+    try {
+      const { data: existing, error: existingError } = await supabase
+        .from('vendor_portfolio_items')
+        .select('id,type,source,source_project_id,display_order,created_at')
+        .eq('vendor_id', currentUser.id)
+        .eq('source', 'faithbid_project')
+        .eq('source_project_id', projectId)
+        .maybeSingle();
+      if (existingError) throw existingError;
+      if (existing?.id) {
+        setPortfolioItems(prev => prev.some(item => item.id === existing.id) ? prev : [...prev, existing]);
+        showToast && showToast('This completed project is already in your portfolio.');
+        return;
+      }
+      const nextOrder = portfolioItems.length ? Math.max(...portfolioItems.map(item => Number(item?.display_order || 0))) + 1 : 0;
+      const descriptionSource = String(project?.description || '').trim();
+      const description = (descriptionSource || `Completed ${formatMarketplaceCategoryLabel(project?.primary_category || project?.category || 'FaithBid project')} work for ${project?.church_name || 'a FaithBid church'}.`).slice(0,280);
+      const { data, error } = await supabase.from('vendor_portfolio_items').insert({
+        vendor_id:currentUser.id,
+        type:'case_study',
+        title:String(project?.title || 'Completed FaithBid project').trim().slice(0,120),
+        description,
+        url:null,
+        category:String(project?.primary_category || project?.category || '').trim().slice(0,120) || null,
+        client_name:null,
+        client_name_permission:false,
+        image_urls:[],
+        pdf_url:null,
+        source:'faithbid_project',
+        source_project_id:projectId,
+        display_order:nextOrder,
+      }).select('id,vendor_id,type,title,description,url,category,client_name,client_name_permission,image_urls,pdf_url,source,source_project_id,display_order,created_at,updated_at').single();
+      if (error) throw error;
+      setPortfolioItems(prev => [...prev, data]);
+      setPortfolioCount(prev => prev + 1);
+      showToast && showToast('Added to your portfolio as Completed via FaithBid.');
+    } catch (err) {
+      logError('my-projects-add-completed-to-portfolio', err, { projectId, userId:currentUser.id });
+      showToast && showToast("Couldn't add that completed project to your portfolio.", 'error');
+    } finally {
+      setPortfolioAddingProjectId(null);
+    }
+  };
+
+  const isProjectCompleted = (project = {}) => String(project?.status || '').toLowerCase() === 'completed' || Boolean(project?.completed_at);
+  const activeBidRows = useMemo(() => bidRows.filter(row => {
+    const status = String(row?.status || '').toLowerCase();
+    if (row?.withdrawn_at || status === 'declined') return false;
+    if (status === 'pending') return true;
+    if (status === 'hired') return !isProjectCompleted(row?.projects || {});
+    return false;
+  }), [bids]);
+  const completedBidRows = useMemo(() => bidRows.filter(row => String(row?.status || '').toLowerCase() === 'hired' && isProjectCompleted(row?.projects || {})), [bids]);
+  const archivedBidRows = useMemo(() => bidRows.filter(row => row?.withdrawn_at || String(row?.status || '').toLowerCase() === 'declined'), [bids]);
+
+  const buildBidCard = (bid, forcedBucket = null) => {
+    const project = bid?.projects || {};
+    const status = String(bid?.status || '').toLowerCase();
+    const completed = forcedBucket === 'completed' || isProjectCompleted(project);
+    const archived = forcedBucket === 'archived' || Boolean(bid?.withdrawn_at) || status === 'declined';
+    const pending = status === 'pending' && !archived;
+    const image = getProjectHeroImage(project, 'grid');
+    const date = project?.work_started_at || project?.hired_at || bid?.submitted_at || bid?.created_at || project?.posted_at || null;
+    let badge = { label:'In Progress', tone:'progress' };
+    let nextLabel = 'Project in progress';
+    let primaryLabel = 'Open project';
+    let primaryAction = () => openBidProject(project);
+    let secondaryLabel = 'Message church';
+    let secondaryAction = () => openVendorConversation(project);
+    if (pending) {
+      badge = { label:'Bidding', tone:'bidding' };
+      nextLabel = `Proposal submitted${date ? ` ${formatShortDate(date)}` : ''}`;
+      primaryLabel = 'View proposal';
+      primaryAction = () => setExpandedBidId(prev => prev === bid.id ? null : bid.id);
+      secondaryLabel = 'View project';
+      secondaryAction = () => openBidProject(project);
+    } else if (completed) {
+      badge = { label:'Completed', tone:'complete' };
+      const alreadyInPortfolio = portfolioSourceIds.has(String(project?.id || ''));
+      nextLabel = `Completed${project?.completed_at ? ` ${formatShortDate(project.completed_at)}` : ''}`;
+      primaryLabel = 'View project';
+      primaryAction = () => openBidProject(project);
+      secondaryLabel = alreadyInPortfolio ? 'In portfolio' : (portfolioAddingProjectId === project?.id ? 'Adding…' : 'Add to portfolio');
+      secondaryAction = alreadyInPortfolio ? () => nav('profile-proof') : () => addCompletedProjectToPortfolio(project);
+    } else if (archived) {
+      badge = { label:bid?.withdrawn_at ? 'Withdrawn' : 'Not selected', tone:'archived' };
+      nextLabel = bid?.withdrawn_at ? 'Proposal withdrawn' : 'Church selected another vendor';
+      primaryLabel = 'View project';
+      primaryAction = () => openBidProject(project);
+      secondaryLabel = '';
+      secondaryAction = null;
+    } else if (status === 'hired') {
+      badge = { label:'In Progress', tone:'progress' };
+      nextLabel = project?.work_started_at ? 'Work is underway' : 'Kickoff ready';
+    }
+    return {
+      id:`bid-${bid?.id || project?.id || Math.random()}`,
+      bid,
+      project,
+      title: project?.title || 'Project',
+      church: project?.church_name || 'Church',
+      location: projectLocation(project),
+      budget: formatProjectBudget(project),
+      image,
+      badge,
+      nextLabel,
+      primaryLabel,
+      primaryAction,
+      secondaryLabel,
+      secondaryAction,
+      completed,
+      sortDate: date ? new Date(date).getTime() : 0,
+      budgetValue:Number(project?.budget_max || project?.budget_min || bid?.amount || 0) || 0,
+    };
+  };
+
+  const removeSavedProject = async (project) => {
+    const projectId = project?.id || null;
+    if (!projectId || !currentUser?.id || savedRemovingId) return;
+    const removed = savedProjects.find(item => String(item?.id || '') === String(projectId)) || project;
+    setSavedRemovingId(projectId);
+    setSavedProjects(prev => prev.filter(item => String(item?.id || '') !== String(projectId)));
+    try {
+      await persistSavedProjectRecord(projectId, false, currentUser.id);
+      showToast && showToast('Removed from saved projects.');
+    } catch (err) {
+      logError('my-projects-saved-lens-unsave', err, { projectId, userId:currentUser.id });
+      setSavedProjects(prev => {
+        if (prev.some(item => String(item?.id || '') === String(projectId))) return prev;
+        return [removed, ...prev].sort((a,b) => new Date(b?.saved_at || 0) - new Date(a?.saved_at || 0));
+      });
+      showToast && showToast('Could not update saved projects. Please try again.', 'error');
+    } finally {
+      setSavedRemovingId(null);
+    }
+  };
+
+  const buildSavedCard = (project) => ({
+    id:`saved-${project.id}`,
+    project,
+    title:project.title || 'Project',
+    church:project.church_name || 'Church',
+    location:projectLocation(project),
+    budget:formatProjectBudget(project),
+    image:getProjectHeroImage(project, 'grid'),
+    badge:{ label:'Saved', tone:'saved' },
+    nextLabel:`Saved${project.saved_at ? ` ${formatShortDate(project.saved_at)}` : ''}`,
+    primaryLabel:'View project',
+    primaryAction:()=>openBidProject(project),
+    secondaryLabel:savedRemovingId === project.id ? 'Removing…' : 'Remove saved',
+    secondaryAction:()=>removeSavedProject(project),
+    sortDate:project.saved_at ? new Date(project.saved_at).getTime() : 0,
+    budgetValue:Number(project?.budget_max || project?.budget_min || 0) || 0,
+  });
+
+  const activeCards = useMemo(() => activeBidRows.map(row => buildBidCard(row, 'active')), [activeBidRows]);
+  const completedCards = useMemo(() => completedBidRows.map(row => buildBidCard(row, 'completed')), [completedBidRows]);
+  const archivedCards = useMemo(() => archivedBidRows.map(row => buildBidCard(row, 'archived')), [archivedBidRows]);
+  const savedCards = useMemo(() => savedProjects.map(buildSavedCard), [savedProjects]);
+
+  const profilePct = useMemo(() => calcVendorCompletion({ ...(vendorRow || {}), _hasPortfolio: portfolioCount > 0 }).pct, [vendorRow, portfolioCount]);
+  const tabs = [
+    { key:'active', label:'Active', count:activeCards.length, icon:'active' },
+    { key:'saved', label:'Saved', count:savedCards.length, icon:'saved' },
+    { key:'completed', label:'Completed', count:completedCards.length, icon:'completed' },
+    { key:'drafts', label:'Drafts', count:0, icon:'drafts' },
+    { key:'archived', label:'Archived', count:archivedCards.length, icon:'archived' },
   ];
+
+  const visibleCards = useMemo(() => {
+    let list = bucket === 'saved' ? savedCards : bucket === 'completed' ? completedCards : bucket === 'archived' ? archivedCards : bucket === 'drafts' ? [] : activeCards;
+    const q = search.trim().toLowerCase();
+    if (q) list = list.filter(card => [card.title, card.church, card.location, card.project?.category, card.project?.primary_category].filter(Boolean).join(' ').toLowerCase().includes(q));
+    const sorted = [...list];
+    if (sortBy === 'budget') sorted.sort((a,b)=>(b.budgetValue||0)-(a.budgetValue||0));
+    else if (sortBy === 'recent') sorted.sort((a,b)=>(b.sortDate||0)-(a.sortDate||0));
+    else sorted.sort((a,b)=>{
+      const rank = card => card.badge?.tone === 'bidding' ? 0 : card.badge?.tone === 'progress' ? 1 : 2;
+      return rank(a)-rank(b) || (b.sortDate||0)-(a.sortDate||0);
+    });
+    return sorted;
+  }, [bucket, activeCards, savedCards, completedCards, archivedCards, search, sortBy]);
+
+  const renderTabIcon = (kind) => {
+    if (kind === 'saved') return <svg viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/></svg>;
+    if (kind === 'completed') return <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>;
+    if (kind === 'drafts') return <svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/></svg>;
+    if (kind === 'archived') return <svg viewBox="0 0 24 24"><path d="M4 7h16v14H4zM3 3h18v4H3z"/><path d="M9 11h6"/></svg>;
+    return null;
+  };
+
+  const renderProjectCard = (card) => {
+    const bid = card.bid;
+    const isPending = card.badge?.tone === 'bidding';
+    return (
+      <article key={card.id} className="kb1004-project-card">
+        <div className="kb1004-card-media">
+          {card.image ? <img src={card.image} alt="" loading="lazy" onError={handleKbImageError}/> : <div className="kb1004-card-fallback">FB</div>}
+        </div>
+        <div className="kb1004-card-main">
+          <div className="kb1004-card-topline">
+            <span className={`kb1004-status is-${card.badge?.tone || 'neutral'}`}>{card.badge?.label || 'Project'}</span>
+            <div className="kb1004-card-menu-wrap">
+              <button type="button" className="kb1004-more" aria-label={`More actions for ${card.title}`} onClick={(e)=>{e.stopPropagation();setCardMenuId(prev=>prev===card.id?null:card.id);}}>•••</button>
+              {cardMenuId === card.id ? (
+                <div className="kb1004-card-menu">
+                  <button type="button" onClick={()=>{setCardMenuId(null);card.primaryAction?.();}}>{card.primaryLabel}</button>
+                  {card.secondaryAction ? <button type="button" onClick={()=>{setCardMenuId(null);card.secondaryAction?.();}}>{card.secondaryLabel}</button> : null}
+                  {isPending && bid?.id ? <button type="button" onClick={()=>{setCardMenuId(null);setEditingBid({id:bid.id,amount:String(bid.amount||''),note:bid.cover_letter||bid.note||''});setExpandedBidId(bid.id);}}>Edit proposal</button> : null}
+                  {isPending && bid?.id ? <button type="button" className="danger" onClick={()=>{setCardMenuId(null);setWithdrawWorkPanelConfirm(bid.id);}}>Withdraw proposal</button> : null}
+                </div>
+              ) : null}
+            </div>
+          </div>
+          <h3>{card.title}</h3>
+          <div className="kb1004-card-church">{card.church}</div>
+          <div className="kb1004-meta-row"><span>⌖</span><span>{card.location}</span></div>
+          <div className="kb1004-meta-row"><span>◉</span><span>{card.budget}</span></div>
+          <div className="kb1004-next"><span>Next step</span><strong>{card.nextLabel}</strong></div>
+          <div className="kb1004-card-actions">
+            <button type="button" className="primary" onClick={card.primaryAction}>{card.primaryLabel} <span aria-hidden="true">→</span></button>
+            {card.secondaryAction ? <button type="button" className="secondary" disabled={portfolioAddingProjectId===card.project?.id} onClick={card.secondaryAction}>{card.secondaryLabel}</button> : null}
+          </div>
+          {card.completed ? <div className="kb1008-completion-tools"><span>Completed work</span><button type="button" onClick={()=>setChurchFeedbackProject(card.project)}>Leave church feedback</button></div> : null}
+          {isPending && bid?.id && expandedBidId === bid.id ? (
+            <div className="kb1004-proposal-panel">
+              <div className="kb1004-proposal-stats">
+                <div><span>Your proposal</span><strong>{formatMoney(Number(bid.amount || 0))}</strong></div>
+                <div><span>Timeline</span><strong>{bid.timeline || '—'}</strong></div>
+                <div><span>Submitted</span><strong>{formatShortDate(bid.submitted_at || bid.created_at) || '—'}</strong></div>
+              </div>
+              {(bid.cover_letter || bid.note) ? <p>{bid.cover_letter || bid.note}</p> : null}
+              {editingBid?.id === bid.id ? (
+                <div className="kb1004-edit-proposal">
+                  <label><span>Amount</span><input type="text" inputMode="decimal" value={editingBid.amount} onChange={e=>setEditingBid(prev=>({...prev,amount:e.target.value}))}/></label>
+                  <div className="kb1004-edit-actions"><button type="button" onClick={doEditBid} disabled={editSaving}>{editSaving?'Saving…':'Save'}</button><button type="button" onClick={()=>setEditingBid(null)}>Cancel</button></div>
+                </div>
+              ) : (
+                <div className="kb1004-proposal-actions"><button type="button" onClick={()=>setEditingBid({id:bid.id,amount:String(bid.amount||''),note:bid.cover_letter||bid.note||''})}>Edit proposal</button><button type="button" onClick={()=>setWithdrawWorkPanelConfirm(bid.id)} disabled={withdrawingBid===bid.id}>{withdrawingBid===bid.id?'Withdrawing…':'Withdraw proposal'}</button></div>
+              )}
+            </div>
+          ) : null}
+        </div>
+      </article>
+    );
+  };
+
+  const showLoading = loading || loadingProjects || (bucket === 'saved' && savedLoading);
 
   return (
     <>
-    <div className="page marketplace-command-shell kb-vendor-work-shell kb-no-green-header">
-      <div className="kb-market-ivory-command-basin kb-market-ivory-command-basin--vendor-work">
-      <div className="kb-lite-page-head kb-lite-page-head--mywork kb-unified-workspace-head">
-        <div>
-          <div className="kb-lite-page-kicker">— Vendor workspace —</div>
-          <h1>My Work</h1>
-          <p>Track active projects, pending bids, and awarded work.</p>
-        </div>
-        <div className="kb-lite-page-actions">
-          <button type="button" className="kb-lite-action is-secondary" onClick={()=>queueDealRoomsHubNavigation(nav, { returnContext:{ scope:'my-work', tab:'work' } })}>View Deal Rooms</button>
-          <button type="button" className="kb-lite-action is-primary" onClick={onBrowse}>Browse projects</button>
-        </div>
-      </div>
+      <section className="kb1004-myprojects" aria-label="My Projects">
+        <style>{`
+          .kb1004-myprojects{min-height:calc(100vh - 48px);background:#f7f3eb;color:#17352b;padding:30px clamp(24px,5vw,84px) 72px;font-family:var(--font-sans),sans-serif;box-sizing:border-box}
+          .kb1004-myprojects *{box-sizing:border-box}
+          .kb1004-intro{max-width:1470px;margin:0 auto 26px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:42px;align-items:start}
+          .kb1004-intro h1{margin:0;font-family:var(--font-display),serif;font-size:clamp(46px,5vw,70px);line-height:.94;letter-spacing:-.045em;color:#132f27;font-weight:700}
+          .kb1004-intro p{margin:10px 0 0;font-size:17px;line-height:1.5;color:#66706b}
+          .kb1004-quote{border-left:1px solid rgba(23,53,43,.12);padding-left:22px;margin-top:2px;font-family:var(--font-display),serif;font-size:18px;line-height:1.25;color:#2d3f38}
+          .kb1004-quote span{display:block;margin-top:3px;font-family:var(--font-sans),sans-serif;font-size:13px;color:#5d6a64}
+          .kb1004-layout{max-width:1470px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 368px;gap:24px;align-items:start}
+          .kb1004-filter-cells{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid #ded8cc;background:rgba(255,255,255,.7);border-radius:11px;overflow:hidden;box-shadow:0 8px 22px rgba(31,43,35,.055);margin-bottom:18px}
+          .kb1004-filter-cell{min-height:58px;border:0;border-right:1px solid #e4ded3;background:transparent;color:#263a32;display:flex;align-items:center;justify-content:center;gap:11px;padding:0 14px;font-family:var(--font-display),serif;font-size:16px;font-weight:700;cursor:pointer;transition:.16s ease}
+          .kb1004-filter-cell:last-child{border-right:0}.kb1004-filter-cell:hover{background:rgba(255,255,255,.72)}
+          .kb1004-filter-cell.active{background:linear-gradient(135deg,#184f40,#0e3d31);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+          .kb1004-filter-cell svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+          .kb1004-filter-count{min-width:29px;height:29px;border-radius:50%;background:#efede7;color:#273b33;display:inline-flex;align-items:center;justify-content:center;font:700 12px/1 var(--font-sans),sans-serif}
+          .kb1004-filter-cell.active .kb1004-filter-count{background:#f8f4ec;color:#17352b}
+          .kb1004-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;margin-bottom:18px}
+          .kb1004-search{height:45px;border:1px solid #ded8cc;border-radius:10px;background:#fff;display:flex;align-items:center;gap:10px;padding:0 15px;box-shadow:0 4px 14px rgba(31,43,35,.035)}
+          .kb1004-search svg{width:19px;height:19px;fill:none;stroke:#23463a;stroke-width:1.8}.kb1004-search input{border:0;outline:0;background:transparent;width:100%;font:500 13px/1 var(--font-sans),sans-serif;color:#253a33}
+          .kb1004-sort{height:45px;display:flex;align-items:center;gap:8px;border:1px solid #ded8cc;border-radius:10px;background:#fff;padding:0 11px 0 14px;font-size:12px;color:#55635d}.kb1004-sort select{height:34px;border:1px solid #e2ddd2;border-radius:8px;background:#fff;color:#203830;font-weight:700;padding:0 32px 0 10px}
+          .kb1004-view-toggle{height:45px;border:1px solid #ded8cc;border-radius:10px;background:#fff;display:flex;overflow:hidden}.kb1004-view-toggle button{width:47px;border:0;background:#fff;color:#31483e;cursor:pointer;font-size:18px}.kb1004-view-toggle button.active{background:#124638;color:#fff}
+          .kb1004-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.kb1004-card-grid.list{grid-template-columns:1fr}
+          .kb1004-project-card{position:relative;background:#fff;border:1px solid #ded8cc;border-radius:10px;display:grid;grid-template-columns:190px minmax(0,1fr);min-height:270px;overflow:visible;box-shadow:0 6px 20px rgba(31,43,35,.04)}
+          .kb1004-card-media{margin:14px 0 14px 14px;border-radius:6px;overflow:hidden;background:#ece9e1;min-height:238px}.kb1004-card-media img{width:100%;height:100%;object-fit:cover;display:block}.kb1004-card-fallback{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display),serif;font-size:44px;color:#6d756e}
+          .kb1004-card-main{position:relative;padding:14px 16px 14px 18px;display:flex;flex-direction:column;min-width:0}.kb1004-card-topline{display:flex;align-items:center;justify-content:space-between;gap:10px}.kb1004-status{display:inline-flex;align-items:center;min-height:29px;border-radius:999px;padding:0 13px;font-size:12px;font-weight:700}.kb1004-status.is-bidding{background:#e4f0e8;color:#285b46}.kb1004-status.is-progress{background:#e5f0fb;color:#255783}.kb1004-status.is-complete{background:#eeeeec;color:#5c6460}.kb1004-status.is-saved{background:#f5ecda;color:#806025}.kb1004-status.is-archived{background:#f1eeee;color:#756666}
+          .kb1004-card-main h3{font-family:var(--font-display),serif;font-size:21px;line-height:1.05;letter-spacing:-.02em;margin:9px 0 4px;color:#172f28}.kb1004-card-church{font-size:13px;color:#56615c;margin-bottom:9px}.kb1004-meta-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#52615b;line-height:1.4;margin:2px 0}.kb1004-meta-row>span:first-child{width:14px;color:#1f4a3b;text-align:center}
+          .kb1004-next{border-top:1px solid #ece7de;margin-top:10px;padding-top:9px;display:grid;gap:1px}.kb1004-next span{font-size:9.5px;color:#7f827c}.kb1004-next strong{font-size:12.5px;font-weight:500;color:#4b5853}
+          .kb1004-card-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.75fr);gap:10px;margin-top:auto;padding-top:10px}.kb1004-card-actions button{height:40px;border-radius:5px;font:700 12px/1 var(--font-sans),sans-serif;cursor:pointer}.kb1004-card-actions .primary{border:1px solid #15493a;background:linear-gradient(135deg,#195442,#0f4334);color:#fff}.kb1004-card-actions .secondary{border:1px solid #ced3ce;background:#fff;color:#233d34}.kb1004-card-actions button:only-child{grid-column:1/-1}
+          .kb1004-card-menu-wrap{position:relative}.kb1004-more{border:0;background:transparent;color:#344a42;font-weight:900;letter-spacing:2px;cursor:pointer;padding:5px}.kb1004-card-menu{position:absolute;right:0;top:30px;z-index:30;min-width:160px;background:#fff;border:1px solid #ddd7cb;border-radius:9px;box-shadow:0 14px 34px rgba(25,40,32,.14);padding:6px}.kb1004-card-menu button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:9px 10px;border-radius:6px;font:600 12px/1.2 var(--font-sans),sans-serif;color:#273b33;cursor:pointer}.kb1004-card-menu button:hover{background:#f5f1e9}.kb1004-card-menu button.danger{color:#a43d35}
+          .kb1004-proposal-panel{grid-column:1/-1;margin-top:10px;border-top:1px solid #e8e2d7;padding-top:10px}.kb1008-completion-tools{margin-top:10px;padding-top:9px;border-top:1px solid #ece6dc;display:flex;align-items:center;justify-content:space-between;gap:10px}.kb1008-completion-tools span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#839087}.kb1008-completion-tools button{border:0;background:transparent;color:#174737;font-size:11px;font-weight:800;cursor:pointer;padding:3px 0}.kb1004-proposal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kb1004-proposal-stats>div{background:#f9f7f2;border:1px solid #ebe5da;border-radius:7px;padding:8px}.kb1004-proposal-stats span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#84847d}.kb1004-proposal-stats strong{display:block;margin-top:3px;font-family:var(--font-display),serif;font-size:15px;color:#1d362e}.kb1004-proposal-panel p{font-size:12px;line-height:1.55;color:#5a625f}.kb1004-proposal-actions,.kb1004-edit-actions{display:flex;gap:8px;justify-content:flex-end}.kb1004-proposal-actions button,.kb1004-edit-actions button{height:32px;border:1px solid #d7d2c8;border-radius:7px;background:#fff;color:#34443e;padding:0 11px;font-size:11px;font-weight:700;cursor:pointer}.kb1004-edit-proposal{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}.kb1004-edit-proposal label{display:grid;gap:4px}.kb1004-edit-proposal label span{font-size:9px;text-transform:uppercase;color:#777}.kb1004-edit-proposal input{height:34px;border:1px solid #d7d2c8;border-radius:7px;padding:0 10px}
+          .kb1004-side{display:grid;gap:14px}.kb1004-side-card{background:#fff;border:1px solid #ded8cc;border-radius:10px;padding:18px 20px;box-shadow:0 6px 20px rgba(31,43,35,.035)}.kb1004-side-card h2{margin:0;font-family:var(--font-display),serif;font-size:22px;letter-spacing:-.02em;color:#183129}.kb1004-side-card p{margin:5px 0 14px;font-size:12.5px;line-height:1.45;color:#64706a}
+          .kb1004-profile-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.kb1004-profile-head strong{font-family:var(--font-display),serif;font-size:18px}.kb1004-progress{height:13px;border-radius:999px;background:#e7e6e0;overflow:hidden;margin:10px 0}.kb1004-progress span{display:block;height:100%;border-radius:inherit;background:#195442}.kb1004-side-cta{height:39px;width:100%;border:1px solid #bad1c6;border-radius:6px;background:#e7f2ec;color:#233c33;font-size:12px;font-weight:700;cursor:pointer}
+          .kb1004-side-actions{border:1px solid #e3ddd2;border-radius:8px;overflow:hidden}.kb1004-side-actions button{width:100%;height:46px;border:0;border-bottom:1px solid #e6e0d7;background:#fff;text-align:left;padding:0 13px;display:flex;align-items:center;gap:10px;color:#213a31;font-size:12px;font-weight:700;cursor:pointer}.kb1004-side-actions button:last-child{border-bottom:0}.kb1004-side-actions button span:last-child{margin-left:auto;font-size:18px;font-weight:400}
+          .kb1004-saved-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}.kb1004-saved-head h2{display:flex;align-items:center;gap:8px}.kb1004-saved-count{min-width:27px;height:27px;border-radius:50%;background:#efede7;display:inline-flex;align-items:center;justify-content:center;font:700 11px/1 var(--font-sans),sans-serif}.kb1004-link-button{border:0;background:transparent;color:#195442;font-size:11px;font-weight:800;cursor:pointer}
+          .kb1004-saved-item{display:grid;grid-template-columns:minmax(0,1fr) 24px;gap:8px;align-items:center;padding:8px 0;border-top:1px solid #eee9df}.kb1004-saved-item:first-of-type{border-top:0}.kb1004-saved-open{min-width:0;border:0;background:transparent;padding:0;display:grid;grid-template-columns:58px minmax(0,1fr);gap:10px;align-items:center;text-align:left;cursor:pointer}.kb1004-saved-item img,.kb1004-saved-thumb{display:block;width:58px;height:50px;border-radius:5px;object-fit:cover;background:#eeeae3}.kb1004-saved-copy{min-width:0}.kb1004-saved-copy strong{display:block;font-size:11.5px;line-height:1.25;color:#213831}.kb1004-saved-copy>span{display:block;font-size:10px;color:#69726e;line-height:1.35;margin-top:1px}.kb1004-saved-remove{border:0;background:transparent;color:#174737;font-size:19px;cursor:pointer;padding:0}.kb1004-saved-remove:disabled{opacity:.45;cursor:default}
+          .kb1004-impact{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center;background:linear-gradient(135deg,#fbfaf6,#f1eee6)}.kb1004-impact-icon{width:54px;height:54px;border-radius:50%;background:#e9eee8;display:flex;align-items:center;justify-content:center;font-size:24px;color:#195442}.kb1004-impact h2{font-size:18px}.kb1004-impact p{margin-bottom:0}
+          .kb1004-empty{grid-column:1/-1;padding:48px 26px;text-align:center;border:1px dashed #d8d2c7;border-radius:10px;background:rgba(255,255,255,.55)}.kb1004-empty h3{margin:0 0 7px;font-family:var(--font-display),serif;font-size:24px;color:#17352b}.kb1004-empty p{margin:0 auto 17px;max-width:420px;font-size:13px;line-height:1.55;color:#66706b}.kb1004-empty button{height:40px;border-radius:6px;border:1px solid #174737;background:#174737;color:#fff;padding:0 16px;font-size:12px;font-weight:700;cursor:pointer}
+          .kb1004-skeleton{height:270px;border-radius:10px;border:1px solid #ded8cc;background:linear-gradient(90deg,#f2eee6,#faf8f3,#f2eee6);background-size:200% 100%;animation:kb1004-shimmer 1.4s linear infinite}@keyframes kb1004-shimmer{to{background-position:-200% 0}}
+          @media(max-width:1180px){.kb1004-layout{grid-template-columns:1fr}.kb1004-side{grid-template-columns:repeat(2,minmax(0,1fr))}.kb1004-impact{display:none}.kb1004-intro{grid-template-columns:1fr}.kb1004-quote{display:none}}
+          @media(max-width:820px){.kb1004-myprojects{padding:22px 16px 84px}.kb1004-intro h1{font-size:46px}.kb1004-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;background:transparent;border:0;box-shadow:none;gap:8px}.kb1004-filter-cell{border:1px solid #ded8cc!important;border-radius:8px;background:#fff;min-height:50px}.kb1004-toolbar{grid-template-columns:1fr auto}.kb1004-sort{grid-column:1/-1;grid-row:2}.kb1004-card-grid{grid-template-columns:1fr}.kb1004-project-card{grid-template-columns:132px minmax(0,1fr);min-height:230px}.kb1004-card-media{min-height:200px}.kb1004-card-actions{grid-template-columns:1fr}.kb1004-side{grid-template-columns:1fr}.kb1004-proposal-stats{grid-template-columns:1fr}}
+          @media(max-width:560px){.kb1004-project-card{grid-template-columns:1fr}.kb1004-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1004-filter-cells{grid-template-columns:1fr 1fr}.kb1004-intro p{font-size:14px}.kb1004-toolbar{grid-template-columns:1fr}.kb1004-view-toggle{display:none}.kb1004-card-main{padding:14px}.kb1004-side-card{padding:16px}}
+        `}</style>
 
-      <div className="kb-content-command-strip kb-vendor-work-filter-strip" aria-label="Work filters">
-        <div className="kb-content-command-tabs">
-          {BUCKETS.map(b=>(
-            <button type="button" key={b.key} onClick={()=>setBucket(b.key)} className={`kb-content-command-tab${bucket===b.key?" active":""}`}>
-              {b.label}
-              <span>{b.count}</span>
-            </button>
-          ))}
-        </div>
-        <div className="kb-content-command-tools kb-vendor-work-stats">
-          {totalEarned > 0 ? <div className="kb-vendor-stat-chip"><span>Earned</span><strong>{formatMoney(totalEarned)}</strong></div> : null}
-          {bids.length > 0 ? <div className="kb-vendor-stat-chip"><span>Win rate</span><strong>{winRate}%</strong></div> : null}
-        </div>
-      </div>
-      </div>
+        <header className="kb1004-intro">
+          <div>
+            <h1>My Projects</h1>
+            <p>Track your opportunities, manage your proposals, and grow your impact.</p>
+          </div>
+          <div className="kb1004-quote">Building What Matters.<span>For a Stronger Tomorrow.</span></div>
+        </header>
 
-      {/* ── ACTIVE PROJECTS ── */}
-      {bucket==="active" && (
-        loading||loadingProjects ? (
-          <div className="project-grid">
-            {[1,2].map(i=>(
-              <div key={i} style={{background:"#fff",borderRadius:20,border:"0.5px solid rgba(42,53,32,0.09)",overflow:"hidden",height:280}}>
-                <div style={{height:130,background:"var(--cream-dark)",animation:"skeleton 1.5s ease infinite"}}/>
-                <div style={{padding:"16px 18px",display:"flex",flexDirection:"column",gap:10}}>
-                  <div style={{height:14,width:"70%",background:"var(--cream-dark)",borderRadius:6,animation:"skeleton 1.5s ease infinite"}}/>
-                  <div style={{height:10,width:"40%",background:"var(--cream-dark)",borderRadius:100,animation:"skeleton 1.5s ease infinite"}}/>
+        <div className="kb1004-layout">
+          <main>
+            <div className="kb1004-filter-cells" role="tablist" aria-label="Project filters">
+              {tabs.map(tab => (
+                <button key={tab.key} type="button" role="tab" aria-selected={bucket===tab.key} className={`kb1004-filter-cell${bucket===tab.key?' active':''}`} onClick={()=>{setBucket(tab.key);setCardMenuId(null);setExpandedBidId(null);}}>
+                  {renderTabIcon(tab.icon)}<span>{tab.label}</span><span className="kb1004-filter-count">{tab.count}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="kb1004-toolbar">
+              <label className="kb1004-search">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search your projects…" aria-label="Search your projects"/>
+              </label>
+              <label className="kb1004-sort"><span>Sort by</span><select value={sortBy} onChange={e=>setSortBy(e.target.value)} aria-label="Sort projects"><option value="next">Next step (soonest)</option><option value="recent">Most recent</option><option value="budget">Largest budget</option></select></label>
+              <div className="kb1004-view-toggle" aria-label="Project view"><button type="button" className={viewMode==='grid'?'active':''} aria-label="Grid view" onClick={()=>setViewMode('grid')}>▦</button><button type="button" className={viewMode==='list'?'active':''} aria-label="List view" onClick={()=>setViewMode('list')}>☷</button></div>
+            </div>
+
+            <div className={`kb1004-card-grid${viewMode==='list'?' list':''}`}>
+              {showLoading ? [0,1,2,3].map(i=><div className="kb1004-skeleton" key={i}/>) : bucket==='saved' && savedError ? (
+                <div className="kb1004-empty">
+                  <h3>Saved opportunities couldn't load.</h3>
+                  <p>Your saved projects are still stored in FaithBid. Retry this view to reconnect to the saved-projects source.</p>
+                  <button type="button" onClick={()=>loadSavedProjects()}>Retry saved projects</button>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : won.length===0 ? (
-          <div style={{background:'linear-gradient(135deg,#1C2814,#2a3520)',borderRadius:22,padding:'64px 40px',textAlign:'center',color:'#fff',boxShadow:'0 7px 20px rgba(28,40,20,0.20)'}}>
-            <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#c4973a',marginBottom:14}}>Your work</div>
-            <div style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(24px,3.4vw,30px)',fontWeight:700,marginBottom:10,letterSpacing:'-0.025em',color:'#fff',lineHeight:1.05}}>No active projects yet.</div>
-            <div style={{fontSize:14,color:'rgba(255,255,255,0.72)',marginBottom:28,lineHeight:1.65,maxWidth:420,margin:'0 auto 28px'}}>
-              Submit bids on open projects and win your first ministry client.
-            </div>
-            <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
-              <button type="button" onClick={onBrowse} style={{height:48,padding:'0 22px',borderRadius:12,border:'none',background:'linear-gradient(180deg,#c9a45c,#b08840)',fontSize:13,fontWeight:700,color:'#fff',cursor:'pointer',boxShadow:'0 1px 3px rgba(176,136,64,0.35)'}}>Browse open projects →</button>
-              <button type="button" onClick={()=>nav('profile')} style={{height:48,padding:'0 18px',borderRadius:12,border:'1px solid rgba(255,255,255,0.20)',background:'rgba(255,255,255,0.06)',fontSize:13,fontWeight:700,color:'#fff',cursor:'pointer'}}>Complete profile</button>
-            </div>
-          </div>
-        ) : (
-          <div className="project-grid">
-            {won.map(b=>{
-              const proj = b.projects || {};
-              const p = {
-                title: proj.title || "Project",
-                church: proj.church_name, church_name: proj.church_name,
-                city: proj.city, category: proj.category || b.category,
-                budget: proj.budget, status: "hired",
-                timeline: b.timeline, urgent: false, bids: 0,
-                desc: proj.description || "",
-                skills: proj.skills || [], requirements: proj.requirements || [],
-              };
-              return (
-                <KcProjectCard key={b.id} project={p} onSelect={()=>openBidProject(proj)}
-                  bidAmount={b.amount}
-                  statusOverride={{label:"In Progress", color:"rgba(255,255,255,0.65)", dot:"#D97706"}}
-                  actions={[{ label:"Open Deal Room →", onClick:()=>openInboxThread(nav, { projectId: proj.id, projectTitle: proj.title || null, churchId: proj.church_id || null, churchName: proj.church_name || null, vendorId: b.vendor_id || null, vendorName: b.vendor_name || null, viewerRole:'vendor', createIfMissing: Boolean(b.vendor_id) }) }]}
-                />
-              );
-            })}
-          </div>
-        )
-      )}
-
-      {/* ── PENDING BIDS ── */}
-      {bucket==="pending" && (
-        pending.length===0 ? (
-          <KBIntentionalState
-            eyebrow="Bid pipeline"
-            title="No pending bids yet"
-            body="When you submit proposals on open projects, they will collect here so you can track which churches are still deciding."
-            icon="↗"
-            actionLabel="Browse open projects"
-            onAction={onBrowse}
-            secondaryLabel="Complete profile"
-            onSecondary={()=>nav('profile')}
-            compact
-          />
-        ) : (
-          <div className="project-grid">
-            {pending.map(b=>{
-              const proj=b.projects||{};
-              const days=Math.floor((Date.now()-new Date(b.created_at))/86400000);
-              const submittedLabel = days===0?"Today":days===1?"Yesterday":`${days}d ago`;
-              const p = {
-                title: proj.title || "Project",
-                church: proj.church_name, church_name: proj.church_name,
-                city: proj.city, category: proj.category || b.category,
-                budget: proj.budget, status: "open",
-                timeline: b.timeline || submittedLabel, urgent: false, bids: 0,
-                desc: proj.description || "",
-                skills: proj.skills || [], requirements: proj.requirements || [],
-              };
-              return (
-                <div key={b.id} style={{display:'flex',flexDirection:'column',gap:6}}>
-                  <div onClick={() => setExpandedBidId(prev => prev === b.id ? null : b.id)} style={{cursor:'pointer'}}>
-                    <KcProjectCard project={p}
-                      bidAmount={b.amount}
-                      statusOverride={{label:"Awaiting Decision", color:"rgba(255,255,255,0.5)", dot:"#C4BDB4"}}
-                    />
-                  </div>
-                  <div style={{display:'flex',justifyContent:'flex-end',paddingRight:4}}>
-                    <button
-                      type="button"
-                      onClick={()=>setWithdrawWorkPanelConfirm(b.id)}
-                      disabled={withdrawingBid===b.id}
-                      aria-label={`Withdraw bid on ${proj.title||'project'}`}
-                      style={{padding:'5px 12px',borderRadius:999,border:'1px solid rgba(220,38,38,0.22)',background:'rgba(220,38,38,0.06)',color:'#b1342a',fontSize:10.5,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif",letterSpacing:'0.04em',opacity:withdrawingBid===b.id?0.5:1}}
-                    >
-                      {withdrawingBid===b.id ? 'Withdrawing…' : 'Withdraw bid'}
-                    </button>
-                  </div>
-                  {expandedBidId === b.id && (
-                    <div style={{marginTop:4, padding:'16px 18px', borderRadius:14, background:'#fffdf8', border:'1px solid #efe7d9', display:'flex', flexDirection:'column', gap:14}}>
-                      <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-                        <div style={{padding:'10px 12px',borderRadius:12,background:'#fff',border:'1px solid #e5dcc8',minWidth:110}}>
-                          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Your bid</div>
-                          <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{formatMoney(Number(b.amount))}</div>
-                        </div>
-                        <div style={{padding:'10px 12px',borderRadius:12,background:'#fff',border:'1px solid #e5dcc8',minWidth:110}}>
-                          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Timeline</div>
-                          <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{b.timeline || '—'}</div>
-                        </div>
-                        <div style={{padding:'10px 12px',borderRadius:12,background:'#fff',border:'1px solid #e5dcc8',minWidth:110}}>
-                          <div style={{fontFamily:"var(--font-sans),monospace",fontSize:9,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a8579',fontWeight:700,marginBottom:3}}>Submitted</div>
-                          <div style={{fontFamily:"var(--font-display),serif",fontSize:17,fontWeight:700,color:'#1C2814'}}>{days === 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days}d ago`}</div>
-                        </div>
-                      </div>
-                      {(b.cover_letter || b.note) && (
-                        <div>
-                          <div style={{fontSize:10, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'#8a8579', marginBottom:6}}>Your cover note</div>
-                          <div style={{fontSize:13, color:'#565862', lineHeight:1.7, padding:'12px 14px', background:'#fff', borderRadius:10, border:'1px solid #e5dcc8'}}>{b.cover_letter || b.note}</div>
-                        </div>
-                      )}
-                      {editingBid?.id === b.id && (
-                        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, padding:'12px 14px', borderRadius:10, background:'#fff', border:'1px solid #e5dcc8'}}>
-                          <label style={{display:'grid', gap:4}}>
-                            <span style={{fontSize:10, fontWeight:700, letterSpacing:'0.10em', textTransform:'uppercase', color:'#5a5246'}}>Amount (USD)</span>
-                            <input
-                              type="text"
-                              inputMode="decimal"
-                              value={editingBid.amount}
-                              onChange={e => setEditingBid(prev => ({...prev, amount: e.target.value}))}
-                              style={{height:38, padding:'0 12px', borderRadius:8, border:'1.5px solid #dfd5c2', background:'#fff', fontSize:14, fontFamily:"var(--font-sans),sans-serif", outline:'none'}}
-                            />
-                          </label>
-                          <div style={{display:'flex', alignItems:'flex-end', gap:8}}>
-                            <button type="button" onClick={doEditBid} disabled={editSaving} style={{height:38, padding:'0 14px', borderRadius:8, border:'none', background:editSaving?'#e5e7eb':'linear-gradient(180deg,#c9a45c,#b08840)', color:editSaving?'#9ca3af':'#fff', fontSize:12, fontWeight:700, cursor:editSaving?'not-allowed':'pointer'}}>
-                              {editSaving ? 'Saving…' : 'Save'}
-                            </button>
-                            <button type="button" onClick={() => setEditingBid(null)} style={{height:38, padding:'0 12px', borderRadius:8, border:'1px solid #dfd5c2', background:'#fff', color:'#5a5246', fontSize:12, fontWeight:600, cursor:'pointer'}}>Cancel</button>
-                          </div>
-                        </div>
-                      )}
-                      <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
-                        <button type="button" onClick={() => setEditingBid({id:b.id, amount:String(b.amount||''), note:b.cover_letter||b.note||''})} style={{height:34, padding:'0 14px', borderRadius:999, border:'1px solid rgba(176,136,64,0.22)', background:'rgba(176,136,64,0.08)', color:'#8a6a2e', fontSize:12, fontWeight:700, cursor:'pointer'}}>Edit proposal</button>
-                        <button type="button" onClick={() => setExpandedBidId(null)} style={{height:34, padding:'0 14px', borderRadius:999, border:'1px solid #dfd5c2', background:'#fff', color:'#5a5246', fontSize:12, fontWeight:600, cursor:'pointer'}}>Close</button>
-                      </div>
-                    </div>
-                  )}
+              ) : visibleCards.length ? visibleCards.map(renderProjectCard) : (
+                <div className="kb1004-empty">
+                  <h3>{bucket==='drafts' ? 'No draft proposals.' : bucket==='saved' ? 'No saved opportunities yet.' : bucket==='completed' ? 'No completed projects yet.' : bucket==='archived' ? 'Nothing archived.' : 'No active projects yet.'}</h3>
+                  <p>{bucket==='drafts' ? 'FaithBid will show unfinished proposal drafts here when draft persistence is enabled.' : bucket==='saved' ? 'Save promising opportunities from Marketplace and they will appear here.' : bucket==='completed' ? 'Completed FaithBid work will collect here and can be added to your portfolio.' : bucket==='archived' ? 'Declined or withdrawn proposals will appear here for reference.' : 'Browse Marketplace and respond to a project to start building your work history.'}</p>
+                  {bucket!=='archived' && bucket!=='drafts' ? <button type="button" onClick={onBrowse}>Browse Marketplace</button> : null}
                 </div>
-              );
-            })}
-          </div>
-        )
-      )}
-
-      {/* ── NOT SELECTED ── */}
-      {bucket==="lost" && (
-        lost.length===0 ? (
-          <KBIntentionalState
-            eyebrow="Decision history"
-            title="No declined bids"
-            body="Clean record so far. Keep bidding with focused proposals and this section will only show opportunities that were not selected."
-            icon="✓"
-            actionLabel="Browse projects"
-            onAction={onBrowse}
-            compact
-          />
-        ) : (
-          <div className="project-grid">
-            {lost.map(b=>{
-              const proj=b.projects||{};
-              const p = {
-                title: proj.title || "Project",
-                church: proj.church_name, church_name: proj.church_name,
-                city: proj.city, category: proj.category || b.category,
-                budget: proj.budget, status: "completed",
-                timeline: b.timeline, urgent: false, bids: 0,
-                desc: proj.description || "",
-                skills: proj.skills || [], requirements: proj.requirements || [],
-              };
-              return (
-                <KcProjectCard key={b.id} project={p} onSelect={()=>openBidProject(proj)}
-                  bidAmount={b.amount}
-                  statusOverride={{label:"Not selected", color:"rgba(255,255,255,0.4)", dot:"#C4BDB4"}}
-                />
-              );
-            })}
-          </div>
-        )
-      )}
-    </div>
-    {withdrawWorkPanelConfirm && (
-      <ConfirmModal
-        title="Withdraw this bid?"
-        body="This cannot be undone. The church will no longer see your proposal."
-        confirmLabel="Yes, Withdraw"
-        danger
-        onConfirm={()=>doWithdrawFromWorkPanel(withdrawWorkPanelConfirm)}
-        onCancel={()=>setWithdrawWorkPanelConfirm(null)}
-      />
-    )}
-  </>
-  );
-}
-const MemoMyWorkPanel = React.memo(MyWorkPanel);
-
-function SampleProjectDetail({ project: p = {}, onBack, role, nav }) {
-  const isVendor = role === "vendor";
-  const goBack = onBack || (() => { if (typeof nav === "function") nav("projects"); });
-  const goPrimary = () => {
-    if (typeof nav === "function") {
-      nav(isVendor ? "projects" : "projects:post");
-      return;
-    }
-    if (!isVendor && typeof document !== "undefined") {
-      document.dispatchEvent(new CustomEvent("kb:post-project"));
-    }
-  };
-  const skills = Array.isArray(p.skills) ? p.skills.filter(Boolean) : [];
-  const metaItems = [
-    { label: "Budget", value: p.budget || "Flexible" },
-    { label: "Timeline", value: p.timeline || "Timeline TBD" },
-    { label: "Project type", value: p.scope || p.type || "One-time project" },
-  ];
-  const churchLine = [p.church || p.church_name, p.city].filter(Boolean).join(" · ") || "Community example";
-  const description = p.desc || p.description || "This representative project shows how a complete ministry brief can look once a church posts work to the marketplace.";
-
-  return (
-    <div style={{ minHeight: "100vh", backgroundImage: KB_WORKSPACE_CLAY_BACKGROUND, backgroundSize: "cover", backgroundPosition: "center top", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed", backgroundColor: "#f6efe4", padding: "22px 24px 52px", fontFamily: "var(--font-sans), sans-serif" }}>
-      <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginBottom: 18, flexWrap: "wrap" }}>
-          <button
-            type="button"
-            onClick={goBack}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 38, padding: "0 16px", borderRadius: 999, border: "1px solid #dfd5c2", background: "rgba(255,255,255,0.72)", color: "#1C2814", fontSize: 12, fontWeight: 800, letterSpacing: "0.02em", cursor: "pointer", boxShadow: "0 6px 18px rgba(28,40,20,0.045)" }}
-          >
-            <span aria-hidden="true">←</span> Back to projects
-          </button>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 34, padding: "0 13px", borderRadius: 999, border: "1px solid rgba(176,136,64,0.28)", background: "rgba(176,136,64,0.09)", color: "#8a6729", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>
-            <span aria-hidden="true">✦</span> Community example
-          </div>
-        </div>
-
-        <section style={{ position: "relative", overflow: "hidden", border: "1px solid #dfd5c2", borderRadius: 28, background: "linear-gradient(135deg,#fffaf0 0%,#fffdf8 50%,#f7efe0 100%)", boxShadow: "0 18px 54px rgba(28,40,20,0.08)", marginBottom: 16 }}>
-          <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(circle at 82% 16%, rgba(176,136,64,0.16), transparent 34%), radial-gradient(circle at 8% 88%, rgba(28,40,20,0.07), transparent 32%)" }} />
-          <div style={{ position: "relative", display: "grid", gridTemplateColumns: "minmax(0,1.55fr) minmax(280px,0.9fr)", gap: 24, padding: "34px clamp(22px,4vw,42px)" }}>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase", color: "#b08840", marginBottom: 10 }}>
-                {p.category || "Sample project"}
-              </div>
-              <h1 style={{ margin: 0, fontFamily: "var(--font-display),serif", fontSize: "clamp(31px,5vw,54px)", lineHeight: 0.98, letterSpacing: "-0.045em", fontWeight: 800, color: "#1C2814", maxWidth: 760 }}>
-                {p.title || "Sample ministry project"}
-              </h1>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 16, color: "#6b6d75", fontSize: 13.5, fontWeight: 600 }}>
-                <span>{churchLine}</span>
-                {p.urgent && <span style={{ display: "inline-flex", alignItems: "center", height: 25, padding: "0 10px", borderRadius: 999, background: "rgba(197,48,48,0.1)", color: "#a43b28", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase" }}>Urgent</span>}
-                <span style={{ display: "inline-flex", alignItems: "center", height: 25, padding: "0 10px", borderRadius: 999, background: "rgba(28,40,20,0.06)", color: "#556044", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase" }}>Read-only preview</span>
-              </div>
-              <p style={{ margin: "22px 0 0", maxWidth: 720, fontSize: 15, lineHeight: 1.78, color: "#565a50", fontWeight: 400 }}>
-                {description}
-              </p>
+              )}
             </div>
+          </main>
 
-            <aside style={{ alignSelf: "stretch", border: "1px solid rgba(223,213,194,0.94)", borderRadius: 22, background: "rgba(255,255,255,0.72)", padding: 18, boxShadow: "0 10px 28px rgba(28,40,20,0.06)", backdropFilter: "blur(8px)" }}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#9c8a6a", marginBottom: 12 }}>
-                Project snapshot
-              </div>
-              <div style={{ display: "grid", gap: 10 }}>
-                {metaItems.map((item) => (
-                  <button
-                    key={item.label}
-                    type="button"
-                    onClick={goPrimary}
-                    title={isVendor ? "Browse open projects" : "Post a similar project"}
-                    style={{ width: "100%", textAlign: "left", padding: "13px 14px", borderRadius: 16, border: "1px solid #eadfca", background: "#fffdf8", cursor: "pointer" }}
-                  >
-                    <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#a09a85", marginBottom: 4 }}>{item.label}</div>
-                    <div style={{ fontFamily: "var(--font-display),serif", fontSize: 19, lineHeight: 1.1, fontWeight: 800, letterSpacing: "-0.02em", color: "#1C2814" }}>{item.value}</div>
-                  </button>
-                ))}
-              </div>
-            </aside>
-          </div>
-        </section>
+          <aside className="kb1004-side">
+            <section className="kb1004-side-card">
+              <div className="kb1004-profile-head"><h2>Profile completion</h2><strong>{profilePct}%</strong></div>
+              <div className="kb1004-progress" aria-label={`${profilePct}% profile completion`}><span style={{width:`${Math.max(0,Math.min(100,profilePct))}%`}}/></div>
+              <p>A complete profile helps you win more projects.</p>
+              <button type="button" className="kb1004-side-cta" onClick={()=>nav('profile')}>Complete your profile <span aria-hidden="true">→</span></button>
+            </section>
 
-        <div style={{ display: "grid", gridTemplateColumns: skills.length ? "minmax(0,1.25fr) minmax(280px,0.75fr)" : "1fr", gap: 16, alignItems: "stretch" }}>
-          <section style={{ border: "1px solid #dfd5c2", borderRadius: 22, background: "#fff", padding: 24, boxShadow: "0 10px 30px rgba(28,40,20,0.055)" }}>
-            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#b08840", marginBottom: 10 }}>Project description</div>
-            <div style={{ fontSize: 14.5, color: "#565a50", lineHeight: 1.82, fontWeight: 400 }}>{description}</div>
-            <div style={{ marginTop: 18, padding: "13px 15px", borderRadius: 16, border: "1px solid #eadfca", background: "#fffaf0", color: "#6a604f", fontSize: 12.5, lineHeight: 1.62, fontWeight: 600 }}>
-              This sample brief is intentionally read-only. Real projects use the same detail structure, but include live bidding, messaging, and vendor proposal workflows.
-            </div>
-          </section>
-
-          {skills.length > 0 && (
-            <section style={{ border: "1px solid #dfd5c2", borderRadius: 22, background: "#fff", padding: 24, boxShadow: "0 10px 30px rgba(28,40,20,0.055)" }}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#b08840", marginBottom: 13 }}>Skills needed</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {skills.map((s, i) => (
-                  <span key={`${s}-${i}`} style={{ display: "inline-flex", alignItems: "center", minHeight: 30, padding: "6px 12px", borderRadius: 999, border: "1px solid #e5dbc8", background: "#fffdf8", color: "#6a604f", fontSize: 11, fontWeight: 800, letterSpacing: "0.045em", textTransform: "uppercase" }}>{s}</span>
-                ))}
+            <section className="kb1004-side-card">
+              <h2>Customize your portfolio</h2>
+              <p>Showcase your work and tell your story.</p>
+              <div className="kb1004-side-actions">
+                <button type="button" onClick={()=>nav('profile-proof')}><span>✎</span><span>Edit portfolio</span><span>›</span></button>
+                <button type="button" onClick={()=>nav('profile-proof')}><span>＋</span><span>Add external work</span><span>›</span></button>
+                <button type="button" onClick={()=>nav('profile')}><span>⚙</span><span>Manage specialties</span><span>›</span></button>
               </div>
             </section>
-          )}
-        </div>
 
-        <section style={{ marginTop: 16, borderRadius: 24, overflow: "hidden", background: "linear-gradient(135deg,#1C2814,#28371d)", border: "1px solid rgba(28,40,20,0.22)", boxShadow: "0 18px 42px rgba(28,40,20,0.16)" }}>
-          <div style={{ padding: "28px clamp(22px,4vw,38px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 22, flexWrap: "wrap" }}>
-            <div style={{ minWidth: 0, maxWidth: 660 }}>
-              <div style={{ fontFamily: "var(--font-display),serif", fontSize: "clamp(22px,3vw,32px)", fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.035em", color: "#fff", marginBottom: 8 }}>
-                {isVendor ? "Projects like this are waiting for you." : "Ready to post a project like this?"}
-              </div>
-              <div style={{ fontSize: 13.5, lineHeight: 1.7, color: "rgba(255,255,255,0.68)", maxWidth: 600 }}>
-                {isVendor
-                  ? "Create your vendor profile to browse and bid on real open projects from churches across the country."
-                  : "It takes about 3 minutes and it is free to begin. Faith-aligned vendors can review the brief and submit bids when the project is live."}
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={goPrimary}
-              style={{ height: 46, padding: "0 22px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.14)", background: "linear-gradient(135deg,#c59a46,#a87b2a)", color: "#fff", fontSize: 13, fontWeight: 800, letterSpacing: "0.02em", cursor: "pointer", boxShadow: "0 14px 32px rgba(0,0,0,0.18)", whiteSpace: "nowrap" }}
-            >
-              {isVendor ? "Browse open projects" : "Post a similar project"} <span aria-hidden="true">→</span>
-            </button>
-          </div>
-        </section>
-      </div>
-    </div>
+            <section className="kb1004-side-card">
+              <div className="kb1004-saved-head"><h2>Saved opportunities <span className="kb1004-saved-count">{savedProjects.length}</span></h2><button type="button" className="kb1004-link-button" onClick={()=>setBucket('saved')}>View all →</button></div>
+              {savedProjects.slice(0,2).map(project => {
+                const image = getProjectHeroImage(project, 'grid');
+                return <div className="kb1004-saved-item" key={project.id}>
+                  <button type="button" className="kb1004-saved-open" onClick={()=>openBidProject(project)} aria-label={`Open ${project.title || 'saved project'}`}>
+                    {image?<img src={image} alt="" loading="lazy" onError={handleKbImageError}/>:<span className="kb1004-saved-thumb"/>}
+                    <span className="kb1004-saved-copy"><strong>{project.title || 'Project'}</strong><span>{project.church_name || 'Church'}</span><span>⌖ {projectLocation(project)}</span></span>
+                  </button>
+                  <button type="button" className="kb1004-saved-remove" disabled={savedRemovingId===project.id} aria-label={`Remove ${project.title || 'project'} from saved`} onClick={()=>removeSavedProject(project)}>{savedRemovingId===project.id?'…':'♧'}</button>
+                </div>;
+              })}
+              {!savedLoading && savedError && savedProjects.length===0 ? <p style={{margin:'0 0 8px'}}>Saved opportunities couldn't refresh.</p> : null}
+              {!savedLoading && !savedError && savedProjects.length===0 ? <p style={{margin:0}}>Saved projects will appear here for quick access.</p> : null}
+              {!savedLoading && savedError && savedProjects.length===0 ? <button type="button" className="kb1004-link-button" onClick={()=>loadSavedProjects()}>Retry saved projects →</button> : null}
+            </section>
+
+            <section className="kb1004-side-card kb1004-impact"><div className="kb1004-impact-icon">◒</div><div><h2>Make a bigger impact.</h2><p>Quality vendors help churches build stronger communities.</p></div></section>
+          </aside>
+        </div>
+      </section>
+      {churchFeedbackProject && <ChurchFeedbackModal project={churchFeedbackProject} onClose={()=>setChurchFeedbackProject(null)} onSaved={()=>{setChurchFeedbackProject(null);showToast&&showToast('Church feedback saved.');}} showToast={showToast}/>}
+      {withdrawWorkPanelConfirm && (
+        <ConfirmModal
+          title="Withdraw this bid?"
+          body="This cannot be undone. The church will no longer see your proposal."
+          confirmLabel="Yes, Withdraw"
+          danger
+          onConfirm={()=>doWithdrawFromWorkPanel(withdrawWorkPanelConfirm)}
+          onCancel={()=>setWithdrawWorkPanelConfirm(null)}
+        />
+      )}
+    </>
   );
 }
+
+
+// 1006 — My Projects Saved lens live-sync/reliability lock.
+// No navigation, route, schema, or church-side visual changes in this checkpoint.
+// The vendor Saved cell now reads and live-syncs canonical saved_projects state,
+// retries independently, and opens/removes saved opportunities from the approved shell.
+
+// 1005 — Church/admin My Projects route parity fix.
+// 1004 rebuilt the vendor "work" route only. Church/individual accounts mount the
+// separate "mine" route, so the approved visual system must be mounted here too.
+// Existing authenticated navigation is intentionally untouched.
+function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onManageBids, nav, role, showToast, currentUser, myProjectsFetchError = false, onRetryMyProjects}) {
+  const [bucket, setBucket] = useState('active');
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState('next');
+  const [viewMode, setViewMode] = useState('grid');
+  const [reviewedProjectIds, setReviewedProjectIds] = useState(() => new Set());
+  const [reviewProject, setReviewProject] = useState(null);
+
+  const rows = useMemo(() => (projects || []).map(project => {
+    const p = normalizeProjectEntity(project) || project || {};
+    const status = String(p.status || 'open').toLowerCase();
+    const bidsCount = Number(p.bids_count ?? p.bids ?? 0) || 0;
+    const completed = status === 'completed' || Boolean(p.completed_at);
+    const draft = status === 'draft';
+    const archived = ['cancelled','canceled','archived','declined'].includes(status);
+    const needsAttention = !completed && !draft && !archived && (
+      bidsCount > 0 || Boolean(p.completion_requested_at) || String(p.liquidity_status || '').toLowerCase() === 'thin'
+    );
+    const active = !completed && !draft && !archived;
+    const city = p.project_city || p.city || '';
+    const state = p.project_state || p.state_code || '';
+    const location = [city,state].filter(Boolean).join(', ');
+    const budget = p.budget || ((p.budget_min || p.budget_max) ? `${p.budget_min ? formatMoney(p.budget_min) : '—'}${p.budget_max ? ` – ${formatMoney(p.budget_max)}` : ''}` : 'Budget not set');
+    const image = getProjectHeroImage(p, 'grid');
+    const nextLabel = completed ? 'Completed' : draft ? 'Finish draft' : p.completion_requested_at ? 'Completion requested' : bidsCount > 0 ? `${bidsCount} proposal${bidsCount===1?'':'s'} ready` : 'Awaiting proposals';
+    const dateValue = completed ? p.completed_at : p.posted_at || p.created_at;
+    return {...p, status, bidsCount, completed, draft, archived, needsAttention, active, location, budget, image, nextLabel, dateValue};
+  }), [projects]);
+
+  const groups = useMemo(() => ({
+    active: rows.filter(p=>p.active),
+    attention: rows.filter(p=>p.needsAttention),
+    completed: rows.filter(p=>p.completed),
+    drafts: rows.filter(p=>p.draft),
+    archived: rows.filter(p=>p.archived),
+  }), [rows]);
+
+  useEffect(() => {
+    const pending = getPendingReviewTarget();
+    const pendingId = String(pending?.project_id || pending?.projectId || '').trim();
+    if (!pendingId) return;
+    const project = rows.find(row => String(row?.id || '') === pendingId) || { id:pendingId, title:pending?.project || pending?.projectTitle || 'Completed project' };
+    setBucket('completed');
+    setReviewProject(project);
+    clearPendingReviewTarget();
+  }, [rows.map(row=>String(row?.id || '')+':'+row.completed).join('|')]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const completedIds = rows.filter(row => row.completed && row.id).map(row => row.id);
+    if (!currentUser?.id || !completedIds.length) {
+      setReviewedProjectIds(new Set());
+      return () => { cancelled = true; };
+    }
+    (async()=>{
+      try {
+        const { data, error } = await supabase.from('reviews')
+          .select('project_id')
+          .eq('church_id', currentUser.id)
+          .in('project_id', completedIds);
+        if (error) throw error;
+        if (!cancelled) setReviewedProjectIds(new Set((data || []).map(row => String(row?.project_id || '')).filter(Boolean)));
+      } catch (err) {
+        logError('my-projects-review-status-load', err, { userId:currentUser.id });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [currentUser?.id, rows.map(row=>row.id+':'+row.completed).join('|')]);
+
+  const tabs = [
+    {key:'active', label:'Active', count:groups.active.length, icon:'active'},
+    {key:'attention', label:'Needs attention', count:groups.attention.length, icon:'attention'},
+    {key:'completed', label:'Completed', count:groups.completed.length, icon:'completed'},
+    {key:'drafts', label:'Drafts', count:groups.drafts.length, icon:'drafts'},
+    {key:'archived', label:'Archived', count:groups.archived.length, icon:'archived'},
+  ];
+  const visible = useMemo(() => {
+    let list = groups[bucket] || [];
+    const q = search.trim().toLowerCase();
+    if (q) list = list.filter(p => [p.title, p.location, p.category, p.primary_category].filter(Boolean).join(' ').toLowerCase().includes(q));
+    const sorted = [...list];
+    if (sortBy === 'budget') sorted.sort((a,b)=>(Number(b.budget_max||b.budget_min||0))-(Number(a.budget_max||a.budget_min||0)));
+    else if (sortBy === 'recent') sorted.sort((a,b)=>new Date(b.dateValue||0)-new Date(a.dateValue||0));
+    else sorted.sort((a,b)=>{
+      const rank = p => p.needsAttention ? 0 : p.active ? 1 : 2;
+      return rank(a)-rank(b) || (b.bidsCount||0)-(a.bidsCount||0);
+    });
+    return sorted;
+  }, [groups,bucket,search,sortBy]);
+  const renderTabIcon = kind => {
+    if (kind === 'active') return <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>;
+    if (kind === 'attention') return <svg viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17h.01"/></svg>;
+    if (kind === 'completed') return <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>;
+    if (kind === 'drafts') return <svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/></svg>;
+    if (kind === 'archived') return <svg viewBox="0 0 24 24"><path d="M4 7h16v14H4zM3 3h18v4H3z"/><path d="M9 11h6"/></svg>;
+    return null;
+  };
+
+  const primaryAction = project => {
+    if (project.bidsCount > 0 && !project.completed && !project.archived) return {label:'View responses', run:()=>onManageBids(project)};
+    return {label: project.completed ? 'View project' : project.draft ? 'Continue project' : 'Open project', run:()=>onSelect(project)};
+  };
+
+  const renderCard = project => {
+    const action = primaryAction(project);
+    const reviewed = reviewedProjectIds.has(String(project?.id || ''));
+    const badgeLabel = project.completed ? 'Completed' : project.draft ? 'Draft' : project.needsAttention ? 'Needs attention' : project.status === 'in_progress' ? 'In progress' : project.bidsCount > 0 ? 'Reviewing' : 'Open';
+    const badgeTone = project.completed ? 'done' : project.needsAttention ? 'warm' : project.status === 'in_progress' ? 'progress' : 'open';
+    return <article className="kb1005-project-card" key={project.id}>
+      <div className="kb1005-card-media">{project.image ? <img src={project.image} alt="" loading="lazy" onError={handleKbImageError}/> : <div className="kb1005-card-fallback">FB</div>}</div>
+      <div className="kb1005-card-main">
+        <div className="kb1005-card-topline"><span className={`kb1005-status ${badgeTone}`}>{badgeLabel}</span><button type="button" className="kb1005-more" aria-label="More project actions">•••</button></div>
+        <div className="kb1005-card-copy"><span className="kb1005-category">{formatMarketplaceCategoryLabel(project.primary_category || project.category || 'Project')}</span><h3>{project.title || 'Untitled project'}</h3><p>{project.location || 'Location not set'}</p><p className="kb1005-budget">{project.budget}</p></div>
+        <div className="kb1005-next"><span>Next step</span><strong>{project.nextLabel}</strong></div>
+        <div className="kb1005-card-actions"><button type="button" className="primary" onClick={action.run}>{action.label}</button>{project.completed ? <button type="button" disabled={reviewed} onClick={()=>!reviewed&&setReviewProject(project)}>{reviewed?'Review submitted':'Leave vendor review'}</button> : <button type="button" onClick={()=>onSelect(project)}>View project</button>}</div>
+      </div>
+    </article>;
+  };
+
+  const attention = groups.attention.slice(0,2);
+  const totalResponses = rows.reduce((sum,p)=>sum+(p.bidsCount||0),0);
+  const completionPct = rows.length ? Math.round((groups.completed.length / rows.length) * 100) : 0;
+
+  return <section className="kb1005-myprojects" aria-label="My Projects">
+    <style>{`
+      .kb1005-myprojects{--ink:#0f2f27;--green:#174737;--cream:#f7f4ed;--card:#fffdf9;--line:#ddd7cc;box-sizing:border-box;min-height:calc(100vh - 64px);width:100%;padding:34px clamp(24px,5vw,86px) 78px;background:radial-gradient(circle at 78% 2%,rgba(231,225,210,.38),transparent 28%),#f8f6f1;color:var(--ink);font-family:var(--font-sans),sans-serif}
+      .kb1005-myprojects *{box-sizing:border-box}.kb1005-intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end;margin:0 auto 25px;max-width:1510px}.kb1005-intro h1{margin:0;font-family:var(--font-display),serif;font-size:clamp(48px,4.4vw,70px);line-height:.98;letter-spacing:-.04em;color:#102b24}.kb1005-intro p{margin:9px 0 0;font-size:16px;color:#63706b}.kb1005-quote{padding:6px 0 4px 24px;border-left:1px solid #ddd7cc;font-family:var(--font-display),serif;font-size:16px;line-height:1.25;color:#243b34;white-space:nowrap}.kb1005-quote span{display:block;font-family:var(--font-sans),sans-serif;font-size:12px;color:#727872;margin-top:3px}
+      .kb1005-layout{max-width:1510px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:24px;align-items:start}.kb1005-filter-cells{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));height:58px;margin-bottom:16px;background:rgba(255,255,255,.68);border:1px solid #ddd7cc;border-radius:9px;overflow:hidden;box-shadow:0 7px 20px rgba(25,49,41,.05)}.kb1005-filter-cell{display:flex;align-items:center;justify-content:center;gap:9px;border:0;border-right:1px solid #e4dfd5;background:transparent;color:#213a32;font-family:var(--font-display),serif;font-size:16px;cursor:pointer;transition:.18s}.kb1005-filter-cell:last-child{border-right:0}.kb1005-filter-cell svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8}.kb1005-filter-cell:hover{background:#fff}.kb1005-filter-cell.active{background:linear-gradient(135deg,#184d3c,#123c31);color:#fff;box-shadow:0 5px 14px rgba(23,71,55,.22);font-family:var(--font-sans),sans-serif;font-size:13px;font-weight:800}.kb1005-filter-count{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 7px;border-radius:50%;background:#ece9e2;color:#33413c;font-family:var(--font-sans),sans-serif;font-size:12px}.kb1005-filter-cell.active .kb1005-filter-count{background:#f8f3e9;color:#183c31}
+      .kb1005-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 265px 122px;gap:12px;margin-bottom:17px}.kb1005-search,.kb1005-sort,.kb1005-view-toggle{height:43px;background:#fff;border:1px solid #ddd7cc;border-radius:7px;box-shadow:0 2px 8px rgba(25,49,41,.025)}.kb1005-search{display:flex;align-items:center;gap:10px;padding:0 15px}.kb1005-search svg{width:19px;height:19px;fill:none;stroke:#50625c;stroke-width:1.8}.kb1005-search input{width:100%;border:0;outline:0;background:transparent;font:13px var(--font-sans),sans-serif;color:#16372d}.kb1005-sort{display:grid;grid-template-columns:auto 1fr;align-items:center;padding-left:13px;overflow:hidden}.kb1005-sort span{font-size:11px;color:#5d6864}.kb1005-sort select{height:100%;border:0;border-left:1px solid #ebe6dc;margin-left:10px;padding:0 10px;background:#fff;color:#17382f;font-size:12px;font-weight:700;outline:0}.kb1005-view-toggle{display:grid;grid-template-columns:1fr 1fr;overflow:hidden}.kb1005-view-toggle button{border:0;background:#fff;color:#496059;font-size:21px;cursor:pointer}.kb1005-view-toggle button+button{border-left:1px solid #e7e2d8}.kb1005-view-toggle button.active{background:#164b3a;color:#fff}
+      .kb1005-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.kb1005-card-grid.list{grid-template-columns:1fr}.kb1005-project-card{display:grid;grid-template-columns:190px minmax(0,1fr);min-height:268px;background:#fff;border:1px solid #ded8cc;border-radius:9px;overflow:hidden;box-shadow:0 5px 17px rgba(26,45,38,.035)}.kb1005-card-media{margin:15px 0 15px 15px;border-radius:6px;overflow:hidden;min-height:236px;background:#ebe7de}.kb1005-card-media img{width:100%;height:100%;object-fit:cover;display:block}.kb1005-card-fallback{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display),serif;font-size:36px;color:#9a9488}.kb1005-card-main{position:relative;padding:14px 16px 14px 18px;display:flex;flex-direction:column;min-width:0}.kb1005-card-topline{display:flex;align-items:center;justify-content:space-between;gap:10px}.kb1005-status{display:inline-flex;align-items:center;height:27px;padding:0 12px;border-radius:999px;background:#e7f0eb;color:#225e49;font-size:11px;font-weight:700}.kb1005-status.warm{background:#f6ead7;color:#876021}.kb1005-status.progress{background:#e4eff6;color:#315d7a}.kb1005-status.done{background:#eceeef;color:#586461}.kb1005-more{border:0;background:transparent;color:#50615b;cursor:pointer;font-size:16px}.kb1005-category{display:block;margin:8px 0 3px;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a2762f}.kb1005-card-copy h3{margin:0 0 6px;font-family:var(--font-display),serif;font-size:20px;line-height:1.04;color:#13392e}.kb1005-card-copy p{margin:2px 0;font-size:12px;color:#5d6a65}.kb1005-card-copy .kb1005-budget{margin-top:7px;color:#42504b}.kb1005-next{margin-top:auto;padding:11px 0 10px;border-top:1px solid #e6e1d7}.kb1005-next span{display:block;font-size:9px;color:#7a817e}.kb1005-next strong{display:block;margin-top:2px;font-size:12px;font-weight:500;color:#4c5a55}.kb1005-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kb1005-card-actions button{height:38px;border-radius:5px;border:1px solid #b9c2bd;background:#fff;color:#183f33;font-size:11px;font-weight:700;cursor:pointer}.kb1005-card-actions button.primary{background:#174b3a;color:#fff;border-color:#174b3a}
+      .kb1005-side{display:grid;gap:12px}.kb1005-side-card{background:#fff;border:1px solid #ded8cc;border-radius:9px;padding:20px;box-shadow:0 5px 17px rgba(26,45,38,.035)}.kb1005-side-card h2{margin:0;font-family:var(--font-display),serif;font-size:23px;line-height:1;color:#15372e}.kb1005-side-card p{margin:9px 0 15px;font-size:12px;line-height:1.45;color:#63706b}.kb1005-profile-head{display:flex;align-items:center;justify-content:space-between}.kb1005-profile-head strong{font:700 17px var(--font-sans),sans-serif;color:#163f33}.kb1005-progress{height:10px;border-radius:999px;background:#e7e4de;overflow:hidden;margin:13px 0 9px}.kb1005-progress span{display:block;height:100%;border-radius:inherit;background:#195442}.kb1005-side-cta{width:100%;height:39px;border-radius:5px;border:1px solid #bfd1c9;background:#edf5f1;color:#163e32;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer}.kb1005-side-actions{border:1px solid #e0dbd1;border-radius:7px;overflow:hidden}.kb1005-side-actions button{width:100%;height:49px;border:0;border-bottom:1px solid #e6e1d8;background:#fff;display:grid;grid-template-columns:27px 1fr auto;align-items:center;text-align:left;padding:0 12px;color:#17382f;font-size:12px;font-weight:700;cursor:pointer}.kb1005-side-actions button:last-child{border-bottom:0}.kb1005-attention-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.kb1005-attention-head h2{font-size:21px}.kb1005-link-button{border:0;background:transparent;color:#174737;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}.kb1005-attention-count{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;background:#eeeae2;font:700 11px var(--font-sans),sans-serif}.kb1005-attention-item{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid #eee9df}.kb1005-attention-thumb{width:54px;height:48px;border-radius:5px;background:#e8e4dc;overflow:hidden}.kb1005-attention-thumb img{width:100%;height:100%;object-fit:cover}.kb1005-attention-item strong{display:block;font-size:11px;color:#17392f}.kb1005-attention-item span{display:block;margin-top:3px;font-size:10px;color:#6a7470}.kb1005-attention-item button{border:0;background:transparent;color:#174737;font-size:18px;cursor:pointer}.kb1005-impact{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center;background:linear-gradient(135deg,#fbfaf6,#f1eee6)}.kb1005-impact-icon{width:54px;height:54px;border-radius:50%;background:#e9eee8;display:flex;align-items:center;justify-content:center;font-size:24px;color:#195442}.kb1005-impact h2{font-size:18px}.kb1005-impact p{margin-bottom:0}.kb1005-empty{grid-column:1/-1;padding:54px 26px;text-align:center;border:1px dashed #d8d2c7;border-radius:10px;background:rgba(255,255,255,.62)}.kb1005-empty h3{margin:0 0 7px;font-family:var(--font-display),serif;font-size:24px;color:#17352b}.kb1005-empty p{margin:0 auto 17px;max-width:430px;font-size:13px;line-height:1.55;color:#66706b}.kb1005-empty button{height:40px;border-radius:6px;border:1px solid #174737;background:#174737;color:#fff;padding:0 16px;font-size:12px;font-weight:700;cursor:pointer}.kb1005-error{margin-bottom:15px;padding:12px 14px;border-radius:8px;border:1px solid #ead1cc;background:#fff5f2;color:#8b3b2f;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}.kb1005-error button{border:0;background:#8b3b2f;color:#fff;padding:7px 10px;border-radius:5px;cursor:pointer}
+      @media(max-width:1180px){.kb1005-layout{grid-template-columns:1fr}.kb1005-side{grid-template-columns:repeat(2,minmax(0,1fr))}.kb1005-impact{display:none}.kb1005-intro{grid-template-columns:1fr}.kb1005-quote{display:none}}
+      @media(max-width:820px){.kb1005-myprojects{padding:22px 16px 84px}.kb1005-intro h1{font-size:46px}.kb1005-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));height:auto;background:transparent;border:0;box-shadow:none;gap:8px;overflow:visible}.kb1005-filter-cell{min-height:50px;border:1px solid #ded8cc!important;border-radius:8px;background:#fff}.kb1005-toolbar{grid-template-columns:1fr auto}.kb1005-sort{grid-column:1/-1;grid-row:2}.kb1005-card-grid{grid-template-columns:1fr}.kb1005-project-card{grid-template-columns:132px minmax(0,1fr);min-height:230px}.kb1005-card-media{min-height:200px}.kb1005-side{grid-template-columns:1fr}}
+      @media(max-width:560px){.kb1005-project-card{grid-template-columns:1fr}.kb1005-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1005-filter-cells{grid-template-columns:1fr 1fr}.kb1005-toolbar{grid-template-columns:1fr}.kb1005-view-toggle{display:none}.kb1005-card-main{padding:14px}.kb1005-side-card{padding:16px}}
+    `}</style>
+
+    <header className="kb1005-intro"><div><h1>My Projects</h1><p>Track your projects, manage vendor activity, and move every decision forward.</p></div><div className="kb1005-quote">Building What Matters.<span>For a Stronger Tomorrow.</span></div></header>
+    <div className="kb1005-layout">
+      <main>
+        <div className="kb1005-filter-cells" role="tablist" aria-label="Project filters">{tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={bucket===tab.key} className={`kb1005-filter-cell${bucket===tab.key?' active':''}`} onClick={()=>setBucket(tab.key)}>{renderTabIcon(tab.icon)}<span>{tab.label}</span><span className="kb1005-filter-count">{tab.count}</span></button>)}</div>
+        <div className="kb1005-toolbar"><label className="kb1005-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search your projects…" aria-label="Search your projects"/></label><label className="kb1005-sort"><span>Sort by</span><select value={sortBy} onChange={e=>setSortBy(e.target.value)}><option value="next">Next step (soonest)</option><option value="recent">Most recent</option><option value="budget">Largest budget</option></select></label><div className="kb1005-view-toggle"><button type="button" className={viewMode==='grid'?'active':''} onClick={()=>setViewMode('grid')} aria-label="Grid view">▦</button><button type="button" className={viewMode==='list'?'active':''} onClick={()=>setViewMode('list')} aria-label="List view">☷</button></div></div>
+        {myProjectsFetchError ? <div className="kb1005-error"><span>We couldn't refresh your projects.</span><button type="button" onClick={onRetryMyProjects}>Retry</button></div> : null}
+        <div className={`kb1005-card-grid${viewMode==='list'?' list':''}`}>{loading ? [0,1,2,3].map(i=><div key={i} className="kb1005-empty" style={{minHeight:220}}><p>Loading project…</p></div>) : visible.length ? visible.map(renderCard) : <div className="kb1005-empty"><h3>{bucket==='completed'?'No completed projects yet.':bucket==='drafts'?'No drafts right now.':bucket==='archived'?'Nothing archived.':bucket==='attention'?'Nothing needs your attention.':'No active projects yet.'}</h3><p>{bucket==='active'?'Post your first project and vendor responses will collect here in one place.':'This view will fill automatically as projects move through their lifecycle.'}</p>{bucket==='active'||bucket==='drafts'?<button type="button" onClick={onPost}>Post a project</button>:null}</div>}</div>
+      </main>
+      <aside className="kb1005-side">
+        <section className="kb1005-side-card"><div className="kb1005-profile-head"><h2>Project completion</h2><strong>{completionPct}%</strong></div><div className="kb1005-progress"><span style={{width:`${completionPct}%`}}/></div><p>{groups.completed.length} completed of {rows.length} total projects.</p><button type="button" className="kb1005-side-cta" onClick={onPost}>Post a new project <span>→</span></button></section>
+        <section className="kb1005-side-card"><h2>Manage your projects</h2><p>Keep the most important church-side actions close at hand.</p><div className="kb1005-side-actions"><button type="button" onClick={onPost}><span>＋</span><span>Post a project</span><span>›</span></button><button type="button" onClick={()=>setBucket('attention')}><span>◎</span><span>Review activity</span><span>›</span></button><button type="button" onClick={()=>setBucket('completed')}><span>✓</span><span>Completed projects</span><span>›</span></button></div></section>
+        <section className="kb1005-side-card"><div className="kb1005-attention-head"><h2>Needs attention <span className="kb1005-attention-count">{groups.attention.length}</span></h2><button type="button" className="kb1005-link-button" onClick={()=>setBucket('attention')}>View all →</button></div>{attention.map(project=><div className="kb1005-attention-item" key={project.id}><div className="kb1005-attention-thumb">{project.image?<img src={project.image} alt="" loading="lazy" onError={handleKbImageError}/>:null}</div><div><strong>{project.title || 'Project'}</strong><span>{project.nextLabel}</span></div><button type="button" onClick={()=>primaryAction(project).run()} aria-label={`Open ${project.title || 'project'}`}>›</button></div>)}{!attention.length?<p style={{marginBottom:0}}>You're caught up. New vendor activity will appear here.</p>:null}</section>
+        <section className="kb1005-side-card kb1005-impact"><div className="kb1005-impact-icon">◒</div><div><h2>Make a bigger impact.</h2><p>{totalResponses ? `${totalResponses} vendor response${totalResponses===1?'':'s'} across your projects.` : 'FaithBid keeps church projects and vendor decisions in one place.'}</p></div></section>
+      </aside>
+    </div>
+    {reviewProject && <ProjectReviewModal project={reviewProject} onClose={()=>setReviewProject(null)} onSaved={()=>{setReviewedProjectIds(prev=>new Set([...Array.from(prev),String(reviewProject.id)]));setReviewProject(null);showToast&&showToast('Review submitted.');}} showToast={showToast}/>}
+  </section>;
+}
+const MemoChurchMyProjectsRenderPanel = React.memo(ChurchMyProjectsRenderPanel);
+
+const MemoMyWorkPanel = React.memo(MyWorkPanel);
 
 function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecline, onBack, onNav, showToast}){
   const [selectedId, setSelectedId] = useState(null);
@@ -30760,7 +32605,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
   );
 }
 
-function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav, onBack, onPost, onBid, biddingEnabled = false, biddingSettingLoaded = false, onNotifyBidding = null, bidNotifyPendingId = null, onManageBids, onProjectUpdate = null, onComplete, onCancel, showToast = () => {}, currentUser = null }) {
+function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav, onBack, onPost, onBid, onViewMyBids = null, biddingEnabled = false, biddingSettingLoaded = false, onNotifyBidding = null, bidNotifyPendingId = null, onManageBids, onProjectUpdate = null, onComplete, onCancel, showToast = () => {}, currentUser = null }) {
   const baseProject = normalizeProjectEntity(rawProject) || rawProject || {};
   const [projectOverride, setProjectOverride] = useState(null);
   const [projectPublishPending, setProjectPublishPending] = useState(false);
@@ -30773,6 +32618,8 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const [projectDetailVendorMatches, setProjectDetailVendorMatches] = useState([]);
   const [projectDetailVendorMatchesLoading, setProjectDetailVendorMatchesLoading] = useState(false);
   const [projectDetailVendorMatchesError, setProjectDetailVendorMatchesError] = useState(null);
+  const [churchProfile, setChurchProfile] = useState(null);
+  const [churchProjectsPostedCount, setChurchProjectsPostedCount] = useState(null);
   const projectDetailPanelRef = useRef(null);
   const projectDetailTabbarRef = useRef(null);
   const viewportWidth = useViewportWidth(1440);
@@ -30784,6 +32631,11 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const isCompactMobile = viewportWidth < 390;
 
   useEffect(() => { injectMarketplaceDetailFonts(); }, []);
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    document.body.classList.add('kb-project-detail-open');
+    return () => document.body.classList.remove('kb-project-detail-open');
+  }, []);
   useEffect(() => { setTab(initialTab || 'overview'); }, [project?.id, initialTab]);
   useEffect(() => {
     const title = project.title || 'Project';
@@ -30831,6 +32683,11 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const bidCount = Number(project?.bids || project?.bids_count || 0) || 0;
   const churchName = firstNonEmpty(project?.church, project?.church_name, 'Church');
   const city = firstNonEmpty(project?.city, 'Location shared after intake');
+  const churchDisplayName = firstNonEmpty(churchProfile?.org_name, project?.church_name, project?.church, 'This church');
+  const churchLocation = firstNonEmpty([churchProfile?.city, churchProfile?.state_code].filter(Boolean).join(', '), project?.city, '');
+  const churchMemberSince = churchProfile?.created_at
+    ? new Date(churchProfile.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+    : null;
   const category = firstNonEmpty(detailCategory(project), 'Church project');
   const headline = firstNonEmpty(project?.title, 'Untitled Church Project');
   const desc = firstNonEmpty(project?.description, project?.desc, 'No project description has been added yet.');
@@ -30945,6 +32802,38 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     setProjectDetailVendorMatchesError(null);
     setProjectDetailVendorMatchesLoading(false);
   }, [projectDetailVendorMatchKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const churchId = project?.church_id || null;
+    if (!churchId) {
+      setChurchProfile(null);
+      setChurchProjectsPostedCount(null);
+      return () => { cancelled = true; };
+    }
+    (async () => {
+      try {
+        const { data, error } = await supabase.rpc('kb_profiles_public', { p_ids: [churchId] });
+        if (error) throw error;
+        if (!cancelled) setChurchProfile(Array.isArray(data) ? (data[0] || null) : (data || null));
+      } catch (err) {
+        if (!cancelled) setChurchProfile(null);
+        logError('project-detail-church-profile', err, { churchId });
+      }
+      try {
+        const { count, error: countError } = await supabase
+          .from('projects')
+          .select('id', { count: 'exact', head: true })
+          .eq('church_id', churchId);
+        if (countError) throw countError;
+        if (!cancelled) setChurchProjectsPostedCount(typeof count === 'number' ? count : null);
+      } catch (err) {
+        if (!cancelled) setChurchProjectsPostedCount(null);
+        logError('project-detail-church-projects-count', err, { churchId });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [project?.church_id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -31170,7 +33059,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
       rememberReturnContext({ scope:'project-detail', projectId: projectDetailId || null, linkedProjectId: projectDetailId || null, tab:'overview' });
       return;
     }
-    queueActivityNavigation(nav, { returnContext:{ scope:'project-detail', projectId: projectDetailId || null, linkedProjectId: projectDetailId || null, tab:'overview' } });
+    queueMyProjectsLens(nav, role, 'active');
   };
   const handleUtilitySecondary = async () => {
     if (isVendor) {
@@ -31210,6 +33099,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const posterStats = getProjectPosterStats(project);
   const detailStatusLabel = project?.status === 'open' ? 'Accepting proposals' : String(project?.status || 'Project').replace(/_/g,' ');
   const submitVendorProposalAction = () => { if (typeof onBid === 'function') return onBid(project); if (typeof nav === 'function') return nav('projects'); };
+  const viewVendorProposalAction = () => { if (typeof onViewMyBids === 'function') return onViewMyBids(project); if (typeof nav === 'function') return nav('projects'); };
   const browseVendorProjectsAction = () => { if (typeof nav === 'function') return nav('projects'); };
   const projectDetailReadinessItems = [
     ['Brief clarity', scopeItems.length >= 3 ? 'Strong' : 'Needs detail'],
@@ -31242,6 +33132,10 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
       setProjectOverride(prev => ({ ...(prev || {}), ...(data && typeof data === 'object' ? data : {}), status:'open' }));
       try { if (rawProject && typeof rawProject === 'object') rawProject.status = 'open'; } catch {}
       try { if (typeof onProjectUpdate === 'function' && data) onProjectUpdate(data); } catch {}
+      try {
+        const { error: notifError } = await createTrustedNotificationSafe("project_posted", project.id);
+        if (notifError) logError("project-publish-notification", notifError);
+      } catch (notifErr) { logError("project-publish-notification", notifErr, { projectId: project?.id || null }); }
       showToast('Project published. Vendors can now discover the brief.');
       return data;
     } catch (error) {
@@ -31501,442 +33395,429 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     return `${normalized.slice(0, stop > 120 ? stop + 1 : 220).trim()}${stop > 120 ? '' : '…'}`;
   }, [desc]);
 
+
+  const [projectSaved, setProjectSaved] = useState(Boolean(project?.is_saved));
+  const [projectSaveBusy, setProjectSaveBusy] = useState(false);
+  const [projectGalleryOpen, setProjectGalleryOpen] = useState(false);
+  const [similarProjects, setSimilarProjects] = useState([]);
+  const [similarProjectsLoading, setSimilarProjectsLoading] = useState(false);
+  const [similarSavedIds, setSimilarSavedIds] = useState(() => new Set());
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadSavedState = async () => {
+      if (!currentUser?.id || !project?.id) {
+        if (!cancelled) setProjectSaved(Boolean(project?.is_saved));
+        return;
+      }
+      try {
+        const { data, error } = await supabase
+          .from('saved_projects')
+          .select('is_saved')
+          .eq('user_id', currentUser.id)
+          .eq('project_id', project.id)
+          .maybeSingle();
+        if (error) throw error;
+        if (!cancelled) setProjectSaved(Boolean(data?.is_saved));
+      } catch (err) {
+        logError('project-detail-saved-state', err, { projectId:project?.id || null, userId:currentUser?.id || null });
+      }
+    };
+    loadSavedState();
+    return () => { cancelled = true; };
+  }, [currentUser?.id, project?.id, project?.is_saved]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadSimilarProjects = async () => {
+      if (!project?.id || String(project.id).startsWith('preview-project-')) {
+        if (!cancelled) setSimilarProjects([]);
+        return;
+      }
+      setSimilarProjectsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,timeline,status,city,project_city,project_state,posted_at,hero_image_path,church_id,church_name')
+          .eq('status','open')
+          .neq('id', project.id)
+          .order('posted_at',{ ascending:false })
+          .limit(12);
+        if (error) throw error;
+        const hydrated = await hydrateProjectMediaUrls(Array.isArray(data) ? data : []);
+        const currentCategory = String(project?.primary_category || project?.category || category || '').toLowerCase();
+        const currentCity = String(project?.project_city || project?.city || city || '').toLowerCase();
+        const ranked = hydrated
+          .map(row => normalizeProjectEntity(row) || row)
+          .filter(Boolean)
+          .map(row => {
+            const rowCategory = String(row?.primary_category || row?.category || '').toLowerCase();
+            const rowCity = String(row?.project_city || row?.city || '').toLowerCase();
+            const score = (rowCategory && rowCategory === currentCategory ? 3 : 0) + (rowCity && rowCity === currentCity ? 1 : 0);
+            return { row, score };
+          })
+          .sort((a,b)=>b.score-a.score || String(b.row?.posted_at||'').localeCompare(String(a.row?.posted_at||'')))
+          .slice(0,3)
+          .map(entry=>entry.row);
+        if (!cancelled) setSimilarProjects(ranked);
+      } catch (err) {
+        logError('project-detail-similar-projects', err, { projectId:project?.id || null });
+        if (!cancelled) setSimilarProjects([]);
+      } finally {
+        if (!cancelled) setSimilarProjectsLoading(false);
+      }
+    };
+    loadSimilarProjects();
+    return () => { cancelled = true; };
+  }, [project?.id, project?.primary_category, project?.category, category, city]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadSimilarSaved = async () => {
+      const ids = similarProjects.map(item => item?.id).filter(Boolean);
+      if (!currentUser?.id || !ids.length) {
+        if (!cancelled) setSimilarSavedIds(new Set());
+        return;
+      }
+      try {
+        const { data, error } = await supabase
+          .from('saved_projects')
+          .select('project_id,is_saved')
+          .eq('user_id', currentUser.id)
+          .in('project_id', ids)
+          .eq('is_saved', true);
+        if (error) throw error;
+        if (!cancelled) setSimilarSavedIds(new Set((data || []).map(row => String(row.project_id))));
+      } catch (err) {
+        logError('project-detail-similar-saved-state', err, { projectId:project?.id || null });
+      }
+    };
+    loadSimilarSaved();
+    return () => { cancelled = true; };
+  }, [currentUser?.id, project?.id, similarProjects]);
+
+  const toggleSimilarProjectSaved = async (item) => {
+    const key = String(item?.id || '');
+    if (!key) return;
+    if (!currentUser?.id) {
+      showToast && showToast('Sign in to save this project.');
+      return;
+    }
+    const wasSaved = similarSavedIds.has(key);
+    setSimilarSavedIds(prev => {
+      const next = new Set(prev);
+      if (wasSaved) next.delete(key); else next.add(key);
+      return next;
+    });
+    try {
+      await persistSavedProjectRecord(key, !wasSaved, currentUser.id);
+    } catch (err) {
+      setSimilarSavedIds(prev => {
+        const next = new Set(prev);
+        if (wasSaved) next.add(key); else next.delete(key);
+        return next;
+      });
+      showToast && showToast("We couldn't update your saved projects.", 'error');
+    }
+  };
+
+  const toggleProjectSavedFromDetail = async () => {
+    if (projectSaveBusy) return;
+    if (!currentUser?.id) {
+      showToast && showToast('Sign in to save this project.');
+      return;
+    }
+    if (!project?.id) {
+      showToast && showToast('This project cannot be saved yet.');
+      return;
+    }
+    const nextSaved = !projectSaved;
+    setProjectSaved(nextSaved);
+    setProjectSaveBusy(true);
+    try {
+      await persistSavedProjectRecord(project.id, nextSaved, currentUser.id);
+      showToast && showToast(nextSaved ? 'Project saved.' : 'Project removed from saved projects.');
+    } catch (err) {
+      setProjectSaved(!nextSaved);
+      showToast && showToast("We couldn't update your saved projects.", 'error');
+    } finally {
+      setProjectSaveBusy(false);
+    }
+  };
+
+  const shareProjectFromDetail = async () => {
+    const shareUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}${window.location.pathname}${window.location.hash || '#projects'}`
+      : '';
+    const shareText = `${headline} · ${city}`;
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title: headline, text: shareText, url: shareUrl });
+        return;
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+    }
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl || shareText);
+        showToast && showToast('Project link copied.');
+        return;
+      }
+    } catch {}
+    showToast && showToast('Copy the URL from your browser to share this project.');
+  };
+
+  const cleanPrimaryModel = (() => {
+    if (!isVendor && project?.status === 'draft') {
+      return { label: projectPublishPending ? 'Publishing…' : 'Publish project', action: publishProjectFromDetail, disabled:projectPublishPending };
+    }
+    if (hasPostHireWorkflow) {
+      return { label:'Open project workspace', action:openDealRoomFromDetail };
+    }
+    if (isVendor) {
+      if (!biddingEnabled) {
+        return { label:bidNotifyPendingId === project?.id ? 'Saving…' : 'Notify me when proposals open', action:() => typeof onNotifyBidding === 'function' ? onNotifyBidding(project) : null, disabled:bidNotifyPendingId === project?.id };
+      }
+      if (projectDetailVendorDealState === 'bid_placed') {
+        return { label:'View proposal', action:viewVendorProposalAction };
+      }
+      if (projectDetailVendorDealState === 'bid_under_review') {
+        return { label:'View proposal', action:viewVendorProposalAction };
+      }
+      if (projectDetailVendorDealState === 'declined') {
+        return { label:'Browse other projects', action:browseVendorProjectsAction };
+      }
+      return { label:'Submit proposal', action:submitVendorProposalAction };
+    }
+    if (bidCount > 0) {
+      return { label:`View responses (${bidCount})`, action:handleReviewBids };
+    }
+    return { label:'Find matching vendors', action:handleVendorMatches };
+  })();
+
+  const safeChurchDisplay = (() => {
+    const raw = String(churchName || '').trim();
+    if (!raw || raw.toLowerCase() === 'church') {
+      const location = String(city || '').replace(/location shared after intake/i, '').trim();
+      return location ? `${location}-area church` : 'Church';
+    }
+    return raw;
+  })();
+
+  const projectStatusIsClosed = ['closed','completed','archived','cancelled','canceled'].includes(String(project?.status || '').toLowerCase());
+  const detailMetaItems = [
+    city && !/location shared after intake/i.test(String(city)) ? city : null,
+    budget?.range && budget.range !== 'Budget not provided' ? budget.range : 'Budget not disclosed',
+    timeline,
+  ].filter(Boolean);
+
+  // V997 — one shared Project Detail shell. These strings are the only role-specific
+  // presentation layer for the vendor POV; church geometry and church copy remain frozen.
+  const projectDetailContextLine = isVendor
+    ? 'Review the brief, save it for later, or ask the church one focused question before you price the work.'
+    : 'Church details follow the church’s visibility settings.';
+  const vendorFooterCopy = (() => {
+    if (!isVendor) return null;
+    if (!biddingEnabled) {
+      return {
+        title:'Want this project in your pipeline?',
+        body:'Save the brief now and FaithBid can notify you when proposal submission opens.',
+      };
+    }
+    if (projectDetailVendorDealState === 'bid_placed') {
+      return {
+        title:'Your proposal is with the church.',
+        body:'Review what you sent, stay available for useful questions, and avoid unnecessary follow-up.',
+      };
+    }
+    if (projectDetailVendorDealState === 'bid_under_review') {
+      return {
+        title:'Your proposal is under review.',
+        body:'Keep the project handy and use the church thread only when a clarification or meaningful update is needed.',
+      };
+    }
+    if (projectDetailVendorDealState === 'declined') {
+      return {
+        title:'Keep your project pipeline moving.',
+        body:'This opportunity is no longer active for you. Browse other open church projects that fit your work.',
+      };
+    }
+    if (hasPostHireWorkflow || ['hired','active','milestone_pending'].includes(projectDetailVendorDealState)) {
+      return {
+        title:'Keep this project moving.',
+        body:'Use the project workspace and deal room for delivery updates, approvals, files, and handoff.',
+      };
+    }
+    return {
+      title:'Interested in this project?',
+      body:'Review the scope, ask what you need to know, then send a focused proposal with clear deliverables and assumptions.',
+    };
+  })();
+  const detailFooterTitle = isVendor
+    ? (vendorFooterCopy?.title || 'Interested in this project?')
+    : (bidCount>0 ? 'Ready to review responses?' : 'Ready to find the right vendor?');
+  const detailFooterBody = isVendor
+    ? (vendorFooterCopy?.body || 'Review the scope and connect when you are ready.')
+    : (bidCount>0 ? 'Open the responses and review each vendor on its own merits.' : 'Invite qualified vendors when the brief is ready.');
+
+  // V997 parity lock: vendor detail uses the exact church visual shell, but never inherits church edit controls.
+  const viewerCanManageProject = !isVendor && canManageProjectWithRole(role, currentUser, project);
+  const contentWidth = viewportWidth >= 1800 ? Math.min(1680, viewportWidth - 192) : viewportWidth >= 1400 ? viewportWidth - 112 : viewportWidth >= 1200 ? viewportWidth - 80 : 'calc(100vw - 40px)';
+  const liveScopeItems = scopeItems.length ? scopeItems : safeArray(project?.requirements).filter(Boolean);
+  const rawStartValue = firstNonEmpty(project?.target_start_date, project?.preferred_start_date, project?.desired_start_date, project?.start_date, timeline);
+  const targetStartLabel = (() => {
+    const value = String(rawStartValue || '').trim();
+    if (!value) return 'To be coordinated';
+    if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+      const d = new Date(value);
+      if (!Number.isNaN(d.getTime())) return d.toLocaleDateString(undefined,{ month:'long', year:'numeric' });
+    }
+    return value;
+  })();
+  const deliveryRaw = String(firstNonEmpty(project?.delivery_preference, project?.service_model, '')).trim().toLowerCase();
+  const deliveryBase = deliveryRaw === 'remote' ? 'Remote' : (deliveryRaw === 'either' || deliveryRaw === 'both') ? 'On-site or remote' : deliveryRaw ? 'On-site' : 'Delivery to be coordinated';
+  const scheduleSignals = `${liveScopeItems.join(' ')} ${desc}`.toLowerCase();
+  const offHoursSignal = /off[- ]?hours|weekend service|during services|outside service|after hours/.test(scheduleSignals);
+  const projectTypeLabel = `${deliveryBase}${offHoursSignal ? ' · Off-hours preferred' : ''}`;
+  const experienceSummary = (() => {
+    const skills = safeArray(project?.skills).filter(Boolean).slice(0,3);
+    if (skills.length) return `Relevant ${skills.join(', ')} experience is preferred.`;
+    if (liveScopeItems.length) return 'Relevant experience, clear communication, and a practical project plan are preferred.';
+    return 'Qualified vendors with relevant experience are encouraged to respond.';
+  })();
+  const canAskQuestion = isVendor && !projectStatusIsClosed && typeof handleUtilitySecondary === 'function';
+  const openSimilarProjectFromDetail = (item) => {
+    if (!item?.id) return;
+    rememberReturnContext({ scope:'project-detail', projectId:project?.id || null, linkedProjectId:item.id, tab:'overview' });
+    queueProjectNavigation(nav, { projectId:item.id, projectTitle:item?.title || null, screen:KB_NAV_SCREENS.projects, tab:'overview', returnContext:{ scope:'project-detail', projectId:project?.id || null, tab:'overview' } });
+    try { window.scrollTo({ top:0, behavior:'smooth' }); } catch {}
+  };
+  const detailIcon = (kind, size=18) => {
+    if (kind === 'pin') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>;
+    if (kind === 'budget') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h.01M17 15h.01"/><circle cx="12" cy="12" r="2.6"/></svg>;
+    if (kind === 'calendar') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>;
+    if (kind === 'shield') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 3 20 6v6c0 5-3.4 8-8 10-4.6-2-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-5"/></svg>;
+    if (kind === 'people') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M18 13a5 5 0 0 1 3 5v2"/></svg>;
+    if (kind === 'message') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M21 15a4 4 0 0 1-4 4H9l-6 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"/></svg>;
+    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>;
+  };
   return (
-    <div className="project-detail-shell" style={{backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND, backgroundSize:'cover', backgroundPosition:'center top', backgroundRepeat:'no-repeat', backgroundAttachment:'fixed', backgroundColor:'#f6efe4', minHeight:'100vh', color:'#1C2814', fontFamily:"var(--font-sans),-apple-system,BlinkMacSystemFont,sans-serif"}}>
-      <div style={{position:'sticky', top:58, left:0, right:0, zIndex:300, background:scrolled ? 'rgba(255,253,248,0.92)' : 'rgba(255,253,248,0.72)', backdropFilter:'blur(28px) saturate(1.6)', WebkitBackdropFilter:'blur(28px) saturate(1.6)', borderBottom:'1px solid rgba(28,40,20,0.08)', boxShadow:scrolled ? '0 14px 34px rgba(28,40,20,0.08)' : 'none', transition:'all 0.3s cubic-bezier(0.23,1,0.32,1)'}}>
-        <div className="project-detail-topbar" style={{display:'flex',alignItems:'center',justifyContent:'space-between',minHeight:isMobile ? 62 : 54,maxWidth:1400,margin:'0 auto',padding:isMobile ? '8px 18px' : '0 48px',gap:16,flexWrap:isMobile ? 'wrap' : 'nowrap'}}>
-          <div style={{display:'flex',alignItems:'center',gap:14,minWidth:0,flex:isMobile ? '1 1 100%' : '0 1 auto'}}>
-            <button type="button" onClick={returnToMarketplaceFloor} style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:13,fontWeight:600,color:'#1C2814',padding:'7px 14px',borderRadius:999,border:'1px solid rgba(28,40,20,0.12)',background:'#fffdf8',cursor:'pointer',textDecoration:'none',boxShadow:'0 1px 2px rgba(0,0,0,0.04)',flexShrink:0}}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-              Marketplace
-            </button>
-            <div className="project-detail-breadcrumb" style={{display:isMobile ? 'none' : 'flex',alignItems:'center',gap:6,fontSize:13,color:'#a8aab4',minWidth:0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-              <span style={{overflow:'hidden',textOverflow:'ellipsis'}}>Projects</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-              <span style={{color:'#2e3038',fontWeight:600,overflow:'hidden',textOverflow:'ellipsis'}}>{headline}</span>
-            </div>
-          </div>
-          <div className="project-detail-top-actions" style={{display:'flex',alignItems:'center',gap:8,flexShrink:0,flexWrap:isMobile ? 'wrap' : 'nowrap',width:isMobile ? '100%' : 'auto',justifyContent:isMobile ? 'space-between' : 'flex-end'}}>
-            {!isCompactMobile && !isVendor && <button type="button" onClick={handleUtilitySecondary} style={{fontSize:12,fontWeight:600,padding:'8px 14px',borderRadius:10,border:'none',background:'#fff',color:'#2e3038',boxShadow:'inset 0 0 0 1px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.04)',cursor:'pointer'}}>{utilitySecondaryLabel}</button>}
-            {!isVendor && <button type="button" onClick={()=>queueActivityNavigation(nav, { returnContext:{ scope:'project-detail', projectId: projectDetailId || null } })} style={{fontSize:12,fontWeight:600,padding:'8px 14px',borderRadius:10,border:'none',background:'#1C2814',color:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.05)',cursor:'pointer'}}>Project Activity</button>}
-            {!isMobile && <div style={{width:30,height:30,borderRadius:999,background:'linear-gradient(145deg,#c5b394,#8d7756)',border:'2px solid #fff',boxShadow:'0 0 0 1px rgba(0,0,0,0.06)'}}/>}
-          </div>
-        </div>
+    <div className="project-detail-shell kb-project-detail-v2 kb-project-detail-density-lock" style={{minHeight:'100vh',background:'#fbfaf6',color:'#10261f',fontFamily:"'DM Sans',var(--font-sans),-apple-system,BlinkMacSystemFont,sans-serif"}}>
+      <KBMarketplaceProjectCardGeometryStyles />
+      <style>{`
+        body.kb-project-detail-open .topnav{position:relative!important;top:auto!important;}
+        .kb-project-detail-density-lock{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;overflow-x:clip!important;}
+        .kb-project-detail-density-lock *{box-sizing:border-box;min-width:0;}
+        .kb-project-detail-density-lock .kb-detail-bodoni{font-family:'Bodoni Moda',Georgia,serif!important;font-weight:500!important;letter-spacing:-.028em!important;}
+        .kb-project-detail-density-lock .kb-pd-related-marketplace-cards{--kb-project-card-w:206px;--kb-project-card-h:276px;--kb-project-card-media-h:108px;--kb-project-card-gap-x:10px;--kb-project-card-gap-y:12px;}
+        .kb-project-detail-density-lock .kb-pd-clay-brand .kb-brand-logo{filter:brightness(0) invert(1)!important;opacity:.96!important;}
+        @media(max-width:719px){
+          .kb-project-detail-density-lock .kb-pd-related-marketplace-cards{--kb-project-card-w:100%;--kb-project-card-h:326px;--kb-project-card-media-h:138px;}
+          .kb-project-detail-density-lock .kb-pd-related-grid{grid-template-columns:1fr!important;}
+        }
+      `}</style>
+
+      <div style={{maxWidth:contentWidth,margin:'0 auto',padding:isMobile?'10px 18px 8px':'10px 0 8px'}}>
+        <button type="button" onClick={returnToMarketplaceFloor} style={{display:'inline-flex',alignItems:'center',gap:7,border:'none',background:'transparent',padding:'5px 0',fontSize:11.5,fontWeight:750,color:'#174b3a',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          Back to Marketplace
+        </button>
       </div>
 
-      <section className="project-detail-hero" style={{position:'relative',height:isMobile ? '44vh' : isTablet ? '42vh' : '44vh',minHeight:isMobile ? 320 : 360,maxHeight:isMobile ? 460 : 480,overflow:'hidden',marginTop:0,boxShadow:'inset 0 -1px 0 rgba(255,255,255,0.18)'}}>
-        <div style={{position:'absolute',inset:0,backgroundImage: heroImage ? `url(${heroImage})` : 'none',backgroundSize:'cover',backgroundPosition:'center 40%',transform:'scale(1.01)',transition:'transform 8s linear'}} />
-        <div style={{position:'absolute',inset:0,background:'linear-gradient(90deg,rgba(13,20,10,0.84) 0%,rgba(20,30,15,0.58) 44%,rgba(28,40,20,0.18) 100%), linear-gradient(180deg,rgba(28,40,20,0.08) 0%,rgba(28,40,20,0.18) 42%,rgba(28,40,20,0.92) 100%)'}} />
-        <div style={{position:'absolute',inset:'auto 0 0 0',height:150,background:'linear-gradient(180deg,transparent,rgba(247,241,230,0.92))',pointerEvents:'none'}} />
-        <div style={{position:'relative',zIndex:2,height:'100%',maxWidth:1400,margin:'0 auto',padding:isMobile ? '0 18px 34px' : '0 48px 46px',display:'flex',flexDirection:'column',justifyContent:'flex-end'}}>
-          <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'6px 14px',borderRadius:999,background:'rgba(255,255,255,0.14)',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(255,255,255,0.15)',fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.9)',letterSpacing:'0.04em',marginBottom:18,width:'fit-content'}}>
-            <span style={{width:6,height:6,borderRadius:999,background:'#4ade80',boxShadow:'0 0 6px rgba(74,222,128,0.4)'}} />
-            {project?.status === 'open' ? 'Actively Hiring' : String(project?.status || 'Project').replace(/_/g,' ')}
-          </div>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.14em',textTransform:'uppercase',color:'#c9a45c',marginBottom:12}}>{category}</div>
-          <h1 className="project-detail-hero-title" style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(30px,3.6vw,46px)',fontWeight:700,lineHeight:1.02,letterSpacing:'-0.04em',color:'#fff',maxWidth:860,margin:'0 0 14px',overflowWrap:'anywhere',textShadow:'0 18px 42px rgba(0,0,0,0.36)'}}>{headline}</h1>
-          <div style={{display:'flex',alignItems:'center',gap:8,fontSize:14,color:'rgba(255,255,255,0.65)',marginBottom:6}}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            {city}
-          </div>
-          <div style={{fontSize:14,fontWeight:500,color:'rgba(255,255,255,0.55)',marginBottom:0}}>Posted by {churchName} · {postedLabel}</div>
-          {/* Mobile inline gallery thumbs — replaces the absolute-positioned strip
-              that was overlapping wrapped hero CTA buttons on phones. Sits in
-              normal flow so it can never overlap the CTA. Hidden on very narrow
-              phones (<390px) where the hero is already tall enough. */}
-          {isMobile && !isCompactMobile && gallery.length > 1 ? (
-            <div className="project-detail-hero-thumbs-mobile" style={{display:'flex',gap:6,marginTop:14,overflowX:'auto',paddingBottom:2,scrollbarWidth:'none',WebkitOverflowScrolling:'touch'}} aria-label="Project gallery">
-              {gallery.slice(0,4).map((img, idx)=>(
-                <button key={`m-thumb-${img}-${idx}`} type="button" aria-label={`View project image ${idx + 1}`} aria-pressed={heroImage===img} onClick={()=>setHeroImage(img)} style={{flex:'0 0 auto',width:44,height:44,borderRadius:8,overflow:'hidden',border:`1.5px solid ${heroImage===img?'rgba(255,255,255,0.82)':'rgba(255,255,255,0.32)'}`,cursor:'pointer',boxShadow:'0 2px 6px rgba(0,0,0,0.2)',padding:0,background:'transparent'}}>
-                  <img src={img} alt="" loading="lazy" onError={handleKbImageError} style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                </button>
-              ))}
-            </div>
-          ) : null}
-        </div>
-        <div className="project-detail-hero-actions" style={{position:'absolute',bottom:isMobile ? 20 : 28,right:isMobile ? 18 : 48,zIndex:3,display:isMobile ? 'none' : 'flex',gap:8}}>
-          {gallery.slice(1,4).map((img, idx)=>(
-            <button key={img+idx} type="button" aria-label={`View project image ${idx + 2}`} aria-pressed={heroImage===img} onClick={()=>setHeroImage(img)} style={{width:64,height:64,borderRadius:10,overflow:'hidden',border:`2px solid ${heroImage===img?'rgba(255,255,255,0.82)':'rgba(255,255,255,0.35)'}`,cursor:'pointer',boxShadow:'0 2px 8px rgba(0,0,0,0.2)',padding:0,background:'transparent'}}>
-              <img src={img} alt="" loading="lazy" onError={handleKbImageError} style={{width:'100%',height:'100%',objectFit:'cover'}} />
-            </button>
-          ))}
-          {gallery.length > 4 && <div style={{width:64,height:64,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(0,0,0,0.4)',backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)',fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.85)',border:'2px solid rgba(255,255,255,0.25)'}}>+{gallery.length - 4}</div>}
-        </div>
+      <section style={{width:'100%',maxWidth:contentWidth,margin:'0 auto',height:isMobile?205:viewportWidth>=1800?340:300,overflow:'hidden',background:'#e8e2d7',position:'relative',borderRadius:isMobile?8:12}} aria-label="Project photo">
+        <img src={heroImage || KB_PROJECT_MEDIA_FALLBACK} alt={headline?`${headline} project`:'Project'} onError={handleKbImageError} style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 50%',display:'block'}}/>
+        {gallery.length > 1 && <button type="button" onClick={()=>setProjectGalleryOpen(true)} style={{position:'absolute',right:isMobile?16:24,bottom:14,border:'1px solid rgba(255,255,255,.75)',background:'rgba(12,25,21,.72)',color:'#fff',borderRadius:7,padding:'8px 12px',fontSize:10.5,fontWeight:750,cursor:'pointer',backdropFilter:'blur(8px)'}}>▧&nbsp; View all photos</button>}
       </section>
 
-      <div className="project-detail-content" style={{maxWidth:1400,margin:'0 auto',padding:isMobile ? '0 18px' : '0 48px'}}>
-        <div className="project-detail-main-grid" style={{display:'grid',gridTemplateColumns:isTablet ? '1fr' : 'minmax(0,1fr) 336px',gap:isTablet ? 24 : 28,alignItems:'start',padding:isMobile ? '22px 0 56px' : '30px 0 72px'}}>
-          <div style={{order:isTablet ? 2 : 0}}>
-            <div className="project-detail-stat-grid" style={{display:'grid',gridTemplateColumns:isCompactMobile ? '1fr' : isMobile ? '1fr 1fr' : 'repeat(5,1fr)',border:'1px solid #dfd5c2',borderRadius:20,background:'#fffdf8',overflow:'hidden',marginBottom:24,boxShadow:'0 7px 20px rgba(28,40,20,0.055)'}}>
-              {[
-                {value:budget.headline,label:'Budget'},
-                {value:timeline,label:'Timeline'},
-                {value:String(bidCount || 0),label:'Proposals'},
-                {value:vendorMatches.length ? String(vendorMatches.length) : '—',label:'Vendor Matches'},
-                {value:opsSummary.phase || detailStatusLabel,label:'Phase'},
-              ].map((item, idx)=>(
-                <div key={item.label} style={{padding:isMobile ? '16px 14px' : '18px 18px',position:'relative',background:'#fff',minWidth:0}}>
-                  {idx>0 && !isCompactMobile && <div style={{position:'absolute',left:0,top:'16%',height:'68%',width:1,background:'rgba(0,0,0,0.06)'}} />}
-                  <div style={{fontFamily:"var(--font-display),serif",fontSize:isMobile ? 21 : 23,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',lineHeight:1,marginBottom:5,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.value}</div>
-                  <div style={{fontSize:10.5,fontWeight:700,color:'#a8aab4',letterSpacing:'0.06em',textTransform:'uppercase',whiteSpace:'nowrap'}}>{item.label}</div>
-                </div>
-              ))}
+      <main style={{maxWidth:contentWidth,margin:'0 auto',padding:isMobile?'22px 18px 30px':'24px 0 30px'}}>
+        <header style={{display:'grid',gridTemplateColumns:isTablet?'1fr':'minmax(0,1fr) 224px',gap:isTablet?16:30,alignItems:'start',paddingBottom:14}}>
+          <div style={{minWidth:0}}>
+            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:8}}><span style={{fontSize:9,fontWeight:850,letterSpacing:'.17em',textTransform:'uppercase',color:'#5c7d6a'}}>{formatMarketplaceCategoryLabel(category,category)}</span><span aria-hidden="true" style={{width:30,height:1,background:'#c69a45'}}/></div>
+            <h1 className="kb-detail-bodoni" style={{fontSize:isMobile?31:viewportWidth>=1800?46:42,lineHeight:1.01,margin:'0 0 10px',color:'#10261f',maxWidth:1080}}>{headline}</h1>
+            <div style={{display:'flex',gap:9,alignItems:'center',flexWrap:'wrap',fontSize:isMobile?12:13,color:'#20392f',marginBottom:7,fontWeight:650}}>
+              {detailMetaItems[0]&&<span>{detailMetaItems[0]}</span>}
+              {detailMetaItems[1]&&<><span aria-hidden="true">·</span><span>{detailMetaItems[1]}</span></>}
+              {detailMetaItems[2]&&<><span aria-hidden="true">·</span><span>{detailMetaItems[2]}</span></>}
             </div>
-
-            <div ref={projectDetailTabbarRef} className="project-detail-tabbar" style={{display:'flex',gap:4,border:'1px solid #dfd5c2',borderRadius:999,background:'rgba(255,253,248,0.82)',padding:4,marginBottom:18,overflowX:'auto',boxShadow:'0 8px 22px rgba(28,40,20,0.045)'}}>
-              {(isVendor ? [
-                ['overview','Overview'],
-                ['scope','Scope & Details'],
-                ...(hasPostHireWorkflow ? [['ops','Operations']] : []),
-                ['files','Files'],
-              ] : [
-                ['overview','Overview'],
-                ['scope','Scope & Details'],
-                ...(hasPostHireWorkflow ? [['ops','Operations']] : []),
-                ['vendors','Vendor Matches'],
-                ['files','Files'],
-              ]).map(([key,label])=>(
-                <button key={key} type="button" onClick={()=>setTab(key)} style={{fontSize:13,fontWeight:800,color:tab===key?'#1C2814':'#8a8579',padding:'11px 18px',border:'none',borderRadius:999,background:tab===key?'#fff':'transparent',cursor:'pointer',position:'relative',whiteSpace:'nowrap',boxShadow:tab===key?'0 8px 18px rgba(28,40,20,0.07)':'none'}}>
-                  {label}
-                  {tab===key && <span style={{position:'absolute',bottom:5,left:'50%',width:20,height:2,borderRadius:2,background:'linear-gradient(90deg,#C4973A,#A87B2A)',transform:'translateX(-50%)'}} />}
-                </button>
-              ))}
-            </div>
-            <div className="project-detail-role-parity-rail" style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(3,minmax(0,1fr))',gap:10,marginBottom:18}} aria-label="Project detail shared role architecture">
-              {projectDetailRoleParityRail.map(item => (
-                <div key={item.label} style={{padding:'13px 14px',borderRadius:16,background:'rgba(255,253,248,0.82)',border:'1px solid rgba(28,40,20,0.09)',boxShadow:'0 8px 20px rgba(28,40,20,0.04)'}}>
-                  <div style={{fontSize:9.5,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#B08840',marginBottom:5}}>{item.label}</div>
-                  <div style={{fontSize:12.5,lineHeight:1.5,fontWeight:700,color:'#4f5a49'}}>{item.value}</div>
-                </div>
-              ))}
-            </div>
-            {hasPostHireWorkflow && (
-              <div className="project-detail-workflow-grid" style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(3,minmax(0,1fr))',gap:12,marginBottom:24}}>
-                <div style={{padding:'16px 16px 14px',borderRadius:18,background:'#fff',border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 2px rgba(0,0,0,0.04)'}}>
-                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:6}}>Current milestone</div>
-                  <div style={{fontSize:15,fontWeight:700,color:'#1C2814',marginBottom:4}}>{workflowSummary.currentMilestone?.title || 'No milestone documented'}</div>
-                  <div style={{fontSize:12,color:'#858792',lineHeight:1.65}}>{workflowSummary.currentMilestone ? `Status: ${String(workflowSummary.currentMilestone.status || 'current').replace('_',' ')}` : 'No active milestone yet. Move into operations to lock the first step.'}</div>
-                </div>
-                <div style={{padding:'16px 16px 14px',borderRadius:18,background:'#fff',border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 2px rgba(0,0,0,0.04)'}}>
-                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:6}}>Approvals</div>
-                  <div style={{fontSize:24,fontFamily:"var(--font-display), serif",fontWeight:500,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1,marginBottom:6}}>{workflowSummary.pendingApprovals.length}</div>
-                  <div style={{fontSize:12,color:'#858792',lineHeight:1.65}}>{workflowSummary.pendingApprovals.length ? 'Pending approvals need a response before work can move cleanly.' : 'No approval requests are documented right now.'}</div>
-                </div>
-                <div style={{padding:'16px 16px 14px',borderRadius:18,background:'#fff',border:'1px solid rgba(0,0,0,0.06)',boxShadow:'0 1px 2px rgba(0,0,0,0.04)'}}>
-                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:6}}>Closeout</div>
-                  <div style={{fontSize:15,fontWeight:700,color:'#1C2814',marginBottom:4}}>{workflowSummary.closeoutStatus === 'completed' || workflowSummary.closeoutStatus === 'ready' ? 'Ready to close' : workflowSummary.closeoutHasChecklist ? `${workflowSummary.closeoutOpen.length} items left` : 'Not started'}</div>
-                  <div style={{fontSize:12,color:'#858792',lineHeight:1.65}}>{workflowSummary.closeoutStatus === 'completed' || workflowSummary.closeoutStatus === 'ready' ? 'Final paperwork, review, and archive are ready for handoff.' : workflowSummary.closeoutHasChecklist ? 'Use operations to finish the documented closeout items.' : 'No closeout checklist has been documented yet.'}</div>
-                </div>
-              </div>
-            )}
-
-            {tab === 'overview' && (
-              <>
-                <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)',marginBottom:24}}>
-                  <div style={{padding:isMobile ? '20px 18px 18px' : '28px 28px 24px'}}>
-                    <div ref={projectDetailPanelRef} style={{display:'grid',gridTemplateColumns:isTablet ? '1fr' : 'minmax(0,1.25fr) minmax(280px,360px)',gap: isTablet ? 20 : 24,alignItems:'start'}}>
-                      <div style={{minWidth:0}}>
-                        <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:10}}>Project Brief</div>
-                        <p style={{fontSize:14,lineHeight:1.7,color:'#4a4d57',margin:'0 0 16px',fontWeight:400,overflowWrap:'anywhere'}}>{overviewBrief}</p>
-                        <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
-                          {[category, scope, city].filter(Boolean).slice(0,3).map(item => (
-                            <span key={item} style={{padding:'6px 10px',borderRadius:999,border:'1px solid rgba(0,0,0,0.08)',background:'#fbfaf7',fontSize:11,fontWeight:700,color:'#565862'}}>{item}</span>
-                          ))}
-                        </div>
-                      </div>
-                      <div style={{display:'grid',gap:12}}>
-                        <div style={{padding:18,borderRadius:18,background:'linear-gradient(180deg,#fffdf8,#fbf5e8)',border:'1px solid #eadfce'}}>
-                          <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#b08840',marginBottom:10}}>Decision readiness</div>
-                          <div style={{display:'grid',gap:8}}>
-                            {projectDetailReadinessItems.map(([label,val]) => (
-                              <div key={label} style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',gap:12}}>
-                                <span style={{fontSize:12,color:'#7d7363'}}>{label}</span>
-                                <span style={{fontSize:13,fontWeight:800,color:'#1C2814',textAlign:'right'}}>{val}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        {isVendor && (
-                          <div style={{padding:18,borderRadius:18,background:'#fbfaf6',border:'1px solid #efe7d9'}}>
-                            <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#b08840',marginBottom:8}}>{projectDetailVendorDealState && projectDetailVendorDealState !== 'not_contacted' && projectDetailVendorDealSummary ? 'Current status' : 'How to win this'}</div>
-                            <div style={{fontSize:13,fontWeight:700,color:'#1C2814',marginBottom:6}}>{projectDetailVendorDealState && projectDetailVendorDealState !== 'not_contacted' && projectDetailVendorDealSummary ? projectDetailVendorDealSummary.statusLabel : 'Send a tight proposal early.'}</div>
-                            <div style={{fontSize:13,lineHeight:1.62,color:'#858792'}}>{projectDetailVendorDealState && projectDetailVendorDealState !== 'not_contacted' && projectDetailVendorDealSummary ? projectDetailVendorDealSummary.body : "The church reads scope, timeline, and faith-aligned fit first. Lead with how you'll execute cleanly, not just price."}</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)',marginBottom:24}}>
-                  <div style={{padding:isMobile ? '20px 18px 18px' : '28px 28px 24px'}}>
-                    <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:10}}>Quick Details</div>
-                    <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:14,marginTop:14}}>
-                      {[
-                        ['Timeline', timeline],
-                        ['Budget Range', budget.range],
-                        ['Category', category],
-                        ['Project Scope', scope],
-                      ].map(([label,val])=>(
-                        <div key={label} style={{padding:18,borderRadius:14,background:'#fbfaf6',border:'1px solid #efe7d9'}}>
-                          <div style={{fontSize:11,fontWeight:600,color:'#a8aab4',letterSpacing:'0.04em',textTransform:'uppercase',marginBottom:4}}>{label}</div>
-                          <div style={{fontSize:16,fontWeight:700,color:'#1C2814',letterSpacing:'-0.01em'}}>{val}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {tab === 'scope' && (
-              <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)',marginBottom:24}}>
-                <div style={{padding:isMobile ? '20px 18px 18px' : '28px 28px 24px'}}>
-                  <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:10}}>Scope of Work</div>
-                  <div style={{fontFamily:"var(--font-display),serif",fontSize:isMobile ? 24 : 30,fontWeight:700,color:'#1C2814',letterSpacing:'-0.03em',lineHeight:1.05,marginBottom:10}}>What this project needs</div>
-                  <div style={{fontSize:14,lineHeight:1.7,color:'#565862',maxWidth:760,marginBottom:18}}>A cleaner brief view for vendors and churches: scope, deliverables, timing, and fit are separated so the next action is easier to understand.</div>
-                  <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(3,minmax(0,1fr))',gap:10,marginBottom:20}}>
-                    {projectDetailNextSteps.map((item, idx) => (
-                      <div key={item+idx} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'13px 14px',borderRadius:16,background:idx===0?'rgba(176,136,64,0.09)':'#fbfaf6',border:idx===0?'1px solid rgba(176,136,64,0.20)':'1px solid #efe7d9'}}>
-                        <div style={{width:22,height:22,borderRadius:999,background:idx===0?'#1C2814':'#fff',border:'1px solid rgba(28,40,20,0.10)',color:idx===0?'#fffdf8':'#8a6729',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{idx + 1}</div>
-                        <div style={{fontSize:12.5,lineHeight:1.5,color:'#4f4a40',fontWeight:700}}>{item}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(2,minmax(0,1fr))',gap:12,marginBottom:20}}>
-                    {projectDetailScopeCards.map(item => (
-                      <div key={item.label} style={{padding:16,borderRadius:16,background:'#fbfaf6',border:'1px solid #efe7d9'}}>
-                        <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase',color:'#b08840',marginBottom:7}}>{item.label}</div>
-                        <div style={{fontSize:13.5,lineHeight:1.58,color:'#3f4038',fontWeight:500}}>{item.value}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{display:'flex',flexDirection:'column',gap:0,marginTop:20}}>
-                    {scopeItems.map((item, idx)=>(
-                      <div key={item+idx} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'14px 0',borderBottom:idx===scopeItems.length-1?'none':'1px solid rgba(0,0,0,0.06)'}}>
-                        <div style={{width:20,height:20,borderRadius:999,flexShrink:0,marginTop:1,background:'rgba(47,133,90,0.07)',border:'1px solid rgba(47,133,90,0.15)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2f855a" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                        <div style={{fontSize:14,color:'#565862',lineHeight:1.55}}>{item}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:14,marginTop:20}}>
-                    {[
-                      ['Status', detailStatusLabel],
-                      ['Location', city],
-                    ].map(([label,val])=>(
-                      <div key={label} style={{padding:18,borderRadius:14,background:'#fbfaf6',border:'1px solid #efe7d9'}}>
-                        <div style={{fontSize:11,fontWeight:600,color:'#a8aab4',letterSpacing:'0.04em',textTransform:'uppercase',marginBottom:4}}>{label}</div>
-                        <div style={{fontSize:16,fontWeight:700,color:label==='Status' ? '#2f855a' : '#141518',letterSpacing:'-0.01em'}}>{val}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {tab === 'ops' && (
-              <div style={{display:'grid',gap:24,marginBottom:24}}><ProjectWorkspacePanel project={project} role={role} nav={nav} onComplete={onComplete} onLifecycleAction={transitionLifecycleFromDetail} /></div>
-            )}
-
-            {tab === 'vendors' && (
-              <>
-                {!isVendor && projectDetailInvitedVendorTrackerRows.length > 0 && (
-                  <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)',marginBottom:24}}>
-                    <div style={{padding:isMobile ? '20px 18px 18px' : '24px 28px'}}>
-                      <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:10}}>Invited Vendors</div>
-                      <div style={{display:'grid',gap:10}}>
-                        {projectDetailInvitedVendorTrackerRows.map((row) => (
-                          <div key={row.vendorId || row.vendorUserId || row.displayName} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,padding:'13px 14px',borderRadius:14,background:'#fbfaf6',border:'1px solid #efe7d9'}}>
-                            <div style={{minWidth:0}}>
-                              <div style={{fontSize:13,fontWeight:800,color:'#1C2814',letterSpacing:'-0.01em',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{row.displayName}</div>
-                              <div style={{fontSize:11,color:'#858792',marginTop:3}}>{row.invitedAtLabel ? `Invited ${row.invitedAtLabel}` : 'Invited'}</div>
-                            </div>
-                            <span style={{fontSize:10,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',padding:'5px 9px',borderRadius:999,background:'rgba(176,136,64,0.08)',color:'#8a6a2e',border:'1px solid rgba(176,136,64,0.16)',whiteSpace:'nowrap'}}>{row.dealSummary?.statusLabel || 'Invited'}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)',marginBottom:24}}>
-                <div style={{padding:isMobile ? '20px 18px 18px' : '28px 28px 24px'}}>
-                  <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:10}}>Curated Vendor Matches</div>
-                  <p style={{fontSize:14,lineHeight:1.75,color:'#565862',marginBottom:20}}>Real vendors ranked from the directory using this project's category, service area, budget, and available trust signals.</p>
-                  <div style={{display:'grid',gridTemplateColumns:'1fr',gap:12}}>
-                    {projectDetailVendorMatchesLoading && (
-                      <div style={{padding:'18px 16px',borderRadius:14,background:'#fbfaf6',border:'1px solid #efe7d9',fontSize:13,color:'#6b6d75'}}>Finding real vendor matches…</div>
-                    )}
-                    {!projectDetailVendorMatchesLoading && projectDetailVendorMatchesError && (
-                      <div style={{padding:'18px 16px',borderRadius:14,background:'#fbfaf6',border:'1px solid #efe7d9',fontSize:13,color:'#6b6d75'}}>Vendor matches could not be loaded right now. Try opening this tab again in a moment.</div>
-                    )}
-                    {!projectDetailVendorMatchesLoading && !projectDetailVendorMatchesError && vendorMatches.length === 0 && (
-                      <div style={{padding:'18px 16px',borderRadius:14,background:'#fbfaf6',border:'1px solid #efe7d9',fontSize:13,color:'#6b6d75'}}>No live vendor accounts are available for this project yet.</div>
-                    )}
-                    {!projectDetailVendorMatchesLoading && !projectDetailVendorMatchesError && vendorMatches.map(v => {
-                      const hasRealVendorIdentity = !!String(v?.user_id || '').trim();
-                      const linkedVendor = getVendorMatchLink(v);
-                      const linkedStage = linkedVendor?.stage || null;
-                      const linkedStageMeta = linkedStage ? (PROJECT_VENDOR_STAGE_META?.[linkedStage] || null) : null;
-                      const recommendedFit = v?.recommendedFit || computeRecommendedVendorFit(v, project, city || '');
-                      const recommendedPresentation = getRecommendedFitPresentation(recommendedFit);
-                      const matchExplanation = {
-                        title: `${recommendedPresentation.scoreLabel} fit - ${recommendedPresentation.headline}`,
-                        detail: safeArray(recommendedFit?.reasons).length
-                          ? safeArray(recommendedFit.reasons).join(' · ')
-                          : (recommendedFit?.watchout || 'Review this vendor profile before inviting them.'),
-                      };
-                      return (
-                        <div key={v.user_id || v.id || v.name} role="button" tabIndex={0} onClick={()=>{ if (!hasRealVendorIdentity) return; openVendorProfileFromDetail(v); }} onKeyDown={activateOnKey(()=>{ if (!hasRealVendorIdentity) return; openVendorProfileFromDetail(v); })} className="project-detail-vendor-card" style={{display:'grid',gridTemplateColumns:isMobile ? '48px 1fr' : '48px 1fr auto',gap:14,alignItems:'center',padding:'16px 18px',border:'1px solid rgba(0,0,0,0.06)',borderRadius:18,background:'#fff',cursor:hasRealVendorIdentity?'pointer':'default',transition:'all 0.2s cubic-bezier(0.23,1,0.32,1)',textAlign:'left'}}>
-                          <div style={{width:48,height:48,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,color:'#fff',background:v.avatar}}>{v.initials}</div>
-                          <div>
-                            <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:2}}>
-                              <div style={{fontSize:14,fontWeight:700,color:'#1C2814',letterSpacing:'-0.01em'}}>{v.name}</div>
-                              {linkedStageMeta && <span style={{fontSize:9,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',padding:'3px 8px',borderRadius:999,background:linkedStageMeta.bg || 'rgba(176,136,64,0.08)',color:linkedStageMeta.color || '#b08840',border:'1px solid rgba(176,136,64,0.16)'}}>{linkedStageMeta.label}</span>}
-                            </div>
-                            <div style={{fontSize:12,color:'#858792',marginBottom:8}}>{v.role}</div>
-                            <div style={{padding:'10px 11px',borderRadius:12,background:'rgba(176,136,64,0.06)',border:'1px solid rgba(176,136,64,0.14)',marginBottom:10}}>
-                              <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8a6a2e',marginBottom:3}}>Why this vendor surfaced</div>
-                              <div style={{fontSize:12,fontWeight:700,color:'#1C2814',lineHeight:1.4,marginBottom:3}}>{matchExplanation.title}</div>
-                              <div style={{fontSize:11,color:'#6b6d75',lineHeight:1.55}}>{matchExplanation.detail}</div>
-                              <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:8}}>
-                                {safeArray(matchExplanation.chips).slice(0, 4).map(chip => <span key={chip} style={{fontSize:9,fontWeight:800,letterSpacing:'0.055em',textTransform:'uppercase',padding:'3px 7px',borderRadius:999,background:'#fff',border:'1px solid rgba(176,136,64,0.16)',color:'#8a6a2e'}}>{chip}</span>)}
-                              </div>
-                            </div>
-                            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-                              <button type="button" disabled={!hasRealVendorIdentity} onClick={(e)=>{ e.stopPropagation(); if (!hasRealVendorIdentity) return; openVendorProfileFromDetail(v); }} style={{height:32,padding:'0 12px',borderRadius:999,border:'1px solid rgba(0,0,0,0.08)',background:'#fff',fontSize:12,fontWeight:700,color:'#2e3038',cursor:hasRealVendorIdentity?'pointer':'not-allowed'}}>Open profile</button>
-                              {!isVendor && <button type="button" disabled={!hasRealVendorIdentity} onClick={(e)=>{ e.stopPropagation(); if (!hasRealVendorIdentity) return; messageVendorFromDetail(v); }} style={{height:32,padding:'0 12px',borderRadius:999,border:'1px solid rgba(20,21,24,0.08)',background:'#fff',fontSize:12,fontWeight:700,color:'#1C2814',cursor:hasRealVendorIdentity?'pointer':'not-allowed'}}>Message</button>}
-                              {!isVendor && <button type="button" disabled={!hasRealVendorIdentity} onClick={(e)=>{ e.stopPropagation(); if (!hasRealVendorIdentity) return; saveVendorFromDetail(v); }} style={{height:32,padding:'0 12px',borderRadius:999,border:'1px solid rgba(176,136,64,0.16)',background:'rgba(176,136,64,0.08)',fontSize:12,fontWeight:700,color:'#b08840',cursor:hasRealVendorIdentity?'pointer':'not-allowed'}}>{linkedStage === 'shortlisted' ? 'Saved' : 'Save vendor'}</button>}
-                            </div>
-                          </div>
-                          <div style={{display:'flex',flexDirection:'column',alignItems:isMobile?'flex-start':'flex-end',gap:4,gridColumn:isMobile?'1 / -1':'auto',paddingLeft:isMobile?62:0}}>
-                            <span style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#b08840'}}>
-                              {Number(v.rating || 0) > 0 ? <><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>{Number(v.rating).toFixed(1)}</> : 'Not rated'}
-                            </span>
-                            <span style={{fontSize:9,fontWeight:700,letterSpacing:'0.07em',textTransform:'uppercase',padding:'3px 8px',borderRadius:999,background:'rgba(176,136,64,0.08)',color:'#b08840',border:'1px solid rgba(176,136,64,0.16)'}}>{v.tag}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-              </>
-            )}
-
-            {tab === 'files' && (
-              <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)',marginBottom:24}}>
-                <div style={{padding:isMobile ? '20px 18px 18px' : '28px 28px 24px'}}>
-                  <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:10}}>Project Files</div>
-                  <div style={{display:'grid',gap:12}}>
-                    {fileItems.length === 0 && (
-                      <div style={{padding:'18px 16px',borderRadius:14,background:'#fbfaf6',border:'1px solid #efe7d9',fontSize:13,color:'#6b6d75'}}>No project files have been attached yet.</div>
-                    )}
-                    {fileItems.map(file => (
-                      <div key={`${file.name}-${file.url || file.meta}`} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'16px 18px',border:'1px solid rgba(0,0,0,0.06)',borderRadius:18,background:'#fdfcfa'}}>
-                        <div style={{display:'flex',alignItems:'center',gap:12}}>
-                          <div style={{width:40,height:40,borderRadius:10,background:'#1e2028',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:10,fontWeight:800,letterSpacing:'0.04em'}}>{String(file.kind || 'File').slice(0,3).toUpperCase()}</div>
-                          <div>
-                            <div style={{fontSize:14,fontWeight:700,color:'#1C2814'}}>{file.name}</div>
-                            <div style={{fontSize:12,color:'#858792'}}>{file.meta}</div>
-                          </div>
-                        </div>
-                        <button type="button" onClick={()=>openFilePreviewFromDetail(file)} style={{height:40,padding:'0 14px',borderRadius:10,border:'1px solid rgba(0,0,0,0.1)',background:'#fff',fontSize:12,fontWeight:700,color:'#2e3038',cursor:'pointer'}}>Preview</button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
+            <div style={{display:'flex',alignItems:'center',gap:7,flexWrap:'wrap',fontSize:11.5,color:'#7a827e'}}><span>Posted by {safeChurchDisplay}</span><span aria-hidden="true">·</span><span>{projectDetailContextLine}</span></div>
           </div>
 
-          <aside className="project-detail-sidebar" style={{position:isTablet ? 'static' : 'sticky',top:82,alignSelf:'start',order:isTablet ? 1 : 0}}>
-            <div style={{background:'linear-gradient(160deg,#fffdf8 0%,#f7f0e2 100%)',border:'1px solid #dfd5c2',borderRadius:26,overflow:'hidden',marginBottom:18,position:'relative',boxShadow:'0 14px 40px rgba(28,40,20,0.10)'}}>
-              <div style={{position:'absolute',top:-70,right:-52,width:230,height:230,borderRadius:999,background:'radial-gradient(circle,rgba(176,136,64,0.10),transparent 62%)',pointerEvents:'none'}} />
-              <div style={{position:'absolute',bottom:-80,left:-70,width:220,height:220,borderRadius:999,background:'radial-gradient(circle,rgba(28,40,20,0.04),transparent 64%)',pointerEvents:'none'}} />
-              <div style={{position:'relative',padding:'26px 24px 24px'}}>
-                <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',color:'#b08840',marginBottom:10}}>{actionModel.eyebrow || 'Action panel'}</div>
-                <div style={{fontFamily:"var(--font-display),serif",fontSize:28,fontWeight:800,color:'#1C2814',letterSpacing:'-0.04em',marginBottom:8,lineHeight:1.05}}>{actionModel.title}</div>
-                <div style={{fontSize:13,color:'#565862',lineHeight:1.62,marginBottom:20}}>{actionModel.body}</div>
-                {!!actionModel.primaryLabel && <button type="button" onClick={runDetailAction(actionModel.primaryAction, projectDetailPrimaryFallback, 'project-detail-primary-action')} style={{width:'100%',height:48,borderRadius:14,border:'none',fontSize:14,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,background:'linear-gradient(135deg,#C4973A,#A87B2A)',color:'#fff',boxShadow:'0 2px 8px rgba(176,136,64,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',marginBottom:10}}>{actionModel.primaryLabel}</button>}
-                {!!actionModel.secondaryLabel && (
-                  <button type="button" onClick={runDetailAction(actionModel.secondaryAction, projectDetailSecondaryFallback, 'project-detail-secondary-action')} style={{width:'100%',height:46,borderRadius:14,border:'1px solid #dfd5c2',fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,background:'#fff',color:'#1C2814',marginBottom:10}}>{actionModel.secondaryLabel}</button>
-                )}
-                {!!actionModel.tertiaryLabel && (
-                  <button type="button" onClick={runDetailAction(actionModel.tertiaryAction, projectDetailTertiaryFallback, 'project-detail-tertiary-action')} style={{width:'100%',height:40,borderRadius:12,border:'1px solid rgba(28,40,20,0.09)',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginTop:actionModel.secondaryLabel ? 0 : 10,background:'transparent',color:'#565862'}}>{actionModel.tertiaryLabel}</button>
-                )}
-                {!isVendor && project?.status === 'in_progress' && !!project?.completion_requested_at && typeof onComplete === 'function' && project?.id && (
-                  <button type="button" onClick={()=>onComplete(projectDetailId)} style={{width:'100%',height:42,borderRadius:12,border:'1px solid rgba(47,133,90,0.22)',fontSize:12,fontWeight:800,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginTop:10,background:'rgba(47,133,90,0.05)',color:'#2f855a'}}>Review & confirm completion</button>
-                )}
-                {!isVendor && typeof onCancel === 'function' && project?.id && project?.status === 'open' && (
-                  <button
-                    type="button"
-                    onClick={() => onCancel(projectDetailId)}
-                    style={{width:'100%',height:38,borderRadius:12,border:'1px solid rgba(28,40,20,0.07)',fontSize:11.5,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginTop:12,background:'transparent',color:'rgba(28,40,20,0.35)',letterSpacing:'0.02em'}}
-                  >
-                    Close project
-                  </button>
-                )}
-              </div>
+          <div style={{display:'grid',gap:7,justifyItems:isTablet?'stretch':'end'}}>
+            {!projectStatusIsClosed ? <button type="button" disabled={Boolean(cleanPrimaryModel.disabled)} onClick={runDetailAction(cleanPrimaryModel.action,projectDetailPrimaryFallback,'project-detail-render-primary')} style={{height:44,minWidth:isTablet?0:220,padding:'0 18px',borderRadius:6,border:'none',background:'#0b5b43',color:'#fff',fontSize:12,fontWeight:800,cursor:cleanPrimaryModel.disabled?'default':'pointer',opacity:cleanPrimaryModel.disabled?.62:1}}>{cleanPrimaryModel.label}{!cleanPrimaryModel.disabled?'  →':''}</button> : <div style={{padding:'10px 12px',borderRadius:7,background:'#f1f2ed',fontSize:11.5,fontWeight:750,color:'#67716c'}}>{isVendor?'This project is no longer accepting proposals.':'This project is no longer accepting responses.'}</div>}
+            <div style={{display:'flex',justifyContent:isTablet?'flex-start':'flex-end',gap:15,alignItems:'center',flexWrap:'wrap'}}>
+              {viewerCanManageProject ? <button type="button" onClick={runDetailAction(openProjectEditor,null,'project-detail-render-edit')} style={{border:0,background:'transparent',padding:'5px 0',fontSize:11.5,fontWeight:700,color:'#174b3a',cursor:'pointer'}}>Edit project</button> : <button type="button" disabled={projectSaveBusy} onClick={toggleProjectSavedFromDetail} style={{border:0,background:'transparent',padding:'5px 0',fontSize:11.5,fontWeight:700,color:'#174b3a',cursor:projectSaveBusy?'wait':'pointer'}}>{projectSaved?'♥ Saved':'♡ Save'}</button>}
+              <button type="button" onClick={shareProjectFromDetail} style={{border:0,background:'transparent',padding:'5px 0',fontSize:11.5,fontWeight:700,color:'#174b3a',cursor:'pointer'}}>↗ Share</button>
             </div>
+          </div>
+        </header>
 
-            <div style={{background:'#fff',border:'1px solid rgba(0,0,0,0.06)',borderRadius:22,padding:22,marginBottom:18,boxShadow:'0 1px 2px rgba(0,0,0,0.04)'}}>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:14}}>Posted By</div>
-              <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:14}}>
-                <div style={{width:44,height:44,borderRadius:10,background:'linear-gradient(145deg,#f4efe4,#d9c69d)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C2814" strokeWidth="2" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                </div>
-                <div>
-                  <div style={{fontSize:14,fontWeight:700,color:'#1C2814',letterSpacing:'-0.01em'}}>{churchName}</div>
-                  <div style={{fontSize:12,color:'#858792',marginTop:2}}>{city}</div>
-                </div>
+        <div style={{display:'grid',gridTemplateColumns:isTablet?'1fr':'minmax(0,1fr) 286px',gap:isTablet?22:34,paddingTop:14,alignItems:'start'}}>
+          <section style={{minWidth:0}}>
+            <h2 className="kb-detail-bodoni" style={{fontSize:isMobile?24:29,lineHeight:1.04,margin:'0 0 7px'}}>About this project</h2>
+            <div style={{maxWidth:780,fontSize:15,lineHeight:1.52,color:'#394a43',whiteSpace:'pre-line'}}>{desc}</div>
+            {liveScopeItems.length>0&&<><h2 className="kb-detail-bodoni" style={{fontSize:isMobile?24:29,lineHeight:1.04,margin:'18px 0 8px'}}>What they need</h2><div style={{display:'grid',gap:6,maxWidth:800}}>{liveScopeItems.slice(0,6).map((item,index)=><div key={`${item}-${index}`} style={{display:'grid',gridTemplateColumns:'27px 1fr',gap:9,alignItems:'center',minHeight:27}}><span style={{width:25,height:25,borderRadius:'50%',background:'#eef0e4',display:'flex',alignItems:'center',justifyContent:'center',fontSize:8.5,fontWeight:800,color:'#50634f'}}>{String(index+1).padStart(2,'0')}</span><span style={{fontSize:14.5,lineHeight:1.34,color:'#435149',fontWeight:500}}>{item}</span></div>)}</div></>}
+          </section>
+
+          <aside style={{minWidth:0}}>
+            <div style={{border:'1px solid rgba(16,38,31,.10)',borderRadius:10,padding:'16px 16px 14px',marginBottom:14,background:'#fff'}}>
+              <h2 className="kb-detail-bodoni" style={{fontSize:isMobile?21:23,lineHeight:1.05,margin:'0 0 9px'}}>About the church</h2>
+              <div style={{fontSize:14,fontWeight:700,color:'#173d31'}}>{churchDisplayName}{churchProfile?.church_verified?<span style={{marginLeft:7,fontSize:9.5,fontWeight:800,color:'#0b5b43'}}>✓ Verified</span>:null}</div>
+              {churchLocation?<div style={{fontSize:12,color:'#66716c',marginTop:2}}>{churchLocation}</div>:null}
+              <div style={{display:'grid',gap:5,marginTop:10,fontSize:11.5,color:'#4d5852'}}>
+                {churchProfile?.denomination?<div>{churchProfile.denomination}</div>:null}
+                {churchMemberSince?<div>On FaithBid since {churchMemberSince}</div>:null}
+                {typeof churchProjectsPostedCount==='number'&&churchProjectsPostedCount>1?<div>{churchProjectsPostedCount} projects posted on FaithBid</div>:null}
               </div>
-              {posterStats.length > 0 && (
-                <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:10}}>
-                  {posterStats.map(([val,label])=>(
-                    <div key={label} style={{padding:12,borderRadius:10,background:'#fbfaf6',border:'1px solid #efe7d9',textAlign:'center'}}>
-                      <div style={{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:500,color:'#1C2814',lineHeight:1}}>{val}</div>
-                      <div style={{fontSize:10,fontWeight:600,color:'#a8aab4',letterSpacing:'0.04em',textTransform:'uppercase',marginTop:3}}>{label}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {churchProfile?.faith_statement?<p style={{marginTop:10,fontSize:12.5,lineHeight:1.5,color:'#394a43',fontStyle:'italic'}}>&ldquo;{churchProfile.faith_statement}&rdquo;</p>:null}
             </div>
-
-            {!isVendor && savedProjectReferences.length > 0 && (
-              <div style={{background:'#fff',border:'1px solid #dfd5c2',borderRadius:20,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.055)'}}>
-                <div style={{padding:'18px 22px',borderBottom:'1px solid rgba(0,0,0,0.06)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                  <div style={{fontSize:13,fontWeight:700,color:'#1C2814',letterSpacing:'-0.01em'}}>Saved Projects</div>
-                  <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:600,color:'#a8aab4',padding:'3px 8px',borderRadius:999,background:'rgba(20,21,24,0.04)'}}>{savedProjectReferences.length}</span>
-                </div>
-                <div style={{padding:'10px 14px'}}>
-                  {savedProjectReferences.map(item => (
-                    <button type="button" key={item.title} onClick={()=>openSavedProjectItem(item)} className="project-detail-saved-row" style={{display:'grid',gridTemplateColumns:'40px minmax(0,1fr) auto',gap:10,alignItems:'center',padding:'10px 8px',borderRadius:10,background:item.current?'rgba(176,136,64,0.08)':'transparent',border:'none',width:'100%',textAlign:'left',cursor:'pointer'}}>
-                      <div style={{width:40,height:40,borderRadius:6,overflow:'hidden',border:'1px solid rgba(0,0,0,0.06)'}}><img src={item.image} alt="" loading="lazy" onError={handleKbImageError} style={{width:'100%',height:'100%',objectFit:'cover'}} /></div>
-                      <div style={{minWidth:0}}>
-                        <div style={{fontSize:13,fontWeight:600,color:'#1C2814',lineHeight:1.3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.title}</div>
-                        <div style={{fontSize:11,color:'#a8aab4',marginTop:2}}>{item.city} · {item.budget}</div>
-                        {!!item.summary && <div style={{fontSize:11,color:'#8f919b',marginTop:4,lineHeight:1.45}}>{item.summary}</div>}
-                      </div>
-                      {item.current ? (
-                        <div style={{width:20,height:20,borderRadius:999,background:'rgba(176,136,64,0.08)',border:'1px solid rgba(176,136,64,0.16)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#b08840" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                      ) : <div style={{fontSize:14,color:'#a8aab4'}}>›</div>}
-                    </button>
-                  ))}
-                </div>
-                <div style={{padding:'12px 14px',borderTop:'1px solid rgba(0,0,0,0.06)'}}>
-                  <button type="button" onClick={()=>queueActivityNavigation(nav, { returnContext:{ scope:'project-detail', projectId: projectDetailId || null } })} style={{width:'100%',height:40,borderRadius:10,border:'1px solid rgba(0,0,0,0.1)',background:'#fff',fontSize:12,fontWeight:700,color:'#2e3038',cursor:'pointer'}}>Open Activity →</button>
-                </div>
-              </div>
-            )}
+            {fileItems.length>0&&<><h2 className="kb-detail-bodoni" style={{fontSize:isMobile?23:27,lineHeight:1.04,margin:'0 0 7px'}}>Attachments <span style={{fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,letterSpacing:0,color:'#8a938e'}}>({fileItems.length})</span></h2><div style={{display:'grid',borderTop:'1px solid rgba(16,38,31,.09)'}}>{fileItems.slice(0,6).map((file,idx)=><button key={`${file.name}-${idx}`} type="button" onClick={()=>openFilePreviewFromDetail(file)} style={{width:'100%',minHeight:44,border:0,borderBottom:'1px solid rgba(16,38,31,.09)',background:'transparent',padding:'6px 0',display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:10,alignItems:'center',textAlign:'left',cursor:'pointer'}}><span style={{minWidth:0}}><span style={{display:'block',fontSize:11.5,fontWeight:750,color:'#234438',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{file.name}</span><span style={{display:'block',fontSize:9.5,color:'#909792',marginTop:1}}>{file.meta}</span></span><span style={{fontSize:10.5,fontWeight:800,color:'#0d5b43'}}>View →</span></button>)}</div></>}
+            {canAskQuestion&&<div style={{marginTop:fileItems.length?12:0,paddingTop:0,borderTop:'none',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,fontSize:11.25,color:'#66716c'}}><span>Have a question before responding?</span><button type="button" onClick={runDetailAction(handleUtilitySecondary,null,'project-detail-question')} style={{border:0,background:'transparent',padding:0,color:'#0b5b43',fontSize:11.25,fontWeight:800,cursor:'pointer',whiteSpace:'nowrap'}}>Ask the church →</button></div>}
           </aside>
         </div>
-      </div>
+
+        {!isVendor && (projectDetailVendorMatchesLoading || vendorMatches.length > 0 || projectDetailVendorMatchesError) && (
+          <section ref={projectDetailTabbarRef} style={{borderTop:'1px solid rgba(16,38,31,.10)',marginTop:20,padding:'16px 0 28px'}}>
+            <h2 className="kb-detail-bodoni" style={{fontSize:isMobile?23:29,lineHeight:1.04,margin:'0 0 12px'}}>Recommended vendors</h2>
+            {projectDetailVendorMatchesLoading ? (
+              <div style={{display:'grid',gap:10}}>{[0,1,2].map(i=><div key={i} style={{height:74,borderRadius:8,background:'#f1f0ea'}}/>)}</div>
+            ) : projectDetailVendorMatchesError ? (
+              <div style={{fontSize:12.5,color:'#8b3b2f'}}>Vendor matches couldn't load right now.</div>
+            ) : (
+              <div style={{display:'grid',gap:10}}>
+                {vendorMatches.map((vendorMatch, idx) => {
+                  const vName = firstNonEmpty(vendorMatch?.name, 'Vendor');
+                  const vCategory = firstNonEmpty(vendorMatch?.category, vendorMatch?.primary_category, 'Vendor');
+                  const vCity = firstNonEmpty(vendorMatch?.city, vendorMatch?.service_city, '');
+                  return (
+                    <div key={vendorMatch?.id || vendorMatch?.user_id || idx} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,padding:'14px 16px',border:'1px solid rgba(16,38,31,.10)',borderRadius:10,background:'#fff',flexWrap:'wrap'}}>
+                      <div style={{minWidth:0}}>
+                        <div style={{display:'flex',alignItems:'center',gap:7}}>
+                          <strong style={{fontSize:14,color:'#173d31'}}>{vName}</strong>
+                          {vendorMatch?.verified ? <span style={{fontSize:9.5,fontWeight:800,color:'#0b5b43'}}>✓ Verified</span> : null}
+                        </div>
+                        <div style={{fontSize:12,color:'#66716c',marginTop:2}}>{vCategory}{vCity ? ` · ${vCity}` : ''}</div>
+                      </div>
+                      <div style={{display:'flex',gap:8,flexShrink:0}}>
+                        <button type="button" onClick={()=>messageVendorFromDetail(vendorMatch)} style={{height:34,padding:'0 12px',borderRadius:6,border:'1px solid #ded8cc',background:'#fff',color:'#173d31',fontSize:11.5,fontWeight:700,cursor:'pointer'}}>Message</button>
+                        <button type="button" onClick={()=>saveVendorFromDetail(vendorMatch)} style={{height:34,padding:'0 12px',borderRadius:6,border:'1px solid #ded8cc',background:'#fff',color:'#173d31',fontSize:11.5,fontWeight:700,cursor:'pointer'}}>Save</button>
+                        <button type="button" onClick={()=>openVendorProfileFromDetail(vendorMatch)} style={{height:34,padding:'0 14px',borderRadius:6,border:'1px solid #174b3a',background:'#174b3a',color:'#fff',fontSize:11.5,fontWeight:700,cursor:'pointer'}}>View profile</button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        )}
+
+        {(similarProjectsLoading||similarProjects.length>0)&&<section style={{borderTop:'1px solid rgba(16,38,31,.10)',marginTop:20,padding:'16px 0 28px',background:'#fbfaf6'}}><div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:18,marginBottom:12}}><h2 className="kb-detail-bodoni" style={{fontSize:isMobile?23:29,lineHeight:1.04,margin:0}}>Similar projects</h2><button type="button" onClick={returnToMarketplaceFloor} style={{border:0,background:'transparent',color:'#0b5b43',fontSize:10.5,fontWeight:800,cursor:'pointer'}}>View all&nbsp; →</button></div>{similarProjectsLoading&&similarProjects.length===0?<div style={{height:90,borderRadius:8,background:'#f1f0ea'}}/>:<div className="kb-live-marketplace-page kb-pd-related-marketplace-cards"><div className="kb-marketplace-project-grid kb-pd-related-grid" style={{gridTemplateColumns:isMobile?'1fr':viewportWidth>=1800?'repeat(5,206px)':viewportWidth>=1380?'repeat(4,206px)':'repeat(3,206px)',gap:'12px 10px',justifyContent:'start',alignItems:'start',background:'#fbfaf6'}}>{similarProjects.slice(0,5).map((item,idx)=>{const ageDays=getMarketplaceProjectFreshnessDays(item);const statusLabel=item?.urgent?'Urgent':ageDays!=null&&ageDays<=4?'New':'Open';return <MarketplaceProjectDirectoryCard key={item.id} project={item} image={getProjectHeroImage(item,idx)||KB_PROJECT_MEDIA_FALLBACK} categoryLabel={getProjectCardCategoryLabel(item,item?.category||'Project')} locationLabel={getMarketplaceProjectLocationLabel(item)} timelineLabel={getMarketplaceProjectTimelineLabel(item)} budgetLabel={formatMarketplaceProjectBudgetLabel(item?.budget)} statusLabel={statusLabel} saved={similarSavedIds.has(String(item.id))} onToggleSave={()=>toggleSimilarProjectSaved(item)} onOpen={()=>openSimilarProjectFromDetail(item)} role={role}/>;})}</div></div>}</section>}
+      </main>
+
+      {!projectStatusIsClosed&&<section style={{backgroundColor:'#1C2814',backgroundImage:'var(--clay-bg)',backgroundSize:'cover',backgroundPosition:'center',color:'#fffdf8',borderTop:'1px solid rgba(232,224,208,.10)'}}><div style={{maxWidth:contentWidth,margin:'0 auto',padding:isMobile?'22px 18px 16px':'22px 0 16px',display:'grid',gridTemplateColumns:isTablet?'1fr':'1fr 225px',gap:24,alignItems:'center'}}><div><div style={{width:30,height:1,background:'#c69a45',marginBottom:10}}/><div className="kb-detail-bodoni" style={{fontSize:isMobile?29:34,lineHeight:1.02,marginBottom:6,color:'#fffdf8'}}>{detailFooterTitle}</div><div style={{fontSize:11.5,color:'rgba(255,253,248,.68)',lineHeight:1.45}}>{detailFooterBody}</div></div><button type="button" disabled={Boolean(cleanPrimaryModel.disabled)} onClick={runDetailAction(cleanPrimaryModel.action,projectDetailPrimaryFallback,'project-detail-render-footer-primary')} style={{height:42,minWidth:isTablet?0:220,padding:'0 18px',borderRadius:6,border:'1px solid rgba(255,255,255,.72)',background:'#fffdf8',color:'#1C2814',fontSize:11.5,fontWeight:800,cursor:cleanPrimaryModel.disabled?'default':'pointer',opacity:cleanPrimaryModel.disabled?.65:1}}>{cleanPrimaryModel.label}{!cleanPrimaryModel.disabled?'  →':''}</button></div><div style={{maxWidth:contentWidth,margin:'0 auto',minHeight:58,padding:isMobile?'10px 18px 12px':'10px 0 12px',borderTop:'1px solid rgba(232,224,208,.10)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:20,flexWrap:'wrap'}}><span className="kb-pd-clay-brand"><CrossLogo size={isMobile?42:48} variant="full"/></span><span style={{fontSize:8.5,fontWeight:750,letterSpacing:'.17em',textTransform:'uppercase',color:'rgba(255,253,248,.48)'}}>Faith founded. Service driven.</span></div></section>}
+      {projectGalleryOpen&&<div className="modal-bg" role="button" tabIndex={0} onClick={()=>setProjectGalleryOpen(false)} onKeyDown={(e)=>{if(e.key==='Escape')setProjectGalleryOpen(false);}}><div className="modal" role="dialog" aria-modal="true" aria-label="Project photos" onClick={e=>e.stopPropagation()} style={{maxWidth:1040}}><div className="modal-hd"><div className="modal-title">Project photos</div><button type="button" className="modal-close" aria-label="Close" onClick={()=>setProjectGalleryOpen(false)}>×</button></div><div className="modal-body"><div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(2,minmax(0,1fr))',gap:12}}>{gallery.map((src,idx)=><img key={`${src}-${idx}`} src={src} alt={`${headline} project ${idx+1}`} onError={handleKbImageError} style={{width:'100%',height:280,objectFit:'cover',borderRadius:10}}/>)}</div></div></div></div>}
       {activeFilePreview && (
-        <div className="modal-bg" role="button" tabIndex={0} onClick={()=>setActiveFilePreview(null)}
-          onKeyDown={(e)=>{if(e.key==='Escape'){e.preventDefault();setActiveFilePreview(null);}}}>
+        <div className="modal-bg" role="button" tabIndex={0} onClick={()=>setActiveFilePreview(null)} onKeyDown={(e)=>{if(e.key==='Escape'){e.preventDefault();setActiveFilePreview(null);}}}>
           <div className="modal" role="dialog" aria-modal="true" aria-label="File preview" onClick={e=>e.stopPropagation()} style={{maxWidth:560}}>
             <div className="modal-hd">
               <div className="modal-title">File preview</div>
@@ -31944,21 +33825,19 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
             </div>
             <div className="modal-body">
               <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-                <div style={{width:44,height:44,borderRadius:12,background:'#1e2028',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:10,fontWeight:800,letterSpacing:'0.04em'}}>{String(activeFilePreview.kind || 'File').slice(0,3).toUpperCase()}</div>
+                <div style={{width:44,height:44,borderRadius:12,background:'#0b4f3b',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:10,fontWeight:800,letterSpacing:'0.04em'}}>{String(activeFilePreview.kind || 'File').slice(0,3).toUpperCase()}</div>
                 <div>
                   <div style={{fontSize:14,fontWeight:700,color:'#1C2814'}}>{activeFilePreview.name}</div>
                   <div style={{fontSize:12,color:'#858792',marginTop:2}}>{activeFilePreview.meta}</div>
                 </div>
               </div>
-              <div style={{padding:'14px 16px',borderRadius:14,background:'#fbfaf6',border:'1px solid #efe7d9',marginBottom:14}}>
-                <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:'#a8aab4',marginBottom:6}}>{activeFilePreview.kind || 'Supporting file'}</div>
-                <div style={{fontSize:13,lineHeight:1.7,color:'#565862'}}>{activeFilePreview.blurb || 'Supporting material tied to this project.'}</div>
-              </div>
-              <div style={{fontSize:12,color:'#858792',lineHeight:1.7}}>This gives the files tab a real secondary state now so it feels intentional before the full file delivery system is wired deeper into the project room.</div>
+              {!!activeFilePreview.blurb && <div style={{padding:'14px 16px',borderRadius:12,background:'#fbfaf6',border:'1px solid #efe7d9',fontSize:13,lineHeight:1.7,color:'#565862'}}>{activeFilePreview.blurb}</div>}
             </div>
             <div className="modal-footer">
               <button type="button" className="btn-cancel-modal" onClick={()=>setActiveFilePreview(null)}>Close</button>
-              <button type="button" className="btn-approve-modal" onClick={()=>{ setActiveFilePreview(null); setTab(hasPostHireWorkflow && !isVendor ? 'ops' : 'files'); }}>Open files tab</button>
+              {!!activeFilePreview.url && (
+                <button type="button" className="btn-approve-modal" onClick={()=>{ try { window.open(activeFilePreview.url,'_blank','noopener,noreferrer'); } catch {}; }}>Open file</button>
+              )}
             </div>
           </div>
         </div>
@@ -31999,10 +33878,11 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
       }
       const { data: projectRows, error: projectError } = await supabase
         .from('projects')
-        .select('id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements')
+        .select('id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements,hero_image_path')
         .in('id', ids);
       if (projectError) throw projectError;
-      const projectsById = new Map((projectRows || []).map(project => [String(project.id), normalizeProjectEntity(project) || project]));
+      const hydratedProjectRows = await hydrateProjectMediaUrls(projectRows || []);
+      const projectsById = new Map(hydratedProjectRows.map(project => [String(project.id), normalizeProjectEntity(project) || project]));
       setRows(orderedSavedRows.map(row => {
         const project = projectsById.get(String(row.project_id));
         return project ? { ...project, saved_at: row.updated_at || row.created_at || null, notify_on_bidding_open: !!row.notify_on_bidding_open } : null;
@@ -32161,35 +34041,38 @@ function MarketplaceVendorDirectoryCard({ vendor, image, categoryLabel, saved = 
   const vendorName = String(vendor?.name || 'Vendor');
   const location = [vendor?.service_city || vendor?.city, vendor?.service_state].filter(Boolean).join(', ') || 'Service area not listed';
   const faithVerified = vendor?.verified === true;
-  const isPreviewCard = String(vendor?.id || '').startsWith('preview-vendor-');
+  const serviceModelRaw = String(firstNonEmpty(vendor?.service_model, vendor?.delivery_model, vendor?.vendor_type, '')).trim();
+  const serviceModel = serviceModelRaw
+    ? serviceModelRaw.replace(/[_-]+/g,' ').replace(/\b\w/g, ch => ch.toUpperCase())
+    : (status?.label || 'Availability not confirmed');
+  const tagline = String(firstNonEmpty(vendor?.tagline, vendor?.headline, vendor?.bio, vendor?.category, 'FaithBid vendor ready to serve churches.')).replace(/\s+/g,' ').trim();
+  const ratingNumber = Number(vendor?.rating || 0);
+  const reviewCount = Number(vendor?.reviews_count || vendor?.reviews || 0);
+  const ratingLabel = ratingNumber > 0 && reviewCount > 0 ? `★ ${ratingNumber.toFixed(1)}` : 'New to FaithBid';
+  const statusLabel = faithVerified ? 'Faith Verified' : (status?.label || 'Availability not confirmed');
+  const vendorProjectProxy = {
+    ...vendor,
+    id: vendor?.id || vendor?.user_id || vendorName,
+    title: vendorName,
+    description: tagline,
+    urgent: false,
+  };
   return (
-    <article className="kb-marketplace-vendor-card">
-      <div className="kb-marketplace-vendor-card__media">
-        {image ? <img src={image} alt="" loading={isPreviewCard ? 'eager' : 'lazy'} /> : <span className="kb-marketplace-vendor-card__image-fallback" aria-hidden="true">FB</span>}
-        <span className="kb-marketplace-vendor-card__category">{categoryLabel}</span>
-        {typeof onToggleSave === 'function' ? <button
-          type="button"
-          className={`kb-marketplace-vendor-card__save${saved ? ' is-saved' : ''}`}
-          aria-label={saved ? `Remove ${vendorName} from saved vendors` : `Save ${vendorName}`}
-          aria-pressed={saved}
-          onClick={(event) => onToggleSave(event)}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></svg>
-        </button> : null}
-        {faithVerified ? <span className="kb-marketplace-vendor-card__verified"><span aria-hidden="true">✓</span> Faith Verified</span> : null}
-      </div>
-      <div className="kb-marketplace-vendor-card__body">
-        {typeof onOpen === 'function' ? <button type="button" className="kb-marketplace-vendor-card__title" onClick={onOpen}>{vendorName}</button> : <span className="kb-marketplace-vendor-card__title">{vendorName}</span>}
-        <p className="kb-marketplace-vendor-card__location">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-          {location}
-        </p>
-        <div className="kb-marketplace-vendor-card__footer">
-          <span className={`kb-marketplace-vendor-card__status is-${status?.tone || 'unknown'}`}><span aria-hidden="true" />{status?.label || 'Availability not confirmed'}</span>
-          {typeof onOpen === 'function' ? <button type="button" className="kb-marketplace-vendor-card__open" aria-label={`Open ${vendorName} profile`} onClick={onOpen}>→</button> : <span className="kb-marketplace-vendor-card__open" aria-hidden="true">→</span>}
-        </div>
-      </div>
-    </article>
+    <MarketplaceProjectDirectoryCard
+      project={vendorProjectProxy}
+      image={image}
+      categoryLabel={categoryLabel}
+      locationLabel={location}
+      timelineLabel={serviceModel}
+      budgetLabel={ratingLabel}
+      footerLabel="Rating"
+      footerValue={ratingLabel}
+      statusLabel={statusLabel}
+      saved={saved}
+      onToggleSave={onToggleSave}
+      onOpen={onOpen}
+      role="church"
+    />
   );
 }
 
@@ -32626,8 +34509,10 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     const rail = featuredRailRef.current;
     if (!rail) return;
-    featuredRailDragRef.current = { active:true, moved:false, pointerId:event.pointerId, startX:event.clientX, startScrollLeft:rail.scrollLeft };
-    rail.setPointerCapture?.(event.pointerId);
+    // 1002 — Do NOT capture the pointer on press. Immediate capture retargets a
+    // normal click to the rail itself, which prevented Featured Vendor cards from
+    // receiving their card-level onClick. Capture only after a real drag begins.
+    featuredRailDragRef.current = { active:true, moved:false, captured:false, pointerId:event.pointerId, startX:event.clientX, startScrollLeft:rail.scrollLeft };
   };
 
   const handleRailPointerMove = (event) => {
@@ -32636,17 +34521,24 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     if (!drag.active || !rail || drag.pointerId !== event.pointerId) return;
     const delta = event.clientX - drag.startX;
     if (Math.abs(delta) > 5) {
+      if (!drag.captured) {
+        try { rail.setPointerCapture?.(event.pointerId); } catch {}
+        drag.captured = true;
+      }
       drag.moved = true;
       event.preventDefault();
+      rail.scrollLeft = drag.startScrollLeft - delta;
     }
-    rail.scrollLeft = drag.startScrollLeft - delta;
   };
 
   const finishRailDrag = (event) => {
     const drag = featuredRailDragRef.current;
     const rail = featuredRailRef.current;
-    if (drag.active && rail && drag.pointerId === event.pointerId) rail.releasePointerCapture?.(event.pointerId);
+    if (drag.active && drag.captured && rail && drag.pointerId === event.pointerId) {
+      try { rail.releasePointerCapture?.(event.pointerId); } catch {}
+    }
     drag.active = false;
+    drag.captured = false;
   };
 
   const handleRailClickCapture = (event) => {
@@ -32683,7 +34575,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         categoryLabel={getProjectCardCategoryLabel(vendorProjectShape(vendor), vendor.specialty || vendor.category || 'Vendor')}
         saved={effectiveSavedVendorIds.has(vendorKey)}
         onToggleSave={marketplaceDevPreview ? undefined : (event) => toggleSave(vendor, event)}
-        onOpen={marketplaceDevPreview ? undefined : () => handleOpenVendor(vendor)}
+        onOpen={() => handleOpenVendor(vendor)}
         status={getVendorDirectoryCardStatus(vendor, index)}
       />
     );
@@ -32724,25 +34616,24 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   };
 
   const handleOpenVendor = (vendor) => {
-    if (marketplaceDevPreview) {
-      showToast && showToast('Development preview only—this is not a live vendor profile.');
-      return;
-    }
     const seeded = {
       ...buildVendorProfileSeed(vendor),
       recommendedFit: vendor?.recommendedFit || null,
       match_context_project: matchContextProject || null,
       match_context_label: matchContextProject?.title || '',
+      marketplace_preview: !!marketplaceDevPreview,
     };
-    void persistMatchmakerOutcomeEvent({
-      eventType: 'viewed',
-      vendor,
-      project: matchContextProject,
-      currentUser,
-      lens: sortBy,
-      sourceAction: 'profile_open',
-      actorRole: 'church',
-    });
+    if (!marketplaceDevPreview) {
+      void persistMatchmakerOutcomeEvent({
+        eventType: 'viewed',
+        vendor,
+        project: matchContextProject,
+        currentUser,
+        lens: sortBy,
+        sourceAction: 'profile_open',
+        actorRole: 'church',
+      });
+    }
     if (onSelectVendor) {
       onSelectVendor(seeded);
       return;
@@ -32874,9 +34765,26 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
 
   return (
     <div className={`mkt2-root kb-live-marketplace-page kb-vendor-marketplace-page${isHirerMarketplace ? ' kb-hirer-vendor-directory-page' : ' kb-vendor-directory-standalone-page'}${isChurchMarketplace ? ' kb-church-marketplace-page' : ''}`}>
+      <KBMarketplaceProjectCardGeometryStyles />
       <style>{`
         .kb-vendor-marketplace-page{background:transparent!important;min-height:auto!important;color:#171814;font-family:var(--font-sans),system-ui,-apple-system,BlinkMacSystemFont,sans-serif;}
         .kb-vendor-marketplace-page *{box-sizing:border-box;}
+        /* 0972 — Vendors tab card parity: use the exact Projects sub-tab card geometry.
+           The rail is capped to the width of exactly 4 fixed-size cards and
+           centered like the grid below, so Featured cards are the identical size
+           as All Vendors cards. Cards 5+ stay reachable by dragging inside that
+           fixed-width viewport. */
+        .kb-vendor-marketplace-page .kb-marketplace-featured-rail{display:flex!important;align-items:stretch!important;justify-content:flex-start!important;gap:var(--kb-project-card-gap-x)!important;width:min(100%,calc(4 * var(--kb-project-card-w) + 3 * var(--kb-project-card-gap-x)))!important;margin:0 auto!important;overflow-x:auto!important;padding:0 1px 6px 0!important;scrollbar-width:none!important;}
+        .kb-vendor-marketplace-page .kb-marketplace-featured-rail::-webkit-scrollbar{display:none!important;}
+        .kb-vendor-marketplace-page .kb-marketplace-vendor-grid{display:grid!important;grid-template-columns:repeat(auto-fill,var(--kb-project-card-w))!important;gap:var(--kb-project-card-gap-y) var(--kb-project-card-gap-x)!important;justify-content:center!important;align-items:stretch!important;}
+        .kb-vendor-marketplace-page .kb-marketplace-featured-rail > .kb-marketplace-project-card{flex:0 0 var(--kb-project-card-w)!important;min-width:var(--kb-project-card-w)!important;max-width:var(--kb-project-card-w)!important;}
+        /* Match the card row's width/centering so the heading text sits flush
+           over the far-left card and the sort/nearby controls sit flush over
+           the far-right card, instead of spanning the wider full body. */
+        .kb-vendor-marketplace-page .kb-marketplace-section-head{width:min(100%,calc(4 * var(--kb-project-card-w) + 3 * var(--kb-project-card-gap-x)))!important;margin-left:auto!important;margin-right:auto!important;}
+        /* All Vendors (directory) keeps its own width, matching its grid below --
+           only the Featured section drops to 4 cards. */
+        .kb-vendor-marketplace-page .kb-marketplace-section-head--directory{width:min(100%,calc(5 * var(--kb-project-card-w) + 4 * var(--kb-project-card-gap-x)))!important;}
         .kb-vendor-marketplace-page.kb-church-marketplace-page{overflow-x:clip!important;}
 
         .kb-church-marketplace-directory-panel{position:relative;z-index:6;margin:-32px 0 0;padding:0 2px;background:transparent;}
@@ -33135,7 +35043,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
             ) : railVendors.length ? (
               <div
                 ref={featuredRailRef}
-                className="kb-marketplace-featured-rail"
+                className="kb-marketplace-featured-projects__rail kb-marketplace-featured-rail"
                 aria-label={`${railMode} vendors`}
                 onPointerDown={handleRailPointerDown}
                 onPointerMove={handleRailPointerMove}
@@ -33176,7 +35084,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
             {directoryLoading ? (
               <KBSkeleton variant="list" count={8} style={{margin:'18px 0'}} />
             ) : pagedVendors.length ? (
-              <div className="kb-marketplace-vendor-grid">
+              <div className="kb-marketplace-project-grid kb-marketplace-vendor-grid">
                 {pagedVendors.map((vendor, index) => renderMarketplaceVendorDirectoryCard(vendor, index, 'grid'))}
               </div>
             ) : (
@@ -33258,8 +35166,8 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                     <span>{hasProjectContext ? 'Post a Project' : 'Add Project Context'}</span>
                     <span className="kb-marketplace-below-seam-action-arrow" aria-hidden="true">→</span>
                   </button>
-                  <button type="button" className="kb-marketplace-saved-route-link" onClick={() => typeof nav === 'function' && nav('saved-projects')} title="Open your saved project list" style={{height:34,border:'none',background:'transparent',padding:'0 2px',fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A6729',cursor:'pointer',whiteSpace:'nowrap',boxShadow:'none'}}>
-                    Saved Projects →
+                  <button type="button" className="kb-marketplace-saved-route-link" onClick={() => queueMyProjectsLens(nav, role, 'saved')} title="Open your saved project list" style={{height:34,border:'none',background:'transparent',padding:'0 2px',fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A6729',cursor:'pointer',whiteSpace:'nowrap',boxShadow:'none'}}>
+                    Saved in My Projects →
                   </button>
                 </div>
               </div> : null}
@@ -33842,31 +35750,6 @@ const VENDOR_PROFILE_KICKER_STYLE = {
   color: "#b08840",
 };
 
-const VENDOR_PROFILE_PRIMARY_BUTTON_STYLE = {
-  height: 38,
-  padding: "0 16px",
-  borderRadius: 999,
-  border: "none",
-  background: "linear-gradient(180deg,#203018,#142110)",
-  color: "#fffdf8",
-  fontSize: 12.5,
-  fontWeight: 800,
-  cursor: "pointer",
-  boxShadow: "0 10px 22px rgba(28,40,20,0.14)",
-};
-
-const VENDOR_PROFILE_SECONDARY_BUTTON_STYLE = {
-  height: 38,
-  padding: "0 14px",
-  borderRadius: 999,
-  border: "1px solid rgba(28,40,20,0.14)",
-  background: "#fffdf8",
-  color: "#1C2814",
-  fontSize: 12.5,
-  fontWeight: 700,
-  cursor: "pointer",
-};
-
 function VendorProfilePanel({ title, children, style = {}, headerStyle = {}, bodyStyle = {}, right = null }) {
   return (
     <div style={{ ...VENDOR_PROFILE_PANEL_STYLE, ...style }}>
@@ -33933,6 +35816,13 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const [profileToast, setProfileToast] = useState("");
   const viewportWidth = useViewportWidth(1440);
   const isMobile = viewportWidth < KB_BP_MOBILE;
+  const isTablet = viewportWidth < KB_BP_WORKSPACE;
+  useEffect(() => { injectMarketplaceDetailFonts(); }, []);
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    document.body.classList.add('kb-project-detail-open');
+    return () => document.body.classList.remove('kb-project-detail-open');
+  }, []);
   const [profileVendorPairSignalMaps, setProfileVendorPairSignalMaps] = useState(() => makeEmptyVendorPairSignalMaps());
   const [profileVendorPairSignalRefreshKey, setProfileVendorPairSignalRefreshKey] = useState(0);
   const profileVendorPairSignalRefreshTimerRef = useRef(null);
@@ -33967,7 +35857,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
     (async () => {
       try {
         const { data, error } = await supabase.from('vendor_portfolio_items')
-          .select('id,vendor_id,type,title,description,url,source,display_order,created_at')
+          .select('id,vendor_id,type,title,description,url,category,client_name,client_name_permission,image_urls,pdf_url,source,source_project_id,display_order,created_at')
           .eq('vendor_id', vendorUserId)
           .order('display_order', { ascending:true })
           .order('created_at', { ascending:true });
@@ -34202,12 +36092,14 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
 
 
   const submitElderEndorsement = async () => {
-    if (!elderForm.elderName || !elderForm.elderEmail || !elderForm.church) return;
+    if (!currentUserProp?.id) { showToast && showToast('Please sign in to submit an endorsement.', 'error'); return; }
+    if (!elderForm.elderName || !elderForm.elderEmail || !elderForm.church || elderLoading) return;
     setElderLoading(true);
     try {
       await supabase.from("vendor_endorsements").insert({
         vendor_id: v.id,
         vendor_name: v.name,
+        endorser_id: currentUserProp?.id,
         elder_name: elderForm.elderName,
         elder_title: elderForm.elderTitle,
         elder_email: elderForm.elderEmail,
@@ -34282,467 +36174,565 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
     canStartVendorConversation &&
     profileDealPrimary.label !== 'Message about this project';
 
-  const vendorTabLabels = { about:'Summary', portfolio:'Proof', availability:'Availability', reviews:'Reviews' };
+  /* 0999 — Vendor detail / approved Project Detail visual parity lock.
+     The vendor card destination now uses the SAME visual contract as the approved
+     church Project Detail: back row, full-width hero, editorial header, two-column
+     information body, clean ivory canvas, related/proof strip, and dark closing CTA.
+     Vendor-specific content/actions remain vendor-specific; the legacy vendor-profile
+     clay canvas, diligence-card header, tab bar, and boxed dashboard composition are
+     intentionally retired from this route. */
+  const vendorDetailName = firstNonEmpty(v.name, v.business_name, 'Vendor');
+  const vendorDetailCategory = firstNonEmpty(v.category, v.primary_category, profileTags[0], 'Church vendor');
+  const vendorDetailLocation = firstNonEmpty(
+    v.service_area,
+    [firstNonEmpty(v.service_city, v.city, ''), firstNonEmpty(v.service_state, v.state, '')].filter(Boolean).join(', '),
+    'Service area not listed',
+  );
+  const vendorDetailHeroImage = firstNonEmpty(
+    v.cover_image_url,
+    v.cover_image,
+    v.hero_image_url,
+    v.hero_image,
+    vendorHeroImage,
+    safeArray(v.gallery)[0],
+    pickMarketplacePresetImage({ title: vendorDetailName, category: vendorDetailCategory, primary_category: vendorDetailCategory }, 0),
+    KB_PROJECT_MEDIA_FALLBACK,
+  );
+  const vendorDetailGallery = Array.from(new Set([
+    vendorDetailHeroImage,
+    ...safeArray(v.gallery),
+    ...safeArray(portfolioItems).map(item => firstNonEmpty(item?.image_url, item?.image, item?.thumbnail_url, '')).filter(Boolean),
+  ].filter(Boolean)));
+  const vendorDetailAbout = firstNonEmpty(
+    v.bio,
+    v.tagline,
+    v.headline,
+    `${vendorDetailName} is building a FaithBid profile for churches looking for ${String(vendorDetailCategory || 'trusted services').toLowerCase()}.`,
+  );
+  const vendorDetailOfferings = Array.from(new Set([
+    ...safeArray(profileTags),
+    ...safeArray(v.tags),
+    ...safeArray(v.specialties),
+    ...safeArray(v.services),
+    ...safeArray(bestFitItems),
+  ].map(item => typeof item === 'string' ? item.trim() : firstNonEmpty(item?.title, item?.label, item?.name, '')).filter(Boolean))).slice(0, 6);
+  const vendorDetailProofItems = Array.from(new Set([
+    ...safeArray(proofPoints),
+    ...safeArray(caseStudies).map(item => firstNonEmpty(item?.title, item?.body, '')).filter(Boolean),
+  ].filter(Boolean))).slice(0, 5);
+  const vendorDetailMetaItems = [
+    vendorDetailLocation,
+    hasDeliverySignal ? deliveryBadge.label : null,
+    ratingValue ? `${ratingValue.toFixed(1)} ★ · ${reviewCount} review${reviewCount === 1 ? '' : 's'}` : 'New to FaithBid',
+  ].filter(Boolean);
+  const vendorDetailContextLine = v.verified
+    ? 'Faith Verified · Profile information reviewed by FaithBid'
+    : 'Marketplace vendor · Trust signals build as the profile develops';
+  const vendorDetailPrimary = isOwner
+    ? { label:'Edit profile', action:typeof onEdit === 'function' ? onEdit : null, disabled:typeof onEdit !== 'function' }
+    : isVendorViewingPeer
+      ? { label:'Vendor profile', action:null, disabled:true }
+      : profileDealPrimary;
+  const vendorDetailPrimaryLabel = firstNonEmpty(vendorDetailPrimary?.label, 'Contact vendor');
+  const runVendorDetailPrimary = () => {
+    if (vendorDetailPrimary?.disabled || typeof vendorDetailPrimary?.action !== 'function') return;
+    vendorDetailPrimary.action();
+  };
+  const shareVendorFromDetail = async () => {
+    const shareTitle = `${vendorDetailName} on FaithBid`;
+    const shareText = firstNonEmpty(v.tagline, v.headline, `${vendorDetailName} · ${vendorDetailCategory}`);
+    const publicVendorKey = String(v?.user_id || v?.id || '').trim();
+    const shareUrl = (typeof window !== 'undefined' && publicVendorKey) ? `${window.location.origin}${window.location.pathname}#vendor/${encodeURIComponent(publicVendorKey)}` : '';
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title:shareTitle, text:shareText, url:shareUrl || undefined });
+        return;
+      }
+      if (typeof navigator !== 'undefined' && navigator.clipboard && shareUrl) {
+        await navigator.clipboard.writeText(shareUrl);
+        setProfileToast('Vendor link copied');
+        return;
+      }
+      setProfileToast('Share link ready');
+    } catch (error) {
+      if (String(error?.name || '') !== 'AbortError') setProfileToast('Could not share this vendor right now');
+    }
+  };
+  const contentWidth = viewportWidth >= 1800 ? Math.min(1680, viewportWidth - 192) : viewportWidth >= 1400 ? viewportWidth - 112 : viewportWidth >= 1200 ? viewportWidth - 80 : 'calc(100vw - 40px)';
+  const vendorDetailFooterTitle = isOwner
+    ? 'Keep your FaithBid profile ready for the next church.'
+    : canProjectContextActions
+      ? `Could ${vendorDetailName} be the right fit for this project?`
+      : `Start a conversation with ${vendorDetailName}.`;
+  const vendorDetailFooterBody = isOwner
+    ? 'Keep your services, proof, availability, and trust signals current so churches can evaluate your work with confidence.'
+    : canProjectContextActions
+      ? 'Use the current project context when you reach out so the conversation stays tied to the church need you are reviewing.'
+      : 'Ask a question, confirm fit and availability, and keep the conversation organized inside FaithBid.';
+  const detailIcon = (kind, size=18) => {
+    if (kind === 'pin') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>;
+    if (kind === 'shield') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 3 20 6v6c0 5-3.4 8-8 10-4.6-2-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-5"/></svg>;
+    if (kind === 'star') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>;
+    if (kind === 'clock') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>;
+    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>;
+  };
+
+  /* 1000 — Vendor card destination exact church Project Detail parity lock.
+     This intentionally reuses the approved MarketplaceProjectPreviewDetail visual
+     contract pixel-for-pixel: the same 1484px reference canvas, hero dimensions,
+     typography, columns, cards, CTA and footer. Only vendor-specific copy/actions
+     differ. No clay/workspace texture is permitted anywhere on this route. */
+  const VENDOR_DETAIL_DESKTOP_REFERENCE_WIDTH = 1484;
+  const vendorDetailDesktopScale = viewportWidth >= 1180
+    ? viewportWidth / VENDOR_DETAIL_DESKTOP_REFERENCE_WIDTH
+    : 1;
+  const vendorDetailRootStyle = viewportWidth >= 1180
+    ? {
+        width:`${VENDOR_DETAIL_DESKTOP_REFERENCE_WIDTH}px`,
+        maxWidth:'none',
+        minHeight:0,
+        margin:0,
+        zoom:vendorDetailDesktopScale,
+      }
+    : undefined;
+  const vendorPdrIsMobile = viewportWidth < 720;
+  const vendorDetailCity = firstNonEmpty(v.service_city, v.city, 'Dallas');
+  const vendorDetailState = firstNonEmpty(v.service_state, v.state, 'TX');
+  const vendorDetailDisplayLocation = firstNonEmpty(v.service_area, [vendorDetailCity, vendorDetailState].filter(Boolean).join(', '), 'Service area not listed');
+  const vendorDetailDelivery = hasDeliverySignal ? deliveryBadge.label : 'Delivery model not specified';
+  const vendorDetailRating = ratingValue ? `${ratingValue.toFixed(1)} ★` : 'New to FaithBid';
+  const vendorDetailScopeItems = (vendorDetailOfferings.length ? vendorDetailOfferings : [vendorDetailCategory, 'Church-focused service', 'Project planning', 'Clear handoff']).slice(0,6);
+  const vendorDetailWorkItems = [
+    ...safeArray(portfolioItems).filter(item => item?.type !== 'link').map(item => ({
+      title:firstNonEmpty(item?.title, item?.name, 'Representative work'),
+      meta:[getVendorPortfolioSourceLabel(item), firstNonEmpty(item?.category, ''), firstNonEmpty(item?.client_name ? `For ${item.client_name}` : '', ''), firstNonEmpty(item?.description, item?.note, '')].filter(Boolean).join(' · '),
+      image:firstNonEmpty(safeArray(item?.image_urls)[0], item?.image_url, item?.image, item?.thumbnail_url, ''),
+      url:normalizeVendorPortfolioUrl(item?.url || item?.pdf_url || ''),
+      sourceProjectId:item?.source_project_id || null,
+    })),
+    ...safeArray(caseStudies).map(item => ({
+      title:firstNonEmpty(item?.title, item?.name, 'Case study'),
+      meta:firstNonEmpty(item?.body, item?.description, 'Church project example'),
+      image:firstNonEmpty(item?.image_url, item?.image, ''),
+      url:normalizeVendorPortfolioUrl(item?.url || ''),
+      sourceProjectId:item?.source_project_id || null,
+    })),
+  ].filter(item => item?.title).slice(0,3);
+  const vendorDetailExternalLinks = safeArray(portfolioItems)
+    .filter(item => item?.type === 'link' && normalizeVendorPortfolioUrl(item?.url || ''))
+    .map(item => ({ title:firstNonEmpty(item?.title, 'Website'), url:normalizeVendorPortfolioUrl(item?.url || '') }))
+    .slice(0,8);
+  const vendorDetailSignalRows = vendorDetailWorkItems.length
+    ? vendorDetailWorkItems
+    : vendorDetailScopeItems.slice(0,3).map(item => ({ title:item, meta:'Service capability listed on this FaithBid profile', image:'' }));
+  const vendorPdrIcon = (kind, size = 15) => {
+    const common = { width:size, height:size, viewBox:'0 0 24 24', fill:'none', stroke:'currentColor', strokeWidth:'1.8', strokeLinecap:'round', strokeLinejoin:'round', 'aria-hidden':'true' };
+    if (kind === 'pin') return <svg {...common}><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>;
+    if (kind === 'budget') return <svg {...common}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h.01M17 15h.01"/><circle cx="12" cy="12" r="2.6"/></svg>;
+    if (kind === 'clock') return <svg {...common}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>;
+    if (kind === 'calendar') return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>;
+    if (kind === 'shield') return <svg {...common}><path d="M12 3 20 6v6c0 5-3.4 8-8 10-4.6-2-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-5"/></svg>;
+    if (kind === 'home') return <svg {...common}><path d="M12 2v3"/><path d="M10.5 4.5h3"/><path d="M4 12.5 12 6l8 6.5"/><path d="M6 11v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9"/><path d="M11 21v-6h2v6"/></svg>;
+    if (kind === 'flag') return <svg {...common}><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg>;
+    if (kind === 'bookmark') return <svg {...common}><path d="M6 3h12v18l-6-4-6 4V3Z"/></svg>;
+    if (kind === 'share') return <svg {...common}><circle cx="18" cy="5" r="2.2"/><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="m8 11 8-5M8 13l8 5"/></svg>;
+    if (kind === 'search') return <svg {...common}><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>;
+    if (kind === 'lightbulb') return <svg {...common}><path d="M9 18h6M10 22h4"/><path d="M8.2 14.5A7 7 0 1 1 15.8 14.5c-.9.8-1.8 1.8-1.8 3.5h-4c0-1.7-.9-2.7-1.8-3.5Z"/></svg>;
+    if (kind === 'star') return <svg {...common}><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>;
+    return <svg {...common}><path d="M21 15a4 4 0 0 1-4 4H9l-6 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"/></svg>;
+  };
+  const goVendorDetailLanding = () => nav?.('landing');
+  const vendorProfileTab = tab === 'work' || tab === 'reviews' ? tab : 'about';
 
   return (
-    <div className="page-shell-cream vendor-profile-premium">
-      {/* Top bar — Project Detail style */}
-      <div style={{padding:'10px 16px',background:'#f4f0e7',borderBottom:'1px solid #e7dfd1',display:'flex',alignItems:'center',gap:12}}>
-        <button type="button" onClick={onBack} style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:13,fontWeight:600,color:'#1C2814',padding:'7px 14px',borderRadius:999,border:'1px solid rgba(28,40,20,0.12)',background:'#fffdf8',cursor:'pointer',boxShadow:'0 1px 2px rgba(0,0,0,0.04)',flexShrink:0}}>{profileBackLabel}</button>
-        <div style={{fontSize:12.5,color:'#a8aab4',minWidth:0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>Vendors <span style={{color:'#c9c5be'}}>·</span> <span style={{color:'#1C2814',fontWeight:600}}>{firstNonEmpty(v.name, 'Vendor profile')}</span></div>
-      </div>
+    <main className="kb-project-preview-page kb-project-detail-reference kb-vendor-project-detail-clone" id="kb-project-detail-main" style={vendorDetailRootStyle}>
+      <style>{`
+        /* Keep the exact shared workspace nav, but disable sticky capture only on
+           Project Detail so full-page screenshots never stitch it into the middle. */
+        body.kb-project-detail-open .topnav{display:flex!important;position:relative!important;top:auto!important;}
+        body.kb-project-detail-open{overflow-x:hidden!important;}
+        /* 0980 — Project Detail uses the outer app #kb-main-content only. The prior
+           nested duplicate id caused the fullscreen-host reset to force every
+           direct detail child to width:100% and margin:0, pinning the composition
+           to the left and leaving the unused design width on the right. Keep every
+           route wrapper flush so the hero begins immediately beneath the shared nav. */
+        body.kb-project-detail-open #kb-main-content,
+        body.kb-project-detail-open #kb-main-content > *,
+        body.kb-project-detail-open .platform-fullscreen-shell,
+        body.kb-project-detail-open .kb-header-surface,
+        body.kb-project-detail-open .kb-project-detail-reference{margin-top:0!important;padding-top:0!important;}
+        .kb-project-detail-reference{
+          min-height:0;overflow-x:clip;background:#fbfaf6;color:#10261f;
+          font-family:'DM Sans',var(--font-sans),-apple-system,BlinkMacSystemFont,sans-serif;
+          --pd-ink:#0e3128;--pd-green:#0b5b43;--pd-gold:#b88a38;--pd-copy:#59635f;--pd-border:rgba(16,38,31,.13);
+          --pd-stage:1320px;--pd-shell:1320px;--pd-side:318px;
+        }
+        .kb-project-detail-reference *{box-sizing:border-box;min-width:0}
+        .kb-project-detail-reference button{font:inherit}
+        .kb-project-detail-reference button:focus-visible,.kb-project-detail-reference a:focus-visible{outline:2px solid var(--pd-green);outline-offset:3px}
+        .kb-pdr-shell{width:var(--pd-shell);margin:0 auto}
+        .kb-pdr-serif{font-family:'Bodoni Moda',Georgia,serif;color:var(--pd-ink);font-weight:500;letter-spacing:-.028em}
+        .kb-pdr-hero-top{position:absolute;left:16px;right:16px;top:14px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:14px;pointer-events:none}
+        .kb-pdr-backoverlay,.kb-pdr-previewtruth{pointer-events:auto;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+        .kb-pdr-backoverlay{height:34px;padding:0 12px;border:1px solid rgba(255,255,255,.72);border-radius:999px;background:rgba(255,253,248,.90);box-shadow:0 4px 14px rgba(12,28,22,.10);color:#173d31;font-size:11px;font-weight:750;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+        .kb-pdr-previewtruth{min-height:30px;padding:0 11px;border:1px solid rgba(255,255,255,.56);border-radius:999px;background:rgba(255,253,248,.84);box-shadow:0 4px 14px rgba(12,28,22,.08);display:inline-flex;align-items:center;font-size:8px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:#8b672e;white-space:nowrap}
+        .kb-pdr-hero{width:var(--pd-shell);height:270px;margin:0 auto;position:relative;overflow:hidden;background:#d8d1c4}
+        .kb-pdr-hero img{width:100%;height:100%;object-fit:cover;display:block;transition:object-position .18s ease}
+        .kb-pdr-head{padding:16px 0 14px;display:grid;grid-template-columns:minmax(0,814px) 416px;gap:90px;align-items:start}
+        .kb-pdr-eyebrow{display:flex;align-items:center;gap:9px;margin-bottom:6px;font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#587562}
+        .kb-pdr-eyebrow::after{content:"";width:42px;height:1px;background:var(--pd-gold)}
+        .kb-pdr-h1{font-size:40px;line-height:1.01;margin:0 0 8px;max-width:760px;text-wrap:balance}
+        .kb-pdr-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 11px;font-size:12px;color:#173d31;font-weight:600;margin-bottom:5px}
+        .kb-pdr-meta-sep{color:#bcc4bf}
+        .kb-pdr-privacy{display:flex;gap:6px;flex-wrap:wrap;font-size:10px;color:#737d78;line-height:1.35}
+        .kb-pdr-actions{display:grid;gap:7px;padding-top:20px;width:100%}
+        .kb-pdr-primary{height:42px;border:0;border-radius:6px;background:var(--pd-green);color:#fff;font-size:11.75px;font-weight:750;display:flex;align-items:center;justify-content:center;gap:13px;cursor:default;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+        .kb-pdr-utils{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+        .kb-pdr-utils button{height:32px;border:1px solid rgba(16,38,31,.15);border-radius:7px;background:#fffdfa;color:#173d31;font-size:10px;font-weight:650;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+        .kb-pdr-bodygrid{display:grid;grid-template-columns:minmax(0,817px) 453px;gap:50px;align-items:start;padding-bottom:18px}
+        .kb-pdr-tabs{display:flex;align-items:flex-end;gap:24px;height:37px;border-bottom:1px solid rgba(16,38,31,.13);margin-bottom:14px}
+        .kb-pdr-tabs button{height:37px;border:0;border-bottom:2px solid transparent;background:none;padding:0 9px 0 0;color:#7c8580;font-size:10.75px;font-weight:600;cursor:pointer;white-space:nowrap}
+        .kb-pdr-tabs button.is-active{color:#13372d;border-bottom-color:var(--pd-green)}
+        .kb-pdr-section-title{font-size:25px;line-height:1.04;margin:0 0 6px}
+        .kb-pdr-copy{font-size:13px;line-height:1.46;color:#59625e;margin:0 0 8px;max-width:780px}
+        .kb-pdr-scope-title{font-size:25px;line-height:1.04;margin:17px 0 7px}
+        .kb-pdr-scope{display:grid;gap:4px}
+        .kb-pdr-scope-row{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;min-height:25px}
+        .kb-pdr-scope-num{width:24px;height:24px;border-radius:50%;background:#e8ecdb;color:#355447;display:grid;place-items:center;font-size:8px;font-weight:800}
+        .kb-pdr-scope-text{font-size:12.5px;line-height:1.3;color:#59625e;font-weight:450}
+        .kb-pdr-side{display:grid;gap:11px}
+        .kb-pdr-card{border:1px solid rgba(16,38,31,.12);border-radius:9px;background:#fffdfa;padding:14px}
+        .kb-pdr-card-title{font-family:'Bodoni Moda',Georgia,serif;font-size:16.5px;line-height:1.08;font-weight:500;color:#10261f;margin:0 0 10px;letter-spacing:-.022em}
+        .kb-pdr-church-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid rgba(16,38,31,.10)}
+        .kb-pdr-church-icon{width:40px;height:40px;border-radius:50%;background:#edf0e1;color:#37604f;display:grid;place-items:center;flex:0 0 40px}
+        .kb-pdr-church-name{font-size:13.5px;font-weight:800;color:#1a4537;margin-bottom:2px}
+        .kb-pdr-church-sub{font-size:10px;line-height:1.35;color:#7f8984}
+        .kb-pdr-church-stats{display:grid;gap:7px;padding:10px 0;border-bottom:1px solid rgba(16,38,31,.10)}
+        .kb-pdr-church-stat{display:flex;align-items:center;gap:8px;font-size:10.5px;color:#59645f}
+        .kb-pdr-church-copy{font-size:10px;line-height:1.42;color:#7d8782;margin:10px 0 0}
+        .kb-pdr-similar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+        .kb-pdr-similar-head .kb-pdr-card-title{margin:0}
+        .kb-pdr-viewmore{border:0;background:none;color:var(--pd-green);font-size:10.5px;font-weight:800;padding:0;cursor:pointer;white-space:nowrap}
+        .kb-pdr-similar-list{display:grid;gap:7px}
+        .kb-pdr-similar-row{display:grid;grid-template-columns:70px minmax(0,1fr);gap:9px;align-items:center;border:0;background:transparent;padding:0;text-align:left;cursor:pointer}
+        .kb-pdr-similar-img{width:70px;height:44px;border-radius:7px;overflow:hidden;background:#e8e2d7}
+        .kb-pdr-similar-img img{width:100%;height:100%;object-fit:cover;display:block}
+        .kb-pdr-similar-title{display:block;font-size:10.5px;font-weight:700;color:#173d31;line-height:1.22}
+        .kb-pdr-similar-meta{display:block;font-size:9px;color:#87908b;line-height:1.25;margin-top:2px}
+        .kb-pdr-question{background:#f1f2e9;border:0;padding:14px}
+        .kb-pdr-question-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:7px}
+        .kb-pdr-question-icon{color:#1d5d49;flex:0 0 auto}
+        .kb-pdr-question h3{font-family:'Bodoni Moda',Georgia,serif;font-size:15px;line-height:1.08;font-weight:500;color:#15382d;margin:0;max-width:250px}
+        .kb-pdr-question p{font-size:9.75px;line-height:1.4;color:#65706a;margin:0 0 9px 34px;max-width:310px}
+        .kb-pdr-question button{height:30px;padding:0 14px;margin-left:34px;border-radius:5px;border:1px solid rgba(16,38,31,.32);background:transparent;color:#0b5b43;font-size:10px;font-weight:800}
+        .kb-pdr-files{display:grid;border-top:1px solid rgba(16,38,31,.10)}
+        .kb-pdr-file{min-height:58px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border-bottom:1px solid rgba(16,38,31,.10);padding:10px 0}
+        .kb-pdr-file strong{display:block;font-size:12.5px;color:#234438}
+        .kb-pdr-file small{display:block;font-size:10px;color:#929a95;margin-top:2px}
+        .kb-pdr-file button{border:0;background:none;color:#0d5b43;font-size:10.5px;font-weight:800}
+        .kb-pdr-qtab{display:grid;gap:10px}
+        .kb-pdr-qitem{border:1px solid rgba(16,38,31,.10);border-radius:7px;background:#fffdfa;padding:12px 14px}
+        .kb-pdr-qitem strong{display:block;font-size:12.5px;color:#234438;margin-bottom:3px}
+        .kb-pdr-qitem span{font-size:11.5px;color:#747d78;line-height:1.45}
+        .kb-pdr-detailmap{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(0,1fr);gap:10px;margin-top:18px;align-items:stretch}
+        .kb-pdr-details-card{border:1px solid rgba(16,38,31,.12);border-radius:9px;background:#fffdfa;padding:14px 17px}
+        .kb-pdr-details-title{font-family:'Bodoni Moda',Georgia,serif;font-size:17px;line-height:1.05;font-weight:500;color:#173d31;margin:0 0 11px}
+        .kb-pdr-detailrows{display:grid;gap:9px}
+        .kb-pdr-detailrow{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:center;min-height:27px}
+        .kb-pdr-detailrow .icon{color:#2f6653}
+        .kb-pdr-detailrow small{display:block;font-size:9.5px;line-height:1.15;color:#88918c;margin-bottom:2px}
+        .kb-pdr-detailrow strong{display:block;font-size:12px;line-height:1.22;color:#29483d;font-weight:700}
+        .kb-pdr-mapwrap{display:grid;gap:6px}
+        .kb-pdr-map{position:relative;min-height:154px;border-radius:9px;overflow:hidden;background:#f2f0e8;border:1px solid rgba(16,38,31,.08)}
+        .kb-pdr-map::before,.kb-pdr-map::after{content:none}
+        .kb-pdr-map-art{position:absolute;inset:0;width:100%;height:100%;display:block}.kb-pdr-map-pin{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);z-index:3;color:#0b5b43;filter:drop-shadow(0 2px 3px rgba(0,0,0,.16))}
+        .kb-pdr-map-city{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:3;font-size:10.5px;font-weight:700;color:#173d31;background:rgba(255,253,248,.94);padding:3px 9px;border-radius:999px;box-shadow:0 1px 4px rgba(16,38,31,.08)}
+        .kb-pdr-map-note{font-size:8.75px;color:#87908b;display:flex;align-items:center;justify-content:center;gap:5px}
+        .kb-pdr-cta{position:relative;overflow:hidden;background:#075440;color:#fffdfa}
+        .kb-pdr-cta-inner{width:var(--pd-shell);margin:0 auto;min-height:92px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:34px;align-items:center;position:relative;z-index:2}
+        .kb-pdr-cta h2{font-family:'Bodoni Moda',Georgia,serif;font-size:29px;line-height:1.01;font-weight:500;letter-spacing:-.03em;margin:0 0 4px;color:#fffdfa}
+        .kb-pdr-cta p{font-size:10.5px;line-height:1.36;color:rgba(255,253,248,.80);margin:0}
+        .kb-pdr-cta button{height:40px;border-radius:6px;border:1px solid rgba(255,255,255,.88);background:#fffdfa;color:#15382d;font-size:10.75px;font-weight:800}
+        .kb-pdr-leaves{position:absolute;left:-10px;bottom:-28px;width:260px;height:185px;opacity:.46;pointer-events:none}
+        .kb-pdr-leaf{position:absolute;width:88px;height:38px;border-radius:100% 0 100% 0;background:linear-gradient(135deg,#8fa66c 0%,#547443 45%,#2e6047 100%);transform-origin:100% 50%;box-shadow:inset -10px -4px 18px rgba(0,0,0,.15)}
+        .kb-pdr-leaf::after{content:"";position:absolute;left:12%;right:8%;top:50%;height:1px;background:rgba(238,244,217,.55);transform:rotate(-4deg)}
+        .kb-pdr-leaf.l1{left:12px;bottom:64px;transform:rotate(18deg)}
+        .kb-pdr-leaf.l2{left:62px;bottom:94px;transform:rotate(-18deg) scale(.86)}
+        .kb-pdr-leaf.l3{left:92px;bottom:46px;transform:rotate(34deg) scale(.72)}
+        .kb-pdr-leaf.l4{left:18px;bottom:16px;transform:rotate(-30deg) scale(.78)}
+        .kb-pdr-footer{height:54px;background:#fffdfa;border-top:1px solid rgba(16,38,31,.08)}
+        .kb-pdr-footer-inner{width:var(--pd-shell);height:100%;margin:0 auto;display:grid;grid-template-columns:180px 1fr auto;align-items:center;gap:24px}
+        .kb-pdr-footer .kb-brand-logo{height:26px!important;width:auto!important;max-width:120px!important}
+        .kb-pdr-footer-copy{font-size:9.75px;color:#858e89;justify-self:center}
+        .kb-pdr-footer-links{display:flex;gap:24px;align-items:center}
+        .kb-pdr-footer-links button{border:0;background:none;padding:0;color:#65706a;font-size:9.5px;font-weight:500;cursor:pointer}
+        @media(max-width:1179px){
+          .kb-project-detail-reference{--pd-shell:min(calc(100vw - 40px),1080px);--pd-side:330px}
+          .kb-pdr-hero{height:270px}
+          .kb-pdr-head{grid-template-columns:minmax(0,1fr) 330px;gap:34px}
+          .kb-pdr-h1{font-size:38px;max-width:700px}
+          .kb-pdr-actions{width:100%}
+          .kb-pdr-bodygrid{grid-template-columns:minmax(0,1fr) 330px;gap:34px}
+          .kb-pdr-detailmap{grid-template-columns:minmax(0,1.45fr) minmax(180px,.85fr)}
+        }
+        @media(max-width:820px){
+          .kb-pdr-head,.kb-pdr-bodygrid,.kb-pdr-cta-inner{grid-template-columns:1fr}
+          .kb-pdr-actions{padding-top:0;max-width:380px}
+          .kb-pdr-side{grid-row:auto}
+          .kb-pdr-detailmap{grid-template-columns:1fr}
+          .kb-pdr-map{min-height:154px}
+          .kb-pdr-cta-inner{padding:24px 0}
+          .kb-pdr-footer-inner{grid-template-columns:1fr auto}
+          .kb-pdr-footer-copy{display:none}
+        }
+        @media(max-width:719px){
+          .kb-project-detail-reference{--pd-shell:calc(100vw - 28px);--pd-side:100%}
+          .kb-pdr-hero-top{left:10px;right:10px;top:10px;gap:8px}
+          .kb-pdr-backoverlay{height:31px;padding:0 10px;font-size:10px}
+          .kb-pdr-previewtruth{min-height:27px;padding:0 8px;font-size:7px;letter-spacing:.10em}
+          .kb-pdr-hero{height:220px}
+          .kb-pdr-head{padding:18px 0 17px}
+          .kb-pdr-h1{font-size:34px}
+          .kb-pdr-meta{font-size:12px}
+          .kb-pdr-utils{grid-template-columns:repeat(3,1fr)}
+          .kb-pdr-tabs{gap:18px;overflow-x:auto}
+          .kb-pdr-section-title,.kb-pdr-scope-title{font-size:25px}
+          .kb-pdr-copy{font-size:13.5px}
+          .kb-pdr-scope-text{font-size:13px}
+          .kb-pdr-side{margin-top:4px}
+          .kb-pdr-detailmap{margin-top:24px}
+          .kb-pdr-cta-inner{min-height:0;padding:24px 0}
+          .kb-pdr-cta h2{font-size:30px}
+          .kb-pdr-cta button{width:100%}
+          .kb-pdr-footer{height:auto;min-height:64px}
+          .kb-pdr-footer-inner{grid-template-columns:1fr;justify-items:start;padding:12px 0;gap:10px}
+          .kb-pdr-footer-links{gap:14px;flex-wrap:wrap}
+        }
+      `}</style>
+      <style>{`
+        /* Vendor clone uses the exact approved project-detail shell; hard-stop every
+           legacy workspace/clay background source that previously bled through. */
+        body.kb-project-detail-open,
+        body.kb-project-detail-open #root,
+        body.kb-project-detail-open #kb-main-content,
+        body.kb-project-detail-open #kb-main-content > *,
+        body.kb-project-detail-open .platform-fullscreen-shell,
+        body.kb-project-detail-open .kb-header-surface,
+        .kb-vendor-project-detail-clone{
+          background:#fbfaf6!important;
+          background-color:#fbfaf6!important;
+          background-image:none!important;
+        }
+        .kb-vendor-project-detail-clone .kb-pdr-hero img{object-position:center 48%;}
+      `}</style>
 
-      {/* Premium vendor trust header */}
-      <div style={{padding:isMobile?'14px 14px 12px':'18px 24px 16px',background:'linear-gradient(180deg,#fffdf8 0%,#fbf6ea 100%)',borderBottom:'1px solid #efe7d9'}}>
-        <div style={{maxWidth:1120,margin:'0 auto'}}>
-          <div className="vendor-profile-hero-shell" style={{padding:isMobile?'16px':'18px 22px 16px',borderRadius:22,border:'1px solid #e8dfcb',background:'linear-gradient(135deg,#ffffff 0%,#fffdf8 58%,#faf4e7 100%)',boxShadow:'0 10px 28px rgba(28,40,20,0.055)'}}>
-            <div className="vendor-header-row" style={{display:"flex",alignItems:"flex-start",gap:18,paddingBottom:0}}>
-              {/* Avatar */}
-              <div style={{
-                width:58,height:58,borderRadius:16,flexShrink:0,
-                background:"linear-gradient(135deg,#1C2814,#34432b)",
-                display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:20,fontWeight:800,color:"#d5b873",letterSpacing:0.5,
-                border:"3px solid #fff",boxShadow:"0 8px 22px rgba(28,40,20,0.13)",
-                overflow:"hidden",
-              }}>
-                {vendorHeroImage
-                  ? <img src={vendorHeroImage} alt={v.name || 'Vendor'} loading="lazy" onError={handleKbImageError} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
-                  : initials}
-              </div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:8}}>
-                  <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840'}}>Vendor diligence profile</span>
-                  <span style={{width:4,height:4,borderRadius:999,background:'#d6c08a'}} />
-                  <span style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#7d7363'}}>{v.category || 'Church vendor'}</span>
-                </div>
-                <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:7}}>
-                  <h1 style={{fontFamily:"var(--font-display),serif",fontSize:'clamp(25px,3.2vw,34px)',fontWeight:700,color:'#1C2814',letterSpacing:'-0.035em',lineHeight:1.02,wordBreak:'break-word',margin:0}}>{firstNonEmpty(v.name, 'Unnamed Vendor')}</h1>
-                  {identityBadges.length > 0 && <BadgeRow badges={identityBadges} />}
-                </div>
-                <div style={{fontSize:13.5,color:'#565862',lineHeight:1.55,maxWidth:660,marginBottom:10}}>
-                  {firstNonEmpty(v.headline, v.bio ? String(v.bio).slice(0, 130) : null, v.category || 'Vendor profile')}{v.city ? ` · ${v.city}` : ''}
-                </div>
-                <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
-                  {hasDeliverySignal && <span style={{padding:'6px 11px',borderRadius:999,background:'rgba(28,40,20,0.045)',border:'1px solid rgba(28,40,20,0.10)',fontSize:10.5,fontWeight:800,color:'#1C2814',letterSpacing:0.04}}>{deliveryBadge.label}</span>}
-                  {hasDeliverySignal && deliveryBadge.radius > 0 && normalizeDeliveryModel(v.delivery_model) !== 'remote' && <span style={{padding:'6px 11px',borderRadius:999,background:'rgba(176,136,64,0.10)',border:'1px solid rgba(176,136,64,0.18)',fontSize:10.5,fontWeight:800,color:'#8a6a2e',letterSpacing:0.04}}>{deliveryBadge.radius} mile radius</span>}
-                  {profileTags.slice(0,3).map(tag => <span key={tag} style={{padding:'6px 11px',borderRadius:999,background:'#fff',border:'1px solid #e8dfcb',fontSize:10.5,fontWeight:800,color:'#565862'}}>{tag}</span>)}
-                </div>
-              </div>
-              {/* Action buttons */}
-              <div className="vendor-header-actions vendor-profile-hero-actions" style={{display:"flex",gap:8,flexShrink:0,flexWrap:'wrap',justifyContent:'flex-end'}}>
-                {onEdit && <button type="button" onClick={onEdit} style={{...VENDOR_PROFILE_SECONDARY_BUTTON_STYLE,height:40,background:'#fff'}}>Edit profile</button>}
-              </div>
+      {profileToast ? <div style={{position:'fixed',right:18,top:76,zIndex:80,padding:'10px 14px',borderRadius:12,background:'rgba(20,21,24,.92)',color:'#fff',fontSize:12,fontWeight:700,boxShadow:'0 8px 24px rgba(0,0,0,.18)'}}>{profileToast}</div> : null}
+
+      <section className="kb-pdr-hero">
+        <img src={vendorDetailHeroImage} alt={`${vendorDetailName} vendor profile`} onError={handleKbImageError}/>
+        <div className="kb-pdr-hero-top">
+          <button type="button" className="kb-pdr-backoverlay" onClick={onBack}><span aria-hidden="true">←</span> Back to Marketplace</button>
+          <span className="kb-pdr-previewtruth">{v.verified ? 'Faith Verified vendor' : 'FaithBid vendor profile'}</span>
+        </div>
+      </section>
+
+      <div className="kb-pdr-shell">
+        <section className="kb-pdr-head">
+          <div>
+            <div className="kb-pdr-eyebrow">{formatMarketplaceCategoryLabel(vendorDetailCategory,vendorDetailCategory)}</div>
+            <h1 className="kb-pdr-serif kb-pdr-h1">{vendorDetailName}</h1>
+            <div className="kb-pdr-meta">
+              <span style={{display:'inline-flex',alignItems:'center',gap:7}}>{vendorPdrIcon('pin',17)}{vendorDetailDisplayLocation}</span>
+              <span className="kb-pdr-meta-sep">|</span>
+              <span style={{display:'inline-flex',alignItems:'center',gap:7}}>{vendorPdrIcon('clock',17)}{vendorDetailDelivery}</span>
+              <span className="kb-pdr-meta-sep">|</span>
+              <span style={{display:'inline-flex',alignItems:'center',gap:7}}>{vendorPdrIcon('star',17)}{vendorDetailRating}</span>
             </div>
+            <div className="kb-pdr-privacy"><span>{vendorDetailContextLine}</span>{profileProjectTitle?<><span aria-hidden="true">·</span><span>Viewing for {profileProjectTitle}</span></>:null}</div>
+          </div>
 
-            <div className="vendor-profile-signal-grid" style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:8,marginTop:14}}>
+          <div className="kb-pdr-actions">
+            <button type="button" className="kb-pdr-primary" disabled={Boolean(vendorDetailPrimary?.disabled)} onClick={runVendorDetailPrimary}>{vendorDetailPrimaryLabel} <span aria-hidden="true">→</span></button>
+            <div className="kb-pdr-utils">
+              <button type="button" onClick={saveVendorToCompare}>{vendorPdrIcon('bookmark',15)} Save</button>
+              <button type="button" onClick={shareVendorFromDetail}>{vendorPdrIcon('share',15)} Share</button>
+              <button type="button" onClick={()=>{setProfileToast('Vendor profile reported for review');try{setTimeout(()=>setProfileToast(''),1800);}catch{}}}>{vendorPdrIcon('flag',15)} Report</button>
+            </div>
+          </div>
+        </section>
+
+        <section className="kb-pdr-bodygrid">
+          <div>
+            <div className="kb-pdr-tabs" role="tablist" aria-label="Vendor information">
               {[
-                {label:'Rating', value:ratingLabel, detail:reviewCount > 0 ? `${reviewCount} review${reviewCount===1?'':'s'}` : 'No reviews yet'},
-                {label:'Response', value:primaryResponseLabel, detail:responseSignal ? 'Vendor-reported response time' : 'Not provided'},
-                {label:'Delivery', value:hasDeliverySignal ? deliveryBadge.marketing : 'Not specified', detail:serviceAreaLabel},
-                {label:'Ministry work', value:projectCount ? `${projectCount} project${projectCount===1?'':'s'}` : 'No projects reported', detail:churchSizeLabel},
-              ].map((item) => (
-                <div key={item.label} style={{padding:'10px 12px',borderRadius:13,background:'rgba(255,255,255,0.72)',border:'1px solid #e8dfcb',boxShadow:'none',minWidth:0}}>
-                  <div style={{...VENDOR_PROFILE_KICKER_STYLE,color:'#8a6a2e',marginBottom:5}}>{item.label}</div>
-                  <div style={{fontSize:13.5,fontWeight:800,color:'#1C2814',lineHeight:1.25,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.value}</div>
-                  <div style={{fontSize:11.5,color:'#7d7363',lineHeight:1.45,marginTop:3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.detail}</div>
-                </div>
+                {key:'about', label:'Overview'},
+                {key:'work', label:`Work (${Math.max(vendorDetailWorkItems.length, portfolioItems.length)})`},
+                {key:'reviews', label:`Reviews (${reviewCount})`},
+              ].map(t => (
+                <button key={t.key} type="button" role="tab" aria-selected={vendorProfileTab===t.key} className={vendorProfileTab===t.key?'is-active':''} onClick={()=>setTab(t.key)}>{t.label}</button>
               ))}
             </div>
 
-            {/* Tab bar */}
-            <div className="vendor-profile-tabbar" style={{display:'flex',gap:6,borderTop:'1px solid #efe7d9',marginTop:18,paddingTop:12,overflowX:'auto'}}>
-              {["about","portfolio","availability","reviews"].map(t=>{
-                const active = tab === t;
-                return (
-                  <button key={t} type="button" onClick={()=>setTab(t)} style={{fontSize:12.5,fontWeight:800,color:active?'#fffdf8':'#565862',padding:'9px 14px',border:active?'1px solid #1C2814':'1px solid #e8dfcb',background:active?'#1C2814':'rgba(255,255,255,0.76)',cursor:'pointer',position:'relative',whiteSpace:'nowrap',textTransform:'capitalize',borderRadius:999,boxShadow:active?'0 8px 18px rgba(28,40,20,0.12)':'none'}}>
-                    {vendorTabLabels[t] || t}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
+            {vendorProfileTab === 'about' && (
+              <>
+                <h2 className="kb-pdr-serif kb-pdr-section-title">About this vendor</h2>
+                <p className="kb-pdr-copy">{vendorDetailAbout}</p>
+                <p className="kb-pdr-copy">FaithBid helps churches evaluate service fit, trust signals, availability, and relevant ministry experience before starting a conversation.</p>
 
-      {/* Content */}
-      <div className="vendor-profile-content" style={{maxWidth:1120,margin:"0 auto",padding:isMobile?"16px 16px 96px":"22px 28px 58px"}}>
-        {profileToast && (
-          <div style={{position:'sticky',top:74,zIndex:20,marginBottom:14,display:'flex',justifyContent:'flex-end'}}>
-            <div style={{padding:'10px 14px',borderRadius:12,background:'rgba(20,21,24,0.92)',color:'#fff',fontSize:12,fontWeight:700,boxShadow:'0 8px 24px rgba(0,0,0,0.18)'}}>{profileToast}</div>
-          </div>
-        )}
-
-        {/* ABOUT TAB */}
-        {tab==="about" && (
-          <div className="vendor-about-grid" style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) 300px",gap:18,alignItems:"start"}}>
-            {canProjectContextActions && (
-              <div style={{gridColumn:'1 / -1',display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,flexWrap:'wrap',padding:'14px 16px',borderRadius:14,background:'linear-gradient(135deg,rgba(176,136,64,0.10),rgba(176,136,64,0.04))',border:'1px solid rgba(176,136,64,0.16)'}}>
-                <div>
-                  <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8a6a2e',marginBottom:4}}>Project context active</div>
-                  <div style={{fontSize:14,fontWeight:700,color:'#1C2814',marginBottom:4}}>{profileProjectTitle || projectContextLabel}</div>
-                  <div style={{fontSize:12,color:'#565862',lineHeight:1.6,maxWidth:620}}>Messages, compare saves, and vendor-stage actions from this profile now stay tied to the current project instead of opening a generic vendor conversation.</div>
-                </div>
-                <button type="button" className="btn-secondary" style={{padding:'10px 14px',fontSize:12,whiteSpace:'nowrap'}} onClick={openProjectContextBack}>{projectContextLabel}</button>
-              </div>
-            )}
-            {profileRecommendedPresentation && (
-              <div style={{gridColumn:'1 / -1',display:'grid',gridTemplateColumns:isMobile?'1fr':'96px minmax(0,1fr) auto',alignItems:'center',gap:14,padding:'15px 16px',borderRadius:16,background:'linear-gradient(135deg,#172116,#2f4327)',color:'#fffdf8',boxShadow:'0 12px 30px rgba(23,33,22,0.16)'}}>
-                <div style={{width:76,height:76,borderRadius:20,display:'grid',placeItems:'center',background:'rgba(255,253,248,0.10)',border:'1px solid rgba(255,253,248,0.18)',fontSize:22,fontWeight:800,letterSpacing:'-0.04em'}}>{profileRecommendedPresentation.scoreLabel}</div>
-                <div style={{minWidth:0}}>
-                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.16em',textTransform:'uppercase',color:'#d7b76e',marginBottom:5}}>AI Match for this project</div>
-                  <div style={{fontSize:17,fontWeight:800,lineHeight:1.2,marginBottom:5}}>{profileRecommendedPresentation.headline}</div>
-                  <div style={{fontSize:12.5,lineHeight:1.55,color:'rgba(255,253,248,0.78)',maxWidth:680}}>{profileRecommendedPresentation.summary}</div>
-                </div>
-                <div style={{display:'flex',gap:6,flexWrap:'wrap',justifyContent:isMobile?'flex-start':'flex-end'}}>
-                  {profileRecommendedPresentation.chips.slice(0,4).map(chip => <span key={chip} style={{height:28,display:'inline-flex',alignItems:'center',padding:'0 9px',borderRadius:999,background:'rgba(255,253,248,0.10)',border:'1px solid rgba(255,253,248,0.16)',fontSize:10,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',color:'#fffdf8'}}>{chip}</span>)}
-                </div>
-              </div>
-            )}
-            <div style={{display:"flex",flexDirection:"column",gap:16}}>
-              <VendorProfilePanel title="Executive summary" right={<span style={{fontSize:11,fontWeight:800,color:'#8a6a2e',background:'rgba(176,136,64,0.10)',border:'1px solid rgba(176,136,64,0.16)',borderRadius:999,padding:'5px 9px'}}>Diligence memo</span>} bodyStyle={{display:'grid',gap:12}}>
-                <div style={{fontSize:14,color:'#343833',lineHeight:1.75,fontWeight:400}}>
-                  {firstNonEmpty(v.bio ? String(v.bio).slice(0, 220) : null, 'No vendor bio has been provided yet. Review the available profile fields and verified signals before making a decision.')}
-                </div>
-                <div className="vendor-profile-signal-grid" style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:10}}>
-                  {[
-                    ['Best fit', bestFitItems[0] || 'Not specified yet'],
-                    ['Proof signal', proofPoints[0] || 'No proof points added yet'],
-                    ['Recommended action', canProjectContextActions ? 'Message or invite from this project' : 'Contact vendor or compare'],
-                  ].map(([label,val]) => (
-                    <div key={label} style={{padding:'13px 14px',borderRadius:14,background:'#fffdf8',border:'1px solid #e8dfcb'}}>
-                      <div style={{fontSize:10,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'#8a6a2e',marginBottom:5}}>{label}</div>
-                      <div style={{fontSize:13,fontWeight:700,color:'#1C2814',lineHeight:1.45}}>{val}</div>
+                <h2 className="kb-pdr-serif kb-pdr-scope-title">What they offer</h2>
+                <div className="kb-pdr-scope">
+                  {vendorDetailScopeItems.map((item,index)=>(
+                    <div className="kb-pdr-scope-row" key={`${item}-${index}`}>
+                      <span className="kb-pdr-scope-num">{String(index+1).padStart(2,'0')}</span>
+                      <span className="kb-pdr-scope-text">{item}</span>
                     </div>
                   ))}
                 </div>
-              </VendorProfilePanel>
-              {/* Profile narrative */}
-              <div className="card">
-                <div className="card-hd"><div className="card-hd-title">Profile narrative</div></div>
-                <div className="card-body" style={{display:'grid',gap:14}}>
-                  <div style={{fontSize:14,color:"#565862",lineHeight:1.8,fontWeight:400}}>{v.bio || "No bio provided."}</div>
-                  {v.faith_statement && (
-                    <div style={{padding:'13px 14px',borderRadius:13,background:'#fffdf8',border:'1px solid #e8dfcb'}}>
-                      <div style={{fontSize:10,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'#8a6a2e',marginBottom:6}}>Faith statement</div>
-                      <div style={{fontSize:13.5,color:"#565862",lineHeight:1.75,fontStyle:"italic",fontWeight:400}}>"{v.faith_statement}"</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              {/* References trust signal */}
-              <VendorReferencesTrustBadge vendorUserId={v.user_id} />
-              <div className="card">
-                <div className="card-hd"><div className="card-hd-title">Best-fit churches</div></div>
-                <div className="card-body">
-                  <div style={{display:"grid",gap:10}}>
-                    {bestFitItems.length > 0 ? bestFitItems.map((item, idx)=>(
-                      <div key={idx} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"11px 13px",borderRadius:12,background:"#fffdf8",border:"1px solid #dfd5c2"}}>
-                        <span style={{fontSize:12,color:"var(--gold-text)",marginTop:2}}>✦</span>
-                        <span style={{fontSize:12.8,color:"#565862",lineHeight:1.6}}>{item}</span>
-                      </div>
-                    )) : <div style={{fontSize:12.8,color:'#7d7363',lineHeight:1.65}}>This vendor has not added best-fit guidance yet.</div>}
-                  </div>
-                </div>
-              </div>
-              <div className="card">
-                <div className="card-hd"><div className="card-hd-title">Operating proof</div></div>
-                <div className="card-body">
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
-                    {[
-                      ['Response', firstNonEmpty(v.response_sla, v.response_time, '')],
-                      ['Service Area', firstNonEmpty(v.service_area, Array.isArray(v.service_regions) ? v.service_regions.join(', ') : '', v.city, '')],
-                      ['Denominations', Array.isArray(v.denomination_experience) && v.denomination_experience.length ? v.denomination_experience.slice(0,3).join(', ') : ''],
-                      ['Church Sizes', Array.isArray(v.church_size_fit) && v.church_size_fit.length ? v.church_size_fit.slice(0,3).join(', ') : ''],
-                    ].filter(([, val]) => Boolean(String(val || '').trim())).map(([label,val])=>(
-                      <div key={label} style={{padding:"11px 12px",borderRadius:12,background:"#fffdf8",border:"1px solid #dfd5c2"}}>
-                        <div style={{fontSize:10,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:"#7d7363",marginBottom:4}}>{label}</div>
-                        <div style={{fontSize:13,fontWeight:600,color:"#1C2814",lineHeight:1.55}}>{val}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{display:"grid",gap:8}}>
-                    {proofPoints.length > 0 ? proofPoints.map((item, idx)=>(
-                      <div key={idx} style={{fontSize:12,color:"#565862",lineHeight:1.65,display:"flex",alignItems:"center",gap:8}}>
-                        <span style={{color:"var(--success)",fontSize:12}}>✓</span>
-                        <span>{item}</span>
-                      </div>
-                    )) : <div style={{fontSize:12,color:'#7d7363',lineHeight:1.65}}>No proof points have been added yet.</div>}
-                  </div>
-                </div>
-              </div>
-              <div className="card">
-                <div className="card-hd"><div className="card-hd-title">Representative work</div></div>
-                <div className="card-body">
-                  <div style={{display:"grid",gap:10}}>
-                    {caseStudies.length > 0 ? caseStudies.map((item, idx)=>(
-                      <div key={idx} style={{padding:"12px 14px",borderRadius:13,background:"#fffdf8",border:"1px solid #dfd5c2"}}>
-                        <div style={{fontSize:13,fontWeight:700,color:"#1C2814",marginBottom:4}}>{item.title}</div>
-                        <div style={{fontSize:12,color:"#565862",lineHeight:1.7}}>{item.body}</div>
-                      </div>
-                    )) : <div style={{fontSize:12.8,color:'#7d7363',lineHeight:1.65}}>No case studies have been added yet.</div>}
-                  </div>
-                </div>
-              </div>
-              {/* Elder endorsement display */}
-              {isElderEndorsed && v.elder_endorsement && (
-                <div className="card" style={{borderColor:"rgba(168,85,247,0.2)"}}>
-                  <div className="card-hd" style={{background:"linear-gradient(135deg,rgba(168,85,247,0.04),rgba(139,92,246,0.02))"}}>
-                    <div className="card-hd-title" style={{color:"#7C3AED"}}>✝ Elder endorsement</div>
-                  </div>
-                  <div className="card-body">
-                    <div style={{fontSize:13,color:"#565862",lineHeight:1.7,fontStyle:"italic",marginBottom:12}}>"{v.elder_endorsement.statement}"</div>
-                    <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{width:32,height:32,borderRadius:"var(--r-sm)",background:"rgba(168,85,247,0.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:700,color:"#7C3AED",flexShrink:0}}>
-                        {v.elder_endorsement.elderName?.charAt(0)||"E"}
-                      </div>
-                      <div>
-                        <div style={{fontSize:12,fontWeight:700,color:"#1C2814"}}>{v.elder_endorsement.elderName}</div>
-                        <div style={{fontSize:11,color:"#7d7363"}}>{v.elder_endorsement.elderTitle}{v.elder_endorsement.church?` · ${v.elder_endorsement.church}`:""}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Tags */}
-              {(v.tags&&v.tags.length>0) && (
-                <div className="card">
-                  <div className="card-hd"><div className="card-hd-title">Specialties</div></div>
-                  <div className="card-body">
-                    <div className="skill-tags">{v.tags.map(t=><span key={t} className="skill-tag">{t}</span>)}</div>
-                  </div>
-                </div>
-              )}
-              {/* Video intro */}
-              {v.video_intro && (
-                <div className="card">
-                  <div className="card-hd"><div className="card-hd-title">▶ Video introduction</div></div>
-                  <div className="card-body">
-                    <div style={{fontSize:12,color:"#7d7363",marginBottom:12,lineHeight:1.5}}>Meet {v.name?.split(" ")[0]} before you reach out // watch their 60-second intro.</div>
-                    <a href={v.video_intro} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{textDecoration:"none"}}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                      Watch video intro →
-                    </a>
-                  </div>
-                </div>
-              )}
-            </div>
 
-            {/* Right sidebar */}
-            <div className="vendor-profile-sidebar" style={{display:"flex",flexDirection:"column",gap:12,position:isMobile?'static':'sticky',top:88}}>
-              {!isOwner && !isVendorViewingPeer && (
-                <div className="vendor-profile-deal-rail" style={{background:'#fff',borderRadius:18,border:'1px solid rgba(42,53,32,0.08)',padding:'20px',marginBottom:16}}>
-                  <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:16,gap:12}}>
-                    <div style={{minWidth:0}}>
-                      <div style={{...VENDOR_PROFILE_KICKER_STYLE,marginBottom:6}}>
-                        {canProjectContextActions ? 'Active deal' : 'Contact vendor'}
-                      </div>
-                      <div style={{display:'inline-block',padding:'3px 10px',borderRadius:100,fontSize:12,fontWeight:600,background:canProjectContextActions?'#f0f7f0':'#f5f5f5',color:canProjectContextActions?'#2a5a2a':'#666'}}>
-                        {canProjectContextActions ? (profileDealSummary?.statusLabel || 'No conversation yet') : 'No active project'}
-                      </div>
+                <div className="kb-pdr-detailmap">
+                  <div className="kb-pdr-details-card">
+                    <h3 className="kb-pdr-details-title">Vendor details</h3>
+                    <div className="kb-pdr-detailrows">
+                      <div className="kb-pdr-detailrow"><span className="icon">{vendorPdrIcon('pin',18)}</span><span><small>Service area</small><strong>{vendorDetailDisplayLocation}</strong></span></div>
+                      <div className="kb-pdr-detailrow"><span className="icon">{vendorPdrIcon('clock',18)}</span><span><small>Response</small><strong>{primaryResponseLabel}</strong></span></div>
+                      <div className="kb-pdr-detailrow"><span className="icon">{vendorPdrIcon('shield',18)}</span><span><small>Trust</small><strong>{v.verified ? 'Faith Verified' : 'Directory profile'}</strong></span></div>
+                      <div className="kb-pdr-detailrow"><span className="icon">{vendorPdrIcon('flag',18)}</span><span><small>Service category</small><strong>{formatMarketplaceCategoryLabel(vendorDetailCategory,vendorDetailCategory)}</strong></span></div>
                     </div>
-                    <button
-                      type="button"
-                      aria-label="Save to compare workspace"
-                      title="Compare"
-                      onClick={saveVendorToCompare}
-                      style={{width:36,height:36,borderRadius:8,border:'1px solid rgba(42,53,32,0.12)',background:'#fafaf8',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 2.5A1.5 1.5 0 014.5 1h7A1.5 1.5 0 0113 2.5v12l-5-3-5 3v-12z" stroke="#2a3520" strokeWidth="1.4" strokeLinejoin="round"/>
+                  </div>
+                  <div className="kb-pdr-mapwrap">
+                    <div className="kb-pdr-map">
+                      <svg className="kb-pdr-map-art" viewBox="0 0 320 190" preserveAspectRatio="none" aria-hidden="true">
+                        <rect width="320" height="190" fill="#f3f1ea"/>
+                        <path d="M0 34 C56 31 86 38 140 33 S255 25 320 30" fill="none" stroke="#d4d0c5" strokeWidth="9"/>
+                        <path d="M0 34 C56 31 86 38 140 33 S255 25 320 30" fill="none" stroke="#fbfaf6" strokeWidth="5"/>
+                        <path d="M36 0 C35 44 45 69 42 111 S34 158 38 190" fill="none" stroke="#d7d3c8" strokeWidth="8"/>
+                        <path d="M36 0 C35 44 45 69 42 111 S34 158 38 190" fill="none" stroke="#fffefa" strokeWidth="4"/>
+                        <path d="M184 -8 C175 31 183 67 179 101 S168 158 177 198" fill="none" stroke="#d2cec3" strokeWidth="10"/>
+                        <path d="M184 -8 C175 31 183 67 179 101 S168 158 177 198" fill="none" stroke="#fbfaf7" strokeWidth="5"/>
+                        <path d="M0 132 C62 126 97 135 150 126 S252 114 320 122" fill="none" stroke="#d8d4ca" strokeWidth="7"/>
+                        <path d="M0 132 C62 126 97 135 150 126 S252 114 320 122" fill="none" stroke="#fffefa" strokeWidth="3.5"/>
+                        <path d="M234 0 C233 39 224 62 230 96 S248 145 246 190" fill="none" stroke="#dedad0" strokeWidth="5"/>
+                        <path d="M92 0 C91 27 86 54 92 81 S104 132 102 190" fill="none" stroke="#dedad0" strokeWidth="4"/>
+                        <path d="M0 76 C48 78 75 71 122 77 S218 88 320 78" fill="none" stroke="#dedad0" strokeWidth="4"/>
+                        <path d="M0 161 C44 158 73 165 115 160 S217 151 320 158" fill="none" stroke="#e1ddd3" strokeWidth="3"/>
+                        <rect x="54" y="48" width="74" height="36" rx="5" fill="#dfe7d7"/>
+                        <rect x="205" y="129" width="70" height="34" rx="5" fill="#e2e8d9"/>
                       </svg>
-                    </button>
+                      <span className="kb-pdr-map-pin">{vendorPdrIcon('pin',30)}</span>
+                      <span className="kb-pdr-map-city">{vendorDetailCity}</span>
+                    </div>
+                    <div className="kb-pdr-map-note">{vendorPdrIcon('search',11)} <span>Service area shown at city level</span></div>
                   </div>
-                  <button
-                    type="button"
-                    disabled={profileDealPrimary.disabled}
-                    onClick={profileDealPrimary.action}
-                    style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,width:'100%',marginBottom:profileDealShowMessageSecondary?10:0,opacity:profileDealPrimary.disabled?0.55:1,cursor:profileDealPrimary.disabled?'not-allowed':'pointer'}}
-                  >
-                    {profileDealPrimary.label}
+                </div>
+              </>
+            )}
+
+            {vendorProfileTab === 'work' && (
+              <>
+                <h2 className="kb-pdr-serif kb-pdr-section-title">Representative work</h2>
+                <div className="kb-pdr-files">
+                  {(vendorDetailWorkItems.length ? vendorDetailWorkItems : vendorDetailSignalRows).map((item,idx)=>(
+                    <div className="kb-pdr-file" key={`${item.title}-${idx}`}>
+                      <span><strong>{item.title}</strong><small>{item.meta}</small></span>
+                      <button type="button" onClick={()=>{
+                        if(item.url){ try{ window.open(item.url,'_blank','noopener,noreferrer'); }catch{} return; }
+                        if(item.sourceProjectId){ queueProjectNavigation(nav,{projectId:item.sourceProjectId,screen:'projects',tab:'overview',returnContext:{scope:'vendor-profile',vendorId:v.id||v.user_id}}); return; }
+                        setProfileToast('Work sample details are shown on this vendor profile');
+                      }}>View →</button>
+                    </div>
+                  ))}
+                </div>
+                {vendorDetailExternalLinks.length > 0 && <div style={{marginTop:14,padding:'12px 14px',border:'1px solid #e5e0d6',borderRadius:8,background:'#fffdf9'}}><div style={{fontSize:9,fontWeight:850,letterSpacing:'.12em',textTransform:'uppercase',color:'#91713a',marginBottom:8}}>Elsewhere</div><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{vendorDetailExternalLinks.map((link,idx)=><a key={`${link.url}-${idx}`} href={link.url} target="_blank" rel="noreferrer" style={{fontSize:10.5,fontWeight:750,color:'#0b5b43',textDecoration:'none',padding:'6px 9px',border:'1px solid rgba(11,91,67,.14)',borderRadius:999,background:'rgba(11,91,67,.04)'}}>{link.title} ↗</a>)}</div></div>}
+              </>
+            )}
+
+            {vendorProfileTab === 'reviews' && (
+              <>
+                <h2 className="kb-pdr-serif kb-pdr-section-title">Church reviews</h2>
+                {v?.id ? <VendorReviews vendorId={v.id} vendor={v}/> : <div className="kb-pdr-qtab"><div className="kb-pdr-qitem"><strong>No reviews yet</strong><span>This vendor is new to FaithBid or has not yet received a church-submitted review.</span></div></div>}
+              </>
+            )}
+          </div>
+
+          <aside className="kb-pdr-side">
+            <div className="kb-pdr-card">
+              <h3 className="kb-pdr-card-title">About the vendor</h3>
+              <div className="kb-pdr-church-head">
+                <span className="kb-pdr-church-icon">{vendorPdrIcon('home',22)}</span>
+                <span><div className="kb-pdr-church-name">{vendorDetailName}</div><div className="kb-pdr-church-sub">{formatMarketplaceCategoryLabel(vendorDetailCategory,vendorDetailCategory)}<br/>{vendorDetailDisplayLocation}</div></span>
+              </div>
+              <div className="kb-pdr-church-stats">
+                <div className="kb-pdr-church-stat">{vendorPdrIcon('shield',15)}<span>{v.verified ? 'Faith Verified on FaithBid' : 'Marketplace profile'}</span></div>
+                <div className="kb-pdr-church-stat">{vendorPdrIcon('clock',15)}<span>{primaryResponseLabel === 'Not specified' ? 'Response time not specified' : `Response: ${primaryResponseLabel}`}</span></div>
+                <div className="kb-pdr-church-stat">{vendorPdrIcon('star',15)}<span>{ratingValue ? `${ratingValue.toFixed(1)} ★ from ${reviewCount} review${reviewCount===1?'':'s'}` : 'Reviews forming'}</span></div>
+              </div>
+              <p className="kb-pdr-church-copy">{firstNonEmpty(v.tagline, v.headline, 'Review this vendor’s services, trust signals, and profile information before reaching out.')}</p>
+            </div>
+
+            <div className="kb-pdr-card">
+              <div className="kb-pdr-similar-head"><h3 className="kb-pdr-card-title">Representative work</h3><button type="button" className="kb-pdr-viewmore" onClick={()=>setTab('work')}>View more&nbsp; →</button></div>
+              <div className="kb-pdr-similar-list">
+                {vendorDetailSignalRows.slice(0,3).map((item,idx)=>(
+                  <button key={`${item.title}-${idx}`} type="button" className="kb-pdr-similar-row" onClick={()=>setTab('work')}>
+                    <span className="kb-pdr-similar-img">{item.image?<img src={item.image} alt="" onError={handleKbImageError}/>:<span style={{width:'100%',height:'100%',display:'grid',placeItems:'center',background:'#ece8de',color:'#496356',fontWeight:850,fontSize:11}}>FB</span>}</span>
+                    <span><span className="kb-pdr-similar-title">{item.title}</span><span className="kb-pdr-similar-meta">{item.meta}</span></span>
                   </button>
-                  {profileDealShowMessageSecondary && (
-                    <button
-                      type="button"
-                      onClick={() => openVendorConversationFromProfile('vendor-profile-secondary-message')}
-                      style={{...VENDOR_PROFILE_SECONDARY_BUTTON_STYLE,width:'100%'}}
-                    >
-                      Message about this project
-                    </button>
-                  )}
-                </div>
-              )}
-
-              <VendorProfilePanel title="Trust & verification">
-                <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                  {v.verified ? (
-                    <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{width:30,height:30,borderRadius:10,background:"rgba(176,136,64,0.10)",border:"1px solid rgba(176,136,64,0.18)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M4 10l4 4 8-8" stroke="#8a6a2e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      </div>
-                      <div>
-                        <div style={{fontSize:12.5,fontWeight:800,color:"#1C2814"}}>Faith Verified</div>
-                        <div style={{fontSize:11,color:"#7d7363",lineHeight:1.45}}>Values reviewed by the platform team</div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{width:30,height:30,borderRadius:10,background:"#fffdf8",border:"1px solid #e8dfcb",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:'#8a6a2e',fontWeight:800}}>◇</div>
-                      <div>
-                        <div style={{fontSize:12.5,fontWeight:800,color:"#1C2814"}}>Directory profile</div>
-                        <div style={{fontSize:11,color:"#7d7363",lineHeight:1.45}}>Trust signals continue to build over time</div>
-                      </div>
-                    </div>
-                  )}
-                  {isElderEndorsed && (
-                    <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{width:30,height:30,borderRadius:10,background:"rgba(168,85,247,0.1)",border:"1px solid rgba(168,85,247,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,flexShrink:0}}>✝</div>
-                      <div>
-                        <div style={{fontSize:12.5,fontWeight:800,color:"#1C2814"}}>Elder Endorsed</div>
-                        <div style={{fontSize:11,color:"#7d7363",lineHeight:1.45}}>Endorsed by a church elder</div>
-                      </div>
-                    </div>
-                  )}
-                  {elderPending && !isElderEndorsed && (
-                    <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{width:30,height:30,borderRadius:10,background:"var(--warn-bg)",border:"1px solid var(--warn-border)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,flexShrink:0}}>⏳</div>
-                      <div>
-                        <div style={{fontSize:12.5,fontWeight:800,color:"#1C2814"}}>Endorsement Pending</div>
-                        <div style={{fontSize:11,color:"#7d7363",lineHeight:1.45}}>Under review · 48 hrs</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </VendorProfilePanel>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* AVAILABILITY TAB */}
-        {tab==="availability" && (
-          <div style={{maxWidth:540}}>
-            <div style={{marginBottom:14,padding:"12px 16px",background:"#fff",borderRadius:10,border:"1px solid #dfd5c2",fontSize:13,color:"#565862"}}>
-              {isOwner
-                ? "Your public availability calendar. Click any future date to toggle open / unavailable."
-                : `${v.name?.split(" ")[0]}'s availability. Green dates mean they're open to new work.`}
+            <div className="kb-pdr-card kb-pdr-question">
+              <div className="kb-pdr-question-head"><span className="kb-pdr-question-icon">{vendorPdrIcon('lightbulb',27)}</span><h3>Have questions before reaching out?</h3></div>
+              <p>Ask about fit, availability, service area, or the work your church needs before moving forward.</p>
+              <button type="button" disabled={!canStartVendorConversation || isOwner || isVendorViewingPeer} onClick={()=>openVendorConversationFromProfile('vendor-detail-question')}>Message vendor</button>
             </div>
-            <AvailabilityCalendar vendorId={v.id} editable={!!isOwner} showToast={showToast} />
-            {!isOwner && (
-              <div style={{marginTop:16}}>
-                <button type="button" className="btn-primary" style={{opacity:canStartVendorConversation?1:0.5,cursor:canStartVendorConversation?'pointer':'not-allowed'}} disabled={!canStartVendorConversation} onClick={()=>openVendorConversationFromProfile('start-conversation-availability')}>{canStartVendorConversation ? vendorAvailabilityLabel : 'Contact unavailable'}</button>
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* PORTFOLIO TAB */}
-        {tab==="portfolio" && (
-          <div style={{display:"grid",gap:16}}>
-            {(v.gallery || []).filter(Boolean).length > 0 && (
-              <div className="card">
-                <div className="card-hd"><div className="card-hd-title">Project Gallery</div></div>
-                <div className="card-body">
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12}}>
-                    {(v.gallery || []).filter(Boolean).slice(0,3).map((img, idx)=>(
-                      <div key={img+idx} style={{borderRadius:16,overflow:"hidden",border:"1px solid #dfd5c2",background:"#fffdf8"}}>
-                        <img src={img} alt={`${v.name} gallery ${idx+1}`} loading="lazy" onError={handleKbImageError} style={{width:"100%",height:148,objectFit:"cover",display:"block"}}/>
-                        <div style={{padding:"12px 12px",fontSize:12,color:"#565862",lineHeight:1.55}}>{(v.portfolio_items || [])[idx]?.note || 'Gallery image'}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-            <VendorPortfolioTab vendor={{...v, portfolio_items:portfolioItems}} isOwner={isOwner}/>
-          </div>
-        )}
-
-        {/* REVIEWS TAB */}
-        {tab==="reviews" && <VendorReviews vendorId={v.id} vendor={v}/>}
-
-        {/* ENDORSEMENT TAB — owner only */}
-        {tab==="endorsement" && isOwner && (
-          <div style={{maxWidth:600}}>
-            {/* What is Elder Endorsed */}
-            <div className="card" style={{marginBottom:16,borderColor:isElderEndorsed?"rgba(168,85,247,0.25)":"rgba(42,53,32,0.08)"}}>
-              <div className="card-hd" style={{background:isElderEndorsed?"linear-gradient(135deg,rgba(168,85,247,0.06),rgba(139,92,246,0.03))":"#fff"}}>
-                <div className="card-hd-title">✝ Elder Endorsed</div>
-                {isElderEndorsed && <span className="elder-badge">Active</span>}
-                {elderPending && <span style={{padding:"3px 9px",borderRadius:100,background:"var(--warn-bg)",border:"1px solid var(--warn-border)",fontSize:10,fontWeight:700,color:"var(--warn)"}}>Pending Review</span>}
-              </div>
-              <div className="card-body">
-                {isElderEndorsed ? (
-                  <div style={{display:"flex",alignItems:"center",gap:12}}>
-                    <div style={{width:40,height:40,borderRadius:10,background:"rgba(168,85,247,0.1)",border:"1px solid rgba(168,85,247,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>✝</div>
-                    <div>
-                      <div style={{fontSize:14,fontWeight:700,color:"#1C2814",marginBottom:2}}>Your profile is Elder Endorsed</div>
-                      <div style={{fontSize:12,color:"#7d7363"}}>This badge is live on your public profile and helps you stand out to churches.</div>
-                    </div>
-                  </div>
-                ) : elderPending ? (
-                  <div>
-                    <div style={{fontSize:13,color:"#565862",lineHeight:1.7,marginBottom:8}}>Your endorsement request is under review. We'll notify you within 48 hours once it's approved.</div>
-                    <div style={{padding:"10px 14px",background:"var(--warn-bg)",borderRadius:"var(--r-sm)",border:"1px solid var(--warn-border)",fontSize:12,color:"var(--warn)"}}>⏳ Under review // check back shortly.</div>
-                  </div>
+            {!isOwner && !isVendorViewingPeer && currentUserProp?.id ? (
+              <div className="kb-pdr-card">
+                <h3 className="kb-pdr-card-title">Endorse this vendor</h3>
+                {elderSubmitted ? (
+                  <p className="kb-pdr-church-copy">Thanks — your endorsement was submitted for review.</p>
                 ) : (
-                  <div>
-                    <div style={{fontSize:13,color:"#565862",lineHeight:1.75,marginBottom:16}}>
-                      The <strong>Elder Endorsed</strong> badge signals to churches that a credible church elder has personally vouched for your faith and professionalism. It's the highest trust signal on FaithBid // above Faith Verified.
+                  <>
+                    <p className="kb-pdr-church-copy" style={{marginBottom:10}}>If you're an elder or pastor who can vouch for this vendor's character and work, submit an endorsement for FaithBid to review.</p>
+                    <div style={{display:'grid',gap:8}}>
+                      <input type="text" placeholder="Your name" value={elderForm.elderName} onChange={e=>setElderForm(prev=>({...prev,elderName:e.target.value}))} style={{height:38,padding:'0 11px',borderRadius:7,border:'1px solid rgba(16,38,31,.14)',fontSize:12.5}}/>
+                      <input type="text" placeholder="Your title (e.g. Elder, Pastor)" value={elderForm.elderTitle} onChange={e=>setElderForm(prev=>({...prev,elderTitle:e.target.value}))} style={{height:38,padding:'0 11px',borderRadius:7,border:'1px solid rgba(16,38,31,.14)',fontSize:12.5}}/>
+                      <input type="email" placeholder="Your email" value={elderForm.elderEmail} onChange={e=>setElderForm(prev=>({...prev,elderEmail:e.target.value}))} style={{height:38,padding:'0 11px',borderRadius:7,border:'1px solid rgba(16,38,31,.14)',fontSize:12.5}}/>
+                      <input type="text" placeholder="Your church" value={elderForm.church} onChange={e=>setElderForm(prev=>({...prev,church:e.target.value}))} style={{height:38,padding:'0 11px',borderRadius:7,border:'1px solid rgba(16,38,31,.14)',fontSize:12.5}}/>
+                      <textarea placeholder="Brief statement (optional)" value={elderForm.statement} onChange={e=>setElderForm(prev=>({...prev,statement:e.target.value}))} rows={3} style={{padding:'9px 11px',borderRadius:7,border:'1px solid rgba(16,38,31,.14)',fontSize:12.5,resize:'vertical',fontFamily:'inherit'}}/>
+                      <button type="button" disabled={elderLoading || !elderForm.elderName || !elderForm.elderEmail || !elderForm.church} onClick={submitElderEndorsement} style={{height:38,borderRadius:7,border:0,background:'#174b3a',color:'#fff',fontSize:12.5,fontWeight:700,cursor:elderLoading?'wait':'pointer',opacity:(elderLoading || !elderForm.elderName || !elderForm.elderEmail || !elderForm.church)?.6:1}}>{elderLoading?'Submitting…':'Submit endorsement'}</button>
                     </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
-                      {[["✝","Elder vouches for your faith"],["✦","Appears on your public profile"],["↑","Higher placement in search"],["★","Increases bid acceptance rate"]].map(([icon,txt],i)=>(
-                        <div key={txt || i} style={{padding:"12px 13px",background:"#fffdf8",borderRadius:"var(--r-sm)",border:"1px solid #dfd5c2",display:"flex",alignItems:"center",gap:9}}>
-                          <span style={{fontSize:14,flexShrink:0}}>{icon}</span>
-                          <span style={{fontSize:11,color:"#565862",fontWeight:500}}>{txt}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {!elderApplying && !elderSubmitted && (
-                      <button type="button" className="btn-primary" style={{background:"linear-gradient(135deg,#6D28D9,#7C3AED)"}} onClick={()=>setElderApplying(true)}>
-                        Request Elder endorsement →
-                      </button>
-                    )}
-                    {elderSubmitted && (
-                      <div style={{padding:"16px",background:"rgba(168,85,247,0.08)",border:"1px solid rgba(168,85,247,0.2)",borderRadius:10,fontSize:13,color:"#6D28D9",fontWeight:500}}>
-                        ✓ Request submitted // we'll contact the elder to confirm and notify you within 48 hours.
-                      </div>
-                    )}
-                    {elderApplying && !elderSubmitted && (
-                      <div style={{background:"#fffdf8",borderRadius:"var(--r-md)",border:"1px solid #dfd5c2",padding:"20px",marginTop:4}}>
-                        <div style={{fontSize:12,fontWeight:700,color:"#1C2814",marginBottom:16,letterSpacing:0.3}}>Elder's Details</div>
-                        {[
-                          {label:"Elder's Full Name *", key:"elderName", placeholder:"e.g. Pastor James Wilson"},
-                          {label:"Title / Role", key:"elderTitle", placeholder:"e.g. Senior Pastor, Elder, Deacon"},
-                          {label:"Elder's Email *", key:"elderEmail", type:"email", placeholder:"elder@churchname.org"},
-                          {label:"Church Name *", key:"church", placeholder:"e.g. Grace Fellowship Church"},
-                        ].map(f=>(
-                          <div key={f.key} className="field" style={{marginBottom:14}}>
-                            <label style={{fontSize:11}}>{f.label}</label>
-                            <input type={f.type||"text"} aria-label={f.label.replace(' *','')} value={elderForm[f.key]} placeholder={f.placeholder} onChange={e=>setElderForm(ef=>({...ef,[f.key]:e.target.value}))}/>
-                          </div>
-                        ))}
-                        <div className="field" style={{marginBottom:18}}>
-                          <label style={{fontSize:11}}>Endorsement Statement (optional)</label>
-                          <textarea rows={3} value={elderForm.statement} placeholder="A brief word from the elder about working with you..." onChange={e=>setElderForm(ef=>({...ef,statement:e.target.value}))} style={{resize:"none"}}/>
-                        </div>
-                        <div style={{display:"flex",gap:8}}>
-                          <button type="button" className="btn-secondary" onClick={()=>setElderApplying(false)}>Cancel</button>
-                          <button type="button"
-                            className="btn-primary" style={{flex:1,justifyContent:"center",background:"linear-gradient(135deg,#6D28D9,#7C3AED)"}}
-                            disabled={elderLoading||!elderForm.elderName||!elderForm.elderEmail||!elderForm.church}
-                            onClick={submitElderEndorsement}
-                          >{elderLoading?"Submitting…":"Submit request →"}</button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  </>
                 )}
               </div>
-            </div>
-          </div>
-        )}
+            ) : null}
+          </aside>
+        </section>
       </div>
-    </div>
+
+      <section className="kb-pdr-cta">
+        <div className="kb-pdr-leaves" aria-hidden="true"><span className="kb-pdr-leaf l1"/><span className="kb-pdr-leaf l2"/><span className="kb-pdr-leaf l3"/><span className="kb-pdr-leaf l4"/></div>
+        <div className="kb-pdr-cta-inner">
+          <div><h2>{vendorDetailFooterTitle}</h2><p>{vendorDetailFooterBody}</p></div>
+          <button type="button" disabled={Boolean(vendorDetailPrimary?.disabled)} onClick={runVendorDetailPrimary}>{vendorDetailPrimaryLabel}&nbsp;&nbsp; →</button>
+        </div>
+      </section>
+
+      <footer className="kb-pdr-footer">
+        <div className="kb-pdr-footer-inner">
+          <span><CrossLogo size={26} variant="full"/></span>
+          <span className="kb-pdr-footer-copy">Connecting churches with trusted Christian vendors.</span>
+          <div className="kb-pdr-footer-links">
+            <button type="button" onClick={onBack}>Marketplace</button>
+            <button type="button" onClick={goVendorDetailLanding}>How It Works</button>
+            <button type="button" onClick={goVendorDetailLanding}>For Churches</button>
+            <button type="button" onClick={goVendorDetailLanding}>For Vendors</button>
+            <button type="button" onClick={()=>nav?.('about')}>About</button>
+          </div>
+        </div>
+      </footer>
+    </main>
   );
 }
 
@@ -37897,11 +39887,16 @@ export default function App() {
     const SCREEN_TITLES = {
       landing: 'FaithBid — Faith-Aligned Marketplace',
       projects: 'Marketplace — FaithBid',
+      vendor: 'Vendor Profile — FaithBid',
       'get-plugged-in': 'Get Plugged In — FaithBid',
       inbox: 'Deal Rooms — FaithBid',
       messages: 'Deal Rooms — FaithBid',
       reviews: 'Reviews — FaithBid',
       profile: 'My Profile — FaithBid',
+      'profile-proof': 'Your Portfolio — FaithBid',
+      'profile-reviews': 'Reviews — FaithBid',
+      'profile-feedback': 'Feedback — FaithBid',
+      'profile-insights': 'Insights — FaithBid',
       pricing: 'Pricing — FaithBid',
       settings: 'Settings — FaithBid',
       about: 'About — FaithBid',
@@ -37950,8 +39945,6 @@ export default function App() {
   const [marketplaceGateLoaded, setMarketplaceGateLoaded] = useState(false);
   const [privateMarketplaceAccess, setPrivateMarketplaceAccess] = useState(false);
   const marketplaceGateUserIdRef = useRef(undefined);
-  const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
-  const [compareCount, setCompareCount] = useState(() => getCompareWorkspaceCount());
   const [refSurveyToken, setRefSurveyToken] = useState(() => {
     if (typeof window === "undefined") return null;
     const m = String(window.location.hash || "").match(/^#\/ref\/([^/?&]+)/);
@@ -38071,7 +40064,7 @@ export default function App() {
           supabase.from("vendor_invites").select("id").eq("vendor_user_id", userId).eq("status", "invited").limit(1),
           supabase.from("vendor_invites").select("id").eq("vendor_id", userId).eq("status", "invited").limit(1),
           supabase.from("project_vendor_links").select("project_id").eq("vendor_user_id", userId).eq("stage", "invited").limit(1),
-          supabase.from("profiles").select("id,role,onboarding_complete,account_status,access_status").eq("id", userId).maybeSingle(),
+          supabase.from("profiles").select("id,role,onboarding_complete,account_status,access_status,private_marketplace_access").eq("id", userId).maybeSingle(),
           supabase.from("vendors").select("user_id,founding_vendor,verification_status,suspended").eq("user_id", userId).maybeSingle(),
         ]);
         if (!active) return;
@@ -38231,17 +40224,6 @@ export default function App() {
     const handler = (e) => { nav(e.detail === "church" ? "church-signup" : "vendor-signup"); };
     document.addEventListener("kb:openModal", handler);
     return () => document.removeEventListener("kb:openModal", handler);
-  }, []);
-
-  useEffect(() => {
-    const syncCompare = () => setCompareCount(getCompareWorkspaceCount());
-    window.addEventListener('storage', syncCompare);
-    window.addEventListener('kb:storage-sync', syncCompare);
-    syncCompare();
-    return () => {
-      window.removeEventListener('storage', syncCompare);
-      window.removeEventListener('kb:storage-sync', syncCompare);
-    };
   }, []);
 
   useEffect(() => {
@@ -38587,6 +40569,7 @@ export default function App() {
           clearLastKnownGoodRole(currentUserRef.current?.id || lastHealthyUserId.current);
           clearPendingSignupContext();
           clearPostAuthTarget();
+          clearAccountDerivedLocalStorage();
           setAuthDefaultRole(null);
           setStartFreeDefaultRole(null);
           clearCurrentUserSafe();
@@ -38608,6 +40591,7 @@ export default function App() {
         clearLastKnownGoodRole(currentUserRef.current?.id || lastHealthyUserId.current);
         clearCurrentUserSafe();
         clearPostAuthTarget();
+        clearAccountDerivedLocalStorage();
         setAuthDefaultRole(null);
         setCurrentUser(null);
         setUserProfile(null);
@@ -38906,7 +40890,11 @@ export default function App() {
     };
 
     window.addEventListener("popstate", onRouteHistoryNavigation);
-    return () => window.removeEventListener("popstate", onRouteHistoryNavigation);
+    window.addEventListener("hashchange", onRouteHistoryNavigation);
+    return () => {
+      window.removeEventListener("popstate", onRouteHistoryNavigation);
+      window.removeEventListener("hashchange", onRouteHistoryNavigation);
+    };
   }, [authReady, closeNavChrome]);
 
   useEffect(() => {
@@ -38944,27 +40932,35 @@ export default function App() {
     if (canAccessMarketplace) return;
     setAutoPost(false);
     setNavSubTab(null);
+    if (currentUser?.id) {
+      const isVendorRole = normalizeAuthRole(userProfile?.role || role) === "vendor";
+      showToast && showToast(
+        isVendorRole
+          ? "Your vendor account is still pending approval. We'll email you once it's reviewed."
+          : "Your account doesn't have marketplace access yet.",
+        "error"
+      );
+    }
     setScreen("landing");
     try { window.location.hash = "landing"; } catch {}
   }, [screen, marketplaceGateLoaded, authReady, canAccessMarketplace]);
 
 
+  // 1008 — Roadmap Phases 2–6 navigation consolidation.
+  // Primary navigation is intentionally reduced to Marketplace + My Projects
+  // (+ Admin Review for admins). Deal Rooms remains contextual per project,
+  // Reviews live on profiles/My Projects, and the former Workspace destinations
+  // are reached only from the surfaces that actually need them.
   const MAIN_TABS = useMemo(() => role === "vendor"
     ? [
         {id:"projects",  label:"Marketplace", icon:"▦", activeOn:["projects"], activeSubTabs:[null,"browse"]},
-        {id:"get-plugged-in", label:"Get Plugged In", icon:"✦", activeOn:["get-plugged-in"]},
-        {id:"projects",  label:"My Work",     icon:"⚡", activeOn:["projects"], subTab:"work"},
-        {id:"inbox",     label:"Deal Rooms",       icon:"💬", activeOn:["inbox"]},
-        {id:"reviews",   label:"Reviews",     icon:"⭐", activeOn:["reviews"]},
-        ...(isAdmin ? [{id:"admin", label:"Admin Review", icon:"⚙️", activeOn:["admin"]}] : []),
+        {id:"projects",  label:"My Projects", icon:"⚡", activeOn:["projects"], subTab:"work"},
+        ...(isAdmin ? [{id:"admin", label:"Admin Review", icon:"⚙️", activeOn:["admin","growth","concierge","qa"]}] : []),
       ]
     : [
         {id:"projects",  label:"Marketplace", icon:"▦", activeOn:["projects"], activeSubTabs:[null,"vendors","browse"]},
-        {id:"get-plugged-in", label:"Get Plugged In", icon:"✦", activeOn:["get-plugged-in"]},
         {id:"projects",  label:"My Projects", icon:"📋", activeOn:["projects"], subTab:"mine"},
-        {id:"inbox",     label:"Deal Rooms",       icon:"💬", activeOn:["inbox"]},
-        {id:"reviews",   label:"Reviews",     icon:"⭐", activeOn:["reviews"]},
-        ...(isAdmin ? [{id:"admin", label:"Admin Review", icon:"⚙️", activeOn:["admin"]}] : []),
+        ...(isAdmin ? [{id:"admin", label:"Admin Review", icon:"⚙️", activeOn:["admin","growth","concierge","qa"]}] : []),
       ], [role, isAdmin]);
 
   const completeLoginBootstrap = React.useCallback(async (user) => {
@@ -39100,19 +41096,17 @@ export default function App() {
         <style dangerouslySetInnerHTML={{__html:css}}/>
       <style>{`
 
-        /* V749 — protected topnav logo: white/off-white nav uses the full color mark
-           so "Faith" stays green. Landing logo variants are untouched. */
-        /* V748 — top nav premium active state + logo parity lock.
-           Global for church and vendor POV: no awkward active tab bubble,
-           full FaithBid logo lockup visible on all protected tabs. */
+        /* V957 — protected topnav canonical brand lock.
+           Compact authenticated navigation uses the approved FB monogram only,
+           preserving room for role navigation without inventing a third logo. */
         .topnav .logo{
           display:flex!important;
           align-items:center!important;
           justify-content:flex-start!important;
           height:34px!important;
-          min-width:146px!important;
-          width:146px!important;
-          flex:0 0 146px!important;
+          min-width:56px!important;
+          width:56px!important;
+          flex:0 0 56px!important;
           overflow:visible!important;
           padding-right:14px!important;
           border-right:1px solid rgba(28,40,20,.10)!important;
@@ -39120,7 +41114,7 @@ export default function App() {
         .topnav .logo .kb-brand-logo,
         .topnav-brand .kb-brand-logo{
           height:30px!important;
-          max-width:136px!important;
+          max-width:26px!important;
           width:auto!important;
           object-fit:contain!important;
           opacity:1!important;
@@ -39169,8 +41163,8 @@ export default function App() {
         .topnav .nav-tab svg{opacity:.68!important;}
         .topnav .nav-tab.active svg{opacity:.95!important;stroke:#172116!important;}
         @media(max-width:820px){
-          .topnav .logo{min-width:128px!important;width:128px!important;flex-basis:128px!important;padding-right:10px!important;}
-          .topnav .logo .kb-brand-logo,.topnav-brand .kb-brand-logo{height:28px!important;max-width:118px!important;}
+          .topnav .logo{min-width:50px!important;width:50px!important;flex-basis:50px!important;padding-right:10px!important;}
+          .topnav .logo .kb-brand-logo,.topnav-brand .kb-brand-logo{height:28px!important;max-width:24px!important;}
           .topnav .nav-tabs{gap:3px!important;}
           .topnav .nav-tab{padding:0 7px!important;font-size:11px!important;}
         }
@@ -39193,13 +41187,11 @@ export default function App() {
       <style dangerouslySetInnerHTML={{__html:css}}/>
       <style>{`
 
-        /* V749 — protected topnav logo: white/off-white nav uses the full color mark
-           so "Faith" stays green. Landing logo variants are untouched. */
-        /* V748 — top nav premium active state + logo parity lock.
-           Global for church and vendor POV: no awkward active tab bubble,
-           full FaithBid logo lockup visible on all protected tabs. */
-        .topnav .logo{display:flex!important;align-items:center!important;justify-content:flex-start!important;height:34px!important;min-width:146px!important;width:146px!important;flex:0 0 146px!important;overflow:visible!important;padding-right:14px!important;border-right:1px solid rgba(28,40,20,.10)!important;}
-        .topnav .logo .kb-brand-logo,.topnav-brand .kb-brand-logo{height:30px!important;max-width:136px!important;width:auto!important;object-fit:contain!important;opacity:1!important;transform:none!important;filter:none!important;}
+        /* V957 — protected topnav canonical brand lock.
+           Compact authenticated navigation uses the approved FB monogram only,
+           preserving room for role navigation without inventing a third logo. */
+        .topnav .logo{display:flex!important;align-items:center!important;justify-content:flex-start!important;height:34px!important;min-width:56px!important;width:56px!important;flex:0 0 56px!important;overflow:visible!important;padding-right:14px!important;border-right:1px solid rgba(28,40,20,.10)!important;}
+        .topnav .logo .kb-brand-logo,.topnav-brand .kb-brand-logo{height:30px!important;max-width:26px!important;width:auto!important;object-fit:contain!important;opacity:1!important;transform:none!important;filter:none!important;}
         .topnav .nav-tabs{height:48px!important;align-items:stretch!important;gap:6px!important;}
         .topnav .nav-tab{height:48px!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:0 9px!important;color:var(--kb-text-nav-inactive)!important;transition:color .16s ease, opacity .16s ease!important;}
         .topnav .nav-tab:hover{background:transparent!important;color:#172116!important;}
@@ -39208,10 +41200,10 @@ export default function App() {
         .topnav .nav-tab.active::after{content:""!important;position:absolute!important;left:7px!important;right:7px!important;bottom:3px!important;height:2px!important;border-radius:999px!important;background:linear-gradient(90deg,rgba(28,40,20,.86),rgba(196,151,58,.72))!important;box-shadow:0 1px 0 rgba(255,255,255,.65)!important;}
         .topnav .nav-tab svg{opacity:.68!important;}
         .topnav .nav-tab.active svg{opacity:.95!important;stroke:#172116!important;}
-        @media(max-width:820px){.topnav .logo{min-width:128px!important;width:128px!important;flex-basis:128px!important;padding-right:10px!important;}.topnav .logo .kb-brand-logo,.topnav-brand .kb-brand-logo{height:28px!important;max-width:118px!important;}.topnav .nav-tabs{gap:3px!important;}.topnav .nav-tab{padding:0 7px!important;font-size:11px!important;}}
+        @media(max-width:820px){.topnav .logo{min-width:50px!important;width:50px!important;flex-basis:50px!important;padding-right:10px!important;}.topnav .logo .kb-brand-logo,.topnav-brand .kb-brand-logo{height:28px!important;max-width:24px!important;}.topnav .nav-tabs{gap:3px!important;}.topnav .nav-tab{padding:0 7px!important;font-size:11px!important;}}
       `}</style>
 
-      <div onClick={()=>{menuOpen&&setMenuOpen(false);toolsMenuOpen&&setToolsMenuOpen(false);mobileNavOpen&&setMobileNavOpen(false);}}>
+      <div onClick={()=>{menuOpen&&setMenuOpen(false);mobileNavOpen&&setMobileNavOpen(false);}}>
         {!authReady && screen === "auth" && currentUser && (
           <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(12,18,13,0.28)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}}>
             <div style={{padding:"12px 16px",borderRadius:999,background:"rgba(20,25,27,0.9)",border:"1px solid rgba(255,255,255,0.08)",color:"rgba(255,255,255,0.8)",fontSize:12,fontWeight:700,letterSpacing:0.8,textTransform:"uppercase"}}>Loading workspace…</div>
@@ -39231,10 +41223,10 @@ export default function App() {
         {/* ── SKIP NAV (accessibility) ── */}
         <a href="#kb-main-content" style={{position:'absolute',top:'-100px',left:'16px',padding:'8px 16px',background:'#1C2814',color:'#fffdf8',borderRadius:8,fontSize:13,fontWeight:700,zIndex:10000,textDecoration:'none',transition:'top 0.15s'}} onFocus={e=>{e.target.style.top='8px'}} onBlur={e=>{e.target.style.top='-100px'}}>Skip to content</a>
         {/* ── TOP NAV // public About owns its own sticky page header ── */}
-        {screen !== "landing" && screen !== "auth" && screen !== "invite" && screen !== "about" && (
-          <nav className={`topnav${(screen==="inbox"||screen==="messages")?" topnav-inbox-dark":""}${(screen==="profile"||screen==="verify-profile")?" topnav-profile-normal-flow":""}`} aria-label="Main navigation" style={{height:48,minHeight:48,padding:"0 18px",background:"rgba(255,250,242,0.98)",borderBottom:"1px solid rgba(28,40,20,0.10)",boxShadow:"none"}}>
-            <div className="logo" onClick={()=>nav("landing")} title="Go to Home" role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))} style={{height:40,minWidth:170,width:170,paddingRight:14,borderRight:"1px solid rgba(28,40,20,0.10)",gap:7,display:"flex",alignItems:"center"}}>
-              <CrossLogo size={38} variant="wordmark" />
+        {screen !== "landing" && screen !== "auth" && screen !== "invite" && screen !== "about" && screen !== "vendor" && (
+          <nav className={`topnav${(screen==="inbox"||screen==="messages")?" topnav-inbox-dark":""}${(screen==="profile"||screen==="profile-proof"||screen==="profile-reviews"||screen==="profile-feedback"||screen==="profile-insights"||screen==="verify-profile")?" topnav-profile-normal-flow":""}`} aria-label="Main navigation" style={{height:48,minHeight:48,padding:"0 18px",background:"rgba(255,250,242,0.98)",borderBottom:"1px solid rgba(28,40,20,0.10)",boxShadow:"none"}}>
+            <div className="logo" onClick={()=>nav("landing")} title="Go to Home" role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))} style={{height:40,minWidth:56,width:56,paddingRight:14,borderRight:"1px solid rgba(28,40,20,0.10)",display:"flex",alignItems:"center"}}>
+              <CrossLogo size={30} variant="monogram" />
             </div>
             <div className="nav-tabs" style={{height:48,margin:"0 8px",gap:4}}>
               {MAIN_TABS.map((t,i)=>{
@@ -39282,156 +41274,14 @@ export default function App() {
               <span style={{transform:mobileNavOpen?"rotate(-45deg) translate(5px,-5px)":"none"}}/>
             </button>
             <div className="nav-right" style={{position:"relative",display:"flex",alignItems:"center",gap:8}}>
-              {currentUser && (
-                <div style={{position:'relative'}}>
-                  <button
-                    type="button"
-                    className="topnav-utility-btn kb-topnav-menu-trigger kb-topnav-workspace-trigger"
-                    onClick={e=>{e.stopPropagation();setMenuOpen(false);setToolsMenuOpen(o=>!o);}}
-                    aria-haspopup="menu"
-                    aria-expanded={toolsMenuOpen ? 'true' : 'false'}
-                    style={{transition:'none'}}
-                  >
-                    <span className="kb-topnav-trigger-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="4" width="7" height="7" rx="1.5"/><rect x="13.5" y="4" width="7" height="7" rx="1.5"/><rect x="3.5" y="14" width="7" height="6" rx="1.5"/><rect x="13.5" y="14" width="7" height="6" rx="1.5"/></svg>
-                    </span>
-                    <span className="kb-topnav-trigger-label">Workspace</span>
-                    <span className="kb-topnav-trigger-caret" aria-hidden="true">⌄</span>
-                  </button>
-                  {toolsMenuOpen && (
-                    <div
-                      role="menu"
-                      className="kb-topnav-menu kb-topnav-workspace-menu"
-                      aria-label="Workspace tools"
-                      onClick={e=>e.stopPropagation()}
-                      onKeyDown={e=>{
-                        if(e.key==='Escape'){e.preventDefault();setToolsMenuOpen(false);return;}
-                        if(e.key==='ArrowDown'||e.key==='ArrowUp'){
-                          e.preventDefault();
-                          const items=Array.from(e.currentTarget.querySelectorAll('button:not([disabled])'));
-                          if(!items.length)return;
-                          const idx=items.indexOf(document.activeElement);
-                          const next=e.key==='ArrowDown'?(idx+1+items.length)%items.length:(idx-1+items.length)%items.length;
-                          items[next]?.focus?.();
-                        }
-                      }}
-                      style={{
-                        position:'absolute',
-                        top:'calc(100% + 7px)',
-                        right:0,
-                        width:242,
-                        background:'#fffdf8',
-                        border:'1px solid rgba(28,40,20,0.10)',
-                        borderRadius:14,
-                        boxShadow:'0 12px 32px rgba(20,21,24,0.13)',
-                        padding:6,
-                        zIndex:220,
-                        overflow:'hidden',
-                        animation:'none',
-                        transition:'none',
-                        transform:'translateZ(0)'
-                      }}
-                    >
-                      <div className="kb-topnav-menu-head">
-                        <span className="kb-topnav-menu-eyebrow">Workspace</span>
-                        <strong>Operate FaithBid</strong>
-                        <span>Signals, saved work, comparisons, and performance.</span>
-                      </div>
-                      {[
-                        {
-                          label:'Activity Center',
-                          right:'Signals',
-                          mark:'•',
-                          run:()=>{setToolsMenuOpen(false);nav('activity');}
-                        },
-                        {
-                          label:'Compare Workspace',
-                          right:'Decide',
-                          mark:'◇',
-                          run:()=>{setToolsMenuOpen(false);nav('compare');}
-                        },
-                        {
-                          label:'Saved Projects',
-                          right:'Saved',
-                          mark:'★',
-                          run:()=>{setToolsMenuOpen(false);nav('saved-projects');}
-                        },
-                        {
-                          label:'Analytics',
-                          right:'Metrics',
-                          mark:'▥',
-                          run:()=>{setToolsMenuOpen(false);nav('analytics');}
-                        },
-                        ...(isAdmin ? [
-                          {
-                            section:'Admin operations'
-                          },
-                          {
-                            label:'Concierge Pilot Operations',
-                            right:'Pilot ops',
-                            mark:'C',
-                            admin:true,
-                            run:()=>{setToolsMenuOpen(false);nav('concierge');}
-                          },
-                          {
-                            label:'Growth Engine',
-                            right:'Research',
-                            mark:'G',
-                            admin:true,
-                            run:()=>{setToolsMenuOpen(false);nav('growth');}
-                          },
-                          {
-                            label:'QA Console',
-                            right:'Release',
-                            mark:'⚙',
-                            admin:true,
-                            run:()=>{setToolsMenuOpen(false);nav('qa');}
-                          },
-                        ] : []),
-                      ].map((item, idx) => item.section ? (
-                        <div key={item.section} className="kb-topnav-menu-section-label" role="presentation" style={{margin:'8px 8px 3px',paddingTop:8,borderTop:'1px solid rgba(28,40,20,0.08)',fontSize:9.5,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',color:'#8a6729'}}>{item.section}</div>
-                      ) : (
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="kb-topnav-menu-item"
-                          key={item.label}
-                          onClick={item.run}
-                          style={{
-                            width:'100%',
-                            height:38,
-                            padding:'0 8px',
-                            marginTop:0,
-                            border:'none',
-                            background:'transparent',
-                            borderRadius:10,
-                            display:'grid',
-                            gridTemplateColumns:'18px minmax(0,1fr) auto',
-                            alignItems:'center',
-                            gap:8,
-                            cursor:'pointer',
-                            textAlign:'left',
-                            color:'#172116',
-                            transition:'none'
-                          }}
-                          onMouseEnter={e=>{ e.currentTarget.style.background='rgba(28,40,20,0.045)'; }}
-                          onMouseLeave={e=>{ e.currentTarget.style.background='transparent'; }}
-                        >
-                          <span style={{width:18,height:18,borderRadius:6,display:'inline-flex',alignItems:'center',justifyContent:'center',background:'rgba(28,40,20,0.055)',color:'rgba(28,40,20,0.58)',fontSize:item.mark === '•' ? 18 : 10.5,fontWeight:800,lineHeight:1}}>{item.mark}</span>
-                          <span style={{minWidth:0,fontSize:12.5,fontWeight:800,color:'#1C2814',lineHeight:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.label}</span>
-                          <span style={{fontFamily:"var(--font-sans), monospace",fontSize:9.5,fontWeight:800,color:item.admin ? 'rgba(138,103,41,0.74)' : 'rgba(28,40,20,0.34)',textTransform:'uppercase',letterSpacing:'0.04em'}}>{item.right}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* 1008: Workspace dropdown retired; its destinations now live contextually. */}
+              {/* Phase 5 polish lock: preserve the existing shared 48px authenticated nav geometry; simplification comes from fewer destinations, not a replacement nav. */}
               {currentUser && <NotificationBell currentUser={currentUser} role={role} nav={nav} onBidAccepted={()=>{ setScreen("projects"); setNavSubTab("work"); }}/>}
               {currentUser ? (
                 <>
                   <button type="button"
                     className="nav-av-pill kb-topnav-menu-trigger kb-topnav-account-trigger"
-                    onClick={e=>{e.stopPropagation();setToolsMenuOpen(false);setMenuOpen(o=>!o);}}
+                    onClick={e=>{e.stopPropagation();setMenuOpen(o=>!o);}}
                     aria-haspopup="menu"
                     aria-expanded={menuOpen ? "true" : "false"}
                     style={{transition:"none"}}
@@ -39521,21 +41371,7 @@ export default function App() {
                   </button>
                 );
               })}
-              {currentUser && <>
-                <div className="mobile-nav-divider"/>
-                <div className="mobile-nav-section-label">Workspace</div>
-                <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('activity');}}><span className="nav-icon">◔"</span>Activity</button>
-                <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('compare');}}><span className="nav-icon">◇</span>Compare Workspace</button>
-                <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('saved-projects');}}><span className="nav-icon">★</span>Saved Projects</button>
-                <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('analytics');}}><span className="nav-icon">▥</span>Analytics</button>
-              </>}
-              {currentUser && isAdmin && <>
-                <div className="mobile-nav-divider"/>
-                <div className="mobile-nav-section-label">Admin operations</div>
-                <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('concierge');}}><span className="nav-icon">C</span>Concierge Pilot Operations</button>
-                <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('growth');}}><span className="nav-icon">G</span>Growth Engine</button>
-                <button type="button" className="mobile-nav-item" onClick={()=>{setMobileNavOpen(false);nav('qa');}}><span className="nav-icon">🧪</span>QA Console</button>
-              </>}
+              {/* 1008: Workspace/Admin operation links consolidated into contextual surfaces and Admin Review. */}
               <div className="mobile-nav-divider"/>
               <div className="mobile-nav-section-label">Account</div>
               {currentUser ? (
@@ -39577,15 +41413,15 @@ export default function App() {
           style={{animation:'fadeUp 0.10s ease'}}
         >
         {screen==="landing"        && <LandingScreen nav={nav} setAuthDefaultRole={setAuthDefaultRole} setStartFreeDefaultRole={setStartFreeDefaultRole} telemetryEnabled={authReady && !currentUser}/> }
-        {/* 853aq P0.1 fix: StartFreeScreen contains real supabase.auth.signUp,
-            profile creation, and vendor-record creation. It was previously
-            mounted unconditionally here with no LAUNCHED check - meaning a
-            raw #/start-free link, bookmark, or old external reference could
-            bypass pre-launch mode entirely regardless of in-app navigation
-            always redirecting away from it. Now gated identically to
-            church-signup/vendor-signup: pre-launch traffic is redirected to
-            the correct waitlist mode instead of ever mounting real signup. */}
-        {screen==="start-free"     && (LAUNCHED ? <StartFreeScreen nav={nav} defaultRole={startFreeDefaultRole} setAuthDefaultRole={setAuthDefaultRole} setStartFreeDefaultRole={setStartFreeDefaultRole}/> : <WaitlistFlowBoundary mode={startFreeDefaultRole==="vendor"?"vendor":"church"} nav={nav} showToast={showToast} setAuthDefaultRole={setAuthDefaultRole} telemetryEnabled={authReady && !currentUser}/>) }
+        {/* 853aq P0.1 fix, superseded by CHURCH_SELF_SERVE_LIVE: StartFreeScreen
+            contains real supabase.auth.signUp + profile creation for churches
+            (vendor role is unconditionally redirected to the invite-only
+            charter flow inside the component itself, regardless of this flag).
+            It has no in-app nav() entry point, so gating it independently of
+            LAUNCHED turns the raw #/start-free URL into a direct signup link
+            the team can hand to a church, or use themselves on a church's
+            behalf, without opening self-serve signup to public landing traffic. */}
+        {screen==="start-free"     && (CHURCH_SELF_SERVE_LIVE ? <StartFreeScreen nav={nav} defaultRole={startFreeDefaultRole} setAuthDefaultRole={setAuthDefaultRole} setStartFreeDefaultRole={setStartFreeDefaultRole}/> : <WaitlistFlowBoundary mode={startFreeDefaultRole==="vendor"?"vendor":"church"} nav={nav} showToast={showToast} setAuthDefaultRole={setAuthDefaultRole} telemetryEnabled={authReady && !currentUser}/>) }
         {/* NOTE: ChurchSignupFlow / VendorSignupFlow are not yet defined in this file.
             Until LAUNCHED is flipped true AND those components are in place, always route
             to WaitlistFlow. Previously the guard was `LAUNCHED || currentUser`, which
@@ -39635,16 +41471,21 @@ export default function App() {
           </div>
         )}
         {(screen==="projects" && marketplaceWorkspaceReady) && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Marketplace...</div>}><ProjectsScreen role={role} currentUser={currentUser} showToast={showToast} nav={nav} initialView={autoPost?"post":"board"} onMounted={()=>setAutoPost(false)} navSubTab={navSubTab} onSubTabChange={handleMarketplaceSubTabChange} forceProjectTab={marketplaceDevPreview ? readProjectSubTabFromHash(window.location.hash) : null} privateMarketplaceAccess={privateMarketplaceAccess} isAdmin={isAdmin} marketplaceDevPreview={marketplaceDevPreview} dependencies={getProjectsScreenDependencies()}/></React.Suspense>}
+        {screen==="vendor" && <PublicVendorProfileScreen nav={nav} showToast={showToast}/>}
         {(screen==="inbox"||screen==="messages")   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Deal Rooms...</div>}><MessagesScreen role={role} currentUser={currentUser} nav={nav} normalizeProjectEntity={normalizeProjectEntity} mergeProjectWorkspaceSnapshots={mergeProjectWorkspaceSnapshots} isWorkspaceAffectingMessageText={isWorkspaceAffectingMessageText} fetchLatestProjectWorkspaceSync={fetchLatestProjectWorkspaceSync} getPendingInboxTarget={getPendingInboxTarget} clearPendingInboxTarget={clearPendingInboxTarget} setPendingProjectTarget={setPendingProjectTarget} onClearUnreadBadge={()=>setUnreadMsgs(0)} dependencies={getMessagesScreenDependencies()}/></React.Suspense>}
         {screen==="compare"   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Compare Workspace...</div>}><CompareWorkspaceScreen nav={nav} role={role} showToast={showToast} currentUser={currentUser} dependencies={getWorkspaceScreenDependencies()} /></React.Suspense>}
-        {screen==="saved-projects" && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Saved Projects...</div>}><SavedProjectsScreen nav={nav} role={role} currentUser={currentUser} showToast={showToast} dependencies={getProjectsScreenDependencies()} /></React.Suspense>}
-        {screen==="activity"  && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Activity Center...</div>}><ActivityCenterScreen currentUser={currentUser} nav={nav} role={role} showToast={showToast} dependencies={getWorkspaceScreenDependencies()} /></React.Suspense>}
-        {screen==="analytics" && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Analytics…</div>}><AnalyticsScreen currentUser={currentUser} nav={nav} role={role} dependencies={{ countUserConversationsSafe, isAdminUser, KB_BP_MOBILE, KBIntentionalState, KBSkeleton, logError, queueActivityNavigation, useViewportWidth }} /></React.Suspense>}
+        {screen==="saved-projects" && <LegacyDestinationRedirect nav={nav} role={role} kind="saved"/>}
+        {screen==="activity" && <LegacyDestinationRedirect nav={nav} role={role} kind="activity"/>}
+        {screen==="analytics" && <LegacyDestinationRedirect nav={nav} role={role} kind="analytics"/>}
         {screen==="pricing"   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Pricing...</div>}><PricingScreen currentUser={currentUser} userProfile={userProfile} role={role} nav={nav} showToast={showToast} dependencies={getAccountScreenDependencies()} /></React.Suspense>}
-        {screen==="qa"        && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading QA Console…</div>}><QAConsoleScreen currentUser={currentUser} userProfile={userProfile} nav={nav} role={role} dependencies={{ getLaunchClientConfigChecks, getProjectDataQuality, getVendorDataQuality, isAdminUser, KB_STORAGE_SCHEMA_VERSION, kbIsDevRuntime, LAUNCH_READINESS_TABLE_CHECKS, listProjectInteropEntries, loadCompareWorkspaceState, logError, MANUAL_BACKEND_RELEASE_CHECKS, normalizeProjectEntity, normalizeVendorEntity, PLATFORM_RELEASE, queueActivityNavigation, readPersistenceManifest, runLaunchReadinessTableCheck, sendReferenceEmail, sendWaitlistEmail }} /></React.Suspense>}
-        {screen==="reviews"   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Reviews...</div>}><ReviewsScreen role={role} showToast={showToast} nav={nav} dependencies={getReviewsScreenDependencies()} /></React.Suspense>}
-        {screen==="admin"     && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Admin Console…</div>}><AdminScreen showToast={showToast} adminUser={currentUser} adminProfile={userProfile} nav={nav} dependencies={getAdminScreenDependencies()}/></React.Suspense>}
-        {screen==="profile" && authReady && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Profile...</div>}><ProfileScreen role={role} currentUser={currentUser} userProfile={userProfile} setUserProfile={setUserProfile} showToast={showToast} nav={nav} initialTab="overview" charterFirstRun={isCharterVendorFirstRunProfile(userProfile)} dependencies={getProfileScreenDependencies()}/></React.Suspense>}
+        {screen==="qa" && (isAdmin ? <><AdminReviewSubnav active="qa" nav={nav}/><React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading QA Console…</div>}><QAConsoleScreen currentUser={currentUser} userProfile={userProfile} nav={nav} role={role} dependencies={{ getLaunchClientConfigChecks, getProjectDataQuality, getVendorDataQuality, isAdminUser, KB_STORAGE_SCHEMA_VERSION, kbIsDevRuntime, LAUNCH_READINESS_TABLE_CHECKS, listProjectInteropEntries, loadCompareWorkspaceState, logError, MANUAL_BACKEND_RELEASE_CHECKS, normalizeProjectEntity, normalizeVendorEntity, PLATFORM_RELEASE, queueActivityNavigation, readPersistenceManifest, runLaunchReadinessTableCheck, sendReferenceEmail, sendWaitlistEmail }} /></React.Suspense></> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>The QA Console is restricted to platform administrators.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
+        {screen==="reviews" && <LegacyDestinationRedirect nav={nav} role={role} kind="reviews"/>}
+        {screen==="admin" && <>{isAdmin && <AdminReviewSubnav active="admin" nav={nav}/>}<React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Admin Console…</div>}><AdminScreen showToast={showToast} adminUser={currentUser} adminProfile={userProfile} nav={nav} dependencies={getAdminScreenDependencies()}/></React.Suspense></>}
+        {screen==="profile" && authReady && <><ProfileWorkspaceTabs role={role} active="profile" nav={nav}/><React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Profile...</div>}><ProfileScreen role={role} currentUser={currentUser} userProfile={userProfile} setUserProfile={setUserProfile} showToast={showToast} nav={nav} initialTab="overview" charterFirstRun={isCharterVendorFirstRunProfile(userProfile)} dependencies={getProfileScreenDependencies()}/></React.Suspense></>}
+        {screen==="profile-proof" && authReady && (role==="vendor" ? <><ProfileWorkspaceTabs role={role} active="profile-proof" nav={nav}/><VendorPortfolioProofScreen role={role} currentUser={currentUser} userProfile={userProfile} showToast={showToast} nav={nav}/></> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
+        {screen==="profile-reviews" && authReady && (role==="vendor" ? <VendorOwnReviewsScreen role={role} currentUser={currentUser} nav={nav}/> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
+        {screen==="profile-feedback" && authReady && (role!=="vendor" ? <ChurchFeedbackProfileScreen role={role} currentUser={currentUser} nav={nav}/> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
+        {screen==="profile-insights" && authReady && (role==="vendor" ? <VendorInsightsProfileScreen role={role} currentUser={currentUser} nav={nav}/> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
         {screen==="verify-profile" && authReady && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Profile...</div>}><ProfileScreen role={role} currentUser={currentUser} userProfile={userProfile} setUserProfile={setUserProfile} showToast={showToast} nav={nav} initialTab="verify" dependencies={getProfileScreenDependencies()}/></React.Suspense>}
         {screen==="settings"  && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Settings...</div>}><SettingsScreen currentUser={currentUser} role={role} showToast={showToast} nav={nav} onSignOut={handleSignOut} dependencies={getSettingsScreenDependencies()} /></React.Suspense>}
         {screen==="about"     && <AboutScreen nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole}/>}
@@ -39653,13 +41494,13 @@ export default function App() {
         {screen==="ambassador"&& <AmbassadorScreen nav={nav} showToast={showToast}/>}
         {screen==="partner"   && <PartnerScreen nav={nav}/>}
         {screen==="join"      && <JoinScreen nav={nav} setAuthDefaultRole={setAuthDefaultRole}/>}
-        {screen==="growth"    && (isAdmin ? <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Growth Engine…</div>}><div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:8,padding:"10px 16px"}}><button type="button" aria-pressed={dallasPilotOnly} onClick={()=>setDallasPilotOnly((value)=>!value)} style={{padding:"6px 12px",borderRadius:6,border:"1px solid var(--navy,#1C2814)",background:dallasPilotOnly?"var(--navy,#1C2814)":"transparent",color:dallasPilotOnly?"#fff":"var(--navy,#1C2814)",fontSize:13,cursor:"pointer"}}>Dallas Pilot only</button></div><GrowthEngine currentUser={currentUser} isAdmin={isAdmin} nav={nav} dallasPilotOnly={dallasPilotOnly}/></React.Suspense> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>The growth engine is restricted to admins.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
-        {screen==="concierge" && (isAdmin ? <ConciergeOpsScreen currentUser={currentUser} showToast={showToast} dallasPilotOnly={dallasPilotOnly} onToggleDallasPilotOnly={()=>setDallasPilotOnly((value)=>!value)}/> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>FaithBid Concierge is restricted to platform administrators.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
+        {screen==="growth" && (isAdmin ? <><AdminReviewSubnav active="growth" nav={nav}/><React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Growth Engine…</div>}><div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:8,padding:"10px 16px"}}><button type="button" aria-pressed={dallasPilotOnly} onClick={()=>setDallasPilotOnly((value)=>!value)} style={{padding:"6px 12px",borderRadius:6,border:"1px solid var(--navy,#1C2814)",background:dallasPilotOnly?"var(--navy,#1C2814)":"transparent",color:dallasPilotOnly?"#fff":"var(--navy,#1C2814)",fontSize:13,cursor:"pointer"}}>Dallas Pilot only</button></div><GrowthEngine currentUser={currentUser} isAdmin={isAdmin} nav={nav} dallasPilotOnly={dallasPilotOnly}/></React.Suspense></> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>The growth engine is restricted to admins.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
+        {screen==="concierge" && (isAdmin ? <><AdminReviewSubnav active="concierge" nav={nav}/><ConciergeOpsScreen currentUser={currentUser} showToast={showToast} dallasPilotOnly={dallasPilotOnly} onToggleDallasPilotOnly={()=>setDallasPilotOnly((value)=>!value)}/></> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>FaithBid Concierge is restricted to platform administrators.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
         </div>
         </PlatformScreenShell>
         </ScreenBoundary>
         {showPublicLegalFooter && <PublicLegalFooter compact={compactPublicLegalFooter} nav={nav} screen={screen} />}
-        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","projects","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","verify-profile","settings","about","privacy","terms","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
+        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","projects","vendor","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","settings","about","privacy","terms","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
           <div style={{minHeight:"80vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px",animation:"fadeUp 0.4s ease"}}>
             <div style={{fontFamily:"var(--font-display),serif",fontSize:72,fontWeight:700,color:"var(--navy)",opacity:0.08,lineHeight:1,marginBottom:24}}>404</div>
             <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"var(--navy)",marginBottom:10}}>Page not found</div>
@@ -39698,22 +41539,20 @@ export default function App() {
       )}
       {showHelp && <HelpModal role={role} onClose={()=>setShowHelp(false)}/>}
       {/* ── MOBILE BOTTOM NAV ── */}
-      {currentUser && screen !== "landing" && screen !== "auth" && screen !== "onboarding" && screen !== "invite" && (
+      {currentUser && screen !== "landing" && screen !== "auth" && screen !== "onboarding" && screen !== "invite" && screen !== "vendor" && (
         <nav className="mob-bottom-nav" style={{backgroundImage:`url(${CLAY_BG})`}}>
           {(role === "vendor" ? [
             {id:"projects", label:"Marketplace", icon:<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>, subTab:null, activeSubTabs:[null,"browse"]},
-            {id:"projects", label:"My Work",     icon:<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>, subTab:"work"},
-            {id:"inbox",    label:"Deal Rooms",       icon:<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, subTab:null, badge:unreadMsgs>0},
-            {id:"profile",  label:"Profile",     icon:<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, subTab:null},
+            {id:"projects", label:"My Projects", icon:<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>, subTab:"work"},
+            ...(isAdmin ? [{id:"admin",label:"Admin Review",icon:<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>,subTab:null,activeOn:["admin","growth","concierge","qa"]}] : []),
           ] : [
             {id:"projects", label:"Marketplace", icon:<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>, subTab:null, activeSubTabs:[null,"vendors","browse"]},
             {id:"projects", label:"My Projects", icon:<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>, subTab:"mine"},
-            {id:"inbox",    label:"Deal Rooms",       icon:<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, subTab:null, badge:unreadMsgs>0},
-            {id:"profile",  label:"Profile",     icon:<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, subTab:null},
+            ...(isAdmin ? [{id:"admin",label:"Admin Review",icon:<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>,subTab:null,activeOn:["admin","growth","concierge","qa"]}] : []),
           ]).map((t,i)=>{
             const isActive = t.subTab
               ? screen==="projects" && navSubTab===t.subTab
-              : screen===t.id && (t.activeSubTabs ? t.activeSubTabs.includes(navSubTab ?? null) : !navSubTab && !(t.id==="projects" && navSubTab));
+              : (t.activeOn || [t.id]).includes(screen) && (t.activeSubTabs ? t.activeSubTabs.includes(navSubTab ?? null) : !navSubTab && !(t.id==="projects" && navSubTab));
             return (
               <button type="button" key={t.label} className={`mob-nav-btn${isActive?" active":""}`} aria-current={isActive ? "page" : undefined} onClick={()=>{
                 if(t.subTab){ nav(getProjectSubTabRoute(t.subTab)); }
@@ -40216,19 +42055,7 @@ function ProfileStats({currentUser, role, showToast, nav}){
         </div>
       )}
 
-      {/* Church-only: Ministry Report teaser */}
-      {role==="church" && stats.projects >= 1 && (
-        <div style={{background:"linear-gradient(135deg,var(--navy),var(--navy-light))",borderRadius:"var(--r-md)",padding:"18px 20px",marginBottom:20,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
-          <div>
-            <div style={{fontSize:12,fontWeight:700,color:"#fff",marginBottom:3}}>Your Annual Ministry Report is ready</div>
-            <div style={{fontSize:11,color:"var(--atext-mid)"}}>Show your congregation how your ministry invested in professional services this year.</div>
-          </div>
-          <button type="button" onClick={()=>nav(role==="church" ? "analytics" : "activity")} style={{background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:"var(--r-sm)",padding:"8px 16px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",whiteSpace:"nowrap"}}>
-            {role==="church" ? "Open report" : "Open Activity"}
-          </button>
-        </div>
-      )}
-
+      {/* 1008: church Analytics teaser retired. Analytics now lives only as vendor Profile · Insights. */}
 
       {/* Badges */}
       {badges.length > 0 && (
@@ -40801,8 +42628,11 @@ function goToLandingFAQ(nav){
 ══════════════════════════════════ */
 
 
-function LandingPricing({nav, setStartFreeDefaultRole}){
-  const [view, setView] = useState("church");
+function LandingPricing({nav, setStartFreeDefaultRole, initialView = null}){
+  const [view, setView] = useState(initialView || "church");
+  useEffect(() => {
+    if (initialView) setView(initialView);
+  }, [initialView]);
   const churchFeatures = [
     "Post unlimited projects",
     "Receive bids from Faith-Verified vendors",
@@ -41631,7 +43461,7 @@ function ShareableCard({refCode, orgName, onClose}){
 
           <div style={{position:"relative",zIndex:1}}>
             <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:32}}>
-              <CrossLogo size={22}/>
+              <CrossLogo size={30} variant="monogram" tone="inverse" />
               <span style={{marginLeft:"auto",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(34,197,94,0.8)",background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.2)",borderRadius:100,padding:"3px 10px"}}>Founding Connector</span>
             </div>
 
@@ -41775,7 +43605,7 @@ function JoinScreen({nav, setAuthDefaultRole = null}){
       {/* Minimal top bar */}
       <div style={{background:"rgba(6,13,5,0.95)",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"0 32px",height:60,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100,backdropFilter:"blur(12px)"}}>
         <button type="button" aria-label="Go to home" onClick={()=>nav("landing")} style={{display:"flex",alignItems:"center",gap:9,background:"none",border:"none",cursor:"pointer"}}>
-          <CrossLogo size={30}/>
+          <CrossLogo size={34} variant="monogram" tone="inverse" />
         </button>
         <div style={{display:"flex",alignItems:"center",gap:16}}>
           <button type="button" onClick={()=>nav("landing")} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>
@@ -42638,6 +44468,12 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
   }, []);
 
   const fmt = (n) => n >= 1000 ? `${(n/1000).toFixed(1)}K+` : n > 0 ? `${n}+` : "—";
+  const [pricingView, setPricingView] = useState(null);
+  const scrollToVendorPricing = () => {
+    setPricingView("vendor");
+    if (typeof document === "undefined") return;
+    document.getElementById("pricing-section")?.scrollIntoView({ behavior:"smooth", block:"start" });
+  };
 
   const scrollToHowItWorks = () => {
     if (typeof document === "undefined") return;
@@ -42654,15 +44490,76 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
   return (
     <div className="fb-landing-v2">
       <style>{LANDING_PRECISION_POLISH_CSS}</style>
+      <style>{`
+        /* 1002 — Landing auth-background glass parity. The Sign In screen is not
+           a flat cream slab: it is the church/sky image heavily washed, softened and
+           blurred. Let the real landing hero show through the nav and apply the same
+           pale, atmospheric glass treatment instead of painting an opaque rectangle. */
+        .fb-landing-v2 .fb-landing-nav{
+          position:relative!important;
+          overflow:visible!important;
+          background:linear-gradient(90deg,
+            rgba(255,252,246,.46) 0%,
+            rgba(252,247,238,.38) 48%,
+            rgba(249,241,228,.34) 100%)!important;
+          border-bottom:0!important;
+          box-shadow:none!important;
+          backdrop-filter:blur(18px) brightness(1.18) saturate(.72)!important;
+          -webkit-backdrop-filter:blur(18px) brightness(1.18) saturate(.72)!important;
+        }
+        .fb-landing-v2 .fb-landing-nav::after{
+          content:"";
+          position:absolute;
+          left:0;
+          right:0;
+          bottom:-18px;
+          height:22px;
+          pointer-events:none;
+          background:linear-gradient(180deg,
+            rgba(250,245,236,.19) 0%,
+            rgba(250,245,236,.07) 48%,
+            rgba(250,245,236,0) 100%);
+        }
+        .fb-landing-v2 .fb-landing-nav .land-nav-btn,
+        .fb-landing-v2 .fb-landing-signin{color:#17352b!important;text-shadow:0 1px 8px rgba(255,252,246,.48)!important;}
+        .fb-landing-v2 .fb-landing-nav .land-nav-btn:hover,
+        .fb-landing-v2 .fb-landing-signin:hover{color:#0f2f24!important;}
+        .fb-landing-v2 .fb-landing-nav-actions .fb-landing-request{
+          box-shadow:0 5px 16px rgba(23,53,43,.10)!important;
+        }
+        @media(max-width:900px){
+          .fb-landing-v2 .fb-landing-nav .hamburger{
+            background:rgba(255,252,246,.38)!important;
+            border:1px solid rgba(23,53,43,.10)!important;
+            backdrop-filter:blur(10px)!important;
+            -webkit-backdrop-filter:blur(10px)!important;
+          }
+          .fb-landing-v2 .fb-landing-nav .hamburger span{background:#17352b!important;}
+        }
+
+        /* V988 — Landing-only full-lockup scale correction. Keep the approved
+           FaithBid + tagline artwork in the exact top-left landing-nav position,
+           but give it substantially more visual presence. Platform nav remains FB. */
+        .fb-landing-nav-brand{display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;min-width:190px!important;padding:0!important;background:transparent!important;background-color:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;}
+        .fb-landing-nav-brand .kb-brand-logo-full{height:52px!important;width:auto!important;max-width:190px!important;filter:drop-shadow(0 0 7px rgba(255,253,248,.96)) drop-shadow(0 0 15px rgba(255,250,240,.72)) drop-shadow(0 1px 1px rgba(255,255,255,.55))!important;}
+        .fb-landing-nav-wordmark{display:none!important;}
+        @media(max-width:900px){
+          .fb-landing-nav-brand{min-width:164px!important;}
+          .fb-landing-nav-brand .kb-brand-logo-full{height:45px!important;max-width:164px!important;}
+        }
+        @media(max-width:600px){
+          .fb-landing-nav-brand{min-width:146px!important;}
+          .fb-landing-nav-brand .kb-brand-logo-full{height:40px!important;max-width:146px!important;}
+        }
+      `}</style>
       <section className="land-hero fb-landing-hero" aria-labelledby="faithbid-landing-title">
         <nav className="land-nav fb-landing-nav" aria-label="FaithBid home navigation">
           <button type="button" className="fb-landing-nav-brand" onClick={()=>nav("landing")} aria-label="FaithBid home">
-            <img src="/logos/faithbid-fb-monogram.png" alt="" aria-hidden="true" />
-            <span className="fb-landing-nav-wordmark">FaithBid</span>
+            <CrossLogo size={52} variant="full" />
           </button>
           <div className="land-nav-links fb-landing-nav-links">
             <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>For Churches</button>
-            <button type="button" className="land-nav-btn" onClick={()=>document.getElementById("pricing-section")?.scrollIntoView({behavior:"smooth",block:"start"})}>For Vendors</button>
+            <button type="button" className="land-nav-btn" onClick={scrollToVendorPricing}>For Vendors</button>
             <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>How It Works</button>
             <button type="button" className="land-nav-btn" onClick={()=>nav("about")}>About</button>
           </div>
@@ -42732,10 +44629,8 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
       <LandingChurchTrustStrip />
 
-      <GpiLandingReveal nav={nav}/>
-
       {/* ── PRICING ── */}
-      <LandingPricing nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole}/>
+      <LandingPricing nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole} initialView={pricingView}/>
 
       {SHOW_PLACEHOLDER_TESTIMONIALS && <LandingTestimonials/>}
 
@@ -42881,7 +44776,7 @@ function AboutScreen({nav, setStartFreeDefaultRole}){
     <div className="sub-page-wrap" style={{background:"var(--cream)"}}>
       <div className="sub-page-nav" style={{background:"rgba(255,255,255,0.92)",backdropFilter:"blur(14px)",borderBottom:"1px solid rgba(42,53,32,0.08)",padding:"18px 48px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:20}}>
         <button type="button" onClick={()=>nav("landing")} style={{display:"flex",alignItems:"center",gap:10,background:"none",border:"none",cursor:"pointer"}}>
-          <CrossLogo size={22}/>
+          <CrossLogo size={32} variant="monogram" />
         </button>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
           <button type="button" onClick={()=>nav("landing")} style={{background:"transparent",border:"1px solid rgba(42,53,32,0.12)",color:"var(--navy)",padding:"10px 14px",borderRadius:999,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back</button>
@@ -43060,7 +44955,7 @@ function AmbassadorScreen({nav, showToast = () => {}}){
       {/* Nav */}
       <div className="sub-page-nav" style={{backgroundImage:`url(${CLAY_BG})`,backgroundSize:"cover",backgroundPosition:"center",padding:"20px 48px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <button type="button" aria-label="Go to home" onClick={()=>nav("landing")} style={{display:"flex",alignItems:"center",gap:9,background:"none",border:"none",cursor:"pointer"}}>
-          <CrossLogo size={22}/>
+          <CrossLogo size={32} variant="monogram" tone="inverse" />
         </button>
         <button type="button" onClick={()=>nav("projects")} style={{background:"none",border:"none",color:"var(--atext-2)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back</button>
       </div>
@@ -43087,7 +44982,7 @@ function AmbassadorScreen({nav, showToast = () => {}}){
             <p style={{fontSize:15,color:"var(--text-muted)",fontWeight:400,maxWidth:480,margin:"0 auto",lineHeight:1.7}}>Every perk is something genuinely useful // not a discount code for something you'd never buy.</p>
           </div>
           <div className="sub-page-three-col" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
-            {PERKS.map((p)=>(
+            {PERKS.map((p,i)=>(
               <div key={p.label||p.title||p.heading} className="hover-lift-card" style={{padding:"26px 24px",borderRadius:"var(--r-lg)",border:"1.5px solid var(--border)",background:"var(--cream)"}}>
                 <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"var(--text-muted)",letterSpacing:1,marginBottom:12}}>{String(i+1).padStart(2,"0")}</div>
                 <div style={{fontFamily:"var(--font-display),serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:8}}>{p.title}</div>
@@ -43236,7 +45131,7 @@ function PartnerScreen({nav}){
       {/* Nav */}
       <div className="sub-page-nav" style={{backgroundImage:`url(${CLAY_BG})`,backgroundSize:"cover",backgroundPosition:"center",padding:"20px 48px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <button type="button" aria-label="Go to home" onClick={()=>nav("landing")} style={{display:"flex",alignItems:"center",gap:9,background:"none",border:"none",cursor:"pointer"}}>
-          <CrossLogo size={22}/>
+          <CrossLogo size={32} variant="monogram" tone="inverse" />
         </button>
         <button type="button" onClick={()=>nav("projects")} style={{background:"none",border:"none",color:"var(--atext-2)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back</button>
       </div>
@@ -43399,6 +45294,7 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
           data: {
             role: roleValue,
             org_name: orgName.trim(),
+            full_name: fullName.trim(),
           },
         },
       });
@@ -43448,6 +45344,7 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
           role: roleValue,
           email: email.trim().toLowerCase(),
           org_name: orgName.trim(),
+          full_name: fullName.trim(),
         });
       }
       setDone(true);
@@ -43469,7 +45366,7 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
       <div style={{minHeight:"100vh",background:"#f7f5f0",color:"#141518"}}>
         <div style={{maxWidth:1240,margin:"0 auto",padding:"22px 28px"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:20,marginBottom:36}}>
-            <div style={{cursor:"pointer"}} onClick={()=>nav("landing")} role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))}><CrossLogo size={34} color="#22301B" wordmarkColor="#22301B"/></div>
+            <div style={{cursor:"pointer"}} onClick={()=>nav("landing")} role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))}><CrossLogo size={52} /></div>
             <button type="button" onClick={()=>nav("landing")} style={{height:40,padding:"0 16px",borderRadius:10,border:"1px solid rgba(20,21,24,0.1)",background:"#fff",fontSize:13,fontWeight:700,color:"#2e3038",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Back to landing</button>
           </div>
           <div style={{maxWidth:760,margin:"0 auto",background:"#fff",border:"1px solid rgba(20,21,24,0.06)",borderRadius:28,boxShadow:"0 24px 72px rgba(20,21,24,0.08)",overflow:"hidden"}}>
@@ -43519,7 +45416,7 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
     <div style={{minHeight:"100vh",background:"#f7f5f0",color:"#141518"}}>
       <div style={{maxWidth:1360,margin:"0 auto",padding:"24px 28px 64px"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:20,marginBottom:34,flexWrap:"wrap"}}>
-          <div style={{cursor:"pointer"}} onClick={()=>nav("landing")} role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))}><CrossLogo size={36} color="#22301B" wordmarkColor="#22301B"/></div>
+          <div style={{cursor:"pointer"}} onClick={()=>nav("landing")} role="button" tabIndex={0} onKeyDown={activateOnKey(()=>nav("landing"))}><CrossLogo size={52} /></div>
           <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === "function") setAuthDefaultRole(selectedRole === "vendor" ? "vendor" : "church"); nav("auth"); }} style={{height:40,padding:"0 16px",borderRadius:10,border:"1px solid rgba(20,21,24,0.1)",background:"#fff",fontSize:13,fontWeight:700,color:"#2e3038",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Already have an account? Sign in</button>
         </div>
 
@@ -44143,7 +46040,7 @@ function VendorWorkspaceLaunchPanel({ vendorProfile = {}, projects = [], onBrows
                   <button type="button" onClick={onVerifyProfile} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Get Faith Verified</button>
                   {onOpenMatches ? <button type="button" onClick={onOpenMatches} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Open Matches</button> : null}
                   {onOpenInbox ? <button type="button" onClick={onOpenInbox} style={{padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Open Inbox</button> : null}
-                  {onOpenActivity ? <button type="button" onClick={onOpenActivity} style={{gridColumn:'1 / -1',padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Open Activity Center</button> : null}
+                  {onOpenActivity ? <button type="button" onClick={onOpenActivity} style={{gridColumn:'1 / -1',padding:'12px 12px',background:'rgba(245,240,232,0.08)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>View project updates</button> : null}
                 </div>
               </div>
             </div>
@@ -44160,7 +46057,7 @@ function AuthShell({ nav, children, showProgress = false, step = 1, totalSteps =
     <div className="page-shell-dark fb-auth-shell-v2">
       <div className="fb-auth-layout">
         <div className="fb-auth-topbar">
-          <button type="button" className="fb-auth-brand" onClick={() => nav('landing')} aria-label="FaithBid home"><CrossLogo size={34} variant="wordmark" /></button>
+          <button type="button" className="fb-auth-brand" onClick={() => nav('landing')} aria-label="FaithBid home" style={{background:"transparent",backgroundColor:"transparent",border:0,borderRadius:0,boxShadow:"none",padding:0,display:"inline-flex",alignItems:"center"}}><CrossLogo size={54} tone="inverse" style={{maxWidth:198}} /></button>
           {showProgress ? (
             <div className="fb-auth-progress" style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
               {Array.from({ length: totalSteps }).map((_, idx) => {
@@ -44792,7 +46689,8 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     if (error) throw error;
     try { rememberProjectForVendorMatching(user?.id, created || insertPayload, 'post_project_signed_in'); } catch (handoffErr) { logError("ai-matching-project-handoff-post-project-with-user", handoffErr, { projectId: created?.id || null }); }
     try {
-      const { error: notificationError } = await createTrustedNotificationSafe("project_posted", created?.id);
+      // Still a draft (status='draft') -- publishing is a separate action.
+      const { error: notificationError } = await createTrustedNotificationSafe("project_draft_created", created?.id);
       if (notificationError) throw notificationError;
     } catch (notifErr) { logError("project-post-notification", notifErr, { projectId: created?.id || null }); }
     return created || null;
@@ -44805,7 +46703,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     try {
       const { data: rows, error } = await supabase
         .from("projects")
-        .select("id,title,description,category,budget,timeline,created_at")
+        .select("id,title,description,category,budget,timeline,created_at,hero_image_path")
         .eq("church_id", user.id)
         .eq("title", record.project.title)
         .gte("created_at", sinceIso)
@@ -45268,6 +47166,31 @@ function PostProject({ onSubmit, onBack, role }) {
   const [deliveryPreference, setDeliveryPreference] = useState("");
   const [projectCity, setProjectCity] = useState("");
   const [projectState, setProjectState] = useState("");
+  const [heroImageFile, setHeroImageFile] = useState(null);
+  const [heroImagePreview, setHeroImagePreview] = useState("");
+  const heroImageInputRef = React.useRef(null);
+
+  const handleHeroImageChange = (event) => {
+    const file = event.target.files?.[0] || null;
+    if (!file) return;
+    const validationError = validateProjectImageFile(file);
+    if (validationError) {
+      setErr(validationError);
+      if (heroImageInputRef.current) heroImageInputRef.current.value = '';
+      return;
+    }
+    setErr('');
+    setHeroImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => setHeroImagePreview(String(loadEvent.target?.result || ''));
+    reader.readAsDataURL(file);
+  };
+
+  const clearHeroImage = () => {
+    setHeroImageFile(null);
+    setHeroImagePreview('');
+    if (heroImageInputRef.current) heroImageInputRef.current.value = '';
+  };
 
   const projectNeedsLocation = deliveryPreference && deliveryPreference !== "remote";
   const locationReady = !projectNeedsLocation || !!(projectCity.trim() && projectState);
@@ -45296,6 +47219,7 @@ function PostProject({ onSubmit, onBack, role }) {
         project_city: projectCity.trim() || null,
         project_state: projectState || null,
         delivery_preference: serializeProjectDeliveryPreference(deliveryPreference),
+        hero_image_file: heroImageFile,
       });
     } catch (e) {
       logError("post-project-submit", e);
@@ -45479,6 +47403,27 @@ function PostProject({ onSubmit, onBack, role }) {
             />
           </div>
 
+          {/* Optional project photo — uploaded only after the project row exists so the private path is project-owned. */}
+          <div style={{display:'grid',gap:8,padding:'14px',border:'1px solid rgba(28,40,20,0.09)',borderRadius:14,background:'#fbfaf6'}}>
+            <div>
+              <div style={{fontSize:12,fontWeight:700,color:'#2e3038',letterSpacing:0.2}}>Project photo <span style={{fontSize:11,fontWeight:400,color:'#858792'}}>optional</span></div>
+              <div style={{fontSize:11.5,color:'#74756d',lineHeight:1.5,marginTop:3}}>Use a real photo of the space, equipment, or work involved. JPG, PNG, or WebP — max 5 MB.</div>
+            </div>
+            <input ref={heroImageInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleHeroImageChange} style={{display:'none'}} aria-label="Upload project photo" />
+            {heroImagePreview ? (
+              <div style={{position:'relative',height:176,borderRadius:12,overflow:'hidden',background:'#eee8dc',border:'1px solid #dfd5c2'}}>
+                <img src={heroImagePreview} alt="Project photo preview" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+                <button type="button" onClick={clearHeroImage} style={{position:'absolute',top:10,right:10,height:32,padding:'0 11px',borderRadius:999,border:'1px solid rgba(255,255,255,0.72)',background:'rgba(28,40,20,0.78)',color:'#fff',fontSize:11,fontWeight:800,cursor:'pointer'}}>Remove</button>
+              </div>
+            ) : null}
+            <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+              <button type="button" onClick={()=>heroImageInputRef.current?.click()} style={{height:38,padding:'0 15px',borderRadius:11,border:'1.5px solid #dfd5c2',background:'#fffdf8',color:'#1C2814',fontSize:12.5,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>
+                {heroImagePreview ? 'Change photo' : 'Add project photo'}
+              </button>
+              <span style={{alignSelf:'center',fontSize:10.5,color:'#8a8579'}}>Private storage · shown only to viewers who can access the project.</span>
+            </div>
+          </div>
+
           <div style={{display:'grid', gap:6}}>
             <span style={{fontSize:12, fontWeight:700, color:'#2e3038', letterSpacing:0.2}}>Scope <span style={{fontSize:11, fontWeight:400, color:'#858792'}}>optional — what specifically needs to happen</span></span>
             <input
@@ -45579,8 +47524,9 @@ function PostProject({ onSubmit, onBack, role }) {
 
             {/* The actual kbm-card preview */}
             <div style={{position:'relative',display:'flex',flexDirection:'column',background:'#fff',border:'1px solid #dfd5c2',borderRadius:18,overflow:'hidden',boxShadow:'0 7px 20px rgba(28,40,20,0.065)',marginBottom:18}}>
-              {/* Image hero — placeholder gradient since church hasn't uploaded one yet */}
+              {/* Image hero — real selected photo when provided, neutral preview treatment otherwise. */}
               <div style={{position:'relative',height:120,overflow:'hidden',background:'linear-gradient(135deg,#5b7a5e 0%,#3d5940 100%)'}}>
+                {heroImagePreview ? <img src={heroImagePreview} alt="" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}} /> : null}
                 <div style={{position:'absolute',inset:0,background:'linear-gradient(180deg, rgba(28,40,20,0.10) 0%, rgba(28,40,20,0.32) 100%)'}}/>
                 <div style={{position:'absolute',top:12,left:12,display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
                   <span style={{height:22,display:'inline-flex',alignItems:'center',padding:'0 9px',borderRadius:999,background:'rgba(255,255,255,0.92)',border:'1px solid rgba(47,133,90,0.25)',fontSize:9.5,fontWeight:800,letterSpacing:'0.06em',textTransform:'uppercase',color:'#2F855A',backdropFilter:'blur(8px)'}}>Open</span>
@@ -45616,7 +47562,7 @@ function PostProject({ onSubmit, onBack, role }) {
             </div>
 
             <div style={{fontSize:12,color:'#74756d',lineHeight:1.55,marginBottom:16,padding:'10px 12px',background:'#fffdf8',borderRadius:10,border:'1px solid #efe7d9'}}>
-              This is roughly what your project will look like in vendors' Marketplace feed. The image will use a calm placeholder until you add photos from your project page.
+              This is roughly what your project will look like in vendors' Marketplace feed. If you add a project photo, FaithBid stores it privately and serves it only to viewers who can access the project.
             </div>
 
             <div style={{display:'flex',gap:10}}>
@@ -45939,6 +47885,8 @@ function KcProjectCardLegacy({ project: p, onSelect, actions, bidAmount, statusO
 }
 
 
+/* 0963 — Project detail visual lock + whole-card navigation. */
+
 /* ══════════════════════════════════
    SAMPLE PROJECT DETAIL (read-only)
    Opens when a visitor clicks a sample card // no bid form.
@@ -46072,10 +48020,12 @@ function MarketplaceV2Header({
       <div className="mkt2-header__inner">
         <div className="mkt2-header__topline">
           <p className="mkt2-header__eyebrow">{isProjects ? 'Vendor marketplace' : 'Church marketplace'}</p>
-          <div className="mkt2-switch" aria-label="Marketplace views">
-            <button type="button" className="mkt2-switch__option" aria-pressed={!isProjects} onClick={onVendors}>Vendors</button>
-            <button type="button" className="mkt2-switch__option" aria-pressed={isProjects} onClick={onProjects}>Projects</button>
-          </div>
+          {isVendor ? null : (
+            <div className="mkt2-switch" aria-label="Marketplace views">
+              <button type="button" className="mkt2-switch__option" aria-pressed={!isProjects} onClick={onVendors}>Vendors</button>
+              <button type="button" className="mkt2-switch__option" aria-pressed={isProjects} onClick={onProjects}>Projects</button>
+            </div>
+          )}
         </div>
         <div className="mkt2-header__copy">
           <h1 className="mkt2-header__title" id={`mkt2-${view}-title`}>{title}</h1>
@@ -46641,118 +48591,691 @@ function normalizeVendorPortfolioUrl(value) {
   } catch { return ""; }
 }
 
-function VendorPortfolioEditor({ currentUser, showToast, onCountChange }) {
+function getVendorPortfolioSourceLabel(item = {}) {
+  return item?.source === 'faithbid_project' ? 'Completed via FaithBid' : 'External example';
+}
+
+function VendorPortfolioEditor({ currentUser, showToast, onCountChange, nav = null }) {
+  const PORTFOLIO_SELECT = 'id,vendor_id,type,title,description,url,category,client_name,client_name_permission,image_urls,pdf_url,source,source_project_id,display_order,created_at,updated_at';
+  const EMPTY_WORK_FORM = { title:'', category:'', clientName:'', clientPermission:false, url:'', pdfUrl:'', description:'' };
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState('');
+  const [savingKind, setSavingKind] = useState('');
   const [removingId, setRemovingId] = useState(null);
-  const [form, setForm] = useState({ title:"", url:"", description:"" });
+  const [movingId, setMovingId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [workForm, setWorkForm] = useState(EMPTY_WORK_FORM);
+  const [workImageFiles, setWorkImageFiles] = useState([]);
+  const [linkForm, setLinkForm] = useState({ title:'Website', url:'' });
+  const [editForm, setEditForm] = useState({ ...EMPTY_WORK_FORM, imageUrls:[] });
+  const [editImageFiles, setEditImageFiles] = useState([]);
 
   const publishItems = useCallback((rows) => {
-    const next = Array.isArray(rows) ? rows : [];
+    const next = (Array.isArray(rows) ? rows : [])
+      .filter(Boolean)
+      .sort((a,b) => (Number(a?.display_order || 0) - Number(b?.display_order || 0)) || String(a?.created_at || '').localeCompare(String(b?.created_at || '')));
     setItems(next);
-    if (typeof onCountChange === 'function') onCountChange(next.length);
+    if (typeof onCountChange === 'function') onCountChange(next.filter(item => item.type !== 'link').length);
   }, [onCountChange]);
 
   const load = useCallback(async () => {
     if (!currentUser?.id) { publishItems([]); setLoading(false); return; }
     setLoading(true);
+    setLoadError('');
     try {
       const { data, error } = await supabase
         .from('vendor_portfolio_items')
-        .select('id,vendor_id,type,title,description,url,source,display_order,created_at,updated_at')
+        .select(PORTFOLIO_SELECT)
         .eq('vendor_id', currentUser.id)
-        .eq('type', 'link')
         .order('display_order', { ascending:true })
         .order('created_at', { ascending:true });
       if (error) throw error;
       publishItems(data || []);
     } catch (error) {
       logError('vendor-portfolio-load', error, { userId:currentUser?.id });
-      showToast && showToast("Couldn't load portfolio links.", 'error');
+      setLoadError("FaithBid couldn't load your portfolio right now.");
     } finally { setLoading(false); }
-  }, [currentUser?.id, publishItems, showToast]);
+  }, [currentUser?.id, publishItems]);
 
   useEffect(() => { load(); }, [load]);
 
-  const addLink = async () => {
-    const title = String(form.title || '').trim();
-    const url = normalizeVendorPortfolioUrl(form.url);
-    const description = String(form.description || '').trim().slice(0, 1000);
-    if (!title) { showToast && showToast('Add a portfolio title.', 'error'); return; }
-    if (!url) { showToast && showToast('Add a valid website or portfolio URL.', 'error'); return; }
-    if (!currentUser?.id) { showToast && showToast('Please sign in again.', 'error'); return; }
-    if (items.length >= 12) { showToast && showToast('You can add up to 12 portfolio links in this phase.', 'error'); return; }
-    setSaving(true);
-    try {
-      const { data, error } = await supabase.from('vendor_portfolio_items').insert({
-        vendor_id: currentUser.id,
-        type:'link',
-        title:title.slice(0,120),
-        description,
-        url,
-        source:'manual',
-        display_order:items.length,
-      }).select('id,vendor_id,type,title,description,url,source,display_order,created_at,updated_at').single();
-      if (error) throw error;
-      const next = [...items, data].filter(Boolean);
-      publishItems(next);
-      setForm({ title:'', url:'', description:'' });
-      showToast && showToast('Portfolio link added');
-    } catch (error) {
-      logError('vendor-portfolio-add', error, { userId:currentUser.id });
-      showToast && showToast("Couldn't add that portfolio link.", 'error');
-    } finally { setSaving(false); }
+  const workItems = useMemo(() => items.filter(item => item.type !== 'link'), [items]);
+  const elsewhereLinks = useMemo(() => items.filter(item => item.type === 'link'), [items]);
+  const nextOrder = useCallback(() => items.length ? Math.max(...items.map(item => Number(item?.display_order || 0))) + 1 : 0, [items]);
+  const categoryOptions = useMemo(() => Array.from(new Set((Array.isArray(CATEGORIES) ? CATEGORIES : []).map(item => String(item?.label || item || '').trim()).filter(Boolean))), []);
+
+  const normalizeFileList = (files) => Array.from(files || []).filter(Boolean).slice(0,3);
+  const validateImageFiles = (files, existingCount = 0) => {
+    const safe = normalizeFileList(files);
+    if (existingCount + safe.length > 3) { showToast && showToast('Use up to 3 images per portfolio project.', 'error'); return null; }
+    for (const file of safe) {
+      if (file.size > 5 * 1024 * 1024) { showToast && showToast('Each portfolio image must be under 5 MB.', 'error'); return null; }
+      if (!['image/jpeg','image/png','image/webp'].includes(file.type)) { showToast && showToast('Portfolio images must be JPG, PNG, or WebP.', 'error'); return null; }
+    }
+    return safe;
   };
 
-  const removeLink = async (item) => {
+  const uploadPortfolioImages = async (files = []) => {
+    if (!currentUser?.id || !files.length) return { urls:[], paths:[] };
+    const urls = [];
+    const paths = [];
+    for (let idx = 0; idx < files.length; idx += 1) {
+      const file = files[idx];
+      const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+      const token = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2,9)}`;
+      const path = `vendor-photos/${currentUser.id}/portfolio/${token}-${idx}.${ext}`;
+      const { error } = await supabase.storage.from('vendor-assets').upload(path, file, { upsert:false, contentType:file.type });
+      if (error) {
+        if (paths.length) { try { await supabase.storage.from('vendor-assets').remove(paths); } catch {} }
+        throw error;
+      }
+      const { data:urlData } = supabase.storage.from('vendor-assets').getPublicUrl(path);
+      if (!urlData?.publicUrl) {
+        try { await supabase.storage.from('vendor-assets').remove([path, ...paths]); } catch {}
+        throw new Error('Portfolio image URL was unavailable after upload.');
+      }
+      paths.push(path);
+      urls.push(urlData.publicUrl);
+    }
+    return { urls, paths };
+  };
+
+  const vendorAssetPath = (url) => {
+    const raw = String(url || '');
+    const marker = '/storage/v1/object/public/vendor-assets/';
+    const idx = raw.indexOf(marker);
+    if (idx < 0) return '';
+    try { return decodeURIComponent(raw.slice(idx + marker.length).split('?')[0]); } catch { return raw.slice(idx + marker.length).split('?')[0]; }
+  };
+
+  const cleanupVendorImages = async (urls = []) => {
+    const paths = (Array.isArray(urls) ? urls : []).map(vendorAssetPath).filter(path => path.startsWith(`vendor-photos/${currentUser?.id || ''}/`));
+    if (!paths.length) return;
+    try {
+      const { error } = await supabase.storage.from('vendor-assets').remove(paths);
+      if (error) logError('vendor-portfolio-image-cleanup', error, { count:paths.length });
+    } catch (error) { logError('vendor-portfolio-image-cleanup', error, { count:paths.length }); }
+  };
+
+  const addExternalProject = async () => {
+    const title = String(workForm.title || '').trim().slice(0,120);
+    const description = String(workForm.description || '').trim().slice(0,280);
+    const category = String(workForm.category || '').trim().slice(0,120) || null;
+    const clientName = String(workForm.clientName || '').trim().slice(0,160) || null;
+    const rawUrl = String(workForm.url || '').trim();
+    const url = rawUrl ? normalizeVendorPortfolioUrl(rawUrl) : '';
+    const rawPdf = String(workForm.pdfUrl || '').trim();
+    const pdfUrl = rawPdf ? normalizeVendorPortfolioUrl(rawPdf) : '';
+    if (!title) { showToast && showToast('Add a project title.', 'error'); return; }
+    if (!description) { showToast && showToast('Add a short description of the work.', 'error'); return; }
+    if (rawUrl && !url) { showToast && showToast('Use a valid http or https project link.', 'error'); return; }
+    if (rawPdf && !pdfUrl) { showToast && showToast('Use a valid http or https document link.', 'error'); return; }
+    if (clientName && !workForm.clientPermission) { showToast && showToast('Confirm you have permission before naming a client or church.', 'error'); return; }
+    if (!currentUser?.id) { showToast && showToast('Please sign in again.', 'error'); return; }
+    if (workItems.length >= 18) { showToast && showToast('You can showcase up to 18 work examples.', 'error'); return; }
+    const files = validateImageFiles(workImageFiles, 0);
+    if (files === null) return;
+    setSavingKind('work');
+    let uploadedPaths = [];
+    try {
+      const uploaded = await uploadPortfolioImages(files);
+      uploadedPaths = uploaded.paths;
+      const { data, error } = await supabase.from('vendor_portfolio_items').insert({
+        vendor_id:currentUser.id,
+        type:'case_study',
+        title,
+        description,
+        url:url || null,
+        category,
+        client_name:clientName,
+        client_name_permission:!!(clientName && workForm.clientPermission),
+        image_urls:uploaded.urls,
+        pdf_url:pdfUrl || null,
+        source:'manual',
+        source_project_id:null,
+        display_order:nextOrder(),
+      }).select(PORTFOLIO_SELECT).single();
+      if (error) throw error;
+      publishItems([...items, data]);
+      setWorkForm(EMPTY_WORK_FORM);
+      setWorkImageFiles([]);
+      showToast && showToast('External project added to your portfolio');
+    } catch (error) {
+      if (uploadedPaths.length) { try { await supabase.storage.from('vendor-assets').remove(uploadedPaths); } catch {} }
+      logError('vendor-portfolio-add-project', error, { userId:currentUser.id });
+      showToast && showToast("Couldn't add that project.", 'error');
+    } finally { setSavingKind(''); }
+  };
+
+  const addElsewhereLink = async () => {
+    const title = String(linkForm.title || '').trim().slice(0,120) || 'Website';
+    const url = normalizeVendorPortfolioUrl(linkForm.url);
+    if (!url) { showToast && showToast('Add a valid website or social URL.', 'error'); return; }
+    if (!currentUser?.id) { showToast && showToast('Please sign in again.', 'error'); return; }
+    if (elsewhereLinks.length >= 8) { showToast && showToast('You can add up to 8 external links.', 'error'); return; }
+    setSavingKind('link');
+    try {
+      const { data, error } = await supabase.from('vendor_portfolio_items').insert({
+        vendor_id:currentUser.id,
+        type:'link',
+        title,
+        description:'',
+        url,
+        category:null,
+        client_name:null,
+        client_name_permission:false,
+        image_urls:[],
+        pdf_url:null,
+        source:'manual',
+        source_project_id:null,
+        display_order:nextOrder(),
+      }).select(PORTFOLIO_SELECT).single();
+      if (error) throw error;
+      publishItems([...items, data]);
+      setLinkForm({ title:'Website', url:'' });
+      showToast && showToast('External link added');
+    } catch (error) {
+      logError('vendor-portfolio-add-link', error, { userId:currentUser.id });
+      showToast && showToast("Couldn't add that link.", 'error');
+    } finally { setSavingKind(''); }
+  };
+
+  const startEdit = (item) => {
+    setEditingId(item.id);
+    setEditImageFiles([]);
+    setEditForm({
+      title:String(item?.title || ''),
+      category:String(item?.category || ''),
+      clientName:String(item?.client_name || ''),
+      clientPermission:!!item?.client_name_permission,
+      url:String(item?.url || ''),
+      pdfUrl:String(item?.pdf_url || ''),
+      description:String(item?.description || ''),
+      imageUrls:Array.isArray(item?.image_urls) ? item.image_urls.filter(Boolean).slice(0,3) : [],
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditImageFiles([]);
+    setEditForm({ ...EMPTY_WORK_FORM, imageUrls:[] });
+  };
+
+  const saveEdit = async (item) => {
+    if (!item?.id || !currentUser?.id || item.source === 'faithbid_project') return;
+    const title = String(editForm.title || '').trim().slice(0,120);
+    const description = String(editForm.description || '').trim().slice(0, item.type === 'link' ? 1000 : 280);
+    const category = String(editForm.category || '').trim().slice(0,120) || null;
+    const clientName = String(editForm.clientName || '').trim().slice(0,160) || null;
+    const rawUrl = String(editForm.url || '').trim();
+    const url = rawUrl ? normalizeVendorPortfolioUrl(rawUrl) : '';
+    const rawPdf = String(editForm.pdfUrl || '').trim();
+    const pdfUrl = rawPdf ? normalizeVendorPortfolioUrl(rawPdf) : '';
+    if (!title) { showToast && showToast('Add a title.', 'error'); return; }
+    if (item.type === 'link' && !url) { showToast && showToast('A valid URL is required for an external link.', 'error'); return; }
+    if (rawUrl && !url) { showToast && showToast('Use a valid http or https URL.', 'error'); return; }
+    if (rawPdf && !pdfUrl) { showToast && showToast('Use a valid document URL.', 'error'); return; }
+    if (item.type !== 'link' && !description) { showToast && showToast('Add a short description of the work.', 'error'); return; }
+    if (clientName && !editForm.clientPermission) { showToast && showToast('Confirm you have permission before naming a client or church.', 'error'); return; }
+    const existingImageUrls = Array.isArray(editForm.imageUrls) ? editForm.imageUrls.filter(Boolean).slice(0,3) : [];
+    const files = validateImageFiles(editImageFiles, existingImageUrls.length);
+    if (files === null) return;
+    setSavingKind(`edit:${item.id}`);
+    let uploadedPaths = [];
+    try {
+      const uploaded = await uploadPortfolioImages(files);
+      uploadedPaths = uploaded.paths;
+      const imageUrls = [...existingImageUrls, ...uploaded.urls].slice(0,3);
+      const patch = item.type === 'link'
+        ? { title, description:'', url, category:null, client_name:null, client_name_permission:false, image_urls:[], pdf_url:null, updated_at:new Date().toISOString() }
+        : { title, description, url:url || null, category, client_name:clientName, client_name_permission:!!(clientName && editForm.clientPermission), image_urls:imageUrls, pdf_url:pdfUrl || null, updated_at:new Date().toISOString() };
+      const { data, error } = await supabase.from('vendor_portfolio_items')
+        .update(patch)
+        .eq('id', item.id)
+        .eq('vendor_id', currentUser.id)
+        .select(PORTFOLIO_SELECT)
+        .single();
+      if (error) throw error;
+      const oldUrls = Array.isArray(item?.image_urls) ? item.image_urls.filter(Boolean) : [];
+      const removedUrls = oldUrls.filter(urlValue => !imageUrls.includes(urlValue));
+      if (removedUrls.length) cleanupVendorImages(removedUrls);
+      publishItems(items.map(row => row.id === item.id ? data : row));
+      cancelEdit();
+      showToast && showToast('Portfolio item updated');
+    } catch (error) {
+      if (uploadedPaths.length) { try { await supabase.storage.from('vendor-assets').remove(uploadedPaths); } catch {} }
+      logError('vendor-portfolio-edit', error, { itemId:item.id });
+      showToast && showToast("Couldn't update that portfolio item.", 'error');
+    } finally { setSavingKind(''); }
+  };
+
+  const removeItem = async (item) => {
     if (!item?.id || !currentUser?.id) return;
     setRemovingId(item.id);
     try {
       const { error } = await supabase.from('vendor_portfolio_items').delete().eq('id', item.id).eq('vendor_id', currentUser.id);
       if (error) throw error;
+      const oldImages = Array.isArray(item?.image_urls) ? item.image_urls.filter(Boolean) : [];
+      if (oldImages.length) cleanupVendorImages(oldImages);
       publishItems(items.filter(row => row.id !== item.id));
-      showToast && showToast('Portfolio link removed');
+      if (editingId === item.id) cancelEdit();
+      showToast && showToast('Portfolio item removed');
     } catch (error) {
       logError('vendor-portfolio-remove', error, { itemId:item.id });
-      showToast && showToast("Couldn't remove that portfolio link.", 'error');
+      showToast && showToast("Couldn't remove that portfolio item.", 'error');
     } finally { setRemovingId(null); }
   };
 
+  const moveWorkItem = async (item, direction) => {
+    if (!item?.id || !currentUser?.id || movingId) return;
+    const ordered = [...workItems].sort((a,b) => Number(a.display_order || 0) - Number(b.display_order || 0));
+    const idx = ordered.findIndex(row => row.id === item.id);
+    const swapIdx = idx + direction;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= ordered.length) return;
+    const other = ordered[swapIdx];
+    const aRaw = Number(item.display_order);
+    const bRaw = Number(other.display_order);
+    const aOrder = Number.isFinite(aRaw) ? aRaw : idx;
+    const bOrder = Number.isFinite(bRaw) ? bRaw : swapIdx;
+    setMovingId(item.id);
+    try {
+      const [aRes,bRes] = await Promise.all([
+        supabase.from('vendor_portfolio_items').update({display_order:bOrder,updated_at:new Date().toISOString()}).eq('id',item.id).eq('vendor_id',currentUser.id),
+        supabase.from('vendor_portfolio_items').update({display_order:aOrder,updated_at:new Date().toISOString()}).eq('id',other.id).eq('vendor_id',currentUser.id),
+      ]);
+      if (aRes?.error) throw aRes.error;
+      if (bRes?.error) throw bRes.error;
+      publishItems(items.map(row => row.id === item.id ? {...row,display_order:bOrder} : row.id === other.id ? {...row,display_order:aOrder} : row));
+    } catch (error) {
+      logError('vendor-portfolio-reorder', error, { itemId:item.id, otherId:other.id });
+      showToast && showToast("Couldn't reorder your portfolio.", 'error');
+      load();
+    } finally { setMovingId(null); }
+  };
+
+  const openSourceProject = (item) => {
+    if (!item?.source_project_id || typeof nav !== 'function') return;
+    queueProjectNavigation(nav, {
+      projectId:item.source_project_id,
+      screen:'projects',
+      tab:'overview',
+      returnContext:{ scope:'profile-proof', screen:'profile-proof', projectId:item.source_project_id },
+    });
+  };
+
+  const fieldStyle = {width:'100%',boxSizing:'border-box',height:44,padding:'0 13px',borderRadius:11,border:'1px solid #ded6c8',background:'#fffdf9',fontSize:13,color:'#1C2814',outline:'none'};
+  const textAreaStyle = {...fieldStyle,height:'auto',minHeight:92,padding:'11px 13px',resize:'vertical',lineHeight:1.55};
+  const miniButton = {height:31,padding:'0 10px',borderRadius:999,border:'1px solid #ded6c8',background:'#fffdf8',color:'#554d42',fontSize:10.5,fontWeight:800,cursor:'pointer'};
+  const badgeStyle = (faithbid=false) => ({display:'inline-flex',alignItems:'center',gap:5,padding:'5px 8px',borderRadius:999,border:faithbid?'1px solid rgba(33,108,69,.18)':'1px solid rgba(176,136,64,.18)',background:faithbid?'rgba(33,108,69,.07)':'rgba(176,136,64,.07)',color:faithbid?'#246c49':'#8a6729',fontSize:9.5,fontWeight:800,letterSpacing:'.02em'});
+
+  const imageFileSummary = (files) => files.length ? `${files.length} image${files.length===1?'':'s'} ready` : 'Add up to 3 JPG, PNG, or WebP images';
+
   return (
-    <div style={{display:'grid',gap:16}}>
-      <VendorProfilePanel title="Portfolio links">
-        <div style={{fontSize:13,color:'#5d5548',lineHeight:1.65,marginBottom:16}}>Phase 1 keeps portfolios simple and trustworthy: link to your website, project gallery, Instagram work, or a case-study page. Native uploads can come later without changing this data model.</div>
-        <div style={{display:'grid',gap:10}}>
-          <input value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))} maxLength={120} placeholder="Project or portfolio title" aria-label="Portfolio link title" style={{height:42,padding:'0 12px',borderRadius:10,border:'1px solid #dfd5c2',background:'#fff',fontSize:13}} />
-          <input value={form.url} onChange={e=>setForm(f=>({...f,url:e.target.value}))} placeholder="https://yourwebsite.com/work" aria-label="Portfolio URL" inputMode="url" style={{height:42,padding:'0 12px',borderRadius:10,border:'1px solid #dfd5c2',background:'#fff',fontSize:13}} />
-          <textarea value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} maxLength={1000} rows={3} placeholder="Optional context — what did you deliver, and for whom?" aria-label="Portfolio description" style={{padding:'11px 12px',borderRadius:10,border:'1px solid #dfd5c2',background:'#fff',fontSize:13,resize:'vertical'}} />
-          <div><button type="button" onClick={addLink} disabled={saving} style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,opacity:saving?.65:1}}>{saving?'Adding…':'Add portfolio link'}</button></div>
-        </div>
-      </VendorProfilePanel>
-      <VendorProfilePanel title={`Published links · ${items.length}`}>
-        {loading ? <KBSkeleton variant="list" count={2}/> : items.length === 0 ? (
-          <div style={{fontSize:13,color:'#7d7363',lineHeight:1.6}}>No portfolio links yet. Add one above to strengthen your public profile.</div>
+    <div style={{display:'grid',gap:18}}>
+      <div style={{display:'grid',gridTemplateColumns:'minmax(0,1.2fr) minmax(280px,.8fr)',gap:16}} className="kb1007-proof-composer-grid">
+        <VendorProfilePanel title="Add external project" right={<span style={badgeStyle(false)}>External example</span>}>
+          <div style={{fontSize:13,color:'#61594d',lineHeight:1.65,marginBottom:15}}>Show work completed outside FaithBid. Keep it factual. Client names and uploaded images should only be used when you have permission to publish them.</div>
+          <div style={{display:'grid',gap:10}}>
+            <input value={workForm.title} onChange={e=>setWorkForm(f=>({...f,title:e.target.value}))} maxLength={120} placeholder="Project title" aria-label="External project title" style={fieldStyle}/>
+            <select value={workForm.category} onChange={e=>setWorkForm(f=>({...f,category:e.target.value}))} aria-label="External project category" style={fieldStyle}><option value="">Category (optional)</option>{categoryOptions.map(label=><option key={label} value={label}>{label}</option>)}</select>
+            <textarea value={workForm.description} onChange={e=>setWorkForm(f=>({...f,description:e.target.value.slice(0,280)}))} maxLength={280} rows={4} placeholder="What did you deliver? Keep it specific and verifiable." aria-label="External project description" style={textAreaStyle}/>
+            <div style={{display:'flex',justifyContent:'flex-end',fontSize:10.5,color:'#8b8171',marginTop:-4}}>{String(workForm.description||'').length}/280</div>
+            <div style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:9,alignItems:'center'}}>
+              <input value={workForm.clientName} onChange={e=>setWorkForm(f=>({...f,clientName:e.target.value}))} maxLength={160} placeholder="Client or church name (optional)" aria-label="External project client name" style={fieldStyle}/>
+              <label style={{display:'flex',alignItems:'center',gap:7,fontSize:10.5,color:'#675f53',whiteSpace:'nowrap'}}><input type="checkbox" checked={!!workForm.clientPermission} onChange={e=>setWorkForm(f=>({...f,clientPermission:e.target.checked}))}/> I can publish this name</label>
+            </div>
+            <label style={{display:'grid',gap:6,padding:'11px 12px',border:'1px dashed #d9cfbd',borderRadius:11,background:'#fffaf2',cursor:'pointer'}}><span style={{fontSize:11.5,fontWeight:800,color:'#5d5140'}}>Project images</span><span style={{fontSize:10.5,color:'#817665'}}>{imageFileSummary(workImageFiles)}</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>{const next=validateImageFiles(e.target.files,0);if(next!==null)setWorkImageFiles(next);e.target.value='';}} style={{fontSize:11,color:'#665e52'}}/></label>
+            {workImageFiles.length ? <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>{workImageFiles.map((file,idx)=><span key={`${file.name}-${idx}`} style={{padding:'5px 8px',borderRadius:999,background:'#f1eee6',fontSize:10,color:'#675f53'}}>{file.name}<button type="button" onClick={()=>setWorkImageFiles(prev=>prev.filter((_,i)=>i!==idx))} style={{border:0,background:'transparent',marginLeft:5,cursor:'pointer',color:'#9b4036'}}>×</button></span>)}</div> : null}
+            <input value={workForm.url} onChange={e=>setWorkForm(f=>({...f,url:e.target.value}))} placeholder="Project or case-study URL (optional)" aria-label="External project URL" inputMode="url" style={fieldStyle}/>
+            <input value={workForm.pdfUrl} onChange={e=>setWorkForm(f=>({...f,pdfUrl:e.target.value}))} placeholder="PDF or document URL (optional)" aria-label="External project document URL" inputMode="url" style={fieldStyle}/>
+            <div><button type="button" onClick={addExternalProject} disabled={savingKind==='work'} style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,opacity:savingKind==='work' ? .62 : 1}}>{savingKind==='work'?'Adding…':'Add external project'}</button></div>
+          </div>
+        </VendorProfilePanel>
+
+        <VendorProfilePanel title="Elsewhere" right={<span style={{fontSize:11,color:'#8b8171'}}>{elsewhereLinks.length}/8</span>}>
+          <div style={{fontSize:13,color:'#61594d',lineHeight:1.65,marginBottom:15}}>Connect churches to the places where your work already lives — website, Instagram, YouTube, Google, LinkedIn, or another public page.</div>
+          <div style={{display:'grid',gap:10}}>
+            <select value={linkForm.title} onChange={e=>setLinkForm(f=>({...f,title:e.target.value}))} aria-label="External link type" style={fieldStyle}>{['Website','Instagram','YouTube','Google','LinkedIn','Other'].map(label=><option key={label} value={label}>{label}</option>)}</select>
+            <input value={linkForm.url} onChange={e=>setLinkForm(f=>({...f,url:e.target.value}))} placeholder="https://…" aria-label="External profile URL" inputMode="url" style={fieldStyle}/>
+            <div><button type="button" onClick={addElsewhereLink} disabled={savingKind==='link'} style={{...VENDOR_PROFILE_SECONDARY_BUTTON_STYLE,opacity:savingKind==='link' ? .62 : 1}}>{savingKind==='link'?'Adding…':'Add link'}</button></div>
+          </div>
+          {elsewhereLinks.length ? <div style={{display:'grid',gap:7,marginTop:16}}>{elsewhereLinks.map(item=><div key={item.id} style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',alignItems:'center',gap:8,padding:'9px 10px',border:'1px solid #ece4d7',borderRadius:10,background:'#fffdf9'}}><div style={{minWidth:0}}><div style={{fontSize:11.5,fontWeight:800,color:'#1C2814'}}>{item.title}</div><a href={item.url} target="_blank" rel="noreferrer" style={{display:'block',fontSize:10.5,color:'#8a6729',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.url}</a></div><button type="button" onClick={()=>removeItem(item)} disabled={removingId===item.id} style={{...miniButton,color:'#a83c31'}}>{removingId===item.id?'…':'Remove'}</button></div>)}</div> : null}
+        </VendorProfilePanel>
+      </div>
+
+      <VendorProfilePanel title={`Your portfolio · ${workItems.length}`} right={<button type="button" onClick={load} disabled={loading} style={miniButton}>{loading?'Loading…':'Refresh'}</button>}>
+        {loadError ? <div role="alert" style={{padding:'15px 16px',border:'1px solid rgba(175,63,52,.15)',background:'rgba(175,63,52,.055)',borderRadius:12,color:'#8d332a',fontSize:12.5,lineHeight:1.55}}>{loadError} <button type="button" onClick={load} style={{...miniButton,marginLeft:8}}>Try again</button></div> : loading ? <KBSkeleton variant="list" count={3}/> : workItems.length === 0 ? (
+          <div style={{padding:'24px 18px',border:'1px dashed #d9cfbd',borderRadius:14,background:'#fffdf9',textAlign:'center'}}><div style={{width:42,height:42,borderRadius:14,margin:'0 auto 11px',display:'grid',placeItems:'center',background:'rgba(176,136,64,.08)',color:'#8a6729',fontSize:18}}>✦</div><div style={{fontFamily:'var(--font-display),serif',fontSize:19,fontWeight:700,color:'#1C2814',marginBottom:5}}>Show churches what you've built.</div><div style={{fontSize:12.5,color:'#716858',lineHeight:1.6,maxWidth:520,margin:'0 auto'}}>Even one example builds trust. Add an external project above, or turn completed FaithBid work into verified proof from the Completed filter in My Projects.</div></div>
         ) : (
           <div style={{display:'grid',gap:10}}>
-            {items.map(item => (
-              <div key={item.id} style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:12,padding:'13px 14px',border:'1px solid #e5dcc8',borderRadius:12,background:'#fff'}}>
-                <div style={{minWidth:0}}>
-                  <div style={{fontSize:13,fontWeight:800,color:'#1C2814',marginBottom:4}}>{item.title}</div>
-                  <a href={item.url} target="_blank" rel="noreferrer" style={{display:'block',fontSize:11.5,color:'#8a6729',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.url}</a>
-                  {item.description ? <div style={{fontSize:12,color:'#6b6255',lineHeight:1.55,marginTop:6}}>{item.description}</div> : null}
-                </div>
-                <button type="button" onClick={()=>removeLink(item)} disabled={removingId===item.id} style={{height:34,padding:'0 11px',borderRadius:999,border:'1px solid rgba(197,48,48,.18)',background:'rgba(197,48,48,.05)',color:'#b1342a',fontSize:11,fontWeight:800,cursor:'pointer'}}>{removingId===item.id?'Removing…':'Remove'}</button>
-              </div>
-            ))}
+            {workItems.map((item,index) => {
+              const faithbid = item.source === 'faithbid_project';
+              const editing = editingId === item.id;
+              const itemImages = Array.isArray(item?.image_urls) ? item.image_urls.filter(Boolean).slice(0,3) : [];
+              return <div key={item.id} style={{border:'1px solid #e4dccd',borderRadius:14,background:'#fffdf9',padding:'14px 15px'}}>
+                {editing ? <div style={{display:'grid',gap:9}}>
+                  <input value={editForm.title} onChange={e=>setEditForm(f=>({...f,title:e.target.value}))} maxLength={120} style={fieldStyle} aria-label="Edit portfolio title"/>
+                  <select value={editForm.category} onChange={e=>setEditForm(f=>({...f,category:e.target.value}))} style={fieldStyle} aria-label="Edit portfolio category"><option value="">Category (optional)</option>{categoryOptions.map(label=><option key={label} value={label}>{label}</option>)}</select>
+                  <textarea value={editForm.description} onChange={e=>setEditForm(f=>({...f,description:e.target.value.slice(0,280)}))} maxLength={280} rows={3} style={textAreaStyle} aria-label="Edit portfolio description"/>
+                  <div style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:9,alignItems:'center'}}><input value={editForm.clientName} onChange={e=>setEditForm(f=>({...f,clientName:e.target.value}))} maxLength={160} placeholder="Client or church name (optional)" style={fieldStyle}/><label style={{display:'flex',alignItems:'center',gap:7,fontSize:10.5,color:'#675f53',whiteSpace:'nowrap'}}><input type="checkbox" checked={!!editForm.clientPermission} onChange={e=>setEditForm(f=>({...f,clientPermission:e.target.checked}))}/> Permission confirmed</label></div>
+                  <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{(editForm.imageUrls||[]).map((urlValue,imgIdx)=><span key={`${urlValue}-${imgIdx}`} style={{display:'inline-flex',alignItems:'center',gap:6,padding:'5px 7px',border:'1px solid #e4dccd',borderRadius:9,background:'#fff'}}><img src={urlValue} alt="" style={{width:42,height:32,objectFit:'cover',borderRadius:5}}/><button type="button" onClick={()=>setEditForm(f=>({...f,imageUrls:(f.imageUrls||[]).filter((_,i)=>i!==imgIdx)}))} style={{border:0,background:'transparent',cursor:'pointer',color:'#9b4036'}}>Remove</button></span>)}</div>
+                  {(editForm.imageUrls||[]).length < 3 ? <label style={{display:'grid',gap:5,padding:'9px 10px',border:'1px dashed #d9cfbd',borderRadius:10,background:'#fffaf2'}}><span style={{fontSize:10.5,fontWeight:800,color:'#61594d'}}>Add images · {3-(editForm.imageUrls||[]).length} slot{3-(editForm.imageUrls||[]).length===1?'':'s'} left</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>{const next=validateImageFiles(e.target.files,(editForm.imageUrls||[]).length);if(next!==null)setEditImageFiles(next);e.target.value='';}} style={{fontSize:11}}/></label> : null}
+                  {editImageFiles.length ? <div style={{fontSize:10.5,color:'#7b7163'}}>{editImageFiles.length} new image{editImageFiles.length===1?'':'s'} ready to upload.</div> : null}
+                  <input value={editForm.url} onChange={e=>setEditForm(f=>({...f,url:e.target.value}))} placeholder="Project URL (optional)" style={fieldStyle} aria-label="Edit portfolio URL"/>
+                  <input value={editForm.pdfUrl} onChange={e=>setEditForm(f=>({...f,pdfUrl:e.target.value}))} placeholder="PDF or document URL (optional)" style={fieldStyle} aria-label="Edit portfolio document URL"/>
+                  <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" onClick={()=>saveEdit(item)} disabled={savingKind===`edit:${item.id}`} style={VENDOR_PROFILE_PRIMARY_BUTTON_STYLE}>{savingKind===`edit:${item.id}`?'Saving…':'Save changes'}</button><button type="button" onClick={cancelEdit} style={VENDOR_PROFILE_SECONDARY_BUTTON_STYLE}>Cancel</button></div>
+                </div> : <div style={{display:'grid',gridTemplateColumns:itemImages[0]?'112px minmax(0,1fr) auto':'minmax(0,1fr) auto',gap:14,alignItems:'start'}}>
+                  {itemImages[0] ? <img src={itemImages[0]} alt="" style={{width:112,height:84,objectFit:'cover',borderRadius:10,border:'1px solid #e2d9ca'}}/> : null}
+                  <div style={{minWidth:0}}><div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap',marginBottom:7}}><span style={badgeStyle(faithbid)}>{faithbid?'✓ ':''}{getVendorPortfolioSourceLabel(item)}</span>{item.category?<span style={badgeStyle(false)}>{item.category}</span>:null}</div><div style={{fontFamily:'var(--font-display),serif',fontSize:18,fontWeight:700,color:'#1C2814',lineHeight:1.2,marginBottom:5}}>{item.title}</div>{item.client_name?<div style={{fontSize:10.5,fontWeight:750,color:'#7d7363',marginBottom:5}}>For {item.client_name}</div>:null}{item.description ? <div style={{fontSize:12.5,color:'#665e52',lineHeight:1.6,maxWidth:760}}>{item.description}</div> : null}<div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:(item.url||item.pdf_url)?7:0}}>{item.url ? <a href={item.url} target="_blank" rel="noreferrer" style={{fontSize:11.5,fontWeight:700,color:'#7f642e'}}>View external proof ↗</a> : null}{item.pdf_url ? <a href={item.pdf_url} target="_blank" rel="noreferrer" style={{fontSize:11.5,fontWeight:700,color:'#7f642e'}}>Open document ↗</a> : null}</div></div>
+                  <div className="kb1007-proof-item-actions" style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap',justifyContent:'flex-end'}}><button type="button" onClick={()=>moveWorkItem(item,-1)} disabled={index===0||movingId===item.id} aria-label={`Move ${item.title} up`} style={{...miniButton,opacity:index===0 ? .35 : 1}}>↑</button><button type="button" onClick={()=>moveWorkItem(item,1)} disabled={index===workItems.length-1||movingId===item.id} aria-label={`Move ${item.title} down`} style={{...miniButton,opacity:index===workItems.length-1 ? .35 : 1}}>↓</button>{faithbid && item.source_project_id ? <button type="button" onClick={()=>openSourceProject(item)} style={miniButton}>Project</button> : null}{!faithbid ? <button type="button" onClick={()=>startEdit(item)} style={miniButton}>Edit</button> : null}<button type="button" onClick={()=>removeItem(item)} disabled={removingId===item.id} style={{...miniButton,color:'#a83c31'}}>{removingId===item.id?'Removing…':'Remove'}</button></div>
+                </div>}
+              </div>;
+            })}
           </div>
         )}
       </VendorProfilePanel>
+
+      <div style={{padding:'13px 15px',borderRadius:13,border:'1px solid rgba(176,136,64,.16)',background:'rgba(176,136,64,.055)',fontSize:11.5,color:'#6d604b',lineHeight:1.6}}><strong style={{color:'#4f432f'}}>Portfolio truth standard:</strong> “Completed via FaithBid” is reserved for work tied to a completed FaithBid project. Anything you add yourself is labeled “External example.” Only publish work, client names, images, or documents you have the right to share.</div>
+    </div>
+  );
+}
+
+function VendorPortfolioProofScreen({ role, currentUser, userProfile, showToast, nav }) {
+  const viewportWidth = useViewportWidth(1440);
+  const compact = viewportWidth < 760;
+  const [vendor, setVendor] = useState(null);
+  const [loadingVendor, setLoadingVendor] = useState(true);
+  const [positioning, setPositioning] = useState('');
+  const [savingPositioning, setSavingPositioning] = useState(false);
+  const [workCount, setWorkCount] = useState(0);
+  const [portfolioPublic, setPortfolioPublic] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    getMarketplacePublicOncePerSession().then(value => { if (!cancelled) setPortfolioPublic(!!value); }).catch(()=>{});
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    const restore = setPageMeta({ title:'Your Portfolio · FaithBid', description:'Manage the work and proof shown on your FaithBid vendor profile.' });
+    return restore;
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!currentUser?.id || role !== 'vendor') { setLoadingVendor(false); return () => { cancelled = true; }; }
+    (async()=>{
+      try {
+        const { data, error } = await supabase.from('vendors')
+          .select('id,user_id,name,tagline,category,primary_category,city,service_city,service_state,image_url,verification_status,verified')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+        if (error) throw error;
+        if (!cancelled) {
+          const safe = data || { user_id:currentUser.id, name:userProfile?.org_name || 'Your business' };
+          setVendor(safe);
+          setPositioning(String(safe?.tagline || '').trim());
+        }
+      } catch (error) {
+        logError('profile-proof-vendor-read', error, { userId:currentUser.id });
+        if (!cancelled) {
+          const safe = { user_id:currentUser.id, name:userProfile?.org_name || 'Your business' };
+          setVendor(safe);
+          setPositioning('');
+        }
+      } finally { if (!cancelled) setLoadingVendor(false); }
+    })();
+    return () => { cancelled = true; };
+  }, [currentUser?.id, role, userProfile?.org_name]);
+
+  const savePositioning = async () => {
+    if (!currentUser?.id || role !== 'vendor' || savingPositioning) return;
+    const tagline = String(positioning || '').trim().slice(0,160);
+    if (tagline.length > 0 && tagline.length < 6) { showToast && showToast('Use at least 6 characters for your positioning statement.', 'error'); return; }
+    setSavingPositioning(true);
+    try {
+      const result = await syncProfileVendorMirror({ userId:currentUser.id, vendorPatch:{ tagline } });
+      if (result?.vendorError || result?.profileError) throw (result.vendorError || result.profileError);
+      setVendor(prev => ({...(prev||{}),tagline}));
+      showToast && showToast('Positioning statement saved');
+    } catch (error) {
+      logError('profile-proof-tagline-save', error, { userId:currentUser.id });
+      showToast && showToast("Couldn't save that statement.", 'error');
+    } finally { setSavingPositioning(false); }
+  };
+
+  const buildPublicProfileUrl = () => {
+    const key = String(vendor?.user_id || currentUser?.id || vendor?.id || '').trim();
+    if (!key || typeof window === 'undefined') return '';
+    return `${window.location.origin}${window.location.pathname}#vendor/${encodeURIComponent(key)}`;
+  };
+
+  const sharePublicProfile = async () => {
+    const url = buildPublicProfileUrl();
+    if (!url) { showToast && showToast('Your vendor profile is still loading.', 'error'); return; }
+    try {
+      if (navigator?.clipboard?.writeText) await navigator.clipboard.writeText(url);
+      else throw new Error('Clipboard unavailable');
+      showToast && showToast(portfolioPublic ? 'Public Proof link copied' : 'Profile link copied — it becomes publicly viewable when Marketplace opens.');
+    } catch (error) {
+      logError('profile-proof-share-link', error, { userId:currentUser?.id });
+      showToast && showToast('Copy this profile link from your browser address bar after opening Preview.', 'error');
+    }
+  };
+
+  const previewPublicProfile = () => {
+    const key = String(vendor?.user_id || currentUser?.id || vendor?.id || '').trim();
+    if (!key || typeof window === 'undefined') { showToast && showToast('Your vendor profile is still loading.', 'error'); return; }
+    window.location.hash = `vendor/${encodeURIComponent(key)}`;
+  };
+
+  if (role !== 'vendor') {
+    return <div style={{minHeight:'70vh',background:'#faf8f3',padding:'60px 24px'}}><div style={{maxWidth:720,margin:'0 auto',padding:28,border:'1px solid #dfd5c2',borderRadius:18,background:'#fffdf8'}}><div style={{fontFamily:'var(--font-display),serif',fontSize:28,fontWeight:700,color:'#1C2814'}}>Portfolio is a vendor profile feature.</div><div style={{marginTop:8,fontSize:13,color:'#6b6255'}}>Church accounts manage project history from My Projects.</div><button type="button" onClick={()=>nav('profile')} style={{...VENDOR_PROFILE_SECONDARY_BUTTON_STYLE,marginTop:18}}>Back to profile</button></div></div>;
+  }
+
+  return (
+    <div className="kb1007-proof-screen" style={{minHeight:'calc(100vh - 48px)',background:'linear-gradient(180deg,#fbf8f1 0%,#f8f5ee 100%)',paddingBottom:64}}>
+      <style>{`
+        @media(max-width:900px){.kb1007-proof-head-grid{grid-template-columns:1fr!important}.kb1007-proof-composer-grid{grid-template-columns:1fr!important}}
+        @media(max-width:760px){.kb1007-proof-wrap{padding-left:14px!important;padding-right:14px!important}.kb1007-proof-title{font-size:36px!important}.kb1007-proof-head-actions{justify-content:flex-start!important}.kb1007-proof-item-actions{justify-content:flex-start!important}}
+      `}</style>
+      <div className="kb1007-proof-wrap" style={{maxWidth:1180,margin:'0 auto',padding:compact?'22px 14px 0':'30px 28px 0'}}>
+        <div className="kb1007-proof-head-grid" style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:22,alignItems:'end',paddingBottom:24,borderBottom:'1px solid rgba(28,40,20,.10)'}}>
+          <div>
+            <div style={{fontSize:10.5,fontWeight:800,letterSpacing:'.16em',textTransform:'uppercase',color:'#a27b35',marginBottom:8}}>Your portfolio</div>
+            <h1 className="kb1007-proof-title" style={{fontFamily:'var(--font-display),serif',fontSize:48,lineHeight:1.02,letterSpacing:'-.045em',color:'#152411',margin:0,fontWeight:700}}>Turn good work into proof.</h1>
+            <div style={{fontSize:14,color:'#665e52',lineHeight:1.65,maxWidth:680,marginTop:9}}>Build a concise, credible showcase churches can understand quickly. External work stays clearly labeled; FaithBid-completed work carries its own platform-backed label.</div>
+          </div>
+          <div className="kb1007-proof-head-actions" style={{display:'flex',gap:9,alignItems:'center',justifyContent:'flex-end',flexWrap:'wrap'}}>
+            <span style={{fontSize:11,color:'#756b5c',padding:'8px 10px',borderRadius:999,border:'1px solid #ded6c8',background:'#fffdf8'}}>{workCount} work example{workCount===1?'':'s'}</span>
+            {!portfolioPublic ? <span style={{fontSize:10.5,color:'#8a6729',padding:'7px 9px',borderRadius:999,border:'1px solid rgba(176,136,64,.18)',background:'rgba(176,136,64,.06)'}}>Public at Marketplace launch</span> : null}
+            <button type="button" onClick={sharePublicProfile} disabled={loadingVendor||!vendor?.id} style={{...VENDOR_PROFILE_SECONDARY_BUTTON_STYLE,opacity:(loadingVendor||!vendor?.id) ? .55 : 1}}>Copy public link</button>
+            <button type="button" onClick={previewPublicProfile} disabled={loadingVendor||!vendor?.id} style={{...VENDOR_PROFILE_SECONDARY_BUTTON_STYLE,opacity:(loadingVendor||!vendor?.id) ? .55 : 1}}>Preview public profile</button>
+          </div>
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:compact?'1fr':'minmax(0,1fr) 330px',gap:16,marginTop:22,marginBottom:18}}>
+          <VendorProfilePanel title="Positioning statement" right={<span style={{fontSize:10.5,color:'#8b8171'}}>{positioning.length}/160</span>}>
+            <div style={{fontSize:12.5,color:'#665e52',lineHeight:1.6,marginBottom:11}}>One clear line that tells a church what you do best. This also updates the tagline on your public vendor profile.</div>
+            <div style={{display:'grid',gridTemplateColumns:compact?'1fr':'minmax(0,1fr) auto',gap:9,alignItems:'center'}}>
+              <input value={positioning} onChange={e=>setPositioning(e.target.value.slice(0,160))} maxLength={160} placeholder="Example: Church roofing and exterior systems built for long-term stewardship." style={{width:'100%',boxSizing:'border-box',height:44,padding:'0 13px',borderRadius:11,border:'1px solid #ded6c8',background:'#fffdf9',fontSize:13,color:'#1C2814',outline:'none'}}/>
+              <button type="button" onClick={savePositioning} disabled={savingPositioning||loadingVendor} style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,opacity:(savingPositioning||loadingVendor) ? .6 : 1}}>{savingPositioning?'Saving…':'Save'}</button>
+            </div>
+          </VendorProfilePanel>
+          <VendorProfilePanel title="Proof standard">
+            <div style={{fontSize:12.5,color:'#665e52',lineHeight:1.65}}>FaithBid separates platform-completed work from examples you add yourself. That distinction stays visible so churches know what the platform can verify.</div>
+            <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:12}}><span style={{padding:'6px 9px',borderRadius:999,background:'rgba(33,108,69,.07)',border:'1px solid rgba(33,108,69,.15)',fontSize:10.5,fontWeight:800,color:'#246c49'}}>✓ Completed via FaithBid</span><span style={{padding:'6px 9px',borderRadius:999,background:'rgba(176,136,64,.07)',border:'1px solid rgba(176,136,64,.17)',fontSize:10.5,fontWeight:800,color:'#8a6729'}}>External example</span></div>
+          </VendorProfilePanel>
+        </div>
+
+        <VendorPortfolioEditor currentUser={currentUser} showToast={showToast} onCountChange={setWorkCount} nav={nav}/>
+      </div>
     </div>
   );
 }
 
 
+function FaithBidModalFrame({ title, eyebrow, onClose, children, footer = null }) {
+  return (
+    <div role="presentation" onMouseDown={e=>{ if(e.target===e.currentTarget) onClose?.(); }} style={{position:'fixed',inset:0,zIndex:9800,background:'rgba(16,27,23,.48)',backdropFilter:'blur(6px)',display:'grid',placeItems:'center',padding:18}}>
+      <div role="dialog" aria-modal="true" aria-label={title} style={{width:'min(620px,100%)',maxHeight:'calc(100vh - 36px)',overflow:'auto',borderRadius:20,border:'1px solid rgba(28,40,20,.12)',background:'#fffdf8',boxShadow:'0 30px 90px rgba(16,27,23,.26)'}}>
+        <div style={{padding:'20px 22px 16px',borderBottom:'1px solid #ece5d9',display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:16}}>
+          <div><div style={{fontSize:9.5,fontWeight:850,letterSpacing:'.15em',textTransform:'uppercase',color:'#9a7436',marginBottom:5}}>{eyebrow}</div><h2 style={{margin:0,fontFamily:'var(--font-display),serif',fontSize:28,lineHeight:1.05,color:'#17352b'}}>{title}</h2></div>
+          <button type="button" onClick={onClose} aria-label="Close" style={{width:34,height:34,borderRadius:999,border:'1px solid #ddd6cb',background:'#fff',color:'#536159',cursor:'pointer',fontSize:18}}>×</button>
+        </div>
+        <div style={{padding:'20px 22px'}}>{children}</div>
+        {footer ? <div style={{padding:'14px 22px 20px',borderTop:'1px solid #ece5d9'}}>{footer}</div> : null}
+      </div>
+    </div>
+  );
+}
+
+const KB_VENDOR_REVIEW_TAG_OPTIONS = ['Quality work','Clear communication','On time','Professional','Ministry-aware','Would hire again'];
+const KB_CHURCH_FEEDBACK_TAG_OPTIONS = ['Clear scope','Responsive','Organized','Respectful','Decisive','Would work with again'];
+
+function ProjectReviewModal({ project, onClose, onSaved, showToast }) {
+  const [rating,setRating]=useState(5);
+  const [title,setTitle]=useState('');
+  const [body,setBody]=useState('');
+  const [recommend,setRecommend]=useState(true);
+  const [tags,setTags]=useState([]);
+  const [saving,setSaving]=useState(false);
+  const toggleTag=(tag)=>setTags(prev=>prev.includes(tag)?prev.filter(x=>x!==tag):prev.length>=5?prev:[...prev,tag]);
+  const save=async()=>{
+    if(!project?.id||saving)return;
+    const cleanBody=String(body||'').trim();
+    if(cleanBody.length<30){showToast&&showToast('Write at least 30 characters so the review is useful.','error');return;}
+    setSaving(true);
+    try{
+      const {error}=await supabase.rpc('marketplace_service_submit_review',{p_project_id:project.id,p_rating:Number(rating),p_body:cleanBody,p_title:String(title||'').trim()||null,p_recommend:!!recommend,p_sub_ratings:{},p_tags:tags});
+      if(error)throw error;
+      onSaved?.();
+    }catch(err){logError('my-projects-submit-review',err,{projectId:project?.id});showToast&&showToast(err?.message||"Couldn't submit that review.",'error');}
+    finally{setSaving(false);}
+  };
+  return <FaithBidModalFrame title="Review this completed project" eyebrow="Verified FaithBid review" onClose={onClose} footer={<div style={{display:'flex',justifyContent:'flex-end',gap:9}}><button type="button" onClick={onClose} style={VENDOR_PROFILE_SECONDARY_BUTTON_STYLE}>Cancel</button><button type="button" onClick={save} disabled={saving} style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,opacity:saving ? .6 : 1}}>{saving?'Submitting…':'Submit review'}</button></div>}>
+    <div style={{fontSize:12.5,color:'#665e52',lineHeight:1.65,marginBottom:16}}><strong style={{color:'#17352b'}}>{project?.title||'Completed project'}</strong><br/>Your review is tied to the completed FaithBid project record and will appear on the hired vendor's profile.</div>
+    <div style={{display:'grid',gap:14}}>
+      <div><div style={{fontSize:10,fontWeight:850,letterSpacing:'.1em',textTransform:'uppercase',color:'#7f7465',marginBottom:8}}>Overall rating</div><div style={{display:'flex',gap:6}}>{[1,2,3,4,5].map(n=><button key={n} type="button" onClick={()=>setRating(n)} aria-label={`${n} stars`} style={{width:42,height:38,borderRadius:9,border:`1px solid ${n<=rating?'#b08840':'#ddd6cb'}`,background:n<=rating?'#fff4d8':'#fff',color:n<=rating?'#9a6b19':'#9a9489',cursor:'pointer',fontSize:18}}>★</button>)}</div></div>
+      <label style={{display:'grid',gap:6}}><span style={{fontSize:10,fontWeight:850,letterSpacing:'.1em',textTransform:'uppercase',color:'#7f7465'}}>Short headline (optional)</span><input value={title} onChange={e=>setTitle(e.target.value.slice(0,120))} maxLength={120} placeholder="Example: Excellent communication from start to finish" style={{height:43,border:'1px solid #ddd6cb',borderRadius:10,padding:'0 12px',fontSize:13,background:'#fff'}}/></label>
+      <label style={{display:'grid',gap:6}}><span style={{fontSize:10,fontWeight:850,letterSpacing:'.1em',textTransform:'uppercase',color:'#7f7465'}}>Your review</span><textarea value={body} onChange={e=>setBody(e.target.value.slice(0,5000))} rows={5} placeholder="What did the vendor do well? What should another church know?" style={{border:'1px solid #ddd6cb',borderRadius:10,padding:'11px 12px',fontSize:13,lineHeight:1.55,resize:'vertical',background:'#fff'}}/><span style={{fontSize:10.5,color:'#8b8171',textAlign:'right'}}>{body.length}/5000</span></label>
+      <div><div style={{fontSize:10,fontWeight:850,letterSpacing:'.1em',textTransform:'uppercase',color:'#7f7465',marginBottom:8}}>Quick signals</div><div style={{display:'flex',gap:7,flexWrap:'wrap'}}>{KB_VENDOR_REVIEW_TAG_OPTIONS.map(tag=><button key={tag} type="button" onClick={()=>toggleTag(tag)} style={{padding:'7px 10px',borderRadius:999,border:`1px solid ${tags.includes(tag)?'#2c6a50':'#ddd6cb'}`,background:tags.includes(tag)?'rgba(44,106,80,.08)':'#fff',color:tags.includes(tag)?'#23573f':'#665e52',fontSize:11,fontWeight:750,cursor:'pointer'}}>{tags.includes(tag)?'✓ ':''}{tag}</button>)}</div></div>
+      <label style={{display:'flex',alignItems:'center',gap:9,fontSize:12.5,color:'#4f5d56'}}><input type="checkbox" checked={recommend} onChange={e=>setRecommend(e.target.checked)}/> I would recommend this vendor to another church.</label>
+    </div>
+  </FaithBidModalFrame>;
+}
+
+function ChurchFeedbackModal({ project, onClose, onSaved, showToast }) {
+  const [tags,setTags]=useState([]);
+  const [saving,setSaving]=useState(false);
+  const toggleTag=(tag)=>setTags(prev=>prev.includes(tag)?prev.filter(x=>x!==tag):prev.length>=5?prev:[...prev,tag]);
+  const save=async()=>{
+    if(!project?.id||saving)return;
+    if(!tags.length){showToast&&showToast('Choose at least one feedback tag.','error');return;}
+    setSaving(true);
+    try{
+      const {error}=await supabase.rpc('marketplace_service_submit_church_feedback',{p_project_id:project.id,p_tags:tags});
+      if(error)throw error;
+      onSaved?.();
+    }catch(err){logError('my-projects-submit-church-feedback',err,{projectId:project?.id});showToast&&showToast(err?.message||"Couldn't save church feedback.",'error');}
+    finally{setSaving(false);}
+  };
+  return <FaithBidModalFrame title="How was it working with this church?" eyebrow="Private-to-participants trust signal" onClose={onClose} footer={<div style={{display:'flex',justifyContent:'flex-end',gap:9}}><button type="button" onClick={onClose} style={VENDOR_PROFILE_SECONDARY_BUTTON_STYLE}>Cancel</button><button type="button" onClick={save} disabled={saving} style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,opacity:saving ? .6 : 1}}>{saving?'Saving…':'Save feedback'}</button></div>}>
+    <p style={{margin:'0 0 15px',fontSize:12.5,color:'#665e52',lineHeight:1.65}}>Choose up to five signals from your completed project. FaithBid keeps church feedback lightweight and factual instead of turning church profiles into another rating leaderboard.</p>
+    <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{KB_CHURCH_FEEDBACK_TAG_OPTIONS.map(tag=><button key={tag} type="button" onClick={()=>toggleTag(tag)} style={{padding:'9px 12px',borderRadius:999,border:`1px solid ${tags.includes(tag)?'#2c6a50':'#ddd6cb'}`,background:tags.includes(tag)?'rgba(44,106,80,.08)':'#fff',color:tags.includes(tag)?'#23573f':'#665e52',fontSize:12,fontWeight:750,cursor:'pointer'}}>{tags.includes(tag)?'✓ ':''}{tag}</button>)}</div>
+  </FaithBidModalFrame>;
+}
+
+function ProfileWorkspaceTabs({ role, active, nav }) {
+  const tabs = role === 'vendor'
+    ? [{id:'profile',label:'Profile'},{id:'profile-proof',label:'Proof'},{id:'profile-reviews',label:'Reviews'},{id:'profile-insights',label:'Insights'}]
+    : [{id:'profile',label:'Profile'},{id:'profile-feedback',label:'Feedback'}];
+  return <div style={{background:'#fbf8f1',borderBottom:'1px solid rgba(28,40,20,.10)'}}><div style={{maxWidth:1180,margin:'0 auto',padding:'0 24px',display:'flex',gap:22,overflowX:'auto'}}>{tabs.map(tab=><button key={tab.id} type="button" onClick={()=>nav(tab.id)} aria-current={active===tab.id?'page':undefined} style={{height:46,border:0,borderBottom:active===tab.id?'2px solid #174737':'2px solid transparent',background:'transparent',color:active===tab.id?'#17352b':'#7b807b',fontSize:12.5,fontWeight:active===tab.id?850:700,cursor:'pointer',whiteSpace:'nowrap'}}>{tab.label}</button>)}</div></div>;
+}
+
+function VendorOwnReviewsScreen({ currentUser, nav, role }) {
+  const [vendor,setVendor]=useState(null);
+  const [loading,setLoading]=useState(true);
+  useEffect(()=>{let cancelled=false;(async()=>{try{const {data,error}=await supabase.from('vendors').select('id,user_id,name,city,category,rating,reviews_count').eq('user_id',currentUser?.id).maybeSingle();if(error)throw error;if(!cancelled)setVendor(data||null);}catch(err){logError('profile-reviews-vendor-read',err,{userId:currentUser?.id});}finally{if(!cancelled)setLoading(false);}})();return()=>{cancelled=true};},[currentUser?.id]);
+  return <div style={{minHeight:'calc(100vh - 48px)',background:'#faf8f3'}}><ProfileWorkspaceTabs role={role} active="profile-reviews" nav={nav}/><div style={{maxWidth:1050,margin:'0 auto',padding:'28px 24px 70px'}}><div style={{marginBottom:18}}><div style={{fontSize:10,fontWeight:850,letterSpacing:'.14em',textTransform:'uppercase',color:'#9a7436'}}>Profile · Reviews</div><h1 style={{fontFamily:'var(--font-display),serif',fontSize:42,lineHeight:1.03,color:'#17352b',margin:'6px 0'}}>What churches say about your work.</h1><p style={{fontSize:13.5,color:'#665e52',lineHeight:1.6,maxWidth:680,margin:0}}>Verified project reviews live with your profile now, where churches actually evaluate you.</p></div>{loading?<KBSkeleton variant="card"/>:vendor?.id?<VendorReviews vendorId={vendor.id} vendor={vendor}/>:<VendorProfilePanel title="No vendor profile yet">Your vendor profile is still being prepared.</VendorProfilePanel>}</div></div>;
+}
+
+function ChurchFeedbackProfileScreen({ currentUser, nav, role }) {
+  const [rows,setRows]=useState([]); const [loading,setLoading]=useState(true); const [error,setError]=useState('');
+  useEffect(()=>{let cancelled=false;(async()=>{if(!currentUser?.id){setRows([]);setLoading(false);return;}setLoading(true);setError('');try{const {data,error}=await supabase.from('church_feedback').select('id,project_id,tags,created_at,updated_at').eq('church_id',currentUser.id).order('created_at',{ascending:false}).limit(100);if(error)throw error;if(!cancelled)setRows(data||[]);}catch(err){logError('profile-church-feedback-load',err,{userId:currentUser.id});if(!cancelled)setError("Feedback couldn't load right now.");}finally{if(!cancelled)setLoading(false);}})();return()=>{cancelled=true};},[currentUser?.id]);
+  const counts=useMemo(()=>{const map=new Map();rows.forEach(row=>(Array.isArray(row.tags)?row.tags:[]).forEach(tag=>map.set(tag,(map.get(tag)||0)+1)));return [...map.entries()].sort((a,b)=>b[1]-a[1]);},[rows]);
+  return <div style={{minHeight:'calc(100vh - 48px)',background:'#faf8f3'}}><ProfileWorkspaceTabs role={role} active="profile-feedback" nav={nav}/><div style={{maxWidth:980,margin:'0 auto',padding:'28px 24px 70px'}}><div style={{fontSize:10,fontWeight:850,letterSpacing:'.14em',textTransform:'uppercase',color:'#9a7436'}}>Profile · Feedback</div><h1 style={{fontFamily:'var(--font-display),serif',fontSize:42,lineHeight:1.03,color:'#17352b',margin:'6px 0'}}>How vendors experienced working with your church.</h1><p style={{fontSize:13.5,color:'#665e52',lineHeight:1.6,maxWidth:700}}>Church reputation stays intentionally lightweight: no public star contest, just recurring signals from completed FaithBid projects.</p>{loading?<KBSkeleton variant="card"/>:error?<div style={{padding:16,border:'1px solid #ead1cc',borderRadius:12,background:'#fff5f2',color:'#8b3b2f'}}>{error}</div>:rows.length?<><div style={{display:'flex',gap:9,flexWrap:'wrap',marginTop:24}}>{counts.map(([tag,count])=><span key={tag} style={{padding:'9px 12px',borderRadius:999,border:'1px solid rgba(23,71,55,.14)',background:'#fff',fontSize:12,fontWeight:800,color:'#21493b'}}>{tag} · {count}</span>)}</div><div style={{marginTop:20,padding:18,border:'1px solid #dfd8cc',borderRadius:14,background:'#fffdf9'}}><strong style={{fontFamily:'var(--font-display),serif',fontSize:20,color:'#17352b'}}>{rows.length} completed-project feedback record{rows.length===1?'':'s'}</strong><div style={{fontSize:12.5,color:'#6b6459',marginTop:5}}>Signals appear only after the hired vendor completes work with your church.</div></div></>:<div style={{marginTop:24,padding:24,border:'1px dashed #d8d1c5',borderRadius:14,background:'rgba(255,255,255,.6)',textAlign:'center',color:'#6b6459'}}>Vendor feedback will appear here after completed FaithBid projects.</div>}</div></div>;
+}
+
+function VendorInsightsProfileScreen({ currentUser, nav, role }) {
+  return <div style={{minHeight:'calc(100vh - 48px)',background:'#faf8f3'}}><ProfileWorkspaceTabs role={role} active="profile-insights" nav={nav}/><React.Suspense fallback={<div style={{minHeight:'60vh',display:'grid',placeItems:'center',color:'#7d7363'}}>Loading Insights…</div>}><AnalyticsScreen currentUser={currentUser} nav={nav} role={role} dependencies={{ countUserConversationsSafe, isAdminUser, KB_BP_MOBILE, KBIntentionalState, KBSkeleton, logError, queueActivityNavigation, useViewportWidth }} /></React.Suspense></div>;
+}
+
+function LegacyDestinationRedirect({ nav, role, kind }) {
+  useEffect(()=>{
+    if(typeof nav!=='function')return;
+    if(kind==='reviews'){ nav(role==='vendor'?'profile-reviews':'my-projects'); return; }
+    if(kind==='analytics'){ nav(role==='vendor'?'profile-insights':'my-projects'); return; }
+    if(kind==='saved'){ queueMyProjectsLens(nav, role, 'saved'); return; }
+    if(kind==='activity'){ nav(role==='vendor'?'my-work':'my-projects'); return; }
+    if(kind==='profile'){ nav('profile'); return; }
+  },[nav,role,kind]);
+  return <div style={{minHeight:'55vh',display:'grid',placeItems:'center',background:'#faf8f3',color:'#6b6459',fontSize:13}}>Opening the new location…</div>;
+}
+
+function AdminReviewSubnav({ active, nav }) {
+  const tabs=[['admin','Review'],['concierge','Concierge'],['growth','Growth Engine'],['qa','QA Console']];
+  return <div style={{position:'relative',zIndex:12,background:'#f7f3eb',borderBottom:'1px solid rgba(28,40,20,.11)'}}><div style={{maxWidth:1480,margin:'0 auto',padding:'0 22px',display:'flex',alignItems:'center',gap:7,overflowX:'auto'}}><span style={{fontSize:9.5,fontWeight:900,letterSpacing:'.14em',textTransform:'uppercase',color:'#9a7436',marginRight:8,whiteSpace:'nowrap'}}>Admin Review</span>{tabs.map(([id,label])=><button key={id} type="button" onClick={()=>nav(id)} aria-current={active===id?'page':undefined} style={{height:44,padding:'0 12px',border:0,borderBottom:active===id?'2px solid #174737':'2px solid transparent',background:'transparent',color:active===id?'#17352b':'#69726e',fontSize:11.5,fontWeight:active===id?850:700,cursor:'pointer',whiteSpace:'nowrap'}}>{label}</button>)}</div></div>;
+}
+
+
+function PublicVendorProfileScreen({ nav, showToast }) {
+  const [vendor,setVendor]=useState(null);
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState('');
+  const readVendorKey = useCallback(() => {
+    if (typeof window === 'undefined') return '';
+    const raw = String(window.location.hash || '').replace(/^#\/?/, '');
+    const parts = raw.split('?')[0].split('/').filter(Boolean);
+    return parts[0] === 'vendor' ? decodeURIComponent(parts[1] || '') : '';
+  }, []);
+  const [vendorKey,setVendorKey] = useState(() => readVendorKey());
+
+  useEffect(()=>{
+    if (typeof window === 'undefined') return undefined;
+    const syncVendorKey = () => setVendorKey(readVendorKey());
+    window.addEventListener('hashchange', syncVendorKey);
+    return () => window.removeEventListener('hashchange', syncVendorKey);
+  },[readVendorKey]);
+
+  useEffect(()=>{
+    let cancelled=false;
+    (async()=>{
+      setLoading(true); setError(''); setVendor(null);
+      if(!vendorKey){setError('This public profile link is incomplete.');setLoading(false);return;}
+      try{
+        let result = await supabase.from('vendors').select('*').eq('user_id',vendorKey).maybeSingle();
+        if(result.error) throw result.error;
+        if(!result.data) {
+          result = await supabase.from('vendors').select('*').eq('id',vendorKey).maybeSingle();
+          if(result.error) throw result.error;
+        }
+        if(cancelled)return;
+        if(!result.data){setError('This vendor profile is not public right now.');return;}
+        setVendor(normalizeVendorEntity(result.data) || result.data);
+      }catch(err){
+        logError('public-vendor-profile-load',err,{vendorKey});
+        if(!cancelled)setError('This vendor profile is not public right now.');
+      }finally{if(!cancelled)setLoading(false);}
+    })();
+    return()=>{cancelled=true};
+  },[vendorKey]);
+
+  if(loading)return <div style={{minHeight:'70vh',display:'grid',placeItems:'center',background:'#fbfaf6',color:'#716858'}}>Loading vendor profile…</div>;
+  if(error||!vendor)return <div style={{minHeight:'70vh',display:'grid',placeItems:'center',background:'#fbfaf6',padding:24}}><div style={{maxWidth:560,textAlign:'center'}}><h1 style={{fontFamily:'var(--font-display),serif',fontSize:34,color:'#17352b',margin:'0 0 9px'}}>Profile unavailable</h1><p style={{fontSize:13.5,lineHeight:1.65,color:'#6b6459',margin:'0 0 18px'}}>{error||'This vendor profile is not public right now.'}</p><button type="button" onClick={()=>nav('landing')} style={VENDOR_PROFILE_SECONDARY_BUTTON_STYLE}>Back to FaithBid</button></div></div>;
+  return <VendorProfile vendor={vendor} onBack={()=>nav('landing')} nav={nav} role="guest" showToast={showToast} contextProjects={[]} currentUser={null}/>;
+}
 
 
 
@@ -47014,7 +49537,7 @@ function AdminReferralLeaderboard({showToast, refreshSignal = 0, onHealthChange 
         const ranked = Object.values(byReferrer).sort((a,b)=>b.qualified-a.qualified || b.total-a.total);
         const topProfileIds = ranked.slice(0,10).map(r => r.referrerId).filter(Boolean);
         if (topProfileIds.length > 0) {
-          const profileRes = await selectProfilesSafe("id,org_name", "id", query => query.in("id", topProfileIds));
+          const profileRes = await supabase.rpc('kb_profiles_public', { p_ids: topProfileIds });
           if (cancelled) return;
           if (profileRes?.error) {
             logError('admin-referral-leaderboard-profiles', profileRes.error, { referrerCount:topProfileIds.length });
@@ -50133,12 +52656,12 @@ function getNotificationActionLabel(notification = {}) {
   if (type === 'project_cancelled') return 'View project';
   if (type === 'project_update') return 'View update';
   if (type === 'review_prompt') return 'Leave review';
-  if (type === 'operational_alert') return 'Open activity';
+  if (type === 'operational_alert') return 'Open project';
   if (type.includes('verification') || type === 'vendor_rejected' || type === 'vendor_approved' || type === 'church_verified') return 'Open profile';
   const linkInfo = parseNotificationLink(notification?.link);
   if (linkInfo.route === 'inbox') return 'Open thread';
-  if (linkInfo.route === 'activity') return 'Open activity';
-  if (linkInfo.route === 'reviews') return 'Open reviews';
+  if (linkInfo.route === 'activity') return 'Open project';
+  if (linkInfo.route === 'reviews') return 'Open review';
   return 'View';
 }
 function getNotificationFeedCategory(notification = {}) {
@@ -50184,12 +52707,16 @@ function runNotificationAction(notification = {}, { nav = () => {}, role = null,
 
   if (type === 'review_prompt' || linkInfo.route === 'reviews') {
     if (n.vendorId || projectId) setPendingReviewTarget({ vendor_id:n.vendorId || null, name:n.vendorName || n.vendor_name || '', emoji:'', project:n.projectTitle || '', project_id:projectId || null });
-    nav('reviews');
+    nav(role === 'vendor' ? 'profile-reviews' : 'my-projects');
     return;
   }
 
   if (type === 'operational_alert' || linkInfo.route === 'activity') {
-    queueActivityNavigation(nav, { projectId, returnContext });
+    if (projectId) {
+      queueProjectNavigation(nav, { projectId, projectTitle:n.projectTitle || null, screen:KB_NAV_SCREENS.projects, tab:'overview', returnContext });
+    } else {
+      nav(role === 'vendor' ? 'my-work' : 'my-projects');
+    }
     return;
   }
 
@@ -50332,7 +52859,7 @@ function NotificationBell({currentUser, role, nav, onBidAccepted}){
         title:alert.title,
         body:alert.body,
         type:'operational_alert',
-        link:alert.projectId ? `activity/${alert.projectId}` : 'activity',
+        link:alert.projectId ? `projects/${alert.projectId}` : 'projects',
         read:true,
         created_at:new Date().toISOString(),
         project_id:alert.projectId || null,
@@ -50517,9 +53044,7 @@ function NotificationBell({currentUser, role, nav, onBidAccepted}){
               ))
             }
           </div>
-          {allNotifs.length>0&&<div style={{padding:"11px 16px",borderTop:"1px solid #eadfca",textAlign:"center",background:"#faf8f4"}}>
-            <button type="button" onClick={()=>{setOpen(false);queueActivityNavigation(nav);}} style={{fontSize:11.5,color:"#7d7363",background:"none",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",fontWeight:700}}>Open Activity Center →</button>
-          </div>}
+          {allNotifs.length>0&&<div style={{padding:"10px 16px",borderTop:"1px solid #eadfca",textAlign:"center",background:"#faf8f4",fontSize:10.75,color:"#8b8171",fontFamily:"var(--font-sans),sans-serif",lineHeight:1.45}}>Project activity and attention signals now live here and in My Projects.</div>}
         </div>
       )}
     </div>
@@ -51574,7 +54099,11 @@ function detailScopeItems(project) {
 }
 
 function detailGallery(project) {
-  const images = [0,1,2,3].map(i => getValidMediaUrl(getProjectHeroImage(project, i))).filter(Boolean);
+  const images = [
+    getProjectHeroImage(project),
+    ...safeArray(project?.media).map(getProjectMediaUrl),
+    ...safeArray(project?.gallery).map(getProjectMediaUrl),
+  ].filter(Boolean);
   const unique = [];
   for (const img of images) if (!unique.includes(img)) unique.push(img);
   return unique;
@@ -52316,3 +54845,6 @@ if (typeof document !== "undefined") {
 /* kb-0213-gpi-stage2-participation-ui-lock: moved to src/styles/legacy-route-patches.css */
 // 0231 — Deal Room message center + call frontend lock.
 /* kb-0231-deal-room-message-center-call-frontend-lock: moved to src/styles/legacy-route-patches.css */
+
+
+// 0973 — Project Detail visual density/shared-system lock: removed redundant facts strip, tightened typography/middle, contained hero/gutters, exact Marketplace related cards, compact question/files, landing clay ending.
