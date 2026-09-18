@@ -1283,3 +1283,11 @@ html body .fb-landing-v2 .fb-landing-nav-brand { min-width: 0 !important; }
 .kb-audience__text strong { font-size: 16px; }
 .kb-audience__text span { font-size: 13.5px; margin-top: 4px; }
 @media (max-width: 900px) { .kb-audience { padding: 48px 22px; } }
+
+/* For Churches on white; For Vendors mirrored (steps left, copy right). */
+.kb-audience--church { background: #fff; }
+@media (min-width: 901px) {
+  .kb-audience--vendor .kb-audience__inner { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); }
+  .kb-audience--vendor .kb-audience__steps { order: 1; padding: 2px clamp(24px, 3.4vw, 52px) 2px 0; border-left: 0; border-right: 1px solid rgba(18, 55, 45, .14); }
+  .kb-audience--vendor .kb-audience__copy { order: 2; padding-right: 0; padding-left: clamp(24px, 3.4vw, 52px); }
+}
