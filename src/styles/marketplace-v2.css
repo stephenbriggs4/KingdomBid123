@@ -2677,3 +2677,22 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
   .kb-rail-arrow.is-prev { left: 6px; }
   .kb-rail-arrow.is-next { right: 6px; }
 }
+
+/* Rails: both arrows are always shown (the unusable one is dimmed), plus a slim scroll track under the row. */
+.kb-rail-arrow { display: grid !important; width: 48px; height: 48px; margin-top: -24px; background: #fffdf8; border: 1px solid rgba(23, 75, 59, .35); box-shadow: 0 10px 26px rgba(28, 40, 20, .2); }
+.kb-rail-arrow[hidden] { display: grid !important; }
+.kb-rail-arrow:disabled { opacity: .38 !important; cursor: default; box-shadow: none; }
+.kb-rail-arrow.is-prev { left: -24px; }
+.kb-rail-arrow.is-next { right: -24px; }
+.kb-rail-track { position: relative; height: 3px; margin: 14px 0 0; border-radius: 999px; background: rgba(23, 75, 59, .14); overflow: hidden; }
+.kb-rail-track > span { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: #174b3b; transition: left .12s linear, width .12s linear; }
+@media (max-width: 760px) {
+  .kb-rail-arrow { width: 40px; height: 40px; margin-top: -20px; }
+  .kb-rail-arrow.is-prev { left: 4px; }
+  .kb-rail-arrow.is-next { right: 4px; }
+}
+.kb-rail-wrap { --fade-l: 0px; --fade-r: 0px; }
+.kb-rail-wrap:has(.kb-rail-arrow.is-prev:not(:disabled)) { --fade-l: 48px; }
+.kb-rail-wrap:has(.kb-rail-arrow.is-next:not(:disabled)) { --fade-r: 48px; }
+.kb-rail-wrap:has(.kb-rail-arrow.is-prev:disabled) { --fade-l: 0px; }
+.kb-rail-wrap:has(.kb-rail-arrow.is-next:disabled) { --fade-r: 0px; }

@@ -27326,6 +27326,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   }, [marketplaceDevPreview, filteredProjects, featuredBrowseProjects]);
   const showFeaturedProjectRail = featuredProjectRows.length >= 1;
 
+  const [featuredThumb, setFeaturedThumb] = useState({ left: 0, width: 100 });
   const updateFeaturedCarouselState = () => {
     const el = featuredTrackRef.current;
     if (!el || !showFeaturedProjectRail) {
@@ -27336,6 +27337,9 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth - 4);
     setFeaturedCanScrollPrev(el.scrollLeft > 4);
     setFeaturedCanScrollNext(el.scrollLeft < maxScroll);
+    const width = Math.min(100, (el.clientWidth / Math.max(1, el.scrollWidth)) * 100);
+    const left = el.scrollWidth > el.clientWidth ? (el.scrollLeft / (el.scrollWidth - el.clientWidth)) * (100 - width) : 0;
+    setFeaturedThumb({ left, width });
   };
 
   useEffect(() => {
@@ -28344,8 +28348,8 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                     </div>
                   </div>
                   <div className="kb-rail-wrap">
-                  <button type="button" className="kb-rail-arrow is-prev" onClick={()=>scrollFeaturedCarousel(-1)} hidden={!featuredCanScrollPrev} aria-label="Scroll featured projects left"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6" /></svg></button>
-                  <button type="button" className="kb-rail-arrow is-next" onClick={()=>scrollFeaturedCarousel(1)} hidden={!featuredCanScrollNext} aria-label="Scroll featured projects right"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6" /></svg></button>
+                  <button type="button" className="kb-rail-arrow is-prev" onClick={()=>scrollFeaturedCarousel(-1)} disabled={!featuredCanScrollPrev} aria-label="Scroll featured projects left"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6" /></svg></button>
+                  <button type="button" className="kb-rail-arrow is-next" onClick={()=>scrollFeaturedCarousel(1)} disabled={!featuredCanScrollNext} aria-label="Scroll featured projects right"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6" /></svg></button>
                   <div
                     ref={featuredTrackRef}
                     className={`kb-marketplace-featured-projects__rail${stripIsDragging ? ' is-dragging' : ''}`}
@@ -28398,6 +28402,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                       );
                     })}
                   </div>
+                  <div className="kb-rail-track" aria-hidden="true"><span style={{ left: featuredThumb.left + '%', width: featuredThumb.width + '%' }} /></div>
                   </div>
                 </section>
               ) : null}
@@ -34609,6 +34614,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
 
   const [railCanPrev, setRailCanPrev] = useState(false);
   const [railCanNext, setRailCanNext] = useState(false);
+  const [railThumb, setRailThumb] = useState({ left: 0, width: 100 });
   useEffect(() => {
     const el = featuredRailRef.current;
     if (!el) { setRailCanPrev(false); setRailCanNext(false); return undefined; }
@@ -34616,6 +34622,9 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
       const max = Math.max(0, el.scrollWidth - el.clientWidth - 4);
       setRailCanPrev(el.scrollLeft > 4);
       setRailCanNext(el.scrollLeft < max);
+      const width = Math.min(100, (el.clientWidth / Math.max(1, el.scrollWidth)) * 100);
+      const left = el.scrollWidth > el.clientWidth ? (el.scrollLeft / (el.scrollWidth - el.clientWidth)) * (100 - width) : 0;
+      setRailThumb({ left, width });
     };
     update();
     el.addEventListener('scroll', update, { passive:true });
@@ -35163,8 +35172,8 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               <KBSkeleton variant="list" count={4} style={{margin:'18px 0 0'}} />
             ) : railVendors.length ? (
               <div className="kb-rail-wrap">
-              <button type="button" className="kb-rail-arrow is-prev" onClick={()=>scrollFeaturedRail(-1)} hidden={!railCanPrev} aria-label="Scroll featured vendors left"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6" /></svg></button>
-              <button type="button" className="kb-rail-arrow is-next" onClick={()=>scrollFeaturedRail(1)} hidden={!railCanNext} aria-label="Scroll featured vendors right"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6" /></svg></button>
+              <button type="button" className="kb-rail-arrow is-prev" onClick={()=>scrollFeaturedRail(-1)} disabled={!railCanPrev} aria-label="Scroll featured vendors left"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6" /></svg></button>
+              <button type="button" className="kb-rail-arrow is-next" onClick={()=>scrollFeaturedRail(1)} disabled={!railCanNext} aria-label="Scroll featured vendors right"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6" /></svg></button>
               <div
                 ref={featuredRailRef}
                 className="kb-marketplace-featured-projects__rail kb-marketplace-featured-rail"
@@ -35178,6 +35187,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               >
                 {railVendors.map((vendor, index) => renderMarketplaceVendorDirectoryCard(vendor, index, 'rail'))}
               </div>
+              <div className="kb-rail-track" aria-hidden="true"><span style={{ left: railThumb.left + '%', width: railThumb.width + '%' }} /></div>
               </div>
             ) : (
               <div className="kb-marketplace-featured-empty" role="status">
