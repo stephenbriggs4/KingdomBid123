@@ -44828,7 +44828,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
       <section className="land-hero fb-landing-hero" aria-labelledby="faithbid-landing-title">
         <nav className="land-nav fb-landing-nav" aria-label="FaithBid home navigation">
           <button type="button" className="fb-landing-nav-brand" onClick={()=>nav("landing")} aria-label="FaithBid home">
-            <CrossLogo size={46} variant="monogram" />
+            <CrossLogo size={38} variant="monogram" />
           </button>
           <div className="land-nav-links fb-landing-nav-links">
             <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>How It Works</button>
