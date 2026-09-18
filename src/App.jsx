@@ -44224,24 +44224,149 @@ function LandingCoverageMap() {
 
 
 
-function LandingVendorPreviewCard({ item }) {
+const LANDING_GLIMPSE_CARDS = [
+  {
+    position: "left",
+    category: "Facilities",
+    title: "Facilities service provider",
+    location: "Dallas, TX",
+    services: "Facility care · Preventive maintenance",
+    status: { tone: "available", label: "Available now · Serves DFW" },
+    image: "/gpi/volunteer.jpg",
+    focus: "64% 34%",
+    alt: "Volunteers in matching blue shirts collecting litter outdoors",
+    callout: "Every vendor is reviewed before they’re listed.",
+  },
+  {
+    position: "center",
+    category: "Creative",
+    title: "Creative services team",
+    location: "Dallas, TX",
+    services: "Brand identity · Web design",
+    status: { tone: "limited", label: "Booking this month · Serves North Texas" },
+    image: "/gpi/creative.jpg",
+    focus: "50% 58%",
+    alt: "A creative team sharing their artwork in a bright, window-lined studio",
+    callout: "See real availability before you reach out.",
+  },
+  {
+    position: "right",
+    category: "Technology",
+    title: "Technology support partner",
+    location: "Richardson, TX",
+    services: "Systems support · Digital operations",
+    status: { tone: "available", label: "Available this week · Remote + DFW" },
+    image: "/gpi/professional.jpg",
+    focus: "72% 30%",
+    alt: "Two colleagues talking at a professional gathering",
+    review: {
+      label: "Church-submitted review",
+      quote: "Responsive, knowledgeable, and a true partner in our mission.",
+      attribution: "— Example church review",
+    },
+    callout: "Church-submitted reviews.",
+  },
+];
+
+const LANDING_GLIMPSE_FRONDS = {
+  left: { view: "0 0 320 420", rachis: [[74, -30], [104, 170], [34, 402]], count: 7, longSide: -1, long: 140, short: 52 },
+  right: { view: "0 0 320 440", rachis: [[314, 452], [238, 300], [150, 0]], count: 7, longSide: -1, long: 146, short: 50 },
+};
+
+function LandingGlimpseFoliage({ side }) {
+  const cfg = LANDING_GLIMPSE_FRONDS[side];
+  const [A, C, B] = cfg.rachis;
+  const leaves = [];
+  for (let i = 1; i <= cfg.count; i += 1) {
+    const s = i / (cfg.count + 1);
+    const x = (1 - s) * (1 - s) * A[0] + 2 * (1 - s) * s * C[0] + s * s * B[0];
+    const y = (1 - s) * (1 - s) * A[1] + 2 * (1 - s) * s * C[1] + s * s * B[1];
+    const dx = 2 * (1 - s) * (C[0] - A[0]) + 2 * s * (B[0] - C[0]);
+    const dy = 2 * (1 - s) * (C[1] - A[1]) + 2 * s * (B[1] - C[1]);
+    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+    const taper = 0.62 + 0.38 * Math.sin(s * Math.PI);
+    [-1, 1].forEach((dir) => {
+      const jitter = Math.sin(i * 12.9898 + dir * 78.233 + (cfg.count * 3.7)) * 0.5 + 0.5;
+      const len = (dir === cfg.longSide ? cfg.long : cfg.short) * taper * (0.8 + jitter * 0.38);
+      const rot = angle + dir * (46 + jitter * 22);
+      const rad = (rot * Math.PI) / 180;
+      const cx = x + Math.cos(rad) * len * 0.9;
+      const cy = y + Math.sin(rad) * len * 0.9;
+      leaves.push(<ellipse key={`${i}-${dir}`} cx={cx.toFixed(1)} cy={cy.toFixed(1)} rx={(len * 0.2 + 3).toFixed(1)} ry={len.toFixed(1)} transform={`rotate(${(rot - 90).toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})`} fillOpacity={i % 2 ? 1 : 0.72} />);
+    });
+  }
   return (
-    <div className={`fb-product-peek__card-wrap is-${item.callout.type}`}>
-      <article className="kb-marketplace-vendor-card" tabIndex={0} aria-label={`${item.vendor.name}, illustrative vendor profile`}>
-        <div className="kb-marketplace-vendor-card__media">
-          <img src={item.image} alt="" loading="lazy" />
-          <span className="kb-marketplace-vendor-card__category">{item.categoryLabel}</span>
-          {item.vendor.verified ? <span className="kb-marketplace-vendor-card__verified"><span>✓</span> Faith Verified</span> : null}
+    <svg className={`kb-landing-glimpse__foliage is-${side}`} viewBox={cfg.view} aria-hidden="true" focusable="false">
+      {leaves}
+    </svg>
+  );
+}
+
+function LandingGlimpseConnector({ position }) {
+  if (position === "left") {
+    return (
+      <svg className="kb-landing-glimpse__line" viewBox="-90 -22 96 28" aria-hidden="true" focusable="false">
+        <path d="M0 0H-34L-59 -18H-84" />
+        <circle cx="0" cy="0" r="4.2" />
+      </svg>
+    );
+  }
+  if (position === "right") {
+    return (
+      <svg className="kb-landing-glimpse__line" viewBox="-6 -30 96 40" aria-hidden="true" focusable="false">
+        <path d="M0 0H30L55 -25H84" />
+        <circle cx="0" cy="0" r="4.2" />
+      </svg>
+    );
+  }
+  return (
+    <svg className="kb-landing-glimpse__line" viewBox="-6 -6 12 46" aria-hidden="true" focusable="false">
+      <path d="M0 0V34" />
+      <circle cx="0" cy="0" r="4.2" />
+    </svg>
+  );
+}
+
+function LandingGlimpseCard({ item }) {
+  return (
+    <div className={`kb-landing-glimpse__item is-${item.position}`}>
+      <article className="kb-landing-glimpse__card" aria-label={`${item.title}, illustrative vendor profile`}>
+        <div className="kb-landing-glimpse__media">
+          <img src={item.image} alt={item.alt} loading="lazy" decoding="async" style={{ objectPosition: item.focus }} />
+          <span className="kb-landing-glimpse__category">{item.category}</span>
+          <span className="kb-landing-glimpse__verified">
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m3.4 8.4 3 3 6.2-6.6" /></svg>
+            Faith Verified
+          </span>
         </div>
-        <div className="kb-marketplace-vendor-card__body">
-          <span className="kb-marketplace-vendor-card__title">{item.vendor.name}</span>
-          <p className="kb-marketplace-vendor-card__location"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>{item.vendor.service_city}, {item.vendor.service_state}</p>
-          <p className="fb-product-peek__service-line">{item.serviceLine}</p>
-          {item.reviewLabel ? <div className="fb-product-peek__review"><span aria-hidden="true">☆</span><b>{item.reviewLabel}</b></div> : null}
-          <div className="kb-marketplace-vendor-card__footer"><span className={`kb-marketplace-vendor-card__status is-${item.status.tone}`}><span />{item.status.label}</span></div>
+        <div className="kb-landing-glimpse__body">
+          <h3 className="kb-landing-glimpse__title">{item.title}</h3>
+          <p className="kb-landing-glimpse__location">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.6" /></svg>
+            {item.location}
+          </p>
+          <p className="kb-landing-glimpse__services">{item.services}</p>
+          {item.review ? (
+            <figure className="kb-landing-glimpse__review">
+              <div className="kb-landing-glimpse__review-head">
+                <span className="kb-landing-glimpse__stars" aria-hidden="true">★★★★★</span>
+                <b>{item.review.label}</b>
+              </div>
+              <blockquote>“{item.review.quote}”</blockquote>
+              <figcaption>{item.review.attribution}</figcaption>
+            </figure>
+          ) : (
+            <hr className="kb-landing-glimpse__rule" aria-hidden="true" />
+          )}
+          <div className="kb-landing-glimpse__status-row">
+            <span className={`kb-landing-glimpse__status is-${item.status.tone}`}><i aria-hidden="true" />{item.status.label}</span>
+          </div>
         </div>
       </article>
-      <div className="fb-product-peek__callout" tabIndex={0}><span aria-hidden="true" />{item.callout.label}</div>
+      <div className={`kb-landing-glimpse__callout is-${item.position}`}>
+        <LandingGlimpseConnector position={item.position} />
+        <p>{item.callout}</p>
+      </div>
     </div>
   );
 }
@@ -44262,48 +44387,24 @@ function LandingExampleReveal() {
     return () => observer.disconnect();
   }, []);
 
-  const previewVendors = [
-    {
-      vendor: { name:"Facilities service provider", service_city:"Dallas", service_state:"TX", verified:true },
-      image:"/gpi/volunteer.jpg",
-      categoryLabel:"Facilities",
-      serviceLine:"Facility care · Preventive maintenance",
-      status:{ tone:"available", label:"Available now · Serves DFW" },
-      callout:{ type:"vetting", label:"Every vendor is vetted before they appear" },
-    },
-    {
-      vendor: { name:"Creative services team", service_city:"Dallas", service_state:"TX", verified:false },
-      image:"/gpi/creative.jpg",
-      categoryLabel:"Creative",
-      serviceLine:"Brand identity · Web design",
-      status:{ tone:"limited", label:"Booking this month · Serves North Texas" },
-      callout:{ type:"availability", label:"See real availability before you reach out" },
-    },
-    {
-      vendor: { name:"Technology support partner", service_city:"Richardson", service_state:"TX", verified:true },
-      image:"/gpi/professional.jpg",
-      categoryLabel:"Technology",
-      serviceLine:"Systems support · Digital operations",
-      status:{ tone:"available", label:"Available this week · Remote + DFW" },
-      reviewLabel:"Church-submitted reviews",
-      callout:{ type:"reviews", label:"Real reviews from real churches" },
-    },
-  ];
-
   return (
-    <section id="landing-example-reveal" ref={sectionRef} className={`fb-example-reveal${revealed ? " is-revealed" : ""}`} aria-labelledby="landing-example-reveal-title">
-      <div className="fb-example-reveal__inner">
-        <header className="fb-example-reveal__head">
-          <div className="fb-section-eyebrow">A glimpse inside</div>
-          <h2 id="landing-example-reveal-title">See how the right work comes into focus.</h2>
-          <p>A look inside the marketplace.</p>
+    <section id="landing-example-reveal" ref={sectionRef} className={`kb-landing-glimpse${motionReady ? " is-motion-ready" : ""}${revealed ? " is-revealed" : ""}`} aria-labelledby="landing-example-reveal-title">
+      <LandingGlimpseFoliage side="left" />
+      <LandingGlimpseFoliage side="right" />
+      <div className="kb-landing-glimpse__inner">
+        <header className="kb-landing-glimpse__head">
+          <div className="kb-landing-glimpse__eyebrow">A glimpse inside</div>
+          <h2 id="landing-example-reveal-title"><span>See how the right work</span> <span>comes into focus.</span></h2>
+          <p className="kb-landing-glimpse__sub">A look inside the marketplace.</p>
         </header>
-        <figure className={`fb-product-peek${motionReady ? " is-motion-ready" : ""}${revealed ? " is-revealed" : ""}`} aria-label="Illustrative explainer showing three example FaithBid vendor profile cards and the vetting, availability, and church-review signals they carry.">
-          <figcaption>Example vendor profiles — illustrative, not live listings.</figcaption>
-          <div className="fb-product-peek__cards">
-            {previewVendors.map((item) => <LandingVendorPreviewCard key={item.vendor.name} item={item} />)}
+        <div className="kb-landing-glimpse__stage" role="group" aria-label="Illustrative example of three FaithBid vendor profile cards">
+          <div className="kb-landing-glimpse__halo" aria-hidden="true" />
+          <div className="kb-landing-glimpse__ground" aria-hidden="true" />
+          <div className="kb-landing-glimpse__cards">
+            {LANDING_GLIMPSE_CARDS.map((item) => <LandingGlimpseCard key={item.title} item={item} />)}
           </div>
-        </figure>
+        </div>
+        <div className="kb-landing-glimpse__motif" aria-hidden="true"><span /><em>People serving purpose</em><span /></div>
       </div>
     </section>
   );
@@ -44347,8 +44448,6 @@ const LANDING_PRECISION_POLISH_CSS = `
 .fb-landing-v2 .fb-how-step-icon{width:38px;height:38px;margin:0 auto 10px;transform:scale(1.08);transform-origin:center;}
 .fb-landing-v2 .fb-how-step h3{margin:0 0 6px;font-size:clamp(17px,1.4vw,21px);line-height:1.2;}
 .fb-landing-v2 .fb-how-step p{max-width:330px;margin:0 auto;font-size:13.5px;line-height:1.58;color:rgba(53,52,48,.68);}
-.fb-landing-v2 .fb-example-reveal{padding-top:68px;}
-.fb-landing-v2 .fb-example-reveal__head{margin-bottom:32px;}
 .fb-landing-v2 button:focus-visible,.fb-landing-v2 a:focus-visible,.fb-landing-v2 [tabindex="0"]:focus-visible{outline:3px solid rgba(169,132,63,.48);outline-offset:3px;}
 @media (max-width:900px){
   .fb-landing-v2 .fb-landing-hero{min-height:92svh;}
@@ -44372,7 +44471,6 @@ const LANDING_PRECISION_POLISH_CSS = `
   .fb-landing-v2 .fb-how-it-works-grid{grid-template-columns:1fr!important;gap:24px;}
   .fb-landing-v2 .fb-how-step{max-width:360px;margin:0 auto;}
   .fb-landing-v2 .fb-how-step-icon{margin-bottom:8px;}
-  .fb-landing-v2 .fb-example-reveal{padding-top:54px;}
 }
 @media (prefers-reduced-motion:reduce){
   .fb-landing-v2 .fb-landing-cta{transition:none!important;}
