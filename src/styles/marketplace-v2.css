@@ -2750,3 +2750,11 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
 }
 .kb-rail-wrap::before { top: -14px !important; bottom: auto !important; box-shadow: 0 4px 0 rgba(180, 138, 62, .2); }
 .kb-rail-wrap::after { bottom: -14px !important; top: auto !important; box-shadow: 0 -4px 0 rgba(180, 138, 62, .2); }
+
+/* Rails: a little bolder. */
+.kb-rail-wrap::before, .kb-rail-wrap::after {
+  height: 2px !important;
+  background: linear-gradient(90deg, rgba(180, 138, 62, 0) 0%, rgba(176, 132, 52, .85) 5%, rgba(176, 132, 52, .85) 95%, rgba(180, 138, 62, 0) 100%) !important;
+}
+.kb-rail-wrap::before { box-shadow: 0 5px 0 rgba(176, 132, 52, .32) !important; }
+.kb-rail-wrap::after { box-shadow: 0 -5px 0 rgba(176, 132, 52, .32) !important; }
