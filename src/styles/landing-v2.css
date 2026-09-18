@@ -1060,14 +1060,15 @@ html body .fb-landing-v2 .fb-landing-hero::after {
 html body .fb-landing-v2 .fb-landing-hero-body { transform: translateY(-40px) !important; }
 
 html body .fb-landing-v2 .fb-landing-nav-brand .kb-brand-logo-full {
-  height: 33px !important;
-  width: 146px !important;
-  max-width: 146px !important;
+  height: auto !important;
+  aspect-ratio: 4.8 / 1;
+  width: 150px !important;
+  max-width: 150px !important;
   filter: none !important;
   opacity: 1 !important;
   image-rendering: auto;
   object-fit: cover !important;
-  object-position: 50% 10% !important;
+  object-position: 50% 0% !important;
 }
 html body .fb-landing-v2 .fb-landing-nav-brand { min-width: 0 !important; }
 html body .fb-landing-v2 .fb-landing-nav-links { gap: clamp(14px, 2.2vw, 34px); }
