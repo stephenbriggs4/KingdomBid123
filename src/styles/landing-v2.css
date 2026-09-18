@@ -1433,3 +1433,6 @@ html body .fb-landing-v2 .fb-landing-nav-links .land-nav-btn + .land-nav-btn::be
   transform: translateY(-50%);
   background: rgba(18, 55, 45, .14);
 }
+
+/* Footer: no horizontal rule above the copyright line. */
+.fb-foot__bar { border-top: 0; }
