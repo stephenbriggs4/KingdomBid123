@@ -23125,7 +23125,7 @@ const APP_PROJECT_SUBTAB_BY_ROUTE = Object.freeze({
   "vendors": "vendors",
 });
 const APP_HASH_ROUTES = Object.freeze([
-  "projects","my-projects","my-work","vendors","vendor","get-plugged-in","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","pricing","admin","settings","about","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
+  "landing","projects","my-projects","my-work","vendors","vendor","get-plugged-in","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","pricing","admin","settings","about","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
 ]);
 const APP_HASH_ROUTE_SET = new Set(APP_HASH_ROUTES);
 
