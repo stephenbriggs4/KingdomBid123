@@ -517,29 +517,46 @@ function PublicLegalFooter({ compact = false, nav, screen }) {
           .fb-public-legal-footer__copy{line-height:1.55;}
         }
       `}</style>
-      <div className="fb-public-footer-v2__inner">
-        <div className="fb-public-legal-footer__identity">
-          <div className="fb-public-legal-footer__brand"><CrossLogo size={compact ? 50 : 60} tone="inverse" /></div>
-          <div className="fb-public-legal-footer__copyright">© {currentYear} {cfg.owner}. All rights reserved.</div>
+      <div className="fb-foot">
+        <div className="fb-foot__top">
+          <div className="fb-foot__brand">
+            <div className="fb-public-legal-footer__brand"><CrossLogo size={compact ? 50 : 56} tone="inverse" /></div>
+          </div>
+          {!compact && <nav className="fb-foot__nav" aria-label="FaithBid footer navigation">
+            <div className="fb-foot__group">
+              <div className="fb-public-footer-v2__nav-title">Explore</div>
+              <ul>
+                <li><button type="button" onClick={()=>goToLandingSection("how-faithbid-works")}>How It Works</button></li>
+                <li><button type="button" onClick={()=>goToLandingSection("faith-verified")}>Faith Verified</button></li>
+                <li><button type="button" onClick={()=>goToLandingSection("for-churches")}>For Churches</button></li>
+                <li><button type="button" onClick={()=>goToLandingSection("for-vendors")}>For Vendors</button></li>
+              </ul>
+            </div>
+            <div className="fb-foot__group">
+              <div className="fb-public-footer-v2__nav-title">Company</div>
+              <ul>
+                <li><a href="#about" onClick={(event)=>{event.preventDefault();nav?.("about");}}>About</a></li>
+                <li><button type="button" onClick={()=>goToLandingSection("pricing-section")}>Pricing</button></li>
+                <li><button type="button" onClick={()=>goToLandingSection("landing-faq-section")}>FAQ</button></li>
+                <li><a href="#partner" onClick={(event)=>{event.preventDefault();nav?.("partner");}}>Partner</a></li>
+              </ul>
+            </div>
+            <div className="fb-foot__group">
+              <div className="fb-public-footer-v2__nav-title">Legal &amp; Contact</div>
+              <ul>
+                <li><a href="#privacy" onClick={(event)=>{event.preventDefault();nav?.("privacy");}}>Privacy</a></li>
+                <li><a href="#terms" onClick={(event)=>{event.preventDefault();nav?.("terms");}}>Terms</a></li>
+                <li><a href={`mailto:${cfg.contactEmail}`} aria-label={`${cfg.contactLabel} ${cfg.owner} at ${cfg.contactEmail}`}>{cfg.contactEmail}</a></li>
+              </ul>
+            </div>
+          </nav>}
         </div>
-        {!compact && <nav className="fb-public-footer-v2__nav-block" aria-label="FaithBid footer navigation">
-          <div className="fb-public-footer-v2__nav-title">Explore</div>
-          <div className="fb-public-footer-v2__nav">
-            <a href="#about" onClick={(event)=>{event.preventDefault();nav?.("about");}}>About</a>
-            <button type="button" onClick={()=>goToLandingSection("how-faithbid-works")}>How It Works</button>
-            <button type="button" onClick={()=>goToLandingSection("pricing-section")}>Pricing</button>
-            <button type="button" onClick={()=>goToLandingSection("landing-faq-section")}>FAQ</button>
-            <a href="#partner" onClick={(event)=>{event.preventDefault();nav?.("partner");}}>Partner</a>
-            <a href="#privacy" onClick={(event)=>{event.preventDefault();nav?.("privacy");}}>Privacy</a>
-            <a href="#terms" onClick={(event)=>{event.preventDefault();nav?.("terms");}}>Terms</a>
-          </div>
-        </nav>}
-        <div className="fb-public-legal-footer__disclaimers">
-          <div className="fb-public-legal-footer__copy">{cfg.earlyAccessDisclaimer}</div>
-          <div className="fb-public-legal-footer__copy">{cfg.marketplaceDisclaimer}</div>
-          <div className="fb-public-legal-footer__links">
-            <a className="fb-public-legal-footer__link" href={`mailto:${cfg.contactEmail}`} aria-label={`${cfg.contactLabel} ${cfg.owner} at ${cfg.contactEmail}`}>{cfg.contactEmail}</a>
-          </div>
+        <div className="fb-foot__legal">
+          <p>{cfg.earlyAccessDisclaimer}</p>
+          <p>{cfg.marketplaceDisclaimer}</p>
+        </div>
+        <div className="fb-foot__bar">
+          <span className="fb-public-legal-footer__copyright">© {currentYear} {cfg.owner}. All rights reserved.</span>
         </div>
       </div>
     </footer>
