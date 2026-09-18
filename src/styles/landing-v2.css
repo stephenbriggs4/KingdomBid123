@@ -1206,10 +1206,10 @@ html body #root footer.fb-public-footer-v2 .fb-public-footer-v2__nav button { co
 .kb-landing-glimpse__halo { display: none; }
 
 /* How It Works: beige clay background (same texture as Faith Verified). */
-.fb-landing-v2 .fb-how-it-works {
-  background-color: var(--kb852bf-beige-texture-color, #eee6d9);
-  background-image: linear-gradient(rgba(255, 253, 248, .12), rgba(255, 253, 248, .12)), var(--kb852bf-beige-texture-image, url("/textures/kb852bf-beige-texture-current.jpg"));
-  background-position: center top;
-  background-size: cover;
-  background-repeat: no-repeat;
+html body .fb-landing-v2 section.fb-how-it-works {
+  background-color: #eee6d9 !important;
+  background-image: linear-gradient(rgba(255, 253, 248, .12), rgba(255, 253, 248, .12)), url("/textures/kb852bf-beige-texture-current.jpg") !important;
+  background-position: center top !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
 }
