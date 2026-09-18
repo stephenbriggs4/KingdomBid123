@@ -2842,3 +2842,8 @@ html body #root .mkt2-root main.kb-marketplace-projects-body { padding-top: 16px
 .kb-marketplace-project-directory .kb-marketplace-project-grid::after {
   content: ""; position: absolute; right: -3px; top: -16px; width: 8px; height: 8px; background: #a87928; transform: rotate(45deg); pointer-events: none;
 }
+
+/* Gold rules: a little bolder (Featured rows and All grids). */
+.kb-rail-wrap::before { height: 2px !important; background: rgba(168, 121, 40, .95) !important; top: -13px !important; }
+.kb-marketplace-all-vendors .kb-marketplace-project-grid::before,
+.kb-marketplace-project-directory .kb-marketplace-project-grid::before { height: 2px; background: rgba(168, 121, 40, .95); top: -13px; }
