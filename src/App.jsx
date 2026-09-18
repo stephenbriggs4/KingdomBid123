@@ -31761,11 +31761,11 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     <style>{`
       .kb1005-myprojects{position:relative;overflow:hidden;background:radial-gradient(circle at 78% 2%,rgba(231,225,210,.38),transparent 28%),linear-gradient(rgba(250,247,240,.55),rgba(250,247,240,.55)),url("/textures/kb852bf-beige-texture-current.jpg") center/cover,#f8f6f1}
       .kb1005-hero-art{position:absolute;top:0;right:0;width:min(58%,980px);height:276px;pointer-events:none;z-index:0;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 34%,#000 100%);mask-image:linear-gradient(90deg,transparent 0,#000 34%,#000 100%)}
-      .kb1005-hero-arch{position:absolute;left:38%;top:-20px;width:34%;height:320px;border-radius:999px 999px 0 0;background:linear-gradient(180deg,rgba(255,252,245,.85),rgba(236,229,214,.72));box-shadow:inset 0 0 40px rgba(180,165,135,.28),0 0 60px rgba(255,255,255,.5)}
-      .kb1005-hero-branch{position:absolute;right:6%;top:6px;width:250px;color:#7c8859;opacity:.9}
-      .kb1005-hero-shadow{position:absolute;left:8%;top:40px;width:360px;color:#8b7f66;opacity:.13;filter:blur(7px)}
+      .kb1005-hero-arch{position:absolute;left:30%;top:-20px;width:20%;height:330px;border-radius:999px 999px 0 0;background:linear-gradient(180deg,rgba(255,252,245,.85),rgba(236,229,214,.72));box-shadow:inset 0 0 40px rgba(180,165,135,.28),0 0 60px rgba(255,255,255,.5)}
+      .kb1005-hero-branch{position:absolute;right:clamp(240px,18vw,340px);top:70px;width:clamp(170px,14vw,240px);color:#6f7d4e;opacity:.95;transform:rotate(-64deg);transform-origin:20% 90%}
+      .kb1005-hero-shadow{position:absolute;left:2%;top:50px;width:340px;transform:rotate(-8deg);color:#8b7f66;opacity:.13;filter:blur(7px)}
       .kb1005-intro,.kb1005-layout{position:relative;z-index:1}
-      .kb1005-intro{grid-template-columns:minmax(0,1fr) auto auto;gap:clamp(24px,4vw,84px);align-items:center;min-height:200px;margin-bottom:22px;padding-top:6px}
+      .kb1005-intro{grid-template-columns:minmax(0,1fr) auto clamp(150px,13vw,230px) auto;gap:clamp(20px,2.4vw,44px);align-items:center;min-height:200px;margin-bottom:22px;padding-top:6px}
       .kb1005-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;font:500 10.5px/1 var(--font-sans),sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#8a6c3c}.kb1005-eyebrow i{width:38px;height:1px;background:#c9b48c}
       .kb1005-intro h1{font-size:clamp(60px,5.6vw,92px);line-height:.92}
       .kb1005-intro p{font-size:clamp(15px,1.05vw,18px);color:#3f4c47}
@@ -31779,16 +31779,16 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
       .kb1005-attention-head h2{display:flex;align-items:center;gap:9px}.kb1005-attention-head h2>svg{width:22px;height:22px;flex:none}
       .kb1005-impact{position:relative;overflow:hidden;padding-bottom:44px}.kb1005-impact>*{position:relative;z-index:1}.kb1005-impact-icon svg{width:26px;height:26px}
       .kb1005-impact-hills{position:absolute!important;left:0;right:0;bottom:0;width:100%;height:56px;z-index:0!important}
-      .kb1005-empty{border-style:dashed;padding:38px 26px 26px}.kb1005-empty-art{display:block;width:min(240px,60%);margin:0 auto 6px}
+      .kb1005-empty{border:1px dashed #cfc8ba;padding:44px 26px 30px}.kb1005-empty-art{display:block;width:min(260px,60%);margin:0 auto 18px}
       .kb1005-empty h3{font-size:clamp(28px,2.3vw,38px);font-weight:600}.kb1005-empty p{font-size:15px;max-width:520px}
       .kb1005-empty button{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 24px;border-radius:8px;font-size:14px}.kb1005-empty button svg{width:18px;height:18px}
       .kb1005-empty-foot{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:38px;color:#8f958f}.kb1005-empty-foot span{width:42px;height:1px;background:#d8d2c7}.kb1005-empty-foot em{font:500 10px/1 var(--font-sans),sans-serif;letter-spacing:.3em;text-transform:uppercase;font-style:normal}
-      @media(max-width:1180px){.kb1005-hero-art{opacity:.55}.kb1005-intro{grid-template-columns:1fr}.kb1005-scripture{display:none}}
+      @media(max-width:1180px){.kb1005-hero-art{opacity:.55}.kb1005-intro{grid-template-columns:1fr}.kb1005-scripture,.kb1005-intro-gap{display:none}}
       @media(max-width:820px){.kb1005-hero-art,.kb1005-quote{display:none}.kb1005-intro{min-height:0}.kb1005-intro h1{font-size:52px}}
 `}</style>
 
     <div className="kb1005-hero-art" aria-hidden="true"><span className="kb1005-hero-arch" /><MyProjectsBranch className="kb1005-hero-shadow" /><MyProjectsBranch className="kb1005-hero-branch" /></div>
-    <header className="kb1005-intro"><div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1><p>Track your projects, manage vendor activity, and move every decision forward.</p></div><div className="kb1005-quote"><b>Building What Matters.</b><em>For a Stronger Tomorrow.</em></div><figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure></header>
+    <header className="kb1005-intro"><div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1><p>Track your projects, manage vendor activity, and move every decision forward.</p></div><div className="kb1005-quote"><b>Building What Matters.</b><em>For a Stronger Tomorrow.</em></div><span className="kb1005-intro-gap" aria-hidden="true" /><figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure></header>
     <div className="kb1005-layout">
       <main>
         <div className="kb1005-filter-cells" role="tablist" aria-label="Project filters">{tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={bucket===tab.key} className={`kb1005-filter-cell${bucket===tab.key?' active':''}`} onClick={()=>setBucket(tab.key)}>{renderTabIcon(tab.icon)}<span>{tab.label}</span><span className="kb1005-filter-count">{tab.count}</span></button>)}</div>
