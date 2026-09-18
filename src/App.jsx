@@ -31592,15 +31592,7 @@ function MyProjectsIcon({ kind }) {
 }
 
 function MyProjectsEmptyArt() {
-  return (
-    <svg className="kb1005-empty-art" viewBox="0 0 220 150" aria-hidden="true" focusable="false">
-      <g fill="#a9b48c" opacity=".55"><ellipse cx="30" cy="108" rx="5" ry="17" transform="rotate(-62 30 108)"/><ellipse cx="52" cy="122" rx="5" ry="16" transform="rotate(-38 52 122)"/><ellipse cx="18" cy="122" rx="4.5" ry="14" transform="rotate(-84 18 122)"/><ellipse cx="185" cy="70" rx="5" ry="18" transform="rotate(48 185 70)"/><ellipse cx="200" cy="92" rx="5" ry="17" transform="rotate(68 200 92)"/><ellipse cx="172" cy="52" rx="4.5" ry="15" transform="rotate(28 172 52)"/><ellipse cx="160" cy="114" rx="5" ry="16" transform="rotate(38 160 114)"/></g>
-      <path d="M14 124c40-4 80-24 128-72M140 118c22-6 40-24 58-56" fill="none" stroke="#a9b48c" strokeWidth="1.6" opacity=".7"/>
-      <rect x="62" y="20" width="84" height="106" rx="7" fill="#fff" stroke="#e4dfd5" />
-      <g stroke="#d6d1c6" strokeWidth="3" strokeLinecap="round"><path d="M78 44h50M78 58h50M78 72h34"/></g>
-      <circle cx="128" cy="118" r="14" fill="#1a4d3c"/><path d="M128 111v14M121 118h14" stroke="#fff" strokeWidth="2.4" strokeLinecap="round"/>
-    </svg>
-  );
+  return <img className="kb1005-empty-art" src="/images/my-projects-empty.webp" alt="" aria-hidden="true" width="1536" height="1024" />;
 }
 
 function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onManageBids, nav, role, showToast, currentUser, myProjectsFetchError = false, onRetryMyProjects}) {
@@ -31759,7 +31751,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
       .kb1005-attention-head h2{display:flex;align-items:center;gap:9px}.kb1005-attention-head h2>svg{width:22px;height:22px;flex:none}
       .kb1005-impact{position:relative;overflow:hidden;padding-bottom:44px}.kb1005-impact>*{position:relative;z-index:1}.kb1005-impact-icon svg{width:26px;height:26px}
       .kb1005-impact-hills{position:absolute!important;left:0;right:0;bottom:0;width:100%;height:56px;z-index:0!important}
-      .kb1005-empty{border:1px dashed #cfc8ba;padding:44px 26px 30px}.kb1005-empty-art{display:block;width:min(260px,60%);margin:0 auto 18px}
+      .kb1005-empty{border:1px dashed #cfc8ba;padding:44px 26px 30px}.kb1005-empty-art{display:block;width:min(560px,92%);height:auto;margin:-58px auto -64px;mix-blend-mode:multiply;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 55%,transparent 100%);mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 55%,transparent 100%)}
       .kb1005-empty h3{font-size:clamp(28px,2.3vw,38px);font-weight:600}.kb1005-empty p{font-size:15px;max-width:520px}
       .kb1005-empty button{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 24px;border-radius:8px;font-size:14px}.kb1005-empty button svg{width:18px;height:18px}
       .kb1005-empty-foot{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:38px;color:#8f958f}.kb1005-empty-foot span{width:42px;height:1px;background:#d8d2c7}.kb1005-empty-foot em{font:500 10px/1 var(--font-sans),sans-serif;letter-spacing:.3em;text-transform:uppercase;font-style:normal}
