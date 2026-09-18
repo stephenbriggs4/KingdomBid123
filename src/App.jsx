@@ -31469,14 +31469,40 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
           @media(min-width:821px){@container (max-width:999px){.kb1004-filter-cell{gap:7px;padding:0 8px;font-size:14px;white-space:nowrap}.kb1004-filter-cell svg{display:none}.kb1004-filter-count{min-width:22px;height:22px;font-size:11px}}@container (max-width:799px){.kb1004-filter-cell{gap:6px;padding:0 5px;font-size:13px}.kb1004-filter-count{min-width:20px;height:20px;font-size:10.5px}}}
           @media(max-width:820px){.kb1004-myprojects{padding:22px 16px 84px}.kb1004-intro h1{font-size:46px}.kb1004-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;background:transparent;border:0;box-shadow:none;gap:8px}.kb1004-filter-cell{border:1px solid #ded8cc!important;border-radius:8px;background:#fff;min-height:50px}.kb1004-toolbar{grid-template-columns:1fr auto}.kb1004-sort{grid-column:1/-1;grid-row:2}.kb1004-card-grid{grid-template-columns:1fr}.kb1004-project-card{grid-template-columns:132px minmax(0,1fr);min-height:230px}.kb1004-card-media{min-height:200px}.kb1004-card-actions{grid-template-columns:1fr}.kb1004-side{grid-template-columns:1fr}.kb1004-proposal-stats{grid-template-columns:1fr}}
           @media(max-width:560px){.kb1004-project-card{grid-template-columns:1fr}.kb1004-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1004-filter-cells{grid-template-columns:1fr 1fr}.kb1004-intro p{font-size:14px}.kb1004-toolbar{grid-template-columns:1fr}.kb1004-view-toggle{display:none}.kb1004-card-main{padding:14px}.kb1004-side-card{padding:16px}}
+          .kb1005-hero-art{position:absolute;top:0;left:0;right:0;height:min(330px,20vw + 30px);pointer-events:none;z-index:0;background:url("/images/my-projects-hero.webp") 2% top/84% auto no-repeat;-webkit-mask-image:linear-gradient(180deg,#000 60%,transparent 100%),linear-gradient(90deg,transparent 4%,#000 22%,#000 83%,transparent 87%);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,#000 60%,transparent 100%),linear-gradient(90deg,transparent 4%,#000 22%,#000 83%,transparent 87%);mask-composite:intersect}
+                .kb1005-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;font:500 10.5px/1 var(--font-sans),sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#8a6c3c}.kb1005-eyebrow i{width:38px;height:1px;background:#c9b48c}
+                .kb1005-quote{border:0;padding:0;white-space:normal;display:grid;gap:4px;font-family:var(--font-display),serif}
+                .kb1005-quote b{font-weight:500;font-size:20px;line-height:1.2;color:#1f352e;max-width:9em}
+                .kb1005-quote em{font-style:normal;font-family:var(--font-display),serif;font-size:13px;color:#5b655f}.kb1005-quote em::after{content:"";display:block;width:38px;height:1px;background:#c9a96a;margin-top:10px}
+                .kb1005-scripture{margin:0;max-width:170px;text-align:right;font-family:var(--font-display),serif;color:#3a4a44}.kb1005-scripture blockquote{margin:0;font-size:15px;line-height:1.35}.kb1005-scripture figcaption{margin-top:10px;font:500 9.5px/1 var(--font-sans),sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#8a8f88}.kb1005-scripture figcaption::after{content:"";display:block;width:34px;height:1px;background:#c9a96a;margin:10px 0 0 auto}
+          .kb1005-side-ico,.kb1005-act-ico{display:inline-grid;place-items:center;color:#17382f}.kb1005-side-ico{width:40px;height:40px;border-radius:50%;background:#efede6;flex:none}.kb1005-side-ico svg{width:19px;height:19px}.kb1005-act-ico svg{width:17px;height:17px}
+          .kb1005-side-titlerow{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}.kb1005-side-titlerow p{margin:6px 0 0}
+
+          .kb1004-myprojects{position:relative;overflow:hidden;background:radial-gradient(circle at 78% 2%,rgba(231,225,210,.38),transparent 28%),linear-gradient(rgba(250,247,240,.55),rgba(250,247,240,.55)),url("/textures/kb852bf-beige-texture-current.jpg") center/cover,#f8f6f1}
+          .kb1004-intro,.kb1004-layout{position:relative;z-index:1}
+          .kb1004-intro{grid-template-columns:minmax(0,1fr) auto clamp(150px,13vw,230px) auto;gap:clamp(20px,2.4vw,44px);align-items:center;min-height:200px;margin-bottom:22px;padding-top:6px}
+          .kb1004-intro h1{font-size:clamp(60px,5.6vw,92px);line-height:.92;letter-spacing:-.04em;color:#102b24}
+          .kb1004-intro p{font-size:clamp(15px,1.05vw,18px);color:#3f4c47}
+          .kb1004-empty{border:1px dashed #cfc8ba;padding:44px 26px 30px}
+          .kb1004-empty h3{font-size:clamp(28px,2.3vw,38px);font-weight:600}.kb1004-empty p{font-size:15px;max-width:520px}
+          .kb1004-empty button{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 24px;border-radius:8px;font-size:14px}.kb1004-empty button svg{width:18px;height:18px}
+          .kb1004-empty .kb1005-empty-art{display:block;width:min(400px,80%);height:auto;margin:-42px auto -46px;mix-blend-mode:multiply;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 55%,transparent 100%);mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 55%,transparent 100%)}
+          .kb1004-profile-head{justify-content:flex-start;gap:12px}.kb1004-profile-head h2{flex:1}
+          .kb1004-saved-head h2>svg{width:22px;height:22px;flex:none}.kb1004-saved-head h2{white-space:nowrap;font-size:20px}.kb1004-link-button{white-space:nowrap}.kb1004-empty p{max-width:640px!important}
+          .kb1004-impact{position:relative;overflow:hidden;padding-bottom:44px}.kb1004-impact>*{position:relative;z-index:1}.kb1004-impact-icon svg{width:26px;height:26px}
+          .kb1004-impact .kb1005-impact-hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:56px;z-index:0}
+          .kb1004-side-actions .kb1005-act-ico{flex:none}
+          .kb1005-empty-foot{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:38px;color:#8f958f}.kb1005-empty-foot span{width:42px;height:1px;background:#d8d2c7}.kb1005-empty-foot em{font:500 10px/1 var(--font-sans),sans-serif;letter-spacing:.3em;text-transform:uppercase;font-style:normal}
+          @media(max-width:1180px){.kb1004-hero-art{opacity:.6}.kb1004-intro{grid-template-columns:1fr}.kb1005-scripture,.kb1005-intro-gap{display:none}}
+          @media(max-width:820px){.kb1004-hero-art,.kb1005-quote{display:none}.kb1004-intro{min-height:0}.kb1004-intro h1{font-size:52px}}
         `}</style>
 
+        <div className="kb1005-hero-art kb1004-hero-art" aria-hidden="true" />
         <header className="kb1004-intro">
-          <div>
-            <h1>My Projects</h1>
-            <p>Track your opportunities, manage your proposals, and grow your impact.</p>
-          </div>
-          <div className="kb1004-quote">Building What Matters.<span>For a Stronger Tomorrow.</span></div>
+          <div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1><p>Track your opportunities, manage your proposals, and grow your impact.</p></div>
+          <div className="kb1005-quote"><b>Building What Matters.</b><em>For A Stronger Tomorrow.</em></div>
+          <span className="kb1005-intro-gap" aria-hidden="true" />
+          <figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure>
         </header>
 
         <div className="kb1004-layout">
@@ -31507,9 +31533,11 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
                 </div>
               ) : visibleCards.length ? visibleCards.map(renderProjectCard) : (
                 <div className="kb1004-empty">
+                  {bucket==='active' ? <MyProjectsEmptyArt /> : null}
                   <h3>{bucket==='drafts' ? 'No draft proposals.' : bucket==='saved' ? 'No saved opportunities yet.' : bucket==='completed' ? 'No completed projects yet.' : bucket==='archived' ? 'Nothing archived.' : 'No active projects yet.'}</h3>
                   <p>{bucket==='drafts' ? 'FaithBid will show unfinished proposal drafts here when draft persistence is enabled.' : bucket==='saved' ? 'Save promising opportunities from Marketplace and they will appear here.' : bucket==='completed' ? 'Completed FaithBid work will collect here and can be added to your portfolio.' : bucket==='archived' ? 'Declined or withdrawn proposals will appear here for reference.' : 'Browse Marketplace and respond to a project to start building your work history.'}</p>
-                  {bucket!=='archived' && bucket!=='drafts' ? <button type="button" onClick={onBrowse}>Browse Marketplace</button> : null}
+                  {bucket!=='archived' && bucket!=='drafts' ? <button type="button" onClick={onBrowse}><MyProjectsIcon kind="plus" />Browse Marketplace</button> : null}
+                  {bucket==='active' ? <div className="kb1005-empty-foot"><span/><em>A stronger tomorrow starts here</em><span/></div> : null}
                 </div>
               )}
             </div>
@@ -31517,24 +31545,23 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
 
           <aside className="kb1004-side">
             <section className="kb1004-side-card">
-              <div className="kb1004-profile-head"><h2>Profile completion</h2><strong>{profilePct}%</strong></div>
+              <div className="kb1004-profile-head"><span className="kb1005-side-ico"><MyProjectsIcon kind="chart" /></span><h2>Profile completion</h2><strong>{profilePct}%</strong></div>
               <div className="kb1004-progress" aria-label={`${profilePct}% profile completion`}><span style={{width:`${Math.max(0,Math.min(100,profilePct))}%`}}/></div>
               <p>A complete profile helps you win more projects.</p>
               <button type="button" className="kb1004-side-cta" onClick={()=>nav('profile')}>Complete your profile <span aria-hidden="true">→</span></button>
             </section>
 
             <section className="kb1004-side-card">
-              <h2>Customize your portfolio</h2>
-              <p>Showcase your work and tell your story.</p>
+              <div className="kb1005-side-titlerow"><span className="kb1005-side-ico"><MyProjectsIcon kind="gear" /></span><div><h2>Customize your portfolio</h2><p>Showcase your work and tell your story.</p></div></div>
               <div className="kb1004-side-actions">
-                <button type="button" onClick={()=>nav('profile-proof')}><span>✎</span><span>Edit portfolio</span><span>›</span></button>
-                <button type="button" onClick={()=>nav('profile-proof')}><span>＋</span><span>Add external work</span><span>›</span></button>
-                <button type="button" onClick={()=>nav('profile')}><span>⚙</span><span>Manage specialties</span><span>›</span></button>
+                <button type="button" onClick={()=>nav('profile-proof')}><span className="kb1005-act-ico"><MyProjectsIcon kind="edit" /></span><span>Edit portfolio</span><span>›</span></button>
+                <button type="button" onClick={()=>nav('profile-proof')}><span className="kb1005-act-ico"><MyProjectsIcon kind="image" /></span><span>Add external work</span><span>›</span></button>
+                <button type="button" onClick={()=>nav('profile')}><span className="kb1005-act-ico"><MyProjectsIcon kind="tag" /></span><span>Manage specialties</span><span>›</span></button>
               </div>
             </section>
 
             <section className="kb1004-side-card">
-              <div className="kb1004-saved-head"><h2>Saved opportunities <span className="kb1004-saved-count">{savedProjects.length}</span></h2><button type="button" className="kb1004-link-button" onClick={()=>setBucket('saved')}>View all →</button></div>
+              <div className="kb1004-saved-head"><h2><MyProjectsIcon kind="bookmark" />Saved opportunities <span className="kb1004-saved-count">{savedProjects.length}</span></h2><button type="button" className="kb1004-link-button" onClick={()=>setBucket('saved')}>View all →</button></div>
               {savedProjects.slice(0,2).map(project => {
                 const image = getProjectHeroImage(project, 'grid');
                 return <div className="kb1004-saved-item" key={project.id}>
@@ -31550,7 +31577,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
               {!savedLoading && savedError && savedProjects.length===0 ? <button type="button" className="kb1004-link-button" onClick={()=>loadSavedProjects()}>Retry saved projects →</button> : null}
             </section>
 
-            <section className="kb1004-side-card kb1004-impact"><div className="kb1004-impact-icon">◒</div><div><h2>Make a bigger impact.</h2><p>Quality vendors help churches build stronger communities.</p></div></section>
+            <section className="kb1004-side-card kb1004-impact"><div className="kb1004-impact-icon"><MyProjectsIcon kind="sprout" /></div><div><h2>Make a bigger impact.</h2><p>Quality vendors help churches build stronger communities.</p></div><svg className="kb1005-impact-hills" viewBox="0 0 400 70" preserveAspectRatio="none" aria-hidden="true"><circle cx="318" cy="30" r="15" fill="#e8c98d" opacity=".75"/><path d="M0 46C70 22 130 30 200 44s140 8 200-14v40H0Z" fill="#cfd9c4"/><path d="M0 58c80-18 150-8 230 2s120 0 170-8v18H0Z" fill="#b9c8ae"/></svg></section>
           </aside>
         </div>
       </section>
@@ -31587,6 +31614,10 @@ function MyProjectsIcon({ kind }) {
   if (kind === "eye") return <svg {...p}><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" /><circle cx="12" cy="12" r="2.8" /></svg>;
   if (kind === "check") return <svg {...p}><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>;
   if (kind === "warn") return <svg {...p}><path d="M12 4 2.8 19.5h18.4L12 4Z" /><path d="M12 10v4.4M12 17.2v.1" /></svg>;
+  if (kind === "edit") return <svg {...p}><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19l-4 1Z" /><path d="M14.5 6.5l3 3" /></svg>;
+  if (kind === "image") return <svg {...p}><rect x="3.5" y="4.5" width="17" height="15" rx="2" /><circle cx="9" cy="10" r="1.5" /><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5" /></svg>;
+  if (kind === "tag") return <svg {...p}><path d="M3.5 12.5V4.5h8l9 9-8 8-9-9Z" /><circle cx="8" cy="9" r="1.3" /></svg>;
+  if (kind === "bookmark") return <svg {...p}><path d="M6.5 3.5h11v17L12 16l-5.5 4.5v-17Z" /></svg>;
   if (kind === "sprout") return <svg {...p}><path d="M12 21v-9M12 12c0-4 2.8-6 7-6 0 4-2.8 6-7 6ZM12 15c0-3-2.2-4.6-6-4.6 0 3 2.2 4.6 6 4.6Z" /></svg>;
   return null;
 }
