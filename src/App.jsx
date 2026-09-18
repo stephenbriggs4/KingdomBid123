@@ -44136,13 +44136,16 @@ function LandingMobileMenu({nav, setAuthDefaultRole, setStartFreeDefaultRole}){
             <div className="land-menu-section-label">Explore FaithBid</div>
             <nav className="land-menu-links" aria-label="Explore FaithBid">
               <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndScrollTo("how-faithbid-works")}>
+                <span>How It Works</span><span aria-hidden="true">→</span>
+              </button>
+              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndScrollTo("faith-verified")}>
+                <span>Faith Verified</span><span aria-hidden="true">→</span>
+              </button>
+              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndScrollTo("for-churches")}>
                 <span>For Churches</span><span aria-hidden="true">→</span>
               </button>
-              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndScrollTo("pricing-section")}>
+              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndScrollTo("for-vendors")}>
                 <span>For Vendors</span><span aria-hidden="true">→</span>
-              </button>
-              <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndScrollTo("how-faithbid-works")}>
-                <span>How It Works</span><span aria-hidden="true">→</span>
               </button>
               <button type="button" className="mobile-nav-item land-menu-link" onClick={()=>closeAndNav("about")}>
                 <span>About</span><span aria-hidden="true">→</span>
@@ -44784,9 +44787,10 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
             <CrossLogo size={52} variant="full" />
           </button>
           <div className="land-nav-links fb-landing-nav-links">
+            <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>How It Works</button>
+            <button type="button" className="land-nav-btn" onClick={()=>scrollToAudience("faith-verified")}>Faith Verified</button>
             <button type="button" className="land-nav-btn" onClick={()=>scrollToAudience("for-churches")}>For Churches</button>
             <button type="button" className="land-nav-btn" onClick={()=>scrollToAudience("for-vendors")}>For Vendors</button>
-            <button type="button" className="land-nav-btn" onClick={scrollToHowItWorks}>How It Works</button>
             <button type="button" className="land-nav-btn" onClick={()=>nav("about")}>About</button>
           </div>
           <div className="fb-landing-nav-actions">
@@ -44896,7 +44900,7 @@ function LandingChurchTrustStrip() {
     { num: "03", icon: "people", title: "Ongoing accountability", body: ["Verified vendors commit to integrity, Christlike conduct, local-church accountability, and continued review."] },
   ];
   return (
-    <section data-kb-funnel-section="trust" aria-labelledby="landing-trust-title" className="fb-trust-v2">
+    <section id="faith-verified" data-kb-funnel-section="trust" aria-labelledby="landing-trust-title" className="fb-trust-v2">
       <div className="fb-trust-v2__inner">
         <div className="fb-trust-v2__head">
           <div className="fb-trust-v2__eyebrow"><span aria-hidden="true" /><b>Faith Verified</b><span aria-hidden="true" /></div>
