@@ -1060,9 +1060,12 @@ html body .fb-landing-v2 .fb-landing-hero::after {
 html body .fb-landing-v2 .fb-landing-hero-body { transform: translateY(-40px) !important; }
 
 html body .fb-landing-v2 .fb-landing-nav-brand .kb-brand-logo-full {
-  height: 33px !important;
-  width: 146px !important;
-  max-width: 146px !important;
+  height: 43px !important;
+  width: 190px !important;
+  max-width: 190px !important;
+  filter: none !important;
+  opacity: 1 !important;
+  image-rendering: auto;
   object-fit: cover !important;
   object-position: 50% 10% !important;
 }
