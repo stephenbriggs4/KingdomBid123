@@ -44895,9 +44895,9 @@ function LandingTrustIcon({ kind }) {
 
 function LandingChurchTrustStrip() {
   const steps = [
-    { num: "01", icon: "document", title: "Business review", body: ["We review core business and profile information before marketplace access is approved."] },
-    { num: "02", icon: "book", title: "Faith review", body: ["Faith Verified applicants provide a faith statement and ministry reference.", "The badge is earned, never purchased."] },
-    { num: "03", icon: "people", title: "Ongoing accountability", body: ["Verified vendors commit to integrity, Christlike conduct, local-church accountability, and continued review."] },
+    { num: "01", icon: "document", title: "Business review", body: ["We confirm core business and profile details before any vendor is approved for the marketplace."] },
+    { num: "02", icon: "book", title: "Faith review", body: ["Applicants share a faith statement and a ministry reference. The badge is earned, never purchased."] },
+    { num: "03", icon: "people", title: "Ongoing accountability", body: ["Verified vendors commit to integrity, local-church accountability, and continued review."] },
   ];
   return (
     <section id="faith-verified" data-kb-funnel-section="trust" aria-labelledby="landing-trust-title" className="fb-trust-v2">

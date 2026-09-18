@@ -1332,3 +1332,22 @@ html body .fb-landing-v2 .kb-audience__cta:focus-visible { outline: 2px solid #c
 
 /* How It Works: slightly shorter. */
 html body .fb-landing-v2 section.fb-how-it-works { padding-top: 46px !important; padding-bottom: 54px !important; }
+
+/* Audience sections: both dividers sit at exactly 50% and run the same length. */
+.kb-audience__inner,
+.kb-audience--vendor .kb-audience__inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; align-items: stretch; min-height: 340px; }
+.kb-audience__steps { align-content: center; }
+
+/* Faith Verified: equal cards, no timeline rule; small connectors join the cards. */
+.fb-trust-v2__line { display: none; }
+.fb-trust-v2__steps { align-items: stretch; }
+.fb-trust-v2__step { position: relative; display: flex; flex-direction: column; }
+.fb-trust-v2__number { position: absolute; z-index: 2; top: 14px; left: 18px; display: block; width: auto; height: auto; margin: 0; border: 0; border-radius: 0; background: none; box-shadow: none; color: #9a6f22; font: 700 12px/1 var(--font-sans), sans-serif; letter-spacing: .16em; }
+.fb-trust-v2__card { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; padding-top: clamp(30px, 2.4vw, 38px); }
+.fb-trust-v2__card p { margin-top: 8px; }
+.fb-trust-v2__step:not(:last-child)::after { content: ""; position: absolute; z-index: 3; top: 50%; right: calc(-1 * var(--tv-gap)); width: var(--tv-gap); height: 1px; background: rgba(154, 111, 34, .55); }
+.fb-trust-v2__step:not(:last-child)::before { content: ""; position: absolute; z-index: 4; top: calc(50% - 2.5px); right: calc(-0.5 * var(--tv-gap) - 2.5px); width: 5px; height: 5px; border-radius: 50%; background: #9a6f22; }
+@media (max-width: 900px) {
+  .fb-trust-v2__step:not(:last-child)::after,
+  .fb-trust-v2__step:not(:last-child)::before { display: none; }
+}
