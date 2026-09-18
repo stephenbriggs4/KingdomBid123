@@ -1329,3 +1329,6 @@ html body .fb-landing-v2 .fb-landing-cta-primary:active,
 html body .fb-landing-v2 .kb-audience__cta:not(.is-secondary):active { transform: translateY(0); filter: none; }
 html body .fb-landing-v2 .fb-landing-cta-primary:focus-visible,
 html body .fb-landing-v2 .kb-audience__cta:focus-visible { outline: 2px solid #c9a24a; outline-offset: 3px; }
+
+/* How It Works: slightly shorter. */
+html body .fb-landing-v2 section.fb-how-it-works { padding-top: 46px !important; padding-bottom: 54px !important; }
