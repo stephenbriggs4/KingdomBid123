@@ -1090,3 +1090,10 @@ html body .fb-landing-v2 .fb-landing-cta-secondary:hover { border-color: rgba(18
 html body .fb-landing-v2 .fb-landing-scroll { margin-top: 30px; flex-direction: column; gap: 10px; }
 html body .fb-landing-v2 .fb-landing-scroll > em { font-size: 10px; letter-spacing: .22em; opacity: .8; }
 html body .fb-landing-v2 .fb-landing-scroll span { width: 11px; height: 11px; border-right: 1px solid var(--fb-landing-gold); border-bottom: 1px solid var(--fb-landing-gold); transform: rotate(45deg); }
+
+/* Footer: logo and supporting text are pure white on the dark clay. */
+html body #root footer.fb-public-footer-v2 .kb-brand-logo { filter: brightness(0) invert(1) !important; opacity: 1 !important; }
+html body #root footer.fb-public-footer-v2 .fb-public-legal-footer__copyright,
+html body #root footer.fb-public-footer-v2 .fb-public-footer-v2__tagline,
+html body #root footer.fb-public-footer-v2 .fb-public-footer-v2__nav a,
+html body #root footer.fb-public-footer-v2 .fb-public-footer-v2__nav button { color: #fff !important; opacity: 1 !important; }
