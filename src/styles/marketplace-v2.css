@@ -2777,3 +2777,10 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
 .kb-rail-arrow::before { content: ""; position: absolute; top: -14px; bottom: -14px; }
 .kb-rail-arrow.is-prev::before { left: -8px; right: -34px; }
 .kb-rail-arrow.is-next::before { right: -8px; left: -34px; }
+
+/* Category strip: a white bar exactly as wide as the card block (not full width); clay shows on both sides. */
+.mkt2-root section.mkt2-header { background: transparent !important; }
+.mkt2-root nav.mkt2-categories { border-radius: 14px; border: 1px solid rgba(28, 40, 20, .08); box-shadow: 0 8px 22px rgba(28, 40, 20, .05); margin-top: 14px; margin-bottom: 4px; padding-inline: 8px; }
+
+/* Featured rows: no fade or blur at the row edges. */
+.kb-rail-wrap > [class*="__rail"] { -webkit-mask-image: none !important; mask-image: none !important; }
