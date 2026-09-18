@@ -44890,155 +44890,137 @@ function FirstSessionTrustRail() {
 ══════════════════════════════════ */
 function AboutScreen({nav, setStartFreeDefaultRole}){
   const [active, setActive] = useState(0);
+  const goChurch = () => { if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); };
+  const goVendor = () => { if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("vendor"); nav("vendor-signup"); };
   const PAINS = [
-    {num:"01",title:"The right vendors are invisible.",body:"Churches post in Facebook groups and cross their fingers. The best designers, musicians, and contractors — the ones who actually want to serve ministry — have no dedicated place to be found.",counter:"Word of mouth misses most qualified candidates."},
-    {num:"02",title:"Vetting is a full-time job.",body:"Portfolio, references, values alignment, pricing, and availability all live in different places. Every hire turns into a research project.",counter:"Churches can lose weeks before work even starts."},
-    {num:"03",title:"The work gets messy after the hire.",body:"Messages, files, approvals, timelines, and revisions usually scatter across email, text, and DMs. Nobody has the full picture.",counter:"Operational friction can cost more than the project itself."},
-    {num:"04",title:"Talented believers cannot find kingdom work.",body:"Christian professionals want clients who share their values. Ministry teams want partners they can trust. Right now, there is no real home for that relationship.",counter:"FaithBid creates that home."},
+    {num:"01",title:"The right vendors are hard to find.",body:"Churches post in Facebook groups and hope for the best. The designers, musicians, and contractors who want to serve ministry have no dedicated place to be found.",counter:"Word of mouth misses most qualified candidates."},
+    {num:"02",title:"Vetting takes real time.",body:"Portfolio, references, values alignment, pricing, and availability all live in different places, so every hire becomes a research project.",counter:"Weeks can pass before work even starts."},
+    {num:"03",title:"The work gets messy after the hire.",body:"Messages, files, approvals, timelines, and revisions scatter across email, text, and DMs. Nobody has the full picture.",counter:"Coordination can cost more than the project itself."},
+    {num:"04",title:"Believers struggle to find ministry work.",body:"Christian professionals want clients who share their values, and ministry teams want partners they can trust. There has not been a dedicated home for that relationship.",counter:"FaithBid is being built to be that home."},
   ];
   const PILLARS = [
-    {eyebrow:"Mission", title:"Built for ministry, not as a tax on ministry.", body:"Churches and ministries use FaithBid for free because the platform should remove friction from ministry work, not add to it."},
-    {eyebrow:"Trust", title:"Faith-Verified is earned, not purchased.", body:"The trust layer matters. Vendors can participate fully, but the Faith-Verified standard signals reviewed alignment, credibility, and seriousness."},
-    {eyebrow:"Alignment", title:"We only make money when work is won.", body:"Vendors join free, bid free, and only pay when they win. The model stays honest because the platform only succeeds when the project succeeds."},
+    {eyebrow:"Mission", title:"Built for ministry, not as a cost to ministry.", body:"Churches pay no posting fee in the current preview. The goal is to remove friction from ministry work, not add to it."},
+    {eyebrow:"Trust", title:"Faith Verified is earned, not purchased.", body:"Faith Verified is a separate review of a vendor's faith alignment and credibility. It cannot be bought, and it is distinct from Marketplace Approved status."},
+    {eyebrow:"Transparency", title:"Pricing will be published before it applies.", body:"Vendor pricing and any church give-back program are still under review. Final terms will be shared clearly before they take effect."},
   ];
   const HOW = [
-    {step:"01", title:"Post once", body:"A church posts a project one time and creates one clear operating record for the work ahead."},
-    {step:"02", title:"Review the right bids", body:"Vendors submit proposals with visible trust signals, clear pricing, and ministry context."},
-    {step:"03", title:"Hire with confidence", body:"Churches compare, message, and confirm the right partner without the usual fragmentation."},
-    {step:"04", title:"Manage the work", body:"The deal room keeps files, approvals, updates, and handoff in one place after the hire."},
+    {step:"01", title:"Post once", body:"A church posts a project one time and creates one clear record for the work ahead."},
+    {step:"02", title:"Review proposals", body:"Vendors respond with proposals that show their credentials, pricing, and ministry context."},
+    {step:"03", title:"Choose with confidence", body:"Churches compare, message, and confirm the right partner without the usual back and forth."},
+    {step:"04", title:"Manage the work", body:"The project workspace keeps files, approvals, updates, and handoff in one place after the hire."},
   ];
-  const IMPACT = [
-    {label:"Church posting fee", value:"$0 in current preview"},
-    {label:"Vendor pricing", value:"Program under review"},
-    {label:"Church give-back", value:"Program under review"},
+  const STATUS = [
+    {label:"Church posting fee", value:"$0 in the current preview"},
+    {label:"Vendor pricing", value:"Under review"},
+    {label:"Church give-back program", value:"Under review"},
   ];
   return (
-    <div className="sub-page-wrap" style={{background:"var(--cream)"}}>
-      <div className="sub-page-nav" style={{background:"rgba(255,255,255,0.92)",backdropFilter:"blur(14px)",borderBottom:"1px solid rgba(42,53,32,0.08)",padding:"18px 48px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:20}}>
-        <button type="button" onClick={()=>nav("landing")} style={{display:"flex",alignItems:"center",gap:10,background:"none",border:"none",cursor:"pointer"}}>
-          <CrossLogo size={32} variant="monogram" />
-        </button>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <button type="button" onClick={()=>nav("landing")} style={{background:"transparent",border:"1px solid rgba(42,53,32,0.12)",color:"var(--navy)",padding:"10px 14px",borderRadius:999,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back</button>
-          <button type="button" onClick={()=>{ if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }} style={{background:"var(--navy)",border:"none",color:"#fff",padding:"10px 16px",borderRadius:999,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Get started</button>
+    <div className="kb-about">
+      <header className="kb-about__bar">
+        <button type="button" className="kb-about__brand" onClick={()=>nav("landing")} aria-label="FaithBid home"><CrossLogo size={30} variant="monogram" /></button>
+        <div className="kb-about__bar-actions">
+          <button type="button" className="kb-about__btn kb-about__btn--ghost" onClick={()=>nav("landing")}>← Back</button>
+          <button type="button" className="kb-about__btn kb-about__btn--solid" onClick={goChurch}>{LAUNCHED ? "Get started" : "Request access"}</button>
         </div>
-      </div>
+      </header>
 
-      <div className="sub-page-hero" style={{background:"linear-gradient(180deg, #F8F3EA 0%, #F4EEE2 100%)",padding:"84px 48px 56px",borderBottom:"1px solid rgba(42,53,32,0.08)"}}>
-        <div style={{maxWidth:1160,margin:"0 auto"}}>
-          <div className="sub-page-two-col" style={{display:"grid",gridTemplateColumns:"minmax(0,1.15fr) minmax(320px,0.85fr)",gap:36,alignItems:"end"}}>
-            <div>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:18}}>About FaithBid</div>
-              <h1 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(40px,5.8vw,72px)",fontWeight:700,color:"var(--navy)",lineHeight:0.98,letterSpacing:-1.8,margin:"0 0 18px 0"}}>Built for the Kingdom.<br/><span style={{color:"rgba(42,53,32,0.55)"}}>Designed for trusted work.</span></h1>
-              <p style={{fontSize:17,color:"var(--text-muted)",fontWeight:400,lineHeight:1.9,maxWidth:680,margin:"0 0 26px 0"}}>FaithBid is a premium operating system for church projects — a place to source aligned vendors, compare bids, hire confidently, and keep the work organized after the decision is made.</p>
-              <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-                <button type="button" onClick={()=>{ if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup"); }} className="land-cta-primary">I'm a Church</button>
-                <button type="button" onClick={()=>nav("landing")} style={{background:"#fff",border:"1px solid rgba(42,53,32,0.12)",color:"var(--navy)",padding:"15px 22px",borderRadius:"var(--r-md)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Back to home</button>
-              </div>
-            </div>
-            <div style={{background:"rgba(255,255,255,0.78)",border:"1px solid rgba(42,53,32,0.08)",borderRadius:28,padding:24,boxShadow:"0 18px 60px rgba(42,53,32,0.08)"}}>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:2.2,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:14}}>What this platform stands for</div>
-              <div style={{display:"flex",flexDirection:"column",gap:14}}>
-                {IMPACT.map((item,i)=>(
-                  <div key={item.label||item.title} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16,paddingBottom:i<IMPACT.length-1?14:0,borderBottom:i<IMPACT.length-1?"1px solid rgba(42,53,32,0.08)":"none"}}>
-                    <div style={{fontSize:13,color:"var(--text-muted)",fontWeight:500}}>{item.label}</div>
-                    <div style={{fontSize:15,fontWeight:800,color:"var(--navy)",textAlign:"right"}}>{item.value}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{marginTop:18,padding:"14px 16px",borderRadius:18,background:"rgba(176,136,64,0.08)",border:"1px solid rgba(176,136,64,0.14)",fontSize:13,color:"var(--navy)",lineHeight:1.7}}>
-                <strong style={{color:"var(--gold-text)"}}>The current preview is simple:</strong> churches are not charged a posting fee, and vendors can join and bid without charge. Standard platform fees, paid vendor plans, and any church give-back program remain under review; final terms will be published before they apply.
-              </div>
+      <section className="kb-about__hero">
+        <div className="kb-about__wrap kb-about__hero-grid">
+          <div>
+            <p className="kb-about__eyebrow">About FaithBid</p>
+            <h1>Built for the Kingdom.<span>Designed for trusted work.</span></h1>
+            <p className="kb-about__lead">FaithBid is a marketplace and project workspace for church projects: a place to find aligned vendors, compare proposals, hire with confidence, and keep the work organized after the decision is made.</p>
+            <div className="kb-about__cta-row">
+              <button type="button" className="kb-about__btn kb-about__btn--solid" onClick={goChurch}>I'm a church</button>
+              <button type="button" className="kb-about__btn kb-about__btn--ghost" onClick={goVendor}>I'm a vendor</button>
             </div>
           </div>
+          <aside className="kb-about__status" aria-label="Where pricing stands">
+            <p className="kb-about__eyebrow">Where things stand</p>
+            <dl>
+              {STATUS.map(item=>(<div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>))}
+            </dl>
+            <p className="kb-about__status-note">FaithBid is in a Dallas pilot with limited early access. Platform fees, paid vendor plans, and any church give-back program are not final. Terms will be published before they apply.</p>
+          </aside>
         </div>
-      </div>
+      </section>
 
-      <div className="sub-page-section" style={{background:"#fff",padding:"72px 48px"}}>
-        <div style={{maxWidth:1160,margin:"0 auto"}}>
-          <div style={{marginBottom:28}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:2.4,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:12}}>Why we exist</div>
-            <h2 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(28px,4vw,42px)",fontWeight:700,color:"var(--navy)",lineHeight:1.08,margin:"0 0 12px 0"}}>A better operating layer for ministry work.</h2>
-            <p style={{fontSize:15,color:"var(--text-muted)",fontWeight:400,lineHeight:1.8,maxWidth:760,margin:0}}>Churches should not have to stitch together Facebook posts, spreadsheets, texts, and guesswork just to hire well. Christian professionals should not have to hide their values just to find serious work.</p>
+      <section className="kb-about__section">
+        <div className="kb-about__wrap">
+          <div className="kb-about__head">
+            <p className="kb-about__eyebrow">Why we exist</p>
+            <h2>A better way to run ministry projects.</h2>
+            <p>Churches should not have to stitch together Facebook posts, spreadsheets, texts, and guesswork just to hire well. Christian professionals should not have to hide their values to find serious work.</p>
           </div>
-          <div className="sub-page-three-col" style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:16}}>
-            {PILLARS.map((item)=>(
-              <div key={item.title||item.label||item.heading} style={{padding:"26px 24px",borderRadius:24,background:"var(--cream)",border:"1px solid rgba(42,53,32,0.08)"}}>
-                <div style={{fontSize:10,fontWeight:800,letterSpacing:2.3,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:12}}>{item.eyebrow}</div>
-                <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",lineHeight:1.25,marginBottom:10}}>{item.title}</div>
-                <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.8,fontWeight:400}}>{item.body}</div>
-              </div>
+          <div className="kb-about__grid kb-about__grid--3">
+            {PILLARS.map(item=>(
+              <article key={item.title} className="kb-about__card">
+                <p className="kb-about__eyebrow">{item.eyebrow}</p>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </article>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="sub-page-section" style={{background:"#FBF7EF",padding:"80px 48px",borderTop:"1px solid rgba(42,53,32,0.06)",borderBottom:"1px solid rgba(42,53,32,0.06)"}}>
-        <div style={{maxWidth:1160,margin:"0 auto"}}>
-          <div className="sub-page-two-col" style={{display:"grid",gridTemplateColumns:"minmax(0,0.92fr) minmax(0,1.08fr)",gap:36,alignItems:"start"}}>
-            <div style={{position:"sticky",top:100}}>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:2.4,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:14}}>The friction we are fixing</div>
-              <h2 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(28px,4vw,40px)",fontWeight:700,color:"var(--navy)",lineHeight:1.08,margin:"0 0 14px 0"}}>The old way is fragmented.</h2>
-              <p style={{fontSize:15,color:"var(--text-muted)",fontWeight:400,lineHeight:1.8,margin:"0 0 22px 0"}}>The problem is not just finding a vendor. It is sourcing the right people, checking trust, comparing clearly, and then actually managing the work after the hire.</p>
-              <div style={{padding:"18px 20px",borderRadius:20,background:"#fff",border:"1px solid rgba(42,53,32,0.08)",boxShadow:"0 10px 24px rgba(42,53,32,0.05)"}}>
-                <div style={{fontSize:12,fontWeight:800,color:"var(--navy)",marginBottom:6}}>FaithBid replaces that sprawl.</div>
-                <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.75}}>One marketplace. One deal room. One place to keep the operating record straight.</div>
-              </div>
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:14}}>
-              {PAINS.map((p,i)=>{
-                const open = active === i;
-                return (
-                  <button key={p.num || i} type="button" onClick={()=>setActive(open ? null : i)} style={{textAlign:"left",padding:"22px 22px",borderRadius:24,border:open?"1px solid rgba(176,136,64,0.24)":"1px solid rgba(42,53,32,0.08)",background:open?"#fff":"rgba(255,255,255,0.72)",cursor:"pointer",boxShadow:open?"0 18px 34px rgba(42,53,32,0.06)":"none"}}>
-                    <div style={{display:"grid",gridTemplateColumns:"48px 1fr 24px",gap:14,alignItems:"start"}}>
-                      <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"rgba(42,53,32,0.35)",letterSpacing:1,paddingTop:4}}>{p.num}</div>
-                      <div>
-                        <div style={{fontSize:20,fontWeight:700,color:"var(--navy)",lineHeight:1.3,fontFamily:"var(--font-sans),sans-serif",marginBottom:open?10:0}}>{p.title}</div>
-                        {open && <><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.8,fontWeight:400,marginBottom:14}}>{p.body}</div><div style={{display:"inline-flex",padding:"7px 12px",borderRadius:999,background:"rgba(176,136,64,0.08)",border:"1px solid rgba(176,136,64,0.12)",fontSize:11,fontWeight:700,color:"var(--gold-text)"}}>{p.counter}</div></>}
-                      </div>
-                      <div style={{width:24,height:24,borderRadius:"50%",border:"1px solid rgba(42,53,32,0.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:"var(--navy)",transform:open?"rotate(45deg)":"rotate(0deg)",transition:"transform 0.2s ease"}}>+</div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+      <section className="kb-about__section kb-about__section--tint">
+        <div className="kb-about__wrap kb-about__split">
+          <div className="kb-about__sticky">
+            <p className="kb-about__eyebrow">The friction we are fixing</p>
+            <h2>The old way is fragmented.</h2>
+            <p>The problem is not only finding a vendor. It is sourcing the right people, checking trust, comparing clearly, and then managing the work after the hire.</p>
+            <div className="kb-about__callout"><strong>FaithBid replaces that sprawl.</strong><span>One marketplace. One project workspace. One clear record.</span></div>
+          </div>
+          <div className="kb-about__accordion">
+            {PAINS.map((p,i)=>{
+              const open = active === i;
+              return (
+                <button key={p.num} type="button" aria-expanded={open} className={`kb-about__pain${open?' is-open':''}`} onClick={()=>setActive(open ? null : i)}>
+                  <span className="kb-about__pain-num">{p.num}</span>
+                  <span className="kb-about__pain-body">
+                    <strong>{p.title}</strong>
+                    {open ? <><span className="kb-about__pain-text">{p.body}</span><span className="kb-about__pill">{p.counter}</span></> : null}
+                  </span>
+                  <span className="kb-about__pain-toggle" aria-hidden="true">+</span>
+                </button>
+              );
+            })}
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="sub-page-section" style={{background:"#fff",padding:"80px 48px"}}>
-        <div style={{maxWidth:1160,margin:"0 auto"}}>
-          <div style={{textAlign:"center",marginBottom:34}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:2.4,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:12}}>How FaithBid works</div>
-            <h2 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(28px,4vw,40px)",fontWeight:700,color:"var(--navy)",margin:"0 0 12px 0"}}>A cleaner flow from post to completion.</h2>
-            <p style={{fontSize:15,color:"var(--text-muted)",fontWeight:400,lineHeight:1.8,maxWidth:700,margin:"0 auto"}}>The product is no longer just a marketplace. It is becoming the operating system around the decision itself.</p>
+      <section className="kb-about__section">
+        <div className="kb-about__wrap">
+          <div className="kb-about__head kb-about__head--center">
+            <p className="kb-about__eyebrow">How FaithBid works</p>
+            <h2>A clearer path from post to completion.</h2>
+            <p>One workspace around the whole decision: finding, comparing, hiring, and managing the work.</p>
           </div>
-          <div className="sub-page-three-col" style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:16}}>
-            {HOW.map((item)=>(
-              <div key={item.title||item.label||item.step} style={{padding:"24px 20px",borderRadius:22,background:"var(--cream)",border:"1px solid rgba(42,53,32,0.08)"}}>
-                <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,color:"var(--gold-text)",letterSpacing:1.5,marginBottom:12}}>{item.step}</div>
-                <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:10}}>{item.title}</div>
-                <div style={{fontSize:13,color:"var(--text-muted)",fontWeight:400,lineHeight:1.75}}>{item.body}</div>
-              </div>
+          <div className="kb-about__grid kb-about__grid--4">
+            {HOW.map(item=>(
+              <article key={item.step} className="kb-about__card">
+                <p className="kb-about__step">{item.step}</p>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </article>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="sub-page-section" style={withBrandTexture({padding:"82px 48px",position:"relative"})}>
-        <div style={{position:"absolute",inset:0,background:"linear-gradient(135deg, rgba(10,18,8,0.9) 0%, rgba(22,31,17,0.82) 55%, rgba(10,18,8,0.92) 100%)"}}/>
-        <div style={{maxWidth:1020,margin:"0 auto",position:"relative",zIndex:1,textAlign:"center"}}>
-          <div style={{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-light)",marginBottom:14}}>Built for the whole Kingdom</div>
-          <h2 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(30px,4.8vw,48px)",fontWeight:700,color:"#fff",lineHeight:1.08,margin:"0 0 14px 0"}}>Trusted work deserves better infrastructure.</h2>
-          <p style={{fontSize:16,color:"var(--atext-2)",fontWeight:400,lineHeight:1.8,maxWidth:720,margin:"0 auto 28px"}}>That is what FaithBid is here to build — not a noisy directory, but a serious, faith-aligned operating layer for real church projects and the people who help deliver them.</p>
-          <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginBottom:16}}>
-            <button type="button" className="land-cta-primary" onClick={e=>{e.stopPropagation(); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("church"); nav("church-signup");}}>{LAUNCHED ? "Post your first project" : "Reserve church access"}</button>
-            <button type="button" onClick={e=>{e.stopPropagation(); if (typeof setStartFreeDefaultRole === 'function') setStartFreeDefaultRole("vendor"); nav("vendor-signup");}} style={{background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",color:"#fff",padding:"15px 24px",borderRadius:"var(--r-md)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>{LAUNCHED ? "Join as a vendor" : "Apply as a vendor"}</button>
+      <section className="kb-about__closing">
+        <div className="kb-about__wrap kb-about__closing-inner">
+          <p className="kb-about__eyebrow kb-about__eyebrow--light">Built for the whole Kingdom</p>
+          <h2>Trusted work deserves better infrastructure.</h2>
+          <p>That is what FaithBid is here to build: not a noisy directory, but a serious, faith-aligned place for real church projects and the people who help deliver them.</p>
+          <div className="kb-about__cta-row kb-about__cta-row--center">
+            <button type="button" className="kb-about__btn kb-about__btn--light" onClick={goChurch}>{LAUNCHED ? "Post your first project" : "Request church access"}</button>
+            <button type="button" className="kb-about__btn kb-about__btn--outline-light" onClick={goVendor}>{LAUNCHED ? "Join as a vendor" : "Apply as a vendor"}</button>
           </div>
-          <div style={{fontSize:12,color:"var(--atext-muted)",letterSpacing:0.2}}>Church give-back terms are not yet final. Any future program will be governed by published eligibility and payment terms.</div>
+          <p className="kb-about__fine">Church give-back terms are not final. Any future program will be governed by published eligibility and payment terms.</p>
         </div>
-      </div>
-
+      </section>
     </div>
   );
 }

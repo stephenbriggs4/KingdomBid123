@@ -25,8 +25,8 @@ test('public About page defers give-back terms to unresolved governance review',
   const aboutStart = appSource.indexOf('function AboutScreen');
   const aboutEnd = appSource.indexOf('function AmbassadorScreen', aboutStart);
   const aboutSource = appSource.slice(aboutStart, aboutEnd);
-  assert.match(aboutSource, /Church give-back terms are not yet final/);
-  assert.match(aboutSource, /Standard platform fees, paid vendor plans, and any church give-back program remain under review/);
+  assert.match(aboutSource, /Church give-back terms are not final/);
+  assert.match(aboutSource, /Platform fees, paid vendor plans, and any church give-back program are not final/);
   assert.doesNotMatch(aboutSource, /CHURCH_REBATE_RATE_LABEL/);
   assert.doesNotMatch(aboutSource, /10% capped|standard 10%|5% platform|\$400/);
   assert.doesNotMatch(aboutSource, /Beta policy:/);
