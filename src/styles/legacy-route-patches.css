@@ -9936,3 +9936,9 @@ html body .topnav .kb-topnav-account-trigger:hover .kb-topnav-account-avatar { b
 html body .topnav .kb-topnav-account-avatar .nav-av-online { text-indent: 0; right: -1px !important; bottom: -1px !important; width: 10px !important; height: 10px !important; border: 2px solid #fffdf8 !important; }
 html body .topnav .kb-topnav-account-avatar,
 html body .kb-topnav-account-head-avatar { background-size: 420% !important; background-position: 87% 42% !important; }
+/* Avatar photo: crop on the cross wall, dark glass and olive trees so the church reads at 38px. */
+html body .topnav .kb-topnav-account-avatar,
+html body .kb-topnav-account-head-avatar {
+  background-image: url("/images/faithbid-marketplace-church-v2.png") !important;
+  background-size: 355% !important; background-position: 94% 7% !important;
+}
