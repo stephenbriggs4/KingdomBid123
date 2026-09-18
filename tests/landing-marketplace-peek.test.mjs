@@ -67,11 +67,11 @@ test('composition scales continuously so a laptop shows the same picture as a mo
 });
 
 test('all three cards are exactly the same size (center stays raised)', () => {
-  assert.match(css, /.kb-landing-glimpse__item.is-left,s*.kb-landing-glimpse__item.is-rights*{s*align-self:s*stretch/);
-  assert.match(css, /.kb-landing-glimpse__item.is-centers*{[^}]*height:s*calc(368 * var(--px))[^}]*margin-top:s*calc(-30 * var(--px))/);
-  assert.match(css, /.kb-landing-glimpse__item.is-center .kb-landing-glimpse__body,s*.kb-landing-glimpse__item.is-right .kb-landing-glimpse__bodys*{[^}]*flex:s*1 1 auto/);
-  assert.match(css, /.kb-landing-glimpse__items*{[^}]*width:s*calc(320 * var(--px))/);
-  assert.doesNotMatch(css, /is-centers*{[^}]*width:s*calc(395/);
+  assert.match(css, /\.kb-landing-glimpse__item\.is-left,\s*\.kb-landing-glimpse__item\.is-right\s*\{\s*align-self:\s*stretch/);
+  assert.match(css, /\.kb-landing-glimpse__item\.is-center\s*\{[^}]*height:\s*calc\(368 \* var\(--px\)\)[^}]*margin-top:\s*calc\(-30 \* var\(--px\)\)/);
+  assert.match(css, /\.kb-landing-glimpse__item\.is-center \.kb-landing-glimpse__body,\s*\.kb-landing-glimpse__item\.is-right \.kb-landing-glimpse__body\s*\{[^}]*flex:\s*1 1 auto/);
+  assert.match(css, /\.kb-landing-glimpse__item\s*\{[^}]*width:\s*calc\(320 \* var\(--px\)\)/);
+  assert.doesNotMatch(css, /is-center\s*\{[^}]*width:\s*calc\(395/);
 });
 
 test('the disclosure pill and its gap are gone; mobile stacks without overlap', () => {
