@@ -2650,3 +2650,6 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
   -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent 100%);
   mask-image: linear-gradient(90deg, transparent 0, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent 100%);
 }
+
+/* Arrows are always visible when there is more to scroll, and sit level with the card photos. */
+.kb-rail-arrow { opacity: 1 !important; top: 118px; margin-top: -22px; }
