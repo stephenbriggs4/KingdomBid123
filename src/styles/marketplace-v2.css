@@ -2497,12 +2497,6 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
   font: 650 11px/1 var(--font-sans), sans-serif;
 }
 
-@media (min-width: 1840px) {
-  .kb-marketplace-directory-body {
-    width: calc(100% - 128px);
-  }
-}
-
 @media (max-width: 900px) {
   .kb-marketplace-directory-body {
     width: calc(100% - 36px);

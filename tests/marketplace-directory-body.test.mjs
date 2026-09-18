@@ -108,7 +108,7 @@ test('directory body is fluid across laptop, monitor, large monitor, and mobile'
   assert.match(css, /\.kb-marketplace-directory-body\s*\{[\s\S]*?width:\s*calc\(100% - clamp\(160px, 18vw, 360px\)\)/);
   assert.match(css, /\.kb-marketplace-directory-body\s*\{[\s\S]*?max-width:\s*none/);
   assert.match(css, /grid-template-columns:\s*repeat\(auto-fit, minmax\(min\(100%, 270px\), 1fr\)\)/);
-  assert.match(css, /@media \(min-width:\s*1840px\)/);
+  assert.doesNotMatch(css, /@media \(min-width:\s*1840px\)[^{]*\{\s*\.kb-marketplace-directory-body/);
   assert.match(css, /@media \(max-width:\s*(?:720|760)px\)/);
 });
 
