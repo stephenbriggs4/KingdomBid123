@@ -31579,6 +31579,47 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
 // 1004 rebuilt the vendor "work" route only. Church/individual accounts mount the
 // separate "mine" route, so the approved visual system must be mounted here too.
 // Existing authenticated navigation is intentionally untouched.
+function MyProjectsBranch({ className = "", flip = false }) {
+  const leaves = [];
+  const pts = [[0,150],[50,118],[100,96],[150,70],[200,52],[250,30]];
+  pts.forEach(([x,y],i)=>{
+    [-1,1].forEach(dir=>{
+      const ang = (dir===-1 ? -58 : 52) - i*3;
+      leaves.push(<ellipse key={i+"-"+dir} cx={x+(dir*4)} cy={y+dir*14} rx="6" ry={20-i*1.2} transform={"rotate("+ang+" "+(x+dir*4)+" "+(y+dir*14)+")"} />);
+    });
+  });
+  return (
+    <svg className={className} viewBox="-20 0 300 190" aria-hidden="true" focusable="false" style={flip?{transform:"scaleX(-1)"}:undefined}>
+      <path d="M-10 158 C50 126 110 100 176 62 S250 22 262 14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      <g fill="currentColor">{leaves}</g>
+    </svg>
+  );
+}
+
+function MyProjectsIcon({ kind }) {
+  const p = { viewBox:"0 0 24 24", "aria-hidden":"true", focusable:"false", fill:"none", stroke:"currentColor", strokeWidth:1.7, strokeLinecap:"round", strokeLinejoin:"round" };
+  if (kind === "chart") return <svg {...p}><path d="M5 20V11M12 20V5M19 20v-7" /></svg>;
+  if (kind === "gear") return <svg {...p}><circle cx="12" cy="12" r="3" /><path d="M12 2.8v2.4M12 18.8v2.4M4.4 7.4l2 1.2M17.6 15.4l2 1.2M4.4 16.6l2-1.2M17.6 8.6l2-1.2" /></svg>;
+  if (kind === "plus") return <svg {...p}><path d="M12 5v14M5 12h14" /></svg>;
+  if (kind === "eye") return <svg {...p}><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" /><circle cx="12" cy="12" r="2.8" /></svg>;
+  if (kind === "check") return <svg {...p}><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>;
+  if (kind === "warn") return <svg {...p}><path d="M12 4 2.8 19.5h18.4L12 4Z" /><path d="M12 10v4.4M12 17.2v.1" /></svg>;
+  if (kind === "sprout") return <svg {...p}><path d="M12 21v-9M12 12c0-4 2.8-6 7-6 0 4-2.8 6-7 6ZM12 15c0-3-2.2-4.6-6-4.6 0 3 2.2 4.6 6 4.6Z" /></svg>;
+  return null;
+}
+
+function MyProjectsEmptyArt() {
+  return (
+    <svg className="kb1005-empty-art" viewBox="0 0 220 150" aria-hidden="true" focusable="false">
+      <g fill="#a9b48c" opacity=".55"><ellipse cx="30" cy="108" rx="5" ry="17" transform="rotate(-62 30 108)"/><ellipse cx="52" cy="122" rx="5" ry="16" transform="rotate(-38 52 122)"/><ellipse cx="18" cy="122" rx="4.5" ry="14" transform="rotate(-84 18 122)"/><ellipse cx="185" cy="70" rx="5" ry="18" transform="rotate(48 185 70)"/><ellipse cx="200" cy="92" rx="5" ry="17" transform="rotate(68 200 92)"/><ellipse cx="172" cy="52" rx="4.5" ry="15" transform="rotate(28 172 52)"/><ellipse cx="160" cy="114" rx="5" ry="16" transform="rotate(38 160 114)"/></g>
+      <path d="M14 124c40-4 80-24 128-72M140 118c22-6 40-24 58-56" fill="none" stroke="#a9b48c" strokeWidth="1.6" opacity=".7"/>
+      <rect x="62" y="20" width="84" height="106" rx="7" fill="#fff" stroke="#e4dfd5" />
+      <g stroke="#d6d1c6" strokeWidth="3" strokeLinecap="round"><path d="M78 44h50M78 58h50M78 72h34"/></g>
+      <circle cx="128" cy="118" r="14" fill="#1a4d3c"/><path d="M128 111v14M121 118h14" stroke="#fff" strokeWidth="2.4" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onManageBids, nav, role, showToast, currentUser, myProjectsFetchError = false, onRetryMyProjects}) {
   const [bucket, setBucket] = useState('active');
   const [search, setSearch] = useState('');
@@ -31717,20 +31758,49 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
       @media(max-width:820px){.kb1005-myprojects{padding:22px 16px 84px}.kb1005-intro h1{font-size:46px}.kb1005-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));height:auto;background:transparent;border:0;box-shadow:none;gap:8px;overflow:visible}.kb1005-filter-cell{min-height:50px;border:1px solid #ded8cc!important;border-radius:8px;background:#fff}.kb1005-toolbar{grid-template-columns:1fr auto}.kb1005-sort{grid-column:1/-1;grid-row:2}.kb1005-card-grid{grid-template-columns:1fr}.kb1005-project-card{grid-template-columns:132px minmax(0,1fr);min-height:230px}.kb1005-card-media{min-height:200px}.kb1005-side{grid-template-columns:1fr}}
       @media(max-width:560px){.kb1005-project-card{grid-template-columns:1fr}.kb1005-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1005-filter-cells{grid-template-columns:1fr 1fr}.kb1005-toolbar{grid-template-columns:1fr}.kb1005-view-toggle{display:none}.kb1005-card-main{padding:14px}.kb1005-side-card{padding:16px}}
     `}</style>
+    <style>{`
+      .kb1005-myprojects{position:relative;overflow:hidden;background:radial-gradient(circle at 78% 2%,rgba(231,225,210,.38),transparent 28%),linear-gradient(rgba(250,247,240,.55),rgba(250,247,240,.55)),url("/textures/kb852bf-beige-texture-current.jpg") center/cover,#f8f6f1}
+      .kb1005-hero-art{position:absolute;top:0;right:0;width:min(58%,980px);height:276px;pointer-events:none;z-index:0;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 34%,#000 100%);mask-image:linear-gradient(90deg,transparent 0,#000 34%,#000 100%)}
+      .kb1005-hero-arch{position:absolute;left:38%;top:-20px;width:34%;height:320px;border-radius:999px 999px 0 0;background:linear-gradient(180deg,rgba(255,252,245,.85),rgba(236,229,214,.72));box-shadow:inset 0 0 40px rgba(180,165,135,.28),0 0 60px rgba(255,255,255,.5)}
+      .kb1005-hero-branch{position:absolute;right:6%;top:6px;width:250px;color:#7c8859;opacity:.9}
+      .kb1005-hero-shadow{position:absolute;left:8%;top:40px;width:360px;color:#8b7f66;opacity:.13;filter:blur(7px)}
+      .kb1005-intro,.kb1005-layout{position:relative;z-index:1}
+      .kb1005-intro{grid-template-columns:minmax(0,1fr) auto auto;gap:clamp(24px,4vw,84px);align-items:center;min-height:200px;margin-bottom:22px;padding-top:6px}
+      .kb1005-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;font:500 10.5px/1 var(--font-sans),sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#8a6c3c}.kb1005-eyebrow i{width:38px;height:1px;background:#c9b48c}
+      .kb1005-intro h1{font-size:clamp(60px,5.6vw,92px);line-height:.92}
+      .kb1005-intro p{font-size:clamp(15px,1.05vw,18px);color:#3f4c47}
+      .kb1005-quote{border:0;padding:0;white-space:normal;display:grid;gap:4px;font-family:var(--font-display),serif}
+      .kb1005-quote b{font-weight:500;font-size:20px;line-height:1.2;color:#1f352e;max-width:9em}
+      .kb1005-quote em{font-style:normal;font-family:var(--font-display),serif;font-size:13px;color:#5b655f}.kb1005-quote em::after{content:"";display:block;width:38px;height:1px;background:#c9a96a;margin-top:10px}
+      .kb1005-scripture{margin:0;max-width:170px;text-align:right;font-family:var(--font-display),serif;color:#3a4a44}.kb1005-scripture blockquote{margin:0;font-size:15px;line-height:1.35}.kb1005-scripture figcaption{margin-top:10px;font:500 9.5px/1 var(--font-sans),sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#8a8f88}.kb1005-scripture figcaption::after{content:"";display:block;width:34px;height:1px;background:#c9a96a;margin:10px 0 0 auto}
+      .kb1005-side-ico,.kb1005-act-ico{display:inline-grid;place-items:center;color:#17382f}.kb1005-side-ico{width:40px;height:40px;border-radius:50%;background:#efede6;flex:none}.kb1005-side-ico svg{width:19px;height:19px}.kb1005-act-ico svg{width:17px;height:17px}
+      .kb1005-profile-head{justify-content:flex-start;gap:12px}.kb1005-profile-head h2{flex:1}
+      .kb1005-side-titlerow{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}.kb1005-side-titlerow p{margin:6px 0 0}
+      .kb1005-attention-head h2{display:flex;align-items:center;gap:9px}.kb1005-attention-head h2>svg{width:22px;height:22px;flex:none}
+      .kb1005-impact{position:relative;overflow:hidden;padding-bottom:44px}.kb1005-impact>*{position:relative;z-index:1}.kb1005-impact-icon svg{width:26px;height:26px}
+      .kb1005-impact-hills{position:absolute!important;left:0;right:0;bottom:0;width:100%;height:56px;z-index:0!important}
+      .kb1005-empty{border-style:dashed;padding:38px 26px 26px}.kb1005-empty-art{display:block;width:min(240px,60%);margin:0 auto 6px}
+      .kb1005-empty h3{font-size:clamp(28px,2.3vw,38px);font-weight:600}.kb1005-empty p{font-size:15px;max-width:520px}
+      .kb1005-empty button{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 24px;border-radius:8px;font-size:14px}.kb1005-empty button svg{width:18px;height:18px}
+      .kb1005-empty-foot{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:38px;color:#8f958f}.kb1005-empty-foot span{width:42px;height:1px;background:#d8d2c7}.kb1005-empty-foot em{font:500 10px/1 var(--font-sans),sans-serif;letter-spacing:.3em;text-transform:uppercase;font-style:normal}
+      @media(max-width:1180px){.kb1005-hero-art{opacity:.55}.kb1005-intro{grid-template-columns:1fr}.kb1005-scripture{display:none}}
+      @media(max-width:820px){.kb1005-hero-art,.kb1005-quote{display:none}.kb1005-intro{min-height:0}.kb1005-intro h1{font-size:52px}}
+`}</style>
 
-    <header className="kb1005-intro"><div><h1>My Projects</h1><p>Track your projects, manage vendor activity, and move every decision forward.</p></div><div className="kb1005-quote">Building What Matters.<span>For a Stronger Tomorrow.</span></div></header>
+    <div className="kb1005-hero-art" aria-hidden="true"><span className="kb1005-hero-arch" /><MyProjectsBranch className="kb1005-hero-shadow" /><MyProjectsBranch className="kb1005-hero-branch" /></div>
+    <header className="kb1005-intro"><div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1><p>Track your projects, manage vendor activity, and move every decision forward.</p></div><div className="kb1005-quote"><b>Building What Matters.</b><em>For a Stronger Tomorrow.</em></div><figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure></header>
     <div className="kb1005-layout">
       <main>
         <div className="kb1005-filter-cells" role="tablist" aria-label="Project filters">{tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={bucket===tab.key} className={`kb1005-filter-cell${bucket===tab.key?' active':''}`} onClick={()=>setBucket(tab.key)}>{renderTabIcon(tab.icon)}<span>{tab.label}</span><span className="kb1005-filter-count">{tab.count}</span></button>)}</div>
         <div className="kb1005-toolbar"><label className="kb1005-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search your projects…" aria-label="Search your projects"/></label><label className="kb1005-sort"><span>Sort by</span><select value={sortBy} onChange={e=>setSortBy(e.target.value)}><option value="next">Next step (soonest)</option><option value="recent">Most recent</option><option value="budget">Largest budget</option></select></label><div className="kb1005-view-toggle"><button type="button" className={viewMode==='grid'?'active':''} onClick={()=>setViewMode('grid')} aria-label="Grid view">▦</button><button type="button" className={viewMode==='list'?'active':''} onClick={()=>setViewMode('list')} aria-label="List view">☷</button></div></div>
         {myProjectsFetchError ? <div className="kb1005-error"><span>We couldn't refresh your projects.</span><button type="button" onClick={onRetryMyProjects}>Retry</button></div> : null}
-        <div className={`kb1005-card-grid${viewMode==='list'?' list':''}`}>{loading ? [0,1,2,3].map(i=><div key={i} className="kb1005-empty" style={{minHeight:220}}><p>Loading project…</p></div>) : visible.length ? visible.map(renderCard) : <div className="kb1005-empty"><h3>{bucket==='completed'?'No completed projects yet.':bucket==='drafts'?'No drafts right now.':bucket==='archived'?'Nothing archived.':bucket==='attention'?'Nothing needs your attention.':'No active projects yet.'}</h3><p>{bucket==='active'?'Post your first project and vendor responses will collect here in one place.':'This view will fill automatically as projects move through their lifecycle.'}</p>{bucket==='active'||bucket==='drafts'?<button type="button" onClick={onPost}>Post a project</button>:null}</div>}</div>
+        <div className={`kb1005-card-grid${viewMode==='list'?' list':''}`}>{loading ? [0,1,2,3].map(i=><div key={i} className="kb1005-empty" style={{minHeight:220}}><p>Loading project…</p></div>) : visible.length ? visible.map(renderCard) : <div className="kb1005-empty">{bucket==='active'?<MyProjectsEmptyArt />:null}<h3>{bucket==='completed'?'No completed projects yet.':bucket==='drafts'?'No drafts right now.':bucket==='archived'?'Nothing archived.':bucket==='attention'?'Nothing needs your attention.':'No active projects yet.'}</h3><p>{bucket==='active'?'Post your first project and vendor responses will collect here in one place.':'This view will fill automatically as projects move through their lifecycle.'}</p>{bucket==='active'||bucket==='drafts'?<button type="button" onClick={onPost}><MyProjectsIcon kind="plus" />Post a project</button>:null}{bucket==='active'?<div className="kb1005-empty-foot"><span/><em>A stronger tomorrow starts here</em><span/></div>:null}</div>}</div>
       </main>
       <aside className="kb1005-side">
-        <section className="kb1005-side-card"><div className="kb1005-profile-head"><h2>Project completion</h2><strong>{completionPct}%</strong></div><div className="kb1005-progress"><span style={{width:`${completionPct}%`}}/></div><p>{groups.completed.length} completed of {rows.length} total projects.</p><button type="button" className="kb1005-side-cta" onClick={onPost}>Post a new project <span>→</span></button></section>
-        <section className="kb1005-side-card"><h2>Manage your projects</h2><p>Keep the most important church-side actions close at hand.</p><div className="kb1005-side-actions"><button type="button" onClick={onPost}><span>＋</span><span>Post a project</span><span>›</span></button><button type="button" onClick={()=>setBucket('attention')}><span>◎</span><span>Review activity</span><span>›</span></button><button type="button" onClick={()=>setBucket('completed')}><span>✓</span><span>Completed projects</span><span>›</span></button></div></section>
-        <section className="kb1005-side-card"><div className="kb1005-attention-head"><h2>Needs attention <span className="kb1005-attention-count">{groups.attention.length}</span></h2><button type="button" className="kb1005-link-button" onClick={()=>setBucket('attention')}>View all →</button></div>{attention.map(project=><div className="kb1005-attention-item" key={project.id}><div className="kb1005-attention-thumb">{project.image?<img src={project.image} alt="" loading="lazy" onError={handleKbImageError}/>:null}</div><div><strong>{project.title || 'Project'}</strong><span>{project.nextLabel}</span></div><button type="button" onClick={()=>primaryAction(project).run()} aria-label={`Open ${project.title || 'project'}`}>›</button></div>)}{!attention.length?<p style={{marginBottom:0}}>You're caught up. New vendor activity will appear here.</p>:null}</section>
-        <section className="kb1005-side-card kb1005-impact"><div className="kb1005-impact-icon">◒</div><div><h2>Make a bigger impact.</h2><p>{totalResponses ? `${totalResponses} vendor response${totalResponses===1?'':'s'} across your projects.` : 'FaithBid keeps church projects and vendor decisions in one place.'}</p></div></section>
+        <section className="kb1005-side-card"><div className="kb1005-profile-head"><span className="kb1005-side-ico"><MyProjectsIcon kind="chart" /></span><h2>Project completion</h2><strong>{completionPct}%</strong></div><div className="kb1005-progress"><span style={{width:`${completionPct}%`}}/></div><p>{groups.completed.length} completed of {rows.length} total projects.</p><button type="button" className="kb1005-side-cta" onClick={onPost}>Post a new project <span>→</span></button></section>
+        <section className="kb1005-side-card"><div className="kb1005-side-titlerow"><span className="kb1005-side-ico"><MyProjectsIcon kind="gear" /></span><div><h2>Manage your projects</h2><p>Keep the most important church-side actions close at hand.</p></div></div><div className="kb1005-side-actions"><button type="button" onClick={onPost}><span className="kb1005-act-ico"><MyProjectsIcon kind="plus" /></span><span>Post a project</span><span>›</span></button><button type="button" onClick={()=>setBucket('attention')}><span className="kb1005-act-ico"><MyProjectsIcon kind="eye" /></span><span>Review activity</span><span>›</span></button><button type="button" onClick={()=>setBucket('completed')}><span className="kb1005-act-ico"><MyProjectsIcon kind="check" /></span><span>Completed projects</span><span>›</span></button></div></section>
+        <section className="kb1005-side-card"><div className="kb1005-attention-head"><h2><MyProjectsIcon kind="warn" />Needs attention <span className="kb1005-attention-count">{groups.attention.length}</span></h2><button type="button" className="kb1005-link-button" onClick={()=>setBucket('attention')}>View all →</button></div>{attention.map(project=><div className="kb1005-attention-item" key={project.id}><div className="kb1005-attention-thumb">{project.image?<img src={project.image} alt="" loading="lazy" onError={handleKbImageError}/>:null}</div><div><strong>{project.title || 'Project'}</strong><span>{project.nextLabel}</span></div><button type="button" onClick={()=>primaryAction(project).run()} aria-label={`Open ${project.title || 'project'}`}>›</button></div>)}{!attention.length?<p style={{marginBottom:0}}>You're caught up. New vendor activity will appear here.</p>:null}</section>
+        <section className="kb1005-side-card kb1005-impact"><div className="kb1005-impact-icon"><MyProjectsIcon kind="sprout" /></div><div><h2>Make a bigger impact.</h2><p>{totalResponses ? `${totalResponses} vendor response${totalResponses===1?'':'s'} across your projects.` : 'FaithBid keeps church projects and vendor decisions in one place.'}</p></div><svg className="kb1005-impact-hills" viewBox="0 0 400 70" preserveAspectRatio="none" aria-hidden="true"><circle cx="318" cy="30" r="15" fill="#e8c98d" opacity=".75"/><path d="M0 46C70 22 130 30 200 44s140 8 200-14v40H0Z" fill="#cfd9c4"/><path d="M0 58c80-18 150-8 230 2s120 0 170-8v18H0Z" fill="#b9c8ae"/></svg></section>
       </aside>
     </div>
     {reviewProject && <ProjectReviewModal project={reviewProject} onClose={()=>setReviewProject(null)} onSaved={()=>{setReviewedProjectIds(prev=>new Set([...Array.from(prev),String(reviewProject.id)]));setReviewProject(null);showToast&&showToast('Review submitted.');}} showToast={showToast}/>}
