@@ -1457,3 +1457,10 @@ html body #root footer.fb-public-footer-v2 { padding: 52px clamp(26px, 3vw, 56px
   .fb-foot__bar { margin-top: 6px; }
 }
 html body #root footer.fb-public-footer-v2 { padding-top: 40px !important; }
+
+/* Footer: link columns closer; logo and legal text nudged up. */
+@media (min-width: 901px) {
+  .fb-foot__nav { gap: clamp(14px, 1.7vw, 26px); }
+  .fb-foot__brand { margin-bottom: 10px; }
+  .fb-foot__legal { margin-bottom: 14px; }
+}
