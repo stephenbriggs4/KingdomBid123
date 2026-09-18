@@ -44976,9 +44976,9 @@ function LandingChurchTrustStrip() {
 
 function FirstSessionTrustRail() {
   const items = [
-    { num: "01", icon: "brief", title: "Share your need", body: "Tell us what you’re looking for." },
-    { num: "02", icon: "people", title: "Meet the right vendors", body: "Review trusted options." },
-    { num: "03", icon: "handshake", title: "Move forward confidently", body: "Choose the right fit." },
+    { num: "01", icon: "brief", title: "Share your need", body: "Describe the project, your timing, and what matters most to your church." },
+    { num: "02", icon: "people", title: "Meet the right vendors", body: "Browse reviewed vendors, compare their profiles and work, and start a conversation." },
+    { num: "03", icon: "handshake", title: "Move forward confidently", body: "Choose the right fit, then keep messages, files, and next steps in one place." },
   ];
   return (
     <section id="how-faithbid-works" data-kb-funnel-section="how_it_works" className="fb-how-it-works" aria-labelledby="how-faithbid-works-title">
@@ -44988,6 +44988,7 @@ function FirstSessionTrustRail() {
           <h2 id="how-faithbid-works-title">How It Works</h2>
           <span className="fb-how-bookend is-to">To impact</span>
         </div>
+        <p className="fb-how-intro">One workspace from your first need to finished work.</p>
         <div className="fs-trust-grid fb-how-it-works-grid">
           {items.map(item => (
             <article key={item.num} className="fb-how-step">
