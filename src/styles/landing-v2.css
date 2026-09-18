@@ -1259,11 +1259,12 @@ html body .fb-landing-v2 section.fb-how-it-works {
 /* Hero wordmark sits above the eyebrow (tagline cropped out of the lockup); header shows the FB monogram. */
 html body .fb-landing-v2 .fb-landing-hero-wordmark {
   display: block;
-  width: clamp(190px, 15vw, 250px);
-  height: clamp(48px, 3.9vw, 65px);
-  margin: 0 auto 14px;
+  width: clamp(140px, 10.5vw, 175px);
+  height: auto;
+  aspect-ratio: 5 / 1;
+  margin: 0 auto 12px;
   object-fit: cover;
-  object-position: 50% 10%;
+  object-position: 50% 30%;
   user-select: none;
 }
 html body .fb-landing-v2 .fb-landing-nav-brand { min-width: 0 !important; }
