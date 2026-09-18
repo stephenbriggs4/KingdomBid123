@@ -2800,3 +2800,10 @@ html body #root .mkt2-root { background: transparent !important; }
 .mkt2-root nav.mkt2-categories { margin-top: 0 !important; margin-bottom: 0 !important; border-radius: 0 0 14px 14px; border-top: 0; }
 html body #root .mkt2-root main.kb-marketplace-directory-body,
 html body #root .mkt2-root main.kb-marketplace-projects-body { padding-top: 16px !important; }
+
+/* Rails: lighter gold. */
+.kb-rail-wrap::before, .kb-rail-wrap::after {
+  background: linear-gradient(90deg, rgba(222, 196, 133, 0) 0%, rgba(222, 196, 133, .95) 4%, rgba(222, 196, 133, .95) 96%, rgba(222, 196, 133, 0) 100%) !important;
+}
+.kb-rail-wrap::before { box-shadow: 0 6px 0 rgba(222, 196, 133, .5) !important; }
+.kb-rail-wrap::after { box-shadow: 0 -6px 0 rgba(222, 196, 133, .5) !important; }
