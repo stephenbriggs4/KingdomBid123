@@ -218,11 +218,14 @@ const SENTRY_DSN =
   (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SENTRY_DSN)
   || "";
 
-const KB_BUILD_LABEL = "0955-landing-header-preview-routing-stability-cumulative";
+const KB_BUILD_LABEL = "1008-nav-consolidation-audit-controls-cumulative";
+// Injected by vite.config.js (git short SHA, or the host's commit env var).
+const KB_BUILD_COMMIT = typeof __KB_BUILD_COMMIT__ !== "undefined" ? __KB_BUILD_COMMIT__ : "unknown";
 // Phase-1 Charter workspace access only: completed Marketplace-Approved Charter Vendors
 // may enter the private Marketplace workspace without a project invitation. Eligibility is
 // re-derived from live profile/vendor reads; project-specific bid authorization is unchanged.
-const KB_BUILD_AT = "2026-09-16";
+const KB_BUILD_AT = "2026-09-18";
+const KB_RELEASE = KB_BUILD_COMMIT === "unknown" ? `faithbid@${KB_BUILD_LABEL}` : `faithbid@${KB_BUILD_LABEL}+${KB_BUILD_COMMIT}`;
 const kbIsDevRuntime = () => {
   try {
     return !!(typeof import.meta !== "undefined" && import.meta.env && import.meta.env.DEV);
@@ -253,6 +256,8 @@ if (typeof window !== "undefined") {
   window.__KB_BUILD_INFO = {
     label: KB_BUILD_LABEL,
     builtAt: KB_BUILD_AT,
+    commit: KB_BUILD_COMMIT,
+    release: KB_RELEASE,
     mode: (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.MODE) || "unknown",
   };
 
@@ -342,7 +347,7 @@ if (SENTRY_DSN && typeof window !== "undefined" && !window.__kb_sentry_inited) {
       dsn: SENTRY_DSN,
       // 853ay: attach the exact FaithBid build to every Sentry event so fresh
       // regressions can be separated from errors produced by older cached builds.
-      release: `faithbid@${KB_BUILD_LABEL}`,
+      release: KB_RELEASE,
       environment:
         (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.MODE)
         || (typeof process !== "undefined" && process.env && process.env.NODE_ENV)
@@ -364,12 +369,14 @@ if (SENTRY_DSN && typeof window !== "undefined" && !window.__kb_sentry_inited) {
           ...(event.tags || {}),
           kb_build: KB_BUILD_LABEL,
           kb_build_at: KB_BUILD_AT,
+          kb_build_commit: KB_BUILD_COMMIT,
         };
         event.contexts = {
           ...(event.contexts || {}),
           faithbid_build: {
             label: KB_BUILD_LABEL,
             built_at: KB_BUILD_AT,
+            commit: KB_BUILD_COMMIT,
           },
         };
         return event;
