@@ -1,6 +1,64 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "./supabaseClient";
 
+const ADMIN_LIGHT_THEME_CSS = String.raw`
+/* Admin light theme: ivory sidebar and hero, dark readable text, consistent alignment. */
+.faithbid-admin-v853bl.admin-premium-shell{grid-template-columns:240px minmax(0,1fr)!important;}
+.faithbid-admin-v853bl.admin-premium-shell > .admin-sidenav{
+  background:#fffdf8!important;
+  border-right:1px solid rgba(28,40,20,.10)!important;
+  box-shadow:none!important;
+}
+.faithbid-admin-v853bl.admin-premium-shell .admin-nav-section{padding:22px 12px 14px!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-nav-label{color:#9b7432!important;margin:0 10px 12px!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-nav-item{color:#42503d!important;border-radius:12px!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-nav-item:hover{background:#f6efe1!important;border-color:rgba(28,40,20,.08)!important;color:#182313!important;transform:none!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-nav-item.active{background:#f3ead8!important;border-color:rgba(155,116,50,.26)!important;color:#182313!important;box-shadow:none!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-nav-glyph{background:#f6efe1!important;border:1px solid rgba(28,40,20,.08)!important;color:#7a5a24!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-nav-item.active .admin-nav-glyph{background:#fffdf8!important;border-color:rgba(155,116,50,.3)!important;color:#7a5a24!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-nav-note{color:#7d8579!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-sidebar-footer{border-top:1px solid rgba(28,40,20,.09)!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-sidebar-user-card{background:#f8f3e9!important;border:1px solid rgba(28,40,20,.09)!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-sidebar-user-name{color:#182313!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-sidebar-user-role{color:#7d8579!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-sidebar-avatar{background:#efe3c8!important;color:#6f5220!important;border-color:rgba(155,116,50,.25)!important;}
+
+/* Hero */
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-hero{
+  background:linear-gradient(135deg,#fffdf8 0%,#f7f0e2 100%)!important;
+  border:1px solid rgba(28,40,20,.10)!important;
+  box-shadow:0 12px 30px rgba(28,40,20,.06)!important;
+  align-items:center!important;
+}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-hero::before,
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-hero::after{display:none!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-hero .admin-page-eyebrow{color:#9b7432!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-title{color:#182313!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-copy{color:#52604d!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-state{background:#fffdf8!important;border:1px solid rgba(28,40,20,.12)!important;color:#42503d!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-signal{background:#fffdf8!important;border:1px solid rgba(28,40,20,.10)!important;color:#182313!important;box-shadow:0 6px 16px rgba(28,40,20,.04)!important;}
+.faithbid-admin-v853bl.admin-premium-shell button.admin-command-signal:hover{background:#fbf5e9!important;border-color:rgba(155,116,50,.30)!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-signal-label{color:#7b8376!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-signal strong{color:#182313!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-signal>span:last-child{color:#727b6e!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-signal.is-healthy strong{color:#247b42!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-signal.is-loading strong{color:#a96d12!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-command-signal.is-degraded strong{color:#bd403a!important;}
+
+/* Buttons: replace the dark olive fills with the platform's ivory/gold treatment */
+.faithbid-admin-v853bl.admin-premium-shell .admin-refresh-action{background:#fffdf8!important;border-color:rgba(155,116,50,.35)!important;color:#7a5a24!important;box-shadow:0 5px 12px rgba(28,40,20,.05)!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-refresh-action:hover{background:#fbf4e7!important;color:#5f4418!important;border-color:rgba(155,116,50,.5)!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-lane-btn.active{background:#f3ead8!important;color:#182313!important;border-color:rgba(155,116,50,.35)!important;box-shadow:none!important;}
+.faithbid-admin-v853bl.admin-premium-shell .charter-admin-header button{background:#f3ead8!important;border-color:rgba(155,116,50,.35)!important;color:#182313!important;box-shadow:none!important;}
+
+/* Alignment: one left edge and one rhythm for the top bar and page content */
+.faithbid-admin-v853bl.admin-premium-shell .admin-topbar{padding:0 32px!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-content{padding:28px 32px 52px!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-content>*{max-width:1400px!important;margin-left:0!important;margin-right:0!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-topbar-right{align-items:center!important;}
+.faithbid-admin-v853bl.admin-premium-shell .admin-page-heading{margin-bottom:20px!important;}
+`;
+
 export default function AdminScreen({showToast, adminUser, adminProfile, nav, dependencies}){
   const {
     activateOnKey,
@@ -1969,19 +2027,8 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
   return (
     <div className="admin-app admin-app-stress admin-premium-shell faithbid-admin-v853bl">
       <style>{FAITHBID_ADMIN_V853BK_CSS}</style>
+      <style>{ADMIN_LIGHT_THEME_CSS}</style>
       <aside className="admin-sidenav">
-        {/* Brand */}
-        <div className="admin-sidebar-brand">
-          <div className="admin-brand-lockup">
-            <div className="admin-brand-mark"><CrossLogo size={24}/></div>
-            <div className="admin-brand-copy">
-              <div className="admin-brand-name">FaithBid</div>
-              <div className="admin-brand-subtitle">Platform operations</div>
-            </div>
-          </div>
-          <div className="admin-brand-badge"><span className="admin-brand-badge-dot"/>Owner console</div>
-        </div>
-
         {/* Nav */}
         <nav ref={adminNavScrollRef} className="admin-nav-section" aria-label="Admin sections">
           <div className="admin-nav-label">Platform</div>
