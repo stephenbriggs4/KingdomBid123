@@ -1522,3 +1522,5 @@ html body .fb-landing-v2 .fb-how-head {
 }
 html body .fb-landing-v2 .fb-how-head .fb-how-bookend { justify-self: center !important; padding: 0 !important; text-align: center; }
 html body .fb-landing-v2 .fb-how-head h2 { justify-self: center; white-space: nowrap; }
+html body .fb-landing-v2 .fb-how-head { align-items: baseline !important; }
+html body .fb-landing-v2 .fb-how-head .fb-how-bookend { align-self: baseline !important; }
