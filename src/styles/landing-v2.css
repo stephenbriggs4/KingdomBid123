@@ -1507,3 +1507,18 @@ html body .fb-landing-v2 .fb-landing-hero-kicker { font-size: 13.5px; letter-spa
 .fb-trust-v2__eyebrow b { display: inline; padding-left: .48em; font: inherit; font-weight: 700; letter-spacing: inherit; }
 .fb-trust-v2__card { background: #fff; }
 .fb-trust-v2__note { border-top: 0; }
+
+/* How It Works: "From vision" sits centred above step 1 and "To impact" centred above step 3, on the same 3-column grid as the steps. */
+html body .fb-landing-v2 .fb-how-head { display: block !important; margin: 0 0 22px !important; }
+html body .fb-landing-v2 .fb-how-bookends {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(30px, 7vw, 92px); margin: 0 0 18px;
+}
+html body .fb-landing-v2 .fb-how-bookends .fb-how-bookend { justify-self: center !important; padding: 0 !important; text-align: center; }
+
+/* Bookends back on the title row (original height), centred over step 1 and step 3 on the steps grid. */
+html body .fb-landing-v2 .fb-how-head {
+  display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: clamp(30px, 7vw, 92px) !important; align-items: center !important; margin: 0 0 24px !important;
+}
+html body .fb-landing-v2 .fb-how-head .fb-how-bookend { justify-self: center !important; padding: 0 !important; text-align: center; }
+html body .fb-landing-v2 .fb-how-head h2 { justify-self: center; white-space: nowrap; }
