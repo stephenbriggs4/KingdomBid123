@@ -2758,3 +2758,13 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
 }
 .kb-rail-wrap::before { box-shadow: 0 5px 0 rgba(176, 132, 52, .32) !important; }
 .kb-rail-wrap::after { box-shadow: 0 -5px 0 rgba(176, 132, 52, .32) !important; }
+
+/* Arrows are back: permanent, sitting in the side margins with a clear gap from the cards. */
+.kb-rail-arrow { display: grid !important; z-index: 7; width: 44px; height: 44px; margin-top: -22px; top: 118px; opacity: 1 !important; }
+.kb-rail-arrow[hidden] { display: grid !important; }
+.kb-rail-arrow:disabled { opacity: .35 !important; }
+.kb-rail-arrow.is-prev { left: -66px !important; right: auto !important; }
+.kb-rail-arrow.is-next { right: -66px !important; left: auto !important; }
+.kb-rail-track { display: none !important; }
+/* Not enough side margin to keep a gap from the cards: fall back to drag/swipe. */
+@media (max-width: 1359px) { .kb-rail-arrow { display: none !important; } }
