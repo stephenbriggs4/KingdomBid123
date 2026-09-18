@@ -28411,7 +28411,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
               <div className="kb-marketplace-project-directory__head">
                 <div>
                   <p className="kb-marketplace-section-kicker">Project opportunities</p>
-                  <h2 id="kb-marketplace-project-directory-title">All projects</h2>
+                  <h2 id="kb-marketplace-project-directory-title">{catFilter && catFilter !== 'All' ? `All ${formatMarketplaceCategoryLabel(catFilter, catFilter)} Projects` : 'All Projects'}</h2>
                   <span>
                     {marketplaceDevPreview
                       ? `${filteredProjects.length} illustrative opportunit${filteredProjects.length === 1 ? 'y' : 'ies'}`
@@ -35202,7 +35202,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               <div>
                 <p className="kb-marketplace-section-kicker">Directory</p>
                 <div className="kb-marketplace-section-title-line">
-                  <h2 id="kb-marketplace-all-title">All vendors</h2>
+                  <h2 id="kb-marketplace-all-title">{category && category !== 'All' ? `All ${formatMarketplaceCategoryLabel(category, category)} Vendors` : 'All Vendors'}</h2>
                   <span>{filteredVendors.length} Marketplace Approved vendor{filteredVendors.length === 1 ? '' : 's'}</span>
                 </div>
               </div>
