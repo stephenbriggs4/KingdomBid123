@@ -1497,3 +1497,6 @@ html body .fb-landing-v2 .fb-landing-nav-links .land-nav-btn,
 html body .fb-landing-v2 .fb-landing-signin { font-size: 13px !important; padding: 8px 4px; }
 html body .fb-landing-v2 .fb-landing-request { min-height: 40px; padding: 0 20px; font-size: 13px; border-radius: 10px; }
 html body .fb-landing-v2 .fb-landing-nav-actions { gap: 16px; }
+
+/* Hero eyebrow: larger. */
+html body .fb-landing-v2 .fb-landing-hero-kicker { font-size: 13.5px; letter-spacing: .26em; margin-bottom: 20px; }
