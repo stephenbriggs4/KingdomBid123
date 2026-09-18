@@ -44320,8 +44320,8 @@ function LandingGlimpseConnector({ position }) {
     );
   }
   return (
-    <svg className="kb-landing-glimpse__line" viewBox="-6 -6 12 46" aria-hidden="true" focusable="false">
-      <path d="M0 0V34" />
+    <svg className="kb-landing-glimpse__line" viewBox="-6 -6 12 82" aria-hidden="true" focusable="false">
+      <path d="M0 0V70" />
       <circle cx="0" cy="0" r="4.2" />
     </svg>
   );
@@ -44439,9 +44439,13 @@ const LANDING_PRECISION_POLISH_CSS = `
 .fb-landing-v2 .fb-landing-cta-secondary:hover{background:rgba(255,253,249,.94);border-color:rgba(23,53,43,.72);box-shadow:0 8px 18px rgba(23,53,43,.08);}
 .fb-landing-v2 .fb-landing-scroll{width:auto;min-width:44px;min-height:44px;margin-top:13px;padding:7px 12px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:999px;color:#7e5e28;}
 .fb-landing-v2 .fb-landing-scroll > em{font:650 10px/1 var(--font-sans),sans-serif;font-style:normal;letter-spacing:.08em;text-transform:uppercase;opacity:.82;}
-.fb-landing-v2 .fb-how-it-works{position:relative;background:var(--fb-landing-ivory);border-top:0;padding:44px 28px 54px;}
+.fb-landing-v2 .fb-how-it-works{position:relative;background:var(--fb-landing-ivory);border-top:0;padding:54px 28px 64px;}
 .fb-landing-v2 .fb-how-it-works-inner{width:min(1180px,100%);margin:0 auto;}
-.fb-landing-v2 .fb-how-it-works h2{margin:0 0 24px;font-size:clamp(34px,3.1vw,48px);line-height:1;letter-spacing:-.025em;}
+.fb-landing-v2 .fb-how-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;margin:0 0 24px;}
+.fb-landing-v2 .fb-how-it-works h2{margin:0;font-size:clamp(34px,3.1vw,48px);line-height:1;letter-spacing:-.025em;text-align:center;}
+.fb-landing-v2 .fb-how-bookend{font:700 12.5px/1 var(--font-sans),sans-serif;letter-spacing:.3em;text-transform:uppercase;color:#9a6f22;white-space:nowrap;}
+.fb-landing-v2 .fb-how-bookend.is-from{justify-self:start;}
+.fb-landing-v2 .fb-how-bookend.is-to{justify-self:end;padding-left:.3em;}
 .fb-landing-v2 .fb-how-it-works-grid{gap:clamp(28px,4.6vw,72px);align-items:start;}
 .fb-landing-v2 .fb-how-step{padding:0 clamp(4px,1vw,12px);}
 .fb-landing-v2 .fb-how-step-number{margin-bottom:8px;font-size:11px;letter-spacing:.05em;color:#8a6b34;font-weight:750;}
@@ -44467,7 +44471,10 @@ const LANDING_PRECISION_POLISH_CSS = `
   .fb-landing-v2 .fb-landing-cta{width:100%;min-height:48px;justify-content:center;}
   .fb-landing-v2 .fb-landing-scroll > em{display:none;}
   .fb-landing-v2 .fb-how-it-works{padding:34px 18px 40px;}
-  .fb-landing-v2 .fb-how-it-works h2{margin-bottom:24px;}
+  .fb-landing-v2 .fb-how-head{grid-template-columns:1fr 1fr;grid-template-areas:"title title" "from to";row-gap:14px;margin-bottom:24px;}
+  .fb-landing-v2 .fb-how-it-works h2{grid-area:title;}
+  .fb-landing-v2 .fb-how-bookend.is-from{grid-area:from;}
+  .fb-landing-v2 .fb-how-bookend.is-to{grid-area:to;}
   .fb-landing-v2 .fb-how-it-works-grid{grid-template-columns:1fr!important;gap:24px;}
   .fb-landing-v2 .fb-how-step{max-width:360px;margin:0 auto;}
   .fb-landing-v2 .fb-how-step-icon{margin-bottom:8px;}
@@ -44833,14 +44840,18 @@ function LandingChurchTrustStrip() {
 
 function FirstSessionTrustRail() {
   const items = [
-    { num: "01", icon: "brief", title: "Post your need", body: "Share the work, timing, budget, and context." },
-    { num: "02", icon: "people", title: "Meet trusted vendors", body: "Review aligned professionals, proposals, references, and trust signals." },
-    { num: "03", icon: "handshake", title: "Move forward confidently", body: "Compare, communicate, choose, and keep the work organized through handoff." },
+    { num: "01", icon: "brief", title: "Share your need", body: "Tell us what you’re looking for." },
+    { num: "02", icon: "people", title: "Meet the right vendors", body: "Review trusted options." },
+    { num: "03", icon: "handshake", title: "Move forward confidently", body: "Choose the right fit." },
   ];
   return (
     <section id="how-faithbid-works" data-kb-funnel-section="how_it_works" className="fb-how-it-works" aria-labelledby="how-faithbid-works-title">
       <div className="fb-how-it-works-inner">
-        <h2 id="how-faithbid-works-title">How It Works</h2>
+        <div className="fb-how-head">
+          <span className="fb-how-bookend is-from">From vision</span>
+          <h2 id="how-faithbid-works-title">How It Works</h2>
+          <span className="fb-how-bookend is-to">To impact</span>
+        </div>
         <div className="fs-trust-grid fb-how-it-works-grid">
           {items.map(item => (
             <article key={item.num} className="fb-how-step">
