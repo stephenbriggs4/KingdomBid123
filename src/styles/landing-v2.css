@@ -1397,3 +1397,19 @@ html body #root footer.fb-public-footer-v2 .fb-foot__bar .fb-public-legal-footer
   .fb-foot__legal { grid-template-columns: 1fr; gap: 14px; }
 }
 @media (max-width: 480px) { .fb-foot__nav { grid-template-columns: 1fr; } }
+
+/* Compact footer: one row of brand | links | legal text, then a slim copyright bar. */
+html body #root footer.fb-public-footer-v2 { padding: 34px clamp(26px, 3vw, 56px) 18px !important; }
+@media (min-width: 901px) {
+  .fb-foot { display: grid; grid-template-columns: auto auto minmax(0, 1fr); column-gap: clamp(40px, 5vw, 88px); align-items: start; }
+  .fb-foot__top { display: contents; }
+  .fb-foot__brand { grid-column: 1; }
+  .fb-foot__nav { grid-column: 2; display: flex; gap: clamp(28px, 3.4vw, 56px); }
+  .fb-foot__legal { grid-column: 3; grid-template-columns: 1fr; gap: 8px; padding: 2px 0 0 clamp(24px, 3vw, 48px); border-top: 0; border-left: 1px solid rgba(255, 255, 255, .16); }
+  .fb-foot__legal p { font-size: 11.5px; line-height: 1.55; }
+  .fb-foot__bar { grid-column: 1 / -1; margin-top: 22px; padding-top: 14px; }
+  .fb-foot__group .fb-public-footer-v2__nav-title { margin-bottom: 12px; }
+  .fb-foot__group ul { gap: 7px; }
+  .fb-foot__group a, .fb-foot__group button { font-size: 13px; }
+  .fb-foot__brand .kb-brand-logo { height: 46px !important; }
+}
