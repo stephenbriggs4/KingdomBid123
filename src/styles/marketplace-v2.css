@@ -2795,3 +2795,8 @@ html body #root .mkt2-root section.mkt2-header { background: transparent !import
 .kb-rail-wrap::before { box-shadow: 0 6px 0 rgba(168, 121, 40, .4) !important; }
 .kb-rail-wrap::after { box-shadow: 0 -6px 0 rgba(168, 121, 40, .4) !important; }
 html body #root .mkt2-root { background: transparent !important; }
+
+/* Category bar attaches to the header photo; everything below moves up with it. */
+.mkt2-root nav.mkt2-categories { margin-top: 0 !important; margin-bottom: 0 !important; border-radius: 0 0 14px 14px; border-top: 0; }
+html body #root .mkt2-root main.kb-marketplace-directory-body,
+html body #root .mkt2-root main.kb-marketplace-projects-body { padding-top: 16px !important; }
