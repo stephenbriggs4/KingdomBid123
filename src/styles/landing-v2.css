@@ -1436,3 +1436,13 @@ html body .fb-landing-v2 .fb-landing-nav-links .land-nav-btn + .land-nav-btn::be
 
 /* Footer: no horizontal rule above the copyright line. */
 .fb-foot__bar { border-top: 0; }
+
+/* Footer: whole content row sits lower, total height reduced. */
+html body #root footer.fb-public-footer-v2 { padding: 52px clamp(26px, 3vw, 56px) 14px !important; }
+@media (min-width: 901px) {
+  .fb-foot__brand { padding-top: 0; }
+  .fb-foot__group .fb-public-footer-v2__nav-title { margin-bottom: 9px; }
+  .fb-foot__group ul { gap: 5px; }
+  .fb-foot__bar { margin-top: 10px; padding-top: 0; }
+  .fb-foot__legal { gap: 6px; padding-top: 0; }
+}
