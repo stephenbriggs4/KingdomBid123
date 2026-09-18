@@ -1358,3 +1358,17 @@ html body #root footer.fb-public-footer-v2 .fb-public-legal-footer__identity { d
 html body #root footer.fb-public-footer-v2 .fb-public-legal-footer__brand { justify-content: flex-start; margin-left: 0; padding-left: 0; }
 html body #root footer.fb-public-footer-v2 .fb-public-legal-footer__brand .kb-brand-logo { margin-left: 0 !important; object-position: left center !important; }
 html body #root footer.fb-public-footer-v2 .fb-public-legal-footer__copyright { margin-left: 0; padding-left: 0; text-align: left; }
+
+/* Footer layout: brand block hugs the left edge and sits low; all three columns share one bottom line. */
+@media (min-width: 761px) {
+  html body #root #kb-main-content footer.fb-public-footer-v2 { padding-top: 56px !important; padding-bottom: 40px !important; }
+  html body #root #kb-main-content footer.fb-public-footer-v2 .fb-public-footer-v2__inner {
+    grid-template-columns: minmax(220px, .8fr) minmax(280px, 1fr) minmax(340px, 1.5fr) !important;
+    gap: clamp(40px, 5vw, 88px) !important;
+    align-items: end !important;
+  }
+  html body #root footer.fb-public-footer-v2 .fb-public-legal-footer__brand { min-height: 0; margin-bottom: 14px; }
+  html body #root footer.fb-public-footer-v2 .fb-public-footer-v2__nav-title { margin-bottom: 14px; }
+  html body #root footer.fb-public-footer-v2 .fb-public-footer-v2__nav { gap: 11px 36px; }
+  html body #root footer.fb-public-footer-v2 .fb-public-legal-footer__links { margin-top: 12px; }
+}
