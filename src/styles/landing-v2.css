@@ -1488,3 +1488,12 @@ html body #root footer.fb-public-footer-v2 { padding-top: 40px !important; }
   html body #root footer.fb-public-footer-v2 .fb-foot__group ul { gap: 9px !important; }
   html body #root footer.fb-public-footer-v2 .fb-foot__brand .kb-brand-logo { height: 46px !important; }
 }
+
+/* Landing nav: slightly smaller content, slightly shorter bar. */
+html body .fb-landing-v2 .fb-landing-nav { padding-top: 9px !important; padding-bottom: 9px !important; }
+html body .fb-landing-v2 .fb-landing-nav-brand .kb-brand-logo-full { width: 134px !important; max-width: 134px !important; }
+html body .fb-landing-v2 .fb-landing-nav-brand { height: 44px; }
+html body .fb-landing-v2 .fb-landing-nav-links .land-nav-btn,
+html body .fb-landing-v2 .fb-landing-signin { font-size: 13px !important; padding: 8px 4px; }
+html body .fb-landing-v2 .fb-landing-request { min-height: 40px; padding: 0 20px; font-size: 13px; border-radius: 10px; }
+html body .fb-landing-v2 .fb-landing-nav-actions { gap: 16px; }
