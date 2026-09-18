@@ -44845,6 +44845,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
         </nav>
 
         <div className="land-hero-body fb-landing-hero-body">
+          <img className="fb-landing-hero-wordmark" src={FAITHBID_LOGO_FULL} alt="FaithBid" draggable="false" />
           <div className="fb-landing-hero-kicker">Faith founded. Service driven.</div>
           <h1 id="faithbid-landing-title" className="land-h1 fb-landing-title">Where calling meets craft.</h1>
           <p className="land-sub fb-landing-subtitle">{LANDING_HERO_SUBTITLE}</p>
