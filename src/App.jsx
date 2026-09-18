@@ -25304,7 +25304,7 @@ const KB_MARKETPLACE_PROJECT_CARD_GEOMETRY_CSS = `
     /* Match .mkt2-header__inner's horizontal padding, clamp(80px,9vw,180px)
        per side (parent-relative, not viewport-relative), so Featured/All
        Projects line up under the header title on both edges. */
-    width:calc(100% - clamp(160px,18vw,360px))!important;
+    width:min(var(--kb-mkt-w),calc(100% - 48px))!important;
     max-width:none!important;
     margin:0 auto!important;
     padding:24px 0 64px!important;
@@ -25420,8 +25420,8 @@ const KB_MARKETPLACE_PROJECT_CARD_GEOMETRY_CSS = `
     /* Match the card row's own width/centering exactly, so the heading text
        sits flush over the far-left card and the arrows sit flush over the
        far-right card, instead of spanning the wider full body. */
-    width:min(100%,calc(4 * var(--kb-project-card-w) + 3 * var(--kb-project-card-gap-x)))!important;
-    margin:0 auto 20px!important;
+    width:100%!important;
+    margin:0 0 20px!important;
     padding:0!important;
   }
   .kb-live-marketplace-page .kb-marketplace-featured-projects__head > div:first-child{
@@ -25489,9 +25489,9 @@ const KB_MARKETPLACE_PROJECT_CARD_GEOMETRY_CSS = `
     justify-content:flex-start!important;
     gap:var(--kb-project-card-gap-x)!important;
     column-gap:var(--kb-project-card-gap-x)!important;
-    width:min(100%,calc(4 * var(--kb-project-card-w) + 3 * var(--kb-project-card-gap-x)))!important;
-    padding:0 1px 6px 0!important;
-    margin:0 auto!important;
+    width:100%!important;
+    padding:0 0 6px 0!important;
+    margin:0!important;
     scroll-padding-inline:0!important;
     scrollbar-width:none!important;
   }
@@ -25516,8 +25516,8 @@ const KB_MARKETPLACE_PROJECT_CARD_GEOMETRY_CSS = `
     align-items:flex-end!important;
     justify-content:space-between!important;
     gap:18px!important;
-    width:min(100%,calc(5 * var(--kb-project-card-w) + 4 * var(--kb-project-card-gap-x)))!important;
-    margin:0 auto 18px!important;
+    width:100%!important;
+    margin:0 0 18px!important;
     padding:0 0 13px!important;
     border-bottom:1px solid rgba(18,48,39,.10)!important;
   }
@@ -25579,7 +25579,7 @@ const KB_MARKETPLACE_PROJECT_CARD_GEOMETRY_CSS = `
   }
   .kb-live-marketplace-page .kb-marketplace-project-grid{
     display:grid!important;
-    grid-template-columns:repeat(auto-fill,var(--kb-project-card-w))!important;
+    grid-template-columns:repeat(var(--kb-mkt-cols,4),var(--kb-project-card-w))!important;
     gap:var(--kb-project-card-gap-y) var(--kb-project-card-gap-x)!important;
     justify-content:center!important;
     align-items:stretch!important;
@@ -25802,7 +25802,7 @@ const KB_MARKETPLACE_PROJECT_CARD_GEOMETRY_CSS = `
   .kb-live-marketplace-page .faithbid-card-11a--marketplace .faithbid-card-11a__action{font-size:9.5px!important;}
   .kb-live-marketplace-page .kb-live-all-grid{
     display:grid!important;
-    grid-template-columns:repeat(auto-fill,var(--kb-project-card-w))!important;
+    grid-template-columns:repeat(var(--kb-mkt-cols,4),var(--kb-project-card-w))!important;
     gap:var(--kb-project-card-gap-y) var(--kb-project-card-gap-x)!important;
     justify-content:center!important;
     align-items:stretch!important;
@@ -27302,7 +27302,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   const browseGridSource = filteredProjects;
   const featuredProjectRows = useMemo(() => {
     const source = marketplaceDevPreview ? filteredProjects : featuredBrowseProjects;
-    return safeArray(source).slice(0, 5);
+    return safeArray(source).slice(0, 9);
   }, [marketplaceDevPreview, filteredProjects, featuredBrowseProjects]);
   const showFeaturedProjectRail = !hasBrowseRefinements && featuredProjectRows.length >= 4;
 
@@ -34781,17 +34781,17 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
            centered like the grid below, so Featured cards are the identical size
            as All Vendors cards. Cards 5+ stay reachable by dragging inside that
            fixed-width viewport. */
-        .kb-vendor-marketplace-page .kb-marketplace-featured-rail{display:flex!important;align-items:stretch!important;justify-content:flex-start!important;gap:var(--kb-project-card-gap-x)!important;width:min(100%,calc(4 * var(--kb-project-card-w) + 3 * var(--kb-project-card-gap-x)))!important;margin:0 auto!important;overflow-x:auto!important;padding:0 1px 6px 0!important;scrollbar-width:none!important;}
+        .kb-vendor-marketplace-page .kb-marketplace-featured-rail{display:flex!important;align-items:stretch!important;justify-content:flex-start!important;gap:var(--kb-project-card-gap-x)!important;width:100%!important;margin:0!important;overflow-x:auto!important;padding:0 0 6px 0!important;scrollbar-width:none!important;}
         .kb-vendor-marketplace-page .kb-marketplace-featured-rail::-webkit-scrollbar{display:none!important;}
-        .kb-vendor-marketplace-page .kb-marketplace-vendor-grid{display:grid!important;grid-template-columns:repeat(auto-fill,var(--kb-project-card-w))!important;gap:var(--kb-project-card-gap-y) var(--kb-project-card-gap-x)!important;justify-content:center!important;align-items:stretch!important;}
+        .kb-vendor-marketplace-page .kb-marketplace-vendor-grid{display:grid!important;grid-template-columns:repeat(var(--kb-mkt-cols,4),var(--kb-project-card-w))!important;gap:var(--kb-project-card-gap-y) var(--kb-project-card-gap-x)!important;justify-content:center!important;align-items:stretch!important;}
         .kb-vendor-marketplace-page .kb-marketplace-featured-rail > .kb-marketplace-project-card{flex:0 0 var(--kb-project-card-w)!important;min-width:var(--kb-project-card-w)!important;max-width:var(--kb-project-card-w)!important;}
         /* Match the card row's width/centering so the heading text sits flush
            over the far-left card and the sort/nearby controls sit flush over
            the far-right card, instead of spanning the wider full body. */
-        .kb-vendor-marketplace-page .kb-marketplace-section-head{width:min(100%,calc(4 * var(--kb-project-card-w) + 3 * var(--kb-project-card-gap-x)))!important;margin-left:auto!important;margin-right:auto!important;}
+        .kb-vendor-marketplace-page .kb-marketplace-section-head{width:100%!important;margin-left:0!important;margin-right:0!important;}
         /* All Vendors (directory) keeps its own width, matching its grid below --
            only the Featured section drops to 4 cards. */
-        .kb-vendor-marketplace-page .kb-marketplace-section-head--directory{width:min(100%,calc(5 * var(--kb-project-card-w) + 4 * var(--kb-project-card-gap-x)))!important;}
+        .kb-vendor-marketplace-page .kb-marketplace-section-head--directory{width:100%!important;}
         .kb-vendor-marketplace-page.kb-church-marketplace-page{overflow-x:clip!important;}
 
         .kb-church-marketplace-directory-panel{position:relative;z-index:6;margin:-32px 0 0;padding:0 2px;background:transparent;}

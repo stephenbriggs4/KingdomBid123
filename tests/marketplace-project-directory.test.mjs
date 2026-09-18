@@ -62,7 +62,7 @@ test('the compact directory exposes only useful project controls', () => {
 });
 
 test('project body is fluid at laptop, monitor, large-monitor, and mobile widths', () => {
-  assert.match(css, /\.kb-marketplace-projects-body\s*\{[\s\S]*?width:\s*calc\(100% - clamp\(160px, 18vw, 360px\)\)/);
+  assert.match(css, /\.kb-marketplace-projects-body\s*\{[\s\S]*?width:\s*min\(var\(--kb-mkt-w\), calc\(100% - 48px\)\)/);
   assert.match(css, /\.kb-marketplace-projects-body\s*\{[\s\S]*?max-width:\s*none/);
   assert.match(css, /\.kb-marketplace-project-empty,[\s\S]*?min-height:\s*410px/);
   assert.match(css, /\.kb-marketplace-project-grid\s*\{[\s\S]*?repeat\(auto-fit, minmax\(min\(100%, 280px\), 1fr\)\)/);

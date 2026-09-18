@@ -13,6 +13,28 @@
   color: var(--mkt2-ink);
 }
 
+/* Shared Marketplace column system (church and vendor, Projects and Vendors tabs).
+   Everything below the photo header -- header text edges, category strip, body,
+   headings, featured rail and grid -- is exactly --kb-mkt-w wide and centered, so
+   left and right edges line up at every width. Cards are fixed-size; only the
+   column count changes: 6 on large monitors, 4 on laptops, 3 on small desktops. */
+.mkt2-root {
+  --kb-mkt-cols: 4;
+  --kb-mkt-w: calc(var(--kb-mkt-cols) * var(--kb-project-card-w, 206px) + (var(--kb-mkt-cols) - 1) * var(--kb-project-card-gap-x, 10px));
+}
+
+@media (min-width: 760px) and (max-width: 1099px) {
+  .mkt2-root { --kb-mkt-cols: 3; }
+}
+
+@media (min-width: 1600px) {
+  .mkt2-root { --kb-mkt-cols: 6; }
+}
+
+@media (max-width: 759px) {
+  .mkt2-root { --kb-mkt-cols: 1; }
+}
+
 html body #root .mkt2-root {
   background-color: var(--mkt2-bg) !important;
   background-image: none !important;
@@ -182,7 +204,7 @@ html body #root .mkt2-root .mkt2-header {
 .mkt2-root .mkt2-header__inner {
   width: 100%;
   min-height: 0;
-  padding: clamp(28px, 2.2vw, 42px) clamp(80px, 9vw, 180px) clamp(18px, 1.4vw, 26px);
+  padding: clamp(28px, 2.2vw, 42px) max(24px, calc((100% - var(--kb-mkt-w)) / 2)) clamp(18px, 1.4vw, 26px);
   display: block;
   background-color: #f4efe4;
   background-image:
@@ -327,10 +349,9 @@ html body #root .mkt2-root .mkt2-header {
 }
 
 .mkt2-root .mkt2-categories {
-  /* Per-side inset must equal .mkt2-header__inner's horizontal padding,
-     clamp(80px, 9vw, 180px), so the total width reduction (split evenly by
-     margin: auto) is double that. */
-  width: calc(100% - clamp(160px, 18vw, 360px));
+  /* Same width as the card block (--kb-mkt-w) so the strip lines up with the
+     header text edges and the cards on both sides. */
+  width: min(var(--kb-mkt-w), calc(100% - 48px));
   max-width: none;
   min-height: clamp(64px, 4.6vw, 78px);
   margin: 0 auto;
@@ -343,6 +364,11 @@ html body #root .mkt2-root .mkt2-header {
 }
 
 .mkt2-root .mkt2-categories::-webkit-scrollbar { display: none; }
+
+@media (min-width: 761px) {
+  .mkt2-root .mkt2-categories { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .mkt2-root nav.mkt2-categories button { min-width: 0; padding-inline: 6px; }
+}
 
 .mkt2-root .mkt2-categories button {
   position: relative;
@@ -1071,7 +1097,7 @@ html body #root .mkt2-root .kbm-mp-toolbar {
 
 /* Streamlined real-project directory below the retained Marketplace header. */
 .kb-marketplace-projects-body {
-  width: calc(100% - clamp(36px, 5vw, 112px));
+  width: min(var(--kb-mkt-w), calc(100% - 48px));
   max-width: none;
   min-height: 0;
   margin: 0 auto;
@@ -2024,11 +2050,10 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
 }
 
 /* Marketplace directory body — the photographic header above remains untouched.
-   Uses the same clamp() formula as .mkt2-header__inner/.mkt2-categories so the
-   Featured/All Vendors sections line up exactly under the header on both edges
-   instead of using a different, unrelated indentation amount. */
+   Same --kb-mkt-w width as the header text and category strip, so the
+   Featured/All Vendors sections line up under the header on both edges. */
 .kb-marketplace-directory-body {
-  width: calc(100% - clamp(160px, 18vw, 360px));
+  width: min(var(--kb-mkt-w), calc(100% - 48px));
   max-width: none;
   margin: 0 auto;
   padding: 30px 0 clamp(64px, 7vw, 110px);
@@ -2497,9 +2522,14 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
   font: 650 11px/1 var(--font-sans), sans-serif;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 759px) {
   .kb-marketplace-directory-body {
     width: calc(100% - 36px);
+  }
+}
+
+@media (max-width: 900px) {
+  .kb-marketplace-directory-body {
     padding-top: 34px;
   }
 
