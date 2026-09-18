@@ -31579,23 +31579,6 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
 // 1004 rebuilt the vendor "work" route only. Church/individual accounts mount the
 // separate "mine" route, so the approved visual system must be mounted here too.
 // Existing authenticated navigation is intentionally untouched.
-function MyProjectsBranch({ className = "", flip = false }) {
-  const leaves = [];
-  const pts = [[0,150],[50,118],[100,96],[150,70],[200,52],[250,30]];
-  pts.forEach(([x,y],i)=>{
-    [-1,1].forEach(dir=>{
-      const ang = (dir===-1 ? -58 : 52) - i*3;
-      leaves.push(<ellipse key={i+"-"+dir} cx={x+(dir*4)} cy={y+dir*14} rx="6" ry={20-i*1.2} transform={"rotate("+ang+" "+(x+dir*4)+" "+(y+dir*14)+")"} />);
-    });
-  });
-  return (
-    <svg className={className} viewBox="-20 0 300 190" aria-hidden="true" focusable="false" style={flip?{transform:"scaleX(-1)"}:undefined}>
-      <path d="M-10 158 C50 126 110 100 176 62 S250 22 262 14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-      <g fill="currentColor">{leaves}</g>
-    </svg>
-  );
-}
-
 function MyProjectsIcon({ kind }) {
   const p = { viewBox:"0 0 24 24", "aria-hidden":"true", focusable:"false", fill:"none", stroke:"currentColor", strokeWidth:1.7, strokeLinecap:"round", strokeLinejoin:"round" };
   if (kind === "chart") return <svg {...p}><path d="M5 20V11M12 20V5M19 20v-7" /></svg>;
@@ -31760,10 +31743,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     `}</style>
     <style>{`
       .kb1005-myprojects{position:relative;overflow:hidden;background:radial-gradient(circle at 78% 2%,rgba(231,225,210,.38),transparent 28%),linear-gradient(rgba(250,247,240,.55),rgba(250,247,240,.55)),url("/textures/kb852bf-beige-texture-current.jpg") center/cover,#f8f6f1}
-      .kb1005-hero-art{position:absolute;top:0;right:0;width:min(58%,980px);height:276px;pointer-events:none;z-index:0;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 34%,#000 100%);mask-image:linear-gradient(90deg,transparent 0,#000 34%,#000 100%)}
-      .kb1005-hero-arch{position:absolute;left:30%;top:-20px;width:20%;height:330px;border-radius:999px 999px 0 0;background:linear-gradient(180deg,rgba(255,252,245,.85),rgba(236,229,214,.72));box-shadow:inset 0 0 40px rgba(180,165,135,.28),0 0 60px rgba(255,255,255,.5)}
-      .kb1005-hero-branch{position:absolute;right:clamp(240px,18vw,340px);top:70px;width:clamp(170px,14vw,240px);color:#6f7d4e;opacity:.95;transform:rotate(-64deg);transform-origin:20% 90%}
-      .kb1005-hero-shadow{position:absolute;left:2%;top:50px;width:340px;transform:rotate(-8deg);color:#8b7f66;opacity:.13;filter:blur(7px)}
+      .kb1005-hero-art{position:absolute;top:0;left:0;right:0;height:min(330px,20vw + 30px);pointer-events:none;z-index:0;background:url("/images/my-projects-hero.webp") 4% top/84% auto no-repeat;-webkit-mask-image:linear-gradient(180deg,#000 60%,transparent 100%),linear-gradient(90deg,transparent 4%,#000 22%,#000 90%,transparent 100%);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,#000 60%,transparent 100%),linear-gradient(90deg,transparent 4%,#000 22%,#000 90%,transparent 100%);mask-composite:intersect}
       .kb1005-intro,.kb1005-layout{position:relative;z-index:1}
       .kb1005-intro{grid-template-columns:minmax(0,1fr) auto clamp(150px,13vw,230px) auto;gap:clamp(20px,2.4vw,44px);align-items:center;min-height:200px;margin-bottom:22px;padding-top:6px}
       .kb1005-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;font:500 10.5px/1 var(--font-sans),sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#8a6c3c}.kb1005-eyebrow i{width:38px;height:1px;background:#c9b48c}
@@ -31783,11 +31763,11 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
       .kb1005-empty h3{font-size:clamp(28px,2.3vw,38px);font-weight:600}.kb1005-empty p{font-size:15px;max-width:520px}
       .kb1005-empty button{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 24px;border-radius:8px;font-size:14px}.kb1005-empty button svg{width:18px;height:18px}
       .kb1005-empty-foot{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:38px;color:#8f958f}.kb1005-empty-foot span{width:42px;height:1px;background:#d8d2c7}.kb1005-empty-foot em{font:500 10px/1 var(--font-sans),sans-serif;letter-spacing:.3em;text-transform:uppercase;font-style:normal}
-      @media(max-width:1180px){.kb1005-hero-art{opacity:.55}.kb1005-intro{grid-template-columns:1fr}.kb1005-scripture,.kb1005-intro-gap{display:none}}
+      @media(max-width:1180px){.kb1005-hero-art{opacity:.6}.kb1005-intro{grid-template-columns:1fr}.kb1005-scripture,.kb1005-intro-gap{display:none}}
       @media(max-width:820px){.kb1005-hero-art,.kb1005-quote{display:none}.kb1005-intro{min-height:0}.kb1005-intro h1{font-size:52px}}
 `}</style>
 
-    <div className="kb1005-hero-art" aria-hidden="true"><span className="kb1005-hero-arch" /><MyProjectsBranch className="kb1005-hero-shadow" /><MyProjectsBranch className="kb1005-hero-branch" /></div>
+    <div className="kb1005-hero-art" aria-hidden="true"></div>
     <header className="kb1005-intro"><div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1><p>Track your projects, manage vendor activity, and move every decision forward.</p></div><div className="kb1005-quote"><b>Building What Matters.</b><em>For a Stronger Tomorrow.</em></div><span className="kb1005-intro-gap" aria-hidden="true" /><figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure></header>
     <div className="kb1005-layout">
       <main>
