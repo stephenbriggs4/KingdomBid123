@@ -1198,6 +1198,5 @@ html body #root footer.fb-public-footer-v2 .fb-public-footer-v2__nav button { co
 .kb-about__btn--light { border: 1px solid #173f33; background: #173f33; color: #fffdf8; box-shadow: 0 8px 20px rgba(18, 55, 45, .14); }
 .kb-about__btn--outline-light { border: 1px solid rgba(18, 55, 45, .3); background: rgba(255, 252, 244, .9); color: #173f33; }
 
-/* Glimpse shares the How It Works background; no divider between them. */
+/* Glimpse shares the How It Works background; the divider between them stays. */
 .fb-landing-v2 .kb-landing-glimpse { background: var(--fb-landing-ivory, #f8f4ec); border-top: 0; border-bottom: 0; }
-.fb-landing-v2 .fb-how-it-works { border-bottom: 0; }
