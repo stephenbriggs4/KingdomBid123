@@ -2696,3 +2696,24 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
 .kb-rail-wrap:has(.kb-rail-arrow.is-next:not(:disabled)) { --fade-r: 48px; }
 .kb-rail-wrap:has(.kb-rail-arrow.is-prev:disabled) { --fade-l: 0px; }
 .kb-rail-wrap:has(.kb-rail-arrow.is-next:disabled) { --fade-r: 0px; }
+
+/* Featured rows: static decorative railings on each side (no controls). Scrolling stays drag / swipe / trackpad. */
+.kb-rail-arrow, .kb-rail-track { display: none !important; }
+.kb-rail-wrap::before,
+.kb-rail-wrap::after {
+  content: ""; position: absolute; z-index: 2; top: -4px; bottom: -4px; width: 16px; pointer-events: none; display: none;
+  --rail-gold: #b48a3e;
+  background:
+    radial-gradient(circle at 50% 6px, #d9b76a 0 3.5px, var(--rail-gold) 4px 5.5px, transparent 6px),
+    radial-gradient(circle at 50% calc(100% - 6px), #d9b76a 0 3.5px, var(--rail-gold) 4px 5.5px, transparent 6px),
+    linear-gradient(90deg, transparent 6px, rgba(180, 138, 62, .95) 6px 8px, transparent 8px),
+    repeating-linear-gradient(180deg, transparent 0 20px, rgba(180, 138, 62, .6) 20px 21.5px);
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  filter: drop-shadow(0 0 6px rgba(217, 183, 106, .35));
+}
+.kb-rail-wrap::before { left: -38px; }
+.kb-rail-wrap::after { right: -38px; }
+@media (min-width: 1280px) {
+  .kb-rail-wrap::before, .kb-rail-wrap::after { display: block; }
+}
