@@ -1261,10 +1261,10 @@ html body .fb-landing-v2 .fb-landing-hero-wordmark {
   display: block;
   width: clamp(140px, 10.5vw, 175px);
   height: auto;
-  aspect-ratio: 5 / 1;
-  margin: 16px auto 4px;
+  aspect-ratio: 4.8 / 1;
+  margin: 10px auto 4px;
   object-fit: cover;
-  object-position: 50% 30%;
+  object-position: 50% 0%;
   user-select: none;
 }
 html body .fb-landing-v2 .fb-landing-nav-brand { min-width: 0 !important; }
