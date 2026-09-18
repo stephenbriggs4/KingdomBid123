@@ -28342,11 +28342,10 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                       <h2 id="kb-marketplace-featured-projects-title">A closer look at current needs.</h2>
                       <span>Grab and drag to explore.</span>
                     </div>
-                    <div className="kb-marketplace-featured-projects__actions" aria-label="Featured project controls">
-                      <button type="button" onClick={() => scrollFeaturedCarousel(-1)} disabled={!featuredCanScrollPrev} aria-label="Scroll featured projects left">←</button>
-                      <button type="button" onClick={() => scrollFeaturedCarousel(1)} disabled={!featuredCanScrollNext} aria-label="Scroll featured projects right">→</button>
-                    </div>
                   </div>
+                  <div className="kb-rail-wrap">
+                  <button type="button" className="kb-rail-arrow is-prev" onClick={()=>scrollFeaturedCarousel(-1)} hidden={!featuredCanScrollPrev} aria-label="Scroll featured projects left"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6" /></svg></button>
+                  <button type="button" className="kb-rail-arrow is-next" onClick={()=>scrollFeaturedCarousel(1)} hidden={!featuredCanScrollNext} aria-label="Scroll featured projects right"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6" /></svg></button>
                   <div
                     ref={featuredTrackRef}
                     className={`kb-marketplace-featured-projects__rail${stripIsDragging ? ' is-dragging' : ''}`}
@@ -28398,6 +28397,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
                         </div>
                       );
                     })}
+                  </div>
                   </div>
                 </section>
               ) : null}
@@ -34607,6 +34607,21 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     return next;
   }, [vendors, matchContextProject, vendorPairSignalMaps, invitedVendorKeys]);
 
+  const [railCanPrev, setRailCanPrev] = useState(false);
+  const [railCanNext, setRailCanNext] = useState(false);
+  useEffect(() => {
+    const el = featuredRailRef.current;
+    if (!el) { setRailCanPrev(false); setRailCanNext(false); return undefined; }
+    const update = () => {
+      const max = Math.max(0, el.scrollWidth - el.clientWidth - 4);
+      setRailCanPrev(el.scrollLeft > 4);
+      setRailCanNext(el.scrollLeft < max);
+    };
+    update();
+    el.addEventListener('scroll', update, { passive:true });
+    window.addEventListener('resize', update);
+    return () => { el.removeEventListener('scroll', update); window.removeEventListener('resize', update); };
+  }, [railVendors.length, railMode, directoryLoading]);
   const scrollFeaturedRail = (direction) => {
     const rail = featuredRailRef.current;
     if (!rail) return;
@@ -35139,8 +35154,6 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                   <button type="button" className={railMode === 'newest' ? 'is-active' : ''} aria-pressed={railMode === 'newest'} onClick={() => setMarketplaceRailMode('newest')}>Newest</button>
                   <button type="button" className={railMode === 'nearby' ? 'is-active' : ''} aria-pressed={railMode === 'nearby'} disabled={!viewerHasLocation} title={!viewerHasLocation ? 'Add your church location to use Nearby' : 'Sort by distance from your church'} onClick={() => setMarketplaceRailMode('nearby')}>Nearby</button>
                 </div>
-                <button type="button" className="kb-marketplace-rail-arrow" aria-label="Scroll featured vendors left" onClick={() => scrollFeaturedRail(-1)}>←</button>
-                <button type="button" className="kb-marketplace-rail-arrow" aria-label="Scroll featured vendors right" onClick={() => scrollFeaturedRail(1)}>→</button>
               </div>
             </div>
 
@@ -35149,6 +35162,9 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
             {directoryLoading ? (
               <KBSkeleton variant="list" count={4} style={{margin:'18px 0 0'}} />
             ) : railVendors.length ? (
+              <div className="kb-rail-wrap">
+              <button type="button" className="kb-rail-arrow is-prev" onClick={()=>scrollFeaturedRail(-1)} hidden={!railCanPrev} aria-label="Scroll featured vendors left"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6" /></svg></button>
+              <button type="button" className="kb-rail-arrow is-next" onClick={()=>scrollFeaturedRail(1)} hidden={!railCanNext} aria-label="Scroll featured vendors right"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6" /></svg></button>
               <div
                 ref={featuredRailRef}
                 className="kb-marketplace-featured-projects__rail kb-marketplace-featured-rail"
@@ -35161,6 +35177,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                 onDragStart={(event) => event.preventDefault()}
               >
                 {railVendors.map((vendor, index) => renderMarketplaceVendorDirectoryCard(vendor, index, 'rail'))}
+              </div>
               </div>
             ) : (
               <div className="kb-marketplace-featured-empty" role="status">

@@ -2623,3 +2623,21 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
     transition: none;
   }
 }
+
+/* Featured rows: edge arrows centred on the card row (desktop hover), no header arrows. */
+.kb-rail-wrap { position: relative; }
+.kb-rail-arrow {
+  position: absolute; top: 50%; z-index: 6; width: 44px; height: 44px; margin-top: -22px;
+  display: grid; place-items: center; padding: 0; border-radius: 50%;
+  border: 1px solid rgba(28, 40, 20, .14); background: #fffdf8; color: #17352b;
+  box-shadow: 0 10px 24px rgba(28, 40, 20, .16); cursor: pointer;
+  opacity: 0; transition: opacity .18s ease, transform .18s ease, background .18s ease;
+}
+.kb-rail-arrow[hidden] { display: none; }
+.kb-rail-arrow svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.kb-rail-arrow.is-prev { left: -22px; }
+.kb-rail-arrow.is-next { right: -22px; }
+.kb-rail-wrap:hover .kb-rail-arrow, .kb-rail-wrap:focus-within .kb-rail-arrow { opacity: 1; }
+.kb-rail-arrow:hover { background: #fff; transform: scale(1.06); }
+.kb-rail-arrow:focus-visible { opacity: 1; outline: 2px solid #b08a3e; outline-offset: 3px; }
+@media (hover: none), (max-width: 760px) { .kb-rail-arrow { display: none !important; } }
