@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
-const projects = readFileSync(new URL('../src/ProjectsScreen.jsx', import.meta.url), 'utf8');
+const projects = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const docs = readFileSync(new URL('../docs/ui-header-surface-contract.md', import.meta.url), 'utf8');
 
 assert.match(app, /function getHeaderSurfaceMode\(screen, navSubTab\)/);

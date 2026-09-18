@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 const appSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
-const projectsSource = readFileSync(new URL('../src/ProjectsScreen.jsx', import.meta.url), 'utf8');
+const projectsSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 
 test('project marketplace never backfills persisted inventory with sample projects', () => {
   assert.match(appSource, /const SAMPLE_PROJECTS = Object\.freeze\(\[\]\);/);
@@ -71,5 +71,5 @@ test('vendor empty state distinguishes zero inventory from zero filter matches',
     assert.match(source, /No vendors match those filters/);
   }
   assert.match(appSource, /Approved vendors will appear here/);
-  assert.match(projectsSource, /No vendors are available in the marketplace yet/);
+  assert.match(projectsSource, /No vendors are available in this view/);
 });

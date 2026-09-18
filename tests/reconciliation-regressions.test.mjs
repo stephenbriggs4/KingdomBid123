@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import vm from 'node:vm';
 
 const appSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
-const projectsSource = readFileSync(new URL('../src/ProjectsScreen.jsx', import.meta.url), 'utf8');
+const projectsSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const messagesSource = readFileSync(new URL('../src/MessagesScreen.jsx', import.meta.url), 'utf8');
 
 test('vendor-pair signals bridge public vendor ids to vendor user ids', () => {

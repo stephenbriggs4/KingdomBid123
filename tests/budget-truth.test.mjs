@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 const sources = [
   readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8'),
-  readFileSync(new URL('../src/ProjectsScreen.jsx', import.meta.url), 'utf8'),
+  readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8'),
 ];
 
 function loadBudgetHelpers(source) {

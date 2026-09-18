@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 const appSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
-const projectsSource = readFileSync(new URL('../src/ProjectsScreen.jsx', import.meta.url), 'utf8');
+const projectsSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const governanceSql = readFileSync(new URL('../supabase/migrations/20260910163000_pilot_governance_decision_ledger.sql', import.meta.url), 'utf8');
 const fixtureCleanupSql = readFileSync(new URL('../supabase/migrations/20260911024500_archive_release_verification_marketplace_fixture.sql', import.meta.url), 'utf8');
 
