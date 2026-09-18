@@ -818,7 +818,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
       `}</style>
       <div className="kb-waitlist-shell kb-waitlist-landing-clean" style={{ maxWidth: 700, margin: "0 auto", padding: "18px 28px 64px" }}>
 
-        <div className="kb-waitlist-topline" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 26 }}>
+        <div className="kb-waitlist-topline" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 26, width: "100vw", maxWidth: "100vw", marginLeft: "calc(50% - 50vw)", padding: "0 clamp(18px, 3vw, 48px)", boxSizing: "border-box" }}>
           <button
             type="button"
             className="kb-waitlist-back"
@@ -845,7 +845,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           <button
             type="button"
             onClick={() => { if (typeof setAuthDefaultRole === "function") setAuthDefaultRole("login"); nav("auth"); }}
-            style={{ background: "none", border: "none", color: muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-sans), sans-serif", letterSpacing: 0.1 }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 46, padding: "0 24px", borderRadius: 999, border: "1px solid rgba(23,63,51,0.4)", background: "rgba(255,252,244,0.92)", color: "#173f33", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-sans), sans-serif", boxShadow: "0 10px 24px rgba(21,28,24,0.07)" }}
           >
             Sign in <span aria-hidden="true">&rarr;</span>
           </button>
