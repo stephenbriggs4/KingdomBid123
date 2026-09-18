@@ -1262,7 +1262,7 @@ html body .fb-landing-v2 .fb-landing-hero-wordmark {
   width: clamp(140px, 10.5vw, 175px);
   height: auto;
   aspect-ratio: 4.8 / 1;
-  margin: 10px auto 4px;
+  margin: 10px auto 12px;
   object-fit: cover;
   object-position: 50% 0%;
   user-select: none;
