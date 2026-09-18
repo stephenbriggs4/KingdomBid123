@@ -45009,7 +45009,7 @@ function AmbassadorScreen({nav, showToast = () => {}}){
               <h2 style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"#fff",lineHeight:1.1,marginBottom:20}}>Ministry students and campus leaders who get it.</h2>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 {["Bible college, seminary, or Christian university students","Campus ministry leaders (Cru, YoungLife, BCM, RUF, etc.)","Church communications, worship arts, or theology majors","Young professionals actively involved in local church ministry","Anyone who already recommends tools they love"].map((item)=>(
-                  <div key={item.label||item.text||item.title} style={{display:"flex",alignItems:"flex-start",gap:10}}>
+                  <div key={item} style={{display:"flex",alignItems:"flex-start",gap:10}}>
                     <div style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(232,224,208,0.3)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}><div style={{width:6,height:6,borderRadius:"50%",background:"var(--gold-light)"}}/></div>
                     <span style={{fontSize:13,color:"var(--atext-mid)",lineHeight:1.6,fontWeight:400}}>{item}</span>
                   </div>
@@ -45021,7 +45021,7 @@ function AmbassadorScreen({nav, showToast = () => {}}){
               {[{step:"Weekly",desc:"Post once about FaithBid on your personal social media — organic, authentic, your own voice."},
                 {step:"Monthly",desc:"Introduce FaithBid to one church or campus ministry in your network."},
                 {step:"Ongoing",desc:"Share your referral link when people ask what tools you use. That's it."}].map((item,i)=>(
-                <div key={item.label||item.title} style={{padding:"14px 0",borderBottom:i<2?"1px solid rgba(255,255,255,0.06)":"none"}}>
+                <div key={item.step} style={{padding:"14px 0",borderBottom:i<2?"1px solid rgba(255,255,255,0.06)":"none"}}>
                   <div style={{fontSize:10,fontWeight:700,color:"var(--gold-light)",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>{item.step}</div>
                   <div style={{fontSize:13,color:"var(--atext-2)",lineHeight:1.6,fontWeight:400}}>{item.desc}</div>
                 </div>
@@ -45187,7 +45187,7 @@ function PartnerScreen({nav}){
                 ? ["Complete 3+ projects on FaithBid","Display the Partner Church badge on your website","Share your experience with peer churches when asked","Provide honest feedback to help us improve"]
                 : ["Introduce FaithBid to your network authentically","Be willing to co-create one piece of content per year","Provide testimonial or case study for the platform"]
               ).map((item,i)=>(
-                <div key={item.label||item.text||item.title} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 0",borderBottom:i<3?"1px solid rgba(255,255,255,0.06)":"none"}}>
+                <div key={item} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 0",borderBottom:i<3?"1px solid rgba(255,255,255,0.06)":"none"}}>
                   <div style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(232,224,208,0.25)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}><div style={{width:6,height:6,borderRadius:"50%",background:"var(--gold-light)"}}/></div>
                   <span style={{fontSize:13,color:"var(--atext-2)",lineHeight:1.6,fontWeight:400}}>{item}</span>
                 </div>
