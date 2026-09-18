@@ -1205,11 +1205,7 @@ html body #root footer.fb-public-footer-v2 .fb-public-footer-v2__nav button { co
 .fb-landing-v2 .kb-landing-glimpse { background: #fff; }
 .kb-landing-glimpse__halo { display: none; }
 
-/* How It Works: beige clay background (same texture as Faith Verified). */
+/* How It Works: faint, simple beige. */
 html body .fb-landing-v2 section.fb-how-it-works {
-  background-color: #eee6d9 !important;
-  background-image: linear-gradient(rgba(255, 253, 248, .12), rgba(255, 253, 248, .12)), url("/textures/kb852bf-beige-texture-current.jpg") !important;
-  background-position: center top !important;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
+  background: #f8f4ec !important;
 }
