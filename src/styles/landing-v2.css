@@ -1291,3 +1291,41 @@ html body .fb-landing-v2 .fb-landing-nav-brand { min-width: 0 !important; }
   .kb-audience--vendor .kb-audience__steps { order: 1; padding: 2px clamp(24px, 3.4vw, 52px) 2px 0; border-left: 0; border-right: 1px solid rgba(18, 55, 45, .14); }
   .kb-audience--vendor .kb-audience__copy { order: 2; padding-right: 0; padding-left: clamp(24px, 3.4vw, 52px); }
 }
+
+/* Primary access button: richer green, inset highlight, arrow chip that nudges on hover. */
+html body .fb-landing-v2 .fb-landing-cta-primary,
+html body .fb-landing-v2 .kb-audience__cta:not(.is-secondary) {
+  position: relative;
+  gap: 18px;
+  border: 1px solid #0f3126;
+  background: linear-gradient(180deg, #24604d 0%, #173f33 55%, #112f26 100%);
+  color: #fffdf8;
+  letter-spacing: .01em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -1px 0 rgba(0, 0, 0, .18), 0 1px 2px rgba(15, 49, 38, .3), 0 14px 28px -8px rgba(18, 55, 45, .42);
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+html body .fb-landing-v2 .fb-landing-cta-primary > span:last-child,
+html body .fb-landing-v2 .kb-audience__cta:not(.is-secondary) > span:last-child {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-right: -8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .14);
+  font-size: 15px;
+  line-height: 1;
+  transition: transform .18s ease, background .18s ease;
+}
+html body .fb-landing-v2 .fb-landing-cta-primary:hover,
+html body .fb-landing-v2 .kb-audience__cta:not(.is-secondary):hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .26), inset 0 -1px 0 rgba(0, 0, 0, .18), 0 2px 4px rgba(15, 49, 38, .3), 0 20px 34px -8px rgba(18, 55, 45, .5);
+}
+html body .fb-landing-v2 .fb-landing-cta-primary:hover > span:last-child,
+html body .fb-landing-v2 .kb-audience__cta:not(.is-secondary):hover > span:last-child { transform: translateX(3px); background: rgba(255, 255, 255, .22); }
+html body .fb-landing-v2 .fb-landing-cta-primary:active,
+html body .fb-landing-v2 .kb-audience__cta:not(.is-secondary):active { transform: translateY(0); filter: none; }
+html body .fb-landing-v2 .fb-landing-cta-primary:focus-visible,
+html body .fb-landing-v2 .kb-audience__cta:focus-visible { outline: 2px solid #c9a24a; outline-offset: 3px; }
