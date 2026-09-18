@@ -1464,3 +1464,27 @@ html body #root footer.fb-public-footer-v2 { padding-top: 40px !important; }
   .fb-foot__brand { margin-bottom: 10px; }
   .fb-foot__legal { margin-bottom: 14px; }
 }
+
+/* Footer modeled on a standard institutional layout: logo top-left, copyright bottom-left, equal link columns, everything top-aligned on one line. */
+@media (min-width: 901px) {
+  html body #root footer.fb-public-footer-v2 { padding: 44px clamp(26px, 3vw, 56px) 34px !important; }
+  html body #root footer.fb-public-footer-v2 .fb-foot {
+    display: grid !important;
+    grid-template-columns: minmax(200px, 1.2fr) repeat(3, minmax(130px, 1fr)) minmax(300px, 2fr) !important;
+    grid-template-rows: auto !important;
+    column-gap: clamp(24px, 3vw, 56px) !important;
+    align-items: start !important;
+  }
+  html body #root footer.fb-public-footer-v2 .fb-foot__top,
+  html body #root footer.fb-public-footer-v2 .fb-foot__nav { display: contents !important; }
+  html body #root footer.fb-public-footer-v2 .fb-foot__brand { grid-column: 1; grid-row: 1; align-self: start !important; margin: 0 !important; padding: 0 !important; }
+  html body #root footer.fb-public-footer-v2 .fb-foot__bar { grid-column: 1; grid-row: 1; align-self: end !important; margin: 0 !important; padding: 0 !important; border: 0 !important; }
+  html body #root footer.fb-public-footer-v2 .fb-foot__group { grid-row: 1; padding: 0 !important; margin: 0 !important; }
+  html body #root footer.fb-public-footer-v2 .fb-foot__group:nth-of-type(1) { grid-column: 2; }
+  html body #root footer.fb-public-footer-v2 .fb-foot__group:nth-of-type(2) { grid-column: 3; }
+  html body #root footer.fb-public-footer-v2 .fb-foot__group:nth-of-type(3) { grid-column: 4; }
+  html body #root footer.fb-public-footer-v2 .fb-foot__legal { grid-column: 5; grid-row: 1; align-self: start !important; margin: 0 !important; padding: 0 !important; border: 0 !important; grid-template-columns: 1fr !important; gap: 10px !important; }
+  html body #root footer.fb-public-footer-v2 .fb-foot__group .fb-public-footer-v2__nav-title { margin: 0 0 14px !important; }
+  html body #root footer.fb-public-footer-v2 .fb-foot__group ul { gap: 9px !important; }
+  html body #root footer.fb-public-footer-v2 .fb-foot__brand .kb-brand-logo { height: 46px !important; }
+}
