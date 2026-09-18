@@ -1059,11 +1059,11 @@ html body .fb-landing-v2 .fb-landing-hero::after {
 html body .fb-landing-v2 .fb-landing-hero-body { transform: translateY(-40px) !important; }
 
 html body .fb-landing-v2 .fb-landing-nav-brand .kb-brand-logo-full {
-  height: 28px !important;
+  height: 33px !important;
   width: 146px !important;
   max-width: 146px !important;
   object-fit: cover !important;
-  object-position: 50% 35% !important;
+  object-position: 50% 10% !important;
 }
 html body .fb-landing-v2 .fb-landing-nav-brand { min-width: 0 !important; }
 html body .fb-landing-v2 .fb-landing-nav-links { gap: clamp(14px, 2.2vw, 34px); }
