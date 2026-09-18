@@ -27301,10 +27301,13 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   const featuredBrowseProjects = featuredThemeBuckets[resolvedTheme] || [];
   const browseGridSource = filteredProjects;
   const featuredProjectRows = useMemo(() => {
-    const source = marketplaceDevPreview ? filteredProjects : featuredBrowseProjects;
+    // Follows the active search/category/sort like the All projects grid; the themed bucket picks lead and the remaining matches fill in so the rail stays put.
+    const bucketIds = new Set(safeArray(featuredBrowseProjects).map(p => String(p?.id)));
+    const matches = safeArray(filteredProjects);
+    const source = marketplaceDevPreview ? matches : [...matches.filter(p => bucketIds.has(String(p?.id))), ...matches.filter(p => !bucketIds.has(String(p?.id)))];
     return safeArray(source).slice(0, 9);
   }, [marketplaceDevPreview, filteredProjects, featuredBrowseProjects]);
-  const showFeaturedProjectRail = !hasBrowseRefinements && featuredProjectRows.length >= 4;
+  const showFeaturedProjectRail = featuredProjectRows.length >= 1;
 
   const updateFeaturedCarouselState = () => {
     const el = featuredTrackRef.current;
@@ -34324,11 +34327,13 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   }, [vendors, debouncedSearch, category, sortBy]);
 
   const railVendors = useMemo(() => {
+    // The rail follows the active search/category exactly like the directory below. Curated picks lead; the best-scoring matches fill in so the rail never vanishes while the directory still has results.
     const list = [...filteredVendors];
     if (railMode === 'featured') {
-      return list
-        .filter(vendor => curationByVendorId.has(String(vendor?.id || '')))
-        .sort((a, b) => (Number(curationByVendorId.get(String(a.id))?.featured_rank) || 100) - (Number(curationByVendorId.get(String(b.id))?.featured_rank) || 100));
+      const rank = vendor => Number(curationByVendorId.get(String(vendor?.id || ''))?.featured_rank) || 100;
+      const curated = list.filter(vendor => curationByVendorId.has(String(vendor?.id || ''))).sort((a, b) => rank(a) - rank(b));
+      const rest = list.filter(vendor => !curationByVendorId.has(String(vendor?.id || '')));
+      return [...curated, ...rest].slice(0, 10);
     }
     if (railMode === 'newest') {
       return list.sort((a, b) => new Date(b?.raw?.created_at || b?.created_at || 0) - new Date(a?.raw?.created_at || a?.created_at || 0));
