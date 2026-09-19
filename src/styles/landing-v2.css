@@ -1560,3 +1560,4 @@ html body .fb-landing-v2 .fb-landing-hero-wordmark {
   -webkit-mask-position: 50% 0; mask-position: 50% 0;
 }
 html body .fb-landing-v2 .fb-landing-hero-wordmark { background-color: #102f2b; }
+html body .fb-landing-v2 .fb-landing-hero-wordmark { width: clamp(195px, 15vw, 265px); }
