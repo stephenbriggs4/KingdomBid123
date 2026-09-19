@@ -1551,3 +1551,11 @@ html body .fb-landing-v2 .fb-how-step:not(:last-child)::before {
 @media (max-width: 900px) {
   html body .fb-landing-v2 .fb-how-step:not(:last-child)::after, html body .fb-landing-v2 .fb-how-step:not(:last-child)::before { display: none; }
 }
+
+/* Hero wordmark in the same gold as the eyebrow (the logo is used as a mask so the colour is exact). */
+html body .fb-landing-v2 .fb-landing-hero-wordmark {
+  background-color: #704b14; filter: none;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-size: 100% auto; mask-size: 100% auto;
+  -webkit-mask-position: 50% 0; mask-position: 50% 0;
+}
