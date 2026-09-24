@@ -30,6 +30,26 @@ if (supabaseQaMode && supabaseProjectRef === FAITHBID_PRODUCTION_PROJECT_REF) {
   )
 }
 
+// Identical REST reads that are in flight at the same moment share one network call.
+// Nothing is cached after the response lands, so data is never stale.
+const inflightReads = new Map()
+function dedupedFetch(input, init = {}) {
+  const method = String(init.method || (typeof input !== "string" && input?.method) || "GET").toUpperCase()
+  const url = typeof input === "string" ? input : input?.url
+  if ((method !== "GET" && method !== "HEAD") || !url || !url.includes("/rest/v1/") || init.signal) {
+    return fetch(input, init)
+  }
+  const headers = init.headers instanceof Headers ? Object.fromEntries(init.headers.entries()) : { ...(init.headers || {}) }
+  const key = method + " " + url + " " + JSON.stringify(Object.entries(headers).map(([k, v]) => [k.toLowerCase(), v]).sort())
+  const pending = inflightReads.get(key)
+  if (pending) return pending.then((res) => res.clone())
+  const request = fetch(input, init)
+  inflightReads.set(key, request)
+  const clear = () => { if (inflightReads.get(key) === request) inflightReads.delete(key) }
+  request.then(clear, clear)
+  return request.then((res) => res.clone())
+}
+
 const existingBrowserClient = typeof window !== 'undefined'
   ? window.__FAITHBID_SUPABASE_CLIENT__
   : null
@@ -39,7 +59,7 @@ const existingBrowserProjectRef = typeof window !== 'undefined'
 
 export const supabase = existingBrowserClient && existingBrowserProjectRef === supabaseProjectRef
   ? existingBrowserClient
-  : createClient(supabaseUrl, supabaseAnonKey)
+  : createClient(supabaseUrl, supabaseAnonKey, { global: { fetch: dedupedFetch } })
 
 // Vite can re-evaluate this module during hot updates while the prior Auth
 // client is still subscribed. Keep one client per browser page so both clients

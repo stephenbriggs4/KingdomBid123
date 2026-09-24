@@ -11,6 +11,7 @@
     "test:public-entry": "node tests/public-entry-ux.test.mjs",
     "test:pilot-contract": "node tests/pilot-taxonomy-budget.test.mjs",
     "test:workspace-truth": "node tests/workspace-truth.test.mjs",
+    "test:hardening": "node tests/faithbid-hardening.test.mjs",
     "test:vendor-stage-language": "node tests/vendor-stage-language.test.mjs",
     "test:vendor-directory-boundary": "node tests/vendor-directory-boundary.test.mjs",
     "test:fixture-cleanup-contract": "node tests/fixture-cleanup-contract.test.mjs",
@@ -53,8 +54,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.23",
+    "@radix-ui/react-dropdown-menu": "^2.1.24",
+    "@radix-ui/react-tabs": "^1.1.21",
     "@sentry/react": "^10.51.0",
     "@supabase/supabase-js": "2.112.4",
+    "@tanstack/react-table": "8.21.3",
+    "clsx": "^2.1.1",
+    "pptxgenjs": "^4.0.1",
+    "qrcode": "^1.5.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

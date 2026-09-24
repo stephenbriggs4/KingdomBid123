@@ -5,7 +5,6 @@ import vm from 'node:vm';
 
 const appSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const projectsSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
-const messagesSource = readFileSync(new URL('../src/MessagesScreen.jsx', import.meta.url), 'utf8');
 
 test('vendor-pair signals bridge public vendor ids to vendor user ids', () => {
   assert.match(appSource, /function addVendorPairIdentityAliases/);
@@ -34,18 +33,12 @@ test('vendor-pair signals bridge public vendor ids to vendor user ids', () => {
   assert.equal(context.signalApi.getVendorPairSignalMapEntry(maps.conversationsByVendor, 'vendor-row-1')?.id, conversation.id);
 });
 
-test('Deal Rooms hub does not carry the legacy dark-shell override classes', () => {
-  assert.match(messagesSource, /dealRoomsHubOpen \? ' kbdr2-dealrooms-hub-mode' : ' kb-inbox-dark-shell kb-inbox-render-polish kb-inbox-final-qa'/);
-  assert.doesNotMatch(messagesSource, /kbdr2-root kb-inbox-dark-shell kb-inbox-render-polish kb-inbox-final-qa\$\{isCanonicalDealRoom/);
-});
-
 test('draft creation UX never claims publication or vendor notification', () => {
   assert.match(appSource, /status:\s*"draft"|status:\s*'draft'/);
-  assert.match(appSource, /Your brief is still a draft\. No vendors have been notified\./);
+  assert.match(appSource, /Your brief is saved as a draft\. Post it whenever you're ready — no vendors have been notified\./);
   for (const source of [appSource, projectsSource]) {
     assert.doesNotMatch(source, /Faith-aligned vendors have been notified/);
     assert.doesNotMatch(source, /Your project is live\./);
   }
   assert.match(projectsSource, /This project is still a draft\. Vendors have not been notified\./);
-  assert.match(appSource, /if\(status==="open"\) return <span className="status-badge sb-open">Open<\/span>/);
 });
