@@ -9,7 +9,6 @@ import clsx from "clsx";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import * as Tabs from "@radix-ui/react-tabs";
-import { flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
 import QRCode from "qrcode";
 import { renderToStaticMarkup } from "react-dom/server";
 import { clearPendingWaitlistInvitationContext, loadPendingWaitlistInvitationContext, normalizeWaitlistInvitationRole, restorePendingWaitlistInvitationRoute } from "./waitlistInvitationContext";
@@ -40771,73 +40770,6 @@ function TabBar({ tabs, value, onValueChange }) {
 		})
 	});
 }
-function DataTable({ columns, data, searchPlaceholder = "Search…", onRowClick, empty, toolbar, nouns = ["result", "results"] }) {
-	const [filter, setFilter] = useState("");
-	const [sorting, setSorting] = useState([]);
-	const table = useReactTable({
-		data,
-		columns,
-		state: {
-			globalFilter: filter,
-			sorting
-		},
-		onGlobalFilterChange: setFilter,
-		onSortingChange: setSorting,
-		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getSortedRowModel: getSortedRowModel()
-	});
-	const rows = table.getRowModel().rows;
-	return /* @__PURE__ */ jsxs("div", { className: "churchos-data-table", children: [/* @__PURE__ */ jsxs("div", {
-		className: "mb-3 flex flex-wrap items-center gap-3",
-		children: [
-			/* @__PURE__ */ jsx("input", {
-				value: filter,
-				onChange: (e) => setFilter(e.target.value),
-				placeholder: searchPlaceholder,
-				"aria-label": "Search",
-				className: "h-10 w-full max-w-xs rounded-[10px] border border-line bg-surface px-3 text-sm outline-none focus:border-gold"
-			}),
-			toolbar,
-			/* @__PURE__ */ jsxs("span", {
-				className: "ml-auto text-sm text-muted",
-				children: [
-					rows.length,
-					" ",
-					rows.length === 1 ? nouns[0] : nouns[1]
-				]
-			})
-		]
-	}), rows.length === 0 ? empty || /* @__PURE__ */ jsx(EmptyState, { title: "Nothing here yet" }) : /* @__PURE__ */ jsx("div", {
-		className: "overflow-hidden rounded-card border border-line bg-surface",
-		children: /* @__PURE__ */ jsxs("table", {
-			className: "w-full text-sm",
-			children: [/* @__PURE__ */ jsx("thead", {
-				className: "bg-canvas text-left text-xs uppercase tracking-wide text-muted",
-				children: table.getHeaderGroups().map((hg) => /* @__PURE__ */ jsx("tr", { children: hg.headers.map((h) => /* @__PURE__ */ jsxs("th", {
-					className: "cursor-pointer select-none px-4 py-2.5 font-semibold",
-					onClick: h.column.getToggleSortingHandler(),
-					"aria-sort": {
-						asc: "ascending",
-						desc: "descending"
-					}[h.column.getIsSorted()] || "none",
-					children: [flexRender(h.column.columnDef.header, h.getContext()), {
-						asc: " ↑",
-						desc: " ↓"
-					}[h.column.getIsSorted()] || ""]
-				}, h.id)) }, hg.id))
-			}), /* @__PURE__ */ jsx("tbody", { children: rows.map((r) => /* @__PURE__ */ jsx("tr", {
-				onClick: () => onRowClick?.(r.original),
-				className: "cursor-pointer border-t border-line hover:bg-canvas",
-				children: r.getVisibleCells().map((c) => /* @__PURE__ */ jsx("td", {
-					className: "px-4 py-2",
-					children: flexRender(c.column.columnDef.cell, c.getContext())
-				}, c.id))
-			}, r.id)) })]
-		})
-	})] });
-}
-
 //#endregion
 //#region src/modules/week/schedule.js
 const call$6 = async (fn, args) => {
