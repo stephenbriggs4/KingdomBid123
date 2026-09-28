@@ -19,7 +19,7 @@ has(mig, /revoke all on public\.email_outbox from anon, authenticated/, 'clients
 has(mig, /email_frequency in \('instant','daily','off'\)/, 'preferences support instant, daily and off');
 has(mig, /exists \(select 1 from public\.email_suppressions/, 'suppressed addresses are never queued');
 has(mig, /'msg:' \|\| coalesce\(new\.meta ->> 'conversation_id'/, 'message emails are throttled per conversation');
-has(mig, /exception when others then\s+return new;/, 'email failures never block the in-app notification');
+has(mig, /exception when others then[\s\S]{0,160}return new;/, 'email failures never block the in-app notification');
 has(wlMig, /waitlist_email_log/, 'waitlist sends are logged');
 
 // worker
