@@ -22858,7 +22858,7 @@ const APP_PROJECT_SUBTAB_BY_ROUTE = Object.freeze({
   "vendors": "vendors",
 });
 const APP_HASH_ROUTES = Object.freeze([
-  "landing","church-os","projects","my-projects","my-work","vendors","vendor","get-plugged-in","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","pricing","admin","settings","about","help","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
+  "landing","church-os","projects","my-projects","my-work","vendors","vendor","get-plugged-in","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","pricing","admin","settings","about","help","unsubscribe","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
 ]);
 const APP_HASH_ROUTE_SET = new Set(APP_HASH_ROUTES);
 
@@ -35836,6 +35836,7 @@ const OnboardingScreen = React.lazy(() => import("./AccountScreens.jsx").then(mo
 const ResetPasswordScreen = React.lazy(() => import("./AccountScreens.jsx").then(module => ({ default: module.ResetPasswordScreenRoute })));
 const GetPluggedInRoute = React.lazy(() => import("./GetPluggedInScreen.jsx"));
 const WaitlistFlow = React.lazy(() => import("./WaitlistScreen.jsx"));
+const UnsubscribeScreen = React.lazy(() => import("./UnsubscribeScreen.jsx"));
 const WaitlistInvitationScreen = React.lazy(() => import("./WaitlistInvitationScreen.jsx"));
 function KBLazyScreenFallback({ label }) {
   return <div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>{label}</div>;
@@ -56514,6 +56515,7 @@ export default function App() {
       settings: 'Settings — FaithBid',
       about: 'About — FaithBid',
       help: 'Help & FAQ — FaithBid',
+      unsubscribe: 'Email preferences — FaithBid',
       privacy: 'Privacy — FaithBid',
       terms: 'Terms — FaithBid',
       activity: 'Activity — FaithBid',
@@ -58157,6 +58159,7 @@ export default function App() {
         {screen==="privacy"   && <PublicPolicyUnderReviewScreen nav={nav} type="privacy"/>}
         {screen==="terms"     && <PublicPolicyUnderReviewScreen nav={nav} type="terms"/>}
         {screen==="help"      && <HelpModal asPage role={role} onClose={()=>nav?.("landing")}/>}
+        {screen==="unsubscribe" && <React.Suspense fallback={null}><UnsubscribeScreen nav={nav}/></React.Suspense>}
         {screen==="ambassador"&& <AmbassadorScreen nav={nav} showToast={showToast}/>}
         {screen==="partner"   && <PartnerScreen nav={nav}/>}
         {screen==="join"      && <JoinScreen nav={nav} setAuthDefaultRole={setAuthDefaultRole}/>}
@@ -58166,7 +58169,7 @@ export default function App() {
         </PlatformScreenShell>
         </ScreenBoundary>
         {showPublicLegalFooter && <PublicLegalFooter compact={compactPublicLegalFooter} nav={nav} screen={screen} />}
-        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","church-os","projects","vendor","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","settings","about","help","privacy","terms","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
+        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","church-os","projects","vendor","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","settings","about","help","unsubscribe","privacy","terms","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
           <div style={{minHeight:"80vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px",animation:"fadeUp 0.4s ease"}}>
             <div style={{fontFamily:"var(--font-display),serif",fontSize:72,fontWeight:700,color:"var(--navy)",opacity:0.08,lineHeight:1,marginBottom:24}}>404</div>
             <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"var(--navy)",marginBottom:10}}>Page not found</div>

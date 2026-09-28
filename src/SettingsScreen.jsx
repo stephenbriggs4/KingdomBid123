@@ -134,6 +134,8 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
   const [notifs, setNotifs] = useState({
     newBid: true, bidAccepted: true, newMessage: true, projectUpdate: false, newsletter: false,
   });
+  const [emailEnabled, setEmailEnabled] = useState(true);
+  const [emailFrequency, setEmailFrequency] = useState("instant");
   const [notifSaving, setNotifSaving] = useState(false);
   const [notifPrefsAvailable, setNotifPrefsAvailable] = useState(true);
   const [notifPrefsChecked, setNotifPrefsChecked] = useState(false);
@@ -144,7 +146,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
     if (!currentUser?.id) return;
     let cancelled = false;
     setNotifPrefsChecked(false);
-    supabase.from("notification_prefs").select("user_id,new_bid,bid_accepted,new_message,project_update,newsletter").eq("user_id", currentUser.id).maybeSingle()
+    supabase.from("notification_prefs").select("user_id,new_bid,bid_accepted,new_message,project_update,newsletter,email_enabled,email_frequency").eq("user_id", currentUser.id).maybeSingle()
       .then(({ data, error }) => {
         if (cancelled) return;
         setNotifPrefsChecked(true);
@@ -161,6 +163,10 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
           projectUpdate: data.project_update ?? false,
           newsletter: data.newsletter ?? false,
         });
+        if (data) {
+          setEmailEnabled(data.email_enabled ?? true);
+          setEmailFrequency(["instant", "daily", "off"].includes(data.email_frequency) ? data.email_frequency : "instant");
+        }
       })
       .catch(err => {
         if (!cancelled) {
@@ -184,6 +190,8 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
         new_message: notifs.newMessage,
         project_update: notifs.projectUpdate,
         newsletter: notifs.newsletter,
+        email_enabled: emailEnabled && emailFrequency !== "off",
+        email_frequency: emailFrequency,
         updated_at: new Date().toISOString(),
       };
       const { error } = await supabase.from("notification_prefs").upsert(row, { onConflict: "user_id" });
@@ -441,7 +449,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                 <div style={sx.panelEyebrow}>Preferences</div>
                 <div style={sx.panelTitle}>Notifications</div>
               </div>
-              <span style={sx.panelMeta}>In-app live · email before launch</span>
+              <span style={sx.panelMeta}>In-app live · email settings saved</span>
             </div>
             <div style={sx.panelBody}>
               {!notifPrefsAvailable && notifPrefsChecked && (
@@ -467,8 +475,18 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                   </button>
                 </div>
               ))}
+              <div style={{marginTop:18,paddingTop:16,borderTop:"1px solid #f0e9d9",opacity:notifPrefsAvailable?1:0.58}}>
+                <div style={{fontSize:13.5,fontWeight:600,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif"}}>Email me about the items above</div>
+                <div style={{fontSize:12,color:"#7d7363",margin:"3px 0 10px",lineHeight:1.45}}>Choose how often FaithBid emails you. You can always see everything in the app.</div>
+                <label htmlFor="settings-email-frequency" style={{position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0 0 0 0)"}}>Email frequency</label>
+                <select id="settings-email-frequency" value={emailEnabled ? emailFrequency : "off"} disabled={!notifPrefsAvailable} onChange={e=>{ const value = e.target.value; setEmailFrequency(value); setEmailEnabled(value !== "off"); }} style={{padding:"10px 12px",borderRadius:10,border:"1px solid #dfd5c2",background:"#fff",fontSize:13.5,fontFamily:"var(--font-sans),sans-serif"}}>
+                  <option value="instant">Send each one as it happens</option>
+                  <option value="daily">One daily summary</option>
+                  <option value="off">Do not email me</option>
+                </select>
+              </div>
               <div style={{...sx.infoBlock,marginTop:18,marginBottom:0}}>
-                <strong style={{color:"#1C2814",fontWeight:700}}>In-app notifications are live.</strong> Email alerts will be added before launch.
+                <strong style={{color:"#1C2814",fontWeight:700}}>In-app notifications are live.</strong> Email delivery starts when FaithBid’s email service is switched on. Your choices here are saved now and every email includes an unsubscribe link.
               </div>
               <div style={{marginTop:18}}>
                 <button type="button" className="kb-settings-primary" style={{...sx.btnPrimary,opacity:(notifSaving||!notifPrefsAvailable)?0.6:1,cursor:notifSaving?"wait":(!notifPrefsAvailable?"not-allowed":"pointer")}} onClick={saveNotifs} disabled={notifSaving||!notifPrefsAvailable}>

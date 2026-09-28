@@ -12,6 +12,8 @@ const supabaseAnonKey = String(
   || fallbackSupabaseAnonKey,
 ).trim()
 
+export { supabaseUrl, supabaseAnonKey }
+
 const projectRefFromUrl = (url) => {
   try {
     return new URL(url).hostname.split('.')[0] || ''
