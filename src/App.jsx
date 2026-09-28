@@ -24231,7 +24231,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
       hireInFlightRef.current = false;
     }
   };
-  const handleDeclineBid = async (bidId) => {
+  const handleDeclineBid = async (bidId, declineReason = null) => {
     const bid = bids.find(b => b.id === bidId);
     if (!bid) return;
     if (!canManageProjectWithRole(role, currentUser, selectedProject || selectedProjectFallback || {})) {
@@ -24240,7 +24240,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
     }
     setBids(b=>b.map(x=>x.id===bidId?{...x,declined:true}:x));
     try {
-      let { error } = await supabase.rpc("faithbid_bidding_decline_bid_v1", { p_bid_id:bidId });
+      let { error } = await supabase.rpc("faithbid_bidding_decline_bid_v1", { p_bid_id:bidId, p_reason: typeof declineReason === "string" && declineReason.trim() ? declineReason.trim() : null });
       if (error && isMissingBiddingV2Function(error)) {
         ({ error } = await supabase.rpc("marketplace_service_mutate_bid", { p_bid_id:bidId, p_action:"decline" }));
       }
@@ -29805,6 +29805,12 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
               </div>
               {(bid.cover_letter || bid.note) ? <p>{bid.cover_letter || bid.note}</p> : null}
               {bid?.id ? <BidAttachmentList bidId={bid.id} canEdit={isPending} userId={currentUser?.id} showToast={showToast} heading="Your attachments" /> : null}
+              {(bid.status === 'declined' || bid.declined) ? (
+                <div role="note" style={{margin:'10px 0',padding:'10px 12px',borderRadius:10,background:'#fbf6ec',border:'1px solid #ecdcb8',fontSize:13,lineHeight:1.6,color:'#4a4030'}}>
+                  <strong>This proposal was not selected.</strong>{bid.decline_reason ? <> The church said: &ldquo;{bid.decline_reason}&rdquo;</> : ' The church did not add a reason.'}
+                  <div style={{marginTop:6,color:'#6b5f45'}}>Next step: browse other open projects that match your services, or message the church if you would like feedback.</div>
+                </div>
+              ) : null}
               {editingBid?.id === bid.id ? (
                 <div className="kb1004-edit-proposal">
                   <label><span>Amount</span><input type="text" inputMode="decimal" value={editingBid.amount} onChange={e=>setEditingBid(prev=>({...prev,amount:e.target.value}))}/></label>
@@ -30573,9 +30579,9 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
     if (typeof onAccept !== 'function') { showToast && showToast('Hire action is unavailable right now.'); return; }
     return onAccept(bidId);
   };
-  const safeDecline = async (bidId) => {
+  const safeDecline = async (bidId, reason) => {
     if (typeof onDecline !== 'function') { showToast && showToast('Decline action is unavailable right now.'); return; }
-    return onDecline(bidId);
+    return onDecline(bidId, reason);
   };
 
   const hired  = safeBids.find(b=>b.hired||b.status==="hired");
@@ -31085,7 +31091,8 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
         body="The vendor will be notified. This cannot be undone."
         confirmLabel="Yes, Decline"
         danger
-        onConfirm={async()=>{ await safeDecline(confirmDecline); setConfirmDecline(null); }}
+        reasonLabel="Reason for the vendor (optional)"
+        onConfirm={async(reason)=>{ await safeDecline(confirmDecline, reason); setConfirmDecline(null); }}
         onCancel={()=>setConfirmDecline(null)}
       />}
       {confirmDeclineAll && <ConfirmModal
@@ -31908,7 +31915,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     try {
       const { data, error } = await supabase
         .from('bids')
-        .select('id,amount,timeline,cover_letter,milestones,status,submitted_at,updated_at')
+        .select('id,amount,timeline,cover_letter,milestones,status,submitted_at,updated_at,decline_reason')
         .eq('project_id', project.id)
         .eq('vendor_id', currentUser.id)
         .order('created_at', { ascending:false })
@@ -32993,6 +33000,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
                     <span style={{fontSize:10.5,fontWeight:800,textTransform:'uppercase',letterSpacing:'.06em',padding:'4px 10px',borderRadius:999,background: myProposal.status==='declined'?'rgba(197,48,48,.1)':myProposal.status==='hired'?'rgba(47,133,90,.12)':'rgba(43,108,176,.1)',color: myProposal.status==='declined'?'#c53030':myProposal.status==='hired'?'#2f855a':'#2b6cb0'}}>{myProposal.status==='under_review'?'Under review':myProposal.status}</span>
                   </div>
                   <div style={{fontSize:12.5,color:'#59625e'}}>Timeline: {myProposal.timeline || 'Not specified'}</div>
+                  {myProposal.status === 'declined' ? <div role="note" style={{fontSize:12.5,lineHeight:1.55,color:'#4a4030',padding:'10px 12px',background:'#fbf6ec',borderRadius:8,border:'1px solid #ecdcb8'}}>Not selected. {myProposal.decline_reason ? <>The church said: &ldquo;{myProposal.decline_reason}&rdquo;</> : 'The church did not add a reason.'}</div> : null}
                   {myProposal.cover_letter && <div style={{fontSize:12.5,lineHeight:1.55,color:'#394a43',padding:'10px 12px',background:'#fbfaf6',borderRadius:8,border:'1px solid rgba(16,38,31,.08)'}}>{myProposal.cover_letter}</div>}
                   <div style={{fontSize:10.5,color:'#909792'}}>Submitted {myProposal.submitted_at ? new Date(myProposal.submitted_at).toLocaleDateString() : '—'}</div>
                 </div>
@@ -64744,7 +64752,18 @@ function VendorWinModal({project, church, amount, onClose, onMessage}){
    CONFIRM ACTION MODAL // replaces window.confirm
 ══════════════════════════════════ */
 
-function ConfirmModal({title, body, confirmLabel="Confirm", danger=false, onConfirm, onCancel}){
+const DECLINE_REASON_PRESETS = [
+  "Budget did not fit",
+  "Timeline did not fit",
+  "We chose a vendor with closer experience",
+  "The project changed or is on hold",
+  "Other",
+];
+
+function ConfirmModal({title, body, confirmLabel="Confirm", danger=false, onConfirm, onCancel, reasonLabel=null}){
+  const [reasonPreset, setReasonPreset] = useState("");
+  const [reasonNote, setReasonNote] = useState("");
+  const buildReason = () => [reasonPreset, reasonNote.trim()].filter(Boolean).join(": ").slice(0, 500);
   const confirmBtnRef = React.useRef(null);
 
   // Restore focus to the previously focused element when modal closes.
@@ -64769,9 +64788,19 @@ function ConfirmModal({title, body, confirmLabel="Confirm", danger=false, onConf
     <div role="dialog" aria-modal="true" aria-label="Confirm action" style={{position:"fixed",inset:0,background:"rgba(10,15,8,0.7)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9100,padding:"20px",backdropFilter:"blur(4px)"}}>
       <div style={{background:"#fff",borderRadius:18,width:"100%",maxWidth:400,padding:"32px 28px",animation:"fadeUp 0.2s ease",boxShadow:"0 24px 60px rgba(0,0,0,0.2)"}}>
         <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:10}}>{title}</div>
-        <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,marginBottom:24}}>{body}</div>
+        <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,marginBottom:reasonLabel?14:24}}>{body}</div>
+        {reasonLabel ? (
+          <div style={{display:"grid",gap:8,marginBottom:22}}>
+            <label htmlFor="kb-confirm-reason" style={{fontSize:12,fontWeight:700,color:"var(--navy)"}}>{reasonLabel}</label>
+            <select id="kb-confirm-reason" value={reasonPreset} onChange={e=>setReasonPreset(e.target.value)} style={{padding:"10px 12px",borderRadius:10,border:"1px solid var(--border)",fontSize:13}}>
+              <option value="">No reason given</option>
+              {DECLINE_REASON_PRESETS.map(option=><option key={option} value={option}>{option}</option>)}
+            </select>
+            <textarea aria-label="Add a note for the vendor (optional)" value={reasonNote} onChange={e=>setReasonNote(e.target.value.slice(0,300))} rows={3} maxLength={300} placeholder="Add a short note for the vendor (optional)" style={{padding:"10px 12px",borderRadius:10,border:"1px solid var(--border)",fontSize:13,fontFamily:"inherit"}} />
+          </div>
+        ) : null}
         <div style={{display:"flex",gap:10}}>
-          <button ref={confirmBtnRef} type="button" onClick={onConfirm} style={{flex:1,padding:"12px",background:danger?"var(--danger)":"var(--navy)",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>{confirmLabel}</button>
+          <button ref={confirmBtnRef} type="button" onClick={reasonLabel ? (() => onConfirm(buildReason())) : onConfirm} style={{flex:1,padding:"12px",background:danger?"var(--danger)":"var(--navy)",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>{confirmLabel}</button>
           <button type="button" onClick={onCancel} className="btn-secondary" style={{padding:"12px 18px"}}>Cancel</button>
         </div>
       </div>
