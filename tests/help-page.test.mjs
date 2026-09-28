@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 const src = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const has = (re, message) => assert.ok(re.test(src), message);
 
-has(/"about","help","privacy","terms","activity"/, '#help is a registered route (not a 404)');
+has(/"about","help","unsubscribe","privacy","terms","activity"/, '#help is a registered route (not a 404)');
 has(/screen==="help"\s+&& <HelpModal asPage/, 'help route renders the Help & FAQ page');
 has(/help: 'Help & FAQ — FaithBid'/, 'help has its own document title');
 has(/privacy: 'Privacy — FaithBid'/, 'privacy has its own document title');
