@@ -62453,7 +62453,8 @@ function AuthPrimaryBtn({ onClick, disabled = false, children }) {
   );
 }
 
-function AuthFloatingField({ label, type = 'text', value, onChange, selectedRole = 'church' }) {
+function AuthFloatingField({ label, type = 'text', value, onChange, selectedRole = 'church', autoComplete, required = false }) {
+  const fieldId = React.useId();
   const baseStyle = {width:'100%',minHeight:54,padding:type === 'textarea' ? '16px 16px 14px' : '0 16px',borderRadius:12,border:'1px solid rgba(255,255,255,0.10)',background:'rgba(255,255,255,0.04)',fontSize:14,color:'#fff',fontFamily:"var(--font-sans),sans-serif",outline:'none'};
   const selectOptions = selectedRole === 'church'
     ? ['Baptist','Non-denominational','Methodist','Presbyterian','Pentecostal','Catholic','Other']
@@ -62473,16 +62474,16 @@ function AuthFloatingField({ label, type = 'text', value, onChange, selectedRole
 
   return (
     <div className="fb-auth-field-wrap" style={{marginBottom:18}}>
-      <div className="fb-auth-field-label" style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--atext-muted)',marginBottom:8}}>{label}</div>
+      <label htmlFor={fieldId} className="fb-auth-field-label" style={{display:'block',fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--atext-muted)',marginBottom:8}}>{label}</label>
       {type === 'textarea' ? (
-        <textarea className="fb-auth-field" value={value} onChange={onChange} rows={5} style={{...baseStyle,resize:'vertical'}} />
+        <textarea id={fieldId} className="fb-auth-field" value={value} onChange={onChange} rows={5} required={required} style={{...baseStyle,resize:'vertical'}} />
       ) : type === 'select' ? (
-        <select className="fb-auth-field" value={value} onChange={onChange} style={{...baseStyle,appearance:'none',WebkitAppearance:'none'}}>
+        <select id={fieldId} className="fb-auth-field" value={value} onChange={onChange} required={required} style={{...baseStyle,appearance:'none',WebkitAppearance:'none'}}>
           <option value="">Select an option</option>
           {selectOptions.map(option => <option key={option} value={option}>{option}</option>)}
         </select>
       ) : (
-        <input className="fb-auth-field" type={type} value={value} onChange={onChange} style={baseStyle} />
+        <input id={fieldId} className="fb-auth-field" type={type} value={value} onChange={onChange} autoComplete={autoComplete} required={required} aria-required={required || undefined} style={baseStyle} />
       )}
       {pwStrength && (
         <div style={{marginTop:6}}>
@@ -62609,6 +62610,12 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
       if (!isValidEmail(email)) { setError("Please enter a valid email address."); setLoading(false); return; }
       const pwErr = passwordStrengthError(form.password);
       if (pwErr) { setError(pwErr); setLoading(false); return; }
+      const displayName = String(form.org || form.name || '').trim();
+      if (!displayName || isHandleLikeChurchName(displayName)) {
+        setError(selectedRole === "church" ? "Enter your church or ministry name (for example, Grace Community Church)." : "Enter your name or family name.");
+        setLoading(false);
+        return;
+      }
       const{data,error:signUpErr}=await supabase.auth.signUp({
         email,
         password:form.password,
@@ -62704,8 +62711,8 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
           }} style={{background:"none",border:"none",color:"var(--gold-light)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",fontWeight:600}}>Resend confirmation email →</button>
         </div>
       )}
-      <AuthFloatingField label="Email address" type="email" value={form.email} onChange={e=>set("email",e.target.value)} selectedRole={selectedRole}/>
-      <AuthFloatingField label="Password" type="password" value={form.password} onChange={e=>set("password",e.target.value)} selectedRole={selectedRole}/>
+      <AuthFloatingField label="Email address" type="email" value={form.email} onChange={e=>set("email",e.target.value)} selectedRole={selectedRole} autoComplete="email" required/>
+      <AuthFloatingField label="Password" type="password" value={form.password} onChange={e=>set("password",e.target.value)} selectedRole={selectedRole} autoComplete="current-password" required/>
       <div className="fb-auth-forgot" style={{textAlign:"right",marginTop:-8,marginBottom:24}}>
         <button type="button" onClick={async()=>{
           if(!form.email){setError("Enter your email first.");return;}
@@ -62769,16 +62776,16 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
   const steps=[
     {eyebrow:"Step 1 of 3",title:"Create your account.",sub:"You'll use these to sign in.",
      fields:<>
-       <AuthFloatingField label="Full name" value={form.name} onChange={e=>set("name",e.target.value)} selectedRole={selectedRole}/>
-       <AuthFloatingField label="Email address" type="email" value={form.email} onChange={e=>set("email",e.target.value)} selectedRole={selectedRole}/>
-       <AuthFloatingField label="Password" type="password" value={form.password} onChange={e=>set("password",e.target.value)} selectedRole={selectedRole}/>
+       <AuthFloatingField label="Full name" value={form.name} onChange={e=>set("name",e.target.value)} selectedRole={selectedRole} autoComplete="name" required/>
+       <AuthFloatingField label="Email address" type="email" value={form.email} onChange={e=>set("email",e.target.value)} selectedRole={selectedRole} autoComplete="email" required/>
+       <AuthFloatingField label="Password" type="password" value={form.password} onChange={e=>set("password",e.target.value)} selectedRole={selectedRole} autoComplete="new-password" required/>
      </>},
     {eyebrow:"Step 2 of 3",
      title:selectedRole==="church"?"Your ministry.":selectedRole==="individual"?"About you.":"Your business.",
      sub:"This is what others will see.",
      fields:<>
-       <AuthFloatingField label={selectedRole==="church"?"Church or Ministry name":selectedRole==="individual"?"Your name or family name":"Business name"} value={form.org} onChange={e=>set("org",e.target.value)} selectedRole={selectedRole}/>
-       <AuthFloatingField label="City, State" value={cityState} onChange={e=>setCityState(e.target.value)} selectedRole={selectedRole}/>
+       <AuthFloatingField label={selectedRole==="church"?"Church or Ministry name":selectedRole==="individual"?"Your name or family name":"Business name"} value={form.org} onChange={e=>set("org",e.target.value)} selectedRole={selectedRole} autoComplete="organization" required={selectedRole==="church"}/>
+       <AuthFloatingField label="City, State" value={cityState} onChange={e=>setCityState(e.target.value)} selectedRole={selectedRole} autoComplete="off"/>
        {selectedRole!=="individual" && <AuthFloatingField label={selectedRole==="church"?"Denomination":"Service category"} type="select" value={denomination} onChange={e=>setDenomination(e.target.value)} selectedRole={selectedRole}/>}
      </>},
     {eyebrow:"Step 3 of 3",title:"Your faith story.",sub:"The heart of everything we do here.",
@@ -63207,7 +63214,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     const churchName = acct.churchName.trim();
     const email = acct.email.trim().toLowerCase();
     const password = acct.password;
-    if (!churchName) { setAcctErr("Please add your church or organization name."); return; }
+    if (!churchName || isHandleLikeChurchName(churchName)) { setAcctErr("Please add your church or organization name (for example, Grace Community Church)."); return; }
     if (!isValidEmail(email)) { setAcctErr("Please enter a valid email."); return; }
     const pwErr = passwordStrengthError(password);
     if (pwErr) { setAcctErr(pwErr); return; }
@@ -63381,15 +63388,15 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
               {acctErr && <div style={{ padding: "10px 12px", borderRadius: 8, background: "#FEF2F2", border: "1px solid #FECACA", fontSize: 13, color: "#DC2626", lineHeight: 1.5 }}>{acctErr}</div>}
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "var(--navy)", display: "block", marginBottom: 4 }}>Church / organization name</label>
-                <input aria-label="Church or organization name" value={acct.churchName} onChange={e => setAcct(a => ({ ...a, churchName: e.target.value }))} placeholder="e.g. Grace Community Church" autoFocus style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none" }} />
+                <input aria-label="Church or organization name" autoComplete="organization" required value={acct.churchName} onChange={e => setAcct(a => ({ ...a, churchName: e.target.value }))} placeholder="e.g. Grace Community Church" autoFocus style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none" }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "var(--navy)", display: "block", marginBottom: 4 }}>Your email</label>
-                <input aria-label="Your email" type="email" value={acct.email} onChange={e => setAcct(a => ({ ...a, email: e.target.value }))} placeholder="you@church.org" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none" }} />
+                <input aria-label="Your email" type="email" autoComplete="email" required value={acct.email} onChange={e => setAcct(a => ({ ...a, email: e.target.value }))} placeholder="you@church.org" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none" }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "var(--navy)", display: "block", marginBottom: 4 }}>Create a password</label>
-                <input aria-label="Create a password" type="password" value={acct.password} onChange={e => setAcct(a => ({ ...a, password: e.target.value }))} placeholder="At least 8 characters" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none" }} />
+                <input aria-label="Create a password" type="password" autoComplete="new-password" required value={acct.password} onChange={e => setAcct(a => ({ ...a, password: e.target.value }))} placeholder="At least 8 characters" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none" }} />
               </div>
               <button type="button" onClick={createAccountAndPost} disabled={submitting} style={{ padding: "12px", borderRadius: 10, border: "none", background: submitting ? "#e5e7eb" : "var(--gold-light)", color: submitting ? "#9ca3af" : "var(--navy)", fontSize: 14, fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer", marginTop: 4 }}>
                 {submitting ? "Publishing…" : "Create account & publish →"}
