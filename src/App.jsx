@@ -26492,7 +26492,8 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     const source = [...matches.filter(p => bucketIds.has(String(p?.id))), ...matches.filter(p => !bucketIds.has(String(p?.id)))];
     return safeArray(source).slice(0, 9);
   }, [filteredProjects, featuredBrowseProjects]);
-  const showFeaturedProjectRail = featuredProjectRows.length >= 1;
+  // The rail mirrors the grid below it, so with only one or two projects it would just repeat them.
+  const showFeaturedProjectRail = featuredProjectRows.length >= 3;
 
   const [featuredThumb, setFeaturedThumb] = useState({ left: 0, width: 100 });
   const updateFeaturedCarouselState = () => {
