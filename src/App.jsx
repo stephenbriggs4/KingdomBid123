@@ -3890,6 +3890,14 @@ function firstNonEmpty(...values) {
   return '';
 }
 
+// A church name that is really an account handle (one lowercase token, e.g. an
+// email local-part like "stephenbriggs0128") must never be shown to vendors.
+function isHandleLikeChurchName(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+  return /^[a-z0-9._-]+$/.test(raw) && /[0-9._-]/.test(raw);
+}
+
 function safeArray(values = []) {
   return Array.isArray(values) ? values.filter(v => v !== null && v !== undefined && String(v).trim() !== '') : [];
 }
@@ -23677,7 +23685,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
     id: p.id,
     church_id: p.church_id || null,
     title: p.title || "",
-    church: p.church_name || "Ministry",
+    church: (p.church_name && !isHandleLikeChurchName(p.church_name)) ? p.church_name : "Ministry",
     city: p.project_city || p.city || "",
     project_city: p.project_city || p.city || "",
     project_state: p.project_state || "",
@@ -32404,7 +32412,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
 
   const safeChurchDisplay = (() => {
     const raw = String(churchName || '').trim();
-    if (!raw || raw.toLowerCase() === 'church') {
+    if (!raw || raw.toLowerCase() === 'church' || isHandleLikeChurchName(raw)) {
       const location = String(city || '').replace(/location shared after intake/i, '').trim();
       return location ? `${location}-area church` : 'Church';
     }
