@@ -21467,7 +21467,7 @@ function buildProjectConversationTarget(project = {}, viewerRole = 'church', ext
     vendorId: extra?.vendorId || project.hired_vendor_id || null,
     vendorName: extra?.vendorName || project.hired_vendor_name || 'Vendor',
     churchId: extra?.churchId || project.church_id || null,
-    churchName: extra?.churchName || project.church || project.church_name || 'Church',
+    churchName: extra?.churchName || [project.church, project.church_name].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || 'Church',
     viewerRole,
     createIfMissing: extra?.createIfMissing ?? !!(project.church_id && project.hired_vendor_id),
     status: extra?.status || (project.status === 'completed' ? 'completed' : 'hired'),
@@ -24546,7 +24546,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
             projectId: moment?.project?.id || selectedProject?.id || null,
             projectTitle: moment?.projectTitle || selectedProject?.title || null,
             churchId: moment?.project?.church_id || selectedProject?.church_id || null,
-            churchName: moment?.project?.church_name || selectedProject?.church_name || selectedProject?.church || null,
+            churchName: [moment?.project?.church_name, selectedProject?.church_name, selectedProject?.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || null,
             viewerRole: "vendor",
             createIfMissing: Boolean(moment?.project?.church_id || selectedProject?.church_id),
           });
@@ -26882,7 +26882,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
             id: projectId,
             title: project?.title || 'Saved project',
             category: project?.category || null,
-            church: project?.church || project?.church_name || null,
+            church: [project?.church, project?.church_name].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || null,
             city: project?.city || null,
             budget: project?.budget || null,
             urgent: !!project?.urgent,
@@ -28125,7 +28125,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
   const [briefOpen, setBriefOpen] = useState(false);
 
   const projectTitle = project?.title || "this project";
-  const churchName = project?.church_name || project?.church || "the church";
+  const churchName = [project?.church_name, project?.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || "the church";
   const budgetLabel = project?.budget ? String(project.budget) : "Budget shared after intake";
   const timelineDisplay = project?.timeline ? String(project.timeline) : null;
   const categoryDisplay = project?.category ? String(project.category) : null;
@@ -28741,7 +28741,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
     openInboxThread(nav, {
       projectId: project.id,
       churchId: project.church_id || null,
-      churchName: project.church || project.church_name || null,
+      churchName: [project.church, project.church_name].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || null,
       vendorId: project.hired_vendor_id || null,
       vendorName: project.hired_vendor_name || null,
       createIfMissing: Boolean(project?.hired_vendor_id || project?.hiredVendorId),
@@ -28972,7 +28972,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
                 {deduped.map((item, idx) => {
                   const quickAction = getProjectQuickAction(item.project);
                   const sev = severityFor(item);
-                  const churchName = item.project.church || item.project.church_name || 'Church';
+                  const churchName = [item.project.church, item.project.church_name].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || 'Church';
                   const isLast = idx === deduped.length - 1;
                   return (
                     <button
@@ -29506,7 +29506,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
     openInboxThread(nav, {
       projectId: project.id,
       churchId: project.church_id || null,
-      churchName: project.church_name || project.church || 'Church',
+      churchName: [project.church_name, project.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || 'Church',
       createIfMissing: false,
     });
   };
@@ -30472,7 +30472,7 @@ function BidReviewCompact({ project = {}, bids = [], loading = false, error = nu
       await openInboxThread(nav, {
         projectId: project?.id,
         churchId: project?.church_id,
-        churchName: project?.church_name || project?.church || null,
+        churchName: [project?.church_name, project?.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || null,
         vendorId: bid.vendor_id,
         vendorName: bid?.vendor || bid?.vendor_name || null,
         createIfMissing: true,
@@ -30595,7 +30595,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
     const projectCompareResult = upsertCompareWorkspaceItem('projects', {
       id: p.id,
       title: p.title,
-      church_name: p.church_name || p.church,
+      church_name: [p.church_name, p.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || null,
       city: p.city,
       category: p.category,
       budget: p.budget,
@@ -30730,7 +30730,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
       await openInboxThread(safeNav, {
         projectId: p.id,
         churchId: p.church_id,
-        churchName: p?.church_name || p?.church || null,
+        churchName: [p?.church_name, p?.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || null,
         vendorId: bid.vendor_id,
         vendorName: bid?.vendor || bid?.vendor_name || null,
         createIfMissing: true,
@@ -31476,8 +31476,15 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const bidCount = Number(project?.bids || project?.bids_count || 0) || 0;
   const churchName = firstNonEmpty(project?.church, project?.church_name, 'Church');
   const city = firstNonEmpty(project?.city, 'Location shared after intake');
-  const churchDisplayName = firstNonEmpty(churchProfile?.org_name, project?.church_name, project?.church, 'This church');
   const churchLocation = firstNonEmpty([churchProfile?.city, churchProfile?.state_code].filter(Boolean).join(', '), project?.city, '');
+  // R-16: an account handle (e.g. an email local-part) must never show as the church name.
+  const churchDisplayName = (() => {
+    const clean = [churchProfile?.org_name, project?.church_name, project?.church]
+      .map(value => String(value || '').trim())
+      .find(value => value && !isHandleLikeChurchName(value));
+    if (clean) return clean;
+    return churchLocation ? `${churchLocation}-area church` : 'This church';
+  })();
   const churchMemberSince = churchProfile?.created_at
     ? new Date(churchProfile.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
     : null;
@@ -31888,7 +31895,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     const shareUrl = typeof window !== 'undefined'
       ? `${window.location.origin}${window.location.pathname}#projects`
       : '';
-    const shareText = `${headline} · ${churchName}`;
+    const shareText = `${headline} · ${churchDisplayName}`;
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share({ title: headline, text: shareText, url: shareUrl });
@@ -34964,7 +34971,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
       supabase.from("conversations").upsert({
         church_id: currentUser.id,
         vendor_id: v.user_id,
-        church_name: currentUser?.user_metadata?.org_name || profileInteropEntry?.projectSnapshot?.church || "",
+        church_name: [currentUser?.user_metadata?.org_name, profileInteropEntry?.projectSnapshot?.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || "",
         vendor_name: v.name || "",
         project_id: profileProjectId,
         project_title: profileProjectTitle || "",
@@ -62354,7 +62361,7 @@ function getVendorTrustSnapshot(entity = {}) {
 }
 function getProjectTrustAssistForVendor(project = {}, vendor = {}) {
   const trust = getVendorTrustSnapshot(vendor);
-  const churchName = project?.church || project?.church_name || 'the church';
+  const churchName = [project?.church, project?.church_name].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || 'the church';
   if (trust.verified) return `${trust.badgeLabel} should make ${churchName} more comfortable reviewing you if scope and timing line up.`;
   if (project?.urgent) return 'Urgent church teams usually move toward the profile that feels safest. Faith Verified can strengthen that moment.';
   return 'Faith Verified plus stronger proof would make projects like this easier to win with confidence.';
@@ -64236,7 +64243,7 @@ const KC_ARC_DEFAULT = {bg:"#0F130A", ring:"#C4935A", verse:"Whatever you do, wo
 function KcProjectCard({ project: p, onSelect, actions, bidAmount, statusOverride, role, onBid, saved = false, onToggleSave = null }) {
   const project = normalizeProjectEntity(p) || p || {};
   const title = project.title || p?.title || "Untitled Project";
-  const church = project.church || p?.church_name || p?.church || "Ministry";
+  const church = [project.church, p?.church_name, p?.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || "Ministry";
   const city = project.city || p?.city || "Remote";
   const timeline = getProjectCardTimelineLabel(project, project.timeline || p?.timeline || "Flexible");
   const bids = Number(project.bids || p?.bids_count || p?.bids || 0);
@@ -70478,6 +70485,15 @@ function getHeaderSurfaceMode(screen, navSubTab) {
     return KB_HEADER_SURFACE_MODE.WORK;
   }
   return KB_HEADER_SURFACE_MODE.STANDARD;
+}
+
+// Top-level copy: detailBudgetParts lives outside the ProjectsScreen IIFE and
+// cannot see the IIFE-local formatBudgetRangeTypography defined near line 25871.
+function formatBudgetRangeTypography(value) {
+  return String(value || '').replace(
+    /(\$[\d,.]+(?:[kKmM])?)\s*[-–—]\s*(\$[\d,.]+(?:[kKmM])?)/g,
+    '$1–$2',
+  );
 }
 
 function detailBudgetParts(rawBudget) {
