@@ -7,6 +7,83 @@ function applySettingsScreenDependencies(values = {}) {
   ({ BRAND, KB_SETTINGS_NOTIFICATION_OPTIONS, KB_SETTINGS_TABS, LegalProtectionPanel, PAYMENT_STATUS_COPY, PLATFORM_RELEASE, buildSettingsAccountInfoRows, getPlatformCapabilityTone, getPlatformStatusSummary, getReturnNavigationTarget, getTrustSignalSummary, goToLandingFAQ, isValidEmail, logError, passwordStrengthError, readReturnContext } = values || {});
 }
 
+
+const PRIVACY_KIND_LABEL = { deletion: "Account deletion", export: "Data export", correction: "Data correction" };
+const PRIVACY_STATUS_LABEL = { open: "Received", in_progress: "In progress", completed: "Completed", declined: "Declined" };
+
+function PrivacyRequestsPanel({ showToast, buttonStyle }) {
+  const [rows, setRows] = useState([]);
+  const [busy, setBusy] = useState("");
+  const [loadFailed, setLoadFailed] = useState(false);
+
+  const load = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("privacy_requests")
+      .select("id,kind,status,created_at,resolved_at")
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (error) { setLoadFailed(true); return; }
+    setLoadFailed(false);
+    setRows(data || []);
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  const hasActive = (kind) => rows.some(row => row.kind === kind && (row.status === "open" || row.status === "in_progress"));
+
+  const submit = async (kind) => {
+    if (busy) return;
+    if (kind === "deletion" && typeof window !== "undefined" && !window.confirm("Request deletion of your FaithBid account and personal data? A FaithBid team member will verify it is you and follow up before anything is removed.")) return;
+    setBusy(kind);
+    const { error } = await supabase.rpc("kb_submit_privacy_request", { p_kind: kind, p_details: null });
+    setBusy("");
+    if (error) {
+      showToast(/already have an open/i.test(String(error.message || "")) ? "You already have an open request of this kind." : `We could not submit that request. Please try again or email ${BRAND.supportEmail}.`);
+      return;
+    }
+    showToast("Request received. A FaithBid team member will follow up by email.");
+    load();
+  };
+
+  const block = { borderTop: "1px solid #f0e9d9", paddingTop: 24, marginTop: 24 };
+  const title = { fontSize: 14, fontWeight: 700, color: "#1C2814", marginBottom: 6, fontFamily: "var(--font-sans),sans-serif" };
+  const copy = { fontSize: 13, color: "#5a5246", marginBottom: 14, lineHeight: 1.55 };
+  return (
+    <>
+      <div style={block}>
+        <div style={title}>Download my data</div>
+        <div style={copy}>Ask for a copy of the personal information FaithBid holds about you. A team member prepares it and sends it to your account email.</div>
+        <button type="button" style={buttonStyle} disabled={!!busy || hasActive("export")} onClick={() => submit("export")}>
+          {hasActive("export") ? "Export request open" : busy === "export" ? "Sending…" : "Request my data"}
+        </button>
+      </div>
+      <div style={block}>
+        <div style={title}>Delete account</div>
+        <div style={copy}>Deletion is reviewed by FaithBid so ownership can be verified and any active projects or engagements are handled properly before data is removed.</div>
+        <button type="button" style={buttonStyle} disabled={!!busy || hasActive("deletion")} onClick={() => submit("deletion")}>
+          {hasActive("deletion") ? "Deletion request open" : busy === "deletion" ? "Sending…" : "Request account deletion"}
+        </button>
+      </div>
+      <div style={block}>
+        <div style={title}>Your requests</div>
+        {loadFailed ? (
+          <div style={copy}>We could not load your requests. Refresh to try again.</div>
+        ) : rows.length === 0 ? (
+          <div style={copy}>You have not made any privacy requests.</div>
+        ) : (
+          <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
+            {rows.map(row => (
+              <li key={row.id} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13, color: "#3f4638" }}>
+                <span>{PRIVACY_KIND_LABEL[row.kind] || row.kind} · {new Date(row.created_at).toLocaleDateString()}</span>
+                <strong>{PRIVACY_STATUS_LABEL[row.status] || row.status}</strong>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </>
+  );
+}
+
 function isNotificationPrefsBackendUnavailable(error) {
   const code = String(error?.code || "").toUpperCase();
   const message = String(error?.message || "").toLowerCase();
@@ -543,15 +620,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
                 <div style={{fontSize:13,color:"#5a5246",marginBottom:14,lineHeight:1.55}}>Sign out of your account on this device.</div>
                 <button type="button" style={sx.btnDanger} onClick={onSignOut}>Sign out</button>
               </div>
-              <div style={{borderTop:"1px solid #f0e9d9",paddingTop:24}}>
-                <div style={{fontSize:14,fontWeight:700,color:"#1C2814",marginBottom:6,fontFamily:"var(--font-sans),sans-serif"}}>Delete account</div>
-                <div style={{fontSize:13,color:"#5a5246",marginBottom:14,lineHeight:1.55}}>Account deletion is handled by FaithBid support so ownership can be verified before any data is removed.</div>
-                <button
-                  type="button"
-                  style={sx.btnDanger}
-                  onClick={()=>showToast(`To delete your account, contact ${BRAND.supportEmail}`)}
-                >Contact support to delete</button>
-              </div>
+              <PrivacyRequestsPanel showToast={showToast} buttonStyle={sx.btnDanger} />
             </div>
           </div>
         )}
