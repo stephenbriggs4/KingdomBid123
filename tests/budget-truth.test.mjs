@@ -14,6 +14,10 @@ function loadBudgetHelpers(source) {
   assert.ok(start >= 0 && end > start, 'budget helpers must remain available to the project screen');
   const context = {
     formatMoney: value => `$${Number(value).toLocaleString('en-US')}`,
+    formatBudgetRangeTypography: value => String(value || '').replace(
+      /(\$[\d,.]+(?:[kKmM])?)\s*[-–—]\s*(\$[\d,.]+(?:[kKmM])?)/g,
+      '$1–$2',
+    ),
   };
   vm.runInNewContext(
     `${source.slice(start, end)}\nthis.budgetApi = { parseBudgetBounds, formatBudgetDisplay, formatBudgetAggregate };`,
@@ -29,7 +33,7 @@ for (const [index, source] of sources.entries()) {
     const commaRange = parseBudgetBounds('$1,000-$2,500');
     assert.equal(commaRange.min, 1000);
     assert.equal(commaRange.max, 2500);
-    assert.equal(formatBudgetDisplay({ budget:'$1,000-$2,500' }, commaRange), '$1,000-$2,500');
+    assert.equal(formatBudgetDisplay({ budget:'$1,000-$2,500' }, commaRange), '$1,000–$2,500');
 
     const abbreviatedRange = parseBudgetBounds('$10k–$25k');
     assert.equal(abbreviatedRange.min, 10000);

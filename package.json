@@ -12,6 +12,7 @@
     "test:pilot-contract": "node tests/pilot-taxonomy-budget.test.mjs",
     "test:workspace-truth": "node tests/workspace-truth.test.mjs",
     "test:hardening": "node tests/faithbid-hardening.test.mjs",
+    "test:launch-surface": "node tests/launch-surface-basics.test.mjs",
     "test:vendor-stage-language": "node tests/vendor-stage-language.test.mjs",
     "test:vendor-directory-boundary": "node tests/vendor-directory-boundary.test.mjs",
     "test:fixture-cleanup-contract": "node tests/fixture-cleanup-contract.test.mjs",

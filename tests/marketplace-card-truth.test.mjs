@@ -32,7 +32,7 @@ test('verification and relationship states remain distinct on vendor cards', () 
   );
 
   assert.match(vendorCards, /vendor\?\.verified === true/);
-  assert.match(vendorCards, /> Faith Verified</);
+  assert.match(vendorCards, /faithVerified \? 'Faith Verified'/);
   assert.match(vendorCards, /label:'In conversation'/);
   assert.match(vendorCards, /label:'Availability not confirmed'/);
   assert.doesNotMatch(vendorCards, />Verified</);
