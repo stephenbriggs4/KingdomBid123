@@ -30,6 +30,25 @@ if (supabaseQaMode && supabaseProjectRef === FAITHBID_PRODUCTION_PROJECT_REF) {
   )
 }
 
+// PostgREST silently truncates unpaged reads at max_rows (1000). When a read that asked
+// for no explicit limit/range comes back with exactly that many rows, tell the app so it
+// can be reported instead of quietly showing an incomplete list.
+const REST_ROW_CAP = 1000
+const reportedRowCapTables = new Set()
+function noteRowCap(url, res) {
+  try {
+    if (!res || !res.ok || typeof window === "undefined") return
+    if (/[?&](limit|offset)=/.test(url)) return
+    const range = res.headers.get("content-range") || ""
+    const match = /^0-(\d+)\//.exec(range)
+    if (!match || Number(match[1]) + 1 < REST_ROW_CAP) return
+    const table = (/\/rest\/v1\/([^?/]+)/.exec(url) || [])[1] || "unknown"
+    if (reportedRowCapTables.has(table)) return
+    reportedRowCapTables.add(table)
+    window.dispatchEvent(new CustomEvent("kb:rest-row-cap", { detail: { table } }))
+  } catch { /* detection must never break a read */ }
+}
+
 // Identical REST reads that are in flight at the same moment share one network call.
 // Nothing is cached after the response lands, so data is never stale.
 const inflightReads = new Map()
@@ -44,6 +63,7 @@ function dedupedFetch(input, init = {}) {
   const pending = inflightReads.get(key)
   if (pending) return pending.then((res) => res.clone())
   const request = fetch(input, init)
+  request.then((res) => noteRowCap(url, res)).catch(() => {})
   inflightReads.set(key, request)
   const clear = () => { if (inflightReads.get(key) === request) inflightReads.delete(key) }
   request.then(clear, clear)

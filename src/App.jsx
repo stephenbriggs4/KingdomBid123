@@ -57254,6 +57254,14 @@ export default function App() {
   const dismissToast = () => { if(toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = null; setToastQueue(q => q.slice(1)); };
   const currentToast = toastQueue[0] || null;
 
+  // R-35: a list that hits the 1,000-row API cap is reported so it can be paged.
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const onRowCap = (event) => logError("rest-row-cap", new Error("REST read reached the 1000-row cap"), { table: event?.detail?.table || null });
+    window.addEventListener("kb:rest-row-cap", onRowCap);
+    return () => window.removeEventListener("kb:rest-row-cap", onRowCap);
+  }, []);
+
   // R-31: writers that cannot show their own error dispatch "kb:save-failed".
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
