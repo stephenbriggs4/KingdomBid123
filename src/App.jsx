@@ -30448,7 +30448,7 @@ function BidReviewCompact({ project = {}, bids = [], loading = false, error = nu
         {!loading && !error && safeBids.length === 0 && (
           <div style={{ padding: '40px 10px', textAlign: 'center' }}>
             <div style={{ fontFamily: "'Bodoni Moda',Georgia,serif", fontSize: 17, color: '#173d31', marginBottom: 6 }}>Waiting for proposals</div>
-            <div style={{ fontSize: 12.5, color: '#66716c' }}>Most projects get their first proposal within a few hours.</div>
+            <div style={{ fontSize: 12.5, color: '#66716c' }}>Proposals appear here as vendors respond.</div>
           </div>
         )}
         {!loading && !error && safeBids.length > 0 && (
@@ -30749,7 +30749,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
           </div>
           <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Waiting for bids</div>
-          <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,maxWidth:360,margin:"0 auto"}}>Most projects receive their first bid within a few hours. Make sure your description is clear and your budget is realistic.</div>
+          <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,maxWidth:360,margin:"0 auto"}}>Bids will appear here as vendors respond. A clear description and a realistic budget make it easier for vendors to bid.</div>
         </div>
       )}
 
@@ -59350,11 +59350,11 @@ function HelpModal({onClose, role, asPage = false}){
       {q:"Is it free to use?", a:"Churches are not charged a posting fee in the current preview, and vendors can join and bid without charge. FaithBid is not currently advertising a standard success fee or paid vendor plan; any future terms will be published before they apply."},
       {q:"How do I get started?", a:"Create your account and complete your profile. Vendors must be Marketplace Approved before bidding; Faith Verified is an additional trust signal, not the bidding gate."},
       {q:"What is the Faith Covenant?", a:"The Vendor Covenant is a conduct commitment used in FaithBid's verification standards. It does not replace Marketplace Approval or project-specific due diligence."},
-      {q:"What is Faith Verification?", a:"Faith Verification is our credentialing process for vendors. Verified vendors have submitted documentation confirming their Christian faith and business integrity. They appear higher in search results, receive more bids, and display a verified badge on their profile."},
+      {q:"What is Faith Verification?", a:"Faith Verification is an additional, separate review of a vendor's faith statement and ministry reference information. Verified vendors display a badge on their profile. It is a trust signal, not a guarantee of project fit or work quality, and churches still make the hiring decision."},
     ],
     churches: [
       {q:"How do I post a project?", a:"Click 'Post a project' from the Marketplace tab. You'll walk through a quick 3-step form covering category, details, and budget. It takes about 3 minutes and is completely free."},
-      {q:"How long until I receive bids?", a:"Most projects receive their first bid within a few hours. Projects with clear descriptions, realistic budgets, and specific requirements average 6+ bids. You'll receive an in-app notification for every new bid."},
+      {q:"How long until I receive bids?", a:"Timing depends on the project and on how many vendors are active in your area during the pilot. Clear descriptions, realistic budgets, and specific requirements make it easier for vendors to respond. You'll receive an in-app notification for every new bid."},
       {q:"Can I message a vendor before hiring them?", a:"Yes. Every bid includes a Message button. We encourage churches to have a conversation before making a hiring decision because it is the best way to assess fit."},
       {q:"How do I choose the right vendor?", a:"Review each bid's amount, timeline, cover letter, rating, and available trust signals such as Faith Verified, then message any vendor before committing."},
       {q:"What happens after I hire someone?", a:"You'll see a kickoff confirmation, a conversation thread opens automatically, and your project moves into active delivery. Use the deal room and project workspace to align scope, track approvals, manage deliverables, and close out the handoff cleanly."},
@@ -59366,14 +59366,14 @@ function HelpModal({onClose, role, asPage = false}){
       {q:"How much does it cost to bid?", a:"Nothing in the current preview. Vendors can join, build a profile, browse projects, and submit bids without a bid charge. FaithBid is not currently advertising a standard success fee or paid vendor plan."},
       {q:"What is the platform fee?", a:"Program under review. FaithBid has not published a standard platform fee for this preview. Any future rate, cap, trigger, timing, refund, and reversal terms will be published before they apply."},
       {q:"What is Vendor Pro?", a:"Vendor Pro is a future-plan concept, not a paid offer currently available in this preview. Price, benefits, eligibility, and any fee treatment will be published only after the program is approved."},
-      {q:"How do I get Faith Verified?", a:"Go to your profile and click 'Get Faith Verified.' Submit a short application with your faith statement. Our team reviews it and responds within 48 hours."},
+      {q:"How do I get Faith Verified?", a:"Go to your profile and click 'Get Faith Verified.' Submit a short application with your faith statement. Our team reviews each application and you will be notified of the outcome."},
       {q:"Can I withdraw a bid?", a:"Yes. Go to My Work → Pending bids and click Withdraw next to the bid. Once a bid has been accepted by a church, it cannot be withdrawn."},
-      {q:"How do reviews work?", a:"After a project is marked complete, the church is prompted to leave a review. Reviews are public on your profile and affect your ranking. Respond to reviews professionally because churches read them carefully before hiring."},
+      {q:"How do reviews work?", a:"After a project is marked complete, the church is prompted to leave a review. Reviews are shown on your profile. Respond to reviews professionally because churches read them carefully before hiring."},
       {q:"How do milestones work?", a:"When you submit a bid you can propose project milestones (for example 25% upfront, 50% midway, 25% on delivery). The church approves each milestone as work is delivered, and FaithBid records every approval inside the project workspace."},
     ],
     trust: [
       {q:"How are payments handled right now?", a:PAYMENT_STATUS_COPY.trust},
-      {q:"What if something goes wrong with a project?", a:"Use the dispute resolution tool inside your active project (click File Dispute). Our team reviews all disputes within 48 hours and mediates a fair outcome between church and vendor."},
+      {q:"What if something goes wrong with a project?", a:"Use the dispute resolution tool inside your active project (click File Dispute). Our team reviews disputes and works toward a fair outcome between church and vendor."},
       {q:"Can a vendor be removed from the platform?", a:"Yes. Violations of the Faith Covenant, including dishonesty, unprofessional behaviour, or failure to deliver, can result in suspension or permanent removal. We take every complaint seriously."},
       {q:"How do I report a problem?", a:"Use the dispute tool inside any active project, or contact us directly. Every report is reviewed by a real person on our team."},
       {q:"Is my personal information private?", a:"We never sell or share your personal information with third parties. Your email and payment details are kept private. Public profile information (name, bio, category) is visible to other users on the platform."},
