@@ -455,6 +455,7 @@ const PUBLIC_LEGAL_FOOTER_CONFIG = Object.freeze({
     "auth",
     "reset-password",
     "about",
+    "help",
     "privacy",
     "terms",
     "ambassador",
@@ -551,6 +552,7 @@ function PublicLegalFooter({ compact = false, nav, screen }) {
             <div className="fb-foot__group">
               <div className="fb-public-footer-v2__nav-title">Legal &amp; Contact</div>
               <ul>
+                <li><a href="#help" onClick={(event)=>{event.preventDefault();nav?.("help");}}>Help</a></li>
                 <li><a href="#privacy" onClick={(event)=>{event.preventDefault();nav?.("privacy");}}>Privacy</a></li>
                 <li><a href="#terms" onClick={(event)=>{event.preventDefault();nav?.("terms");}}>Terms</a></li>
                 <li><a href={`mailto:${cfg.contactEmail}`} aria-label={`${cfg.contactLabel} ${cfg.owner} at ${cfg.contactEmail}`}>{cfg.contactEmail}</a></li>
@@ -22833,7 +22835,7 @@ const APP_PROJECT_SUBTAB_BY_ROUTE = Object.freeze({
   "vendors": "vendors",
 });
 const APP_HASH_ROUTES = Object.freeze([
-  "landing","church-os","projects","my-projects","my-work","vendors","vendor","get-plugged-in","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","pricing","admin","settings","about","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
+  "landing","church-os","projects","my-projects","my-work","vendors","vendor","get-plugged-in","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","pricing","admin","settings","about","help","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
 ]);
 const APP_HASH_ROUTE_SET = new Set(APP_HASH_ROUTES);
 
@@ -56438,6 +56440,9 @@ export default function App() {
       pricing: 'Pricing — FaithBid',
       settings: 'Settings — FaithBid',
       about: 'About — FaithBid',
+      help: 'Help & FAQ — FaithBid',
+      privacy: 'Privacy — FaithBid',
+      terms: 'Terms — FaithBid',
       activity: 'Activity — FaithBid',
       compare: 'Compare Workspace — FaithBid',
       'saved-projects': 'Saved Projects — FaithBid',
@@ -58056,6 +58061,7 @@ export default function App() {
         {screen==="about"     && <AboutScreen nav={nav} setStartFreeDefaultRole={setStartFreeDefaultRole}/>}
         {screen==="privacy"   && <PublicPolicyUnderReviewScreen nav={nav} type="privacy"/>}
         {screen==="terms"     && <PublicPolicyUnderReviewScreen nav={nav} type="terms"/>}
+        {screen==="help"      && <HelpModal asPage role={role} onClose={()=>nav?.("landing")}/>}
         {screen==="ambassador"&& <AmbassadorScreen nav={nav} showToast={showToast}/>}
         {screen==="partner"   && <PartnerScreen nav={nav}/>}
         {screen==="join"      && <JoinScreen nav={nav} setAuthDefaultRole={setAuthDefaultRole}/>}
@@ -58065,7 +58071,7 @@ export default function App() {
         </PlatformScreenShell>
         </ScreenBoundary>
         {showPublicLegalFooter && <PublicLegalFooter compact={compactPublicLegalFooter} nav={nav} screen={screen} />}
-        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","church-os","projects","vendor","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","settings","about","privacy","terms","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
+        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","church-os","projects","vendor","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","settings","about","help","privacy","terms","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
           <div style={{minHeight:"80vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px",animation:"fadeUp 0.4s ease"}}>
             <div style={{fontFamily:"var(--font-display),serif",fontSize:72,fontWeight:700,color:"var(--navy)",opacity:0.08,lineHeight:1,marginBottom:24}}>404</div>
             <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"var(--navy)",marginBottom:10}}>Page not found</div>
@@ -59319,15 +59325,16 @@ function LandingTestimonials(){
 /* ══════════════════════════════════
    HELP MODAL // in-app FAQ
 ══════════════════════════════════ */
-function HelpModal({onClose, role}){
+function HelpModal({onClose, role, asPage = false}){
   const [tab, setTab] = useState("general");
   const [open, setOpen] = useState(null);
 
   useEffect(() => {
+    if (asPage) return undefined;
     const handler = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [onClose]);
+  }, [onClose, asPage]);
 
   const TABS = [
     {key:"general",  label:"Getting Started"},
@@ -59374,12 +59381,17 @@ function HelpModal({onClose, role}){
 
   const items = FAQ[tab] || [];
 
+  const wrapperProps = asPage
+    ? { id:"kb-main-content", className:"help-page", style:{minHeight:"72vh",background:"#fffdf8",padding:"clamp(96px,12vw,140px) 20px 80px"} }
+    : { className:"help-modal-bg", role:"dialog", "aria-modal":"true", "aria-label":"Help", onClick:e=>{ if(e.target===e.currentTarget) onClose(); } };
+  const Wrapper = asPage ? "main" : "div";
+
   return (
-    <div className="help-modal-bg" role="dialog" aria-modal="true" aria-label="Help" onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}>
-      <div className="help-modal">
+    <Wrapper {...wrapperProps}>
+      <div className="help-modal" style={asPage ? {maxHeight:"none",margin:"0 auto",animation:"none",boxShadow:"0 24px 70px rgba(28,40,20,0.10)"} : undefined}>
         {/* Header */}
         <div className="help-modal-head">
-          <button type="button" className="help-modal-close" aria-label="Close" onClick={onClose}>✕</button>
+          {!asPage && <button type="button" className="help-modal-close" aria-label="Close" onClick={onClose}>✕</button>}
           <div className="help-modal-eyebrow">Support Center</div>
           <div className="help-modal-title">Help & FAQ</div>
           <div className="help-modal-sub">Everything you need to know about FaithBid.</div>
@@ -59405,11 +59417,15 @@ function HelpModal({onClose, role}){
               {open===i && <div className="help-faq-a">{f.a}</div>}
             </div>
           ))}
+          <div className="help-contact" style={{margin:"20px 24px 0",padding:"16px 18px",borderRadius:14,background:"rgba(155,113,41,0.08)",fontSize:14,lineHeight:1.6,color:"#4a5043"}}>
+            <strong style={{display:"block",color:"#1C2814",marginBottom:4}}>Still need help?</strong>
+            Email <a href={`mailto:${BRAND.supportEmail}`} style={{color:"#74551f",fontWeight:800}}>{BRAND.supportEmail}</a> and a person on the FaithBid team will reply. For a problem on an active project, use the dispute tool inside that project.
+          </div>
           {/* Bottom padding */}
           <div style={{height:24}}/>
         </div>
       </div>
-    </div>
+    </Wrapper>
   );
 }
 
