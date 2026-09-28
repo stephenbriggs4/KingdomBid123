@@ -8,6 +8,12 @@ const SOCIAL_FIELDS = [
   ["youtube", "YouTube"],
   ["x", "X"],
 ];
+const SIZE_OPTIONS = [
+  ["under_100", "Under 100"],
+  ["100_300", "100 – 300"],
+  ["300_1000", "300 – 1,000"],
+  ["over_1000", "Over 1,000"],
+];
 const CONTACT_OPTIONS = [
   ["platform_messages", "FaithBid messages"],
   ["email", "Email"],
@@ -36,6 +42,7 @@ export function VendorBusinessDetailsPanel({ vendorRow, currentUser, showToast =
   const [social, setSocial] = useState(vendorRow?.social_links && typeof vendorRow.social_links === "object" ? vendorRow.social_links : {});
   const [preference, setPreference] = useState(vendorRow?.contact_preference || "platform_messages");
   const [phone, setPhone] = useState("");
+  const [sizes, setSizes] = useState(Array.isArray(vendorRow?.church_sizes_served) ? vendorRow.church_sizes_served : []);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -68,6 +75,7 @@ export function VendorBusinessDetailsPanel({ vendorRow, currentUser, showToast =
         website: String(website || "").trim() || null,
         social_links: socialLinks,
         contact_preference: preference,
+        church_sizes_served: sizes,
       }).eq("id", vendorRow.id);
       if (error) throw error;
       if (cleanPhone) {
@@ -77,7 +85,7 @@ export function VendorBusinessDetailsPanel({ vendorRow, currentUser, showToast =
       } else {
         await supabase.from("vendor_private_contact").delete().eq("vendor_id", vendorRow.id);
       }
-      onSaved({ website: String(website || "").trim() || null, social_links: socialLinks, contact_preference: preference });
+      onSaved({ website: String(website || "").trim() || null, social_links: socialLinks, contact_preference: preference, church_sizes_served: sizes });
       showToast("Business details saved.");
     } catch (error) {
       showToast("Could not save business details. Check the links and try again.", "error");
@@ -101,6 +109,17 @@ export function VendorBusinessDetailsPanel({ vendorRow, currentUser, showToast =
             <input id={`vbd-${key}`} style={input} type="url" inputMode="url" placeholder={`https://${key === "x" ? "x.com" : `${key}.com`}/yourpage`} value={social[key] || ""} onChange={(event) => setSocial((prev) => ({ ...prev, [key]: event.target.value }))} maxLength={300} />
           </div>
         ))}
+        <fieldset style={{ border: 0, margin: 0, padding: 0 }}>
+          <legend style={label}>Church sizes you serve</legend>
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+            {SIZE_OPTIONS.map(([value, name]) => (
+              <label key={value} style={{ fontSize: 13, display: "inline-flex", gap: 6, alignItems: "center", cursor: "pointer" }}>
+                <input type="checkbox" checked={sizes.includes(value)} onChange={(event) => setSizes((prev) => event.target.checked ? [...prev, value] : prev.filter((item) => item !== value))} />
+                {name}
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <div>
           <label style={label} htmlFor="vbd-contact">How should churches reach you?</label>
           <select id="vbd-contact" style={input} value={preference} onChange={(event) => setPreference(event.target.value)}>

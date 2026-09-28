@@ -4684,6 +4684,11 @@ function computeRecommendedVendorFit(vendor = {}, project = null, viewerCity = '
   const selfReportedChurchExperience = churchExperienceCount > 0 || churchExperienceText;
   const trustSignal = verified || covenantSigned || selfReportedChurchExperience;
 
+  const churchSize = clean(firstNonEmpty(project?.church_size, ''));
+  const vendorSizes = safeArray(vendor?.church_sizes_served).map(clean).filter(Boolean);
+  const sizeKnown = !!churchSize && vendorSizes.length > 0;
+  const sizeFit = sizeKnown && vendorSizes.includes(churchSize);
+
   const profileChecks = [vendor?.name, vendor?.primary_category || vendor?.specialty || vendor?.category, vendor?.service_city || vendor?.city, vendor?.bio || vendor?.headline || vendor?.tagline, vendor?.image_url || vendor?.thumb_url, safeArray(vendor?.tags).length || safeArray(vendor?.category_tags).length];
   const profilePoints = profileChecks.reduce((sum, value) => sum + (value ? 1 : 0), 0);
   const profileStrength = profilePoints >= 4 ? 'complete' : profilePoints >= 2 ? 'partial' : 'thin';
@@ -4708,6 +4713,7 @@ function computeRecommendedVendorFit(vendor = {}, project = null, viewerCity = '
   else if (vendorPlace.city && !projectPlace.city) addReason('vendor_based_in', `Based in ${vendorPlace.city}`, false);
 
   if (budgetFit) addReason('budget_fit', 'Budget range overlaps this project');
+  if (sizeFit) addReason('church_size_fit', 'Works with churches your size', false);
   if (verified) addReason('faith_verified', 'Faith Verified');
   else if (covenantSigned) addReason('faith_covenant_signed', 'Faith Covenant signed');
   else if (selfReportedChurchExperience) addReason('self_reported_church_experience', 'Self-reported church experience');
@@ -4757,6 +4763,7 @@ function computeRecommendedVendorFit(vendor = {}, project = null, viewerCity = '
       : 3,
     budget: budgetFit ? 14 : budgetKnown && budgetRisk ? 2 : 8,
     trust: verified ? 14 : covenantSigned ? 10 : selfReportedChurchExperience ? 7 : 2,
+    size: sizeFit ? 6 : 0,
     profile: profileStrength === 'complete' ? 10 : profileStrength === 'partial' ? 6 : 2,
     readiness: rank * 2,
   };
@@ -4765,6 +4772,7 @@ function computeRecommendedVendorFit(vendor = {}, project = null, viewerCity = '
     scoreBreakdown.service +
     scoreBreakdown.budget +
     scoreBreakdown.trust +
+    scoreBreakdown.size +
     scoreBreakdown.profile +
     scoreBreakdown.readiness
   ));
@@ -4804,6 +4812,7 @@ function computeRecommendedVendorFit(vendor = {}, project = null, viewerCity = '
       category: { exact: exactCategory, adjacent: adjacentCategory },
       service: { fit: serviceFit, strong: serviceStrong },
       budget: { known: budgetKnown, fits: budgetFit, risk: budgetRisk },
+      size: { known: sizeKnown, fits: sizeFit },
       trust: { verified, covenantSigned, selfReportedChurchExperience },
       profile: { strength: profileStrength },
       scoreBreakdown,
@@ -5084,7 +5093,7 @@ const isVendorAdmittedToDirectory = (vendor) => {
   return status === KB_VENDOR_ADMISSION_STATUS.APPROVED
     || (rawStatus == null && vendor?.verified === true);
 };
-const KB_VENDOR_DIRECTORY_BASE_COLUMNS = "id,name,category,primary_category,category_tags,city,service_city,service_state,base_place_id,service_radius_miles,service_model,min_project_budget,max_project_budget,church_experience_count,completed_project_count,reference_count,response_speed_label,availability_status,availability_updated_at,verified,verification_status,tier,founding_vendor,rating,reviews_count,projects_count,response_time,bio,tagline,user_id,image_url,created_at";
+const KB_VENDOR_DIRECTORY_BASE_COLUMNS = "id,name,category,primary_category,category_tags,city,service_city,service_state,base_place_id,service_radius_miles,service_model,min_project_budget,max_project_budget,church_experience_count,completed_project_count,reference_count,response_speed_label,availability_status,availability_updated_at,verified,verification_status,tier,founding_vendor,rating,reviews_count,projects_count,response_time,bio,tagline,user_id,image_url,created_at,church_sizes_served";
 const KB_VENDOR_DIRECTORY_MIN_COLUMNS = "id,name,category,city,verified,verification_status,user_id,created_at";
 const KB_VENDOR_DIRECTORY_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
 function readVendorDirectoryCache({ verifiedOnly = false } = {}) {
@@ -23751,7 +23760,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   const fetchOpenProjectsPage = async (cursor = null) => {
     let query = supabase
       .from("projects")
-      .select("id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements,hero_image_path")
+      .select("id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_size,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements,hero_image_path")
       .eq("status", "open")
       .order("posted_at", { ascending: false })
       .limit(PROJECTS_PAGE_SIZE);
@@ -23921,7 +23930,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
         Promise.all([
           supabase
             .from("projects")
-            .select("id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements,hero_image_path")
+            .select("id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_size,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements,hero_image_path")
             .eq("church_id", user.id)
             .order("posted_at", { ascending: false }),
           supabase
@@ -33040,7 +33049,7 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
       }
       const { data: projectRows, error: projectError } = await supabase
         .from('projects')
-        .select('id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements,hero_image_path')
+        .select('id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_size,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements,hero_image_path')
         .in('id', ids);
       if (projectError) throw projectError;
       const hydratedProjectRows = await hydrateProjectMediaUrls(projectRows || []);

@@ -41,7 +41,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
   const [verificationApplicationStatus, setVerificationApplicationStatus] = useState(null);
   const [overviewStats, setOverviewStats] = useState({projects:0, hired:0, messages:0, reviews:0, bids:0});
   const [form, setForm] = useState({
-    org_name:"", city:"", state_code:"", place_id:null, denomination:"", category:"", faith_statement:"",
+    org_name:"", city:"", state_code:"", place_id:null, denomination:"", category:"", faith_statement:"", congregation_size:"",
   });
   const [vendorForm, setVendorForm] = useState({
     name:"", category:"", city:"", service_state:"", bio:"", faith_statement:"", tags:[], delivery_model:"remote", service_radius_miles:"50",
@@ -77,7 +77,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
       try {
         const { data: profile } = await runSupabaseWithTimeout(
           selectProfilesBestEffort([
-            "id,role,org_name,city,state_code,place_id,denomination,category,faith_statement,founding_vendor,vendor_type,created_at,onboarding_complete",
+            "id,role,org_name,city,state_code,place_id,denomination,category,faith_statement,congregation_size,founding_vendor,vendor_type,created_at,onboarding_complete",
             "id,role,org_name,city,state_code,place_id,category,faith_statement",
             "id,role,org_name,city,state_code,place_id",
             "id,role",
@@ -104,6 +104,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
           denomination: safeProfile.denomination || "",
           category: safeProfile.category || userProfile?.category || "",
           faith_statement: safeProfile.faith_statement || userProfile?.faith_statement || "",
+          congregation_size: safeProfile.congregation_size || userProfile?.congregation_size || "",
         });
         // The freshly read profile role is authoritative. Fall back to hydrated role state only when that read is unavailable.
         const resolvedProfileRole = String(safeProfile?.role || role || "").trim().toLowerCase();
@@ -112,7 +113,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
         if (shouldFetchVendorRow) {
           const vendorMinColumns = "id,name,category,city,verified,user_id,created_at";
           const vendorBaseColumns = "id,name,category,city,verified,tier,founding_vendor,rating,reviews_count,projects_count,response_time,bio,tagline,min_project_budget,max_project_budget,user_id,image_url,created_at";
-          const vendorRichColumns = vendorBaseColumns + ",faith_statement,tags,service_model,service_city,service_state,base_place_id,service_radius_miles,vendor_type,verification_status,website,social_links,contact_preference";
+          const vendorRichColumns = vendorBaseColumns + ",faith_statement,tags,service_model,service_city,service_state,base_place_id,service_radius_miles,vendor_type,verification_status,website,social_links,contact_preference,church_sizes_served";
           const vendorResult = await runSupabaseWithTimeout(
             runSupabaseWithFallback(
               () => supabase.from("vendors").select(vendorRichColumns).eq("user_id", currentUser.id).maybeSingle(),
@@ -233,6 +234,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
       denomination: String(form.denomination || "").trim(),
       category: String(form.category || "").trim(),
       faith_statement: String(form.faith_statement || "").trim(),
+      congregation_size: String(form.congregation_size || "").trim(),
     };
     if (!cleanProfile.org_name) {
       showToast && showToast((vendorRow ? "Business" : "Church") + " name is required.", "error");
@@ -253,6 +255,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
           denomination: role === "church" ? cleanProfile.denomination : "",
           category: role === "vendor" ? cleanProfile.category : "",
           faith_statement: cleanProfile.faith_statement,
+          congregation_size: role === "church" ? (cleanProfile.congregation_size || null) : undefined,
         },
         vendorPatch: vendorRow ? {
           name: cleanProfile.org_name,
@@ -855,6 +858,18 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                         ? <select value={form.category} onChange={e=>set("category",e.target.value)} style={psx.input} onFocus={psx.inputFocus} onBlur={psx.inputBlur}><option value="">Select…</option>{CATEGORIES.map(c=><option key={c.label} value={c.label}>{c.label}</option>)}</select>
                         : <input aria-label="e.g. Non-denominational" value={form.denomination} onChange={e=>set("denomination",e.target.value)} placeholder="e.g. Non-denominational" style={psx.input} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>}
                     </div>
+                    {!vendorRow && (
+                      <div style={psx.field}>
+                        <label style={psx.label} htmlFor="ob-size">Congregation size<span style={psx.labelHelper}>· helps match vendors who serve churches like yours</span></label>
+                        <select id="ob-size" value={form.congregation_size} onChange={e=>set("congregation_size",e.target.value)} style={psx.input} onFocus={psx.inputFocus} onBlur={psx.inputBlur}>
+                          <option value="">Select…</option>
+                          <option value="under_100">Under 100</option>
+                          <option value="100_300">100 – 300</option>
+                          <option value="300_1000">300 – 1,000</option>
+                          <option value="over_1000">Over 1,000</option>
+                        </select>
+                      </div>
+                    )}
                     <div style={{...psx.field,marginBottom:0}}>
                       <label style={psx.label} htmlFor="ob-faith">Faith statement</label>
                       <textarea id="ob-faith" rows={3} value={form.faith_statement} onChange={e=>set("faith_statement",e.target.value)} placeholder="How does your faith shape your work or ministry?" style={psx.textarea} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>
