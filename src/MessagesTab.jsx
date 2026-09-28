@@ -136,6 +136,8 @@ button.mt-file{cursor:pointer;font-family:inherit}
 }
 `;
 
+const rateLimitMessage = (err) => { const text = String(err?.message || ''); return text.startsWith('rate_limited:') ? text.slice('rate_limited:'.length).trim() : null; };
+
 export default function MessagesTab({ currentUser, role, showToast = () => {}, nav = () => {}, onOpenProject = null, initialConversationId = null, onUnreadChange = null }) {
   const uid = currentUser?.id || null;
   const [convos, setConvos] = useState([]);
@@ -283,7 +285,7 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, n
       loadConvos({ quiet: true });
     } catch (err) {
       setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...m, _state: 'failed' } : m)));
-      showToast('Message could not be sent. Tap Retry.', 'error');
+      showToast(rateLimitMessage(err) || 'Message could not be sent. Tap Retry.', 'error');
     } finally {
       setSending(false);
     }
@@ -306,7 +308,7 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, n
       setMessages((prev) => (prev.some((x) => x.id === data.id) ? prev : [...prev, data]));
       loadConvos({ quiet: true });
     } catch (err) {
-      showToast(err?.message?.includes('mime') ? 'That file type is not supported.' : 'File could not be sent. Please try again.', 'error');
+      showToast(rateLimitMessage(err) || (err?.message?.includes('mime') ? 'That file type is not supported.' : 'File could not be sent. Please try again.'), 'error');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

@@ -24721,7 +24721,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
         showToast("You've already submitted a proposal on this project");
       } else {
         logError("bid-insert", error, { projectId: selectedProject?.id });
-        showToast("Couldn't submit bid — please try again.", "error");
+        showToast(String(error?.message || "").startsWith("rate_limited:") ? String(error.message).slice("rate_limited:".length).trim() : "Couldn't submit bid — please try again.", "error");
       }
     }
   };
