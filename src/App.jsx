@@ -1015,6 +1015,17 @@ const logError = (where, err, meta = {}) => {
   }
 };
 
+// A write the user expects to persist failed and the caller cannot show it.
+// Reports to Sentry (via logError) and tells the app shell to warn the user.
+const reportSaveFailure = (where, err, meta = {}) => {
+  logError(where, err, meta);
+  try {
+    if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("kb:save-failed", { detail: { where } }));
+  } catch {
+    /* event dispatch unavailable */
+  }
+};
+
 // ─── Safe browser-storage helpers ────────────────────────────────────────────
 //
 // Why these exist: localStorage.setItem throws in several situations that hit
@@ -5689,7 +5700,7 @@ async function updateNotificationsSafe(configureQuery) {
     if (result?.error && isSchemaMismatchError(result.error)) return { data: null, error: null, skipped: true };
     return result;
   } catch (e) {
-    if (kbIsDevRuntime()) console.warn('[kb] updateNotificationsSafe: notifications update failed', e);
+    logError('notifications-update', e);
     if (isSupabaseAuthLockAbort(e)) return { data: null, error: null, skipped: true, authLockSkipped: true };
     if (isSchemaMismatchError(e)) return { data: null, error: null, skipped: true };
     return { data: null, error: e, timedOut: e?.code === 'KB_SUPABASE_TIMEOUT' };
@@ -5709,7 +5720,7 @@ async function createTrustedNotificationSafe(event, contextId) {
       6000
     );
   } catch (e) {
-    if (kbIsDevRuntime()) console.warn('[kb] createTrustedNotificationSafe: trusted notification write failed', e);
+    logError('trusted-notification-write', e);
     return { data: null, error: e, timedOut: e?.code === 'KB_SUPABASE_TIMEOUT' };
   }
 }
@@ -6178,7 +6189,7 @@ async function insertHireConfirmationSafe(payload = {}) {
     );
     return result;
   } catch (e) {
-    if (kbIsDevRuntime()) console.warn('[kb] createHireConfirmationSafe: hire confirmation RPC failed', e);
+    logError('hire-confirmation-rpc', e);
     return { data: null, error: e, timedOut: e?.code === 'KB_SUPABASE_TIMEOUT' };
   }
 }
@@ -21490,7 +21501,7 @@ async function persistProjectWorkspaceSync(project = {}, workspace = {}, viewerR
     });
     return { snapshot, savedAt: new Date().toISOString() };
   } catch (e) {
-    if (kbIsDevRuntime()) console.warn('[kb] persistProjectWorkspaceSync: workspace sync persistence failed', e);
+    reportSaveFailure('project-workspace-sync', e, { projectId: project?.id || null });
     return null;
   }
 }
@@ -21500,7 +21511,7 @@ async function postProjectEventToConversation(project = {}, text = '', viewerRol
     const result = await insertProjectWorkflowConversationMessage(project, text, viewerRole, { previewText:text, updatePreview:true });
     return result?.convo || null;
   } catch (e) {
-    if (kbIsDevRuntime()) console.warn('[kb] postProjectEventToConversation: project event post failed', e);
+    reportSaveFailure('project-event-post', e, { projectId: project?.id || null });
     return null;
   }
 }
@@ -22229,7 +22240,7 @@ async function persistProjectOpsSnapshot(project = {}, opsState = {}) {
         meta:{ opsState: snapshot },
       });
     } catch (e) {
-      if (kbIsDevRuntime()) console.warn('[kb] persistProjectWorkspaceSync: legacy project activity persistence failed', e);
+      reportSaveFailure('project-ops-legacy-feed', e, { projectId: project?.id || null });
     }
 
     return { projectId: project.id, snapshot, savedAt: data?.updated_at || snapshot.updatedAt, source:'project_ops' };
@@ -57209,6 +57220,7 @@ export default function App() {
 
   const [toastQueue, setToastQueue] = useState([]);
   const toastTimerRef = React.useRef(null);
+  const lastSaveFailureToastRef = React.useRef(0);
 
   const showToast = (msg, type) => {
     // type: "success" | "error" | undefined (auto-detect fallback for legacy callers)
@@ -57241,6 +57253,19 @@ export default function App() {
 
   const dismissToast = () => { if(toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = null; setToastQueue(q => q.slice(1)); };
   const currentToast = toastQueue[0] || null;
+
+  // R-31: writers that cannot show their own error dispatch "kb:save-failed".
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const onSaveFailed = () => {
+      const now = Date.now();
+      if (now - lastSaveFailureToastRef.current < 15000) return;
+      lastSaveFailureToastRef.current = now;
+      setToastQueue(q => [...q, { id: now, msg: "Some changes could not be saved. Check your connection and try again.", type: "error" }]);
+    };
+    window.addEventListener("kb:save-failed", onSaveFailed);
+    return () => window.removeEventListener("kb:save-failed", onSaveFailed);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
