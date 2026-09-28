@@ -22833,11 +22833,17 @@ function readAppScreenFromHash(hashValue, fallback = "landing") {
   const hash = String(hashValue || "");
   if (hash.includes("type=recovery") || hash.includes("access_token")) return "reset-password";
   const route = hash.replace(/^#\/?/, "").split("/")[0].split("?")[0];
+  if (!route || route.startsWith("kb-")) return fallback;
+  if (route === "post-project") return "projects";
   // Deal Room links keep the conversation id in the hash (for example
   // #inbox-<conversation-id>) while the app-level screen remains Inbox.
   if (route === "inbox" || route.startsWith("inbox-")) return "inbox";
   if (APP_PROJECT_SUBTAB_BY_ROUTE[route]) return "projects";
-  return APP_HASH_ROUTE_SET.has(route) ? route : fallback;
+  return APP_HASH_ROUTE_SET.has(route) ? route : "not-found";
+}
+
+function isPostProjectHash(hashValue) {
+  return String(hashValue || "").replace(/^#\/?/, "").split("/")[0].split("?")[0] === "post-project";
 }
 
 function readProjectSubTabFromHash(hashValue) {
@@ -23044,8 +23050,14 @@ function applyProjectsScreenDependencies(dependencies = {}) {
   ({ __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computePlatformFee, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveProjectOperationalAlerts, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailPostedLabel, detailScopeItems, ensureInboxConversation, ExecutionActionStack, fetchLatestProjectOpsSnapshot, fetchLatestProjectWorkspaceSync, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, fmtMoney, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getConversationStatusBadgeLocal, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceModeMeta, getMarketplaceSummaryCards, getMarketplaceTabs, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getProjectPosterStats, getProjectWorkflowSummary, getRecommendedFitPresentation, getReturnNavigationTarget, getSignedChatFileUrl, getValidMediaUrl, getVendorIdentityBadges, getVendorPairSignalMapEntry, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMatchInlineText, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, loadCompareWorkspaceState, loadProjectOpsState, loadProjectWorkspace, logError, makeEmptyVendorPairSignalMaps, mergeProjectOpsSnapshots, mergeProjectWorkspaceSnapshots, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeProjectOpsSnapshot, normalizeProjectWorkspaceSnapshot, normalizeRefCode, normalizeVendorEntity, normalizeVendorPairInviteRow, openInboxThread, OperationalAlertList, parseProjectWorkspaceSync, persistProjectOpsSnapshot, persistProjectWorkspaceSync, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, projectOpsFingerprint, ProjectPrimaryEmptyState, projectWorkspaceFingerprint, pushProjectInteropSignal, queueActivityNavigation, queueDealRoomsHubNavigation, queueInboxNavigation, queueVendorNavigation, readLocalJson, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithFallback, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveCompareWorkspaceState, saveProjectOpsState, saveProjectWorkspace, scoreProjectForVendorLane, scoreVendorAgainstProject, selectConversationsSafe, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setAuthDefaultRole, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateConversationSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, clampVendorNarrative, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeDeliveryModel, normalizeSelectedVendorProjectMeta, openProjectContextBack, persistMatchmakerOutcomeEvent, persistRecommendedVendorMatchSnapshot, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks } = dependencies || {});
 }
 
-function ProjectsScreen({role, currentUser, showToast, nav, initialView="board", onMounted, navSubTab, onSubTabChange, forceProjectTab=null, privateMarketplaceAccess=false, isAdmin=false}){
+function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, initialView="board", onMounted, navSubTab, onSubTabChange, forceProjectTab=null, privateMarketplaceAccess=false, isAdmin=false}){
   const [view, setView] = useState(initialView);
+  const [, setSavedVendorTick] = useState(0);
+  useEffect(() => {
+    const bump = () => setSavedVendorTick(t => t + 1);
+    window.addEventListener("kb:saved-vendors-count", bump);
+    return () => window.removeEventListener("kb:saved-vendors-count", bump);
+  }, []);
   const [biddingEnabled, setBiddingEnabled] = useState(false);
   const [biddingSettingLoaded, setBiddingSettingLoaded] = useState(false);
   const [bidNotifyPendingId, setBidNotifyPendingId] = useState(null);
@@ -23152,6 +23164,13 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
   const [myActiveProjects, setMyActiveProjects] = useState([]);
   const [loadingMyProjects, setLoadingMyProjects] = useState(false);
   const [myProjectsFetchError, setMyProjectsFetchError] = useState(false);
+  const marketplaceViewerLocation = firstNonEmpty(
+    [userProfile?.city, userProfile?.state_code || userProfile?.state].filter(Boolean).join(", "),
+    userProfile?.city,
+    currentUser?.user_metadata?.city,
+    currentUser?.user_metadata?.location,
+    "Your area",
+  );
 
   // V807 NAV PERFORMANCE PATCH — tab switches must not behave like reloads.
   // These refs keep Marketplace / My Projects / My Work warm after first load,
@@ -24809,12 +24828,6 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
   const hirerMarketplaceMode = role === "church" || role === "individual";
   const openCount = (projects || []).filter(p => p.status === "open").length;
   const urgentCount = (projects || []).filter(p => p.urgent).length;
-  const [, setSavedVendorTick] = useState(0);
-  useEffect(() => {
-    const bump = () => setSavedVendorTick(t => t + 1);
-    window.addEventListener("kb:saved-vendors-count", bump);
-    return () => window.removeEventListener("kb:saved-vendors-count", bump);
-  }, []);
   const vendorCompareCount = getCompareWorkspaceCount('vendors');
   const projectCompareCount = getCompareWorkspaceCount('projects');
   const activeMarketMode = getMarketplaceModeMeta({ role, projectTab, openCount, urgentCount });
@@ -24932,7 +24945,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           className={`workspace-body-shell marketplace-body-shell kb-warm-tab-panel ${projectTab === "browse" ? "is-active" : "is-hidden"}`}
           aria-hidden={projectTab !== "browse"}
         >
-          <MemoProjectBoard projects={projects} loading={loading} role={role} currentUser={currentUser} onSelect={safeOpenProjectStable} onPost={goToPostProjectStable} onMyBids={myBidsRouteStable} showToast={showToast} nav={nav} vendorVerified={vendorVerified} myBids={myBids} myActiveProjects={myActiveProjects} loadingMyBids={loadingMyBids} loadingMyProjects={loadingMyProjects} myProjectsFetchError={myProjectsFetchError} onRetryMyProjects={retryMyProjectsStable} projectTab="browse" onTabSwitch={handleTabSwitchStable} loadMoreProjects={loadMoreProjectsStable} hasMoreServerProjects={hasMoreProjects} loadingMoreServerProjects={loadingMoreProjects} onSelectVendorProfile={openVendorProfileStable}/>
+          <MemoProjectBoard projects={projects} loading={loading} role={role} currentUser={currentUser} viewerLocation={marketplaceViewerLocation} onSelect={safeOpenProjectStable} onPost={goToPostProjectStable} onMyBids={myBidsRouteStable} showToast={showToast} nav={nav} vendorVerified={vendorVerified} myBids={myBids} myActiveProjects={myActiveProjects} loadingMyBids={loadingMyBids} loadingMyProjects={loadingMyProjects} myProjectsFetchError={myProjectsFetchError} onRetryMyProjects={retryMyProjectsStable} projectTab="browse" onTabSwitch={handleTabSwitchStable} loadMoreProjects={loadMoreProjectsStable} hasMoreServerProjects={hasMoreProjects} loadingMoreServerProjects={loadingMoreProjects} onSelectVendorProfile={openVendorProfileStable}/>
         </div>
       )}
 
@@ -24941,7 +24954,7 @@ function ProjectsScreen({role, currentUser, showToast, nav, initialView="board",
           className={`workspace-body-shell marketplace-body-shell kb-warm-tab-panel ${projectTab === "vendors" ? "is-active" : "is-hidden"}`}
           aria-hidden={projectTab !== "vendors"}
         >
-          <MemoVendorMarketplaceFastPanel role={role} currentUser={currentUser} showToast={showToast} nav={nav} onPost={goToPostProjectStable} onTabSwitch={handleTabSwitchStable} onSelectVendorProfile={openVendorProfileStable} contextProjects={myActiveProjects} founderCoverageContext={founderCoverageContext} onClearFounderCoverageContext={()=>setFounderCoverageContext(null)} isActive={projectTab === "vendors"}/>
+          <MemoVendorMarketplaceFastPanel role={role} currentUser={currentUser} viewerLocation={marketplaceViewerLocation} showToast={showToast} nav={nav} onPost={goToPostProjectStable} onTabSwitch={handleTabSwitchStable} onSelectVendorProfile={openVendorProfileStable} contextProjects={myActiveProjects} founderCoverageContext={founderCoverageContext} onClearFounderCoverageContext={()=>setFounderCoverageContext(null)} isActive={projectTab === "vendors"}/>
         </div>
       )}
 
@@ -25605,7 +25618,7 @@ function KBMarketplaceProjectCardGeometryStyles() {
 // browse hook stack, then returned AllVendorsLanding at the end to avoid a hook
 // order crash. That made a simple Marketplace ↔ Vendors toggle pay for the
 // entire project board. This panel owns only vendor-directory state/fetching.
-function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast, onSelectVendorProfile, currentUser, contextProjects = [], founderCoverageContext = null, onClearFounderCoverageContext = null, isActive = true }) {
+function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast, onSelectVendorProfile, currentUser, viewerLocation = 'Your area', contextProjects = [], founderCoverageContext = null, onClearFounderCoverageContext = null, isActive = true }) {
   const STORAGE_KEY = KB_STORAGE_KEYS.marketplaceBoardState;
   const readSavedState = useCallback(() => {
     try {
@@ -25798,6 +25811,7 @@ function VendorMarketplaceFastPanel({ role, nav, onPost, onTabSwitch, showToast,
       savedVendorIds={savedVendorIds}
       onToggleSave={toggleVendorSave}
       currentUser={currentUser}
+      viewerLocation={viewerLocation}
       contextProjects={contextProjects}
       founderCoverageContext={founderCoverageContext}
       onClearFounderCoverageContext={onClearFounderCoverageContext}
@@ -25817,10 +25831,17 @@ function getMarketplaceProjectLocationLabel(project = {}) {
 }
 
 
+function formatBudgetRangeTypography(value) {
+  return String(value || '').replace(
+    /(\$[\d,.]+(?:[kKmM])?)\s*[-–—]\s*(\$[\d,.]+(?:[kKmM])?)/g,
+    '$1–$2',
+  );
+}
+
 function formatMarketplaceProjectBudgetLabel(value) {
   if (value && typeof value === 'object') {
     const direct = firstNonEmpty(value?.range, value?.label, value?.display, value?.text, '');
-    if (direct) return String(direct);
+    if (direct) return formatBudgetRangeTypography(direct);
     const min = Number(firstNonEmpty(value?.min, value?.budget_min, 0));
     const max = Number(firstNonEmpty(value?.max, value?.budget_max, 0));
     const compact = (n) => n >= 1000000 ? `$${(n/1000000).toFixed(n%1000000?1:0)}M` : n >= 1000 ? `$${Math.round(n/1000)}K` : `$${Math.round(n)}`;
@@ -25830,7 +25851,7 @@ function formatMarketplaceProjectBudgetLabel(value) {
   }
   const str = String(value || '').trim();
   if (!str) return 'Flexible';
-  return str;
+  return formatBudgetRangeTypography(str);
 }
 
 function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locationLabel, timelineLabel, budgetLabel, statusLabel, saved = false, onToggleSave, onOpen, role = 'vendor', footerLabel = 'Budget', footerValue = null }) {
@@ -25892,7 +25913,7 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
   );
 }
 
-function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, onMyBids, showToast, nav, vendorVerified, myBids, myActiveProjects, loadingMyBids, loadingMyProjects, myProjectsFetchError = false, onRetryMyProjects, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null}){
+function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Your area', onSelect, onPost, onMyBids, showToast, nav, vendorVerified, myBids, myActiveProjects, loadingMyBids, loadingMyProjects, myProjectsFetchError = false, onRetryMyProjects, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null}){
   const marketplaceProjectsLoading = loading;
   const STORAGE_KEY = KB_STORAGE_KEYS.marketplaceBoardState;
   const SCROLL_KEY = KB_STORAGE_KEYS.marketplaceBoardScroll;
@@ -26231,7 +26252,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
   const formatProjectBudget = (value) => {
     const str = String(value || '').trim();
     if (!str) return 'Flexible';
-    if (/\$/.test(str)) return str;
+    if (/\$/.test(str)) return formatBudgetRangeTypography(str);
     const n = parseBudgetNumber(str);
     return n ? formatMoneyCompact(n) : str;
   };
@@ -27085,7 +27106,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
     const proposalLabel = bidN > 0 ? `${bidN} proposal${bidN === 1 ? '' : 's'}` : (fbMeta || 'New listing');
     const rawBudget = String(project.budget || '').trim();
     const budgetMatch = rawBudget.match(/\$[\d,]+(?:[kKmM])?(?:\s*[-–]\s*\$[\d,]+(?:[kKmM])?)?/);
-    const budgetDisplay = budgetMatch ? budgetMatch[0] : (rawBudget && rawBudget.length <= 22 ? rawBudget : (fbBudget || '$—'));
+    const budgetDisplay = formatBudgetRangeTypography(budgetMatch ? budgetMatch[0] : (rawBudget && rawBudget.length <= 22 ? rawBudget : (fbBudget || '$—')));
     return {
       project,
       title: project.title || fallback.title,
@@ -27322,6 +27343,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
         savedVendorIds={savedVendorIds}
         onToggleSave={toggleVendorSave}
         currentUser={currentUser}
+        viewerLocation={viewerLocation}
         contextProjects={myActiveProjects}
       />
     );
@@ -27416,6 +27438,7 @@ function ProjectBoard({projects, loading, role, currentUser, onSelect, onPost, o
 
       <ChurchProjectsMarketplaceHero
         isVendor={role === 'vendor'}
+        viewerLocation={viewerLocation}
         onPost={onPost}
         onFindVendors={() => typeof onTabSwitch === 'function' ? onTabSwitch('vendors') : null}
         onMyWork={() => typeof onTabSwitch === 'function' ? onTabSwitch('work') : null}
@@ -28411,7 +28434,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
 
   const formatBudgetDisplay = (project, bounds)=>{
     const entered = typeof project?.budget === 'string' ? project.budget.trim() : '';
-    if (entered) return entered;
+    if (entered) return formatBudgetRangeTypography(entered);
     if (bounds.min && bounds.max && bounds.min !== bounds.max) return `${formatMoney(bounds.min)}–${formatMoney(bounds.max)}`;
     if (bounds.min) return bounds.max ? formatMoney(bounds.max) : `From ${formatMoney(bounds.min)}`;
     if (bounds.max) return `Up to ${formatMoney(bounds.max)}`;
@@ -29418,7 +29441,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
 
   const formatProjectBudget = (project = {}) => {
     const entered = String(project?.budget || '').trim();
-    if (entered) return entered;
+    if (entered) return formatBudgetRangeTypography(entered);
     const min = Number(project?.budget_min || 0);
     const max = Number(project?.budget_max || 0);
     if (min > 0 && max > 0 && min !== max) return `${formatMoney(min)} – ${formatMoney(max)}`;
@@ -29828,7 +29851,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
             <div className="kb1004-filter-cells" role="tablist" aria-label="Project filters">
               {tabs.map(tab => (
                 <button key={tab.key} type="button" role="tab" aria-selected={bucket===tab.key} className={`kb1004-filter-cell${bucket===tab.key?' active':''}`} onClick={()=>{setBucket(tab.key);setCardMenuId(null);setExpandedBidId(null);}}>
-                  {renderTabIcon(tab.icon)}<span>{tab.label}</span><span className="kb1004-filter-count">{tab.count}</span>
+                  {renderTabIcon(tab.icon)}<span>{tab.label}</span>{tab.key !== 'messages' || tab.count > 0 ? <span className="kb1004-filter-count" aria-label={tab.key === 'messages' ? `${tab.count} unread messages` : undefined}>{tab.count}</span> : null}
                 </button>
               ))}
             </div>
@@ -30065,7 +30088,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     const city = p.project_city || p.city || '';
     const state = p.project_state || p.state_code || '';
     const location = [city,state].filter(Boolean).join(', ');
-    const budget = p.budget || ((p.budget_min || p.budget_max) ? `${p.budget_min ? formatMoney(p.budget_min) : '—'}${p.budget_max ? ` – ${formatMoney(p.budget_max)}` : ''}` : 'Budget not set');
+    const budget = p.budget ? formatBudgetRangeTypography(p.budget) : ((p.budget_min || p.budget_max) ? `${p.budget_min ? formatMoney(p.budget_min) : '—'}${p.budget_max ? ` – ${formatMoney(p.budget_max)}` : ''}` : 'Budget not set');
     const image = getProjectHeroImage(p, 'grid');
     const nextLabel = completed ? 'Completed' : draft ? 'Finish draft' : p.completion_requested_at ? 'Completion requested' : actionableBidsCount > 0 ? `${actionableBidsCount} proposal${actionableBidsCount===1?'':'s'} ready` : bidsCount > 0 ? 'Bid history' : 'No bids yet';
     const dateValue = completed ? p.completed_at : p.posted_at || p.created_at;
@@ -30266,7 +30289,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     <header className="kb1005-intro"><div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1><p>Track your projects, manage vendor activity, and move every decision forward.</p></div><div className="kb1005-quote"><b>Building What Matters.</b><em>For a Stronger Tomorrow.</em></div><span className="kb1005-intro-gap" aria-hidden="true" /><figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure></header>
     <div className={`kb1005-layout${bucket==='messages' ? ' is-messages' : ''}`}>
       <main>
-        <div className="kb1005-filter-cells" role="tablist" aria-label="Project filters">{tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={bucket===tab.key} className={`kb1005-filter-cell${bucket===tab.key?' active':''}`} onClick={()=>setBucket(tab.key)}>{renderTabIcon(tab.icon)}<span>{tab.label}</span><span className="kb1005-filter-count">{tab.count}</span></button>)}</div>
+        <div className="kb1005-filter-cells" role="tablist" aria-label="Project filters">{tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={bucket===tab.key} className={`kb1005-filter-cell${bucket===tab.key?' active':''}`} onClick={()=>setBucket(tab.key)}>{renderTabIcon(tab.icon)}<span>{tab.label}</span>{tab.key !== 'messages' || tab.count > 0 ? <span className="kb1005-filter-count" aria-label={tab.key === 'messages' ? `${tab.count} unread messages` : undefined}>{tab.count}</span> : null}</button>)}</div>
         {bucket==='messages' ? (
           <React.Suspense fallback={<div className="kb1005-empty"><p>Loading messages…</p></div>}>
             <MessagesTab currentUser={currentUser} role="church" showToast={showToast} nav={nav} onOpenProject={(p)=>onSelect(p)} onUnreadChange={setMsgUnread}/>
@@ -33161,9 +33184,10 @@ function MarketplaceVendorDirectoryCard({ vendor, image, categoryLabel, saved = 
     ? serviceModelRaw.replace(/[_-]+/g,' ').replace(/\b\w/g, ch => ch.toUpperCase())
     : (status?.label || 'Availability not confirmed');
   const tagline = String(firstNonEmpty(vendor?.tagline, vendor?.headline, vendor?.bio, vendor?.category, 'FaithBid vendor ready to serve churches.')).replace(/\s+/g,' ').trim();
-  const ratingNumber = Number(vendor?.rating || 0);
-  const reviewCount = Number(vendor?.reviews_count || vendor?.reviews || 0);
-  const ratingLabel = ratingNumber > 0 && reviewCount > 0 ? `★ ${ratingNumber.toFixed(1)}` : 'New to FaithBid';
+  // Directory cards do not infer public ratings from denormalized vendor rows.
+  // Review evidence belongs to the review/profile surfaces until the directory
+  // query returns a server-authoritative aggregate with its evidence count.
+  const directoryProofLabel = 'View profile';
   const statusLabel = faithVerified ? 'Faith Verified' : (status?.label || 'Availability not confirmed');
   const vendorProjectProxy = {
     ...vendor,
@@ -33179,9 +33203,9 @@ function MarketplaceVendorDirectoryCard({ vendor, image, categoryLabel, saved = 
       categoryLabel={categoryLabel}
       locationLabel={location}
       timelineLabel={serviceModel}
-      budgetLabel={ratingLabel}
-      footerLabel="Rating"
-      footerValue={ratingLabel}
+      budgetLabel={directoryProofLabel}
+      footerLabel="Trust details"
+      footerValue={directoryProofLabel}
       statusLabel={statusLabel}
       saved={saved}
       onToggleSave={onToggleSave}
@@ -33191,7 +33215,7 @@ function MarketplaceVendorDirectoryCard({ vendor, image, categoryLabel, saved = 
   );
 }
 
-function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendor, vendors: vendorInput = [], vendorsLoading = false, savedVendorIds: savedVendorIdsProp = new Set(), onToggleSave = null, currentUser = null, contextProjects = [], founderCoverageContext = null, onClearFounderCoverageContext = null, surface = 'default', isActive = true }) {
+function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendor, vendors: vendorInput = [], vendorsLoading = false, savedVendorIds: savedVendorIdsProp = new Set(), onToggleSave = null, currentUser = null, viewerLocation = 'Your area', contextProjects = [], founderCoverageContext = null, onClearFounderCoverageContext = null, surface = 'default', isActive = true }) {
   const directoryLoading = vendorsLoading;
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 180);
@@ -34088,6 +34112,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
         <ChurchMarketplaceHero
           isActive={isActive}
           isVendor={role === 'vendor'}
+          viewerLocation={viewerLocation}
           onPost={onPost}
           onChurchProjects={onBack}
           onVendorWorkspace={() => typeof onBack === 'function' ? onBack() : null}
@@ -38708,6 +38733,7 @@ function AuthProvider({ children, faithBidUser, faithBidSignOut, faithBidNav }) 
 		session,
 		workspace,
 		features,
+		isPlatformAdmin: !!isAdminUser(faithBidUser),
 		error,
 		reload: loadWorkspace,
 		signOut: typeof faithBidSignOut === "function" ? faithBidSignOut : () => supabase.auth.signOut(),
@@ -39337,268 +39363,39 @@ const navSections = [
 	{
 		title: "Home",
 		items: [
-			{
-				id: "week",
-				label: "This Week",
-				icon: "home",
-				areas: [
-					"Attention",
-					"This week",
-					"Insights"
-				]
-			},
-			{
-				id: "inbox",
-				label: "Inbox",
-				icon: "inbox",
-				roles: STAFF_ROUTE_ROLES,
-				badge: false,
-				blurb: "Replies, approvals, requests, and sign-ups, each with an owner and a next step.",
-				areas: [
-					"Needs approval",
-					"Replies",
-					"Requests",
-					"Sign-ups"
-				]
-			},
-			{
-				id: "tasks",
-				label: "Tasks",
-				icon: "tasks",
-				blurb: "Everything assigned or due, prepared by FaithBid or added by hand.",
-				areas: [
-					"Mine",
-					"Team",
-					"Due this week"
-				]
-			},
-			{
-				id: "calendar",
-				label: "Calendar",
-				icon: "calendar",
-				blurb: "Services, events, meetings, deadlines, and renewals on one calendar.",
-				areas: [
-					"Month",
-					"Week",
-					"Renewals",
-					"Rhythms"
-				]
-			}
+			{ id: "week", label: "This Week", icon: "home", areas: ["Attention", "This week", "Insights"] },
+			{ id: "inbox", label: "Inbox", icon: "inbox", roles: STAFF_ROUTE_ROLES, badge: false, blurb: "Replies, approvals, requests, and sign-ups, each with an owner and a next step.", areas: ["Needs approval", "Replies", "Requests", "Sign-ups"] },
+			{ id: "calendar", label: "Calendar", icon: "calendar", blurb: "Services, events, meetings, deadlines, and renewals on one calendar.", areas: ["Month", "Week", "Renewals", "Rhythms"] }
 		]
 	},
 	{
-		title: "Ministry",
+		title: "Church",
 		items: [
-			{
-				id: "sunday",
-				label: "Sunday",
-				icon: "sun",
-				blurb: "Plan the gathering, fill every role, and run the day.",
-				areas: [
-					"Service planning",
-					"Run sheets",
-					"Volunteers and teams",
-					"Open roles",
-					"Availability and swaps",
-					"Media and livestream",
-					"Sunday Mode"
-				]
-			},
-			{
-				id: "people",
-				label: "People",
-				icon: "users",
-				roles: STAFF_ROUTE_ROLES,
-				blurb: "A directory that stays out of the way, with guests and follow-up built in.",
-				areas: [
-					"Directory",
-					"Households",
-					"Guests and follow-up",
-					"Connect cards",
-					"Skills",
-					"Milestones"
-				]
-			},
-			{
-				id: "sermons",
-				label: "Sermons",
-				icon: "mic",
-				roles: STAFF_ROUTE_ROLES,
-				flag: "sermons",
-				blurb: "Turn one sermon into a week of content, in your voice, and keep the archive.",
-				areas: [
-					"Sermon studio",
-					"Series planner",
-					"Discussion questions",
-					"Devotional",
-					"Social drafts",
-					"Archive",
-					"Study library"
-				]
-			},
-			{
-				id: "groups",
-				label: "Groups",
-				icon: "book",
-				flag: "groups",
-				blurb: "Get people connected and growing.",
-				areas: [
-					"Small groups",
-					"Group finder",
-					"Leader tools",
-					"Curriculum",
-					"Reading plans"
-				]
-			},
-			{
-				id: "kids",
-				label: "Kids Ministry",
-				icon: "shield",
-				roles: STAFF_ROUTE_ROLES,
-				flag: "kids",
-				blurb: "Safe, simple tools for children's ministry.",
-				areas: [
-					"Rosters",
-					"Volunteer ratios",
-					"Parent and guardian records",
-					"Clearances",
-					"Check-in and pickup"
-				]
-			},
-			{
-				id: "care",
-				label: "Care & Prayer",
-				icon: "heart",
-				roles: ["owner", "pastor"],
-				flag: "care",
-				restricted: true,
-				blurb: "Restricted pastoral care and prayer workspace. Never shared with AI.",
-				areas: [
-					"Care queue",
-					"Prayer requests",
-					"Hospital visits",
-					"Homebound",
-					"Meal trains",
-					"Benevolence"
-				]
-			},
-			{
-				id: "events",
-				label: "Events",
-				icon: "flag",
-				roles: STAFF_ROUTE_ROLES,
-				flag: "events",
-				blurb: "VBS, retreats, dinners, and service days.",
-				areas: [
-					"Events",
-					"Registrations",
-					"Attendees",
-					"Waitlists",
-					"Event volunteers"
-				]
-			},
-			{
-				id: "missions",
-				label: "Missions",
-				icon: "compass",
-				flag: "missions",
-				blurb: "Keep partners prayed for and the church engaged outward.",
-				areas: [
-					"Partners",
-					"Trips",
-					"Prayer updates",
-					"Serve days"
-				]
-			}
+			{ id: "sunday", label: "Sunday", icon: "sun", blurb: "Plan the gathering, fill every role, and run the day.", areas: ["Service planning", "Run sheets", "Volunteers and teams", "Open roles", "Availability and swaps", "Media and livestream", "Sunday Mode"] },
+			{ id: "people", label: "People", icon: "users", roles: STAFF_ROUTE_ROLES, blurb: "A directory that stays out of the way, with guests and follow-up built in.", areas: ["Directory", "Households", "Guests and follow-up", "Connect cards", "Skills", "Milestones"] },
+			{ id: "groups", label: "Groups", icon: "book", flag: "groups", blurb: "Get people connected and growing.", areas: ["Small groups", "Group finder", "Leader tools", "Curriculum", "Reading plans"] },
+			{ id: "kids", label: "Kids", icon: "shield", roles: STAFF_ROUTE_ROLES, flag: "kids", blurb: "Safe, simple tools for children's ministry.", areas: ["Rosters", "Volunteer ratios", "Parent and guardian records", "Clearances", "Check-in and pickup"] },
+			{ id: "events", label: "Events", icon: "flag", roles: STAFF_ROUTE_ROLES, flag: "events", blurb: "VBS, retreats, dinners, and service days.", areas: ["Events", "Registrations", "Attendees", "Waitlists", "Event volunteers"] },
+			{ id: "sermons", label: "Sermons", icon: "mic", roles: STAFF_ROUTE_ROLES, flag: "sermons", hiddenInNav: true, blurb: "Plan messages, organize series, and keep a useful archive.", areas: ["Sermon studio", "Series planner", "Discussion questions", "Devotional", "Social drafts", "Archive", "Study library"] },
+			{ id: "care", label: "Care & Prayer", icon: "heart", roles: ["owner", "pastor"], flag: "care", hiddenInNav: true, restricted: true, blurb: "Restricted pastoral care and prayer workspace. Never shared with AI.", areas: ["Care queue", "Prayer requests", "Hospital visits", "Homebound", "Meal trains", "Benevolence"] },
+			{ id: "missions", label: "Missions", icon: "compass", flag: "missions", hiddenInNav: true, blurb: "Keep partners, trips, prayer updates, and serve days together.", areas: ["Partners", "Trips", "Prayer updates", "Serve days"] }
 		]
 	},
 	{
-		title: "Communications",
+		title: "Communication",
 		items: [
-			{
-				id: "messages",
-				label: "Messages",
-				icon: "send",
-				flag: "messages",
-				blurb: "Say it once and reach everyone the way they prefer. Nothing sends without approval.",
-				areas: [
-					"Church-wide messages",
-					"Text",
-					"Email",
-					"Phone tree",
-					"Scheduled",
-					"History"
-				]
-			},
-			{
-				id: "marketing",
-				label: "Media & Brand",
-				icon: "megaphone",
-				roles: STAFF_ROUTE_ROLES,
-				flag: "marketing",
-				blurb: "Sunday media, announcements, brand, and public-facing church content.",
-				areas: [
-					"Sunday slides",
-					"Bulletin",
-					"Announcements",
-					"Brand",
-					"Online presence",
-					"Plan Your Visit",
-					"QR and invite cards"
-				]
-			}
+			{ id: "messages", label: "Messages", icon: "send", flag: "messages", blurb: "Say it once and reach everyone the way they prefer. Nothing sends without approval.", areas: ["Church-wide messages", "Text", "Email", "Phone tree", "Scheduled", "History"] },
+			{ id: "marketing", label: "Media", icon: "megaphone", roles: STAFF_ROUTE_ROLES, flag: "marketing", blurb: "Sunday media, announcements, brand, and public-facing church content.", areas: ["Sunday slides", "Bulletin", "Announcements", "Brand", "Online presence", "Plan Your Visit", "QR and invite cards"] }
 		]
 	},
 	{
-		title: "Operations",
+		title: "Tools",
 		items: [
-			{
-				id: "vault",
-				label: "Vault",
-				icon: "archive",
-				roles: STAFF_ROUTE_ROLES,
-				flag: "vault",
-				blurb: "Policies, insurance, contracts, minutes, and renewals in one place.",
-				areas: [
-					"Documents",
-					"Renewals",
-					"Policies",
-					"Insurance",
-					"Contracts",
-					"Board packets",
-					"Continuity"
-				]
-			},
-			{
-				id: "facilities",
-				label: "Facilities",
-				icon: "wrench",
-				flag: "facilities",
-				blurb: "Keep the building working.",
-				areas: [
-					"Maintenance",
-					"Work orders",
-					"Inspections",
-					"Rooms and resources",
-					"Vendors"
-				]
-			},
-			{
-				id: "money",
-				label: "Finance & Governance",
-				icon: "money",
-				flag: "money",
-				restricted: true,
-				blurb: "Financial records and governance routines. FaithBid never processes payments.",
-				areas: [
-					"Offering count",
-					"Deposits",
-					"Budget vs actual",
-					"Reimbursements",
-					"Giving records",
-					"Board packets"
-				]
-			}
+			{ id: "tasks", label: "Tasks", icon: "tasks", blurb: "Everything assigned or due, prepared by FaithBid or added by hand.", areas: ["Mine", "Team", "Due this week"] },
+			{ id: "vault", label: "Vault", icon: "archive", roles: STAFF_ROUTE_ROLES, flag: "vault", blurb: "Policies, insurance, contracts, minutes, and renewals in one place.", areas: ["Documents", "Renewals", "Policies", "Insurance", "Contracts", "Board packets", "Continuity"] },
+			{ id: "more", label: "More", icon: "more", blurb: "Useful secondary tools and a clear view of what is available next.", areas: ["Sermons", "Missions", "Facilities", "Finance and Governance", "Community", "Online Presence", "Insights"] },
+			{ id: "facilities", label: "Facilities", icon: "wrench", flag: "facilities", hiddenInNav: true, blurb: "Keep the building working.", areas: ["Maintenance", "Work orders", "Inspections", "Rooms and resources", "Vendors"] },
+			{ id: "money", label: "Finance & Governance", icon: "money", flag: "money", hiddenInNav: true, restricted: true, blurb: "Financial records and governance routines. FaithBid never processes payments.", areas: ["Offering count", "Deposits", "Budget vs actual", "Reimbursements", "Giving records", "Board packets"] }
 		]
 	}
 ];
@@ -39687,7 +39484,7 @@ function useDesktopFrame() {
 	return frame;
 }
 function Shell({ activeId, go, children }) {
-	const { workspace, features, signOut, productNav } = useAuth();
+	const { workspace, features, isPlatformAdmin, signOut, productNav } = useAuth();
 	const [navOpen, setNavOpen] = useState(() => typeof window === "undefined" ? true : window.innerWidth > 900);
 	const [menu, setMenu] = useState(false);
 	const menuRef = useRef(null);
@@ -39763,10 +39560,10 @@ function Shell({ activeId, go, children }) {
 	const visible = (it) => (!it.flag || features[it.flag]) && (!it.roles || it.roles.includes(workspace.role)) && Boolean(SCREENS[it.id]);
 	const sections = navSections.map((s) => ({
 		...s,
-		items: s.items.filter(visible)
+		items: s.items.filter((it) => visible(it) && !it.hiddenInNav)
 	})).filter((s) => s.items.length);
 	const active = [...navSections.flatMap((s) => s.items), ...accountItems, ...bottomItems].find((i) => i.id === activeId);
-	const searchableNav = [...sections.flatMap((s) => s.items), ...accountItems.filter(visible), ...bottomItems.filter(visible)];
+	const searchableNav = [...sections.flatMap((s) => s.items), ...navSections.flatMap((s) => s.items).filter((it) => it.hiddenInNav && visible(it)), ...accountItems.filter(visible), ...bottomItems.filter(visible)];
 	const navMatches = useMemo(() => {
 		const q = searchQ.trim().toLowerCase();
 		if (!q) return [];
@@ -39815,9 +39612,9 @@ function Shell({ activeId, go, children }) {
 	const row = (it) => /* @__PURE__ */ jsxs("button", {
 		type: "button",
 		title: it.label,
-		className: it.id === activeId ? "os-nav-row active" : "os-nav-row",
+		className: it.id === activeId || it.id === "more" && ["sermons", "missions", "care"].includes(activeId) ? "os-nav-row active" : "os-nav-row",
 		onClick: () => select(it.id),
-		"aria-current": it.id === activeId ? "page" : void 0,
+		"aria-current": it.id === activeId || it.id === "more" && ["sermons", "missions", "care"].includes(activeId) ? "page" : void 0,
 		children: [
 			/* @__PURE__ */ jsx("i", {
 				"aria-hidden": "true",
@@ -39908,8 +39705,8 @@ function Shell({ activeId, go, children }) {
 								onKeyDown: (e) => {
 									if (e.key === "Enter" && searchResults[0]) { e.preventDefault(); openSearchResult(searchResults[0]); }
 								},
-								placeholder: "Search Church OS…",
-								"aria-label": "Search Church OS",
+								placeholder: "Search Church Toolkit…",
+								"aria-label": "Search Church Toolkit",
 								"aria-expanded": searchOpen,
 								"aria-controls": "churchly-global-search-results"
 							}),
@@ -39948,7 +39745,8 @@ function Shell({ activeId, go, children }) {
 							children: [
 								/* @__PURE__ */ jsx("button", { type: "button", className: "os-product-switcher-btn active", "aria-current": "page", children: "Church Toolkit" }),
 								/* @__PURE__ */ jsx("button", { type: "button", className: "os-product-switcher-btn", onClick: () => productNav?.("projects"), children: "Marketplace" }),
-								/* @__PURE__ */ jsx("button", { type: "button", className: "os-product-switcher-btn", onClick: () => productNav?.("my-projects"), children: "My Projects" })
+								/* @__PURE__ */ jsx("button", { type: "button", className: "os-product-switcher-btn", onClick: () => productNav?.("my-projects"), children: "My Projects" }),
+								isPlatformAdmin && /* @__PURE__ */ jsx("button", { type: "button", className: "os-product-switcher-btn", onClick: () => productNav?.("admin"), children: "Admin Review" })
 							]
 						})
 					}),
@@ -40628,6 +40426,44 @@ function Page({ title, subtitle, actions, children }) {
 		}), children]
 	});
 }
+function TKPageHeader({ eyebrow, title, subtitle, actions, className }) {
+	return <header className={clsx("tk-page-header", className)}>
+		<div className="tk-page-header-copy">
+			{eyebrow && <p className="tk-eyebrow">{eyebrow}</p>}
+			<h1>{title}</h1>
+			{subtitle && <p className="tk-page-promise">{subtitle}</p>}
+		</div>
+		{actions && <div className="tk-page-actions">{actions}</div>}
+	</header>;
+}
+function TKSectionLabel({ eyebrow, title, description, action, className }) {
+	return <header className={clsx("tk-section-label", className)}>
+		<div>
+			{eyebrow && <p className="tk-eyebrow">{eyebrow}</p>}
+			<h2>{title}</h2>
+			{description && <p>{description}</p>}
+		</div>
+		{action && <div className="tk-section-action">{action}</div>}
+	</header>;
+}
+function TKLedger({ children, className, ariaLabel }) {
+	return <ol className={clsx("tk-ledger", className)} aria-label={ariaLabel}>{children}</ol>;
+}
+function TKLedgerRow({ href, icon, eyebrow, title, detail, action, tone = "sage", className }) {
+	const content = <>
+		{icon && <span className={clsx("tk-ledger-icon", "tone-" + tone)} aria-hidden="true"><Icon name={icon} size={22} /></span>}
+		<span className="tk-ledger-copy">
+			{eyebrow && <span className="tk-ledger-eyebrow">{eyebrow}</span>}
+			<strong>{title}</strong>
+			{detail && <span className="tk-ledger-detail">{detail}</span>}
+		</span>
+		{action && <span className="tk-ledger-action">{action}</span>}
+	</>;
+	return <li className={clsx("tk-ledger-row", className)}>
+		{href ? <a href={href}>{content}</a> : <div>{content}</div>}
+	</li>;
+}
+
 const Card = ({ title, action, children, className }) => /* @__PURE__ */ jsxs("section", {
 	className: clsx("churchos-card rounded-card border border-line bg-surface p-6 shadow-[0_1px_2px_rgba(20,50,44,.04)]", className),
 	children: [(title || action) && /* @__PURE__ */ jsxs("header", {
@@ -41874,154 +41710,125 @@ function WeekPage() {
 		});
 	}
 	const sortedNeeds = [...needs].sort((a, b) => a.priority - b.priority || a.key.localeCompare(b.key));
-	const hiddenNeedsCount = Math.max(0, sortedNeeds.length - 4);
-	const visibleNeeds = showAllNeeds ? sortedNeeds : sortedNeeds.slice(0, 4);
+	const hiddenNeedsCount = Math.max(0, sortedNeeds.length - 3);
+	const visibleNeeds = showAllNeeds ? sortedNeeds : sortedNeeds.slice(0, 3);
 
 	const readinessNeeded = Number(nextSunday.needed ?? view?.needed ?? 0);
 	const readinessFilled = Number(nextSunday.filled ?? view?.filled ?? 0);
-	const readinessConfirmed = Number(nextSunday.confirmed ?? view?.confirmed ?? 0);
 	const readinessOpen = Number(nextSunday.open ?? Math.max(0, readinessNeeded - readinessFilled));
 	const sermonKnown = Object.prototype.hasOwnProperty.call(nextSunday, "sermon_ready");
 	const runSheetKnown = Object.prototype.hasOwnProperty.call(nextSunday, "run_sheet_ready");
 	const sermonReady = !!nextSunday.sermon_ready;
 	const runSheetReady = !!nextSunday.run_sheet_ready;
-	const readyAll = !!d?.next && readinessOpen === 0 && (!sermonKnown || sermonReady) && (!runSheetKnown || runSheetReady);
-	const readinessLabel = !d?.next ? "Not planned" : readyAll ? "Ready" : "Needs preparation";
-	const readinessTone = !d?.next ? "text-muted" : readyAll ? "text-ok" : "text-[#8a6115]";
-	const readinessPill = !d?.next ? "bg-canvas text-muted" : readyAll ? "bg-[#e8f0ec] text-ok" : "bg-[#fbf1de] text-[#7a5411]";
-	const peopleReadiness = readinessNeeded === 0 ? "Not configured" : readinessOpen > 0 ? "At risk" : "Ready";
+	const readinessRemaining = readinessOpen + (sermonKnown && !sermonReady ? 1 : 0) + (runSheetKnown && !runSheetReady ? 1 : 0);
 
-	const inMotionItems = [];
-	for (const c of externalHelpCases.filter((item) => externalHelpInMotionStages.has(item.stage))) {
-		if (inMotionItems.length >= 3) break;
-		inMotionItems.push({
-			key: `outside-help:${c.id || c.case_id || c.title}`,
-			title: c.title,
-			source: "Outside help",
-			meta: [externalHelpReturnStageLabel(c.stage), c.next_action].filter(Boolean).join(" · "),
-			href: externalHelpSourceHref(c),
-			icon: "wrench"
+	const faithBidHandlingItems = externalHelpCases
+		.filter((item) => externalHelpInMotionStages.has(item.stage))
+		.slice(0, 3)
+		.map((item) => ({
+			key: "outside-help:" + (item.id || item.case_id || item.title),
+			title: item.title,
+			detail: [externalHelpReturnStageLabel(item.stage), item.next_action].filter(Boolean).join(" · "),
+			href: externalHelpSourceHref(item)
+		}));
+
+	const nextUpItems = [];
+	if (d?.next) {
+		const serviceDate = new Date(d.next.starts_at);
+		nextUpItems.push({
+			key: "service:" + d.next.id,
+			day: serviceDate.toLocaleDateString([], { weekday: "short" }).toUpperCase(),
+			date: serviceDate.toLocaleDateString([], { day: "2-digit" }),
+			title: d.next.title,
+			detail: [timeOf(serviceDate), readinessRemaining > 0 ? readinessRemaining + " thing" + (readinessRemaining === 1 ? "" : "s") + " remain" : "Ready"].join(" · "),
+			href: "#church-os/sunday"
 		});
 	}
-	for (const t of view?.inMotion || []) {
-		if (inMotionItems.length >= 3) break;
-		inMotionItems.push({
-			key: `task:${t.id || t.title}`,
-			title: t.title,
-			source: "Tasks",
-			meta: [t.assignee_name ? `${t.assignee_name} owns this` : null, t.due_date ? `due ${new Date(t.due_date + "T00:00:00").toLocaleDateString([], { month: "short", day: "numeric" })}` : null].filter(Boolean).join(" · "),
-			href: "#church-os/tasks",
-			icon: "tasks"
+	for (const item of agenda) {
+		if (nextUpItems.length >= 3) break;
+		nextUpItems.push({
+			key: "calendar:" + item.item_id + item.occurrence_start,
+			day: item.when.toLocaleDateString([], { weekday: "short" }).toUpperCase(),
+			date: item.when.toLocaleDateString([], { day: "2-digit" }),
+			title: item.title,
+			detail: [item.all_day ? "All day" : timeOf(item.when), item.location].filter(Boolean).join(" · "),
+			href: "#church-os/calendar"
 		});
 	}
-	if (readinessConfirmed > 0 && inMotionItems.length < 3) inMotionItems.push({
-		key: `sunday-confirmed:${d?.next?.id || "next"}`,
-		title: `${readinessConfirmed} Sunday role${readinessConfirmed === 1 ? " is" : "s are"} confirmed`,
-		source: "Sunday",
-		meta: "Volunteer responses are recorded; no action is needed right now.",
-		href: "#church-os/sunday",
-		icon: "users"
-	});
 
-	const renderNeeds = () => <section className={`${CARD$4} mb-5 overflow-hidden`}>
-		<header className={`flex items-start justify-between gap-5 border-b border-line px-6 ${sortedNeeds.length <= 1 ? "py-4" : "py-5"}`}>
-			<div>
-				<p className={EYEBROW}>Needs you</p>
-				<h2 className="mt-1 font-serif text-[1.6rem] font-semibold leading-tight">{sortedNeeds.length ? `${sortedNeeds.length} thing${sortedNeeds.length === 1 ? "" : "s"} need your attention` : "Nothing needs you right now"}</h2>
-				<p className="mt-0.5 max-w-[44rem] text-sm text-muted">{sortedNeeds.length ? "Only decisions, safety issues, overdue work, and approaching risks appear here." : "Church OS is watching Sunday, deadlines, follow-up, and the work already in motion."}</p>
-			</div>
-			{sortedNeeds.length > 0 && <span className="rounded-full bg-[#f1eadb] px-3 py-1 text-xs font-semibold text-[#6a531d]">{sortedNeeds.length}</span>}
-		</header>
-		{sortedNeeds.length === 0 ? <div className="flex items-center gap-4 px-6 py-5">
-			<span className="grid h-11 w-11 flex-none place-items-center rounded-full bg-[#e8f0ec] text-forest"><Icon name="tasks" size={20} /></span>
-			<div><p className="font-medium">You are clear to keep moving.</p><p className="mt-0.5 text-sm text-muted">If something changes, it will surface here instead of becoming another dashboard to check.</p></div>
-		</div> : <>
-			<ol>{visibleNeeds.map((item) => <li key={item.key} className="border-t border-line first:border-t-0">
-				<a href={item.href} className={`group flex items-center gap-4 px-6 ${visibleNeeds.length === 1 ? "py-3.5" : "py-4"} text-ink no-underline transition hover:bg-canvas/70`}>
-					<span className={`grid h-10 w-10 flex-none place-items-center rounded-xl ${TONE[item.tone]}`}><Icon name={item.icon} size={19} /></span>
-					<span className="min-w-0 flex-1">
-						<span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-[.1em] text-gold">{item.priorityLabel} · {item.source}</span>
-						<span className="block text-[0.98rem] font-semibold">{item.title}</span>
-						<span className="mt-0.5 block text-[13px] text-muted">{item.body}</span>
-					</span>
-					<span className="flex-none text-[13px] font-medium text-[#52625a] transition group-hover:text-ink">{item.cta} →</span>
-				</a>
-			</li>)}</ol>
-			{hiddenNeedsCount > 0 && !showAllNeeds && <div className="border-t border-line bg-canvas/50 px-6 py-3 text-center"><button type="button" aria-expanded="false" onClick={() => setShowAllNeeds(true)} className="text-sm font-semibold text-forest hover:underline">View all · {hiddenNeedsCount} more</button></div>}
-			{showAllNeeds && sortedNeeds.length > 4 && <div className="border-t border-line bg-canvas/50 px-6 py-3 text-center"><button type="button" aria-expanded="true" onClick={() => setShowAllNeeds(false)} className="text-sm font-semibold text-forest hover:underline">Show top 4</button></div>}
-		</>}
-	</section>;
-
-	const inMotionSection = inMotionItems.length > 0 ? <section className={`${CARD$4} mt-5 px-6 py-5`}>
-		<div className="flex flex-wrap items-end justify-between gap-3">
-			<div><p className={EYEBROW}>In motion</p><h3 className="mt-1 font-serif text-[1.35rem] font-semibold">Important work already being handled</h3></div>
-			<p className="text-[12px] text-muted">Status only · no decision needed</p>
+	if (!staff) return <div data-kit className="tk-page tk-week-page tk-week-member">
+		<TKPageHeader
+			eyebrow={today.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}
+			title={greeting() + (first ? ", " + first : "")}
+			subtitle="Your schedule, groups, and the next things you need to know."
+		/>
+		<MySchedule ws={ws} />
+		<div className="tk-week-member-grid">
+			<section>
+				<TKSectionLabel title="Next up" />
+				{nextUpItems.length ? <TKLedger ariaLabel="Upcoming church schedule">
+					{nextUpItems.map((item) => <TKLedgerRow key={item.key} href={item.href} eyebrow={item.day + " " + item.date} title={item.title} detail={item.detail} action="Open →" />)}
+				</TKLedger> : <p className="tk-empty-copy">Nothing consequential is approaching.</p>}
+			</section>
+			{features.groups && myGroups.length > 0 && <section>
+				<TKSectionLabel title="My groups" action={<a href="#church-os/groups">All groups →</a>} />
+				<TKLedger ariaLabel="My groups">{myGroups.map((group) => <TKLedgerRow key={group.id} href="#church-os/groups" icon="book" title={group.name} detail={[KINDS$2[group.kind], group.meets, group.my_role === "member" ? null : "You lead this"].filter(Boolean).join(" · ")} action="Open →" />)}</TKLedger>
+			</section>}
 		</div>
-		<ol className="mt-3 grid gap-x-6 md:grid-cols-2 xl:grid-cols-3">{inMotionItems.map((item) => <li key={item.key} className="border-t border-line py-3 first:border-t-0 md:[&:nth-child(2)]:border-t-0 xl:[&:nth-child(3)]:border-t-0">
-			<a href={item.href} className="group flex items-center gap-3 text-ink no-underline">
-				<span className="grid h-9 w-9 flex-none place-items-center rounded-xl bg-[#e8f0ec] text-forest"><Icon name={item.icon} size={18} /></span>
-				<span className="min-w-0 flex-1"><span className="block text-[10px] font-semibold uppercase tracking-[.1em] text-gold">{item.source}</span><span className="block truncate text-sm font-medium">{item.title}</span><span className="mt-0.5 block truncate text-[13px] text-muted">{item.meta}</span></span>
-				<span className="flex-none text-muted transition group-hover:text-ink">→</span>
-			</a>
-		</li>)}</ol>
-	</section> : null;
+	</div>;
 
-	const readiness = /* @__PURE__ */ jsxs("section", {
-		className: `${CARD$4} px-6 py-5`,
-		children: [
-			/* @__PURE__ */ jsxs("div", { className: "flex items-start justify-between gap-4", children: [
-				/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("p", { className: EYEBROW, children: "Church readiness" }), /* @__PURE__ */ jsx("h3", { className: "mt-1 font-serif text-[1.35rem] font-semibold", children: d?.next ? new Date(d.next.starts_at).toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" }) : "Next Sunday" }), d?.next && /* @__PURE__ */ jsxs("p", { className: "mt-1 text-sm text-muted", children: [timeOf(new Date(d.next.starts_at)), " · ", d.next.title] })] }),
-				/* @__PURE__ */ jsx("span", { className: `rounded-full px-3 py-1 text-xs font-semibold ${readinessPill}`, children: readinessLabel })
-			] }),
-			d?.next ? /* @__PURE__ */ jsxs(Fragment, { children: [
-				/* @__PURE__ */ jsxs("div", { className: "mt-4 grid gap-2", children: [
-					/* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between rounded-xl bg-canvas px-4 py-2.5", children: [/* @__PURE__ */ jsx("span", { className: "text-sm font-medium", children: "People" }), /* @__PURE__ */ jsx("span", { className: `text-sm font-semibold ${readinessOpen > 0 ? "text-[#8a6115]" : readinessNeeded > 0 ? "text-ok" : "text-muted"}`, children: peopleReadiness })] }),
-					sermonKnown && /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between rounded-xl bg-canvas px-4 py-2.5", children: [/* @__PURE__ */ jsx("span", { className: "text-sm font-medium", children: "Sermon" }), /* @__PURE__ */ jsx("span", { className: `text-sm font-semibold ${sermonReady ? "text-ok" : "text-[#8a6115]"}`, children: sermonReady ? "Ready" : "Not ready" })] }),
-					runSheetKnown && /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between rounded-xl bg-canvas px-4 py-2.5", children: [/* @__PURE__ */ jsx("span", { className: "text-sm font-medium", children: "Run sheet" }), /* @__PURE__ */ jsx("span", { className: `text-sm font-semibold ${runSheetReady ? "text-ok" : "text-[#8a6115]"}`, children: runSheetReady ? "Ready" : "Not ready" })] })
-				] }),
-				/* @__PURE__ */ jsx("a", { href: "#church-os/sunday", className: "mt-3.5 inline-flex text-sm font-semibold text-forest no-underline hover:underline", children: "Open Sunday →" })
-			] }) : /* @__PURE__ */ jsxs("div", { className: "mt-5", children: [/* @__PURE__ */ jsx("p", { className: "text-sm text-muted", children: "No upcoming service is planned yet." }), staff && /* @__PURE__ */ jsx("a", { href: "#church-os/sunday", className: "mt-3 inline-flex text-sm font-semibold text-forest no-underline hover:underline", children: "Plan Sunday →" })] })
-		]
-	}, "readiness");
+	return <div data-kit className="tk-page tk-week-page">
+		<TKPageHeader
+			eyebrow={today.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}
+			title={greeting() + (first ? ", " + first : "")}
+			subtitle="Here’s what matters before Sunday."
+			actions={["owner", "pastor", "admin"].includes(workspace.role) ? <Checklist ws={ws} /> : null}
+		/>
 
-	const ahead = /* @__PURE__ */ jsxs("section", {
-		className: `${CARD$4} self-start px-6 py-4`,
-		children: [
-			/* @__PURE__ */ jsxs("header", { className: "flex items-baseline justify-between gap-4", children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("p", { className: EYEBROW, children: "Ahead" }), /* @__PURE__ */ jsx("h3", { className: "mt-1 font-serif text-[1.35rem] font-semibold", children: "What is approaching" })] }), /* @__PURE__ */ jsx("a", { href: "#church-os/calendar", className: "text-[13px] font-medium text-muted no-underline hover:text-ink", children: "Calendar →" })] }),
-			agenda.length === 0 ? /* @__PURE__ */ jsx("p", { className: "mt-3 text-sm text-muted", children: d?.next ? "Nothing else approaching." : "Nothing consequential is on the calendar for the next two weeks." }) : /* @__PURE__ */ jsx("ol", { className: "mt-2", children: agenda.map((i) => {
-				const delta = daysBetween(i.when, today);
-				const whenLabel = delta === 0 ? "Today" : delta === 1 ? "Tomorrow" : delta > 1 && delta < 7 ? i.when.toLocaleDateString([], { weekday: "long" }) : i.when.toLocaleDateString([], { month: "short", day: "numeric" });
-				return /* @__PURE__ */ jsxs("li", { className: "flex gap-3 border-t border-line py-2.5 first:border-t-0", children: [/* @__PURE__ */ jsx("span", { className: "w-[74px] flex-none pt-0.5 text-[11px] font-semibold uppercase tracking-[.1em] text-gold", children: whenLabel }), /* @__PURE__ */ jsxs("div", { className: "min-w-0", children: [/* @__PURE__ */ jsx("p", { className: "truncate text-sm font-medium", children: i.title }), /* @__PURE__ */ jsxs("p", { className: "mt-0.5 truncate text-[13px] text-muted", children: [i.all_day ? "All day" : timeOf(i.when), i.location ? ` · ${i.location}` : ""] })] })] }, i.item_id + i.occurrence_start);
-			}) })
-		]
-	}, "ahead");
+		{(loadWarning || operatorWarning || externalHelpWarning) && <LoadFailure title="Some Church Toolkit information did not refresh" body={[loadWarning, operatorWarning, externalHelpWarning].filter(Boolean).join(" ")} onRetry={() => window.location.reload()} />}
 
-	if (!staff) return /* @__PURE__ */ jsxs("div", {
-		"data-kit": true,
-		className: "mx-auto max-w-[1460px] px-4 pb-10 pt-8 text-ink sm:px-8",
-		children: [
-			/* @__PURE__ */ jsxs("header", { className: "mb-7", children: [/* @__PURE__ */ jsx("p", { className: EYEBROW, children: today.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }) }), /* @__PURE__ */ jsxs("h1", { className: "mt-1.5 font-serif text-[1.9rem] font-semibold leading-[1.1] sm:text-[2.125rem]", children: [greeting(), first ? `, ${first}` : ""] })] }),
-			/* @__PURE__ */ jsx(MySchedule, { ws }),
-			/* @__PURE__ */ jsx("div", { className: "grid items-start gap-5 lg:grid-cols-2", children: [ahead, features.groups && myGroups.length > 0 ? /* @__PURE__ */ jsxs("section", { className: `${CARD$4} px-6 py-5`, children: [/* @__PURE__ */ jsxs("header", { className: "flex items-baseline justify-between", children: [/* @__PURE__ */ jsx("h3", { className: "font-serif text-[1.15rem] font-semibold", children: "My groups" }), /* @__PURE__ */ jsx("a", { href: "#church-os/groups", className: "text-[13px] font-medium text-muted no-underline hover:text-ink", children: "All groups →" })] }), /* @__PURE__ */ jsx("ul", { className: "mt-2", children: myGroups.map((g) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("a", { href: "#church-os/groups", className: "flex items-center gap-3 py-2.5 text-ink no-underline", children: [/* @__PURE__ */ jsx("span", { className: `grid h-9 w-9 flex-none place-items-center rounded-[10px] ${TONE.green}`, children: /* @__PURE__ */ jsx(Icon, { name: "book", size: 18 }) }), /* @__PURE__ */ jsxs("span", { className: "min-w-0 flex-1", children: [/* @__PURE__ */ jsx("span", { className: "block truncate text-[0.95rem] font-medium", children: g.name }), /* @__PURE__ */ jsx("span", { className: "block truncate text-[13px] text-muted", children: [KINDS$2[g.kind], g.meets, g.my_role === "member" ? null : "You lead this"].filter(Boolean).join(" · ") })] })] }) }, g.id)) })] }) : null] })
-		]
-	});
+		{d === null ? <p className="tk-loading-copy">Building your operating briefing…</p> : <>
+			<div className="tk-week-grid">
+				<section className="tk-attention" aria-labelledby="tk-attention-heading">
+					<TKSectionLabel
+						title="Needs your attention"
+						description={sortedNeeds.length ? "Only decisions, safety issues, overdue work, and approaching risks appear here." : "Nothing needs your judgment right now."}
+					/>
+					{sortedNeeds.length ? <>
+						<TKLedger ariaLabel="Items needing attention">{visibleNeeds.map((item) => <TKLedgerRow
+							key={item.key}
+							href={item.href}
+							icon={item.icon}
+							tone={item.tone}
+							eyebrow={item.priorityLabel + " · " + item.source}
+							title={item.title}
+							detail={item.body}
+							action={item.cta + " →"}
+						/>)}</TKLedger>
+						{hiddenNeedsCount > 0 && !showAllNeeds && <button type="button" className="tk-more-link" aria-expanded="false" onClick={() => setShowAllNeeds(true)}>View {hiddenNeedsCount} more →</button>}
+						{showAllNeeds && sortedNeeds.length > 3 && <button type="button" className="tk-more-link" aria-expanded="true" onClick={() => setShowAllNeeds(false)}>Show top 3</button>}
+					</> : <div className="tk-clear-state"><Icon name="tasks" size={22} /><div><strong>You’re clear to keep moving.</strong><span>If something changes, it will surface here.</span></div></div>}
+				</section>
 
-	return /* @__PURE__ */ jsxs("div", {
-		"data-kit": true,
-		className: "mx-auto max-w-[1460px] px-4 pb-10 pt-8 text-ink sm:px-8",
-		children: [
-			/* @__PURE__ */ jsxs("header", {
-				className: "mb-7 flex flex-wrap items-end justify-between gap-x-6 gap-y-3",
-				children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("p", { className: EYEBROW, children: today.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }) }), /* @__PURE__ */ jsxs("h1", { className: "mt-1.5 font-serif text-[1.9rem] font-semibold leading-[1.1] sm:text-[2.125rem]", children: [greeting(), first ? `, ${first}` : ""] })] }), ["owner", "pastor", "admin"].includes(workspace.role) && /* @__PURE__ */ jsx(Checklist, { ws })]
-			}),
-			(loadWarning || operatorWarning || externalHelpWarning) && /* @__PURE__ */ jsx(LoadFailure, { title: "Some Church OS information did not refresh", body: [loadWarning, operatorWarning, externalHelpWarning].filter(Boolean).join(" "), onRetry: () => window.location.reload() }),
-			d === null ? /* @__PURE__ */ jsx("p", { className: "text-sm text-muted", children: "Building your operating briefing…" }) : /* @__PURE__ */ jsxs(Fragment, { children: [
-				renderNeeds(),
-				/* @__PURE__ */ jsx("div", { className: "grid items-start gap-5 lg:grid-cols-2", children: [readiness, ahead] }),
-				inMotionSection
-			] })
-		]
-	});
+				<aside className="tk-next-up" aria-labelledby="tk-next-up-heading">
+					<TKSectionLabel title="Next up" />
+					{nextUpItems.length ? <ol className="tk-timeline">{nextUpItems.map((item) => <li key={item.key}>
+						<span className="tk-timeline-date"><b>{item.day}</b><strong>{item.date}</strong></span>
+						<span className="tk-timeline-dot" aria-hidden="true" />
+						<span className="tk-timeline-copy"><strong>{item.title}</strong><span>{item.detail}</span></span>
+						<a href={item.href}>Open →</a>
+					</li>)}</ol> : <p className="tk-empty-copy">Nothing consequential is approaching.</p>}
+					<a className="tk-calendar-link" href="#church-os/calendar">View calendar →</a>
+				</aside>
+			</div>
+
+			{faithBidHandlingItems.length > 0 && <section className="tk-handling-band">
+				<div><p className="tk-eyebrow">Private sourcing</p><h2>FaithBid is handling</h2></div>
+				<div className="tk-handling-list">{faithBidHandlingItems.map((item) => <a key={item.key} href={item.href}><span><strong>{item.title}</strong><small>{item.detail}</small></span><b>Open →</b></a>)}</div>
+			</section>}
+		</>}
+	</div>;
+
 }
 
 //#endregion
@@ -42054,29 +41861,25 @@ const CALENDAR_KIND_LABEL = {
 function CalendarPage() {
 	const { workspace } = useAuth();
 	const ws = workspace.workspace_id;
-	const canEdit = [
-		"owner",
-		"pastor",
-		"admin",
-		"leader"
-	].includes(workspace.role);
+	const canEdit = ["owner", "pastor", "admin", "leader"].includes(workspace.role);
 	const [month, setMonth] = useState(() => {
-		const d = /* @__PURE__ */ new Date();
-		return new Date(d.getFullYear(), d.getMonth(), 1);
+		const date = new Date();
+		return new Date(date.getFullYear(), date.getMonth(), 1);
 	});
 	const [items, setItems] = useState([]);
 	const [error, setError] = useState("");
 	const [editing, setEditing] = useState(null);
+	const [view, setView] = useState("month");
 	const gridStart = useMemo(() => {
-		const d = new Date(month);
-		d.setDate(1 - d.getDay());
-		return d;
+		const date = new Date(month);
+		date.setDate(1 - date.getDay());
+		return date;
 	}, [month]);
 	const weeks = useMemo(() => Math.ceil((new Date(month.getFullYear(), month.getMonth(), 1).getDay() + new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()) / 7), [month]);
-	const days = useMemo(() => Array.from({ length: weeks * 7 }, (_, i) => {
-		const d = new Date(gridStart);
-		d.setDate(gridStart.getDate() + i);
-		return d;
+	const days = useMemo(() => Array.from({ length: weeks * 7 }, (_, index) => {
+		const date = new Date(gridStart);
+		date.setDate(gridStart.getDate() + index);
+		return date;
 	}), [gridStart, weeks]);
 	const load = useCallback(async () => {
 		try {
@@ -42087,148 +41890,100 @@ function CalendarPage() {
 		} catch (e) {
 			setError(e.message);
 		}
-	}, [
-		ws,
-		gridStart,
-		weeks
-	]);
-	useEffect(() => {
-		load();
-	}, [load]);
-	const today = /* @__PURE__ */ new Date();
-	const move = (n) => setMonth((m) => new Date(m.getFullYear(), m.getMonth() + n, 1));
-	return /* @__PURE__ */ jsxs(Page, {
-		title: "Calendar",
-		subtitle: "The church's shared timeline. Sunday planning lives in Sunday; event sign-ups live in Events.",
-		actions: canEdit && /* @__PURE__ */ jsx(Button, {
-			variant: "primary",
-			onClick: () => setEditing({ day: /* @__PURE__ */ new Date() }),
-			children: "Add to calendar"
-		}),
-		children: [
-		/* @__PURE__ */ jsxs("div", {
-			className: "mb-3 flex items-center gap-2",
-			children: [
-				/* @__PURE__ */ jsx(Button, {
-					onClick: () => move(-1),
-					"aria-label": "Previous month",
-					children: "‹"
-				}),
-				/* @__PURE__ */ jsx(Button, {
-					onClick: () => move(1),
-					"aria-label": "Next month",
-					children: "›"
-				}),
-				/* @__PURE__ */ jsx(Button, {
-					onClick: () => setMonth(new Date(today.getFullYear(), today.getMonth(), 1)),
-					children: "Today"
-				}),
-				/* @__PURE__ */ jsx("h2", {
-					className: "ml-2 font-serif text-xl font-semibold",
-					children: month.toLocaleString([], {
-						month: "long",
-						year: "numeric"
-					})
-				}),
-				/* @__PURE__ */ jsxs("p", {
-					className: "ml-auto hidden items-center gap-4 text-xs text-muted sm:flex",
-					children: [/* @__PURE__ */ jsx("span", { children: "Sunday services open in Sunday" }), /* @__PURE__ */ jsx("span", { children: "•" }), /* @__PURE__ */ jsx("span", { children: "Registration opens in Events" })]
-				})
-			]
-		}),
-		error && /* @__PURE__ */ jsx("p", {
-			className: "mb-3 text-sm text-danger",
-			role: "alert",
-			children: error
-		}),
-		/* @__PURE__ */ jsxs("div", {
-			className: "flex flex-col overflow-hidden rounded-card border border-line bg-surface",
-			style: { height: "max(480px, calc(var(--churchly-canvas-height, 100vh) - 245px))" },
-			children: [/* @__PURE__ */ jsx("div", {
-				className: "grid grid-cols-7 border-b border-line bg-canvas text-center text-xs font-semibold uppercase tracking-wide text-muted",
-				children: [
-					"Sun",
-					"Mon",
-					"Tue",
-					"Wed",
-					"Thu",
-					"Fri",
-					"Sat"
-				].map((d) => /* @__PURE__ */ jsx("div", {
-					className: "py-2",
-					children: d
-				}, d))
-			}), /* @__PURE__ */ jsx("div", {
-				className: "grid min-h-0 flex-1 grid-cols-7",
-				style: { gridTemplateRows: `repeat(${weeks}, minmax(0, 1fr))` },
-				children: days.map((d) => {
-					const dayItems = items.filter((i) => {
-						const s = new Date(i.occurrence_start);
-						const e = i.occurrence_end ? new Date(i.occurrence_end) : s;
-						const sd = new Date(s.getFullYear(), s.getMonth(), s.getDate());
-						const ed = new Date(e.getFullYear(), e.getMonth(), e.getDate());
-						return sd <= d && d <= (ed < sd ? sd : ed);
-					});
-					const out = d.getMonth() !== month.getMonth();
-					return /* @__PURE__ */ jsxs("div", {
-						onClick: () => canEdit && setEditing({ day: d }),
-						className: `min-h-0 overflow-hidden border-b border-r border-line p-1.5 ${canEdit ? "cursor-pointer" : ""} ${out ? "bg-canvas/60 text-muted" : ""}`,
-						children: [/* @__PURE__ */ jsx("span", {
-							className: `inline-grid h-6 w-6 place-items-center rounded-full text-xs ${sameDay(d, today) ? "bg-forest font-semibold text-white" : ""}`,
-							children: d.getDate()
-						}), /* @__PURE__ */ jsxs("div", {
-							className: "mt-1 grid gap-1",
-							children: [dayItems.slice(0, 3).map((i) => /* @__PURE__ */ jsxs("button", {
-								type: "button",
-								onClick: (e) => {
-									e.stopPropagation();
-									if (i.kind === "service") {
-										window.location.hash = "#church-os/sunday";
-										return;
-									}
-									setEditing({ item: i });
-								},
-								className: "flex items-start gap-1.5 rounded-md px-1.5 py-0.5 text-left text-xs hover:bg-canvas",
-								title: `${CALENDAR_KIND_LABEL[i.kind] || "Calendar item"}: ${i.title}${i.kind === "service" ? " · Open in Sunday" : ""}`,
-								children: [
-									/* @__PURE__ */ jsx("i", {
-										className: "mt-1 h-2 w-2 flex-none rounded-full",
-										style: { background: KIND_COLOR[i.kind] }
-									}),
-									!i.all_day && /* @__PURE__ */ jsx("span", {
-										className: "flex-none text-muted",
-										children: fmtTime$2(i.occurrence_start)
-									}),
-									/* @__PURE__ */ jsx("span", {
-										className: "line-clamp-2 font-medium",
-										children: i.title
-									})
-								]
-							}, i.item_id + i.occurrence_start)), dayItems.length > 3 && /* @__PURE__ */ jsxs("span", {
-								className: "px-1.5 text-xs text-muted",
-								children: [
-									"+",
-									dayItems.length - 3,
-									" more"
-								]
-							})]
-						})]
-					}, d.toISOString());
-				})
-			})]
-		}),
-		/* @__PURE__ */ jsx(EventEditor, {
-			editing,
-			onClose: () => setEditing(null),
-			ws,
-			canEdit,
-			onDone: (when) => {
-				setEditing(null);
-				if (when) setMonth(new Date(when.getFullYear(), when.getMonth(), 1));
-				load();
-			}
-		})
-	] });
+	}, [ws, gridStart, weeks]);
+	useEffect(() => { load(); }, [load]);
+	const today = new Date();
+	const move = (amount) => setMonth((current) => new Date(current.getFullYear(), current.getMonth() + amount, 1));
+	const openItem = (item) => {
+		if (item.kind === "service") {
+			window.location.hash = "#church-os/sunday";
+			return;
+		}
+		setEditing({ item });
+	};
+	const dayItems = (day) => items.filter((item) => {
+		const start = new Date(item.occurrence_start);
+		const end = item.occurrence_end ? new Date(item.occurrence_end) : start;
+		const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+		const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+		return startDay <= day && day <= (endDay < startDay ? startDay : endDay);
+	});
+	const agenda = useMemo(() => items
+		.filter((item) => new Date(item.occurrence_start).getMonth() === month.getMonth() && new Date(item.occurrence_start).getFullYear() === month.getFullYear())
+		.slice()
+		.sort((a, b) => new Date(a.occurrence_start) - new Date(b.occurrence_start)), [items, month]);
+	return <Page>
+		<div data-kit className="tk-page tk-calendar-page">
+			<TKPageHeader
+				title="Calendar"
+				subtitle="Services, events, meetings, and important deadlines."
+				actions={canEdit && <button type="button" className="tk-action primary tk-calendar-add" onClick={() => setEditing({ day: new Date() })}>Add to calendar</button>}
+			/>
+			<div className="tk-calendar-toolbar">
+				<div className="tk-calendar-period">
+					<button type="button" onClick={() => move(-1)} aria-label="Previous month">‹</button>
+					<h2>{month.toLocaleString([], { month: "long", year: "numeric" })}</h2>
+					<button type="button" onClick={() => move(1)} aria-label="Next month">›</button>
+					<button type="button" className="tk-calendar-today" onClick={() => setMonth(new Date(today.getFullYear(), today.getMonth(), 1))}>Today</button>
+				</div>
+				<div className="tk-calendar-views" role="tablist" aria-label="Calendar views">
+					<button type="button" role="tab" aria-selected={view === "month"} className={view === "month" ? "active" : ""} onClick={() => setView("month")}>Month</button>
+					<button type="button" role="tab" aria-selected={view === "agenda"} className={view === "agenda" ? "active" : ""} onClick={() => setView("agenda")}>Agenda</button>
+				</div>
+			</div>
+			{error && <div className="tk-inline-notices"><p className="tone-error" role="alert">{error}</p></div>}
+			{view === "month" ? <div className="tk-calendar-scroll">
+				<div className="tk-calendar-month">
+					<div className="tk-calendar-weekdays">{["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <div key={day}>{day}</div>)}</div>
+					<div className="tk-calendar-grid" style={{ gridTemplateRows: "repeat(" + weeks + ", minmax(106px, 1fr))" }}>{days.map((day) => {
+						const events = dayItems(day);
+						const outside = day.getMonth() !== month.getMonth();
+						return <div
+							key={day.toISOString()}
+							className={(outside ? "is-outside " : "") + (sameDay(day, today) ? "is-today" : "") + (canEdit ? " can-edit" : "")}
+							onClick={() => canEdit && setEditing({ day })}
+						>
+							<span className="tk-calendar-date">{day.getDate()}</span>
+							<div className="tk-calendar-events">{events.slice(0, 3).map((item) => <button
+								type="button"
+								key={item.item_id + item.occurrence_start}
+								onClick={(event) => { event.stopPropagation(); openItem(item); }}
+								title={(CALENDAR_KIND_LABEL[item.kind] || "Calendar item") + ": " + item.title + (item.kind === "service" ? " · Open in Sunday" : "")}
+							>
+								<i style={{ background: KIND_COLOR[item.kind] }} />
+								{!item.all_day && <time>{fmtTime$2(item.occurrence_start)}</time>}
+								<strong>{item.title}</strong>
+							</button>)}{events.length > 3 && <span className="tk-calendar-more">+{events.length - 3} more</span>}</div>
+						</div>;
+					})}</div>
+				</div>
+			</div> : <div className="tk-calendar-agenda">
+				{agenda.length === 0 ? <TKEmptyState icon="calendar" title="Nothing is scheduled this month" description="Services created in Sunday and calendar items added here will appear in this agenda." /> : <ol>{agenda.map((item) => {
+					const starts = new Date(item.occurrence_start);
+					return <li key={item.item_id + item.occurrence_start}>
+						<time><b>{starts.toLocaleDateString([], { weekday: "short" }).toUpperCase()}</b><strong>{starts.getDate()}</strong></time>
+						<button type="button" onClick={() => openItem(item)}>
+							<i style={{ background: KIND_COLOR[item.kind] }} />
+							<span><strong>{item.title}</strong><small>{[item.all_day ? "All day" : fmtTime$2(item.occurrence_start), CALENDAR_KIND_LABEL[item.kind] || "Calendar item", item.location].filter(Boolean).join(" · ")}</small></span>
+							<b>Open →</b>
+						</button>
+					</li>;
+				})}</ol>}
+			</div>}
+			<p className="tk-calendar-boundary">Sunday services open in Sunday. Registration and capacity remain in Events.</p>
+			<EventEditor
+				editing={editing}
+				onClose={() => setEditing(null)}
+				ws={ws}
+				canEdit={canEdit}
+				onDone={(when) => {
+					setEditing(null);
+					if (when) setMonth(new Date(when.getFullYear(), when.getMonth(), 1));
+					load();
+				}}
+			/>
+		</div>
+	</Page>;
 }
 function EventEditor({ editing, onClose, ws, canEdit, onDone }) {
 	const open = !!editing;
@@ -42484,103 +42239,62 @@ const actionTone = {
 	help: "neutral",
 	other: "neutral"
 };
-function Section({ title, count, hint, children }) {
-	return <section className="fb-inbox-card overflow-hidden rounded-[20px] border border-line bg-surface shadow-[0_6px_24px_rgba(20,50,44,.06)]">
-		<header className="border-b border-line bg-canvas/55 px-7 py-5 sm:px-8 sm:py-6">
-			<div className="flex flex-wrap items-center gap-3">
-				<h2 className="font-serif text-[1.45rem] font-semibold leading-tight">{title}</h2>
-				{count > 0 && <Badge tone="gold">{count}</Badge>}
-			</div>
-			{hint && <p className="mt-2 max-w-[46rem] text-[0.95rem] leading-6 text-muted">{hint}</p>}
+function TKTabs({ value, options, onChange, label = "Inbox filters" }) {
+	return <div className="tk-tabs" role="tablist" aria-label={label}>
+		{options.map((option) => <button
+			key={option.id}
+			type="button"
+			role="tab"
+			aria-selected={value === option.id}
+			className={value === option.id ? "active" : ""}
+			onClick={() => onChange(option.id)}
+		>{option.label}<span>{option.count}</span></button>)}
+	</div>;
+}
+function TKQueue({ children, ariaLabel }) {
+	return <ol className="tk-queue" aria-label={ariaLabel}>{children}</ol>;
+}
+function TKQueueItem({ item, active, onSelect }) {
+	return <li className={active ? "active" : ""}>
+		<button type="button" aria-current={active ? "true" : undefined} onClick={onSelect}>
+			{item.attention && <span className="tk-queue-dot" aria-hidden="true" />}
+			<span className={"tk-queue-icon tone-" + (item.tone || "green")} aria-hidden="true"><Icon name={item.icon} size={22} /></span>
+			<span className="tk-queue-copy">
+				<strong>{item.title}</strong>
+				<span>{item.meta}</span>
+			</span>
+			{item.status && <TKStatus tone={item.tone}>{item.status}</TKStatus>}
+		</button>
+	</li>;
+}
+function TKReviewPanel({ eyebrow = "Review", title, summary, children, actions }) {
+	return <section className="tk-review-panel" aria-live="polite">
+		<header>
+			<p className="tk-eyebrow">{eyebrow}</p>
+			<h2>{title}</h2>
+			{summary && <p className="tk-review-summary">{summary}</p>}
 		</header>
-		{children}
+		<div className="tk-review-body">{children}</div>
+		{actions && <footer className="tk-review-actions">{actions}</footer>}
 	</section>;
 }
-const Row = ({ m, children, note }) => /* @__PURE__ */ jsxs("li", {
-	className: "flex flex-col gap-5 px-7 py-6 sm:flex-row sm:items-start sm:px-8",
-	children: [
-		/* @__PURE__ */ jsx(Avatar$1, {
-			name: m.person_name,
-			size: 38
-		}),
-		/* @__PURE__ */ jsxs("div", {
-			className: "min-w-0 flex-1",
-			children: [
-				/* @__PURE__ */ jsxs("div", {
-					className: "flex flex-wrap items-center gap-2",
-					children: [
-						/* @__PURE__ */ jsx("strong", {
-							className: "text-sm font-semibold",
-							children: m.person_name
-						}),
-						/* @__PURE__ */ jsx(Badge, { children: m.channel.toUpperCase() }),
-						/* @__PURE__ */ jsx(Badge, { children: PURPOSE_LABEL[m.purpose] || m.purpose }),
-						/* @__PURE__ */ jsx("span", {
-							className: "text-xs text-muted",
-							children: when$5(m.sent_at || m.created_at)
-						})
-					]
-				}),
-				/* @__PURE__ */ jsx("p", {
-					className: "mt-1.5 rounded-xl bg-canvas px-3 py-2 text-sm leading-relaxed",
-					children: m.body
-				}),
-				note && /* @__PURE__ */ jsx("p", {
-					className: "mt-1.5 text-xs text-muted",
-					children: note
-				})
-			]
-		}),
-		/* @__PURE__ */ jsx("div", {
-			className: "flex flex-none items-center gap-2",
-			children
-		})
-	]
-});
-const ReplyRow = ({ r, review = false, href = "#church-os/messages", cta = "Open Messages" }) => /* @__PURE__ */ jsxs("li", {
-	className: "flex flex-col gap-4 px-7 py-6 sm:flex-row sm:items-center sm:px-8",
-	children: [
-		/* @__PURE__ */ jsx(Avatar$1, {
-			name: r.person_name,
-			size: 32
-		}),
-		/* @__PURE__ */ jsxs("div", {
-			className: "min-w-0 flex-1",
-			children: [
-				/* @__PURE__ */ jsx("strong", {
-					className: "text-sm",
-					children: r.person_name
-				}),
-				" ",
-				/* @__PURE__ */ jsxs("span", {
-					className: "text-sm text-muted",
-					children: ["replied “", r.body, "”"]
-				})
-			]
-		}),
-		/* @__PURE__ */ jsx(Badge, {
-			tone: actionTone[r.action],
-			children: actionLabel[r.action] || r.action
-		}),
-		/* @__PURE__ */ jsx("span", {
-			className: "text-xs text-muted",
-			children: when$5(r.created_at)
-		}),
-		review && /* @__PURE__ */ jsx("a", {
-			href,
-			className: "flex-none text-sm font-semibold text-forest no-underline hover:underline",
-			children: `${cta} →`
-		})
-	]
-});
+function TKStatus({ tone = "neutral", children }) {
+	return <span className={"tk-status tone-" + tone}>{children}</span>;
+}
+function TKEmptyState({ icon = "inbox", title, description }) {
+	return <div className="tk-empty-state">
+		<span aria-hidden="true"><Icon name={icon} size={24} /></span>
+		<div><strong>{title}</strong>{description && <p>{description}</p>}</div>
+	</div>;
+}
+function TKPrivacyNote({ children }) {
+	return <p className="tk-privacy-note"><Icon name="shield" size={16} /><span>{children}</span></p>;
+}
+
 function InboxPage() {
 	const { workspace, features } = useAuth();
 	const ws = workspace.workspace_id;
-	const canApprove = [
-		"owner",
-		"pastor",
-		"admin"
-	].includes(workspace.role);
+	const canApprove = ["owner", "pastor", "admin"].includes(workspace.role);
 	const [out, setOut] = useState(null);
 	const [inbound, setInbound] = useState([]);
 	const [proposals, setProposals] = useState(null);
@@ -42588,6 +42302,8 @@ function InboxPage() {
 	const [toast, setToast] = useState("");
 	const [externalHelpCases, setExternalHelpCases] = useState([]);
 	const [externalHelpWarning, setExternalHelpWarning] = useState("");
+	const [filter, setFilter] = useState("all");
+	const [selectedKey, setSelectedKey] = useState("");
 	const loadExternalHelp = useCallback(async () => {
 		try {
 			const rows = await listExternalHelpCases(ws);
@@ -42595,7 +42311,7 @@ function InboxPage() {
 			setExternalHelpWarning("");
 		} catch (e) {
 			setExternalHelpCases([]);
-			setExternalHelpWarning(`FaithBid outside-help status could not refresh: ${e.message}`);
+			setExternalHelpWarning("FaithBid outside-help status could not refresh: " + e.message);
 		}
 	}, [ws]);
 	const load = useCallback(async () => {
@@ -42616,14 +42332,10 @@ function InboxPage() {
 			setProposals([]);
 		}
 	}, [ws]);
-	useEffect(() => {
-		load();
-	}, [load]);
-	useEffect(() => {
-		loadExternalHelp();
-	}, [loadExternalHelp]);
-	const say = (t) => {
-		setToast(t);
+	useEffect(() => { load(); }, [load]);
+	useEffect(() => { loadExternalHelp(); }, [loadExternalHelp]);
+	const say = (text) => {
+		setToast(text);
 		setTimeout(() => setToast(""), 5e3);
 	};
 	const act = async (fn) => {
@@ -42634,145 +42346,232 @@ function InboxPage() {
 			setError(e.message);
 		}
 	};
-	const approve = (m) => act(async () => {
-		const r = await approveMessage(ws, m.id);
-		if (r.status === "blocked") {
-			say(`Not sent: ${r.reason}.`);
+	const approve = (message) => act(async () => {
+		const result = await approveMessage(ws, message.id);
+		if (result.status === "blocked") {
+			say("Not sent: " + result.reason + ".");
 			return;
 		}
-		const d = await dispatchTestMode(ws);
-		say(d.deferred ? "Approved. It will go out after quiet hours end." : "Approved. (Test mode: nothing was actually sent.)");
+		const dispatch = await dispatchTestMode(ws);
+		say(dispatch.deferred ? "Approved. It will go out after quiet hours end." : "Approved. (Test mode: nothing was actually sent.)");
 	});
-	const decideProposal = (p, decision) => act(async () => {
-		const r = await decideActionProposal(ws, p.id, decision);
-		if (r.status === "expired") {
+	const decideProposal = (proposal, decision) => act(async () => {
+		const result = await decideActionProposal(ws, proposal.id, decision);
+		if (result.status === "expired") {
 			say("That FaithBid proposal expired before review.");
 			return;
 		}
 		say(decision === "approved" ? "Approved. FaithBid will execute the allow-listed internal action on the background cycle; external messages still require their own approval." : "FaithBid proposal rejected.");
 	});
-	const proposalWhy = (p) => {
-		const x = p.explanation || {};
-		if (x.rule_name && x.event_type) return `${x.rule_name} · triggered by ${x.event_type}`;
-		if (x.rule_name) return x.rule_name;
-		if (x.event_type) return `Triggered by ${x.event_type}`;
+	const proposalWhy = (proposal) => {
+		const explanation = proposal.explanation || {};
+		if (explanation.rule_name && explanation.event_type) return explanation.rule_name + " · triggered by " + explanation.event_type;
+		if (explanation.rule_name) return explanation.rule_name;
+		if (explanation.event_type) return "Triggered by " + explanation.event_type;
 		return "Prepared by a FaithBid automation rule.";
 	};
-	const proposalFacts = (p) => {
-		const f = p.explanation?.facts || {};
-		if (p.proposal_type === "sunday_staffing" && Number.isFinite(Number(f.needed))) return `${Number(f.needed) || 0} needed · ${Number(f.filled) || 0} filled · ${Number(f.confirmed) || 0} confirmed · ${Number(f.open) || 0} open`;
-		if (p.proposal_type === "sunday_preparation") {
+	const proposalFacts = (proposal) => {
+		const facts = proposal.explanation?.facts || {};
+		if (proposal.proposal_type === "sunday_staffing" && Number.isFinite(Number(facts.needed))) return (Number(facts.needed) || 0) + " needed · " + (Number(facts.filled) || 0) + " filled · " + (Number(facts.confirmed) || 0) + " confirmed · " + (Number(facts.open) || 0) + " open";
+		if (proposal.proposal_type === "sunday_preparation") {
 			const missing = [];
-			if (f.run_sheet_missing) missing.push("run sheet");
-			if (f.sermon_missing) missing.push("sermon");
-			return missing.length ? `Missing: ${missing.join(" + ")}` : "Sunday preparation needs review";
+			if (facts.run_sheet_missing) missing.push("run sheet");
+			if (facts.sermon_missing) missing.push("sermon");
+			return missing.length ? "Missing: " + missing.join(" + ") : "Sunday preparation needs review";
 		}
-		if (p.proposal_type === "sunday_replacement") return "A volunteer declined an assignment; a replacement decision is needed.";
+		if (proposal.proposal_type === "sunday_replacement") return "A volunteer declined an assignment; a replacement decision is needed.";
 		return "";
 	};
-	const pending = (out || []).filter((m) => m.status === "pending_approval");
-	const blocked = (out || []).filter((m) => m.status === "blocked");
-	const repliesToReview = (inbound || []).filter((r) => ["help", "other"].includes(r.action));
-	const externalHelpDecisions = externalHelpCases.filter(externalHelpNeedsChurchDecision);
-	const actionCount = (proposals || []).length + pending.length + blocked.length + repliesToReview.length + externalHelpDecisions.length;
+
+	const queue = useMemo(() => {
+		const normalized = [];
+		for (const proposal of proposals || []) normalized.push({
+			key: "proposal:" + proposal.id,
+			kind: "proposal",
+			group: "decisions",
+			title: proposal.title,
+			meta: ["FaithBid suggestion", when$5(proposal.created_at)].filter(Boolean).join(" · "),
+			status: (proposal.risk_level || "low") + " risk",
+			tone: proposal.risk_level === "high" ? "red" : proposal.risk_level === "medium" ? "amber" : "green",
+			icon: "tasks",
+			record: proposal
+		});
+		for (const item of externalHelpCases.filter(externalHelpNeedsChurchDecision)) normalized.push({
+			key: "provider:" + item.id,
+			kind: "provider",
+			group: "decisions",
+			title: "Choose a provider for " + item.title,
+			meta: [item.source_surface === "sunday" ? "From Sunday" : "Outside help", "Providers ready"].join(" · "),
+			status: "Review",
+			tone: "amber",
+			icon: "wrench",
+			attention: true,
+			record: item
+		});
+		for (const message of (out || []).filter((item) => item.status === "pending_approval")) normalized.push({
+			key: "message:" + message.id,
+			kind: "pending_message",
+			group: "decisions",
+			title: "Message for " + (message.person_name || "a church contact"),
+			meta: [(message.channel || "message").toUpperCase(), "Waiting for approval", when$5(message.sent_at || message.created_at)].filter(Boolean).join(" · "),
+			status: "Approve",
+			tone: "green",
+			icon: "inbox",
+			record: message
+		});
+		for (const message of (out || []).filter((item) => item.status === "blocked")) normalized.push({
+			key: "blocked:" + message.id,
+			kind: "blocked_message",
+			group: "decisions",
+			title: "Blocked message for " + (message.person_name || "a church contact"),
+			meta: [message.status_reason || "A safety or delivery rule stopped this draft", when$5(message.sent_at || message.created_at)].filter(Boolean).join(" · "),
+			status: "Blocked",
+			tone: "red",
+			icon: "shield",
+			attention: true,
+			record: message
+		});
+		for (const reply of (inbound || []).filter((item) => ["help", "other"].includes(item.action))) normalized.push({
+			key: "reply:" + reply.id,
+			kind: "reply",
+			group: "replies",
+			title: (reply.person_name || "Someone") + " replied",
+			meta: [actionLabel[reply.action] || "Reply", when$5(reply.created_at)].filter(Boolean).join(" · "),
+			status: "Reply",
+			tone: actionTone[reply.action] === "danger" ? "red" : "amber",
+			icon: "inbox",
+			attention: true,
+			record: reply
+		});
+		return normalized;
+	}, [externalHelpCases, inbound, out, proposals]);
+	const actionCount = queue.length;
+	const decisionCount = queue.filter((item) => item.group === "decisions").length;
+	const replyCount = queue.filter((item) => item.group === "replies").length;
+	const visibleQueue = useMemo(() => filter === "all" ? queue : queue.filter((item) => item.group === filter), [filter, queue]);
+	useEffect(() => {
+		if (!visibleQueue.length) {
+			if (selectedKey) setSelectedKey("");
+			return;
+		}
+		if (!visibleQueue.some((item) => item.key === selectedKey)) setSelectedKey(visibleQueue[0].key);
+	}, [selectedKey, visibleQueue]);
+	const selected = visibleQueue.find((item) => item.key === selectedKey) || visibleQueue[0] || null;
+	const filters = [
+		{ id: "all", label: "All", count: actionCount },
+		{ id: "decisions", label: "Decisions", count: decisionCount },
+		{ id: "replies", label: "Replies", count: replyCount }
+	];
+
+	let review = null;
+	if (selected?.kind === "proposal") {
+		const proposal = selected.record;
+		const mayApprove = canApprove && (proposal.risk_level !== "high" || ["owner", "pastor"].includes(workspace.role));
+		const facts = proposalFacts(proposal);
+		review = <TKReviewPanel
+			title={proposal.title}
+			summary={proposal.summary || "Review the prepared internal action before FaithBid does anything."}
+			actions={<>
+				{!mayApprove && <span className="tk-action-note">An authorized owner, pastor, or admin must decide.</span>}
+				{mayApprove && <button type="button" className="tk-action secondary" onClick={() => decideProposal(proposal, "rejected")}>Reject</button>}
+				{mayApprove && <button type="button" className="tk-action primary" onClick={() => decideProposal(proposal, "approved")}>Approve next step</button>}
+			</>}
+		>
+			<div className="tk-recommendation"><span>FaithBid recommends</span><strong>{facts || proposal.summary || "Review this prepared next step."}</strong></div>
+			{proposal.explanation?.staffing_plan && <section className="tk-review-section">
+				<h3>Suggested lineup</h3>
+				{(proposal.explanation.staffing_plan.assignments || []).length > 0 ? <ul className="tk-compact-list">{(proposal.explanation.staffing_plan.assignments || []).slice(0, 4).map((assignment) => <li key={assignment.role_id + ":" + assignment.person_id}><strong>{assignment.role_name}</strong><span>{assignment.person_name}</span></li>)}</ul> : <p>No safe candidate recommendations yet. Add role qualifications, availability, or service history first.</p>}
+				{(proposal.explanation.staffing_plan.gaps || []).length > 0 && <p>{(proposal.explanation.staffing_plan.gaps || []).reduce((count, gap) => count + Number(gap.still_open || 0), 0)} spots would still remain open after these recommendations.</p>}
+			</section>}
+			<section className="tk-review-section">
+				<h3>What happens if approved</h3>
+				<ul className="tk-effect-list">
+					<li><span>✓</span>The existing allow-listed internal action enters FaithBid’s background cycle.</li>
+					<li><span>✓</span>Nothing is sent externally without its own approval.</li>
+					<li><span>✓</span>The owning Toolkit module remains the source of truth.</li>
+				</ul>
+			</section>
+			<section className="tk-review-section"><h3>Why you’re seeing this</h3><p>{proposalWhy(proposal)}</p></section>
+			{proposal.risk_level === "high" && workspace.role === "admin" && <TKPrivacyNote>High-risk proposals require an owner or pastor.</TKPrivacyNote>}
+		</TKReviewPanel>;
+	} else if (selected?.kind === "provider") {
+		const item = selected.record;
+		review = <TKReviewPanel
+			title={item.title}
+			summary={item.next_action || "Sanitized providers are ready for church review."}
+			actions={<a className="tk-action primary" href={"#church-os/external-help/" + item.id}>Review providers</a>}
+		>
+			<div className="tk-recommendation"><span>Next decision</span><strong>Review the sanitized shortlist and record the church’s preference.</strong></div>
+			<section className="tk-review-section"><h3>What happens next</h3><ul className="tk-effect-list"><li><span>✓</span>The church reviews provider-safe information.</li><li><span>✓</span>Your preference returns to Concierge for follow-up.</li><li><span>✓</span>Concierge finalization remains required before an engagement starts.</li></ul></section>
+			<section className="tk-review-section"><h3>Why you’re seeing this</h3><p>{item.source_surface === "sunday" ? "Providers are ready for an outside-help request started from Sunday." : "Providers are ready for church review."}</p></section>
+			<TKPrivacyNote>Provider details remain inside the protected review. Church identity and private ministry context are not disclosed automatically.</TKPrivacyNote>
+		</TKReviewPanel>;
+	} else if (selected?.kind === "pending_message") {
+		const message = selected.record;
+		review = <TKReviewPanel
+			title={"Approve message to " + (message.person_name || "church contact")}
+			summary="Nothing sends until a person approves this draft."
+			actions={<><button type="button" className="tk-action secondary" onClick={() => act(() => cancelMessage(ws, message.id))}>Cancel draft</button>{canApprove && <button type="button" className="tk-action primary" onClick={() => approve(message)}>Approve message</button>}</>}
+		>
+			<div className="tk-message-quote"><span>{(message.channel || "message").toUpperCase()} · {PURPOSE_LABEL[message.purpose] || message.purpose}</span><p>{message.body}</p></div>
+			<section className="tk-review-section"><h3>What happens if approved</h3><ul className="tk-effect-list"><li><span>✓</span>The existing message approval contract runs.</li><li><span>✓</span>Consent, quiet hours, and delivery rules still apply.</li><li><span>✓</span>The message remains visible in its owning communication history.</li></ul></section>
+			<section className="tk-review-section"><h3>Why you’re seeing this</h3><p>This outbound draft is waiting for a person’s approval.</p></section>
+			<TKPrivacyNote>Approval does not bypass recipient consent, quiet hours, or delivery safeguards.</TKPrivacyNote>
+		</TKReviewPanel>;
+	} else if (selected?.kind === "blocked_message") {
+		const message = selected.record;
+		review = <TKReviewPanel
+			title={"Resolve message for " + (message.person_name || "church contact")}
+			summary={message.status_reason || "A safety, consent, or delivery rule stopped this draft."}
+			actions={<><a className="tk-action link" href="#church-os/people">Review person</a><button type="button" className="tk-action secondary" onClick={() => act(() => cancelMessage(ws, message.id))}>Dismiss draft</button></>}
+		>
+			<div className="tk-message-quote"><span>Blocked draft</span><p>{message.body}</p></div>
+			<section className="tk-review-section"><h3>What needs attention</h3><p>{message.status_reason || "Review the person record and communication permissions before taking another action."}</p></section>
+			<section className="tk-review-section"><h3>Why you’re seeing this</h3><p>The existing delivery contract stopped this draft before anything was sent.</p></section>
+			<TKPrivacyNote>This draft remains unsent. Inbox cannot override the rule that blocked it.</TKPrivacyNote>
+		</TKReviewPanel>;
+	} else if (selected?.kind === "reply") {
+		const reply = selected.record;
+		const replyHref = features.messages ? "#church-os/messages" : "#church-os/people";
+		const replyCta = features.messages ? "Open Messages" : "Open People";
+		review = <TKReviewPanel
+			title={(reply.person_name || "Someone") + " replied"}
+			summary="A person needs to interpret this reply and decide the follow-up."
+			actions={<a className="tk-action primary" href={replyHref}>{replyCta}</a>}
+		>
+			<div className="tk-message-quote"><span>{actionLabel[reply.action] || "Reply"}</span><p>“{reply.body}”</p></div>
+			<section className="tk-review-section"><h3>What happens next</h3><p>Open the owning record to continue the conversation or review the person’s context. Inbox does not duplicate the thread.</p></section>
+			<section className="tk-review-section"><h3>Why you’re seeing this</h3><p>This reply was classified as needing human interpretation or follow-up.</p></section>
+			<TKPrivacyNote>The reply stays in its owning module and is not copied into a new workflow.</TKPrivacyNote>
+		</TKReviewPanel>;
+	}
+
+	const loading = out === null || proposals === null;
 	return <Page>
-		<div className="fb-inbox-page mx-auto px-2 sm:px-4" style={{ maxWidth: 1280, paddingTop: 46, paddingBottom: 56 }}>
-			<style>{`
-				.fb-inbox-layout{display:grid!important;grid-template-columns:280px minmax(0,1fr)!important;gap:28px!important;align-items:start!important}
-				.fb-inbox-summary{background:#123d34!important;color:#fff!important;border-color:rgba(255,255,255,.12)!important;position:sticky!important;top:24px!important}
-				.fb-inbox-summary h2,.fb-inbox-summary>p{color:#fff!important}
-				.fb-inbox-summary p{color:rgba(255,255,255,.72)!important}
-				.fb-inbox-summary .fb-inbox-summary-label{color:#d8c083!important}
-				.fb-inbox-summary .fb-inbox-summary-count{color:#fff!important}
-				.fb-inbox-decisions{display:grid!important;gap:28px!important;min-width:0!important}
-				.fb-inbox-card{margin:0!important;background:#fff!important}
-				@media(max-width:900px){.fb-inbox-layout{grid-template-columns:1fr!important}.fb-inbox-summary{position:static!important}}
-			`}</style>
-			<header className="mb-8 border-b border-line pb-6">
-				<p className="text-[11px] font-semibold uppercase tracking-[.16em] text-gold">Decision center</p>
-				<h1 className="mt-2 font-serif text-[2.6rem] font-semibold leading-none text-ink">Inbox</h1>
-				<p className="mt-3 max-w-[46rem] text-[1rem] leading-6 text-muted">Approvals, responses, provider choices, and blocked actions that require a person. Status and history stay in their owning modules.</p>
-			</header>
-
-			{error && <p className="mb-5 rounded-xl border border-danger/20 bg-[#fbe9e5] px-5 py-3 text-sm text-danger" role="alert">{error}</p>}
-			{externalHelpWarning && <p className="mb-5 rounded-xl border border-gold/20 bg-[#fbf1de] px-5 py-3 text-sm text-[#8a6115]" role="status">{externalHelpWarning}</p>}
-			{toast && <p className="mb-5 rounded-xl border border-ok/20 bg-[#dcefe6] px-5 py-3 text-sm text-ok" role="status">{toast}</p>}
-
-			{out === null || proposals === null ? <div className="rounded-[20px] border border-line bg-surface px-7 py-8 text-sm text-muted">Loading decisions…</div> :
-				<div className="fb-inbox-layout">
-					<aside className="fb-inbox-summary rounded-[20px] border px-7 py-7 shadow-[0_8px_28px_rgba(13,48,40,.14)]">
-						<div className="flex items-center justify-between gap-4">
-							<span className="grid h-11 w-11 place-items-center rounded-xl bg-white/10"><Icon name="inbox" size={21} /></span>
-							<span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[.12em]">Needs you</span>
-						</div>
-						<p className="fb-inbox-summary-count mt-7 font-serif text-[3.25rem] font-semibold leading-none">{actionCount}</p>
-						<h2 className="mt-2 text-[1.05rem] font-semibold">{actionCount === 0 ? "You are caught up" : actionCount + " item" + (actionCount === 1 ? "" : "s") + " waiting"}</h2>
-						<p className="mt-2 text-sm leading-6 text-white/70">{actionCount === 0 ? "Nothing needs your judgment right now." : "Review the facts, make the decision, and the item leaves this queue."}</p>
-						<div className="mt-7 border-t border-white/15 pt-5">
-							<p className="fb-inbox-summary-label text-[11px] font-semibold uppercase tracking-[.12em]">Guardrails</p>
-							<p className="mt-2 text-[13px] leading-5 text-white/65">FaithBid runs only approved internal actions. Messages and provider introductions keep their separate approval checks.</p>
-						</div>
-					</aside>
-
-					<main className="fb-inbox-decisions">
-						{actionCount === 0 && <section className="rounded-[20px] border border-line bg-surface px-8 py-10 text-center shadow-[0_6px_24px_rgba(20,50,44,.06)]">
-							<span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[#e8f0ec] text-forest"><Icon name="tasks" size={22} /></span>
-							<h2 className="mt-4 font-serif text-[1.5rem] font-semibold">Nothing needs a decision</h2>
-							<p className="mx-auto mt-2 max-w-[32rem] text-sm leading-6 text-muted">Routine updates, sent messages, and completed activity remain in their owning modules instead of filling this queue.</p>
-						</section>}
-
-						{(proposals || []).length > 0 && <Section title="Prepared by FaithBid" count={proposals.length} hint="FaithBid prepared a next step from what is happening in your church. A person still decides what happens.">
-							<ul className="divide-y divide-[#f0eadb]">{proposals.map((p) => {
-								const adminMayApprove = canApprove && (p.risk_level !== "high" || ["owner", "pastor"].includes(workspace.role));
-								return <li key={p.id} className="px-7 py-6 sm:px-8 sm:py-7">
-									<div className="flex flex-wrap items-center gap-2">
-										<strong className="basis-full text-[1.08rem] font-semibold leading-snug">{p.title}</strong>
-										<Badge tone="gold">Prepared</Badge>
-										<Badge tone={p.risk_level === "high" ? "danger" : p.risk_level === "medium" ? "gold" : "neutral"}>{p.risk_level} risk</Badge>
-										<span className="text-xs text-muted">{when$5(p.created_at)}</span>
-									</div>
-									{p.summary && <p className="mt-4 max-w-[44rem] text-[0.95rem] leading-6 text-muted">{p.summary}</p>}
-									{proposalFacts(p) && <p className="mt-4 inline-flex rounded-xl bg-canvas px-4 py-3 text-sm font-medium text-ink">{proposalFacts(p)}</p>}
-									{p.explanation?.staffing_plan && <div className="mt-5 rounded-xl border border-line bg-canvas p-4">
-										<p className="text-xs font-semibold uppercase tracking-wider text-muted">Suggested lineup</p>
-										{(p.explanation.staffing_plan.assignments || []).length > 0 ? <ul className="mt-3 grid gap-2">{(p.explanation.staffing_plan.assignments || []).slice(0, 4).map((a) => <li key={a.role_id + ":" + a.person_id} className="text-sm"><strong>{a.role_name}</strong> · {a.person_name}</li>)}</ul> : <p className="mt-3 text-sm text-muted">No safe candidate recommendations yet. Add role qualifications, availability, or service history first.</p>}
-										{(p.explanation.staffing_plan.gaps || []).length > 0 && <p className="mt-3 text-xs text-muted">{(p.explanation.staffing_plan.gaps || []).reduce((n, g) => n + Number(g.still_open || 0), 0)} spots would still remain open after these recommendations.</p>}
-									</div>}
-									<p className="mt-5 border-t border-line pt-4 text-[13px] leading-5 text-muted"><strong>Why this surfaced: </strong>{proposalWhy(p)}</p>
-									{p.risk_level === "high" && workspace.role === "admin" && <p className="mt-3 text-xs text-danger">High-risk proposals require an owner or pastor.</p>}
-									<div className="mt-6 flex flex-wrap items-center justify-end gap-3 border-t border-line pt-5">
-										{!adminMayApprove && <span className="mr-auto text-xs text-muted">An authorized owner, pastor, or admin must decide.</span>}
-										{adminMayApprove && <Button onClick={() => decideProposal(p, "rejected")}>Reject</Button>}
-										{adminMayApprove && <Button variant="primary" onClick={() => decideProposal(p, "approved")}>Approve</Button>}
-									</div>
-								</li>;
-							})}</ul>
-						</Section>}
-
-						{externalHelpDecisions.length > 0 && <Section title="FaithBid outside help" count={externalHelpDecisions.length} hint="Providers are ready. Church OS keeps this as a decision pointer while the sanitized provider review stays in the sourcing flow.">
-							<ul className="divide-y divide-[#f0eadb]">{externalHelpDecisions.map((c) => <li key={c.id} className="flex flex-col gap-5 px-7 py-6 sm:px-8 md:flex-row md:items-center">
-								<span className="grid h-11 w-11 flex-none place-items-center rounded-xl bg-[#e8f0ec] text-forest"><Icon name="wrench" size={20} /></span>
-								<div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><strong className="text-[1.02rem] font-semibold">{c.title}</strong><Badge tone="gold">Providers ready</Badge></div><p className="mt-2 text-sm leading-6 text-muted">{c.next_action || "Providers are ready for church review."}</p><p className="mt-2 text-xs text-muted">{c.source_surface === "sunday" ? "From Sunday · Provider details are not duplicated in Church OS." : "Provider details are not duplicated in Church OS."}</p></div>
-								<a href={"#church-os/external-help/" + c.id} className="inline-flex h-10 flex-none items-center justify-center rounded-[10px] border border-forest bg-forest px-4 text-sm font-semibold text-white no-underline hover:bg-forest-2">Review providers</a>
-							</li>)}</ul>
-						</Section>}
-
-						{pending.length > 0 && <Section title="Messages to approve" count={pending.length} hint="Nothing sends until a person approves it.">
-							<ul className="divide-y divide-[#f0eadb]">{pending.map((m) => <Row key={m.id} m={m}>{[<Button key="cancel" onClick={() => act(() => cancelMessage(ws, m.id))}>Cancel</Button>, canApprove && <Button key="approve" variant="primary" onClick={() => approve(m)}>Approve</Button>]}</Row>)}</ul>
-						</Section>}
-
-						{blocked.length > 0 && <Section title="Blocked actions" count={blocked.length} hint="A safety, consent, or delivery rule stopped these drafts. Correct the issue or dismiss the draft.">
-							<ul className="divide-y divide-[#f0eadb]">{blocked.map((m) => <Row key={m.id} m={m} note={m.status_reason}>{[<a key="person" href="#church-os/people" className="text-sm font-semibold text-forest no-underline hover:underline">Review person →</a>, <Button key="dismiss" onClick={() => act(() => cancelMessage(ws, m.id))}>Dismiss draft</Button>]}</Row>)}</ul>
-						</Section>}
-
-						{repliesToReview.length > 0 && <Section title="Replies to review" count={repliesToReview.length} hint="These replies need a person to interpret or follow up.">
-							<ul className="divide-y divide-[#f0eadb]">{repliesToReview.map((r) => <ReplyRow key={r.id} r={r} review href={features.messages ? "#church-os/messages" : "#church-os/people"} cta={features.messages ? "Open Messages" : "Open People"} />)}</ul>
-						</Section>}
-					</main>
+		<div data-kit className="tk-page tk-inbox-page">
+			<TKPageHeader
+				eyebrow="Decision desk"
+				title="Inbox"
+				subtitle="Decisions and replies waiting for you."
+				actions={<span className="tk-inbox-waiting">{loading ? "Loading" : actionCount + " waiting"}</span>}
+			/>
+			<div className="tk-inline-notices">
+				{error && <p className="tone-error" role="alert">{error}</p>}
+				{externalHelpWarning && <p className="tone-warning" role="status">{externalHelpWarning}</p>}
+				{toast && <p className="tone-success" role="status">{toast}</p>}
+			</div>
+			{loading ? <TKEmptyState title="Loading decisions…" description="Your decision queue will stay in place while FaithBid checks the latest status." /> : <>
+				<TKTabs value={filter} options={filters} onChange={setFilter} />
+				{actionCount === 0 ? <TKEmptyState icon="tasks" title="Nothing needs a decision" description="Routine updates, sent messages, and completed activity remain in their owning modules instead of filling this queue." /> : visibleQueue.length === 0 ? <TKEmptyState title={filter === "replies" ? "No replies are waiting" : "No decisions are waiting"} description="Choose another view to see the rest of your Inbox." /> : <div className="tk-inbox-workspace">
+					<section className="tk-inbox-queue-pane">
+						<p className="tk-pane-label">Queue</p>
+						<TKQueue ariaLabel="Inbox queue">{visibleQueue.map((item) => <TKQueueItem key={item.key} item={item} active={selected?.key === item.key} onSelect={() => setSelectedKey(item.key)} />)}</TKQueue>
+					</section>
+					<div className="tk-inbox-review-pane">{review}</div>
 				</div>}
+			</>}
 		</div>
 	</Page>;
-
 }
 
 //#endregion
@@ -42791,12 +42590,7 @@ function TasksPage() {
 	const { workspace, session } = useAuth();
 	const ws = workspace.workspace_id;
 	const me = session?.user?.id;
-	const staff = [
-		"owner",
-		"pastor",
-		"admin",
-		"leader"
-	].includes(workspace.role);
+	const staff = ["owner", "pastor", "admin", "leader"].includes(workspace.role);
 	const [tasks, setTasks] = useState(null);
 	const [members, setMembers] = useState([]);
 	const [tab, setTab] = useState("mine");
@@ -42811,147 +42605,98 @@ function TasksPage() {
 			setTasks([]);
 		}
 	}, [ws]);
-	useEffect(() => {
-		load();
-	}, [load]);
-	useEffect(() => {
-		listMembers(ws).then(setMembers).catch(() => {});
-	}, [ws]);
-	const toggle = async (t) => {
+	useEffect(() => { load(); }, [load]);
+	useEffect(() => { listMembers(ws).then(setMembers).catch(() => {}); }, [ws]);
+	const toggle = async (task) => {
 		try {
-			await setTaskStatus(ws, t.id, t.status === "done" ? "open" : "done");
+			await setTaskStatus(ws, task.id, task.status === "done" ? "open" : "done");
 			load();
 		} catch (e) {
 			setError(e.message);
 		}
 	};
-	const remove = async (t) => {
-		if (!await churchlyConfirm(`Delete “${t.title}”?`, { title: "Delete task?", confirmLabel: "Delete task" })) return;
+	const remove = async (task) => {
+		if (!await churchlyConfirm("Delete “" + task.title + "”?", { title: "Delete task?", confirmLabel: "Delete task" })) return;
 		try {
-			await deleteTask(ws, t.id);
+			await deleteTask(ws, task.id);
 			load();
 		} catch (e) {
 			setError(e.message);
 		}
 	};
-	const inDays = (n) => {
-		const d = /* @__PURE__ */ new Date();
-		d.setDate(d.getDate() + n);
-		return d.toISOString().slice(0, 10);
+	const inDays = (count) => {
+		const date = new Date();
+		date.setDate(date.getDate() + count);
+		return date.toISOString().slice(0, 10);
 	};
 	const byDue = (a, b) => (a.due_date || "9999").localeCompare(b.due_date || "9999") || a.title.localeCompare(b.title);
-	const open = (tasks || []).filter((t) => t.status === "open");
-	const done = (tasks || []).filter((t) => t.status === "done").sort((a, b) => (b.completed_at || "").localeCompare(a.completed_at || ""));
-	const mine = open.filter((t) => t.assignee_user === me).sort(byDue);
+	const open = (tasks || []).filter((task) => task.status === "open");
+	const done = (tasks || []).filter((task) => task.status === "done").sort((a, b) => (b.completed_at || "").localeCompare(a.completed_at || ""));
+	const mine = open.filter((task) => task.assignee_user === me).sort(byDue);
 	const team = open.slice().sort((a, b) => {
 		if (!a.assignee_user && b.assignee_user) return -1;
 		if (a.assignee_user && !b.assignee_user) return 1;
 		return byDue(a, b);
 	});
 	const shown = tab === "done" ? done : tab === "team" ? team : mine;
+	const today = today$1();
+	const weekEnd = inDays(7);
 	const groups = tab === "done" ? [["Recently completed", shown, "neutral"]] : [
-		...tab === "team" ? [["Needs an owner", shown.filter((t) => !t.assignee_user), "danger"]] : [],
-		["Overdue", shown.filter((t) => t.assignee_user && t.due_date && t.due_date < today$1()), "danger"],
-		["This week", shown.filter((t) => t.assignee_user && t.due_date && t.due_date >= today$1() && t.due_date <= inDays(7)), "gold"],
-		["Later", shown.filter((t) => t.assignee_user && t.due_date && t.due_date > inDays(7)), "neutral"],
-		["No due date", shown.filter((t) => t.assignee_user && !t.due_date), "neutral"]
+		...(tab === "team" ? [["Needs an owner", shown.filter((task) => !task.assignee_user), "danger"]] : []),
+		["Overdue", shown.filter((task) => task.assignee_user && task.due_date && task.due_date < today), "danger"],
+		["Today", shown.filter((task) => task.assignee_user && task.due_date === today), "gold"],
+		["This week", shown.filter((task) => task.assignee_user && task.due_date && task.due_date > today && task.due_date <= weekEnd), "gold"],
+		["Later", shown.filter((task) => task.assignee_user && task.due_date && task.due_date > weekEnd), "neutral"],
+		["No due date", shown.filter((task) => task.assignee_user && !task.due_date), "neutral"]
 	];
 	const tabs = [
-		{ id: "mine", label: "Mine" },
-		...staff ? [{ id: "team", label: "Team" }] : [],
-		{ id: "done", label: "Done" }
+		{ id: "mine", label: "Mine", count: mine.length },
+		...(staff ? [{ id: "team", label: "Team", count: team.length }] : []),
+		{ id: "done", label: "Completed", count: done.length }
 	];
 	const emptyTitle = tab === "done" ? "Nothing completed yet" : tab === "team" ? "No open team commitments" : "Nothing assigned to you";
 	const emptyBody = tab === "done" ? "Completed commitments will stay here for reference." : tab === "team" ? "When someone owns a piece of work, it appears here until it is finished." : "When work is assigned to you, it will appear here. Exceptions stay in This Week and decisions stay in Inbox.";
-	return /* @__PURE__ */ jsxs(Page, {
-		title: "Tasks",
-		subtitle: "Human commitments with a clear owner and outcome. Alerts stay in This Week; decisions stay in Inbox.",
-		actions: staff && /* @__PURE__ */ jsx(Button, {
-			variant: "primary",
-			onClick: () => setAdding(true),
-			children: "Add commitment"
-		}),
-		children: [
-			/* @__PURE__ */ jsx(TabBar, { tabs, value: tab, onValueChange: setTab }),
-			error && /* @__PURE__ */ jsx("p", {
-				className: "mb-3 text-sm text-danger",
-				role: "alert",
-				children: error
-			}),
-			tasks === null ? /* @__PURE__ */ jsx("p", {
-				className: "text-sm text-muted",
-				children: "Loading…"
-			}) : shown.length === 0 ? /* @__PURE__ */ jsx(EmptyState, {
-				icon: "tasks",
-				title: emptyTitle,
-				body: emptyBody
-			}) : /* @__PURE__ */ jsx("div", {
-				className: "grid gap-1",
-				children: groups.filter(([, list]) => list.length > 0).map(([label, list, tone]) => /* @__PURE__ */ jsxs("section", { children: [
-					/* @__PURE__ */ jsxs("h3", {
-						className: `mb-2 mt-5 flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-[.14em] first:mt-0 ${tone === "danger" ? "text-danger" : tone === "gold" ? "text-gold" : "text-muted"}`,
-						children: [label, /* @__PURE__ */ jsx("span", { className: "font-medium text-muted", children: list.length })]
-					}),
-					/* @__PURE__ */ jsx("ul", {
-						className: "overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_1px_2px_rgba(20,50,44,.04)]",
-						children: list.map((t) => {
-							const overdue = t.status === "open" && t.due_date && t.due_date < today$1();
-							const soon = t.status === "open" && t.due_date && !overdue && t.due_date <= inDays(3);
-							const unowned = t.status === "open" && !t.assignee_user;
-							return /* @__PURE__ */ jsxs("li", {
-								className: `group flex items-center gap-4 border-t border-[#f0eadb] px-5 py-3.5 first:border-t-0 hover:bg-canvas/50 ${unowned ? "bg-[#fffaf0]" : ""}`,
-								children: [
-									/* @__PURE__ */ jsx("input", {
-										type: "checkbox",
-										className: "h-[18px] w-[18px] flex-none accent-[#12312b]",
-										checked: t.status === "done",
-										onChange: () => toggle(t),
-										"aria-label": `Mark ${t.title} ${t.status === "done" ? "open" : "done"}`
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "min-w-0 flex-1",
-										children: [
-											/* @__PURE__ */ jsx("p", {
-												className: `truncate text-[0.95rem] font-medium ${t.status === "done" ? "text-muted line-through" : ""}`,
-												children: t.title
-											}),
-											t.notes && /* @__PURE__ */ jsx("p", { className: "truncate text-[13px] text-muted", children: t.notes })
-										]
-									}),
-									unowned ? /* @__PURE__ */ jsx(Badge, { tone: "gold", children: "Needs owner" }) : t.due_date && /* @__PURE__ */ jsxs(Badge, {
-										tone: overdue ? "danger" : soon ? "gold" : "neutral",
-										children: [overdue ? "Overdue · " : "", fmtDue(t.due_date)]
-									}),
-									t.assignee_name && /* @__PURE__ */ jsxs("span", {
-										className: "hidden items-center gap-2 text-[13px] text-[#3b4842] sm:flex",
-										children: [/* @__PURE__ */ jsx(Avatar$1, { name: t.assignee_name, size: 26 }), t.assignee_name]
-									}),
-									staff && /* @__PURE__ */ jsx("button", {
-										type: "button",
-										onClick: () => remove(t),
-										className: "rounded-lg px-2 py-1 text-[13px] text-muted opacity-0 transition hover:text-danger focus:opacity-100 group-hover:opacity-100",
-										"aria-label": `Delete ${t.title}`,
-										children: "Delete"
-									})
-								]
-							}, t.id);
-						})
-					})
-				] }, label))
-			}),
-			/* @__PURE__ */ jsx(AddTask, {
-				open: adding,
-				onOpenChange: setAdding,
-				ws,
-				members,
-				me,
-				onDone: () => {
-					setAdding(false);
-					load();
-				}
-			})
-		]
-	});
+	const dueLabel = (task) => {
+		if (task.status === "done") return task.completed_at ? "Completed " + when$5(task.completed_at) : "Completed";
+		if (!task.due_date) return "No due date";
+		if (task.due_date < today) return "Overdue · " + fmtDue(task.due_date);
+		if (task.due_date === today) return "Today";
+		return fmtDue(task.due_date);
+	};
+	return <Page>
+		<div data-kit className="tk-page tk-tasks-page">
+			<TKPageHeader
+				title="Tasks"
+				subtitle="Work assigned to you and your team."
+				actions={staff && <button type="button" className="tk-action primary tk-add-task" onClick={() => setAdding(true)}>Add task</button>}
+			/>
+			<TKTabs value={tab} options={tabs} onChange={setTab} label="Task views" />
+			{error && <div className="tk-inline-notices"><p className="tone-error" role="alert">{error}</p></div>}
+			{tasks === null ? <TKEmptyState icon="tasks" title="Loading tasks…" description="Your assignments will stay in place while the latest status loads." /> : shown.length === 0 ? <TKEmptyState icon="tasks" title={emptyTitle} description={emptyBody} /> : <div className="tk-task-groups">
+				{groups.filter(([, list]) => list.length > 0).map(([label, list, tone]) => <section className="tk-task-group" key={label}>
+					<header className={"tone-" + tone}><h2>{label}</h2><span>{list.length}</span></header>
+					<ul className="tk-task-ledger">{list.map((task) => {
+						const unowned = task.status === "open" && !task.assignee_user;
+						const overdue = task.status === "open" && task.due_date && task.due_date < today;
+						return <li key={task.id} className={(task.status === "done" ? "is-done " : "") + (unowned ? "is-unowned" : "")}>
+							<input
+								type="checkbox"
+								checked={task.status === "done"}
+								onChange={() => toggle(task)}
+								aria-label={"Mark " + task.title + " " + (task.status === "done" ? "open" : "done")}
+							/>
+							<div className="tk-task-copy"><strong>{task.title}</strong>{task.notes && <span>{task.notes}</span>}</div>
+							<div className="tk-task-owner">{task.assignee_name ? <><Avatar$1 name={task.assignee_name} size={24} /><span>{task.assignee_name}</span></> : <TKStatus tone="amber">Needs owner</TKStatus>}</div>
+							<time className={overdue ? "is-overdue" : ""} dateTime={task.due_date || undefined}>{dueLabel(task)}</time>
+							{staff && <button type="button" className="tk-task-delete" onClick={() => remove(task)} aria-label={"Delete " + task.title}>Delete</button>}
+						</li>;
+					})}</ul>
+				</section>)}
+				<p className="tk-task-footnote">{tab === "done" ? "Reopen a task by clearing its checkbox." : "Completed tasks move to the Completed tab."}</p>
+			</div>}
+			<AddTask open={adding} onOpenChange={setAdding} ws={ws} members={members} me={me} onDone={() => { setAdding(false); load(); }} />
+		</div>
+	</Page>;
 }
 function AddTask({ open, onOpenChange, ws, members, me, onDone }) {
 	const defaultOwner = me || members[0]?.user_id || "";
@@ -43948,256 +43693,186 @@ function SundayPage() {
 		return href ? /* @__PURE__ */ jsx("a", { href, className: `${cls} no-underline`, children: inner }) : /* @__PURE__ */ jsx("button", { type: "button", onClick, className: cls, children: inner });
 	};
 
-	return /* @__PURE__ */ jsxs(Page, {
-		title: "Sunday",
-		subtitle: "Your weekly execution cockpit — know what is ready, what is waiting, and what still needs work.",
-		actions: canEdit && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx(Button, {
-			onClick: () => setView(view === "trends" ? "services" : "trends"),
-			children: view === "trends" ? "Back to Sundays" : "History & trends"
-		}), view !== "trends" && /* @__PURE__ */ jsx(Button, {
-			variant: "primary",
-			onClick: () => setCreating(true),
-			children: "Plan a Sunday"
-		})] }),
-		children: [
-			error && /* @__PURE__ */ jsx("p", {
-				className: "mb-3 text-sm text-danger",
-				role: "alert",
-				children: error
-			}),
-			toast && /* @__PURE__ */ jsx("p", {
-				className: "mb-3 rounded-xl bg-[#dcefe6] px-4 py-2 text-sm text-ok",
-				role: "status",
-				children: toast
-			}),
-			error && plans !== null && plans.length === 0 ? /* @__PURE__ */ jsx(LoadFailure, { title: "Sunday couldn't load", body: error, onRetry: loadPlans }) : view === "trends" ? /* @__PURE__ */ jsx(TrendsView, {
-				ws,
-				onError: setError
-			}) : plans === null ? /* @__PURE__ */ jsx("p", {
-				className: "text-sm text-muted",
-				children: "Loading…"
-			}) : plans.length === 0 ? /* @__PURE__ */ jsx(EmptyState, {
-				icon: "calendar",
-				title: "Plan your first Sunday",
-				body: "Create the service here. Sunday owns staffing and execution; its date and time will appear on Calendar automatically.",
-				action: canEdit && /* @__PURE__ */ jsx(Button, {
-					variant: "primary",
-					onClick: () => setCreating(true),
-					children: "Plan a Sunday"
-				})
-			}) : /* @__PURE__ */ jsxs("div", {
-				className: "grid items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)]",
-				children: [/* @__PURE__ */ jsxs("nav", {
-					"aria-label": "Sundays",
-					className: "grid gap-1",
-					children: [/* @__PURE__ */ jsx("p", {
-						className: "mb-1 px-3 text-[11px] font-semibold uppercase tracking-[.14em] text-gold",
-						children: "Upcoming & recent"
-					}), plans.map((p) => {
-						const d = new Date(p.starts_at);
-						const sel = p.id === selectedId;
-						const full = Number(p.roles_needed) > 0 && Number(p.roles_filled) >= Number(p.roles_needed);
-						return /* @__PURE__ */ jsxs("button", {
-							type: "button",
-							onClick: () => setSelectedId(p.id),
-							"aria-current": sel ? "true" : void 0,
-							className: `flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${sel ? "border-line bg-surface shadow-[0_1px_2px_rgba(20,50,44,.05)]" : "border-transparent hover:bg-surface/70"}`,
-							children: [
-								/* @__PURE__ */ jsxs("span", {
-									className: `grid h-11 w-11 flex-none place-content-center rounded-[10px] text-center leading-none ${sel ? "bg-forest text-white" : "bg-[#efeadb] text-ink"}`,
-									children: [/* @__PURE__ */ jsx("b", {
-										className: "font-serif text-[1.05rem]",
-										children: d.getDate()
-									}), /* @__PURE__ */ jsx("span", {
-										className: `mt-0.5 text-[10px] uppercase tracking-wide ${sel ? "text-white/70" : "text-muted"}`,
-										children: d.toLocaleString([], { month: "short" })
-									})]
-								}),
-								/* @__PURE__ */ jsxs("span", {
-									className: "min-w-0 flex-1",
-									children: [/* @__PURE__ */ jsx("span", {
-										className: "block truncate text-sm font-medium",
-										children: p.title
-									}), /* @__PURE__ */ jsxs("span", {
-										className: "block truncate text-[13px] text-muted",
-										children: [
-											d.toLocaleString([], { weekday: "short" }),
-											" · ",
-											d.toLocaleTimeString([], {
-												hour: "numeric",
-												minute: "2-digit"
-											})
-										]
-									})]
-								}),
-								Number(p.roles_needed) > 0 ? /* @__PURE__ */ jsxs("span", {
-									className: `flex-none rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ${full ? "bg-[#e1f0e8] text-ok" : "bg-[#fbf1de] text-[#7a5411]"}`,
-									children: [p.roles_filled, "/", p.roles_needed]
-								}) : /* @__PURE__ */ jsx("span", {
-									className: "flex-none text-xs text-[#aab2ad]",
-									children: "No roles"
-								})
-							]
-						}, p.id);
-					})]
-				}), plan && /* @__PURE__ */ jsxs("section", {
-					className: "rounded-2xl border border-line bg-surface shadow-[0_1px_2px_rgba(20,50,44,.04)]",
-					children: [
-						/* @__PURE__ */ jsxs("div", {
-							className: "px-7 pb-5 pt-6",
-							children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex flex-wrap items-start justify-between gap-4",
-								children: [/* @__PURE__ */ jsxs("div", {
-									className: "min-w-0",
-									children: [
-										/* @__PURE__ */ jsx("p", {
-											className: "text-[11px] font-semibold uppercase tracking-[.14em] text-gold",
-											children: away(daysAway(plan.starts_at))
-										}),
-										/* @__PURE__ */ jsx("h2", {
-											className: "mt-2 font-serif text-[2.1rem] font-semibold leading-[1.1]",
-											children: new Date(plan.starts_at).toLocaleDateString([], {
-												weekday: "long",
-												month: "long",
-												day: "numeric"
-											})
-										}),
-										/* @__PURE__ */ jsxs("p", {
-											className: "mt-2 text-[0.95rem] text-[#4d5a53]",
-											children: [
-												new Date(plan.starts_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
-												" · ",
-												plan.title,
-												plan.theme ? ` · ${plan.theme}` : ""
-											]
-										})
-									]
-								}), /* @__PURE__ */ jsxs("div", {
-									className: "flex flex-wrap items-center justify-end gap-2",
-									children: [
-										/* @__PURE__ */ jsx("span", { className: `rounded-full px-3 py-1.5 text-xs font-semibold ${statusTone}`, children: statusLabel }),
-										/* @__PURE__ */ jsx(Button, {
-											onClick: () => {
-												if (!printPlan(plan, workspace.name)) setError("Your browser blocked the print window. Allow pop-ups for this site and try again.");
-											},
-											children: "Print"
-										}),
-										canEdit && /* @__PURE__ */ jsx(Button, { onClick: () => setEditing(true), children: "Edit" }),
-										canEdit && /* @__PURE__ */ jsx(Menu, {
-											trigger: /* @__PURE__ */ jsx(Button, { "aria-label": "More", children: "⋯" }),
-											items: [{
-												label: "Delete this service",
-												onSelect: async () => {
-													if (!await churchlyConfirm(`Delete ${plan.title}? Its run sheet, roles, assignments, and linked calendar item will be removed.`, { title: "Delete service plan?", confirmLabel: "Delete service" })) return;
-													try {
-														await deletePlan(ws, plan.id);
-														setSelectedId(null);
-														await loadPlans();
-													} catch (e) {
-														setError(e.message);
-													}
-												}
-											}]
-										})
-									]
-								})]
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								className: "border-t border-line px-7 py-5",
-								children: [
-									/* @__PURE__ */ jsxs("div", { className: "mb-3 flex items-baseline justify-between gap-4", children: [
-										/* @__PURE__ */ jsx("div", { children: [/* @__PURE__ */ jsx("p", { className: "text-[11px] font-semibold uppercase tracking-[.14em] text-gold", children: "Sunday readiness" }), /* @__PURE__ */ jsx("p", { className: "mt-1 text-sm text-muted", children: isPast ? "Historical service record" : overallReady ? "Every tracked preparation area is ready." : `${readiness.issues.length} preparation area${readiness.issues.length === 1 ? "" : "s"} still need work.` })] }),
-										readiness.declined > 0 && /* @__PURE__ */ jsx("span", { className: "text-xs font-medium text-danger", children: `${readiness.declined} declined` })
-									] }),
-									/* @__PURE__ */ jsxs("div", { className: `grid gap-3 ${features.sermons ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3"}`, children: [
-										readinessTile("Team", readiness.needed === 0 ? "Not set up" : readiness.open > 0 ? "At risk" : readiness.awaiting > 0 ? "Staffed" : "Ready", readiness.needed ? `${readiness.filled} of ${readiness.needed} staffed${readiness.open ? ` · ${readiness.open} open` : ""}` : "Add the roles this service needs", readiness.open > 0 ? "text-[#8a6115]" : "text-ok", () => setTab("roles")),
-										readinessTile("Responses", readiness.awaiting > 0 ? `${readiness.awaiting} waiting` : readiness.filled > 0 ? "All answered" : "None yet", readiness.filled > 0 ? `${readiness.confirmed} confirmed${readiness.declined ? ` · ${readiness.declined} declined` : ""}` : "Responses appear after assignments", readiness.awaiting > 0 ? "text-[#8a6115]" : readiness.filled > 0 ? "text-ok" : "text-muted", () => setTab("roles")),
-										features.sermons && readinessTile("Sermon", !readiness.sermon ? "Not planned" : readiness.sermonReady ? "Ready" : "Not ready", readiness.sermon ? [readiness.sermon.title, readiness.sermon.scripture].filter(Boolean).join(" · ") : "No sermon dated for this service", readiness.sermonReady ? "text-ok" : "text-[#8a6115]", null, "#church-os/sermons"),
-										readinessTile("Run sheet", readiness.runReady ? "Ready" : "Not ready", readiness.runReady ? `${plan.run_sheet.length} item${plan.run_sheet.length === 1 ? "" : "s"} in the order` : "Build the order of service", readiness.runReady ? "text-ok" : "text-[#8a6115]", () => setTab("run"))
-									] })
-								]
-							})
-						] }),
-						/* @__PURE__ */ jsx("div", {
-							className: "px-7",
-							children: /* @__PURE__ */ jsx(TabBar, {
-								tabs: [
-									{ id: "overview", label: "Overview" },
-									{ id: "roles", label: "Team" },
-									{ id: "run", label: "Run sheet" },
-									{ id: "attendance", label: "Attendance" },
-									{ id: "notes", label: "Notes" }
-								],
-								value: tab,
-								onValueChange: setTab
-							})
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "px-7 pb-7",
-							children: [
-								tab === "overview" && /* @__PURE__ */ jsxs("div", { className: "grid gap-5 pt-1", children: [
-									isPast ? /* @__PURE__ */ jsxs("section", { className: "rounded-xl border border-line bg-canvas px-5 py-4", children: [/* @__PURE__ */ jsx("p", { className: "font-serif text-[1.1rem] font-semibold", children: "This Sunday is complete" }), /* @__PURE__ */ jsx("p", { className: "mt-1 text-sm text-muted", children: plan.attendance == null ? "Record attendance and keep any final notes with the service record." : `${plan.attendance} people recorded in attendance.` }), /* @__PURE__ */ jsx("button", { type: "button", onClick: () => setTab("attendance"), className: "mt-3 text-sm font-semibold text-forest hover:underline", children: plan.attendance == null ? "Record attendance →" : "Review attendance →" })] }) : readiness.issues.length === 0 ? /* @__PURE__ */ jsxs("section", { className: "rounded-xl border border-[#cfe2d8] bg-[#edf5f1] px-5 py-4", children: [/* @__PURE__ */ jsx("p", { className: "font-serif text-[1.1rem] font-semibold text-forest", children: "Sunday is ready" }), /* @__PURE__ */ jsx("p", { className: "mt-1 text-sm text-[#536059]", children: "Every tracked preparation area is ready. Church OS will surface a new exception if something changes." })] }) : /* @__PURE__ */ jsxs("section", { children: [
-										/* @__PURE__ */ jsxs("header", { className: "mb-2 flex items-center gap-2", children: [/* @__PURE__ */ jsx("h3", { className: "font-serif text-[1.15rem] font-semibold", children: "Still needs attention" }), /* @__PURE__ */ jsx("span", { className: "rounded-full bg-[#f1eadb] px-2.5 py-0.5 text-xs font-medium text-[#5f4a1c]", children: readiness.issues.length })] }),
-										/* @__PURE__ */ jsx("ol", { className: "overflow-hidden rounded-xl border border-line", children: readiness.issues.map((issue) => /* @__PURE__ */ jsxs("li", { className: "flex items-center gap-4 border-t border-line px-4 py-3.5 first:border-t-0", children: [/* @__PURE__ */ jsx("span", { className: "grid h-9 w-9 flex-none place-items-center rounded-[10px] bg-[#fbf1de] text-[#7a5411]", children: /* @__PURE__ */ jsx(Icon, { name: issue.key === "sermon" ? "mic" : issue.key === "run" ? "tasks" : "users", size: 18 }) }), /* @__PURE__ */ jsxs("span", { className: "min-w-0 flex-1", children: [/* @__PURE__ */ jsx("strong", { className: "block text-sm font-semibold", children: issue.title }), /* @__PURE__ */ jsx("span", { className: "mt-0.5 block truncate text-[13px] text-muted", children: issue.body })] }), /* @__PURE__ */ jsx("button", { type: "button", onClick: () => goIssue(issue.key), className: "flex-none text-[13px] font-semibold text-forest hover:underline", children: `${issue.action} →` })] }, issue.key)) })
-									] }),
-									!isPast && readiness.open > 0 && /* @__PURE__ */ jsxs("section", { children: [
-										/* @__PURE__ */ jsx("p", { className: "mb-2 text-[11px] font-semibold uppercase tracking-[.14em] text-gold", children: "Open team gaps" }),
-										/* @__PURE__ */ jsx("div", { className: "flex flex-wrap gap-2", children: readiness.roleGaps.map((r) => {
-											const subkey = externalHelpRoleSubkey(r.name);
-											const activeCase = externalHelpCases.find((c) => c.source_surface === "sunday" && c.source_entity_id === plan.id && c.source_subkey === subkey && !externalHelpTerminalStages.has(c.stage));
-											const eligible = canRequestExternalHelp && externalHelpSundayRoleEligible(r.name);
-											return /* @__PURE__ */ jsxs("span", { className: "inline-flex items-center gap-1.5", children: [
-												/* @__PURE__ */ jsxs("button", { type: "button", onClick: () => setTab("roles"), className: "rounded-full bg-[#fbf1de] px-3 py-1.5 text-[13px] font-medium text-[#7a5411]", children: [r.name, " · ", r.open, " open"] }),
-												eligible && externalHelpLoaded && (activeCase?.stage === "draft" ? /* @__PURE__ */ jsx("button", { type: "button", onClick: () => setExternalHelpReview({ gap: r, existingCase: activeCase }), className: "rounded-full border border-forest/20 bg-surface px-3 py-1.5 text-[12px] font-semibold text-forest hover:border-gold", children: "Finish outside-help request" }) : activeCase && ["providers_ready", "church_reviewing"].includes(activeCase.stage) ? /* @__PURE__ */ jsx("a", { href: `#church-os/external-help/${activeCase.id}`, className: "rounded-full border border-forest bg-forest px-3 py-1.5 text-[12px] font-semibold text-white no-underline hover:bg-forest-2", children: "Review providers" }) : activeCase ? /* @__PURE__ */ jsx("span", { className: "rounded-full border border-[#cfe2d8] bg-[#edf5f1] px-3 py-1.5 text-[12px] font-semibold text-forest", children: externalHelpStageLabel(activeCase.stage) }) : /* @__PURE__ */ jsx("button", { type: "button", onClick: () => setExternalHelpReview({ gap: r, existingCase: null }), className: "rounded-full border border-forest/20 bg-surface px-3 py-1.5 text-[12px] font-semibold text-forest hover:border-gold", children: "Get outside help" }))
-											] }, r.name);
-										}) })
-									] })
-								] }),
-								tab === "roles" && /* @__PURE__ */ jsx(RolesTab, { ws, plan, canEdit, reload, onError: setError }),
-								tab === "run" && /* @__PURE__ */ jsx(RunSheetTab, { ws, plan, canEdit, reload, onError: setError }),
-								tab === "attendance" && /* @__PURE__ */ jsx(AttendanceTab, { ws, plan, canEdit, reload, onError: setError }),
-								tab === "notes" && /* @__PURE__ */ jsx(NotesTab, { ws, plan, canEdit, reload, onError: setError })
-							]
-						})
-					]
-				})]
-			}),
-			/* @__PURE__ */ jsx(PlanModal, {
-				open: creating,
-				onOpenChange: setCreating,
-				ws,
-				onDone: async (id) => {
+	const activeServiceHelp = plan ? externalHelpCases.find((item) => item.source_surface === "sunday" && item.source_entity_id === plan.id && !externalHelpTerminalStages.has(item.stage)) || null : null;
+	const eligibleHelpGaps = readiness.roleGaps.filter((gap) => canRequestExternalHelp && externalHelpSundayRoleEligible(gap.name));
+	const issueActionLabel = (issue) => ({ team: "Open Team", responses: "Review response", run: "Build it", sermon: "Add sermon" })[issue.key] || issue.action;
+	return (
+		<Page
+			title="Sunday"
+			subtitle="Prepare this week’s service and team."
+			actions={canEdit && <>
+				<button type="button" className="tk-link-action" onClick={() => setView(view === "trends" ? "services" : "trends")}>{view === "trends" ? "Back to Sunday" : "History"}</button>
+				{view !== "trends" && <button type="button" className="tk-action primary" onClick={() => setCreating(true)}>Plan a Sunday</button>}
+			</>}
+		>
+			<div className="tk-sunday-root">
+			{error && <p className="tk-inline-error" role="alert">{error}</p>}
+			{toast && <p className="tk-inline-success" role="status">{toast}</p>}
+			{error && plans !== null && plans.length === 0 ? (
+				<LoadFailure title="Sunday couldn't load" body={error} onRetry={loadPlans} />
+			) : view === "trends" ? (
+				<TrendsView ws={ws} onError={setError} />
+			) : plans === null ? (
+				<p className="tk-loading-line">Loading Sunday…</p>
+			) : plans.length === 0 ? (
+				<EmptyState
+					icon="calendar"
+					title="Plan your first Sunday"
+					body="Create the service here. Sunday owns staffing and execution; its date and time will appear on Calendar automatically."
+					action={canEdit && <Button variant="primary" onClick={() => setCreating(true)}>Plan a Sunday</Button>}
+				/>
+			) : plan ? (
+				<div className="tk-sunday-page">
+					<section className="tk-sunday-service" aria-label="Selected Sunday service">
+						<header className="tk-sunday-service-head">
+							<div className="tk-sunday-service-copy">
+								<label className="tk-sunday-service-picker">
+									<span className="sr-only">Choose a Sunday service</span>
+									<select value={selectedId || ""} onChange={(event) => setSelectedId(event.target.value)} aria-label="Choose a Sunday service">
+										{plans.map((item) => {
+											const date = new Date(item.starts_at);
+											return <option key={item.id} value={item.id}>{date.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</option>;
+										})}
+									</select>
+								</label>
+								<p>{new Date(plan.starts_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} <span>·</span> {plan.title}{plan.theme ? <> <span>·</span> {plan.theme}</> : null} <span>·</span> {away(daysAway(plan.starts_at))}</p>
+							</div>
+							<div className="tk-sunday-service-actions">
+								<span className={clsx("tk-sunday-status", isPast ? "is-complete" : overallReady ? "is-ready" : "is-warning")}>{statusLabel}</span>
+								<button type="button" className="tk-link-action" onClick={() => {
+									if (!printPlan(plan, workspace.name)) setError("Your browser blocked the print window. Allow pop-ups for this site and try again.");
+								}}>Print</button>
+								{canEdit && <button type="button" className="tk-link-action" onClick={() => setEditing(true)}>Edit</button>}
+								{canEdit && <Menu
+									trigger={<button type="button" className="tk-icon-action" aria-label="More service actions">•••</button>}
+									items={[{
+										label: "Delete this service",
+										onSelect: async () => {
+											if (!await churchlyConfirm(`Delete ${plan.title}? Its run sheet, roles, assignments, and linked calendar item will be removed.`, { title: "Delete service plan?", confirmLabel: "Delete service" })) return;
+											try {
+												await deletePlan(ws, plan.id);
+												setSelectedId(null);
+												await loadPlans();
+											} catch (nextError) {
+												setError(nextError.message);
+											}
+										}
+									}]}
+								/>}
+							</div>
+						</header>
+
+						<div className="tk-sunday-metrics" aria-label="Sunday readiness">
+							<button type="button" className={clsx("tk-sunday-metric", readiness.open > 0 && "is-warning")} onClick={() => setTab("roles")}>
+								<span>Team</span><strong>{readiness.needed === 0 ? "Not set up" : `${readiness.filled} of ${readiness.needed} staffed`}</strong>
+							</button>
+							<button type="button" className={clsx("tk-sunday-metric", readiness.awaiting > 0 && "is-warning")} onClick={() => setTab("roles")}>
+								<span>Responses</span><strong>{readiness.awaiting > 0 ? `${readiness.awaiting} waiting` : readiness.filled > 0 ? "All answered" : "None yet"}</strong>
+							</button>
+							{features.sermons && <a className={clsx("tk-sunday-metric", !readiness.sermonReady && "is-warning")} href="#church-os/sermons">
+								<span>Sermon</span><strong>{!readiness.sermon ? "Not planned" : readiness.sermonReady ? "Ready" : "Not ready"}</strong>
+							</a>}
+							<button type="button" className={clsx("tk-sunday-metric", !readiness.runReady && "is-warning")} onClick={() => setTab("run")}>
+								<span>Run sheet</span><strong>{readiness.runReady ? "Ready" : "Not ready"}</strong>
+							</button>
+						</div>
+
+						<div className="tk-sunday-tabs">
+							<TabBar tabs={[
+								{ id: "overview", label: "Overview" },
+								{ id: "roles", label: "Team" },
+								{ id: "run", label: "Run sheet" },
+								{ id: "attendance", label: "Attendance" },
+								{ id: "notes", label: "Notes" }
+							]} value={tab} onValueChange={setTab} />
+						</div>
+
+						<div className="tk-sunday-tab-panel">
+							{tab === "overview" && <>
+								{isPast ? (
+									<section className="tk-sunday-state-note">
+										<h3>This Sunday is complete</h3>
+										<p>{plan.attendance == null ? "Record attendance and keep any final notes with the service record." : `${plan.attendance} people recorded in attendance.`}</p>
+										<button type="button" onClick={() => setTab("attendance")}>{plan.attendance == null ? "Record attendance →" : "Review attendance →"}</button>
+									</section>
+								) : readiness.issues.length === 0 ? (
+									<section className="tk-sunday-state-note is-ready">
+										<h3>Sunday is ready</h3>
+										<p>Every tracked preparation area is ready. Church Toolkit will surface a new exception if something changes.</p>
+									</section>
+								) : (
+									<section className="tk-sunday-finish">
+										<TKSectionLabel title="Finish before Sunday" action={<span className="tk-sunday-count">{readiness.issues.length} left</span>} />
+										<ol className="tk-sunday-issues" aria-label="Sunday preparation items">
+											{readiness.issues.map((issue) => <li key={issue.key}>
+												<span className="tk-sunday-issue-icon" aria-hidden="true"><Icon name={issue.key === "sermon" ? "mic" : issue.key === "run" ? "tasks" : issue.key === "responses" ? "bell" : "users"} size={24} /></span>
+												<div className="tk-sunday-issue-copy">
+													<strong>{issue.title}</strong>
+													<span>{issue.body}</span>
+													{issue.key === "team" && eligibleHelpGaps.map((gap) => {
+														const subkey = externalHelpRoleSubkey(gap.name);
+														const helpCase = externalHelpCases.find((item) => item.source_surface === "sunday" && item.source_entity_id === plan.id && item.source_subkey === subkey && !externalHelpTerminalStages.has(item.stage));
+														return <div className="tk-sunday-help-band" key={gap.name}>
+															<span>{helpCase ? `FaithBid help for ${gap.name}` : `Need outside ${gap.name} support?`}</span>
+															{externalHelpLoaded && (helpCase?.stage === "draft" ? (
+																<button type="button" onClick={() => setExternalHelpReview({ gap, existingCase: helpCase })}>Finish request →</button>
+															) : helpCase && ["providers_ready", "church_reviewing"].includes(helpCase.stage) ? (
+																<a href={`#church-os/external-help/${helpCase.id}`}>Review providers →</a>
+															) : helpCase ? (
+																<span className="tk-sunday-help-status">{externalHelpStageLabel(helpCase.stage)}</span>
+															) : (
+																<button type="button" onClick={() => setExternalHelpReview({ gap, existingCase: null })}>Get outside help →</button>
+															))}
+														</div>;
+													})}
+												</div>
+												<button type="button" className="tk-sunday-issue-action" onClick={() => goIssue(issue.key)}>{issueActionLabel(issue)} <span aria-hidden="true">→</span></button>
+											</li>)}
+										</ol>
+									</section>
+								)}
+							</>}
+							{tab === "roles" && <RolesTab ws={ws} plan={plan} canEdit={canEdit} reload={reload} onError={setError} />}
+							{tab === "run" && <RunSheetTab ws={ws} plan={plan} canEdit={canEdit} reload={reload} onError={setError} />}
+							{tab === "attendance" && <AttendanceTab ws={ws} plan={plan} canEdit={canEdit} reload={reload} onError={setError} />}
+							{tab === "notes" && <NotesTab ws={ws} plan={plan} canEdit={canEdit} reload={reload} onError={setError} />}
+						</div>
+					</section>
+				</div>
+			) : null}
+			<PlanModal
+				open={creating}
+				onOpenChange={setCreating}
+				ws={ws}
+				onDone={async (id) => {
 					setCreating(false);
 					setSelectedId(id);
 					await loadPlans();
 					await loadPlan();
-				}
-			}),
-			plan && /* @__PURE__ */ jsx(EditModal, {
-				open: editing,
-				onOpenChange: setEditing,
-				plan,
-				ws,
-				onDone: async () => {
-					setEditing(false);
-					await reload();
-				}
-			}),
-			plan && externalHelpReview && /* @__PURE__ */ jsx(ExternalHelpReviewModal, {
-				open: !!externalHelpReview,
-				onOpenChange: (open) => { if (!open) setExternalHelpReview(null); },
-				ws,
-				plan,
-				gap: externalHelpReview.gap,
-				existingCase: externalHelpReview.existingCase,
-				onDone: async (caseRow) => {
+				}}
+			/>
+			{plan && <EditModal open={editing} onOpenChange={setEditing} plan={plan} ws={ws} onDone={async () => {
+				setEditing(false);
+				await reload();
+			}} />}
+			{plan && externalHelpReview && <ExternalHelpReviewModal
+				open={!!externalHelpReview}
+				onOpenChange={(open) => { if (!open) setExternalHelpReview(null); }}
+				ws={ws}
+				plan={plan}
+				gap={externalHelpReview.gap}
+				existingCase={externalHelpReview.existingCase}
+				onDone={async () => {
+					const gapName = externalHelpReview.gap.name;
 					setExternalHelpReview(null);
 					await refreshExternalHelp();
-					setToast(`FaithBid help requested for ${externalHelpReview.gap.name}. Nothing was posted publicly.`);
-				}
-			})
-		]
-	});
+					setToast(`FaithBid help requested for ${gapName}. Nothing was posted publicly.`);
+				}}
+			/>}
+			</div>
+		</Page>
+	);
+
 }
 function ExternalHelpReviewModal({ open, onOpenChange, ws, plan, gap, existingCase, onDone }) {
 	const buildInitial = () => {
@@ -45653,10 +45328,10 @@ function HouseholdsTab({ ws, people, canEdit, churchName }) {
 		});
 	};
 	return /* @__PURE__ */ jsxs("div", {
-		className: "grid gap-4",
+		className: "tk-households-page",
 		children: [
 			/* @__PURE__ */ jsxs("div", {
-				className: "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-gold-soft px-4 py-3",
+				className: "tk-households-head",
 				children: [/* @__PURE__ */ jsxs("p", {
 					className: "min-w-[16rem] flex-1 text-sm",
 					children: [/* @__PURE__ */ jsx("strong", { children: "Households only group people." }), " They do not give permission to contact anyone, and children are never messaged directly."]
@@ -45685,11 +45360,11 @@ function HouseholdsTab({ ws, people, canEdit, churchName }) {
 				title: "No households yet",
 				body: "Group parents and children so you can see families at a glance."
 			}) }) : /* @__PURE__ */ jsx("ul", {
-				className: "grid gap-3 md:grid-cols-2",
+				className: "tk-households-list",
 				children: rows.map((h) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("button", {
 					type: "button",
 					onClick: () => start(h),
-					className: "w-full rounded-card border border-line bg-surface p-4 text-left hover:border-gold",
+					className: "tk-household-row",
 					children: [/* @__PURE__ */ jsx("p", {
 						className: "mb-2 font-serif text-lg font-semibold",
 						children: h.name
@@ -45892,6 +45567,7 @@ function PeoplePage() {
 	const [selected, setSelected] = useState(null);
 	const [tab, setTab] = useState("directory");
 	const [status, setStatus] = useState("all");
+	const [query, setQuery] = useState("");
 	const canHouse = [
 		"owner",
 		"pastor",
@@ -45969,56 +45645,99 @@ function PeoplePage() {
 			cell: ({ getValue }) => CHANNEL[getValue()] || /* @__PURE__ */ jsx("span", { className: "text-muted", children: "—" })
 		}
 	], []);
-	return /* @__PURE__ */ jsxs(Page, {
-		title: "People",
-		subtitle: "The shared identity and relationship record for your church. Sensitive ministry details stay in the modules that own them.",
-		actions: canEdit && !houses && /* @__PURE__ */ jsxs(Fragment, { children: [
-			/* @__PURE__ */ jsx(Button, { onClick: printDirectory, disabled: !people || people.length === 0, children: "Print" }),
-			/* @__PURE__ */ jsx(Button, { onClick: () => setImporting(true), children: "Import" }),
-			/* @__PURE__ */ jsx(Button, { variant: "primary", onClick: () => setAdding(true), children: "Add person" })
-		] }),
-		children: [
-			tabs.length > 1 && /* @__PURE__ */ jsx(TabBar, { tabs, value: tab, onValueChange: setTab }),
-			people === false ? /* @__PURE__ */ jsx(LoadFailure, { title: "People couldn't load", body: error || "Church OS couldn't refresh the directory.", onRetry: load }) : houses ? /* @__PURE__ */ jsx(HouseholdsTab, { ws, people, canEdit, churchName: workspace.name }) : /* @__PURE__ */ jsxs(Fragment, { children: [
-				/* @__PURE__ */ jsx("div", {
-					className: "mb-4 rounded-xl border border-line bg-surface px-4 py-3 text-[13px] text-muted",
-					children: "People owns identity, relationship status, household connection, contact details, and consent. Groups, Kids Ministry, Care & Prayer, and Sunday keep their own domain records."
-				}),
-				error && /* @__PURE__ */ jsx("p", { className: "mb-3 text-sm text-danger", role: "alert", children: error }),
-				people === null ? /* @__PURE__ */ jsx("p", { className: "text-sm text-muted", children: "Loading…" }) : people === false ? /* @__PURE__ */ jsx(LoadFailure, { title: "People couldn't load", body: error || "Church OS couldn't refresh the directory.", onRetry: load }) : /* @__PURE__ */ jsx(DataTable, {
-					columns,
-					data: status === "all" ? people : people.filter((p) => p.status === status),
-					searchPlaceholder: "Search people…",
-					nouns: ["person", "people"],
-					onRowClick: setSelected,
-					toolbar: /* @__PURE__ */ jsx("div", {
-						className: "flex flex-wrap gap-1.5",
-						role: "group",
-						"aria-label": "Filter by relationship",
-						children: FILTERS.map(([k, label]) => /* @__PURE__ */ jsxs("button", {
-							type: "button",
-							"aria-pressed": status === k,
-							onClick: () => setStatus(k),
-							className: `h-8 rounded-full border px-3 text-xs font-medium ${status === k ? "border-forest bg-forest text-white" : "border-line bg-surface hover:border-gold"}`,
-							children: [label, k !== "all" && ` ${people.filter((p) => p.status === k).length}`]
-						}, k))
-					}),
-					empty: people.length > 0 ? /* @__PURE__ */ jsx(EmptyState, { icon: "search", title: "No one matches", body: "Try a different search or relationship filter." }) : /* @__PURE__ */ jsx(EmptyState, {
-						icon: "users",
-						title: "No people yet",
-						body: "Add the first person, import your list, or turn on the Connect Card when you're ready for guests. Contact permission is always recorded separately.",
-						action: canEdit && /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
-							/* @__PURE__ */ jsx(Button, { onClick: () => setImporting(true), children: "Import from a spreadsheet" }),
-							/* @__PURE__ */ jsx(Button, { variant: "primary", onClick: () => setAdding(true), children: "Add person" })
-						] })
-					})
-				})
-			] }),
-			canEdit && /* @__PURE__ */ jsx(ImportPeople, { open: importing, onOpenChange: setImporting, ws, existing: people || [], onDone: load }),
-			/* @__PURE__ */ jsx(AddPerson, { open: adding, onOpenChange: setAdding, ws, onDone: () => { setAdding(false); load(); } }),
-			/* @__PURE__ */ jsx(PersonPanel, { person: selected, onClose: () => setSelected(null), ws, canEdit, onSaved: load })
-		]
-	});
+	const directoryRows = useMemo(() => {
+		if (!Array.isArray(people)) return [];
+		const needle = query.trim().toLowerCase();
+		return people.filter((person) => {
+			if (status !== "all" && person.status !== status) return false;
+			if (!needle) return true;
+			return [person.first_name, person.last_name, person.email, person.phone, person.status]
+				.filter(Boolean)
+				.join(" ")
+				.toLowerCase()
+				.includes(needle);
+		});
+	}, [people, query, status]);
+	return (
+		<Page
+			title="People"
+			subtitle="Directory, households, and contact preferences in one place."
+			actions={canEdit && !houses && <>
+				<button type="button" className="tk-link-action" onClick={() => setImporting(true)}>Import</button>
+				<button type="button" className="tk-action primary" onClick={() => setAdding(true)}>Add person</button>
+				<Menu
+					trigger={<button type="button" className="tk-icon-action" aria-label="More People actions">•••</button>}
+					items={[{ label: "Print directory", onSelect: printDirectory }]}
+				/>
+			</>}
+		>
+			<div className="tk-people-root">
+				{tabs.length > 1 && <div className="tk-people-tabs"><TabBar tabs={tabs} value={tab} onValueChange={setTab} /></div>}
+				{people === false ? (
+					<LoadFailure title="People couldn't load" body={error || "Church Toolkit couldn't refresh the directory."} onRetry={load} />
+				) : houses ? (
+					<HouseholdsTab ws={ws} people={people} canEdit={canEdit} churchName={workspace.name} />
+				) : (
+					<section className="tk-people-directory" aria-label="People directory">
+						{error && <p className="tk-inline-error" role="alert">{error}</p>}
+						{people === null ? <p className="tk-loading-line">Loading people…</p> : <>
+							<div className="tk-people-toolbar">
+								<label className="tk-people-search">
+									<Icon name="search" size={18} />
+									<span className="sr-only">Search people</span>
+									<input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search people…" />
+								</label>
+								<label className="tk-people-filter">
+									<span className="sr-only">Filter by relationship</span>
+									<select value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Filter by relationship">
+										{FILTERS.map(([key, label]) => <option key={key} value={key}>Relationship: {label}{key !== "all" && people ? ` (${people.filter((person) => person.status === key).length})` : ""}</option>)}
+									</select>
+								</label>
+								<p className="tk-people-count">{directoryRows.length} {directoryRows.length === 1 ? "person" : "people"}{(query.trim() || status !== "all") && people.length !== directoryRows.length ? ` of ${people.length}` : ""}</p>
+							</div>
+
+							{directoryRows.length > 0 ? <>
+								<div className="tk-people-columns" aria-hidden="true">
+									<span>Name</span><span>Relationship</span><span>Contact</span><span>Prefers</span><span />
+								</div>
+								<ol className="tk-people-ledger">
+									{directoryRows.map((person) => {
+										const name = `${person.first_name || ""} ${person.last_name || ""}`.trim() || "Unnamed person";
+										const relationship = RELATIONSHIP_LABEL[person.status] || person.status || "Not set";
+										return <li key={person.id}>
+											<button type="button" onClick={() => setSelected(person)} aria-label={`Open ${name}`}>
+												<span className="tk-person-name">
+													<Avatar$1 name={name} size={42} />
+													<span><strong>{name}</strong>{person.age_group === "minor" && <small>Under 18</small>}</span>
+												</span>
+												<span className="tk-person-relationship"><i className={`is-${person.status || "unknown"}`} />{relationship}</span>
+												<span className="tk-person-contact">
+													{person.email && <span>{person.email}</span>}
+													{person.phone && <span className={person.email ? "is-secondary" : ""}>{fmtPhone$1(person.phone)}</span>}
+													{!person.email && !person.phone && <em>No contact details</em>}
+												</span>
+												<span className="tk-person-prefers">{CHANNEL[person.preferred_channel] || "—"}</span>
+												<span className="tk-person-open" aria-hidden="true">›</span>
+											</button>
+										</li>;
+									})}
+								</ol>
+							</> : people.length > 0 ? (
+								<div className="tk-people-empty"><h2>No one matches</h2><p>Try a different search or relationship filter.</p><button type="button" onClick={() => { setQuery(""); setStatus("all"); }}>Clear filters</button></div>
+							) : (
+								<div className="tk-people-empty"><h2>No people yet</h2><p>Add the first person or import your existing list. Contact permission is always recorded separately.</p>{canEdit && <div><button type="button" className="tk-link-action" onClick={() => setImporting(true)}>Import a spreadsheet</button><button type="button" className="tk-action primary" onClick={() => setAdding(true)}>Add person</button></div>}</div>
+							)}
+							<p className="tk-people-boundary">People stores identity, relationship, contact preferences, household connection, and consent. Groups, Kids, pastoral care, and Sunday keep their own protected records.</p>
+						</>}
+					</section>
+				)}
+				{canEdit && <ImportPeople open={importing} onOpenChange={setImporting} ws={ws} existing={people || []} onDone={load} />}
+				<AddPerson open={adding} onOpenChange={setAdding} ws={ws} onDone={() => { setAdding(false); load(); }} />
+				<PersonPanel person={selected} onClose={() => setSelected(null)} ws={ws} canEdit={canEdit} onSaved={load} />
+			</div>
+		</Page>
+	);
+
 }
 function AddPerson({ open, onOpenChange, ws, onDone }) {
 	const [v, setV] = useState(blank);
@@ -46655,11 +46374,11 @@ function CreateChannelModal({ open, onOpenChange, ws, onCreate }) {
 //#endregion
 //#region src/modules/messages/MessagesWorkspace.jsx
 const VIEWS = [
-	["inbox", "Unread"],
 	["channels", "Channels"],
-	["direct", "Direct"],
+	["inbox", "Unread"],
 	["announcements", "Announcements"],
-	["saved", "Saved"]
+	["saved", "Saved"],
+	["direct", "Direct"]
 ];
 function MessagesWorkspace() {
 	const { workspace, session } = useAuth();
@@ -47094,7 +46813,9 @@ function MessagesWorkspace() {
 		})] });
 	};
 	const showRail = (view === "channels" || view === "announcements") && railOpen && convoActive && !threadId;
-	return /* @__PURE__ */ jsxs("div", {
+	return <div data-kit className="tk-page tk-messages-page">
+		<TKPageHeader title="Messages" subtitle="Church conversations, announcements, and team coordination." actions={staff ? <button type="button" className="tk-action primary" onClick={() => setCreating(true)}>Create channel</button> : null} />
+		{/* @__PURE__ */ jsxs("div", {
 		className: `msg-app pane-${pane}`,
 		children: [
 			/* @__PURE__ */ jsx("nav", {
@@ -47181,7 +46902,7 @@ function MessagesWorkspace() {
 				}
 			})
 		]
-	});
+	})}</div>;
 }
 
 //#endregion
@@ -47342,7 +47063,7 @@ function SermonsPage() {
 			children: list.map((s) => /* @__PURE__ */ jsx(Row, { s }, s.id))
 		})]
 	}) : null;
-	return /* @__PURE__ */ jsxs(Page, {
+	return <div className="tk-sermons-page">{/* @__PURE__ */ jsxs(Page, {
 		title: "Sermons",
 		subtitle: "Plan what is coming, keep every sermon and its notes, and group them into series.",
 		actions: canEdit && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx(Button, {
@@ -47426,7 +47147,7 @@ function SermonsPage() {
 				title: "Coming up",
 				list: upcoming
 			}), /* @__PURE__ */ jsx(Group, {
-				title: "Past sermons",
+				title: "Recently preached",
 				list: past
 			})] })] }) : series.length === 0 ? /* @__PURE__ */ jsx(EmptyState, {
 				title: "No series yet",
@@ -47528,7 +47249,7 @@ function SermonsPage() {
 				}
 			})
 		]
-	});
+	})}</div>;
 }
 function SermonForm({ sermon, series, ws, canEdit, onDone }) {
 	const [v, setV] = useState({
@@ -47911,7 +47632,7 @@ function VaultPage() {
 	const first = visible.length ? (safePage - 1) * rowsPerPage + 1 : 0;
 	return /* @__PURE__ */ jsxs("div", {
 		"data-kit": true,
-		className: "mx-auto flex max-w-[1160px] flex-col px-4 pb-6 pt-8 text-ink sm:px-8",
+		className: "tk-vault-page mx-auto flex max-w-[1460px] flex-col px-4 pb-6 pt-8 text-ink sm:px-8",
 		style: { height: "calc(var(--churchly-canvas-height, 100vh) - var(--top, 58px))" },
 		children: [
 			/* @__PURE__ */ jsxs("header", {
@@ -47921,14 +47642,14 @@ function VaultPage() {
 					children: "Vault"
 				}), /* @__PURE__ */ jsx("p", {
 					className: "mt-1.5 text-[0.95rem] text-muted",
-					children: "Policies, insurance, contracts, minutes, and renewals in one place. Deadlines surface in This Week; decisions route through Inbox."
+					children: "Important church documents, organized and easy to find. Renewal deadlines surface in This Week."
 				})] }), canEdit && /* @__PURE__ */ jsxs(Button, {
 					variant: "primary",
 					onClick: () => setUploading(true),
 					children: [/* @__PURE__ */ jsx(Icon, {
 						name: "plus",
 						size: 16
-					}), "Upload"]
+					}), "Upload document"]
 				})]
 			}),
 			(error || toast) && /* @__PURE__ */ jsx("p", {
@@ -49974,26 +49695,16 @@ const GROUPS = [
 	]]
 ];
 function HelpPage() {
-	return /* @__PURE__ */ jsx(Page, {
-		title: "Help",
-		subtitle: "Short answers to common questions.",
-		children: /* @__PURE__ */ jsx("div", {
-			className: "grid gap-8",
-			children: GROUPS.map(([group, topics]) => /* @__PURE__ */ jsxs("section", { children: [/* @__PURE__ */ jsx("h2", {
-				className: "mb-3 text-xs font-semibold uppercase tracking-[.14em] text-gold",
-				children: group
-			}), /* @__PURE__ */ jsx("div", {
-				className: "grid items-start gap-3 md:grid-cols-2",
-				children: topics.map(([q, a]) => /* @__PURE__ */ jsxs(Card, { children: [/* @__PURE__ */ jsx("h3", {
-					className: "mb-1 font-serif text-[1.05rem] font-semibold",
-					children: q
-				}), /* @__PURE__ */ jsx("p", {
-					className: "text-sm leading-relaxed text-muted",
-					children: a
-				})] }, q))
-			})] }, group))
-		})
-	});
+	const [query, setQuery] = useState("");
+	const needle = query.trim().toLowerCase();
+	const visible = GROUPS.map(([group, topics]) => [group, topics.filter(([question, answer]) => !needle || (question + " " + answer).toLowerCase().includes(needle))]).filter(([, topics]) => topics.length);
+	return <div data-kit className="tk-page tk-help-page">
+		<TKPageHeader eyebrow="Guides & support" title="Help" subtitle="Clear answers for the work your church does most often." actions={<label className="tk-help-search"><Icon name="search" size={18} /><span className="sr-only">Search help</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search help" /></label>} />
+		<div className="tk-help-directory">
+			{visible.map(([group, topics]) => <section key={group}><h2>{group}</h2><div>{topics.map(([question, answer], index) => <details key={question} open={needle ? true : undefined}><summary><span>{question}</span><i aria-hidden="true">+</i></summary><p>{answer.replace("Media & Brand", "Media")}</p></details>)}</div></section>)}
+			{!visible.length && <div className="tk-help-empty"><h2>No matching answer</h2><p>Try a shorter search, or browse the sections again.</p><button type="button" onClick={() => setQuery("")}>Clear search</button></div>}
+		</div>
+	</div>;
 }
 
 //#endregion
@@ -50540,79 +50251,17 @@ function Scaled({ children }) {
 function MarketingPage() {
 	const { workspace } = useAuth();
 	const ws = workspace.workspace_id;
-	const canEdit = [
-		"owner",
-		"pastor",
-		"admin"
-	].includes(workspace.role);
+	const canEdit = ["owner", "pastor", "admin"].includes(workspace.role);
 	const [tab, setTab] = useState("slides");
 	const [brand, setBrand] = useState(null);
 	const [error, setError] = useState("");
-	useEffect(() => {
-		getBrand(ws).then(setBrand).catch((e) => {
-			setError(e.message);
-			setBrand({ ...DEFAULT_BRAND });
-		});
-	}, [ws]);
-	return /* @__PURE__ */ jsxs(Page, {
-		title: "Media & Brand",
-		subtitle: "Sunday media, announcements, and brand tools built from what is already in Church OS.",
-		children: [
-			/* @__PURE__ */ jsx(TabBar, {
-				tabs: [
-					{
-						id: "slides",
-						label: "Sunday slides"
-					},
-					{
-						id: "bulletin",
-						label: "Bulletin"
-					},
-					{
-						id: "announcements",
-						label: "Announcements"
-					},
-					{
-						id: "brand",
-						label: "Brand"
-					}
-				],
-				value: tab,
-				onValueChange: setTab
-			}),
-			error && /* @__PURE__ */ jsx("p", {
-				className: "mb-3 text-sm text-danger",
-				role: "alert",
-				children: error
-			}),
-			!brand ? /* @__PURE__ */ jsx("p", {
-				className: "text-sm text-muted",
-				children: "Loading…"
-			}) : /* @__PURE__ */ jsxs(Fragment, { children: [
-				tab === "slides" && /* @__PURE__ */ jsx(SundaySlides, {
-					ws,
-					brand,
-					church: workspace.name,
-					canSave: canEdit
-				}),
-				tab === "bulletin" && /* @__PURE__ */ jsx(BulletinTab, {
-					ws,
-					brand
-				}),
-				tab === "announcements" && /* @__PURE__ */ jsx(Announcements, {
-					ws,
-					canEdit
-				}),
-				tab === "brand" && /* @__PURE__ */ jsx(BrandTab, {
-					ws,
-					brand,
-					setBrand,
-					canEdit,
-					church: workspace.name
-				})
-			] })
-		]
-	});
+	useEffect(() => { getBrand(ws).then(setBrand).catch((e) => { setError(e.message); setBrand({ ...DEFAULT_BRAND }); }); }, [ws]);
+	return <div data-kit className="tk-page tk-media-page">
+		<TKPageHeader title="Media" subtitle="Prepare Sunday slides, bulletins, and announcements from your existing plans." />
+		<div className="tk-media-tabs" role="tablist" aria-label="Media views">{[["slides","Sunday slides"],["bulletin","Bulletin"],["announcements","Announcements"],["brand","Brand"]].map(([id,label]) => <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "active" : ""} onClick={() => setTab(id)}>{label}</button>)}</div>
+		{error && <p className="tk-inline-error" role="alert">{error}</p>}
+		{!brand ? <p className="tk-loading-copy">Loading Media…</p> : <>{tab === "slides" && <SundaySlides ws={ws} brand={brand} church={workspace.name} canSave={canEdit} />}{tab === "bulletin" && <div className="tk-media-secondary"><BulletinTab ws={ws} brand={brand} /></div>}{tab === "announcements" && <div className="tk-media-secondary"><Announcements ws={ws} canEdit={canEdit} /></div>}{tab === "brand" && <div className="tk-media-secondary"><BrandTab ws={ws} brand={brand} setBrand={setBrand} canEdit={canEdit} church={workspace.name} /></div>}</>}
+	</div>;
 }
 function SundaySlides({ ws, brand, church, canSave }) {
 	const [plans, setPlans] = useState(null);
@@ -50623,275 +50272,28 @@ function SundaySlides({ ws, brand, church, canSave }) {
 	const [busy, setBusy] = useState(false);
 	const [msg, setMsg] = useState("");
 	const [err, setErr] = useState("");
-	useEffect(() => {
-		const from = /* @__PURE__ */ new Date();
-		from.setDate(from.getDate() - 1);
-		const to = /* @__PURE__ */ new Date();
-		to.setDate(to.getDate() + 120);
-		listPlans(ws, from, to).then((l) => {
-			setPlans(l);
-			setPlanId(l[0]?.id || "");
-		}).catch((e) => {
-			setErr(e.message);
-			setPlans([]);
-		});
-	}, [ws]);
-	const build = useCallback(async () => {
-		if (!planId) {
-			setSlides([]);
-			return;
-		}
-		try {
-			const d = await slideData(ws, planId);
-			setData(d);
-			const s = buildSlides(d, brand.tagline);
-			setSlides(s);
-			setSel(s[0]?.id);
-			setErr("");
-		} catch (e) {
-			setErr(e.message);
-		}
-	}, [
-		ws,
-		planId,
-		brand.tagline
-	]);
-	useEffect(() => {
-		build();
-	}, [build]);
-	const update = (id, patch) => setSlides((l) => l.map((s) => s.id === id ? {
-		...s,
-		...patch
-	} : s));
-	const move = (id, d) => setSlides((l) => {
-		const i = l.findIndex((s) => s.id === id);
-		const j = i + d;
-		if (i < 0 || j < 0 || j >= l.length) return l;
-		const a = [...l];
-		[a[i], a[j]] = [a[j], a[i]];
-		return a;
-	});
-	const current = slides.find((s) => s.id === sel) || slides[0];
-	const count = slides.filter((s) => s.include).length;
+	useEffect(() => { const from = new Date(); from.setDate(from.getDate() - 1); const to = new Date(); to.setDate(to.getDate() + 120); listPlans(ws, from, to).then((list) => { setPlans(list); setPlanId(list[0]?.id || ""); }).catch((e) => { setErr(e.message); setPlans([]); }); }, [ws]);
+	const build = useCallback(async () => { if (!planId) { setSlides([]); return; } try { const next = await slideData(ws, planId); setData(next); const built = buildSlides(next, brand.tagline); setSlides(built); setSel(built[0]?.id); setErr(""); setMsg(""); } catch (e) { setErr(e.message); } }, [ws, planId, brand.tagline]);
+	useEffect(() => { build(); }, [build]);
+	const update = (id, patch) => setSlides((list) => list.map((slide) => slide.id === id ? { ...slide, ...patch } : slide));
+	const move = (id, delta) => setSlides((list) => { const index = list.findIndex((slide) => slide.id === id); const next = index + delta; if (index < 0 || next < 0 || next >= list.length) return list; const copy = [...list]; [copy[index], copy[next]] = [copy[next], copy[index]]; return copy; });
+	const current = slides.find((slide) => slide.id === sel) || slides[0];
+	const count = slides.filter((slide) => slide.include).length;
 	const dayLabel = data ? new Date(data.service.starts_at).toISOString().slice(0, 10) : "";
-	const exportPdf = () => {
-		const w = openPrintWindow();
-		if (!w) {
-			setErr("Your browser blocked the print window. Allow pop-ups for this site and try again.");
-			return;
-		}
-		writePrintWindow(w, slidesHtml(slides, brand, church, `${church} Sunday slides ${dayLabel}`));
-	};
-	const exportPptx = async () => {
-		setBusy(true);
-		setErr("");
-		try {
-			await downloadPptx(slides, brand, church, `${safeName(church)}-Sunday-slides-${dayLabel}.pptx`);
-		} catch (e) {
-			setErr(e.message);
-		}
-		setBusy(false);
-	};
-	const saveToVault = async () => {
-		setBusy(true);
-		setErr("");
-		setMsg("");
-		try {
-			const file = await pptxFile(slides, brand, church, `${safeName(church)}-Sunday-slides-${dayLabel}.pptx`);
-			await uploadDocument(ws, file, {
-				name: `Sunday slides ${dayLabel}`,
-				folder: "sunday",
-				notes: "Saved from Media & Brand."
-			});
-			setMsg("Saved to the Vault, in Sunday Services.");
-		} catch (e) {
-			setErr(e.message);
-		}
-		setBusy(false);
-	};
-	if (plans === null) return /* @__PURE__ */ jsx("p", {
-		className: "text-sm text-muted",
-		children: "Loading…"
-	});
-	if (plans.length === 0) return /* @__PURE__ */ jsx(EmptyState, {
-		icon: "calendar",
-		title: "Plan a Sunday first",
-		body: "Slides are built from your service plan, sermon, announcements and team. Plan a service on the Sunday page and come back.",
-		action: /* @__PURE__ */ jsx("a", {
-			href: "#church-os/sunday",
-			className: "inline-flex h-10 items-center rounded-[10px] bg-forest px-4 text-sm font-medium text-white no-underline",
-			children: "Open Sunday"
-		})
-	});
-	return /* @__PURE__ */ jsxs("div", {
-		className: "grid gap-5",
-		children: [
-			/* @__PURE__ */ jsxs("div", {
-				className: "flex flex-wrap items-center gap-3",
-				children: [
-					/* @__PURE__ */ jsx("select", {
-						value: planId,
-						onChange: (e) => setPlanId(e.target.value),
-						"aria-label": "Service",
-						className: `${inputCls$6} max-w-xs`,
-						children: plans.map((p) => /* @__PURE__ */ jsxs("option", {
-							value: p.id,
-							children: [
-								new Date(p.starts_at).toLocaleDateString([], {
-									weekday: "short",
-									month: "short",
-									day: "numeric"
-								}),
-								" · ",
-								p.title
-							]
-						}, p.id))
-					}),
-					/* @__PURE__ */ jsxs("span", {
-						className: "text-sm text-muted",
-						children: [
-							count,
-							" slide",
-							count === 1 ? "" : "s"
-						]
-					}),
-					/* @__PURE__ */ jsxs("div", {
-						className: "ml-auto flex flex-wrap gap-2",
-						children: [
-							/* @__PURE__ */ jsx(Button, {
-								onClick: build,
-								children: "Start over"
-							}),
-							/* @__PURE__ */ jsx(Button, {
-								onClick: exportPdf,
-								disabled: !count,
-								children: "Print or save PDF"
-							}),
-							canSave && /* @__PURE__ */ jsx(Button, {
-								onClick: saveToVault,
-								disabled: !count || busy,
-								children: "Save to Vault"
-							}),
-							/* @__PURE__ */ jsx(Button, {
-								variant: "primary",
-								onClick: exportPptx,
-								disabled: !count || busy,
-								children: busy ? "Preparing…" : "Download PowerPoint"
-							})
-						]
-					})
-				]
-			}),
-			err && /* @__PURE__ */ jsx("p", {
-				className: "text-sm text-danger",
-				role: "alert",
-				children: err
-			}),
-			msg && /* @__PURE__ */ jsx("p", {
-				className: "rounded-xl bg-[#dcefe6] px-4 py-2 text-sm text-ok",
-				role: "status",
-				children: msg
-			}),
-			/* @__PURE__ */ jsxs("div", {
-				className: "grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]",
-				children: [/* @__PURE__ */ jsx("ol", {
-					className: "grid gap-2",
-					"aria-label": "Slides",
-					children: slides.map((s, i) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("div", {
-						className: `rounded-xl border p-2 transition ${s.id === (current && current.id) ? "border-gold bg-surface shadow-[0_1px_2px_rgba(20,50,44,.06)]" : "border-line bg-surface/70 hover:border-[#d8ccb0]"} ${s.include ? "" : "opacity-50"}`,
-						children: [/* @__PURE__ */ jsx("button", {
-							type: "button",
-							onClick: () => setSel(s.id),
-							className: "block w-full text-left",
-							"aria-label": `Slide ${i + 1}: ${s.title}`,
-							children: /* @__PURE__ */ jsx(Scaled, { children: /* @__PURE__ */ jsx(SlideView, {
-								slide: s,
-								brand,
-								church
-							}) })
-						}), /* @__PURE__ */ jsxs("div", {
-							className: "mt-2 flex items-center gap-1 px-1 text-[13px]",
-							children: [
-								/* @__PURE__ */ jsxs("label", {
-									className: "flex min-w-0 flex-1 items-center gap-2",
-									children: [/* @__PURE__ */ jsx("input", {
-										type: "checkbox",
-										className: "h-4 w-4 accent-[#12312b]",
-										checked: s.include,
-										onChange: (e) => update(s.id, { include: e.target.checked })
-									}), /* @__PURE__ */ jsxs("span", {
-										className: "truncate text-muted",
-										children: [
-											i + 1,
-											". ",
-											s.eyebrow || s.kind
-										]
-									})]
-								}),
-								/* @__PURE__ */ jsx("button", {
-									type: "button",
-									onClick: () => move(s.id, -1),
-									disabled: i === 0,
-									"aria-label": "Move up",
-									className: "rounded px-1.5 text-muted hover:bg-canvas disabled:opacity-30",
-									children: "↑"
-								}),
-								/* @__PURE__ */ jsx("button", {
-									type: "button",
-									onClick: () => move(s.id, 1),
-									disabled: i === slides.length - 1,
-									"aria-label": "Move down",
-									className: "rounded px-1.5 text-muted hover:bg-canvas disabled:opacity-30",
-									children: "↓"
-								})
-							]
-						})]
-					}) }, s.id))
-				}), current && /* @__PURE__ */ jsxs(Card, { children: [/* @__PURE__ */ jsx(Scaled, { children: /* @__PURE__ */ jsx(SlideView, {
-					slide: current,
-					brand,
-					church
-				}) }), /* @__PURE__ */ jsxs("div", {
-					className: "mt-5 grid gap-3",
-					children: [
-						/* @__PURE__ */ jsx(Field$4, {
-							label: "Title",
-							children: /* @__PURE__ */ jsx("input", {
-								className: inputCls$6,
-								value: current.title || "",
-								onChange: (e) => update(current.id, { title: e.target.value }),
-								maxLength: 140
-							})
-						}),
-						"subtitle" in current && /* @__PURE__ */ jsx(Field$4, {
-							label: "Second line",
-							children: /* @__PURE__ */ jsx("input", {
-								className: inputCls$6,
-								value: current.subtitle || "",
-								onChange: (e) => update(current.id, { subtitle: e.target.value }),
-								maxLength: 140
-							})
-						}),
-						current.kind !== "team" && /* @__PURE__ */ jsx(Field$4, {
-							label: current.kind === "scripture" ? "Passage text" : "Text",
-							hint: current.kind === "scripture" ? "Paste the words from your own licensed Bible or a public-domain translation. FaithBid never fills in verse text for you." : void 0,
-							children: /* @__PURE__ */ jsx("textarea", {
-								rows: 3,
-								className: areaCls$3,
-								value: current.body || "",
-								onChange: (e) => update(current.id, { body: e.target.value }),
-								maxLength: 600
-							})
-						}),
-						current.kind === "team" && /* @__PURE__ */ jsx("p", {
-							className: "rounded-xl bg-canvas px-4 py-3 text-[13px] text-muted",
-							children: "Only confirmed adult volunteers who said yes to having their name shown appear here. Change that on a person's profile."
-						})
-					]
-				})] })]
-			})
-		]
-	});
+	const exportPdf = () => { const win = openPrintWindow(); if (!win) { setErr("Your browser blocked the print window. Allow pop-ups for this site and try again."); return; } writePrintWindow(win, slidesHtml(slides, brand, church, church + " Sunday slides " + dayLabel)); };
+	const exportPptx = async () => { setBusy(true); setErr(""); try { await downloadPptx(slides, brand, church, safeName(church) + "-Sunday-slides-" + dayLabel + ".pptx"); } catch (e) { setErr(e.message); } setBusy(false); };
+	const saveToVault = async () => { setBusy(true); setErr(""); setMsg(""); try { const file = await pptxFile(slides, brand, church, safeName(church) + "-Sunday-slides-" + dayLabel + ".pptx"); await uploadDocument(ws, file, { name: "Sunday slides " + dayLabel, folder: "sunday", notes: "Saved from Media." }); setMsg("Saved to Vault in Sunday Services."); } catch (e) { setErr(e.message); } setBusy(false); };
+	if (plans === null) return <p className="tk-loading-copy">Loading Sunday plans…</p>;
+	if (plans.length === 0) return <div className="tk-media-empty"><h2>Plan a Sunday first</h2><p>Slides are built from your service plan, sermon, announcements, and confirmed team.</p><a href="#church-os/sunday">Open Sunday →</a></div>;
+	return <div className="tk-slides-workspace">
+		<div className="tk-slides-toolbar"><select value={planId} onChange={(event) => setPlanId(event.target.value)} aria-label="Service">{plans.map((plan) => <option key={plan.id} value={plan.id}>{new Date(plan.starts_at).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })} · {plan.title}</option>)}</select><span>{count} {count === 1 ? "slide" : "slides"} ready</span><div><button type="button" className="tk-action link" onClick={build}>Start over</button><button type="button" className="tk-action secondary" onClick={exportPdf} disabled={!count}>Print / PDF</button>{canSave && <button type="button" className="tk-action secondary" onClick={saveToVault} disabled={!count || busy}>Save to Vault</button>}<button type="button" className="tk-action primary" onClick={exportPptx} disabled={!count || busy}>{busy ? "Preparing…" : "Download PowerPoint"}</button></div></div>
+		{err && <p className="tk-inline-error" role="alert">{err}</p>}{msg && <p className="tk-media-saved" role="status">{msg}</p>}
+		<div className="tk-slides-grid">
+			<section className="tk-slides-list"><h2>Slides</h2><ol>{slides.map((slide, index) => <li key={slide.id} className={(current?.id === slide.id ? "active " : "") + (!slide.include ? "excluded" : "")}><button type="button" onClick={() => setSel(slide.id)} aria-label={"Slide " + (index + 1) + ": " + slide.title}><span>{index + 1}</span><span className="tk-slide-thumb"><Scaled><SlideView slide={slide} brand={brand} church={church} /></Scaled></span><strong>{slide.eyebrow || slide.title || slide.kind}</strong></button><label><span className="sr-only">Include slide {index + 1}</span><input type="checkbox" checked={slide.include} onChange={(event) => update(slide.id, { include: event.target.checked })} /></label></li>)}</ol></section>
+			<section className="tk-slide-stage">{current && <><Scaled><SlideView slide={current} brand={brand} church={church} /></Scaled><p>Preview · 16:9</p></>}</section>
+			<aside className="tk-slide-inspector"><h2>Slide content</h2>{current ? <><label className="tk-slide-include"><input type="checkbox" checked={current.include} onChange={(event) => update(current.id, { include: event.target.checked })} /> Include in deck</label><Field$4 label="Title"><input className={inputCls$6} value={current.title || ""} onChange={(event) => update(current.id, { title: event.target.value })} maxLength={140} /></Field$4>{"subtitle" in current && <Field$4 label="Second line"><input className={inputCls$6} value={current.subtitle || ""} onChange={(event) => update(current.id, { subtitle: event.target.value })} maxLength={140} /></Field$4>}{current.kind !== "team" ? <Field$4 label={current.kind === "scripture" ? "Passage text" : "Text"} hint={current.kind === "scripture" ? "Paste text from your licensed Bible or a public-domain translation." : undefined}><textarea rows={4} className={areaCls$3} value={current.body || ""} onChange={(event) => update(current.id, { body: event.target.value })} maxLength={600} /></Field$4> : <p className="tk-slide-team-note">Only confirmed adult volunteers who consented to showing their name appear here.</p>}<div className="tk-slide-order"><button type="button" onClick={() => move(current.id, -1)} disabled={slides.indexOf(current) === 0}>↑ Move up</button><button type="button" onClick={() => move(current.id, 1)} disabled={slides.indexOf(current) === slides.length - 1}>↓ Move down</button></div></> : <p>No slide selected.</p>}</aside>
+		</div>
+	</div>;
 }
 function Announcements({ ws, canEdit }) {
 	const [rows, setRows] = useState(null);
@@ -52165,174 +51567,102 @@ const CARD$2 = "rounded-2xl border border-line bg-surface shadow-[0_1px_2px_rgba
 function GroupsPage() {
 	const { workspace } = useAuth();
 	const ws = workspace.workspace_id;
-	const manage = [
-		"owner",
-		"pastor",
-		"admin"
-	].includes(workspace.role);
+	const manage = ["owner", "pastor", "admin"].includes(workspace.role);
 	const staff = manage || workspace.role === "leader";
 	const [tab, setTab] = useState("groups");
 	const [rows, setRows] = useState(null);
 	const [openId, setOpenId] = useState(null);
 	const [editing, setEditing] = useState(null);
 	const [error, setError] = useState("");
+	const [query, setQuery] = useState("");
+	const [status, setStatus] = useState("active");
+	const [kind, setKind] = useState("all");
+	const [openOnly, setOpenOnly] = useState(false);
 	const load = useCallback(async () => {
 		try {
 			setRows(await listGroups(ws));
 			setError("");
 		} catch (e) {
 			setError(e.message);
-			setRows([]);
+			setRows(false);
 		}
 	}, [ws]);
-	useEffect(() => {
-		load();
-	}, [load]);
-	return /* @__PURE__ */ jsxs(Page, {
-		title: "Groups",
-		subtitle: "Small groups and Bible studies: who meets, what they are studying, and who came.",
-		actions: manage && tab === "groups" && /* @__PURE__ */ jsxs(Button, {
-			variant: "primary",
-			onClick: () => setEditing({
-				name: "",
-				kind: "bible_study",
-				description: "",
-				meets: "",
-				location: "",
-				open: true,
-				status: "active"
-			}),
-			children: [/* @__PURE__ */ jsx(Icon, {
-				name: "plus",
-				size: 16
-			}), "New group"]
-		}),
-		children: [
-			staff && /* @__PURE__ */ jsx(TabBar, {
-				tabs: [{
-					id: "groups",
-					label: "Groups"
-				}, {
-					id: "studies",
-					label: "Study library"
-				}],
-				value: tab,
-				onValueChange: setTab
-			}),
-			error && /* @__PURE__ */ jsx("p", {
-				className: "mb-3 text-sm text-danger",
-				role: "alert",
-				children: error
-			}),
-			tab === "studies" && staff ? /* @__PURE__ */ jsx(StudiesTab, {
-				ws,
-				manage,
-				church: workspace.name
-			}) : rows === null ? /* @__PURE__ */ jsx("p", {
-				className: "text-sm text-muted",
-				children: "Loading…"
-			}) : rows.length === 0 ? /* @__PURE__ */ jsx(EmptyState, {
-				icon: "users",
-				title: manage ? "Start your first group" : "You are not in a group yet",
-				body: manage ? "Create a Bible study or small group, add its leader and members, and pick a study to work through." : "When you are added to a group, it shows up here.",
-				action: manage && /* @__PURE__ */ jsx(Button, {
-					variant: "primary",
-					onClick: () => setEditing({
-						name: "",
-						kind: "bible_study",
-						description: "",
-						meets: "",
-						location: "",
-						open: true,
-						status: "active"
-					}),
-					children: "New group"
-				})
-			}) : /* @__PURE__ */ jsx("ul", {
-				className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3",
-				children: rows.map((g) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("button", {
-					type: "button",
-					onClick: () => setOpenId(g.id),
-					className: `${CARD$2} h-full w-full p-5 text-left transition hover:border-gold ${g.status === "archived" ? "opacity-60" : ""}`,
-					children: [
-						/* @__PURE__ */ jsxs("div", {
-							className: "mb-2 flex flex-wrap items-center gap-2",
-							children: [
-								/* @__PURE__ */ jsx(Badge, {
-									tone: "gold",
-									children: KINDS$2[g.kind]
-								}),
-								g.is_open && g.status === "active" && /* @__PURE__ */ jsx(Badge, {
-									tone: "ok",
-									children: "Open"
-								}),
-								g.status === "archived" && /* @__PURE__ */ jsx(Badge, { children: "Archived" }),
-								g.my_role && /* @__PURE__ */ jsx(Badge, { children: ROLE[g.my_role] })
-							]
-						}),
-						/* @__PURE__ */ jsx("h3", {
-							className: "font-serif text-[1.15rem] font-semibold leading-tight",
-							children: g.name
-						}),
-						/* @__PURE__ */ jsx("p", {
-							className: "mt-1 text-[13px] text-muted",
-							children: g.meets || "No meeting time yet"
-						}),
-						g.leaders && /* @__PURE__ */ jsxs("p", {
-							className: "mt-3 text-[13px] text-[#3b4842]",
-							children: ["Led by ", g.leaders]
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "mt-3 flex items-center justify-between border-t border-[#f0eadb] pt-3 text-[13px] text-muted",
-							children: [/* @__PURE__ */ jsxs("span", { children: [
-								g.member_count,
-								" member",
-								Number(g.member_count) === 1 ? "" : "s"
-							] }), g.study_title && /* @__PURE__ */ jsxs("span", {
-								className: "truncate pl-3",
-								children: [g.study_title, Number(g.lesson_count) > 0 ? ` · lesson ${Math.min(g.current_position, g.lesson_count)} of ${g.lesson_count}` : ""]
-							})]
-						})
-					]
-				}) }, g.id))
-			}),
-			/* @__PURE__ */ jsx(RecordPanel, {
-				wide: true,
-				open: !!openId,
-				onOpenChange: (o) => !o && setOpenId(null),
-				title: "",
-				children: openId && /* @__PURE__ */ jsx(GroupDetail, {
-					ws,
-					id: openId,
-					church: workspace.name,
-					onChanged: load,
-					onEdit: (g) => setEditing({
-						id: g.id,
-						name: g.name,
-						kind: g.kind,
-						description: g.description || "",
-						meets: g.meets || "",
-						location: g.location || "",
-						open: g.is_open,
-						status: g.status
-					}),
-					onDeleted: () => {
-						setOpenId(null);
-						load();
-					}
-				}, openId)
-			}),
-			/* @__PURE__ */ jsx(EditGroup, {
-				value: editing,
-				onClose: () => setEditing(null),
-				ws,
-				onSaved: async () => {
-					setEditing(null);
-					await load();
-				}
-			})
-		]
-	});
+	useEffect(() => { load(); }, [load]);
+
+	const filtered = useMemo(() => {
+		if (!Array.isArray(rows)) return [];
+		const needle = query.trim().toLowerCase();
+		return rows.filter((group) => {
+			if (status !== "all" && group.status !== status) return false;
+			if (kind !== "all" && group.kind !== kind) return false;
+			if (openOnly && !group.is_open) return false;
+			if (!needle) return true;
+			return [group.name, group.leaders, group.meets, group.study_title, KINDS$2[group.kind]].filter(Boolean).join(" ").toLowerCase().includes(needle);
+		});
+	}, [rows, query, status, kind, openOnly]);
+
+	const activeRows = Array.isArray(rows) ? rows.filter((group) => group.status === "active") : [];
+	const meetingRows = activeRows.filter((group) => group.meets).slice(0, 4);
+	const totalMembers = activeRows.reduce((sum, group) => sum + Number(group.member_count || 0), 0);
+	const openGroups = activeRows.filter((group) => group.is_open).length;
+	const newGroup = () => setEditing({ name: "", kind: "bible_study", description: "", meets: "", location: "", open: true, status: "active" });
+
+	return <div data-kit className="tk-page tk-groups-page">
+		<TKPageHeader
+			eyebrow="Life together"
+			title="Groups"
+			subtitle="Keep small groups and studies organized without getting between people and real community."
+			actions={manage ? <>
+				<button type="button" className="tk-action link" onClick={() => setTab("studies")}>Study library</button>
+				<button type="button" className="tk-action primary" onClick={newGroup}>+ New group</button>
+			</> : null}
+		/>
+
+		{staff && <div className="tk-groups-tabs" role="tablist" aria-label="Groups views">
+			<button type="button" role="tab" aria-selected={tab === "groups"} className={tab === "groups" ? "active" : ""} onClick={() => setTab("groups")}>Groups</button>
+			<button type="button" role="tab" aria-selected={tab === "studies"} className={tab === "studies" ? "active" : ""} onClick={() => setTab("studies")}>Study library</button>
+		</div>}
+
+		{error && <p className="tk-inline-error" role="alert">{error}</p>}
+		{tab === "studies" && staff ? <StudiesTab ws={ws} manage={manage} church={workspace.name} /> : <>
+			<div className="tk-groups-toolbar">
+				<label className="tk-groups-search"><Icon name="search" size={18} /><span className="sr-only">Search groups or leaders</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search groups or leaders…" /></label>
+				<label><span className="sr-only">Status</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="active">Active</option><option value="archived">Archived</option><option value="all">All groups</option></select></label>
+				<label><span className="sr-only">Group type</span><select value={kind} onChange={(event) => setKind(event.target.value)}><option value="all">All types</option>{Object.entries(KINDS$2).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+				<label className="tk-groups-toggle"><input type="checkbox" checked={openOnly} onChange={(event) => setOpenOnly(event.target.checked)} /><span>Open to new members</span></label>
+			</div>
+
+			{rows === null ? <p className="tk-loading-copy">Loading groups…</p> : rows === false ? <LoadFailure title="Groups couldn't load" body={error || "Church Toolkit couldn't refresh groups."} onRetry={load} /> : rows.length === 0 ? <div className="tk-groups-empty"><h2>{manage ? "Start your first group" : "You are not in a group yet"}</h2><p>{manage ? "Create a small group or Bible study, then add its leader and members." : "When you are added to a group, it will appear here."}</p>{manage && <button type="button" className="tk-action primary" onClick={newGroup}>New group</button>}</div> : <div className="tk-groups-layout">
+				<section className="tk-groups-directory" aria-label="Groups directory">
+					<div className="tk-groups-directory-head"><p>{filtered.length} {filtered.length === 1 ? "group" : "groups"}</p><span>Open a group to manage people, study progress, and meetings.</span></div>
+					{filtered.length ? <>
+						<div className="tk-groups-columns" aria-hidden="true"><span>Group</span><span>Meeting rhythm</span><span>Leader</span><span>Members</span><span>Current study</span><span>Availability</span></div>
+						<ol className="tk-groups-ledger">{filtered.map((group) => <li key={group.id} className={group.status === "archived" ? "is-archived" : ""}>
+							<button type="button" onClick={() => setOpenId(group.id)}>
+								<span className="tk-group-name"><i aria-hidden="true"><Icon name={group.kind === "prayer" ? "heart" : group.kind === "class" ? "book" : "users"} size={18} /></i><span><strong>{group.name}</strong><small>{KINDS$2[group.kind]}{group.my_role ? " · " + ROLE[group.my_role] : ""}</small></span></span>
+								<span>{group.meets || "Not scheduled"}</span>
+								<span>{group.leaders || "Leader needed"}</span>
+								<span>{Number(group.member_count || 0)}</span>
+								<span>{group.study_title ? <>{group.study_title}{Number(group.lesson_count) > 0 && <small>Lesson {Math.min(group.current_position, group.lesson_count)} of {group.lesson_count}</small>}</> : <em>No study selected</em>}</span>
+								<span className={group.is_open && group.status === "active" ? "is-open" : "is-closed"}><i />{group.status === "archived" ? "Archived" : group.is_open ? "Open" : "Closed"}</span>
+							</button>
+						</li>)}</ol>
+					</> : <div className="tk-groups-no-match"><h2>No groups match</h2><p>Try a broader search or different filters.</p><button type="button" onClick={() => { setQuery(""); setStatus("active"); setKind("all"); setOpenOnly(false); }}>Clear filters</button></div>}
+				</section>
+
+				<aside className="tk-groups-rail">
+					<section><header><p className="tk-eyebrow">Coming up</p><h2>Meeting this week</h2></header>{meetingRows.length ? <ol>{meetingRows.map((group) => <li key={group.id}><button type="button" onClick={() => setOpenId(group.id)}><strong>{group.name}</strong><span>{group.meets}</span></button></li>)}</ol> : <p className="tk-groups-rail-empty">No group meeting rhythms are recorded yet.</p>}</section>
+					<section className="tk-groups-health"><header><p className="tk-eyebrow">At a glance</p><h2>Group health</h2></header><dl><div><dt>Active groups</dt><dd>{activeRows.length}</dd></div><div><dt>People connected</dt><dd>{totalMembers}</dd></div><div><dt>Welcoming people</dt><dd>{openGroups}</dd></div></dl><p>Attendance supports follow-up. It is never used to rank people or groups.</p></section>
+				</aside>
+			</div>}
+			<p className="tk-groups-boundary"><Icon name="lock" size={14} /> Home addresses and meeting notes stay visible only to group members and authorized staff.</p>
+		</>}
+
+		<RecordPanel wide open={!!openId} onOpenChange={(open) => !open && setOpenId(null)} title="">
+			{openId && <GroupDetail ws={ws} id={openId} church={workspace.name} onChanged={load} onEdit={(group) => setEditing({ id: group.id, name: group.name, kind: group.kind, description: group.description || "", meets: group.meets || "", location: group.location || "", open: group.is_open, status: group.status })} onDeleted={() => { setOpenId(null); load(); }} key={openId} />}
+		</RecordPanel>
+		<EditGroup value={editing} onClose={() => setEditing(null)} ws={ws} onSaved={async () => { setEditing(null); await load(); }} />
+	</div>;
 }
 function EditGroup({ value, onClose, ws, onSaved }) {
 	const [v, setV] = useState(value);
@@ -54380,11 +53710,7 @@ const Switch$1 = ({ on, label, onClick }) => /* @__PURE__ */ jsx("button", {
 function EventsPage() {
 	const { workspace } = useAuth();
 	const ws = workspace.workspace_id;
-	const manage = [
-		"owner",
-		"pastor",
-		"admin"
-	].includes(workspace.role);
+	const manage = ["owner", "pastor", "admin"].includes(workspace.role);
 	const [page, setPage] = useState(null);
 	const [items, setItems] = useState(null);
 	const [stat, setStat] = useState({});
@@ -54392,170 +53718,60 @@ function EventsPage() {
 	const [qr, setQr] = useState("");
 	const [copied, setCopied] = useState(false);
 	const [err, setErr] = useState("");
-	const url = page ? `${window.location.origin}${window.location.pathname}#church-os/event-signup/${page.slug}` : "";
+	const [tab, setTab] = useState("upcoming");
+	const [query, setQuery] = useState("");
+	const [signupFilter, setSignupFilter] = useState("all");
+	const url = page ? window.location.origin + window.location.pathname + "#church-os/event-signup/" + page.slug : "";
 	const load = useCallback(async () => {
 		try {
-			const from = /* @__PURE__ */ new Date();
-			const to = new Date(from.getTime() + 15552e6);
-			const [cal, p] = await Promise.all([listCalendar(ws, from, to), manage ? getEventsPage(ws) : Promise.resolve(null)]);
-			const one = (cal || []).filter((i) => i.kind !== "service" && (!i.recurrence || i.recurrence === "none"));
-			setItems(one);
-			setPage(p);
-			const s = {};
-			await Promise.all(one.map(async (i) => {
-				try {
-					s[i.item_id] = await getEventSignup(ws, i.item_id);
-				} catch {}
-			}));
-			setStat(s);
-			setErr("");
-		} catch (e) {
-			setErr(e.message);
-			setItems([]);
-		}
+			const now = new Date();
+			const from = new Date(now.getTime() - 31536e6);
+			const to = new Date(now.getTime() + 15552e6);
+			const [cal, publicPage] = await Promise.all([listCalendar(ws, from, to), manage ? getEventsPage(ws) : Promise.resolve(null)]);
+			const one = (cal || []).filter((item) => item.kind !== "service" && (!item.recurrence || item.recurrence === "none"));
+			setItems(one); setPage(publicPage);
+			const statuses = {};
+			await Promise.all(one.map(async (item) => { try { statuses[item.item_id] = await getEventSignup(ws, item.item_id); } catch {} }));
+			setStat(statuses); setErr("");
+		} catch (e) { setErr(e.message); setItems(false); }
 	}, [ws, manage]);
-	useEffect(() => {
-		load();
-	}, [load]);
-	useEffect(() => {
-		if (url && page?.events_public) QRCode.toDataURL(url, {
-			margin: 1,
-			width: 320,
-			color: {
-				dark: "#12312b",
-				light: "#ffffff"
-			}
-		}).then(setQr).catch(() => setQr(""));
-	}, [url, page?.events_public]);
-	const run = async (fn) => {
-		setErr("");
-		try {
-			await fn();
-			await load();
-		} catch (e) {
-			setErr(e.message);
-		}
-	};
-	const openItem = items?.find((i) => i.item_id === open);
-	return /* @__PURE__ */ jsxs(Page, {
-		title: "Events",
-		subtitle: "Let people sign up for your events online, with a spot limit and a waitlist.",
-		children: [
-			err && /* @__PURE__ */ jsx("p", {
-				className: "mb-3 text-sm text-danger",
-				role: "alert",
-				children: err
-			}),
-			/* @__PURE__ */ jsxs("div", {
-				className: "grid items-start gap-5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]",
-				children: [/* @__PURE__ */ jsx(Card, {
-					title: "Upcoming events",
-					children: items === null ? /* @__PURE__ */ jsx("p", {
-						className: "text-sm text-muted",
-						children: "Loading…"
-					}) : items.length === 0 ? /* @__PURE__ */ jsx(EmptyState, {
-						icon: "calendar",
-						title: "No one-time events coming up",
-						body: "Add an event on the Calendar. Then come back here to open it for sign-up.",
-						action: /* @__PURE__ */ jsx("a", {
-							href: "#church-os/calendar",
-							className: "text-sm font-medium underline",
-							children: "Open the calendar"
-						})
-					}) : /* @__PURE__ */ jsx("ul", { children: items.map((i) => {
-						const s = stat[i.item_id];
-						return /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("button", {
-							type: "button",
-							onClick: () => setOpen(i.item_id),
-							className: "flex w-full items-center gap-3 border-b border-line py-3 text-left last:border-b-0 hover:bg-canvas/60",
-							children: [/* @__PURE__ */ jsxs("span", {
-								className: "min-w-0 flex-1",
-								children: [/* @__PURE__ */ jsx("span", {
-									className: "block truncate text-sm font-medium",
-									children: i.title
-								}), /* @__PURE__ */ jsxs("span", {
-									className: "block truncate text-xs text-muted",
-									children: [day(i.occurrence_start, i.all_day), i.location ? ` · ${i.location}` : ""]
-								})]
-							}), s?.enabled ? /* @__PURE__ */ jsxs(Badge, {
-								tone: "ok",
-								children: [
-									s.registered,
-									s.capacity ? ` of ${s.capacity}` : "",
-									" signed up",
-									Number(s.waitlist) ? ` · ${s.waitlist} waiting` : ""
-								]
-							}) : /* @__PURE__ */ jsx(Badge, { children: "Not open" })]
-						}) }, i.item_id + i.occurrence_start);
-					}) })
-				}), manage && page && /* @__PURE__ */ jsxs(Card, {
-					title: "Sign-up page",
-					children: [
-						/* @__PURE__ */ jsx("p", {
-							className: "text-sm text-muted",
-							children: "One public page that lists every event you have opened for sign-up. It shows the title, time, place, your short note and how many spots are left. Internal notes are never shown. Adults sign up for themselves and guests, and no children's names are collected."
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "mt-4 flex items-center justify-between gap-4 rounded-xl bg-canvas px-4 py-3",
-							children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("p", {
-								className: "text-sm font-semibold",
-								children: page.events_public ? "The page is on" : "The page is off"
-							}), /* @__PURE__ */ jsx("p", {
-								className: "text-xs text-muted",
-								children: page.events_public ? "Anyone with the link can see open events." : "Nobody can open it until you turn it on."
-							})] }), /* @__PURE__ */ jsx(Switch$1, {
-								on: page.events_public,
-								label: "Event sign-up page",
-								onClick: () => run(() => setEventsPublic(ws, !page.events_public))
-							})]
-						}),
-						page.events_public && /* @__PURE__ */ jsxs("div", {
-							className: "mt-5 grid gap-4 sm:grid-cols-[130px_1fr]",
-							children: [qr && /* @__PURE__ */ jsx("img", {
-								src: qr,
-								alt: "QR code for your event sign-up page",
-								className: "h-[130px] w-[130px] rounded-xl border border-line"
-							}), /* @__PURE__ */ jsxs("div", {
-								className: "grid content-start gap-3",
-								children: [/* @__PURE__ */ jsxs("div", {
-									className: "flex gap-2",
-									children: [/* @__PURE__ */ jsx("input", {
-										readOnly: true,
-										value: url,
-										onFocus: (e) => e.target.select(),
-										"aria-label": "Event sign-up link",
-										className: "h-10 min-w-0 flex-1 rounded-[10px] border border-line bg-surface px-3 font-mono text-xs"
-									}), /* @__PURE__ */ jsx(Button, {
-										onClick: async () => {
-											try {
-												await navigator.clipboard.writeText(url);
-												setCopied(true);
-											} catch {}
-										},
-										children: copied ? "Copied" : "Copy"
-									})]
-								}), /* @__PURE__ */ jsx("p", {
-									className: "text-xs text-muted",
-									children: "Only works once FaithBid Church OS is online at a public address."
-								})]
-							})]
-						})
-					]
-				})]
-			}),
-			/* @__PURE__ */ jsx(RecordPanel, {
-				open: !!open,
-				onOpenChange: (o) => !o && setOpen(null),
-				title: openItem?.title || "Event",
-				children: openItem && /* @__PURE__ */ jsx(EventPanel, {
-					ws,
-					item: openItem,
-					manage,
-					onChanged: load
-				}, open)
-			})
-		]
-	});
+	useEffect(() => { load(); }, [load]);
+	useEffect(() => { if (url && page?.events_public) QRCode.toDataURL(url, { margin: 1, width: 240, color: { dark: "#12312b", light: "#ffffff" } }).then(setQr).catch(() => setQr("")); }, [url, page?.events_public]);
+	const run = async (fn) => { setErr(""); try { await fn(); await load(); } catch (e) { setErr(e.message); } };
+	const now = Date.now();
+	const shown = useMemo(() => {
+		if (!Array.isArray(items)) return [];
+		const needle = query.trim().toLowerCase();
+		return items.filter((item) => {
+			const isPast = new Date(item.occurrence_start).getTime() < now;
+			if (tab === "upcoming" && isPast) return false;
+			if (tab === "past" && !isPast) return false;
+			const status = stat[item.item_id];
+			if (signupFilter === "open" && !status?.enabled) return false;
+			if (signupFilter === "closed" && status?.enabled) return false;
+			return !needle || [item.title, item.location].filter(Boolean).join(" ").toLowerCase().includes(needle);
+		});
+	}, [items, query, tab, signupFilter, stat]);
+	const upcoming = Array.isArray(items) ? items.filter((item) => new Date(item.occurrence_start).getTime() >= now) : [];
+	const openCount = upcoming.filter((item) => stat[item.item_id]?.enabled).length;
+	const registrationCount = upcoming.reduce((sum, item) => sum + Number(stat[item.item_id]?.registered || 0), 0);
+	const waitlistCount = upcoming.reduce((sum, item) => sum + Number(stat[item.item_id]?.waitlist || 0), 0);
+	const spaceCount = upcoming.filter((item) => { const status = stat[item.item_id]; return status?.enabled && (!status.capacity || Number(status.registered || 0) < Number(status.capacity)); }).length;
+	const openItem = Array.isArray(items) ? items.find((item) => item.item_id === open) : null;
+
+	return <div data-kit className="tk-page tk-events-page">
+		<TKPageHeader eyebrow="Gatherings & sign-ups" title="Events" subtitle="Open church events for simple sign-up, keep capacity clear, and handle waitlists without extra spreadsheets." actions={manage ? <><a className="tk-action secondary" href={page?.events_public && url ? url : "#church-os/events"}>Public sign-up page</a><a className="tk-action primary" href="#church-os/calendar">+ Add event</a></> : null} />
+		{manage && <p className="tk-events-source"><Icon name="info" size={14} /> Events are created and scheduled in Calendar.</p>}
+		<div className="tk-events-tabs" role="tablist" aria-label="Event views"><button type="button" role="tab" aria-selected={tab === "upcoming"} className={tab === "upcoming" ? "active" : ""} onClick={() => setTab("upcoming")}>Upcoming</button><button type="button" role="tab" aria-selected={tab === "past"} className={tab === "past" ? "active" : ""} onClick={() => setTab("past")}>Past events</button>{manage && <button type="button" role="tab" aria-selected={tab === "settings"} className={tab === "settings" ? "active" : ""} onClick={() => setTab("settings")}>Sign-up settings</button>}</div>
+		{err && <p className="tk-inline-error" role="alert">{err}</p>}
+		{items === null ? <p className="tk-loading-copy">Loading events…</p> : items === false ? <LoadFailure title="Events couldn't load" body={err || "Church Toolkit couldn't refresh events."} onRetry={load} /> : tab === "settings" && manage ? <section className="tk-events-settings"><header><h2>Public sign-up page</h2><p>One private-to-your-church link for every event you explicitly open for sign-up.</p></header><div className="tk-events-publish"><div><strong>{page?.events_public ? "Published" : "Not published"}</strong><span>{page?.events_public ? "Anyone with the link can see open events." : "Turn it on when you are ready to accept registrations."}</span></div><Switch$1 on={!!page?.events_public} label="Event sign-up page" onClick={() => run(() => setEventsPublic(ws, !page?.events_public))} /></div>{page?.events_public && <div className="tk-events-public-details">{qr && <img src={qr} alt="QR code for the event sign-up page" />}<div><strong>{url}</strong><p>Lists only events opened for sign-up. Internal notes stay private. Adults can register guests; children’s names are never collected here.</p><div><button type="button" onClick={async () => { try { await navigator.clipboard.writeText(url); setCopied(true); } catch {} }}>{copied ? "Copied" : "Copy link"}</button><a href={url}>View page →</a></div></div></div>}</section> : <>
+			<div className="tk-events-toolbar"><label><Icon name="search" size={18} /><span className="sr-only">Search events</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search events…" /></label><select value={signupFilter} onChange={(event) => setSignupFilter(event.target.value)} aria-label="Filter by sign-up status"><option value="all">All events</option><option value="open">Open for sign-up</option><option value="closed">Not open</option></select></div>
+			<div className="tk-events-layout"><section className="tk-events-directory"><header><p>{tab === "upcoming" ? "Upcoming events" : "Past events"} · {shown.length}</p></header>{shown.length ? <><div className="tk-events-columns" aria-hidden="true"><span>Date</span><span>Event</span><span>Time & location</span><span>Sign-up</span><span>Capacity</span><span /></div><ol>{shown.map((item) => { const status = stat[item.item_id]; const when = new Date(item.occurrence_start); const full = status?.capacity && Number(status.registered || 0) >= Number(status.capacity); return <li key={item.item_id + item.occurrence_start}><button type="button" onClick={() => setOpen(item.item_id)}><time><b>{when.toLocaleDateString([], { month: "short" }).toUpperCase()}</b><strong>{when.toLocaleDateString([], { day: "2-digit" })}</strong></time><strong>{item.title}</strong><span>{item.all_day ? "All day" : when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}{item.location ? " · " + item.location : ""}</span><b className={status?.enabled ? full ? "full" : "open" : "closed"}>{status?.enabled ? full ? "Full" : "Open" : "Not open"}</b><span>{status?.enabled ? Number(status.registered || 0) + (status.capacity ? " of " + status.capacity : "") + " signed up" + (Number(status.waitlist) ? " · " + status.waitlist + " waiting" : "") : "Sign-up not configured"}</span><i>→</i></button></li>; })}</ol></> : <div className="tk-events-empty"><h2>{query || signupFilter !== "all" ? "No events match" : tab === "upcoming" ? "No one-time events coming up" : "No past events in this view"}</h2><p>{tab === "upcoming" ? "Create the date in Calendar, then return here to open sign-up." : "Past one-time events appear here when they are in the calendar."}</p><a href="#church-os/calendar">Open full calendar →</a></div>}</section>
+				{manage && <aside className="tk-events-rail"><section><h2>Public sign-up page</h2><div className="tk-events-published"><Switch$1 on={!!page?.events_public} label="Event sign-up page" onClick={() => run(() => setEventsPublic(ws, !page?.events_public))} /><strong>{page?.events_public ? "Published" : "Off"}</strong></div>{page?.events_public && <><p className="tk-events-url">{url}</p><div className="tk-events-link-actions"><button type="button" onClick={async () => { try { await navigator.clipboard.writeText(url); setCopied(true); } catch {} }}>{copied ? "Copied" : "Copy link"}</button><a href={url}>View page →</a></div>{qr && <div className="tk-events-qr"><img src={qr} alt="QR code for the event sign-up page" /><p>Only events explicitly opened for sign-up are listed. Internal notes remain private.</p></div>}</>}</section><section><h2>Sign-up activity</h2><dl><div><dd>{registrationCount}</dd><dt>people registered for upcoming events</dt></div><div><dd>{waitlistCount}</dd><dt>people on waitlists</dt></div><div><dd>{spaceCount}</dd><dt>events have space remaining</dt></div><div><dd>{openCount}</dd><dt>events open for sign-up</dt></div></dl></section></aside>}
+			</div>
+		</>}
+		<RecordPanel open={!!open} onOpenChange={(value) => !value && setOpen(null)} title={openItem?.title || "Event"}>{openItem && <EventPanel ws={ws} item={openItem} manage={manage} onChanged={load} key={open} />}</RecordPanel>
+	</div>;
 }
 function EventPanel({ ws, item, manage, onChanged }) {
 	const [s, setS] = useState(null);
@@ -54805,154 +54021,27 @@ const BLANK = {
 function MissionsPage() {
 	const { workspace } = useAuth();
 	const ws = workspace.workspace_id;
-	const manage = [
-		"owner",
-		"pastor",
-		"admin"
-	].includes(workspace.role);
+	const manage = ["owner", "pastor", "admin"].includes(workspace.role);
 	const [rows, setRows] = useState(null);
 	const [prayer, setPrayer] = useState([]);
 	const [openId, setOpenId] = useState(null);
 	const [editing, setEditing] = useState(null);
 	const [error, setError] = useState("");
-	const load = useCallback(async () => {
-		try {
-			const [r, p] = await Promise.all([listPartners(ws), listPrayer(ws)]);
-			setRows(r || []);
-			setPrayer(p || []);
-			setError("");
-		} catch (e) {
-			setError(e.message);
-			setRows([]);
-		}
-	}, [ws]);
-	useEffect(() => {
-		load();
-	}, [load]);
-	return /* @__PURE__ */ jsxs(Page, {
-		title: "Missions",
-		subtitle: "The missionaries and organizations your church supports, and what to pray for.",
-		actions: manage && /* @__PURE__ */ jsxs(Button, {
-			variant: "primary",
-			onClick: () => setEditing({ ...BLANK }),
-			children: [/* @__PURE__ */ jsx(Icon, {
-				name: "plus",
-				size: 16
-			}), "Add partner"]
-		}),
-		children: [
-			error && /* @__PURE__ */ jsx("p", {
-				className: "mb-3 text-sm text-danger",
-				role: "alert",
-				children: error
-			}),
-			rows === null ? /* @__PURE__ */ jsx("p", {
-				className: "text-sm text-muted",
-				children: "Loading…"
-			}) : rows.length === 0 ? /* @__PURE__ */ jsx(EmptyState, {
-				icon: "compass",
-				title: manage ? "Add your first partner" : "No partners yet",
-				body: manage ? "Add a missionary, organization or project you support. Post updates and prayer requests so your church can follow along." : "When your church adds missions partners, they show up here.",
-				action: manage && /* @__PURE__ */ jsx(Button, {
-					variant: "primary",
-					onClick: () => setEditing({ ...BLANK }),
-					children: "Add partner"
-				})
-			}) : /* @__PURE__ */ jsxs("div", {
-				className: "grid items-start gap-5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]",
-				children: [/* @__PURE__ */ jsx("ul", {
-					className: "grid gap-4 md:grid-cols-2",
-					children: rows.map((p) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("button", {
-						type: "button",
-						onClick: () => setOpenId(p.id),
-						className: `${CARD$1} h-full w-full p-5 text-left transition hover:border-gold ${p.status === "archived" ? "opacity-60" : ""}`,
-						children: [
-							/* @__PURE__ */ jsxs("div", {
-								className: "mb-2 flex flex-wrap items-center gap-2",
-								children: [
-									/* @__PURE__ */ jsx(Badge, {
-										tone: "gold",
-										children: KINDS[p.kind]
-									}),
-									p.sensitive && /* @__PURE__ */ jsx(Badge, {
-										tone: "danger",
-										children: "Private"
-									}),
-									p.status === "archived" && /* @__PURE__ */ jsx(Badge, { children: "Archived" })
-								]
-							}),
-							/* @__PURE__ */ jsx("h3", {
-								className: "font-serif text-[1.15rem] font-semibold leading-tight",
-								children: p.name
-							}),
-							p.region && /* @__PURE__ */ jsx("p", {
-								className: "mt-1 text-[13px] text-muted",
-								children: p.region
-							}),
-							p.summary && /* @__PURE__ */ jsx("p", {
-								className: "mt-2 line-clamp-2 text-[13px] text-[#3b4842]",
-								children: p.summary
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								className: "mt-3 flex items-center justify-between border-t border-[#f0eadb] pt-3 text-[13px] text-muted",
-								children: [/* @__PURE__ */ jsx("span", { children: p.last_update ? `Update ${fmt(p.last_update)}` : "No updates yet" }), /* @__PURE__ */ jsx("span", { children: p.monthly_support != null ? `${money(p.monthly_support)}/mo` : Number(p.prayer_count) ? `${p.prayer_count} to pray for` : "" })]
-							})
-						]
-					}) }, p.id))
-				}), /* @__PURE__ */ jsx(Card, {
-					title: "Pray this week",
-					children: prayer.length === 0 ? /* @__PURE__ */ jsx("p", {
-						className: "text-sm text-muted",
-						children: "No prayer requests right now. When you post one on a partner, it shows up here for 45 days."
-					}) : /* @__PURE__ */ jsx("ul", { children: prayer.map((u) => /* @__PURE__ */ jsxs("li", {
-						className: "border-b border-line py-3 last:border-b-0",
-						children: [
-							/* @__PURE__ */ jsxs("p", {
-								className: "text-[11px] font-semibold uppercase tracking-[.12em] text-gold",
-								children: [
-									u.partner_name,
-									" · ",
-									fmt(u.posted_on)
-								]
-							}),
-							/* @__PURE__ */ jsx("p", {
-								className: "mt-0.5 text-sm font-medium",
-								children: u.title
-							}),
-							u.body && /* @__PURE__ */ jsx("p", {
-								className: "mt-0.5 whitespace-pre-line text-[13px] text-[#4d5a53]",
-								children: u.body
-							})
-						]
-					}, u.id)) })
-				})]
-			}),
-			/* @__PURE__ */ jsx(RecordPanel, {
-				open: !!openId,
-				onOpenChange: (o) => !o && setOpenId(null),
-				title: "",
-				children: openId && /* @__PURE__ */ jsx(PartnerDetail, {
-					ws,
-					id: openId,
-					onEdit: (p) => setEditing(p),
-					onChanged: load,
-					onClosed: () => {
-						setOpenId(null);
-						load();
-					}
-				}, openId)
-			}),
-			/* @__PURE__ */ jsx(EditPartner, {
-				value: editing,
-				ws,
-				onClose: () => setEditing(null),
-				onSaved: async () => {
-					setEditing(null);
-					await load();
-				}
-			})
-		]
-	});
+	const [query, setQuery] = useState("");
+	const [status, setStatus] = useState("active");
+	const load = useCallback(async () => { try { const [partners, requests] = await Promise.all([listPartners(ws), listPrayer(ws)]); setRows(partners || []); setPrayer(requests || []); setError(""); } catch (e) { setError(e.message); setRows(false); } }, [ws]);
+	useEffect(() => { load(); }, [load]);
+	const visible = useMemo(() => { if (!Array.isArray(rows)) return []; const needle = query.trim().toLowerCase(); return rows.filter((partner) => (status === "all" || partner.status === status) && (!needle || [partner.name, partner.region, partner.summary, KINDS[partner.kind]].filter(Boolean).join(" ").toLowerCase().includes(needle))); }, [rows, query, status]);
+	return <div data-kit className="tk-page tk-missions-page">
+		<TKPageHeader eyebrow="Outward ministry" title="Missions" subtitle="Keep the people and organizations your church supports close, current, and easy to pray for." actions={manage ? <button type="button" className="tk-action primary" onClick={() => setEditing({ ...BLANK })}>+ Add partner</button> : null} />
+		{error && <p className="tk-inline-error" role="alert">{error}</p>}
+		<div className="tk-missions-toolbar"><label><Icon name="search" size={18} /><span className="sr-only">Search partners or regions</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search partners or regions…" /></label><div role="group" aria-label="Partner status"><button type="button" className={status === "active" ? "active" : ""} onClick={() => setStatus("active")}>Active</button><button type="button" className={status === "archived" ? "active" : ""} onClick={() => setStatus("archived")}>Archived</button></div></div>
+		{rows === null ? <p className="tk-loading-copy">Loading mission partners…</p> : rows === false ? <LoadFailure title="Missions couldn't load" body={error || "Church Toolkit couldn't refresh mission partners."} onRetry={load} /> : <div className="tk-missions-layout"><section className="tk-missions-directory"><header><p>Mission partners · {visible.length}</p></header>{visible.length ? <ol>{visible.map((partner) => <li key={partner.id} className={partner.status === "archived" ? "is-archived" : ""}><button type="button" onClick={() => setOpenId(partner.id)}><Avatar$1 name={partner.name} size={48} /><span><strong>{partner.name}</strong><small>{[partner.region, KINDS[partner.kind]].filter(Boolean).join(" · ")}</small>{partner.summary && <p>{partner.summary}</p>}{partner.sensitive && <em><Icon name="lock" size={12} /> Private</em>}</span><time>{partner.last_update ? "Updated " + fmt(partner.last_update).replace(", " + new Date(partner.last_update + "T00:00:00").getFullYear(), "") : "No updates yet"}</time><i>›</i></button></li>)}</ol> : <div className="tk-missions-empty"><h2>{Array.isArray(rows) && rows.length ? "No partners match" : manage ? "Add your first partner" : "No partners yet"}</h2><p>{Array.isArray(rows) && rows.length ? "Try another search or status." : "Missionaries, organizations, and projects your church supports will appear here."}</p>{manage && !rows.length && <button type="button" className="tk-action primary" onClick={() => setEditing({ ...BLANK })}>Add partner</button>}</div>}</section>
+			<aside className="tk-missions-prayer"><header><h2>Pray this week <span>· {prayer.length}</span></h2></header>{prayer.length ? <ol>{prayer.map((request) => <li key={request.id}><Avatar$1 name={request.partner_name} size={42} /><div><time>{fmt(request.posted_on).replace(", " + new Date(request.posted_on + "T00:00:00").getFullYear(), "")}</time><strong>{request.partner_name}</strong><p>{request.title}</p>{request.body && <small>{request.body}</small>}{request.partner_id && <button type="button" onClick={() => setOpenId(request.partner_id)}>Open →</button>}</div></li>)}</ol> : <p className="tk-missions-prayer-empty">No prayer requests right now. Requests stay here for 45 days after they are posted.</p>}<footer>Prayer requests remain visible here for 45 days.</footer></aside>
+		</div>}
+		<RecordPanel open={!!openId} onOpenChange={(open) => !open && setOpenId(null)} title="">{openId && <PartnerDetail ws={ws} id={openId} onEdit={(partner) => setEditing(partner)} onChanged={load} onClosed={() => { setOpenId(null); load(); }} key={openId} />}</RecordPanel>
+		<EditPartner value={editing} ws={ws} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await load(); }} />
+	</div>;
 }
 function PartnerDetail({ ws, id, onEdit, onChanged, onClosed }) {
 	const [p, setP] = useState(void 0);
@@ -55459,11 +54548,7 @@ const time = (d) => new Date(d).toLocaleTimeString([], {
 function KidsPage() {
 	const { workspace } = useAuth();
 	const ws = workspace.workspace_id;
-	const admin = [
-		"owner",
-		"pastor",
-		"admin"
-	].includes(workspace.role);
+	const admin = ["owner", "pastor", "admin"].includes(workspace.role);
 	const team = admin || workspace.role === "leader";
 	const [tab, setTab] = useState("today");
 	const [rooms, setRooms] = useState(null);
@@ -55474,347 +54559,57 @@ function KidsPage() {
 	const [modal, setModal] = useState(null);
 	const load = useCallback(async () => {
 		try {
-			const [r, p, c, h] = await Promise.all([
-				listRooms(ws),
-				listPresent(ws),
-				listChildren(ws),
-				listHelpers(ws)
-			]);
-			setRooms(r || []);
-			setPresent(p || []);
-			setChildren(c || []);
-			setHelpers(h || []);
-			setErr("");
-		} catch (e) {
-			setErr(e.message);
-			setRooms([]);
-		}
+			const [r, p, c, h] = await Promise.all([listRooms(ws), listPresent(ws), listChildren(ws), listHelpers(ws)]);
+			setRooms(r || []); setPresent(p || []); setChildren(c || []); setHelpers(h || []); setErr("");
+		} catch (e) { setErr(e.message); setRooms(false); }
 	}, [ws]);
-	useEffect(() => {
-		load();
-	}, [load]);
-	useEffect(() => {
-		const id = setInterval(load, 3e4);
-		return () => clearInterval(id);
-	}, [load]);
-	const act = async (fn) => {
-		setErr("");
-		try {
-			const out = await fn();
-			await load();
-			return out;
-		} catch (e) {
-			setErr(e.message);
-		}
-	};
-	if (!team) return /* @__PURE__ */ jsx(Page, {
-		title: "Kids Ministry",
-		children: /* @__PURE__ */ jsx(EmptyState, {
-			icon: "lock",
-			title: "Kids team only",
-			body: "Children's records are limited to owners, pastors, admins and leaders."
-		})
-	});
-	return /* @__PURE__ */ jsxs(Page, {
-		title: "Kids Ministry",
-		subtitle: "Check children in and out safely. Two cleared adults, room ratios and pickup codes are enforced for you.",
-		actions: admin && tab === "today" && /* @__PURE__ */ jsxs(Button, {
-			variant: "primary",
-			onClick: () => setModal({
-				type: "room",
-				room: {
-					name: "",
-					ages: "",
-					ratio: 8,
-					active: true
-				}
-			}),
-			children: [/* @__PURE__ */ jsx(Icon, {
-				name: "plus",
-				size: 16
-			}), "New room"]
-		}),
-		children: [
-			/* @__PURE__ */ jsx(TabBar, {
-				tabs: [
-					{
-						id: "today",
-						label: "Check-in"
-					},
-					{
-						id: "children",
-						label: "Children"
-					},
-					{
-						id: "helpers",
-						label: "Helpers"
-					}
-				],
-				value: tab,
-				onValueChange: setTab
-			}),
-			err && /* @__PURE__ */ jsx("p", {
-				className: "mb-3 text-sm text-danger",
-				role: "alert",
-				children: err
-			}),
-			rooms === null ? /* @__PURE__ */ jsx("p", {
-				className: "text-sm text-muted",
-				children: "Loading…"
-			}) : tab === "today" ? rooms.length === 0 ? /* @__PURE__ */ jsx(EmptyState, {
-				icon: "users",
-				title: "Set up your first room",
-				body: "Add a room like Nursery or Elementary and choose how many children each adult may supervise.",
-				action: admin && /* @__PURE__ */ jsx(Button, {
-					variant: "primary",
-					onClick: () => setModal({
-						type: "room",
-						room: {
-							name: "",
-							ages: "",
-							ratio: 8,
-							active: true
-						}
-					}),
-					children: "New room"
-				})
-			}) : /* @__PURE__ */ jsx("div", {
-				className: "grid gap-4 lg:grid-cols-2",
-				children: rooms.filter((r) => r.active).map((r) => {
-					const here = present.filter((p) => p.room_id === r.id);
-					const staffHere = helpers.filter((h) => h.room_id === r.id);
-					return /* @__PURE__ */ jsxs("section", {
-						className: `${CARD} p-5`,
-						children: [
-							/* @__PURE__ */ jsxs("div", {
-								className: "flex items-start justify-between gap-3",
-								children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
-									className: "font-serif text-[1.2rem] font-semibold",
-									children: r.name
-								}), /* @__PURE__ */ jsx("p", {
-									className: "text-[13px] text-muted",
-									children: [r.ages && `Ages ${r.ages}`, `Up to ${r.ratio} children per adult`].filter(Boolean).join(" · ")
-								})] }), Number(r.children) > 0 ? r.ok ? /* @__PURE__ */ jsx(Badge, {
-									tone: "ok",
-									children: "Ratio OK"
-								}) : /* @__PURE__ */ jsx(Badge, {
-									tone: "danger",
-									children: r.problem
-								}) : null]
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								className: "mt-3 flex gap-6 text-sm",
-								children: [/* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("b", { children: r.children }), " children"] }), /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("b", { children: r.adults }), " adults on duty"] })]
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								className: "mt-3 flex flex-wrap gap-2",
-								children: [
-									/* @__PURE__ */ jsx(Button, {
-										variant: "primary",
-										onClick: () => setModal({
-											type: "checkin",
-											room: r
-										}),
-										children: "Check a child in"
-									}),
-									/* @__PURE__ */ jsx(Button, {
-										onClick: () => setModal({
-											type: "duty",
-											room: r
-										}),
-										children: "Adults on duty"
-									}),
-									admin && /* @__PURE__ */ jsx(Button, {
-										onClick: () => setModal({
-											type: "room",
-											room: r
-										}),
-										children: "Edit"
-									})
-								]
-							}),
-							staffHere.length > 0 && /* @__PURE__ */ jsxs("p", {
-								className: "mt-3 text-[13px] text-muted",
-								children: ["On duty: ", staffHere.map((h) => h.name).join(", ")]
-							}),
-							here.length > 0 && /* @__PURE__ */ jsx("ul", {
-								className: "mt-3 border-t border-line pt-1",
-								children: here.map((k) => /* @__PURE__ */ jsxs("li", {
-									className: "flex items-center gap-3 border-b border-line py-2.5 last:border-b-0",
-									children: [
-										/* @__PURE__ */ jsxs("div", {
-											className: "min-w-0 flex-1",
-											children: [/* @__PURE__ */ jsx("p", {
-												className: "truncate text-sm font-medium",
-												children: k.name
-											}), /* @__PURE__ */ jsxs("p", {
-												className: "text-xs text-muted",
-												children: ["In at ", time(k.checked_in_at)]
-											})]
-										}),
-										k.allergies && /* @__PURE__ */ jsxs(Badge, {
-											tone: "danger",
-											children: ["Allergy: ", k.allergies]
-										}),
-										/* @__PURE__ */ jsx(Button, {
-											onClick: () => setModal({
-												type: "checkout",
-												kid: k
-											}),
-											children: "Check out"
-										})
-									]
-								}, k.checkin_id))
-							})
-						]
-					}, r.id);
-				})
-			}) : tab === "children" ? children.length === 0 ? /* @__PURE__ */ jsx(EmptyState, {
-				icon: "users",
-				title: "No children yet",
-				body: "Add a child in People and mark them as a minor. They appear here so you can add their parents and health notes.",
-				action: /* @__PURE__ */ jsx("a", {
-					href: "#church-os/people",
-					className: "text-sm font-medium underline",
-					children: "Open People"
-				})
-			}) : /* @__PURE__ */ jsx("ul", {
-				className: `${CARD} px-5`,
-				children: children.map((c) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("button", {
-					type: "button",
-					onClick: () => setModal({
-						type: "child",
-						child: c
-					}),
-					className: "flex w-full items-center gap-3 border-b border-line py-3 text-left last:border-b-0",
-					children: [
-						/* @__PURE__ */ jsxs("span", {
-							className: "min-w-0 flex-1",
-							children: [/* @__PURE__ */ jsxs("span", {
-								className: "block truncate text-sm font-medium",
-								children: [
-									c.first_name,
-									" ",
-									c.last_name
-								]
-							}), /* @__PURE__ */ jsx("span", {
-								className: "block truncate text-xs text-muted",
-								children: c.guardians.length ? `Parents: ${c.guardians.map((g) => g.name).join(", ")}` : "No parent or guardian yet"
-							})]
-						}),
-						c.allergies && /* @__PURE__ */ jsx(Badge, {
-							tone: "danger",
-							children: "Allergy"
-						}),
-						c.checked_in && /* @__PURE__ */ jsx(Badge, {
-							tone: "ok",
-							children: "Checked in"
-						}),
-						!c.guardians.length && /* @__PURE__ */ jsx(Badge, {
-							tone: "gold",
-							children: "Needs a parent"
-						})
-					]
-				}) }, c.id))
-			}) : /* @__PURE__ */ jsxs(Card, {
-				title: "Helpers and background checks",
-				children: [/* @__PURE__ */ jsxs("p", {
-					className: "mb-3 text-sm text-muted",
-					children: ["Only adults with a current background check can work in a kids room.", !admin && " Owners, pastors and admins record checks."]
-				}), /* @__PURE__ */ jsx("ul", { children: helpers.map((h) => /* @__PURE__ */ jsxs("li", {
-					className: "flex flex-wrap items-center gap-3 border-b border-line py-2.5 last:border-b-0",
-					children: [
-						/* @__PURE__ */ jsx("span", {
-							className: "min-w-0 flex-1 truncate text-sm font-medium",
-							children: h.name
-						}),
-						h.cleared ? /* @__PURE__ */ jsxs(Badge, {
-							tone: "ok",
-							children: ["Cleared until ", (/* @__PURE__ */ new Date(`${h.cleared_until}T00:00:00`)).toLocaleDateString([], {
-								month: "short",
-								day: "numeric",
-								year: "numeric"
-							})]
-						}) : h.cleared_until ? /* @__PURE__ */ jsx(Badge, {
-							tone: "danger",
-							children: "Expired"
-						}) : /* @__PURE__ */ jsx(Badge, { children: "No check on file" }),
-						admin && /* @__PURE__ */ jsx(Button, {
-							onClick: () => setModal({
-								type: "clear",
-								helper: h
-							}),
-							children: h.cleared_until ? "Update" : "Record check"
-						})
-					]
-				}, h.id)) })]
-			}),
-			modal?.type === "room" && /* @__PURE__ */ jsx(RoomModal, {
-				room: modal.room,
-				onClose: () => setModal(null),
-				onSave: async (v) => {
-					await act(() => saveRoom(ws, v));
-					setModal(null);
-				},
-				onDelete: admin && modal.room.id ? async () => {
-					if (await churchlyConfirm("Delete this room? Church OS will block deletion if a child is currently checked in.", { title: "Delete Kids room?", confirmLabel: "Delete room" })) {
-						await act(() => deleteRoom(ws, modal.room.id));
-						setModal(null);
-					}
-				} : null
-			}),
-			modal?.type === "checkin" && /* @__PURE__ */ jsx(CheckInModal, {
-				room: modal.room,
-				kids: children.filter((c) => !c.checked_in && c.guardians.some((g) => g.can_pickup)),
-				noGuardian: children.filter((c) => !c.guardians.some((g) => g.can_pickup)).length,
-				onClose: () => setModal(null),
-				onGo: (child) => act(() => checkIn(ws, child, modal.room.id))
-			}),
-			modal?.type === "duty" && /* @__PURE__ */ jsx(DutyModal, {
-				room: modal.room,
-				helpers,
-				onClose: () => setModal(null),
-				on: (p) => act(() => dutyOn(ws, modal.room.id, p)),
-				off: (p) => act(() => dutyOff(ws, p))
-			}),
-			modal?.type === "checkout" && /* @__PURE__ */ jsx(CheckOutModal, {
-				kid: modal.kid,
-				admin,
-				onClose: () => setModal(null),
-				onGo: (code, g) => act(() => checkOut(ws, modal.kid.checkin_id, code, g)),
-				onReset: async () => {
-					setErr("");
-					try {
-						await resetCheckoutLock(ws, modal.kid.checkin_id);
-						await load();
-						return true;
-					} catch (e) {
-						setErr(e.message);
-						return false;
-					}
-				}
-			}),
-			modal?.type === "clear" && /* @__PURE__ */ jsx(ClearModal, {
-				helper: modal.helper,
-				onClose: () => setModal(null),
-				onSave: async (d, n) => {
-					await act(() => setClearance(ws, modal.helper.id, d, n));
-					setModal(null);
-				}
-			}),
-			/* @__PURE__ */ jsx(RecordPanel, {
-				open: modal?.type === "child",
-				onOpenChange: (o) => !o && setModal(null),
-				title: modal?.child ? `${modal.child.first_name} ${modal.child.last_name}` : "",
-				children: modal?.type === "child" && /* @__PURE__ */ jsx(ChildPanel, {
-					child: children.find((c) => c.id === modal.child.id) || modal.child,
-					adults: helpers,
-					act,
-					ws
-				}, modal.child.id)
-			})
-		]
-	});
+	useEffect(() => { load(); }, [load]);
+	useEffect(() => { const id = setInterval(load, 3e4); return () => clearInterval(id); }, [load]);
+	const act = async (fn) => { setErr(""); try { const out = await fn(); await load(); return out; } catch (e) { setErr(e.message); } };
+	const activeRooms = Array.isArray(rooms) ? rooms.filter((room) => room.active) : [];
+	const adultsOnDuty = helpers.filter((helper) => helper.room_id).length;
+	const currentChecks = helpers.filter((helper) => helper.cleared).length;
+	const roomsNeedingAttention = activeRooms.filter((room) => Number(room.children) > 0 && !room.ok).length;
+	const newRoom = () => setModal({ type: "room", room: { name: "", ages: "", ratio: 8, active: true } });
+
+	if (!team) return <div data-kit className="tk-page tk-kids-page"><TKPageHeader eyebrow="Safe check-in" title="Kids Ministry" subtitle="Children’s records are limited to authorized Kids team members." /><div className="tk-kids-restricted"><Icon name="lock" size={24} /><div><h2>Kids team only</h2><p>Owners, pastors, admins, and authorized leaders can open check-in and children’s records.</p></div></div></div>;
+
+	return <div data-kit className="tk-page tk-kids-page">
+		<TKPageHeader eyebrow="Safe check-in" title="Kids Ministry" subtitle="Check children in and out safely, keep room ratios clear, and protect every family’s information." actions={admin && tab === "today" ? <button type="button" className="tk-action primary" onClick={newRoom}>+ New room</button> : null} />
+		<div className="tk-kids-tabs" role="tablist" aria-label="Kids Ministry views">
+			{[["today","Check-in"],["children","Children"],["helpers","Helpers"]].map(([id,label]) => <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "active" : ""} onClick={() => setTab(id)}>{label}</button>)}
+		</div>
+		<p className="tk-kids-safety"><Icon name="shield" size={20} /> Visible only to authorized Kids team members. Two cleared adults, room ratios, guardians, and pickup codes are enforced.</p>
+		{err && <p className="tk-inline-error" role="alert">{err}</p>}
+		{rooms === null ? <p className="tk-loading-copy">Loading Kids Ministry…</p> : rooms === false ? <LoadFailure title="Kids Ministry couldn't load" body={err || "Church Toolkit couldn't refresh check-in."} onRetry={load} /> : tab === "today" ? <div className="tk-kids-layout">
+			<section className="tk-kids-rooms" aria-label="Rooms today">
+				<header><p>Rooms today · {activeRooms.length}</p></header>
+				{activeRooms.length ? <ol>{activeRooms.map((room) => {
+					const here = present.filter((child) => child.room_id === room.id);
+					const staffHere = helpers.filter((helper) => helper.room_id === room.id);
+					const latest = here.map((child) => child.checked_in_at).filter(Boolean).sort().at(-1);
+					return <li key={room.id} className={!room.ok && Number(room.children) > 0 ? "needs-attention" : ""}>
+						<span className="tk-kids-room-icon"><Icon name={/nursery|baby/i.test(room.name) ? "heart" : /elementary|grade/i.test(room.name) ? "book" : "users"} size={24} /></span>
+						<div className="tk-kids-room-copy"><div><h2>{room.name}</h2>{Number(room.children) > 0 && <span className={room.ok ? "ok" : "warn"}><i />{room.ok ? "Ratio OK" : room.problem || "Needs attention"}</span>}</div><p>{room.ages ? "Ages " + room.ages + " · " : ""}{room.children} children · {room.adults} cleared {Number(room.adults) === 1 ? "adult" : "adults"} · 1 adult per {room.ratio} children</p><small>{latest ? "Most recent check-in " + time(latest) : Number(room.children) ? "Children are checked in" : "No children checked in"}{staffHere.length ? " · On duty: " + staffHere.map((helper) => helper.name).join(", ") : ""}</small></div>
+						<div className="tk-kids-room-actions">{room.ok || Number(room.children) === 0 ? <button type="button" className="tk-action primary" onClick={() => setModal({ type: "checkin", room })}>Check a child in</button> : <button type="button" className="tk-action secondary" onClick={() => setModal({ type: "duty", room })}>Add adult on duty</button>}<button type="button" className="tk-action link" onClick={() => setModal({ type: "duty", room })}>Adults on duty →</button>{admin && <button type="button" className="tk-kids-edit" onClick={() => setModal({ type: "room", room })}>Edit room</button>}</div>
+						{here.length > 0 && <ul className="tk-kids-present">{here.map((child) => <li key={child.checkin_id}><span><strong>{child.name}</strong><small>In at {time(child.checked_in_at)}</small></span>{child.allergies && <b>Allergy</b>}<button type="button" onClick={() => setModal({ type: "checkout", kid: child })}>Check out</button></li>)}</ul>}
+					</li>;
+				})}</ol> : <div className="tk-kids-empty"><h2>Set up your first room</h2><p>Add a room such as Nursery or Elementary and choose the safe supervision ratio.</p>{admin && <button type="button" className="tk-action primary" onClick={newRoom}>New room</button>}</div>}
+			</section>
+			<aside className="tk-kids-rail">
+				<section><h2>Today</h2><dl><div><dt>Children checked in</dt><dd>{present.length}</dd></div><div><dt>Cleared adults on duty</dt><dd>{adultsOnDuty}</dd></div><div className={roomsNeedingAttention ? "warn" : ""}><dt>Rooms needing attention</dt><dd>{roomsNeedingAttention}</dd></div></dl></section>
+				<section><h2>Safety checks</h2><ul><li><Icon name="lock" size={17} /><span>Pickup code required</span><b>On</b></li><li><Icon name="users" size={17} /><span>Guardian match required</span><b>On</b></li><li><Icon name="file" size={17} /><span>Background checks current</span><b>{currentChecks} of {helpers.length}</b></li><li><Icon name="shield" size={17} /><span>Room ratios enforced</span><b>On</b></li></ul><button type="button" onClick={() => setTab("helpers")}>Review helpers →</button></section>
+				<p className="tk-kids-privacy"><Icon name="lock" size={17} /> Children’s names, health notes, and guardian details never appear in Insights or public pages.</p>
+			</aside>
+		</div> : tab === "children" ? <section className="tk-kids-ledger-view"><header><h2>Children</h2><p>Open a child to review authorized pickup adults and protected care notes.</p></header>{children.length ? <ol>{children.map((child) => <li key={child.id}><button type="button" onClick={() => setModal({ type: "child", child })}><span><strong>{child.first_name} {child.last_name}</strong><small>{child.guardians.length ? "Parents or guardians: " + child.guardians.map((guardian) => guardian.name).join(", ") : "No parent or guardian yet"}</small></span><span className="tk-kids-tags">{child.allergies && <b className="warn">Allergy</b>}{child.checked_in && <b>Checked in</b>}{!child.guardians.length && <b className="warn">Needs a guardian</b>}</span><i>›</i></button></li>)}</ol> : <div className="tk-kids-empty"><h2>No children yet</h2><p>Add a child in People and mark them as under 18.</p><a href="#church-os/people">Open People →</a></div>}</section> : <section className="tk-kids-ledger-view"><header><h2>Helpers & clearances</h2><p>Only adults with a current background check can work in a Kids room.</p></header><ol>{helpers.map((helper) => <li key={helper.id}><div><span><strong>{helper.name}</strong><small>{helper.room_id ? "Currently on duty" : "Not on duty"}</small></span><span className="tk-kids-tags">{helper.cleared ? <b>Cleared until {new Date(helper.cleared_until + "T00:00:00").toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}</b> : helper.cleared_until ? <b className="warn">Expired</b> : <b className="neutral">No check on file</b>}</span>{admin && <button type="button" className="tk-action secondary" onClick={() => setModal({ type: "clear", helper })}>{helper.cleared_until ? "Update" : "Record check"}</button>}</div></li>)}</ol></section>}
+
+		{modal?.type === "room" && <RoomModal room={modal.room} onClose={() => setModal(null)} onSave={async (value) => { await act(() => saveRoom(ws, value)); setModal(null); }} onDelete={admin && modal.room.id ? async () => { if (await churchlyConfirm("Delete this room? Church OS will block deletion if a child is currently checked in.", { title: "Delete Kids room?", confirmLabel: "Delete room" })) { await act(() => deleteRoom(ws, modal.room.id)); setModal(null); } } : null} />}
+		{modal?.type === "checkin" && <CheckInModal room={modal.room} kids={children.filter((child) => !child.checked_in && child.guardians.some((guardian) => guardian.can_pickup))} noGuardian={children.filter((child) => !child.guardians.some((guardian) => guardian.can_pickup)).length} onClose={() => setModal(null)} onGo={(child) => act(() => checkIn(ws, child, modal.room.id))} />}
+		{modal?.type === "duty" && <DutyModal room={modal.room} helpers={helpers} onClose={() => setModal(null)} on={(person) => act(() => dutyOn(ws, modal.room.id, person))} off={(person) => act(() => dutyOff(ws, person))} />}
+		{modal?.type === "checkout" && <CheckOutModal kid={modal.kid} admin={admin} onClose={() => setModal(null)} onGo={(code, guardian) => act(() => checkOut(ws, modal.kid.checkin_id, code, guardian))} onReset={async () => { setErr(""); try { await resetCheckoutLock(ws, modal.kid.checkin_id); await load(); return true; } catch (e) { setErr(e.message); return false; } }} />}
+		{modal?.type === "clear" && <ClearModal helper={modal.helper} onClose={() => setModal(null)} onSave={async (date, note) => { await act(() => setClearance(ws, modal.helper.id, date, note)); setModal(null); }} />}
+		<RecordPanel open={modal?.type === "child"} onOpenChange={(open) => !open && setModal(null)} title={modal?.child ? modal.child.first_name + " " + modal.child.last_name : ""}>{modal?.type === "child" && <ChildPanel child={children.find((child) => child.id === modal.child.id) || modal.child} adults={helpers} act={act} ws={ws} key={modal.child.id} />}</RecordPanel>
+	</div>;
 }
 function RoomModal({ room, onClose, onSave, onDelete }) {
 	const [v, setV] = useState(room);
@@ -56526,6 +55321,39 @@ function MePage() {
 }
 
 //#endregion
+const MORE_PLANNED_TOOLS = [
+	{ id: "facilities", label: "Facilities", icon: "wrench", description: "Track maintenance, work orders, inspections, rooms, and vendors.", status: "Planned", detail: "A calm building-operations ledger connected to deadlines and outside-help handoffs. It will not publish Marketplace work automatically." },
+	{ id: "money", label: "Finance & Governance", icon: "money", description: "Keep budgets, board work, policies, and stewardship routines clear.", status: "Restricted", restricted: true, detail: "A deliberately restricted workspace for governance routines and financial records. FaithBid will not process church payments." },
+	{ id: "community", label: "Community", icon: "users", description: "Organize guests, care follow-up, milestones, and connection pathways.", status: "Planned", detail: "A future relationship view that connects existing People, Groups, Events, and follow-up without creating a second directory." },
+	{ id: "online", label: "Online Presence", icon: "globe", description: "Keep your website, public profiles, and visitor information current.", status: "Planned", detail: "A future publishing workspace. Every public change will remain reviewable and approval-gated." },
+	{ id: "insights", label: "Insights", icon: "chart", description: "See quiet patterns across ministry work without turning church into a scorecard.", status: "Preview", detail: "A future read-only view of useful operational patterns. It will avoid rankings, pastoral judgments, and vanity metrics." }
+];
+
+function MorePage() {
+	const { workspace, features } = useAuth();
+	const [, go] = useHashRoute();
+	const [query, setQuery] = useState("");
+	const [preview, setPreview] = useState(null);
+	const role = workspace.role;
+	const ready = [
+		features.sermons && { id: "sermons", label: "Sermons", icon: "book", description: "Plan messages, organize series, and keep a useful archive." },
+		features.missions && { id: "missions", label: "Missions", icon: "globe", description: "Keep partners, trips, prayer updates, and serve days together." },
+		features.care && ["owner", "pastor"].includes(role) && { id: "care", label: "Care & Prayer", icon: "heart", description: "A private pastoral care and prayer workspace.", restricted: true }
+	].filter(Boolean);
+	const needle = query.trim().toLowerCase();
+	const matches = (tool) => !needle || [tool.label, tool.description, tool.status].filter(Boolean).join(" ").toLowerCase().includes(needle);
+	const readyVisible = ready.filter(matches);
+	const plannedVisible = MORE_PLANNED_TOOLS.filter(matches);
+	const row = (tool, isReady) => <li key={tool.id}><span className="tk-more-icon"><Icon name={tool.icon} size={26} /></span><strong>{tool.label}</strong><p>{tool.description}</p>{isReady ? <button type="button" onClick={() => go(tool.id)}>Open <span>→</span></button> : tool.restricted ? <span className="tk-more-restricted"><Icon name="lock" size={16} /> Restricted</span> : <button type="button" onClick={() => setPreview(tool)}>{tool.status === "Preview" ? "Preview" : "Learn more"} <span>→</span></button>}</li>;
+	return <div data-kit className="tk-page tk-more-page">
+		<TKPageHeader eyebrow="Additional tools" title="More" subtitle="Use only what helps your church. Everything else can stay quietly out of the way." actions={<label className="tk-more-search"><Icon name="search" size={19} /><span className="sr-only">Find a tool</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a tool" /></label>} />
+		{readyVisible.length > 0 && <section className="tk-more-section"><h2>Ready to use</h2><ul>{readyVisible.map((tool) => row(tool, true))}</ul></section>}
+		<section className="tk-more-section"><h2>Available when you need them</h2>{plannedVisible.length ? <ul>{plannedVisible.map((tool) => row(tool, false))}</ul> : <p className="tk-more-none">No tools match that search.</p>}</section>
+		<footer className="tk-more-footer"><span>Your sidebar stays focused. Optional tools can be reviewed anytime in Settings.</span><button type="button" onClick={() => go("settings")}>Manage tools →</button></footer>
+		<RecordPanel open={!!preview} onOpenChange={(open) => !open && setPreview(null)} title={preview?.label || "Tool preview"}>{preview && <div className="tk-more-preview"><span className="tk-more-icon"><Icon name={preview.icon} size={28} /></span><p className="eyebrow">{preview.status}</p><h2>{preview.label}</h2><p>{preview.detail}</p><div><strong>Roadmap guardrail</strong><span>This is visible so the Toolkit feels complete, but it will stay inactive until its real workflow, permissions, and data contract are ready.</span></div></div>}</RecordPanel>
+	</div>;
+}
+
 //#region src/App.jsx
 const SCREENS = {
 	week: WeekPage,
@@ -56544,6 +55372,7 @@ const SCREENS = {
 	groups: GroupsPage,
 	events: EventsPage,
 	missions: MissionsPage,
+	more: MorePage,
 	kids: KidsPage,
 	me: MePage
 };
@@ -57017,6 +55846,482 @@ const CHURCH_OS_CANVAS_TEXTURE_CSS = `
 }
 `;
 
+const CHURCH_TOOLKIT_QUIET_WORKSPACE_CSS = `
+/* 0011 QUIET MINISTRY WORKSPACE ------------------------------------------
+   Presentation-only layer for the approved Church Toolkit shell and
+   This Week and Inbox hierarchy. Data, routing, privacy, and desktop geometry remain owned above. */
+.os-shell{
+  --tk-forest:#0d3a31;
+  --tk-ink:#102e27;
+  --tk-muted:#68736e;
+  --tk-gold:#ad8435;
+  --tk-rule:rgba(16,46,39,.14);
+  --tk-sage:#e7efe8;
+  --tk-parchment:#f6f1e7;
+}
+.os-shell .os-notification{
+  width:32px;
+  height:34px;
+  color:#f7f2e8;
+  background:transparent;
+  border:0;
+  border-radius:8px;
+  box-shadow:none;
+}
+.os-shell .os-notification:hover{color:#f0d99a;background:rgba(255,255,255,.06)}
+.os-shell .os-topbar>.account .avatar-btn{background:#17483c;border-color:rgba(240,217,154,.26)}
+.os-shell .os-topbar>.account .avatar{background:#2f6b58}
+.os-main .tk-page{
+  width:100%;
+  max-width:1460px;
+  margin:0 auto;
+  padding:44px 48px 72px;
+  color:var(--tk-ink);
+}
+.os-main .tk-page-header{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:28px;
+  margin-bottom:48px;
+}
+.os-main .tk-page-header-copy{min-width:0}
+.os-main .tk-eyebrow{
+  margin:0 0 10px;
+  color:var(--tk-gold);
+  font:760 11px/1.2 Inter,ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.os-main .tk-page-header h1{
+  margin:0;
+  color:#092b25;
+  font:600 clamp(42px,3.45vw,58px)/.98 Georgia,"Times New Roman",serif;
+  letter-spacing:-.035em;
+}
+.os-main .tk-page-promise{
+  max-width:720px;
+  margin:12px 0 0;
+  color:var(--tk-muted);
+  font-size:18px;
+  line-height:1.5;
+}
+.os-main .tk-page-actions{flex:none}
+.os-main .tk-section-label{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:10px;
+}
+.os-main .tk-section-label h2,
+.os-main .tk-handling-band h2{
+  margin:0;
+  color:#0d2d27;
+  font:600 31px/1.08 Georgia,"Times New Roman",serif;
+  letter-spacing:-.025em;
+}
+.os-main .tk-section-label p:not(.tk-eyebrow){max-width:640px;margin:8px 0 0;color:var(--tk-muted);font-size:13px;line-height:1.5}
+.os-main .tk-section-action a{color:var(--tk-forest);font-size:13px;font-weight:750;text-decoration:none}
+.os-main .tk-ledger{margin:0;padding:0;list-style:none;border-top:1px solid var(--tk-rule)}
+.os-main .tk-ledger-row{margin:0;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-ledger-row>a,
+.os-main .tk-ledger-row>div{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  min-height:112px;
+  padding:20px 8px 20px 0;
+  color:var(--tk-ink);
+  text-decoration:none;
+}
+.os-main .tk-ledger-row>a:hover{background:linear-gradient(90deg,rgba(231,239,232,.48),transparent)}
+.os-main .tk-ledger-icon{
+  display:grid;
+  place-items:center;
+  flex:none;
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  color:#0d5a49;
+  background:var(--tk-sage);
+}
+.os-main .tk-ledger-icon.tone-amber{color:#855f16;background:#f6ecd5}
+.os-main .tk-ledger-icon.tone-red{color:#8b3528;background:#f7e4df}
+.os-main .tk-ledger-icon.tone-green{color:#0d5a49;background:var(--tk-sage)}
+.os-main .tk-ledger-copy{display:grid;gap:4px;min-width:0;flex:1}
+.os-main .tk-ledger-eyebrow{color:var(--tk-gold);font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
+.os-main .tk-ledger-copy>strong{color:#102e27;font-size:17px;font-weight:760;line-height:1.25}
+.os-main .tk-ledger-detail{color:var(--tk-muted);font-size:14px;line-height:1.45}
+.os-main .tk-ledger-action{flex:none;color:#0d5a49;font-size:15px;font-weight:780;white-space:nowrap}
+.os-main .tk-week-grid{display:grid;grid-template-columns:minmax(0,1.78fr) minmax(320px,.94fr);gap:44px;margin-top:4px}
+.os-main .tk-next-up{padding-left:38px;border-left:1px solid var(--tk-rule)}
+.os-main .tk-timeline{position:relative;margin:0;padding:0;list-style:none}
+.os-main .tk-timeline:before{content:"";position:absolute;top:29px;bottom:31px;left:72px;width:1px;background:rgba(173,132,53,.42)}
+.os-main .tk-timeline li{position:relative;display:grid;grid-template-columns:54px 16px minmax(0,1fr) auto;align-items:center;gap:11px;min-height:102px}
+.os-main .tk-timeline-date{display:grid;color:var(--tk-gold);text-align:left}
+.os-main .tk-timeline-date b{font-size:10px;letter-spacing:.1em}
+.os-main .tk-timeline-date strong{font:600 25px/1 Georgia,"Times New Roman",serif}
+.os-main .tk-timeline-dot{z-index:1;width:10px;height:10px;margin:auto;border:2px solid var(--tk-parchment);border-radius:50%;background:var(--tk-gold);box-shadow:0 0 0 1px rgba(173,132,53,.25)}
+.os-main .tk-timeline-copy{display:grid;gap:5px;min-width:0}
+.os-main .tk-timeline-copy strong{font-size:17px;line-height:1.2}
+.os-main .tk-timeline-copy span{color:var(--tk-muted);font-size:14px}
+.os-main .tk-timeline a,.os-main .tk-calendar-link{color:#0d5a49;font-size:14px;font-weight:780;text-decoration:none;white-space:nowrap}
+.os-main .tk-calendar-link{display:inline-flex;margin-top:18px}
+.os-main .tk-more-link{margin-top:18px;padding:0;color:#0d5a49;background:transparent;border:0;font-size:14px;font-weight:780;cursor:pointer}
+.os-main .tk-clear-state{display:flex;align-items:center;gap:14px;padding:28px 0;border-top:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule);color:#0d5a49}
+.os-main .tk-clear-state>div{display:grid;gap:4px}.os-main .tk-clear-state span{color:var(--tk-muted);font-size:13px}
+.os-main .tk-handling-band{display:grid;grid-template-columns:250px 1fr;align-items:center;gap:28px;margin-top:42px;padding:24px 34px;background:linear-gradient(90deg,rgba(224,234,224,.92),rgba(239,240,228,.72));border:0}
+.os-main .tk-handling-band h2{font-size:24px}.os-main .tk-handling-band .tk-eyebrow{margin-bottom:5px}
+.os-main .tk-handling-list{display:grid}.os-main .tk-handling-list a{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px 0;color:var(--tk-ink);text-decoration:none;border-top:1px solid rgba(16,46,39,.10)}
+.os-main .tk-handling-list a:first-child{border-top:0}.os-main .tk-handling-list span{display:grid;gap:3px}.os-main .tk-handling-list strong{font-size:16px}.os-main .tk-handling-list small{color:var(--tk-muted);font-size:13px}.os-main .tk-handling-list b{color:#0d5a49;font-size:14px;white-space:nowrap}
+.os-main .tk-loading-copy,.os-main .tk-empty-copy{margin:20px 0;color:var(--tk-muted);font-size:14px}
+.os-main .tk-week-member-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:42px;margin-top:32px}
+/* 0012 INBOX QUEUE / REVIEW --------------------------------------------- */
+.os-main .tk-inbox-page .tk-page-header{margin-bottom:30px}
+.os-main .tk-inbox-waiting{display:inline-flex;align-items:center;color:#8a691f;font:700 20px/1.2 Georgia,"Times New Roman",serif;white-space:nowrap}
+.os-main .tk-inline-notices{display:grid;gap:8px;margin:-10px 0 20px}
+.os-main .tk-inline-notices:empty{display:none}
+.os-main .tk-inline-notices p{margin:0;padding:10px 14px;border-left:3px solid var(--tk-rule);color:var(--tk-muted);background:rgba(255,255,255,.44);font-size:13px;line-height:1.45}
+.os-main .tk-inline-notices .tone-error{border-color:#9a4335;color:#7e3026;background:rgba(249,229,224,.72)}
+.os-main .tk-inline-notices .tone-warning{border-color:#b58a35;color:#795817;background:rgba(248,237,211,.72)}
+.os-main .tk-inline-notices .tone-success{border-color:#24705b;color:#185745;background:rgba(224,239,229,.72)}
+.os-main .tk-tabs{display:flex;align-items:center;gap:38px;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-tabs button{display:flex;align-items:center;gap:7px;margin:0 0 -1px;padding:13px 6px 14px;color:#69736f;background:transparent;border:0;border-bottom:3px solid transparent;font:650 16px/1.2 Inter,ui-sans-serif,system-ui,sans-serif;cursor:pointer}
+.os-main .tk-tabs button span{color:#8a918e;font-size:12px;font-weight:750}
+.os-main .tk-tabs button.active{color:#0d4438;border-bottom-color:#0d6a57}
+.os-main .tk-tabs button.active span{color:#0d6a57}
+.os-main .tk-inbox-workspace{display:grid;grid-template-columns:minmax(310px,.82fr) minmax(0,1.3fr);min-height:540px;margin-top:28px}
+.os-main .tk-inbox-queue-pane{min-width:0;padding-right:32px;border-right:1px solid var(--tk-rule)}
+.os-main .tk-inbox-review-pane{min-width:0;padding-left:42px}
+.os-main .tk-pane-label{margin:0 0 16px;color:#223d36;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+.os-main .tk-queue{margin:0;padding:0;list-style:none}
+.os-main .tk-queue>li{position:relative;margin:0;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-queue>li:first-child{border-top:1px solid var(--tk-rule)}
+.os-main .tk-queue>li>button{position:relative;display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:15px;width:100%;min-height:94px;padding:15px 13px 15px 16px;color:var(--tk-ink);text-align:left;background:transparent;border:0;cursor:pointer}
+.os-main .tk-queue>li>button:hover{background:linear-gradient(90deg,rgba(231,239,232,.54),transparent)}
+.os-main .tk-queue>li.active>button{background:linear-gradient(90deg,rgba(224,234,224,.92),rgba(239,240,228,.46));box-shadow:inset 3px 0 #0c735e}
+.os-main .tk-queue-dot{position:absolute;left:-10px;top:21px;width:8px;height:8px;border-radius:50%;background:#b48a32}
+.os-main .tk-queue-icon{display:grid;place-items:center;width:46px;height:46px;color:#0d5a49;background:transparent}
+.os-main .tk-queue-icon.tone-amber{color:#9a7428}.os-main .tk-queue-icon.tone-red{color:#943f32}
+.os-main .tk-queue-copy{display:grid;gap:5px;min-width:0}
+.os-main .tk-queue-copy strong{overflow:hidden;color:#15352e;font-size:15px;font-weight:760;line-height:1.3;text-overflow:ellipsis}
+.os-main .tk-queue-copy>span{overflow:hidden;color:var(--tk-muted);font-size:12.5px;line-height:1.35;text-overflow:ellipsis}
+.os-main .tk-status{display:inline-flex;align-items:center;min-height:24px;padding:3px 8px;border-radius:999px;color:#5e6965;background:#ecebe5;font-size:10px;font-weight:800;white-space:nowrap;text-transform:capitalize}
+.os-main .tk-status.tone-green{color:#155846;background:#e4eee8}.os-main .tk-status.tone-amber{color:#76561b;background:#f3ead5}.os-main .tk-status.tone-red{color:#84372d;background:#f5e4df}
+.os-main .tk-review-panel>header{padding:2px 0 20px;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-review-panel>header h2{max-width:760px;margin:0;color:#0d2d27;font:600 clamp(31px,2.55vw,43px)/1.04 Georgia,"Times New Roman",serif;letter-spacing:-.03em}
+.os-main .tk-review-summary{max-width:760px;margin:13px 0 0;color:var(--tk-muted);font-size:16px;line-height:1.5}
+.os-main .tk-review-body{display:grid;gap:26px;padding-top:22px}
+.os-main .tk-recommendation{display:grid;gap:7px;padding:18px 20px;background:linear-gradient(90deg,rgba(224,234,224,.9),rgba(239,240,228,.64))}
+.os-main .tk-recommendation span{color:#1f614f;font-size:10px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}
+.os-main .tk-recommendation strong{color:#17342d;font-size:17px;line-height:1.4}
+.os-main .tk-review-section{display:grid;gap:10px}
+.os-main .tk-review-section h3{margin:0;color:#18362f;font:600 20px/1.15 Georgia,"Times New Roman",serif}
+.os-main .tk-review-section p{max-width:760px;margin:0;color:var(--tk-muted);font-size:14px;line-height:1.55}
+.os-main .tk-effect-list,.os-main .tk-compact-list{display:grid;gap:9px;margin:0;padding:0;list-style:none}
+.os-main .tk-effect-list li{display:flex;align-items:flex-start;gap:11px;color:#344b45;font-size:14px;line-height:1.45}
+.os-main .tk-effect-list li span{flex:none;color:#0d6a57;font-size:17px;font-weight:800}
+.os-main .tk-compact-list li{display:flex;justify-content:space-between;gap:20px;padding:8px 0;border-bottom:1px solid var(--tk-rule);font-size:13px}.os-main .tk-compact-list li span{color:var(--tk-muted)}
+.os-main .tk-message-quote{display:grid;gap:9px;padding:18px 20px;border-left:3px solid #b28a39;background:rgba(255,255,255,.48)}
+.os-main .tk-message-quote>span{color:#8a6a29;font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}.os-main .tk-message-quote p{margin:0;color:#223b35;font-size:15px;line-height:1.55}
+.os-main .tk-privacy-note{display:flex;align-items:flex-start;gap:9px;margin:0;padding-top:17px;border-top:1px solid var(--tk-rule);color:#66736e;font-size:12px;line-height:1.5}.os-main .tk-privacy-note svg{flex:none;margin-top:1px;color:#2d6758}
+.os-main .tk-review-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:28px;padding-top:20px;border-top:1px solid var(--tk-rule)}
+.os-main .tk-action{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:780;text-decoration:none;cursor:pointer}
+.os-main .tk-action.primary{color:#fff;background:#0d5547;border:1px solid #0d5547}.os-main .tk-action.primary:hover{background:#0a4439}
+.os-main .tk-action.secondary{color:#173a31;background:transparent;border:1px solid rgba(16,46,39,.22)}.os-main .tk-action.secondary:hover{background:rgba(231,239,232,.55)}
+.os-main .tk-action.link{min-height:auto;padding:9px 7px;color:#155a49;background:transparent;border:0}
+.os-main .tk-action-note{margin-right:auto;color:var(--tk-muted);font-size:12px;line-height:1.45}
+.os-main .tk-empty-state{display:flex;align-items:center;gap:16px;min-height:112px;margin-top:28px;padding:22px 0;border-top:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-empty-state>span{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;color:#0d5a49;background:var(--tk-sage)}
+.os-main .tk-empty-state>div{display:grid;gap:5px}.os-main .tk-empty-state strong{color:#17352e;font-size:17px}.os-main .tk-empty-state p{max-width:620px;margin:0;color:var(--tk-muted);font-size:13px;line-height:1.5}
+/* 0013 TASK ASSIGNMENT LEDGER ---------------------------------------------- */
+.os-main .tk-tasks-page .tk-page-header{margin-bottom:24px}
+.os-main .tk-tasks-page .tk-tabs{margin-bottom:34px}
+.os-main .tk-add-task{min-width:118px}
+.os-main .tk-task-groups{display:grid;gap:30px}
+.os-main .tk-task-group>header{display:flex;align-items:center;gap:10px;margin:0 0 5px;color:#7f6840}
+.os-main .tk-task-group>header h2{margin:0;font-size:11px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+.os-main .tk-task-group>header>span{display:grid;place-items:center;min-width:25px;height:25px;padding:0 7px;border-radius:999px;color:#6e6a5e;background:#efe7d2;font-size:11px;font-weight:800}
+.os-main .tk-task-group>header.tone-danger{color:#8a3e32}.os-main .tk-task-group>header.tone-danger>span{color:#84372d;background:#f4e2dc}
+.os-main .tk-task-ledger{margin:0;padding:0;list-style:none;border-top:1px solid var(--tk-rule)}
+.os-main .tk-task-ledger li{display:grid;grid-template-columns:28px minmax(240px,1fr) minmax(150px,210px) 118px 54px;align-items:center;gap:18px;min-height:66px;padding:12px 4px;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-task-ledger li:hover{background:linear-gradient(90deg,rgba(255,255,255,.36),rgba(231,239,232,.3),transparent)}
+.os-main .tk-task-ledger li.is-unowned{background:linear-gradient(90deg,rgba(248,237,211,.38),transparent)}
+.os-main .tk-task-ledger input[type="checkbox"]{appearance:none;display:grid;place-items:center;width:21px;height:21px;margin:0;border:1.5px solid #527068;border-radius:4px;background:rgba(255,255,255,.55);cursor:pointer}
+.os-main .tk-task-ledger input[type="checkbox"]:checked{border-color:#0d6654;background:#0d6654}
+.os-main .tk-task-ledger input[type="checkbox"]:checked:after{content:"✓";color:#fff;font-size:14px;font-weight:850;line-height:1}
+.os-main .tk-task-copy{display:grid;gap:3px;min-width:0}
+.os-main .tk-task-copy strong{overflow:hidden;color:#15352e;font:600 17px/1.3 Georgia,"Times New Roman",serif;text-overflow:ellipsis;white-space:nowrap}
+.os-main .tk-task-copy>span{overflow:hidden;color:var(--tk-muted);font-size:12px;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}
+.os-main .tk-task-owner{display:flex;align-items:center;gap:8px;min-width:0;color:#5f6c67;font-size:12.5px}
+.os-main .tk-task-owner>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.os-main .tk-task-ledger time{justify-self:end;color:#606d68;font-size:13px;white-space:nowrap}.os-main .tk-task-ledger time.is-overdue{color:#9a4034;font-weight:750}
+.os-main .tk-task-delete{padding:5px 3px;color:#7b8581;background:transparent;border:0;font-size:11px;opacity:0;cursor:pointer}
+.os-main .tk-task-ledger li:hover .tk-task-delete,.os-main .tk-task-delete:focus{opacity:1}.os-main .tk-task-delete:hover{color:#963b30}
+.os-main .tk-task-ledger li.is-done .tk-task-copy strong{color:#71807a;text-decoration:line-through}.os-main .tk-task-ledger li.is-done{opacity:.78}
+.os-main .tk-task-footnote{margin:0;color:#7a847f;font-size:12px}
+/* 0016 PEOPLE DIRECTORY LEDGER ------------------------------------------- */
+.os-main .tk-people-root{display:contents}
+.os-main .tk-people-tabs{margin-top:-5px;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-people-tabs [role="tablist"]{display:flex;gap:38px;margin:0;padding:0;border:0;background:transparent;box-shadow:none}
+.os-main .tk-people-tabs [role="tab"]{flex:none;padding:10px 4px 11px;color:#6e7975;background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;font-size:15px;font-weight:650}.os-main .tk-people-tabs [role="tab"][data-state="active"]{color:#0c5a4a;border-bottom-color:#0d6654;background:transparent;box-shadow:none}
+.os-main .tk-people-directory{padding-top:24px}
+.os-main .tk-people-toolbar{display:grid;grid-template-columns:minmax(260px,405px) minmax(230px,300px) 1fr;align-items:center;gap:18px;margin-bottom:22px}
+.os-main .tk-people-search,.os-main .tk-people-filter{display:flex;align-items:center;height:48px;color:#61706a;background:rgba(255,255,255,.2);border:1px solid rgba(54,75,66,.23);border-radius:5px}
+.os-main .tk-people-search{gap:10px;padding:0 14px}.os-main .tk-people-search input{width:100%;height:100%;padding:0;color:#1d3832;background:transparent;border:0;outline:0;font-size:14px}.os-main .tk-people-search input::placeholder{color:#7e8984}
+.os-main .tk-people-filter{position:relative}.os-main .tk-people-filter:after{content:"⌄";position:absolute;right:15px;top:50%;color:#0d5c4c;font:700 20px/1 Georgia,"Times New Roman",serif;pointer-events:none;transform:translateY(-57%)}.os-main .tk-people-filter select{width:100%;height:100%;padding:0 42px 0 16px;color:#1b3932;background-color:transparent!important;background-image:none!important;border:0;outline:0;appearance:none;font-size:14px;font-weight:650;cursor:pointer}
+.os-main .tk-people-count{justify-self:end;margin:0;color:#6d7773;font-size:14px;white-space:nowrap}
+.os-main .tk-people-columns,.os-main .tk-people-ledger button{display:grid;grid-template-columns:minmax(230px,1.5fr) minmax(155px,1fr) minmax(235px,1.2fr) minmax(90px,.65fr) 24px;align-items:center;gap:24px}
+.os-main .tk-people-columns{padding:10px 14px;color:#415650;font-size:10px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}
+.os-main .tk-people-ledger{margin:0;padding:0;border-top:1px solid var(--tk-rule);list-style:none}
+.os-main .tk-people-ledger li{border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-people-ledger button{width:100%;min-height:76px;padding:10px 14px;color:#263f38;text-align:left;background:transparent;border:0;cursor:pointer}.os-main .tk-people-ledger button:hover,.os-main .tk-people-ledger button:focus-visible{background:rgba(223,232,220,.36);outline:0}
+.os-main .tk-person-name{display:flex;align-items:center;gap:15px;min-width:0}.os-main .tk-person-name>span:last-child{display:grid;gap:2px;min-width:0}.os-main .tk-person-name strong{overflow:hidden;color:#18372f;font:600 18px/1.25 Georgia,"Times New Roman",serif;text-overflow:ellipsis;white-space:nowrap}.os-main .tk-person-name small{color:#79837f;font-size:11px}
+.os-main .tk-person-relationship{display:flex;align-items:center;gap:10px;color:#425852;font-size:14px}.os-main .tk-person-relationship i{width:10px;height:10px;border-radius:50%;background:#9aa19e}.os-main .tk-person-relationship i.is-member,.os-main .tk-person-relationship i.is-regular{background:#6fa363}.os-main .tk-person-relationship i.is-guest{background:#b3913e}.os-main .tk-person-relationship i.is-inactive{background:#8f9699}
+.os-main .tk-person-contact{display:grid;gap:2px;min-width:0;color:#425852;font-size:13px}.os-main .tk-person-contact>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.os-main .tk-person-contact .is-secondary{color:#75807b}.os-main .tk-person-contact em{color:#7d8582;font-style:italic}
+.os-main .tk-person-prefers{color:#435850;font-size:14px}.os-main .tk-person-open{justify-self:end;color:#0b5f4e;font:500 25px/1 Georgia,"Times New Roman",serif;opacity:0;transform:translateX(-5px);transition:.15s ease}.os-main .tk-people-ledger button:hover .tk-person-open,.os-main .tk-people-ledger button:focus-visible .tk-person-open{opacity:1;transform:none}
+.os-main .tk-people-empty{display:grid;justify-items:start;gap:8px;padding:42px 2px;border-top:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule)}.os-main .tk-people-empty h2{margin:0;color:#173730;font:600 25px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-people-empty p{margin:0;color:#6b7671;font-size:14px}.os-main .tk-people-empty>button{padding:4px 0;color:#0d5c4c;background:transparent;border:0;font-weight:800;cursor:pointer}.os-main .tk-people-empty>div{display:flex;gap:14px;margin-top:8px}
+.os-main .tk-people-boundary{max-width:900px;margin:18px 0 0;color:#79827e;font-size:11.5px;line-height:1.55}
+@media (max-width:980px){
+  .os-main .tk-people-toolbar{grid-template-columns:minmax(220px,1fr) minmax(210px,.75fr);gap:12px}.os-main .tk-people-count{grid-column:1/-1;grid-row:2;justify-self:start}
+  .os-main .tk-people-columns,.os-main .tk-people-ledger button{grid-template-columns:minmax(190px,1.35fr) minmax(130px,.8fr) minmax(180px,1fr) 24px}.os-main .tk-people-columns span:nth-child(4),.os-main .tk-person-prefers{display:none}
+}
+@media (max-width:680px){
+  .os-main .tk-people-toolbar{grid-template-columns:1fr}.os-main .tk-people-count{grid-column:auto;grid-row:auto}
+  .os-main .tk-people-columns{display:none}
+  .os-main .tk-people-ledger button{grid-template-columns:minmax(0,1fr) auto;gap:7px 12px;padding:14px 2px}
+  .os-main .tk-person-name{grid-column:1}.os-main .tk-person-relationship{grid-column:2;grid-row:1;justify-self:end;font-size:12px}.os-main .tk-person-contact{grid-column:1/-1;padding-left:57px}.os-main .tk-person-open{display:none}
+  .os-main .tk-people-empty>div{align-items:flex-start;flex-direction:column}
+}
+/* 0016A HOUSEHOLDS QUIET SUBTAB ----------------------------------------- */
+.os-main .tk-households-page{display:grid;gap:22px;padding-top:24px}
+.os-main .tk-households-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:0 0 18px;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-households-head>p{max-width:760px;margin:0;color:#68736f;font-size:13px;line-height:1.55}.os-main .tk-households-head>p strong{color:#314b43}
+.os-main .tk-households-head>div{display:flex;gap:10px}.os-main .tk-households-head .churchos-btn:not(.primary){color:#0d5a4b;background:transparent;border-color:transparent}
+.os-main .tk-households-page>.churchos-card{padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important}.os-main .tk-households-page>.churchos-card .churchos-empty{min-height:190px;padding:38px 10px!important;background:transparent!important;border-top:1px solid var(--tk-rule)!important;border-right:0!important;border-bottom:1px solid var(--tk-rule)!important;border-left:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important}
+.os-main .tk-households-list{display:grid;margin:0;padding:0;border-top:1px solid var(--tk-rule);list-style:none}.os-main .tk-households-list>li{border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-household-row{display:grid;width:100%;gap:8px;padding:18px 4px;color:#243f37;text-align:left;background:transparent;border:0;cursor:pointer}.os-main .tk-household-row:hover{background:rgba(223,232,220,.32)}.os-main .tk-household-row>p:first-child{margin:0;color:#18372f;font:600 19px/1.3 Georgia,"Times New Roman",serif}
+.os-main .tk-household-row>ul{display:flex!important;flex-wrap:wrap;gap:9px 22px!important;margin:0;padding:0;list-style:none}.os-main .tk-household-row>ul>li{display:flex;align-items:center;gap:8px;color:#566760;font-size:13px}.os-main .tk-household-row>ul>li>span:last-child{margin-left:2px!important}
+@media (max-width:680px){.os-main .tk-households-head{display:grid}.os-main .tk-households-head>div{justify-content:flex-start}}
+/* 0015 SUNDAY PREPARATION WORKSPACE -------------------------------------- */
+.os-main .tk-sunday-root{display:contents}
+.os-main .tk-sunday-page{max-width:1540px}
+.os-main .tk-sunday-service{min-width:0}
+.os-main .tk-sunday-service-head{display:flex;align-items:flex-start;justify-content:space-between;gap:40px;padding:4px 0 25px;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-sunday-service-copy{min-width:0}
+.os-main .tk-sunday-service-picker{position:relative;display:inline-grid;max-width:100%}
+.os-main .tk-sunday-service-picker:after{content:"⌄";position:absolute;right:5px;top:50%;color:#174a3e;font:700 22px/1 Georgia,"Times New Roman",serif;pointer-events:none;transform:translateY(-53%)}
+.os-main .tk-sunday-service-picker select{max-width:min(680px,100%);padding:2px 36px 2px 0;color:#16352e;background-color:transparent!important;background-image:none!important;border:0;outline:0;appearance:none;font:600 31px/1.15 Georgia,"Times New Roman",serif;letter-spacing:-.025em;cursor:pointer;text-overflow:ellipsis}
+.os-main .tk-sunday-service-copy>p{display:flex;flex-wrap:wrap;gap:8px;margin:7px 0 0;color:#66736e;font-size:15px}.os-main .tk-sunday-service-copy>p span{color:#a6aca9}
+.os-main .tk-sunday-service-actions{display:flex;align-items:center;justify-content:flex-end;gap:17px;min-height:42px;white-space:nowrap}
+.os-main .tk-sunday-status{color:#5b6a65;font-size:14px;font-weight:750}.os-main .tk-sunday-status.is-warning{color:#9a6a12}.os-main .tk-sunday-status.is-ready{color:#11614d}.os-main .tk-sunday-status.is-complete{color:#6c7772}
+.os-main .tk-link-action,.os-main .tk-icon-action{padding:7px 3px;color:#0d5446;background:transparent;border:0;font-size:14px;font-weight:750;cursor:pointer}.os-main .tk-link-action:hover{text-decoration:underline}.os-main .tk-icon-action{padding:7px 5px;letter-spacing:2px}
+.os-main .tk-sunday-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:20px 0;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-sunday-metric{display:grid;gap:6px;min-width:0;padding:0 34px;color:#173831;text-align:left;text-decoration:none;background:transparent;border:0;border-left:1px solid var(--tk-rule);cursor:pointer}.os-main .tk-sunday-metric:first-child{padding-left:2px;border-left:0}.os-main .tk-sunday-metric:last-child{padding-right:2px}
+.os-main .tk-sunday-metric>span{color:#586963;font-size:10px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}.os-main .tk-sunday-metric>strong{overflow:hidden;font:500 20px/1.22 Georgia,"Times New Roman",serif;text-overflow:ellipsis;white-space:nowrap}.os-main .tk-sunday-metric.is-warning>strong{color:#986713}.os-main .tk-sunday-metric:hover>strong{text-decoration:underline;text-underline-offset:4px}
+.os-main .tk-sunday-tabs{border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-sunday-tabs [role="tablist"]{display:flex;gap:42px;margin:0;padding:17px 0 0;border:0;background:transparent;box-shadow:none}
+.os-main .tk-sunday-tabs [role="tab"]{flex:none;padding:11px 2px 12px;color:#6f7875;background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;font-size:15px;font-weight:650}.os-main .tk-sunday-tabs [role="tab"][data-state="active"]{color:#0d5446;border-bottom-color:#0d6654;background:transparent;box-shadow:none}
+.os-main .tk-sunday-tab-panel{padding:28px 0 0}
+.os-main .tk-sunday-finish>.tk-section-label{margin-bottom:2px}.os-main .tk-sunday-finish>.tk-section-label h2{font-size:31px}.os-main .tk-sunday-count{color:#9a6812;font:500 21px/1 Georgia,"Times New Roman",serif}
+.os-main .tk-sunday-issues{margin:0;padding:0;list-style:none}
+.os-main .tk-sunday-issues>li{display:grid;grid-template-columns:60px minmax(0,1fr) auto;align-items:start;gap:18px;padding:18px 2px;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-sunday-issue-icon{display:grid;place-items:center;width:48px;height:48px;color:#0d6654;background:transparent}
+.os-main .tk-sunday-issue-copy{display:grid;gap:3px;min-width:0}.os-main .tk-sunday-issue-copy>strong{color:#173730;font:600 18px/1.28 Georgia,"Times New Roman",serif}.os-main .tk-sunday-issue-copy>span{color:#69736f;font-size:14px;line-height:1.45}
+.os-main .tk-sunday-issue-action{align-self:center;padding:8px 2px;color:#0d5e4e;background:transparent;border:0;font-size:14px;font-weight:800;white-space:nowrap;cursor:pointer}.os-main .tk-sunday-issue-action span{margin-left:11px;font-size:18px}.os-main .tk-sunday-issue-action:hover{text-decoration:underline;text-underline-offset:4px}
+.os-main .tk-sunday-help-band{display:flex;align-items:center;flex-wrap:wrap;gap:7px 18px;width:min(650px,100%);margin-top:8px;padding:8px 12px;color:#3f5c53;background:rgba(218,228,214,.48);font-size:12px}.os-main .tk-sunday-help-band>span:first-child{flex:1;min-width:190px}.os-main .tk-sunday-help-band button,.os-main .tk-sunday-help-band a{padding:0;color:#0b5c4d;text-decoration:none;background:transparent;border:0;font-size:12px;font-weight:800;cursor:pointer}.os-main .tk-sunday-help-status{color:#0b5c4d!important;font-weight:800}
+.os-main .tk-sunday-state-note{padding:24px 0;border-top:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule)}.os-main .tk-sunday-state-note h3{margin:0;color:#173730;font:600 25px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-sunday-state-note p{margin:7px 0;color:#68736e;font-size:14px}.os-main .tk-sunday-state-note button{padding:3px 0;color:#0d5e4e;background:transparent;border:0;font-weight:800;cursor:pointer}.os-main .tk-sunday-state-note.is-ready h3{color:#0e614e}
+.os-main .tk-inline-error,.os-main .tk-inline-success,.os-main .tk-loading-line{margin:0 0 18px;padding:11px 13px;font-size:13px}.os-main .tk-inline-error{color:#8c332a;background:#f8e9e5}.os-main .tk-inline-success{color:#155e4c;background:#e5f1eb}.os-main .tk-loading-line{padding-left:0;color:#6b7672;background:transparent}
+@media (max-width:900px){
+  .os-main .tk-sunday-service-head{display:grid;gap:16px}
+  .os-main .tk-sunday-service-actions{justify-content:flex-start;flex-wrap:wrap}
+  .os-main .tk-sunday-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+  .os-main .tk-sunday-metric{min-height:75px;padding:13px 18px;border-bottom:1px solid var(--tk-rule)}
+  .os-main .tk-sunday-metric:nth-child(odd){padding-left:2px;border-left:0}.os-main .tk-sunday-metric:nth-last-child(-n+2){border-bottom:0}
+}
+@media (max-width:640px){
+  .os-main .tk-sunday-service-picker{display:block}
+  .os-main .tk-sunday-service-picker select{width:100%;font-size:26px}
+  .os-main .tk-sunday-service-actions{gap:13px}
+  .os-main .tk-sunday-status{flex-basis:100%}
+  .os-main .tk-sunday-metrics{grid-template-columns:1fr}
+  .os-main .tk-sunday-metric,.os-main .tk-sunday-metric:nth-child(odd){min-height:0;padding:13px 2px;border-left:0;border-bottom:1px solid var(--tk-rule)}.os-main .tk-sunday-metric:last-child{border-bottom:0}
+  .os-main .tk-sunday-tabs{overflow-x:auto}.os-main .tk-sunday-tabs [role="tablist"]{width:max-content;gap:27px}
+  .os-main .tk-sunday-issues>li{grid-template-columns:44px minmax(0,1fr);gap:11px;padding:16px 0}
+  .os-main .tk-sunday-issue-icon{width:40px;height:40px}
+  .os-main .tk-sunday-issue-action{grid-column:2;justify-self:start;padding-top:2px}
+  .os-main .tk-sunday-help-band{display:grid;gap:7px;padding:9px 10px}
+}
+/* 0014 FULL-WIDTH CALENDAR ------------------------------------------------- */
+.os-main .tk-calendar-page{max-width:1540px}
+.os-main .tk-calendar-page .tk-page-header{margin-bottom:24px}
+.os-main .tk-calendar-add{min-width:150px}
+.os-main .tk-calendar-toolbar{display:flex;align-items:center;justify-content:space-between;gap:30px;margin-bottom:18px}
+.os-main .tk-calendar-period{display:flex;align-items:center;gap:17px}
+.os-main .tk-calendar-period>button{display:grid;place-items:center;width:34px;height:36px;padding:0;color:#0d493d;background:transparent;border:0;font:400 33px/1 Georgia,"Times New Roman",serif;cursor:pointer}
+.os-main .tk-calendar-period h2{min-width:245px;margin:0;color:#12332c;font:600 30px/1.1 Georgia,"Times New Roman",serif;letter-spacing:-.025em}
+.os-main .tk-calendar-period .tk-calendar-today{display:inline-flex;width:auto;padding:0 10px;font:750 14px/1 Inter,ui-sans-serif,system-ui,sans-serif}
+.os-main .tk-calendar-views{display:flex;align-items:center;gap:26px}
+.os-main .tk-calendar-views button{padding:9px 4px;color:#6d7773;background:transparent;border:0;border-bottom:3px solid transparent;font-size:14px;font-weight:700;cursor:pointer}
+.os-main .tk-calendar-views button.active{color:#0d4f42;border-bottom-color:#0d6c59}
+.os-main .tk-calendar-scroll{width:100%;overflow-x:auto;border-top:1px solid var(--tk-rule);border-left:1px solid var(--tk-rule)}
+.os-main .tk-calendar-month{min-width:850px}
+.os-main .tk-calendar-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));color:#415650;font-size:10px;font-weight:850;letter-spacing:.13em;text-align:center;text-transform:uppercase}
+.os-main .tk-calendar-weekdays>div{padding:12px 8px;border-right:1px solid transparent}
+.os-main .tk-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.os-main .tk-calendar-grid>div{position:relative;min-width:0;padding:10px 11px;border-right:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule);background:rgba(255,255,255,.13)}
+.os-main .tk-calendar-grid>div.can-edit{cursor:pointer}.os-main .tk-calendar-grid>div.can-edit:hover{background:rgba(231,239,232,.38)}
+.os-main .tk-calendar-grid>div.is-outside{color:#a3aaa6;background:rgba(255,255,255,.06)}
+.os-main .tk-calendar-date{display:grid;place-items:center;width:27px;height:27px;color:#18372f;font:600 15px/1 Georgia,"Times New Roman",serif}
+.os-main .is-outside .tk-calendar-date{color:#9aa19e}.os-main .is-today .tk-calendar-date{border:2px solid #0d684f;border-radius:50%}
+.os-main .tk-calendar-events{display:grid;gap:4px;margin-top:7px}
+.os-main .tk-calendar-events button{display:grid;grid-template-columns:7px auto minmax(0,1fr);align-items:center;gap:6px;width:100%;padding:2px 0;color:#28473f;text-align:left;background:transparent;border:0;cursor:pointer}
+.os-main .tk-calendar-events button:hover strong{text-decoration:underline}.os-main .tk-calendar-events i,.os-main .tk-calendar-agenda i{width:7px;height:7px;border-radius:50%}
+.os-main .tk-calendar-events time{color:#5e6c67;font-size:11px;white-space:nowrap}.os-main .tk-calendar-events strong{overflow:hidden;font-size:11.5px;font-weight:650;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+.os-main .tk-calendar-more{padding-left:13px;color:#78827e;font-size:10.5px}
+.os-main .tk-calendar-agenda{border-top:1px solid var(--tk-rule)}
+.os-main .tk-calendar-agenda>ol{margin:0;padding:0;list-style:none}.os-main .tk-calendar-agenda>ol>li{display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;min-height:82px;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-calendar-agenda>ol>li>time{display:grid;color:#9a742a}.os-main .tk-calendar-agenda>ol>li>time b{font-size:9px;letter-spacing:.12em}.os-main .tk-calendar-agenda>ol>li>time strong{font:600 24px/1 Georgia,"Times New Roman",serif}
+.os-main .tk-calendar-agenda li>button{display:flex;align-items:center;gap:12px;width:100%;padding:16px 8px;color:#19372f;text-align:left;background:transparent;border:0;cursor:pointer}.os-main .tk-calendar-agenda li>button:hover{background:linear-gradient(90deg,rgba(231,239,232,.45),transparent)}
+.os-main .tk-calendar-agenda li>button>span{display:grid;gap:4px;min-width:0;flex:1}.os-main .tk-calendar-agenda li>button>span>strong{font-size:15px}.os-main .tk-calendar-agenda li>button small{color:var(--tk-muted);font-size:12px}.os-main .tk-calendar-agenda li>button>b{color:#0d5a49;font-size:13px}
+.os-main .tk-calendar-boundary{margin:13px 0 0;color:#77817d;font-size:11.5px}
+@media (max-width:980px){
+  .os-main .tk-page{padding:30px 24px 56px}
+  .os-main .tk-inbox-workspace{grid-template-columns:1fr;gap:34px}
+  .os-main .tk-inbox-queue-pane{padding-right:0;border-right:0}
+  .os-main .tk-inbox-review-pane{padding:28px 0 0;border-top:1px solid var(--tk-rule)}
+  .os-main .tk-task-ledger li{grid-template-columns:28px minmax(220px,1fr) 118px 48px}
+  .os-main .tk-task-owner{display:none}
+  .os-main .tk-calendar-page{padding-left:20px;padding-right:20px}
+  .os-main .tk-page-header{align-items:flex-start;margin-bottom:34px}
+  .os-main .tk-week-grid,.os-main .tk-week-member-grid{grid-template-columns:1fr;gap:36px}
+  .os-main .tk-next-up{padding:30px 0 0;border-top:1px solid var(--tk-rule);border-left:0}
+  .os-main .tk-handling-band{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .os-main .tk-calendar-toolbar{display:grid;grid-template-columns:1fr;align-items:flex-start;gap:10px}
+  .os-main .tk-calendar-period{flex-wrap:wrap;gap:8px}
+  .os-main .tk-calendar-period h2{min-width:190px;font-size:25px}
+  .os-main .tk-calendar-period .tk-calendar-today{order:4}
+  .os-main .tk-calendar-views{justify-self:start;gap:12px}
+}
+@media (max-width:640px){
+  .os-main .tk-page{padding:24px 16px 44px}
+  .os-main .tk-inbox-waiting{font-size:17px}
+  .os-main .tk-tabs{gap:18px;overflow-x:auto}
+  .os-main .tk-tabs button{flex:none;font-size:14px}
+  .os-main .tk-queue>li>button{grid-template-columns:40px minmax(0,1fr);gap:12px;padding-left:10px}
+  .os-main .tk-queue-icon{width:40px;height:40px}
+  .os-main .tk-queue .tk-status{grid-column:2;justify-self:start}
+  .os-main .tk-review-panel>header h2{font-size:30px}
+  .os-main .tk-review-actions{flex-wrap:wrap}
+  .os-main .tk-action-note{flex-basis:100%;margin-right:0}
+  .os-main .tk-action{flex:1}
+  .os-main .tk-tasks-page .tk-page-header{margin-bottom:18px}
+  .os-main .tk-add-task{min-width:0}
+  .os-main .tk-task-groups{gap:24px}
+  .os-main .tk-task-ledger li{grid-template-columns:26px minmax(0,1fr) auto;gap:11px;min-height:64px;padding:11px 0}
+  .os-main .tk-task-copy strong{font-size:16px;white-space:normal}
+  .os-main .tk-task-ledger time{grid-column:3;grid-row:1;font-size:12px}
+  .os-main .tk-task-delete{display:none}
+  .os-main .tk-calendar-toolbar{display:grid;grid-template-columns:1fr;align-items:flex-start;gap:10px}
+  .os-main .tk-calendar-period{flex-wrap:wrap;gap:8px}
+  .os-main .tk-calendar-period h2{min-width:190px;font-size:25px}
+  .os-main .tk-calendar-period .tk-calendar-today{order:4}
+  .os-main .tk-calendar-views{justify-self:start;gap:12px}
+  .os-main .tk-calendar-month{min-width:760px}
+  .os-main .tk-page-header{display:grid;gap:18px}
+  .os-main .tk-page-header h1{font-size:38px}
+  .os-main .tk-page-promise{font-size:16px}
+  .os-main .tk-section-label h2{font-size:27px}
+  .os-main .tk-ledger-row>a,.os-main .tk-ledger-row>div{align-items:flex-start;gap:14px;min-height:0;padding:18px 0}
+  .os-main .tk-ledger-icon{width:44px;height:44px}
+  .os-main .tk-ledger-action{align-self:center;font-size:0}.os-main .tk-ledger-action:after{content:"→";font-size:18px}
+  .os-main .tk-timeline li{grid-template-columns:48px 14px minmax(0,1fr)}
+  .os-main .tk-timeline li>a{display:none}
+  .os-main .tk-timeline:before{left:64px}
+  .os-main .tk-handling-band{margin-top:30px;padding:22px 20px}
+}
+/* 0016 GROUPS DIRECTORY ------------------------------------------------- */
+.os-main .tk-groups-page{max-width:1540px}
+.os-main .tk-groups-tabs{display:flex;gap:36px;margin:-7px 0 25px;border-bottom:1px solid var(--tk-rule)}
+.os-main .tk-groups-tabs button{margin:0 0 -1px;padding:11px 4px 12px;color:#6b7772;background:transparent;border:0;border-bottom:3px solid transparent;font-size:15px;font-weight:680;cursor:pointer}.os-main .tk-groups-tabs button.active{color:#0c5a4a;border-bottom-color:#0d6654}
+.os-main .tk-groups-toolbar{display:grid;grid-template-columns:minmax(245px,1fr) 150px 170px auto;align-items:center;gap:12px;margin-bottom:24px}
+.os-main .tk-groups-toolbar>label:not(.tk-groups-toggle){position:relative;display:flex;align-items:center;height:46px;color:#64716c;background:rgba(255,255,255,.24);border:1px solid rgba(54,75,66,.22);border-radius:5px}.os-main .tk-groups-search{gap:10px;padding:0 13px}.os-main .tk-groups-search input{width:100%;height:100%;color:#1d3832;background:transparent;border:0;outline:0;font-size:14px}.os-main .tk-groups-toolbar select{width:100%;height:100%;padding:0 30px 0 13px;color:#1d3832;background:transparent;border:0;outline:0;appearance:auto;font-size:13px;font-weight:650}
+.os-main .tk-groups-toggle{display:flex;align-items:center;gap:9px;padding:0 3px;color:#425851;font-size:13px;white-space:nowrap;cursor:pointer}.os-main .tk-groups-toggle input{width:17px;height:17px;accent-color:#0d6654}
+.os-main .tk-groups-layout{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:38px}
+.os-main .tk-groups-directory-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:8px}.os-main .tk-groups-directory-head p{margin:0;color:#1b3a32;font:600 22px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-groups-directory-head span{color:#7a8580;font-size:11.5px}
+.os-main .tk-groups-columns,.os-main .tk-groups-ledger button{display:grid;grid-template-columns:minmax(190px,1.45fr) minmax(125px,.85fr) minmax(120px,.8fr) 62px minmax(130px,1fr) 84px;align-items:center;gap:18px}
+.os-main .tk-groups-columns{padding:10px 8px;color:#435750;font-size:9.5px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}.os-main .tk-groups-columns span:nth-child(4){text-align:center}
+.os-main .tk-groups-ledger{margin:0;padding:0;border-top:1px solid var(--tk-rule);list-style:none}.os-main .tk-groups-ledger li{border-bottom:1px solid var(--tk-rule)}.os-main .tk-groups-ledger li.is-archived{opacity:.65}
+.os-main .tk-groups-ledger button{width:100%;min-height:78px;padding:10px 8px;color:#425750;text-align:left;background:transparent;border:0;cursor:pointer}.os-main .tk-groups-ledger button:hover,.os-main .tk-groups-ledger button:focus-visible{background:rgba(223,232,220,.38);outline:0}.os-main .tk-groups-ledger button>span{min-width:0;font-size:12.5px;line-height:1.4}.os-main .tk-groups-ledger button>span:nth-child(4){text-align:center}.os-main .tk-groups-ledger button>span:nth-child(5){display:grid;gap:2px;overflow:hidden;text-overflow:ellipsis}.os-main .tk-groups-ledger button>span:nth-child(5)>small{color:#7a8580;font-size:10.5px}.os-main .tk-groups-ledger em{color:#838a87;font-style:italic}
+.os-main .tk-group-name{display:flex;align-items:center;gap:12px}.os-main .tk-group-name>i{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:50%;color:#0d5b4b;background:#e1ebe1}.os-main .tk-group-name>span{display:grid;gap:3px;min-width:0}.os-main .tk-group-name strong{overflow:hidden;color:#17372f;font:600 16px/1.25 Georgia,"Times New Roman",serif;text-overflow:ellipsis;white-space:nowrap}.os-main .tk-group-name small{overflow:hidden;color:#7a837f;font-size:10.5px;text-overflow:ellipsis;white-space:nowrap}
+.os-main .tk-groups-ledger .is-open,.os-main .tk-groups-ledger .is-closed{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700}.os-main .tk-groups-ledger .is-open{color:#17614f}.os-main .tk-groups-ledger .is-closed{color:#7b817e}.os-main .tk-groups-ledger .is-open i,.os-main .tk-groups-ledger .is-closed i{width:8px;height:8px;border-radius:50%;background:#8b918e}.os-main .tk-groups-ledger .is-open i{background:#71a264}
+.os-main .tk-groups-rail{display:grid;align-content:start;gap:30px;padding-left:30px;border-left:1px solid var(--tk-rule)}.os-main .tk-groups-rail section>header{padding-bottom:11px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-groups-rail h2{margin:2px 0 0;color:#17362f;font:600 22px/1.15 Georgia,"Times New Roman",serif}.os-main .tk-groups-rail ol{margin:0;padding:0;list-style:none}.os-main .tk-groups-rail li{border-bottom:1px solid var(--tk-rule)}.os-main .tk-groups-rail li button{display:grid;gap:4px;width:100%;padding:13px 0;color:#17362f;text-align:left;background:transparent;border:0;cursor:pointer}.os-main .tk-groups-rail li button:hover strong{color:#0d6654}.os-main .tk-groups-rail li strong{font-size:13px}.os-main .tk-groups-rail li span,.os-main .tk-groups-rail-empty{color:#737e79;font-size:11.5px}.os-main .tk-groups-rail-empty{margin:15px 0 0;line-height:1.5}
+.os-main .tk-groups-health dl{display:grid;margin:0}.os-main .tk-groups-health dl>div{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--tk-rule)}.os-main .tk-groups-health dt{color:#53655e;font-size:12px}.os-main .tk-groups-health dd{margin:0;color:#17362f;font:600 18px/1 Georgia,"Times New Roman",serif}.os-main .tk-groups-health>p{margin:13px 0 0;color:#7b8480;font-size:10.5px;line-height:1.5}
+.os-main .tk-groups-boundary{display:flex;align-items:center;gap:7px;margin:20px 0 0;color:#79837e;font-size:11px}.os-main .tk-groups-empty,.os-main .tk-groups-no-match{display:grid;justify-items:start;gap:8px;padding:40px 2px;border-top:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule)}.os-main .tk-groups-empty h2,.os-main .tk-groups-no-match h2{margin:0;color:#17362f;font:600 25px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-groups-empty p,.os-main .tk-groups-no-match p{margin:0;color:#6d7974;font-size:13px}.os-main .tk-groups-no-match button{padding:4px 0;color:#0d5b4b;background:transparent;border:0;font-weight:800;cursor:pointer}
+@media(max-width:1120px){.os-main .tk-groups-layout{grid-template-columns:1fr}.os-main .tk-groups-rail{grid-template-columns:repeat(2,minmax(0,1fr));padding:25px 0 0;border-top:1px solid var(--tk-rule);border-left:0}.os-main .tk-groups-columns,.os-main .tk-groups-ledger button{grid-template-columns:minmax(190px,1.35fr) minmax(120px,.8fr) minmax(110px,.7fr) 55px minmax(120px,.9fr) 75px;gap:12px}}
+@media(max-width:820px){.os-main .tk-groups-toolbar{grid-template-columns:1fr 1fr}.os-main .tk-groups-search{grid-column:1/-1}.os-main .tk-groups-columns{display:none}.os-main .tk-groups-ledger button{grid-template-columns:minmax(0,1fr) auto;gap:7px 14px;padding:14px 2px}.os-main .tk-groups-ledger button>span:not(.tk-group-name):not(.is-open):not(.is-closed){grid-column:1;padding-left:50px}.os-main .tk-groups-ledger button>span:nth-child(2):before{content:"Meets · ";color:#8a918e}.os-main .tk-groups-ledger button>span:nth-child(3):before{content:"Leader · ";color:#8a918e}.os-main .tk-groups-ledger button>span:nth-child(4){display:none}.os-main .tk-groups-ledger button>span:nth-child(5){display:none}.os-main .tk-groups-ledger .is-open,.os-main .tk-groups-ledger .is-closed{grid-column:2;grid-row:1}.os-main .tk-groups-directory-head span{display:none}}
+@media(max-width:600px){.os-main .tk-groups-toolbar{grid-template-columns:1fr}.os-main .tk-groups-search{grid-column:auto}.os-main .tk-groups-rail{grid-template-columns:1fr}.os-main .tk-groups-toggle{min-height:38px}.os-main .tk-groups-tabs{overflow:auto}.os-main .tk-groups-page .tk-page-actions{align-items:flex-start;flex-direction:column}}
+
+/* 0017 KIDS SAFE CHECK-IN ---------------------------------------------- */
+.os-main .tk-kids-page{max-width:1540px}.os-main .tk-kids-tabs{display:flex;gap:40px;margin:-5px 0 18px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-kids-tabs button{margin:0 0 -1px;padding:11px 4px 12px;color:#687570;background:transparent;border:0;border-bottom:3px solid transparent;font-size:15px;font-weight:680;cursor:pointer}.os-main .tk-kids-tabs button.active{color:#0d5849;border-bottom-color:#0d6654}.os-main .tk-kids-safety{display:flex;align-items:center;gap:11px;margin:0 0 20px;padding:0 0 18px;color:#50655d;border-bottom:1px solid var(--tk-rule);font-size:12.5px}.os-main .tk-kids-safety svg{color:#0d5c4c}
+.os-main .tk-kids-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:34px}.os-main .tk-kids-rooms>header{padding:0 0 9px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-kids-rooms>header p{margin:0;color:#9a6c17;font-size:11px;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.os-main .tk-kids-rooms>ol{margin:0;padding:0;list-style:none}.os-main .tk-kids-rooms>ol>li{display:grid;grid-template-columns:58px minmax(0,1fr) 170px;gap:18px;padding:17px 4px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-kids-room-icon{display:grid;place-items:center;width:50px;height:50px;border-radius:50%;color:#0d5b4b;background:#e1ebe1}.os-main .tk-kids-room-copy{display:grid;align-content:start;gap:5px;min-width:0}.os-main .tk-kids-room-copy>div{display:flex;align-items:center;gap:14px;min-width:0}.os-main .tk-kids-room-copy h2{margin:0;color:#15362e;font:600 23px/1.15 Georgia,"Times New Roman",serif}.os-main .tk-kids-room-copy>div>span{display:flex;align-items:center;gap:7px;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:750}.os-main .tk-kids-room-copy>div>span i{width:8px;height:8px;border-radius:50%}.os-main .tk-kids-room-copy .ok{color:#185945;background:#e2eee6}.os-main .tk-kids-room-copy .ok i{background:#2f875f}.os-main .tk-kids-room-copy .warn{color:#7b5819;background:#f5ead1}.os-main .tk-kids-room-copy .warn i{background:#c38a19}.os-main .tk-kids-room-copy p,.os-main .tk-kids-room-copy small{margin:0;color:#53675f;font-size:12px}.os-main .tk-kids-room-copy small{color:#74807b}.os-main .tk-kids-room-actions{display:grid;align-content:start;justify-items:stretch;gap:3px}.os-main .tk-kids-room-actions .tk-action{min-height:38px;padding:7px 11px}.os-main .tk-kids-edit{justify-self:center;padding:4px;color:#7a847f;background:transparent;border:0;font-size:10px;cursor:pointer;opacity:0}.os-main .tk-kids-rooms li:hover .tk-kids-edit{opacity:1}
+.os-main .tk-kids-present{grid-column:2/-1;margin:5px 0 0;padding:8px 0 0;border-top:1px dashed var(--tk-rule);list-style:none}.os-main .tk-kids-present li{display:flex;align-items:center;gap:12px;padding:7px 0}.os-main .tk-kids-present span{display:grid;flex:1}.os-main .tk-kids-present strong{font-size:12px}.os-main .tk-kids-present small{color:#7c8581;font-size:10.5px}.os-main .tk-kids-present b{color:#873c30;font-size:10px}.os-main .tk-kids-present button{padding:5px 8px;color:#0d5c4c;background:transparent;border:1px solid rgba(16,46,39,.2);border-radius:5px;font-size:10px;font-weight:750}
+.os-main .tk-kids-rail{display:grid;align-content:start;gap:24px;padding-left:28px;border-left:1px solid var(--tk-rule)}.os-main .tk-kids-rail section>h2{margin:0;padding:0 0 9px;color:#17362f;border-bottom:1px solid var(--tk-rule);font:600 22px/1.15 Georgia,"Times New Roman",serif}.os-main .tk-kids-rail dl{display:grid;margin:0}.os-main .tk-kids-rail dl>div{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--tk-rule)}.os-main .tk-kids-rail dt{order:2;flex:1;color:#4f625b;font-size:12px}.os-main .tk-kids-rail dd{order:1;width:28px;margin:0;color:#17362f;font:600 19px/1 Georgia,"Times New Roman",serif}.os-main .tk-kids-rail dl>div.warn dt,.os-main .tk-kids-rail dl>div.warn dd{color:#a26116}.os-main .tk-kids-rail section>ul{margin:0;padding:0;list-style:none}.os-main .tk-kids-rail section>ul li{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:8px;padding:9px 0;color:#405850;font-size:11.5px}.os-main .tk-kids-rail section>ul li b{padding:4px 7px;color:#165846;background:#e3eee6;border-radius:5px;font-size:10px}.os-main .tk-kids-rail section>button{padding:6px 0;color:#0d5c4c;background:transparent;border:0;border-bottom:1px solid #0d5c4c;font-size:12px;font-weight:750;cursor:pointer}.os-main .tk-kids-privacy{display:flex;align-items:flex-start;gap:9px;margin:0;padding-top:18px;color:#53665e;border-top:1px solid var(--tk-rule);font-size:11px;line-height:1.45}
+.os-main .tk-kids-ledger-view>header{display:flex;align-items:end;justify-content:space-between;gap:20px;padding-bottom:14px}.os-main .tk-kids-ledger-view>header h2{margin:0;color:#17362f;font:600 24px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-kids-ledger-view>header p{margin:0;color:#6e7a75;font-size:12px}.os-main .tk-kids-ledger-view>ol{margin:0;padding:0;border-top:1px solid var(--tk-rule);list-style:none}.os-main .tk-kids-ledger-view>ol>li{border-bottom:1px solid var(--tk-rule)}.os-main .tk-kids-ledger-view>ol>li>button,.os-main .tk-kids-ledger-view>ol>li>div{display:flex;align-items:center;gap:18px;width:100%;min-height:68px;padding:11px 4px;color:#28433b;text-align:left;background:transparent;border:0}.os-main .tk-kids-ledger-view>ol>li>button{cursor:pointer}.os-main .tk-kids-ledger-view>ol>li>button:hover{background:rgba(223,232,220,.36)}.os-main .tk-kids-ledger-view>ol span:first-child{display:grid;gap:3px;min-width:0;flex:1}.os-main .tk-kids-ledger-view strong{font:600 17px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-kids-ledger-view small{overflow:hidden;color:#74807b;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.os-main .tk-kids-tags{display:flex!important;align-items:center;justify-content:flex-end;flex-direction:row!important;gap:6px!important}.os-main .tk-kids-tags b{padding:4px 8px;color:#165846;background:#e3eee6;border-radius:999px;font-size:10px}.os-main .tk-kids-tags b.warn{color:#7b5819;background:#f5ead1}.os-main .tk-kids-tags b.neutral{color:#68736f;background:#ecebe5}.os-main .tk-kids-ledger-view>ol>li>button>i{color:#0d5c4c;font:500 24px/1 Georgia,"Times New Roman",serif}.os-main .tk-kids-empty,.os-main .tk-kids-restricted{display:grid;justify-items:start;gap:8px;padding:38px 2px;border-top:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule)}.os-main .tk-kids-empty h2,.os-main .tk-kids-restricted h2{margin:0;color:#17362f;font:600 24px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-kids-empty p,.os-main .tk-kids-restricted p{margin:0;color:#6e7975;font-size:13px}.os-main .tk-kids-empty a{color:#0d5c4c;font-size:13px;font-weight:750}.os-main .tk-kids-restricted{grid-template-columns:38px 1fr}.os-main .tk-kids-restricted>div{display:grid;gap:6px}
+@media(max-width:1050px){.os-main .tk-kids-layout{grid-template-columns:1fr}.os-main .tk-kids-rail{grid-template-columns:repeat(2,minmax(0,1fr));padding:24px 0 0;border-top:1px solid var(--tk-rule);border-left:0}.os-main .tk-kids-privacy{grid-column:1/-1}}
+@media(max-width:700px){.os-main .tk-kids-rooms>ol>li{grid-template-columns:48px minmax(0,1fr)}.os-main .tk-kids-room-actions{grid-column:2;justify-items:start}.os-main .tk-kids-present{grid-column:2}.os-main .tk-kids-rail{grid-template-columns:1fr}.os-main .tk-kids-ledger-view>header{align-items:flex-start;flex-direction:column}.os-main .tk-kids-tags{display:none!important}.os-main .tk-kids-page .tk-page-actions{align-items:flex-start}}
+
+/* 0018 EVENTS SIGN-UP LEDGER ------------------------------------------- */
+.os-main .tk-events-page{max-width:1540px}.os-main .tk-events-source{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:-19px 0 8px;color:#65736d;font-size:11px}.os-main .tk-events-tabs{display:flex;gap:40px;margin:0 0 22px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-events-tabs button{margin:0 0 -1px;padding:11px 4px 12px;color:#6a7672;background:transparent;border:0;border-bottom:3px solid transparent;font-size:15px;font-weight:680;cursor:pointer}.os-main .tk-events-tabs button.active{color:#0d5b4b;border-bottom-color:#0d6654}.os-main .tk-events-toolbar{display:flex;align-items:center;gap:16px;margin-bottom:24px}.os-main .tk-events-toolbar label{display:flex;align-items:center;gap:10px;flex:1;max-width:440px;height:45px;padding:0 4px;color:#61716a;border-bottom:1px solid #48665c}.os-main .tk-events-toolbar input{width:100%;height:100%;color:#1d3832;background:transparent;border:0;outline:0;font-size:14px}.os-main .tk-events-toolbar select{height:40px;padding:0 30px 0 12px;color:#28463e;background:rgba(255,255,255,.25);border:1px solid rgba(54,75,66,.22);border-radius:5px;font-size:12px;font-weight:650}
+.os-main .tk-events-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:36px}.os-main .tk-events-directory>header{padding:0 0 9px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-events-directory>header p{margin:0;color:#a26712;font-size:11px;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.os-main .tk-events-columns,.os-main .tk-events-directory>ol button{display:grid;grid-template-columns:58px minmax(180px,1.3fr) minmax(160px,1fr) 82px minmax(145px,.9fr) 20px;align-items:center;gap:14px}.os-main .tk-events-columns{padding:10px 7px;color:#40564f;font-size:9.5px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}.os-main .tk-events-directory>ol{margin:0;padding:0;list-style:none}.os-main .tk-events-directory>ol li{border-top:1px solid var(--tk-rule)}.os-main .tk-events-directory>ol li:first-child{border-top:0}.os-main .tk-events-directory>ol button{width:100%;min-height:74px;padding:10px 7px;color:#40574f;text-align:left;background:transparent;border:0;cursor:pointer}.os-main .tk-events-directory>ol button:hover{background:rgba(223,232,220,.36)}.os-main .tk-events-directory time{display:grid;color:#193d34}.os-main .tk-events-directory time b{font-size:9px;letter-spacing:.08em}.os-main .tk-events-directory time strong{font:600 22px/1 Georgia,"Times New Roman",serif}.os-main .tk-events-directory>ol button>strong{color:#17372f;font:600 16px/1.25 Georgia,"Times New Roman",serif}.os-main .tk-events-directory>ol button>span{font-size:11.5px;line-height:1.4}.os-main .tk-events-directory>ol button>b:not(time b){justify-self:start;padding:4px 9px;border-radius:5px;font-size:10px}.os-main .tk-events-directory>ol .open{color:#165847;background:#e3eee7}.os-main .tk-events-directory>ol .full{color:#873d32;background:#f3dfdc}.os-main .tk-events-directory>ol .closed{color:#76581d;background:#f5ead4}.os-main .tk-events-directory>ol button>i{justify-self:end;color:#0d5c4c;font-size:17px}
+.os-main .tk-events-rail{display:grid;align-content:start;gap:27px;padding-left:28px;border-left:1px solid var(--tk-rule)}.os-main .tk-events-rail section>h2,.os-main .tk-events-settings h2{margin:0;padding:0 0 9px;color:#17362f;border-bottom:1px solid var(--tk-rule);font:600 22px/1.15 Georgia,"Times New Roman",serif}.os-main .tk-events-published{display:flex;align-items:center;gap:10px;margin:13px 0}.os-main .tk-events-published strong{color:#1a5749;font-size:12px}.os-main .tk-events-url{overflow:hidden;margin:9px 0;color:#0d5c4c;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.os-main .tk-events-link-actions{display:flex;gap:18px}.os-main .tk-events-link-actions button,.os-main .tk-events-link-actions a,.os-main .tk-events-public-details button,.os-main .tk-events-public-details a{padding:5px 0;color:#0d5c4c;background:transparent;border:0;border-bottom:1px solid #0d5c4c;font-size:11px;font-weight:750;text-decoration:none;cursor:pointer}.os-main .tk-events-qr{display:grid;grid-template-columns:78px 1fr;gap:12px;margin-top:14px;align-items:center}.os-main .tk-events-qr img{width:78px;height:78px}.os-main .tk-events-qr p{margin:0;color:#687771;font-size:10px;line-height:1.45}.os-main .tk-events-rail dl{display:grid;margin:0}.os-main .tk-events-rail dl>div{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--tk-rule)}.os-main .tk-events-rail dd{width:31px;margin:0;color:#17362f;font:600 18px/1 Georgia,"Times New Roman",serif}.os-main .tk-events-rail dt{color:#53665f;font-size:11.5px}.os-main .tk-events-empty{display:grid;justify-items:start;gap:8px;padding:38px 2px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-events-empty h2{margin:0;color:#17362f;font:600 24px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-events-empty p{margin:0;color:#6d7974;font-size:13px}.os-main .tk-events-empty a{color:#0d5c4c;font-size:13px;font-weight:750}
+.os-main .tk-events-settings{max-width:800px}.os-main .tk-events-settings>header p{margin:8px 0 20px;color:#6b7772;font-size:13px}.os-main .tk-events-publish{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;border-top:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule)}.os-main .tk-events-publish>div{display:grid;gap:4px}.os-main .tk-events-publish strong{color:#1e3d35}.os-main .tk-events-publish span{color:#6c7873;font-size:12px}.os-main .tk-events-public-details{display:grid;grid-template-columns:130px 1fr;gap:20px;margin-top:22px}.os-main .tk-events-public-details img{width:130px;height:130px}.os-main .tk-events-public-details>div{display:grid;align-content:start;gap:10px}.os-main .tk-events-public-details>div>strong{overflow:hidden;color:#0d5c4c;font-size:12px;text-overflow:ellipsis}.os-main .tk-events-public-details p{margin:0;color:#63726b;font-size:12px;line-height:1.5}.os-main .tk-events-public-details>div>div{display:flex;gap:18px}
+@media(max-width:1050px){.os-main .tk-events-layout{grid-template-columns:1fr}.os-main .tk-events-rail{grid-template-columns:repeat(2,minmax(0,1fr));padding:24px 0 0;border-top:1px solid var(--tk-rule);border-left:0}.os-main .tk-events-columns,.os-main .tk-events-directory>ol button{grid-template-columns:50px minmax(160px,1.2fr) minmax(140px,1fr) 75px minmax(130px,.8fr) 18px;gap:10px}}
+@media(max-width:760px){.os-main .tk-events-source{justify-content:flex-start;margin:0 0 12px}.os-main .tk-events-columns{display:none}.os-main .tk-events-directory>ol button{grid-template-columns:46px minmax(0,1fr) auto;gap:7px 12px;padding:13px 2px}.os-main .tk-events-directory>ol button>span:nth-of-type(1){grid-column:2}.os-main .tk-events-directory>ol button>b{grid-column:3;grid-row:1}.os-main .tk-events-directory>ol button>span:nth-of-type(2){grid-column:2/-1}.os-main .tk-events-directory>ol button>i{display:none}.os-main .tk-events-rail{grid-template-columns:1fr}.os-main .tk-events-tabs{gap:22px;overflow:auto}.os-main .tk-events-tabs button{flex:none}.os-main .tk-events-public-details{grid-template-columns:1fr}.os-main .tk-events-page .tk-page-actions{align-items:flex-start;flex-direction:column}}
+
+/* 0019 MESSAGES CHANNEL WORKSPACE -------------------------------------- */
+.os-main .tk-messages-page{display:flex;flex-direction:column;max-width:1540px;min-height:calc(100vh - var(--top));padding-bottom:28px}.os-main .tk-messages-page .tk-page-header{flex:none;margin-bottom:16px}.os-main .tk-messages-page>.msg-app{flex:1;min-height:620px;padding:0;gap:0}.os-main .tk-messages-page .msg-tabs{justify-content:flex-start;gap:38px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-messages-page .msg-tabs button{margin:0 0 -1px;padding:11px 4px 12px;color:#687570;background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;font-size:14px;font-weight:680}.os-main .tk-messages-page .msg-tabs button:hover{background:transparent;color:#0d5b4b}.os-main .tk-messages-page .msg-tabs button.active{color:#0d5b4b;background:transparent;border-bottom-color:#b18a3c}.os-main .tk-messages-page .msg-tabs b{color:#684f1c;background:#efe4c6}.os-main .tk-messages-page .msg-cols{gap:0;margin-top:12px;border:1px solid rgba(68,79,72,.16);background:rgba(255,255,255,.30)}.os-main .tk-messages-page .msg-left,.os-main .tk-messages-page .msg-center,.os-main .tk-messages-page .msg-rail{background:rgba(255,255,255,.18);border:0;border-radius:0;box-shadow:none}.os-main .tk-messages-page .msg-left{width:330px;padding:14px;border-right:1px solid var(--tk-rule)}.os-main .tk-messages-page .msg-rail{border-left:1px solid var(--tk-rule)}.os-main .tk-messages-page .msg-filter input{height:44px;background:rgba(255,255,255,.34);border-color:rgba(54,75,66,.18);border-radius:5px}.os-main .tk-messages-page .msg-row{min-height:58px;border-radius:5px}.os-main .tk-messages-page .msg-row.active{background:linear-gradient(90deg,rgba(239,233,215,.88),rgba(239,233,215,.38));box-shadow:none}.os-main .tk-messages-page .msg-row-icon{background:transparent}.os-main .tk-messages-page .msg-head{min-height:66px;background:rgba(255,255,255,.26);border-bottom:1px solid var(--tk-rule)}.os-main .tk-messages-page .msg-head-title h2{font:600 24px/1.15 Georgia,"Times New Roman",serif}.os-main .tk-messages-page .msg-timeline{padding:26px 28px}.os-main .tk-messages-page .msg-day{letter-spacing:.14em}.os-main .tk-messages-page .msg-composer{background:rgba(255,255,255,.30);border-top:1px solid var(--tk-rule)}.os-main .tk-messages-page .msg-btn{background:transparent;border:0;color:#0d5c4c;font-weight:750}.os-main .tk-messages-page .msg-btn:hover{background:rgba(223,232,220,.5)}
+@media(max-width:900px){.os-main .tk-messages-page .msg-left{width:285px}.os-main .tk-messages-page>.msg-app{min-height:560px}.os-main .tk-messages-page .msg-tabs{gap:20px;overflow:auto}.os-main .tk-messages-page .msg-tabs button{flex:none}}
+@media(max-width:700px){.os-main .tk-messages-page .msg-cols{border-right:0;border-left:0}.os-main .tk-messages-page .msg-left{width:100%;border-right:0}.os-main .tk-messages-page .msg-center{width:100%}.os-main .tk-messages-page .msg-timeline{padding:20px 16px}.os-main .tk-messages-page .tk-page-actions{align-items:flex-start}}
+
+/* 0020 MEDIA SUNDAY WORKSPACE ------------------------------------------ */
+.os-main .tk-media-page{max-width:1580px}.os-main .tk-media-tabs{display:flex;gap:40px;margin:-5px 0 17px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-media-tabs button{margin:0 0 -1px;padding:11px 4px 12px;color:#66736e;background:transparent;border:0;border-bottom:3px solid transparent;font-size:15px;font-weight:680;cursor:pointer}.os-main .tk-media-tabs button.active{color:#0d5b4b;border-bottom-color:#b18a3c}.os-main .tk-slides-toolbar{display:flex;align-items:center;gap:18px;min-height:60px;padding:7px 0 15px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-slides-toolbar>select{width:min(360px,34vw);height:43px;padding:0 34px 0 13px;color:#1d3932;background:rgba(255,255,255,.3);border:1px solid rgba(54,75,66,.2);border-radius:5px;font-size:13px;font-weight:650}.os-main .tk-slides-toolbar>span{color:#687670;font-size:12px}.os-main .tk-slides-toolbar>div{display:flex;align-items:center;gap:8px;margin-left:auto}.os-main .tk-slides-toolbar .tk-action{min-height:39px;padding:7px 13px}.os-main .tk-media-saved{margin:10px 0;padding:9px 12px;color:#175846;background:#e3eee7;font-size:12px}
+.os-main .tk-slides-grid{display:grid;grid-template-columns:290px minmax(380px,1fr) 290px;min-height:580px}.os-main .tk-slides-list{padding:17px 16px 0 0;border-right:1px solid var(--tk-rule)}.os-main .tk-slides-list>h2,.os-main .tk-slide-inspector>h2{margin:0 0 10px;color:#9a6b18;font-size:10px;font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.os-main .tk-slides-list>ol{margin:0;padding:0;list-style:none}.os-main .tk-slides-list li{position:relative;display:flex;align-items:center;border-bottom:1px solid var(--tk-rule)}.os-main .tk-slides-list li.active{background:linear-gradient(90deg,rgba(239,233,215,.92),rgba(239,233,215,.38));box-shadow:inset 2px 0 #b18a3c}.os-main .tk-slides-list li.excluded{opacity:.5}.os-main .tk-slides-list li>button{display:grid;grid-template-columns:22px 92px minmax(0,1fr);align-items:center;gap:9px;flex:1;min-width:0;padding:7px 5px;color:#25433b;text-align:left;background:transparent;border:0;cursor:pointer}.os-main .tk-slides-list li>button>span:first-child{color:#7b8580;font-size:11px;text-align:center}.os-main .tk-slide-thumb{width:92px}.os-main .tk-slide-thumb>div{border-radius:2px!important}.os-main .tk-slides-list li strong{overflow:hidden;font-size:11.5px;text-overflow:ellipsis;white-space:nowrap}.os-main .tk-slides-list li>label{padding:0 6px}.os-main .tk-slides-list input{width:16px;height:16px;accent-color:#0d6654}
+.os-main .tk-slide-stage{display:grid;align-content:center;gap:8px;padding:28px 24px}.os-main .tk-slide-stage>div{border:0!important;border-radius:0!important;box-shadow:0 12px 30px rgba(31,38,32,.13)}.os-main .tk-slide-stage>p{margin:0;color:#7b8580;font-size:10.5px;text-align:center}.os-main .tk-slide-inspector{display:grid;align-content:start;gap:14px;padding:17px 0 0 20px;border-left:1px solid var(--tk-rule)}.os-main .tk-slide-inspector>h2{color:#17362f;font:600 21px/1.2 Georgia,"Times New Roman",serif;letter-spacing:0;text-transform:none}.os-main .tk-slide-inspector label{font-size:12px}.os-main .tk-slide-include{display:flex!important;align-items:center;gap:9px!important;padding:4px 0 10px}.os-main .tk-slide-include input{width:20px;height:20px;accent-color:#0d6654}.os-main .tk-slide-inspector input,.os-main .tk-slide-inspector textarea{background:rgba(255,255,255,.38);border-radius:5px}.os-main .tk-slide-team-note{margin:0;padding:12px;color:#66736e;background:rgba(255,255,255,.34);font-size:11px;line-height:1.5}.os-main .tk-slide-order{display:flex;gap:20px;margin-top:16px;padding-top:17px;border-top:1px solid var(--tk-rule)}.os-main .tk-slide-order button{padding:5px 0;color:#9a6b18;background:transparent;border:0;font-size:11px;font-weight:750;cursor:pointer}.os-main .tk-slide-order button:disabled{opacity:.35}.os-main .tk-media-empty{display:grid;justify-items:start;gap:8px;padding:42px 2px;border-top:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule)}.os-main .tk-media-empty h2{margin:0;color:#17362f;font:600 24px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-media-empty p{margin:0;color:#6d7974;font-size:13px}.os-main .tk-media-empty a{color:#0d5c4c;font-size:13px;font-weight:750}.os-main .tk-media-secondary{padding-top:8px}.os-main .tk-media-secondary>.grid{gap:18px}
+@media(max-width:1160px){.os-main .tk-slides-grid{grid-template-columns:250px minmax(360px,1fr)}.os-main .tk-slide-inspector{grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));padding:22px 0 0;border-top:1px solid var(--tk-rule);border-left:0}.os-main .tk-slide-inspector>h2,.os-main .tk-slide-include,.os-main .tk-slide-order{grid-column:1/-1}}
+@media(max-width:760px){.os-main .tk-slides-toolbar{align-items:flex-start;flex-direction:column}.os-main .tk-slides-toolbar>select{width:100%}.os-main .tk-slides-toolbar>div{flex-wrap:wrap;margin-left:0}.os-main .tk-slides-grid{grid-template-columns:1fr}.os-main .tk-slides-list{padding-right:0;border-right:0}.os-main .tk-slide-stage{padding:24px 0}.os-main .tk-slide-inspector{grid-template-columns:1fr}.os-main .tk-media-tabs{gap:22px;overflow:auto}.os-main .tk-media-tabs button{flex:none}}
+
+/* 0021 VAULT DOCUMENT LEDGER ------------------------------------------- */
+.os-main .tk-vault-page{max-width:1540px!important}.os-main .tk-vault-page>header{margin-bottom:24px!important}.os-main .tk-vault-page>header h1{color:#102e27;font-size:clamp(38px,3.7vw,54px)!important;letter-spacing:-.035em}.os-main .tk-vault-page>header p{max-width:760px;color:#62716b;font-size:15px}.os-main .tk-vault-page>header .churchos-btn{min-height:42px;color:#fff;background:#0d5547;border-color:#0d5547;border-radius:8px;font-weight:750}.os-main .tk-vault-page>div.grid{grid-template-columns:260px minmax(0,1fr)!important;gap:34px!important}.os-main .tk-vault-page aside[aria-label="Document folders"]{padding:0 24px 0 0!important;background:transparent!important;border:0!important;border-right:1px solid var(--tk-rule)!important;border-radius:0!important;box-shadow:none!important}.os-main .tk-vault-page aside[aria-label="Document folders"]>p{padding:4px 12px 9px!important}.os-main .tk-vault-page aside nav button{min-height:46px;padding:9px 12px!important;background:transparent!important;border-bottom:1px solid var(--tk-rule);border-radius:0!important}.os-main .tk-vault-page aside nav button[aria-current="true"]{background:linear-gradient(90deg,rgba(239,233,215,.9),rgba(239,233,215,.35))!important}.os-main .tk-vault-page aside nav button>span:first-child{inset-block:6px!important}.os-main .tk-vault-page main{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}.os-main .tk-vault-page main>header{padding:0 0 16px!important}.os-main .tk-vault-page main>header h2{color:#17362f;font-size:30px!important}.os-main .tk-vault-page main>header input,.os-main .tk-vault-page main>header select{height:44px!important;background:rgba(255,255,255,.34)!important;border-color:rgba(54,75,66,.2)!important;border-radius:5px!important}.os-main .tk-vault-page main table thead{color:#42584f}.os-main .tk-vault-page main table tr{height:62px!important}.os-main .tk-vault-page main table tbody tr:hover{background:rgba(223,232,220,.32)!important}.os-main .tk-vault-page main table td:first-child>div>span:first-child{border-radius:4px!important}.os-main .tk-vault-page main table td:last-child>span>button:first-child{padding:6px 16px!important;border:1px solid rgba(54,75,66,.2);border-radius:5px!important}.os-main .tk-vault-page main table td:last-child>span>button:not(:first-child){font-size:0!important}.os-main .tk-vault-page main table td:last-child>span>button:nth-child(2):after{content:"•••";font-size:13px;color:#26483f}.os-main .tk-vault-page main table td:last-child>span>button:nth-child(3){display:none}.os-main .tk-vault-page main>footer{padding:12px 0!important}
+@media(max-width:900px){.os-main .tk-vault-page{height:auto!important;min-height:calc(100vh - var(--top))}.os-main .tk-vault-page>div.grid{grid-template-columns:1fr!important}.os-main .tk-vault-page aside[aria-label="Document folders"]{max-height:240px;padding:0 0 18px!important;border-right:0!important;border-bottom:1px solid var(--tk-rule)!important}.os-main .tk-vault-page main{min-height:520px}.os-main .tk-vault-page main>header{align-items:flex-start;flex-direction:column}.os-main .tk-vault-page main>header>div:last-child{width:100%}.os-main .tk-vault-page main>header input{width:100%!important}}
+
+/* 0022 SERMON PLANNING LEDGER ------------------------------------------ */
+.os-main .tk-sermons-page>.churchos-page{max-width:1540px}.os-main .tk-sermons-page .churchos-page-head>div:first-child:before{content:"MESSAGE PLANNING";display:block;margin:0 0 4px;color:#9a711f;font-size:10px;font-weight:850;letter-spacing:.14em}.os-main .tk-sermons-page .churchos-page-head h1{color:#102e27;font-size:clamp(40px,3.8vw,56px)!important;letter-spacing:-.04em}.os-main .tk-sermons-page .churchos-page-head p{color:#62716b;font-size:16px}.os-main .tk-sermons-page .churchos-page-head .churchos-btn{min-height:42px;border-radius:7px;font-weight:750}.os-main .tk-sermons-page [role="tablist"]{display:flex;gap:36px;margin:0 0 17px;padding:0;background:transparent;border:0;border-bottom:1px solid var(--tk-rule);border-radius:0;box-shadow:none}.os-main .tk-sermons-page [role="tab"]{flex:none;padding:11px 4px 12px;color:#687570;background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;font-size:15px;font-weight:680}.os-main .tk-sermons-page [role="tab"][data-state="active"]{color:#0d5b4b;background:transparent;border-bottom-color:#0d6654;box-shadow:none}.os-main .tk-sermons-page [role="tab"]+span{display:none}.os-main .tk-sermons-page .mb-5.flex{display:grid;grid-template-columns:minmax(260px,1fr) 240px auto;gap:16px;margin-bottom:24px!important}.os-main .tk-sermons-page .mb-5.flex>input{max-width:none!important;height:44px;padding-left:38px;background:transparent;border-width:0 0 1px;border-radius:0}.os-main .tk-sermons-page .mb-5.flex>select{max-width:none!important;height:44px;background:rgba(255,255,255,.3);border-color:rgba(54,75,66,.2);border-radius:5px}.os-main .tk-sermons-page .mb-5.flex>div{display:grid!important;grid-template-columns:repeat(4,minmax(76px,1fr));gap:0!important}.os-main .tk-sermons-page .mb-5.flex>div button{border-color:rgba(54,75,66,.17)!important;border-radius:0!important}.os-main .tk-sermons-page .mb-5.flex>div button:first-child{border-radius:6px 0 0 6px!important}.os-main .tk-sermons-page .mb-5.flex>div button:last-child{border-radius:0 6px 6px 0!important}.os-main .tk-sermons-page section.mb-6{margin-bottom:24px!important}.os-main .tk-sermons-page section.mb-6>h3{margin:0!important;padding:0 0 9px!important;color:#9a711f!important;border-bottom:1px solid var(--tk-rule);font-size:10px!important}.os-main .tk-sermons-page section.mb-6>ul{background:rgba(255,255,255,.16)!important;border:0!important;border-radius:0!important;box-shadow:none!important}.os-main .tk-sermons-page section.mb-6>ul li button{min-height:76px;padding:11px 18px!important;border-bottom-color:var(--tk-rule)!important}.os-main .tk-sermons-page section.mb-6>ul li button:hover{background:rgba(223,232,220,.32)!important}.os-main .tk-sermons-page section.mb-6>ul li button>span:first-child{width:56px!important;height:56px!important;background:transparent!important;border-right:1px solid var(--tk-rule);border-radius:0!important}.os-main .tk-sermons-page section.mb-6>ul li button>span:first-child b{font-size:23px!important}.os-main .tk-sermons-page section.mb-6>ul li button>span:nth-child(2)>span:first-child{color:#17362f;font-size:18px!important}.os-main .tk-sermons-page section.mb-6>ul li button>span:nth-child(3){background:transparent!important;border-radius:0!important}.os-main .tk-sermons-page section.mb-6>ul li button>span:last-child{min-width:82px;justify-content:center;border-radius:6px!important}.os-main .tk-sermons-page>.churchos-page>div.grid{gap:18px}.os-main .tk-sermons-page>.churchos-page>div.grid>section{padding:20px!important;background:rgba(255,255,255,.18)!important;border-color:var(--tk-rule)!important;border-radius:4px!important;box-shadow:none!important}
+@media(max-width:900px){.os-main .tk-sermons-page .mb-5.flex{grid-template-columns:1fr 1fr}.os-main .tk-sermons-page .mb-5.flex>input{grid-column:1/-1}.os-main .tk-sermons-page .mb-5.flex>div{min-width:320px}}
+@media(max-width:650px){.os-main .tk-sermons-page .mb-5.flex{grid-template-columns:1fr}.os-main .tk-sermons-page .mb-5.flex>input{grid-column:auto}.os-main .tk-sermons-page .mb-5.flex>div{min-width:0}.os-main .tk-sermons-page section.mb-6>ul li button{gap:10px;padding-inline:4px!important}.os-main .tk-sermons-page section.mb-6>ul li button>span:nth-child(3){display:none!important}.os-main .tk-sermons-page .churchos-page-head{align-items:flex-start;flex-direction:column}}
+
+
+/* 0024 MORE DIRECTORY + FOCUSED NAVIGATION ----------------------------- */
+.os-main .tk-more-page{max-width:1540px}.os-main .tk-more-page .tk-page-head{padding-bottom:25px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-more-search{display:flex;align-items:center;gap:10px;width:310px;height:44px;color:#466259;border-bottom:1px solid #4f6a61}.os-main .tk-more-search input{width:100%;height:100%;color:#17362f;background:transparent;border:0;outline:0;font-size:14px}.os-main .tk-more-section{margin-top:19px}.os-main .tk-more-section>h2{margin:0;padding:0 0 10px;color:#9a711f;font:850 11px/1.2 Inter,ui-sans-serif,sans-serif;letter-spacing:.12em;text-transform:uppercase}.os-main .tk-more-section>ul{margin:0;padding:0 18px;background:rgba(255,255,255,.53);border:1px solid rgba(54,75,66,.12);list-style:none}.os-main .tk-more-section li{display:grid;grid-template-columns:58px 290px minmax(0,1fr) 130px;align-items:center;gap:14px;min-height:68px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-more-section li:last-child{border-bottom:0}.os-main .tk-more-icon{display:grid;place-items:center;width:42px;height:42px;color:#0e4c40}.os-main .tk-more-section strong{color:#17362f;font:600 21px/1.18 Georgia,"Times New Roman",serif}.os-main .tk-more-section p{margin:0;color:#61716a;font-size:13px}.os-main .tk-more-section button{justify-self:end;padding:8px 0;color:#0d5144;background:transparent;border:0;border-bottom:1px solid currentColor;font-size:12px;font-weight:800;cursor:pointer}.os-main .tk-more-section button span{margin-left:7px}.os-main .tk-more-restricted{display:flex;justify-self:end;align-items:center;gap:8px;color:#64716c;font-size:12px}.os-main .tk-more-footer{display:flex;align-items:center;gap:24px;padding:26px 1px;color:#64716c;font-size:12.5px}.os-main .tk-more-footer button{padding:5px 0;color:#0d5144;background:transparent;border:0;border-bottom:1px solid currentColor;font-weight:800;cursor:pointer}.os-main .tk-more-none{margin:0;padding:28px 2px;color:#65736e;border-top:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule)}.os-main .tk-more-preview{display:grid;justify-items:start;gap:12px}.os-main .tk-more-preview .tk-more-icon{width:52px;height:52px;background:#edf0e7;border-radius:50%}.os-main .tk-more-preview h2{margin:0;color:#17362f;font:600 29px/1.1 Georgia,"Times New Roman",serif}.os-main .tk-more-preview>p:not(.eyebrow){margin:0;color:#53665e;line-height:1.65}.os-main .tk-more-preview>div{display:grid;gap:5px;margin-top:8px;padding:16px 0;border-top:1px solid var(--tk-rule);border-bottom:1px solid var(--tk-rule)}.os-main .tk-more-preview>div strong{color:#18372f}.os-main .tk-more-preview>div span{color:#68756f;font-size:12px;line-height:1.5}.os-main .tk-sermons-page .churchos-empty{background:transparent!important;border-width:1px 0!important;border-radius:0!important;box-shadow:none!important}
+@media(max-width:900px){.os-main .tk-more-page .tk-page-head{align-items:flex-start;flex-direction:column}.os-main .tk-more-search{width:min(100%,420px)}.os-main .tk-more-section>ul{padding:0 10px}.os-main .tk-more-section li{grid-template-columns:44px minmax(0,1fr) auto;gap:8px;padding:12px 0}.os-main .tk-more-section li>p{grid-column:2/-1;padding-right:4px}.os-main .tk-more-section li>button,.os-main .tk-more-section .tk-more-restricted{grid-column:3;grid-row:1}.os-main .tk-more-section strong{font-size:18px}.os-main .tk-more-footer{align-items:flex-start;flex-direction:column;gap:10px}}
+
+
+/* 0025 HELP QUESTION LEDGER -------------------------------------------- */
+.os-main .tk-help-page{max-width:1540px}.os-main .tk-help-page .tk-page-head{padding-bottom:25px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-help-search{display:flex;align-items:center;gap:10px;width:300px;height:44px;color:#466259;border-bottom:1px solid #4f6a61}.os-main .tk-help-search input{width:100%;height:100%;color:#17362f;background:transparent;border:0;outline:0;font-size:14px}.os-main .tk-help-directory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px;margin-top:24px}.os-main .tk-help-directory section>h2{margin:0;padding:0 0 11px;color:#9a711f;border-bottom:1px solid var(--tk-rule);font:850 11px/1.2 Inter,ui-sans-serif,sans-serif;letter-spacing:.12em;text-transform:uppercase}.os-main .tk-help-directory details{background:rgba(255,255,255,.12);border-bottom:1px solid var(--tk-rule)}.os-main .tk-help-directory summary{display:grid;grid-template-columns:minmax(0,1fr) 22px;align-items:center;gap:12px;padding:16px 2px;color:#17362f;cursor:pointer;list-style:none}.os-main .tk-help-directory summary::-webkit-details-marker{display:none}.os-main .tk-help-directory summary span{font:600 17px/1.25 Georgia,"Times New Roman",serif}.os-main .tk-help-directory summary i{display:grid;place-items:center;width:20px;height:20px;color:#0d5b4b;font:400 20px/1 Inter,sans-serif;transition:transform .15s}.os-main .tk-help-directory details[open] summary i{transform:rotate(45deg)}.os-main .tk-help-directory details p{margin:-3px 28px 0 2px;padding:0 0 17px;color:#5e6d67;font-size:12.5px;line-height:1.65}.os-main .tk-help-empty{grid-column:1/-1;display:grid;justify-items:start;gap:8px;padding:34px 0;border-bottom:1px solid var(--tk-rule)}.os-main .tk-help-empty h2{margin:0;color:#17362f;font:600 24px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-help-empty p{margin:0;color:#66736e}.os-main .tk-help-empty button{padding:7px 0;color:#0d5b4b;background:transparent;border:0;border-bottom:1px solid currentColor;font-weight:800;cursor:pointer}
+@media(max-width:1000px){.os-main .tk-help-directory{grid-template-columns:1fr 1fr}.os-main .tk-help-page .tk-page-head{align-items:flex-start;flex-direction:column}.os-main .tk-help-search{width:min(100%,420px)}}
+@media(max-width:650px){.os-main .tk-help-directory{grid-template-columns:1fr;gap:26px}.os-main .tk-help-directory details p{margin-right:5px}}
+
+/* 0023 MISSIONS PARTNER LEDGER ----------------------------------------- */
+.os-main .tk-missions-page{max-width:1540px}.os-main .tk-missions-toolbar{display:flex;align-items:center;gap:28px;margin-bottom:25px}.os-main .tk-missions-toolbar>label{display:flex;align-items:center;gap:10px;flex:1;max-width:660px;height:45px;padding:0 4px;color:#64736c;border-bottom:1px solid #4f6a61}.os-main .tk-missions-toolbar input{width:100%;height:100%;color:#1d3932;background:transparent;border:0;outline:0;font-size:14px}.os-main .tk-missions-toolbar>div{display:grid;grid-template-columns:repeat(2,112px);margin-left:auto}.os-main .tk-missions-toolbar>div button{min-height:40px;color:#28483f;background:rgba(255,255,255,.24);border:1px solid rgba(54,75,66,.18);font-size:12px;font-weight:700;cursor:pointer}.os-main .tk-missions-toolbar>div button:first-child{border-radius:6px 0 0 6px}.os-main .tk-missions-toolbar>div button:last-child{border-radius:0 6px 6px 0}.os-main .tk-missions-toolbar>div button.active{color:#fff;background:#0d5547;border-color:#0d5547}.os-main .tk-missions-layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:38px}.os-main .tk-missions-directory>header{padding-bottom:9px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-missions-directory>header p{margin:0;color:#9a711f;font-size:10px;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.os-main .tk-missions-directory>ol{margin:0;padding:0;background:rgba(255,255,255,.2);list-style:none}.os-main .tk-missions-directory li{border-bottom:1px solid var(--tk-rule)}.os-main .tk-missions-directory li.is-archived{opacity:.62}.os-main .tk-missions-directory li button{display:grid;grid-template-columns:52px minmax(0,1fr) 110px 18px;align-items:center;gap:16px;width:100%;min-height:93px;padding:13px 16px;color:#29473e;text-align:left;background:transparent;border:0;cursor:pointer}.os-main .tk-missions-directory li button:hover{background:rgba(223,232,220,.34)}.os-main .tk-missions-directory li button>span:nth-child(2){display:grid;gap:3px;min-width:0}.os-main .tk-missions-directory strong{color:#17362f;font:600 18px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-missions-directory small{color:#5f7069;font-size:12px}.os-main .tk-missions-directory p{overflow:hidden;margin:1px 0 0;color:#6c7974;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.os-main .tk-missions-directory em{display:flex;align-items:center;gap:5px;color:#8d671f;font-size:10px;font-style:normal}.os-main .tk-missions-directory time{justify-self:end;color:#66756f;font-size:11px}.os-main .tk-missions-directory li button>i{justify-self:end;color:#0d5c4c;font:500 24px/1 Georgia,"Times New Roman",serif}
+.os-main .tk-missions-prayer{align-self:start;padding-left:26px;border-left:1px solid var(--tk-rule)}.os-main .tk-missions-prayer>header{padding:0 0 10px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-missions-prayer h2{margin:0;color:#17362f;font:600 23px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-missions-prayer h2 span{color:#66756f;font-size:13px}.os-main .tk-missions-prayer>ol{margin:0;padding:0;background:rgba(255,255,255,.2);list-style:none}.os-main .tk-missions-prayer>ol>li{display:grid;grid-template-columns:46px minmax(0,1fr);gap:14px;padding:17px 12px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-missions-prayer>ol>li>div{display:grid;gap:3px}.os-main .tk-missions-prayer time{justify-self:end;color:#6d7974;font-size:10px}.os-main .tk-missions-prayer strong{color:#17362f;font:600 16px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-missions-prayer p,.os-main .tk-missions-prayer small{margin:0;color:#52665e;font-size:11.5px}.os-main .tk-missions-prayer small{display:-webkit-box;overflow:hidden;color:#73807a;-webkit-box-orient:vertical;-webkit-line-clamp:2}.os-main .tk-missions-prayer button{justify-self:end;padding:5px 0;color:#0d5c4c;background:transparent;border:0;border-bottom:1px solid #0d5c4c;font-size:11px;font-weight:750;cursor:pointer}.os-main .tk-missions-prayer>footer{padding:15px 12px;color:#7a8580;font-size:10px}.os-main .tk-missions-prayer-empty{margin:0;padding:22px 2px;color:#6e7a75;font-size:12px;line-height:1.5}.os-main .tk-missions-empty{display:grid;justify-items:start;gap:8px;padding:38px 2px;border-bottom:1px solid var(--tk-rule)}.os-main .tk-missions-empty h2{margin:0;color:#17362f;font:600 24px/1.2 Georgia,"Times New Roman",serif}.os-main .tk-missions-empty p{margin:0;color:#6d7974;font-size:13px}
+@media(max-width:1000px){.os-main .tk-missions-layout{grid-template-columns:1fr}.os-main .tk-missions-prayer{padding:24px 0 0;border-top:1px solid var(--tk-rule);border-left:0}.os-main .tk-missions-prayer>ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.os-main .tk-missions-prayer>ol>li:nth-child(odd){border-right:1px solid var(--tk-rule)}}
+@media(max-width:650px){.os-main .tk-missions-toolbar{align-items:stretch;flex-direction:column}.os-main .tk-missions-toolbar>div{grid-template-columns:repeat(2,1fr);margin-left:0}.os-main .tk-missions-directory li button{grid-template-columns:45px minmax(0,1fr) 16px;gap:11px;padding-inline:3px}.os-main .tk-missions-directory time{display:none}.os-main .tk-missions-prayer>ol{grid-template-columns:1fr}.os-main .tk-missions-prayer>ol>li:nth-child(odd){border-right:0}.os-main .tk-missions-page .tk-page-actions{align-items:flex-start}}
+
+`;
+
 function ChurchOSSurface({ currentUser, onSignOut, onNavigateProduct }) {
 	useLayoutEffect(() => {
 		// 0003 parity/HMR boundary: standalone 0032 owns the entire authored stylesheet
@@ -57053,7 +56358,7 @@ function ChurchOSSurface({ currentUser, onSignOut, onNavigateProduct }) {
 
 		const el = document.createElement("style");
 		el.setAttribute("data-faithbid-church-os", "");
-		el.textContent = TOOLKIT_CSS + PLATFORM_PARITY_CSS + CHURCH_OS_HEADER_REFINEMENT_CSS + CHURCH_OS_CANVAS_TEXTURE_CSS + CHURCH_OS_MODERN_TOOLKIT_CSS;
+		el.textContent = TOOLKIT_CSS + PLATFORM_PARITY_CSS + CHURCH_OS_HEADER_REFINEMENT_CSS + CHURCH_OS_CANVAS_TEXTURE_CSS + CHURCH_OS_MODERN_TOOLKIT_CSS + CHURCH_TOOLKIT_QUIET_WORKSPACE_CSS;
 		document.head.appendChild(el);
 		quarantineForeignSheets();
 
@@ -57104,11 +56409,12 @@ return { ChurchOSSurface };
 export default function App() {
   const [screen, setScreen] = useState(() => readAppScreenFromHash(window.location.hash));
   const [dallasPilotOnly, setDallasPilotOnly] = useState(false);
+  const [navSubTab, setNavSubTab] = useState(() => readProjectSubTabFromHash(window.location.hash));
 
   useEffect(() => {
     const SCREEN_TITLES = {
       landing: 'FaithBid — Faith-Aligned Marketplace',
-      'church-os': 'Church OS — FaithBid',
+      'church-os': 'Church Toolkit — FaithBid',
       projects: 'Marketplace — FaithBid',
       vendor: 'Vendor Profile — FaithBid',
       'get-plugged-in': 'Get Plugged In — FaithBid',
@@ -57131,6 +56437,7 @@ export default function App() {
       growth: 'Growth Engine — FaithBid',
       concierge: 'Concierge Operations — FaithBid',
       qa: 'QA Console — FaithBid',
+      'not-found': 'Page Not Found — FaithBid',
       ambassador: 'Ambassador — FaithBid',
       partner: 'Partner — FaithBid',
       join: 'Join FaithBid',
@@ -57145,18 +56452,32 @@ export default function App() {
       reviews: 'Read and leave reviews for faith-aligned vendors on FaithBid.',
       pricing: 'Simple, transparent pricing for churches and vendors on FaithBid.',
     };
+    const projectTitle = navSubTab === 'mine'
+      ? 'My Projects — FaithBid'
+      : navSubTab === 'work'
+        ? 'My Work — FaithBid'
+        : navSubTab === 'vendors'
+          ? 'Vendors — FaithBid'
+          : 'Marketplace — FaithBid';
     return setPageMeta({
-      title: SCREEN_TITLES[screen] || 'FaithBid',
+      title: screen === 'projects' ? projectTitle : (SCREEN_TITLES[screen] || 'FaithBid'),
       description: SCREEN_DESCS[screen] || undefined,
     });
-  }, [screen]);
+  }, [screen, navSubTab]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [screen, navSubTab]);
   const [role, setRole] = useState("church");
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [autoPost, setAutoPost] = useState(false);
-  const [navSubTab, setNavSubTab] = useState(() => readProjectSubTabFromHash(window.location.hash));
+  const [autoPost, setAutoPost] = useState(() => isPostProjectHash(window.location.hash));
   const [vendorWinModal, setVendorWinModal] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
   const [unreadMsgs, setUnreadMsgs] = useState(0);
@@ -58089,12 +57410,13 @@ export default function App() {
     const onRouteHistoryNavigation = () => {
       const target = readAppScreenFromHash(window.location.hash, null);
       const targetSubTab = readProjectSubTabFromHash(window.location.hash);
+      const targetAutoPost = isPostProjectHash(window.location.hash);
       // Ignore in-page anchors such as #kb-main-content rather than treating
       // them as application routes.
       if (!target || (target === screenRef.current && targetSubTab === navSubTabRef.current)) return;
 
       if (PROTECTED_ROUTES.includes(target) && !currentUserRef.current) {
-        savePostAuthTarget({ screen:target, navSubTab:targetSubTab, autoPost:false });
+        savePostAuthTarget({ screen:target, navSubTab:targetSubTab, autoPost:targetAutoPost });
         if (!authReady) return;
         setAuthDefaultRole(target === "reviews" ? "vendor" : "login");
         setScreen("auth");
@@ -58104,9 +57426,9 @@ export default function App() {
 
       setScreen(target);
       setNavSubTab(target === "projects" ? targetSubTab : null);
-      setAutoPost(false);
+      setAutoPost(targetAutoPost);
       if (target === "projects") {
-        try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch {}
+        try { document.dispatchEvent(new CustomEvent(targetAutoPost ? "kb:post-project" : "kb:marketplace-reset-surface")); } catch {}
       }
       closeNavChrome();
     };
@@ -58704,7 +58026,7 @@ export default function App() {
             </div>
           </div>
         )}
-        {(screen==="projects" && marketplaceWorkspaceReady) && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Marketplace...</div>}><ProjectsScreen role={role} currentUser={currentUser} showToast={showToast} nav={nav} initialView={autoPost?"post":"board"} onMounted={()=>setAutoPost(false)} navSubTab={navSubTab} onSubTabChange={handleMarketplaceSubTabChange} privateMarketplaceAccess={privateMarketplaceAccess} isAdmin={isAdmin} dependencies={getProjectsScreenDependencies()}/></React.Suspense>}
+        {(screen==="projects" && marketplaceWorkspaceReady) && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Marketplace...</div>}><ProjectsScreen role={role} currentUser={currentUser} userProfile={userProfile} showToast={showToast} nav={nav} initialView={autoPost?"post":"board"} onMounted={()=>setAutoPost(false)} navSubTab={navSubTab} onSubTabChange={handleMarketplaceSubTabChange} privateMarketplaceAccess={privateMarketplaceAccess} isAdmin={isAdmin} dependencies={getProjectsScreenDependencies()}/></React.Suspense>}
         {(screen==="inbox" || screen==="messages") && currentUser && userProfile && <InboxToMessagesRedirect nav={nav}/>}
         {screen==="vendor" && <PublicVendorProfileScreen nav={nav} showToast={showToast}/>}
         {screen==="compare"   && <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Compare Workspace...</div>}><CompareWorkspaceScreen nav={nav} role={role} showToast={showToast} currentUser={currentUser} dependencies={getWorkspaceScreenDependencies()} /></React.Suspense>}
@@ -64927,6 +64249,7 @@ function MarketplaceCategoryGlyph({ index = 0 }) {
 function MarketplaceV2Header({
   view = 'vendors',
   isVendor = false,
+  viewerLocation = 'Your area',
   onPost,
   onVendors,
   onProjects,
@@ -64938,9 +64261,13 @@ function MarketplaceV2Header({
   onCategoryChange,
 }) {
   const isProjects = view === 'projects';
-  const title = isProjects ? 'Find work that fits your trade.' : 'What does your church need?';
+  const title = isProjects
+    ? (isVendor ? 'Find work that fits your trade.' : 'See what churches are building.')
+    : 'What does your church need?';
   const support = isProjects
-    ? 'Browse real ministry needs and respond where your work is a strong fit.'
+    ? (isVendor
+      ? 'Browse real ministry needs and respond where your work is a strong fit.'
+      : 'Browse real church projects for context, ideas, and trusted next steps.')
     : 'Find trusted Christian professionals and businesses who understand your mission.';
   const actionLabel = isVendor ? 'My Work' : 'Post a Project';
   const actionHandler = isVendor ? onVendorWorkspace : onPost;
@@ -64966,7 +64293,7 @@ function MarketplaceV2Header({
         <div className="mkt2-header__search" role="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
           <input ref={searchRef} type="search" value={search} onChange={(event) => onSearchChange?.(event.target.value)} placeholder={isProjects ? 'Search briefs, services, or areas…' : 'What are you looking for?'} aria-label={isProjects ? 'Search church project briefs' : 'Search vendors and services'} />
-          <span className="mkt2-header__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Dallas, TX</span>
+          <span className="mkt2-header__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>{viewerLocation}</span>
           <button type="button" onClick={() => searchRef.current?.focus()}>Search</button>
         </div>
         <div className="mkt2-header__prompt">
@@ -64985,12 +64312,12 @@ function MarketplaceV2Header({
   );
 }
 
-function ChurchMarketplaceHero({ onPost, onChurchProjects, search, onSearchChange, categories, activeCategory, onCategoryChange, isVendor = false, onVendorWorkspace }) {
-  return <MarketplaceV2Header view="vendors" isVendor={isVendor} onPost={onPost} onVendors={()=>{}} onProjects={onChurchProjects} onVendorWorkspace={onVendorWorkspace} search={search} onSearchChange={onSearchChange} categories={categories} activeCategory={activeCategory} onCategoryChange={onCategoryChange}/>;
+function ChurchMarketplaceHero({ onPost, onChurchProjects, search, onSearchChange, categories, activeCategory, onCategoryChange, isVendor = false, viewerLocation = 'Your area', onVendorWorkspace }) {
+  return <MarketplaceV2Header view="vendors" isVendor={isVendor} viewerLocation={viewerLocation} onPost={onPost} onVendors={()=>{}} onProjects={onChurchProjects} onVendorWorkspace={onVendorWorkspace} search={search} onSearchChange={onSearchChange} categories={categories} activeCategory={activeCategory} onCategoryChange={onCategoryChange}/>;
 }
 
-function ChurchProjectsMarketplaceHero({ isVendor = false, onPost, onFindVendors, onBrowseProjects, onMyWork, search, onSearchChange, categories, activeCategory, onCategoryChange }) {
-  return <MarketplaceV2Header view="projects" isVendor={isVendor} onPost={onPost} onVendors={onFindVendors} onProjects={onBrowseProjects} onVendorWorkspace={onMyWork} search={search} onSearchChange={onSearchChange} categories={categories} activeCategory={activeCategory} onCategoryChange={onCategoryChange}/>;
+function ChurchProjectsMarketplaceHero({ isVendor = false, viewerLocation = 'Your area', onPost, onFindVendors, onBrowseProjects, onMyWork, search, onSearchChange, categories, activeCategory, onCategoryChange }) {
+  return <MarketplaceV2Header view="projects" isVendor={isVendor} viewerLocation={viewerLocation} onPost={onPost} onVendors={onFindVendors} onProjects={onBrowseProjects} onVendorWorkspace={onMyWork} search={search} onSearchChange={onSearchChange} categories={categories} activeCategory={activeCategory} onCategoryChange={onCategoryChange}/>;
 }
 
 // v63 — lightweight remote category image presets.
@@ -70995,7 +70322,7 @@ function getHeaderSurfaceMode(screen, navSubTab) {
 }
 
 function detailBudgetParts(rawBudget) {
-  const text = String(rawBudget || '').trim();
+  const text = formatBudgetRangeTypography(String(rawBudget || '').trim());
   if (!text) return { headline:'Not specified', range:'Budget not provided' };
   const matches = text.match(/\$[\d,]+(?:\.\d+)?(?:[kKmM])?/g);
   if (matches && matches.length >= 2) {
