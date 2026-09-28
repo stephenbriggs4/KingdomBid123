@@ -1,6 +1,7 @@
 import React, { Component, createContext, useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback, useContext } from "react";
 import { supabase } from './supabaseClient'
 import { LegalConsentCheckbox, recordLegalConsent, CONSENT_KINDS } from "./LegalConsent";
+import { VendorVerifiedCredentials, VendorPublicContact } from "./VendorCredentialsPanel";
 import * as Sentry from "@sentry/react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import clsx from "clsx";
@@ -35430,6 +35431,8 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
               <>
                 <h2 className="kb-pdr-serif kb-pdr-section-title">About this vendor</h2>
                 <p className="kb-pdr-copy">{vendorDetailAbout}</p>
+                {v.id ? <VendorVerifiedCredentials vendorId={v.id} /> : null}
+                {v.id ? <VendorPublicContact vendorId={v.id} /> : null}
                 <p className="kb-pdr-copy">FaithBid helps churches evaluate service fit, trust signals, availability, and relevant ministry experience before starting a conversation.</p>
 
                 <h2 className="kb-pdr-serif kb-pdr-scope-title">What they offer</h2>

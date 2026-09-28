@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
+import { VendorBusinessDetailsPanel, VendorCredentialsPanel } from "./VendorCredentialsPanel";
 
 let CATEGORIES, CrossLogo, KBSkeleton, KB_BP_MOBILE, KB_US_STATE_CODES, ProfileStats, ReferralDashboard, TrustedVendorRoster, VendorCompletionMeter, VendorPortfolioEditor, VendorReferencesTab, VendorVerificationFlow, buildVendorProfilePreviewSeed, getDeliveryModelMeta, getReturnNavigationTarget, isKbTimeoutError, kbIsDevRuntime, logError, normalizeDeliveryModel, queueVendorNavigation, readReturnContext, runSupabaseWithFallback, runSupabaseWithTimeout, selectProfilesBestEffort, serializeVendorServiceModel, syncProfileVendorMirror, useViewportWidth;
 
@@ -110,8 +111,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
         let vendor = null;
         if (shouldFetchVendorRow) {
           const vendorMinColumns = "id,name,category,city,verified,user_id,created_at";
-          const vendorBaseColumns = "id,name,category,city,verified,tier,founding_vendor,rating,reviews_count,projects_count,response_time,bio,tagline,min_project_budget,max_project_budget,description,website,phone,instagram,user_id,image_url,created_at";
-          const vendorRichColumns = vendorBaseColumns + ",faith_statement,tags,service_model,service_city,service_state,base_place_id,service_radius_miles,vendor_type,verification_status";
+          const vendorBaseColumns = "id,name,category,city,verified,tier,founding_vendor,rating,reviews_count,projects_count,response_time,bio,tagline,min_project_budget,max_project_budget,user_id,image_url,created_at";
+          const vendorRichColumns = vendorBaseColumns + ",faith_statement,tags,service_model,service_city,service_state,base_place_id,service_radius_miles,vendor_type,verification_status,website,social_links,contact_preference";
           const vendorResult = await runSupabaseWithTimeout(
             runSupabaseWithFallback(
               () => supabase.from("vendors").select(vendorRichColumns).eq("user_id", currentUser.id).maybeSingle(),
@@ -966,6 +967,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                     </div>
                   </div>
                 </div>
+                {vendorRow?.id && <VendorBusinessDetailsPanel vendorRow={vendorRow} currentUser={currentUser} showToast={showToast} onSaved={(patch)=>setVendorRow(row=>row?{...row,...patch}:row)}/>}
+                {vendorRow?.id && <VendorCredentialsPanel vendorRow={vendorRow} currentUser={currentUser} showToast={showToast}/>}
                 <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
                   <button type="button" style={{...psx.btnPrimary,opacity:saving?0.6:1,cursor:saving?"wait":"pointer"}} onClick={saveVendorProfile} disabled={saving}>{saving?"Saving…":"Save profile"}</button>
                   <button type="button" style={psx.btnSecondary} onClick={()=>queueVendorNavigation(nav, buildVendorProfilePreviewSeed(vendorRow, vendorForm, currentUser))}>View in directory →</button>

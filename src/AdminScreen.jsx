@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "./supabaseClient";
 import AdminPrivacyRequests from "./AdminPrivacyRequests";
+import AdminVendorCredentials from "./AdminVendorCredentials";
 
 const ADMIN_LIGHT_THEME_CSS = String.raw`
 /* Admin light theme: ivory sidebar and hero, dark readable text, consistent alignment. */
@@ -1442,7 +1443,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
   };
   const adminChecked = !!adminUser;
 
-  const VIEWS = {overview:"Overview",approvals:"Review Queue",projects:"Projects","get-plugged-in":"Get Plugged In",users:"Users & Access",insights:"Insights",disputes:"Disputes",privacy:"Privacy Requests",revenue:"Finance & Fee Signals"};
+  const VIEWS = {overview:"Overview",approvals:"Review Queue",projects:"Projects","get-plugged-in":"Get Plugged In",users:"Users & Access",insights:"Insights",disputes:"Disputes",privacy:"Privacy Requests",credentials:"Vendor Credentials",revenue:"Finance & Fee Signals"};
   const feeSignalBars = feeSignalData.length > 0 ? feeSignalData : ADMIN_FEE_SIGNAL_MONTHS.map(b => ({ ...b, v: 0 }));
   // Show the real pending-vendor queue only; never fall back to mock data in the admin surface.
   const todayKey = new Date().toDateString();
@@ -2079,6 +2080,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
             {id:"get-plugged-in", label:"Get Plugged In", note:"Connections & invitations", glyph:"+"},
             {id:"users",     label:"Users & Access", note:"Accounts & controls", glyph:"◎"},
             {id:"disputes",  label:"Disputes", note:"Cases & resolution", glyph:"!", badge:exactOpenDisputes||null, badgeColor:"red"},
+            {id:"credentials", label:"Vendor Credentials", note:"Insurance & license review", glyph:"✓"},
             {id:"privacy",   label:"Privacy Requests", note:"Deletion & data export", glyph:"§"},
             {id:"revenue",   label:"Finance & Fee Signals", note:"Policy & modeled fees", glyph:"$"},
           ].map(n=>(
@@ -3364,6 +3366,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
           {adminView==="get-plugged-in" && <GetPluggedInAdmin showToast={showToast} founderGrowthContext={founderGrowthContext} onClearFounderGrowthContext={()=>setFounderGrowthContext(null)} onReturnToFounderBrief={()=>openAdminView("overview", {}, "Back to Founder Brief")}/>}
 
           {adminView==="privacy" && <AdminPrivacyRequests showToast={showToast} />}
+          {adminView==="credentials" && <AdminVendorCredentials showToast={showToast} />}
           {adminView==="disputes" && (
             <>
               <header className="admin-page-heading">
