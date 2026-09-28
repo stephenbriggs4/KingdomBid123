@@ -2,6 +2,7 @@ import React, { Component, createContext, useState, useRef, useEffect, useLayout
 import { supabase } from './supabaseClient'
 import { LegalConsentCheckbox, recordLegalConsent, CONSENT_KINDS } from "./LegalConsent";
 import { VendorVerifiedCredentials, VendorPublicContact } from "./VendorCredentialsPanel";
+import { FilePicker, uploadBidAttachments, BidAttachmentList, ProjectFilesList } from "./Attachments";
 import * as Sentry from "@sentry/react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import clsx from "clsx";
@@ -24692,6 +24693,10 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
       p_currency: "usd",
     });
     const createdBid = submitPayload?.bid || null;
+    if (!error && createdBid?.id && Array.isArray(bidData?.files) && bidData.files.length && user?.id) {
+      const uploadResult = await uploadBidAttachments({ bidId: createdBid.id, userId: user.id, files: bidData.files });
+      if (uploadResult.failed.length) showToast(`Proposal sent, but these files could not be attached: ${uploadResult.failed.join(", ")}. You can add them from your proposal.`, "error");
+    }
     if (!error && createdBid?.id) {
       // The canonical submit RPC owns the trusted notification.
       // Always use a direct count from bids; projects.bids_count is legacy
@@ -28083,7 +28088,35 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
 const MemoProjectBoard = React.memo(ProjectBoard);
 
 
+// R-42: where a bid sits against the range the church stated. Advisory only; never blocks a bid.
+function getBidBudgetGuidance(project = {}, amount = 0) {
+  const toNumber = (value) => { const n = Number(value); return Number.isFinite(n) && n > 0 ? n : null; };
+  let min = toNumber(project?.budget_min);
+  let max = toNumber(project?.budget_max);
+  if (!min && !max) {
+    const raw = String(project?.budget || "").replace(/,/g, "");
+    const nums = (raw.match(/\d+(?:\.\d+)?\s*[kK]?/g) || []).map((part) => {
+      const n = Number(part.replace(/[^0-9.]/g, ""));
+      return /[kK]/.test(part) ? n * 1000 : n;
+    }).filter((n) => Number.isFinite(n) && n > 0);
+    if (nums.length) {
+      const lower = raw.toLowerCase();
+      if (nums.length === 1 && /under|less than|up to|below/.test(lower)) max = nums[0];
+      else if (nums.length === 1 && /\+|over|more than|at least|above/.test(lower)) min = nums[0];
+      else { min = Math.min(...nums); max = Math.max(...nums); }
+    }
+  }
+  if (!min && !max) return { rangeLabel: "", warning: "" };
+  const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  const rangeLabel = min && max ? money(min) + "–" + money(max) : max ? "up to " + money(max) : money(min) + "+";
+  let warning = "";
+  if (amount > 0 && max && amount > max * 1.25) warning = "This is well above the range the church shared (" + rangeLabel + "). You can still send it; explain the difference in your note.";
+  else if (amount > 0 && min && amount < min * 0.5) warning = "This is well below the range the church shared (" + rangeLabel + "). Double-check the amount, and say what the price includes.";
+  return { rangeLabel, warning };
+}
+
 function BidForm({ project, onBack, onSubmit, showToast }) {
+  const [attachFiles, setAttachFiles] = useState([]);
   const [amount, setAmount] = useState("");
   const [timeline, setTimeline] = useState("");
   const [note, setNote] = useState("");
@@ -28108,6 +28141,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
     return Number.isFinite(n) && n > 0 ? n : 0;
   })();
   const amountTooHigh = normalizedAmount > 10_000_000;
+  const budgetGuidance = getBidBudgetGuidance(project, normalizedAmount);
 
   const canSubmit = normalizedAmount > 0 && !amountTooHigh && timeline.trim().length > 0 && !submitting;
   const safeBack = () => {
@@ -28142,6 +28176,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
         timeline: timeline.trim(),
         note: note.trim(),
         milestones: [],
+        files: attachFiles,
       });
     } catch (submitErr) {
       setErr("Something went wrong submitting that proposal. Please try again.");
@@ -28252,6 +28287,8 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
               {amountTooHigh ? (
                 <div style={{fontSize:11.5, color:'#b1342a'}}>Bids are capped at $10,000,000.</div>
               ) : null}
+              {budgetGuidance.rangeLabel ? <div style={{fontSize:11.5, color:'#6b6558'}}>Church’s stated range: {budgetGuidance.rangeLabel}</div> : null}
+              {budgetGuidance.warning ? <div role="status" style={{fontSize:12, lineHeight:1.5, color:'#8a6729', background:'#fff8e8', border:'1px solid #ecd9a8', borderRadius:10, padding:'8px 10px'}}>{budgetGuidance.warning}</div> : null}
             </label>
 
             <label style={{display:'grid', gap:6}}>
@@ -28295,6 +28332,8 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
               </span>
             </div>
           </label>
+
+          <FilePicker id="kb-bid-form-files" files={attachFiles} onChange={setAttachFiles} max={5} label="Attach a quote or scope document (optional)" help="PDF, Word, Excel or images. Up to 15 MB each." disabled={submitting} showToast={showToast} />
 
           {err ? (
             <div style={{padding:'10px 12px', borderRadius:10, background:'rgba(220,38,38,0.06)', border:'1px solid rgba(220,38,38,0.18)', fontSize:13, color:'#b1342a'}}>
@@ -29765,6 +29804,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
                 <div><span>Submitted</span><strong>{formatShortDate(bid.submitted_at || bid.created_at) || '—'}</strong></div>
               </div>
               {(bid.cover_letter || bid.note) ? <p>{bid.cover_letter || bid.note}</p> : null}
+              {bid?.id ? <BidAttachmentList bidId={bid.id} canEdit={isPending} userId={currentUser?.id} showToast={showToast} heading="Your attachments" /> : null}
               {editingBid?.id === bid.id ? (
                 <div className="kb1004-edit-proposal">
                   <label><span>Amount</span><input type="text" inputMode="decimal" value={editingBid.amount} onChange={e=>setEditingBid(prev=>({...prev,amount:e.target.value}))}/></label>
@@ -32760,6 +32800,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               <>
                 <h2 className="kb-pdr-serif kb-pdr-section-title">About this project</h2>
                 <p className="kb-pdr-copy">{desc}</p>
+                {project?.id ? <ProjectFilesList projectId={project.id} canEdit={!isVendor && !!currentUser?.id && String(currentUser.id) === String(project?.church_id)} userId={currentUser?.id} showToast={showToast} /> : null}
 
                 {liveScopeItems.length>0 && (
                   <>
@@ -64797,6 +64838,7 @@ function BidDetailContent({ b, onClose, onHire, onDecline, onMessage, onShortlis
           <div style={{fontSize:13,color:"var(--text-mid)",lineHeight:1.7,padding:"14px 16px",background:"var(--cream)",borderRadius:10,border:"1px solid var(--border)"}}>{coverLetter}</div>
         </div>
       )}
+      {b?.id ? <div style={{marginBottom:20}}><BidAttachmentList bidId={b.id} heading="Proposal files" /></div> : null}
 
       {/* Milestones */}
       {milestones.length > 0 && (
