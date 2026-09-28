@@ -9926,7 +9926,7 @@ html body .kb-topnav-account-head-avatar {
   width: 38px !important; height: 38px !important; border-radius: 50% !important;
   font-size: 0 !important; color: transparent !important; text-indent: -9999px; overflow: visible !important;
   background-color: #e8e0d0 !important;
-  background-image: url("/images/faithbid-landing-church.png") !important;
+  background-image: url("/images/faithbid-landing-church.webp") !important;
   background-size: 300% !important; background-position: 92% 22% !important; background-repeat: no-repeat !important;
   border: 2px solid #fffdf8 !important;
   box-shadow: 0 0 0 1px rgba(168, 121, 40, .55), 0 6px 14px rgba(28, 40, 20, .18) !important;
@@ -9939,6 +9939,6 @@ html body .kb-topnav-account-head-avatar { background-size: 420% !important; bac
 /* Avatar photo: crop on the cross wall, dark glass and olive trees so the church reads at 38px. */
 html body .topnav .kb-topnav-account-avatar,
 html body .kb-topnav-account-head-avatar {
-  background-image: url("/images/faithbid-marketplace-church-v2.png") !important;
+  background-image: url("/images/faithbid-marketplace-church-v2.webp") !important;
   background-size: 355% !important; background-position: 94% 7% !important;
 }

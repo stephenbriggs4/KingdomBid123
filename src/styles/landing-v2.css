@@ -21,7 +21,7 @@ html body .fb-landing-v2 .fb-landing-hero::before {
   content: "";
   position: absolute;
   inset: -2%;
-  background: url('/images/faithbid-landing-church.png') var(--fb-hero-photo-position) / cover no-repeat !important;
+  background: url('/images/faithbid-landing-church.webp') var(--fb-hero-photo-position) / cover no-repeat !important;
   filter: saturate(.88) contrast(1.06) brightness(.9) sepia(.06);
   transform: scale(1.02);
   z-index: 0 !important;
@@ -472,7 +472,7 @@ html body .fb-auth-shell-v2 {
   background-image:
     linear-gradient(90deg, rgba(252, 249, 242, .76) 0%, rgba(252, 249, 242, .55) 50%, rgba(252, 249, 242, .66) 100%),
     linear-gradient(180deg, rgba(255, 253, 248, .48), rgba(248, 239, 223, .4)),
-    url('/images/faithbid-landing-church.png') !important;
+    url('/images/faithbid-landing-church.webp') !important;
   background-position: center 54% !important;
   background-size: cover !important;
   color: var(--fb-landing-ink, #12372d) !important;
