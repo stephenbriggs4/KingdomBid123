@@ -29123,8 +29123,8 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
                 imageAlt=""
                 title={project.title}
                 topLabel={`${project.health.label}${project.priorityFlag === 'priority' ? ' · Priority' : ''}`}
-                avatarText={getInitialsSafe(project.church || 'FaithBid')}
-                meta={`${project.city || project.church || 'Remote'} · ${project.timeline || 'Flexible'}${unread > 0 ? ` · ${unread} unread` : ''}`}
+                avatarText={getInitialsSafe([project.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || 'FaithBid')}
+                meta={`${project.city || [project.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || 'Remote'} · ${project.timeline || 'Flexible'}${unread > 0 ? ` · ${unread} unread` : ''}`}
                 value={project.budgetDisplay}
                 actionLabel={String(primaryAction.label || 'Open project').replace(/\s*→\s*$/, '')}
                 onOpen={() => onSelect(project)}
@@ -29649,7 +29649,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
       bid,
       project,
       title: project?.title || 'Project',
-      church: project?.church_name || 'Church',
+      church: [project?.church_name, project?.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || 'Church',
       location: projectLocation(project),
       budget: formatProjectBudget(project),
       image,
@@ -29690,7 +29690,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
     id:`saved-${project.id}`,
     project,
     title:project.title || 'Project',
-    church:project.church_name || 'Church',
+    church:[project.church_name, project.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || 'Church',
     location:projectLocation(project),
     budget:formatProjectBudget(project),
     image:getProjectHeroImage(project, 'grid'),
@@ -29710,7 +29710,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
       id:`invited-${project.id}`,
       project,
       title:project.title || 'Project',
-      church:project.church_name || 'Church',
+      church:[project.church_name, project.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || 'Church',
       location:projectLocation(project),
       budget:formatProjectBudget(project),
       image:getProjectHeroImage(project, 'grid'),
@@ -29993,7 +29993,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
                 return <div className="kb1004-saved-item" key={project.id}>
                   <button type="button" className="kb1004-saved-open" onClick={()=>openBidProject(project)} aria-label={`Open ${project.title || 'saved project'}`}>
                     {image?<img src={image} alt="" loading="lazy" onError={handleKbImageError}/>:<span className="kb1004-saved-thumb"/>}
-                    <span className="kb1004-saved-copy"><strong>{project.title || 'Project'}</strong><span>{project.church_name || 'Church'}</span><span>⌖ {projectLocation(project)}</span></span>
+                    <span className="kb1004-saved-copy"><strong>{project.title || 'Project'}</strong><span>{[project.church_name, project.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || 'Church'}</span><span>⌖ {projectLocation(project)}</span></span>
                   </button>
                   <button type="button" className="kb1004-saved-remove" disabled={savedRemovingId===project.id} aria-label={`Remove ${project.title || 'project'} from saved`} onClick={()=>removeSavedProject(project)}>{savedRemovingId===project.id?'…':'♧'}</button>
                 </div>;
@@ -31319,7 +31319,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
               <div style={{background:"#fff",borderRadius:"var(--r-md)",border:"1px solid rgba(42,53,32,0.09)",padding:"18px 20px",boxShadow:"0 1px 3px rgba(42,53,32,0.04)",display:"flex",gap:16,alignItems:"flex-start",flexWrap:"wrap"}}>
                 <div style={{flex:1,minWidth:200}}>
                   <div style={{fontFamily:"var(--font-display),serif",fontSize:15,fontWeight:700,color:"var(--navy)",marginBottom:4}}>{proj.title || "Project"}</div>
-                  <div style={{fontSize:12,color:"var(--text-muted)",marginBottom:8}}>{proj.church_name || "//"} ·  {proj.city || "//"}</div>
+                  <div style={{fontSize:12,color:"var(--text-muted)",marginBottom:8}}>{[proj.church_name, proj.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || "//"} ·  {proj.city || "//"}</div>
                   <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
                     <div style={{fontSize:12,color:"var(--text-mid)"}}>Your bid: <strong style={{color:"var(--navy)"}}>{formatMoney(Number(b.amount))}</strong></div>
                     <div style={{fontSize:12,color:"var(--text-mid)"}}> {b.timeline}</div>
@@ -57031,7 +57031,7 @@ export default function App() {
               const meta = winNotif.meta || {};
               setVendorWinModal({
                 project: meta.project_title || winNotif.body?.match(/"([^"]+)"/)?.[1] || "Your Project",
-                church:  meta.church_name  || winNotif.body?.split(" accepted")[0] || "A church",
+                church:  [meta.church_name, meta.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || winNotif.body?.split(" accepted")[0] || "A church",
                 amount:  meta.amount       || winNotif.body?.match(/for \$([0-9,]+)/)?.[1]?.replace(/,/g,"") || null,
                 notifId: winNotif.id,
               });
@@ -58209,7 +58209,7 @@ export default function App() {
           }}
           onMessage={async()=>{
             setVendorWinModal(null);
-            await openInboxThread(nav, { projectTitle: vendorWinModal.project || null, churchName: vendorWinModal.church || "Church", createIfMissing: false });
+            await openInboxThread(nav, { projectTitle: vendorWinModal.project || null, churchName: (vendorWinModal.church && !isHandleLikeChurchName(vendorWinModal.church)) ? vendorWinModal.church : "Church", createIfMissing: false });
           }}
         />
       )}
