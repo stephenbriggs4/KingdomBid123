@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "./supabaseClient";
+import { LegalConsentCheckbox, recordLegalConsent, CONSENT_KINDS } from "./LegalConsent";
 
 let CATEGORIES, CHARTER_VENDOR_PRO_FREE_MONTHS, CHARTER_VENDOR_PRO_VALUE_LABEL, KB_US_STATE_CODES, LAUNCH_LABEL, PLATFORM_FEE_CAP, VENDOR_PRO_FEE_CAP, buildWaitlistAttributionFields, buildWaitlistSnapshot, formatMoney, getActiveGroupAttribution, getAppUrl, getWaitlistSourceForMode, isValidEmail, isWaitlistDuplicateEmailError, kbSafeLocalGet, kbSafeLocalRemove, kbSafeLocalSet, logError, normalizeRefCode, recordPublicFunnelEvent, runSupabaseWithTimeout, sendWaitlistEmail;
 
@@ -121,6 +122,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
   });
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [result, setResult] = useState(null);
   const [resendingEmail, setResendingEmail] = useState(false);
   // 853o — Autofill-safe honeypot. The 853m/853n honeypot used a text input
@@ -189,9 +191,9 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
     setKbTrapArmed(true);
   };
 
-  const canSubmit = isVendor
+  const canSubmit = agreedToTerms && (isVendor
     ? !!(form.full_name.trim() && form.org_name.trim() && isValidEmail(form.email) && form.category && form.city.trim() && form.state_code && form.delivery_model)
-    : !!(form.full_name.trim() && form.org_name.trim() && isValidEmail(form.email) && form.city.trim() && form.state_code);
+    : !!(form.full_name.trim() && form.org_name.trim() && isValidEmail(form.email) && form.city.trim() && form.state_code));
 
   const submit = async () => {
     if (submitting) return;
@@ -388,6 +390,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           referralValidated,
           snapshot,
         };
+        void recordLegalConsent({ email: payload.email, kind: CONSENT_KINDS.waitlist });
         setResult(nextResult);
         saveWaitlistReceipt(mode, nextResult);
         if (telemetryEnabled) recordPublicFunnelEvent("waitlist_submit_result", {
@@ -414,6 +417,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           referralValidated,
           snapshot,
         };
+        void recordLegalConsent({ email: payload.email, kind: CONSENT_KINDS.waitlist });
         setResult(nextResult);
         saveWaitlistReceipt(mode, nextResult);
         if (telemetryEnabled) recordPublicFunnelEvent("waitlist_submit_result", {
@@ -1172,6 +1176,8 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                 <div style={{fontSize:11.5,lineHeight:1.5,marginTop:3}}>FaithBid validates the invite when you submit. Priority review is shown only after a valid referral is confirmed.</div>
               </div>
             ) : null}
+
+            <LegalConsentCheckbox id="kb-waitlist-consent" checked={agreedToTerms} onChange={setAgreedToTerms} />
 
             <button
               type="button"

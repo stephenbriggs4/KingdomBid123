@@ -1,5 +1,6 @@
 import React, { Component, createContext, useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback, useContext } from "react";
 import { supabase } from './supabaseClient'
+import { LegalConsentCheckbox, recordLegalConsent, CONSENT_KINDS } from "./LegalConsent";
 import * as Sentry from "@sentry/react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import clsx from "clsx";
@@ -61785,7 +61786,8 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
 
   const roleMeta = getStartFreeRoleMeta(selectedRole, vendorType);
 
-  const canSubmit = fullName.trim().length > 1 && orgName.trim().length > 1 && isValidEmail(email.trim()) && password.length >= PASSWORD_MIN_LEN;
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const canSubmit = agreedToTerms && fullName.trim().length > 1 && orgName.trim().length > 1 && !isHandleLikeChurchName(orgName.trim()) && isValidEmail(email.trim()) && password.length >= PASSWORD_MIN_LEN;
 
   const handleSubmit = async () => {
     // 0162: public vendor account creation is never allowed from StartFreeScreen,
@@ -61811,6 +61813,7 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
         },
       });
       if (signUpErr) throw signUpErr;
+      void recordLegalConsent({ email: email.trim(), kind: CONSENT_KINDS.church });
       const userId = data?.user?.id;
       if (userId) {
         const { error: profileErr } = await supabase.from("profiles").upsert({
@@ -62026,6 +62029,7 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
                   </div>
                 )}
               </div>
+              <LegalConsentCheckbox id="kb-startfree-consent" checked={agreedToTerms} onChange={setAgreedToTerms} style={{marginTop:22}} />
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginTop:22,flexWrap:'wrap'}}>
                 <div style={{fontSize:13,color:'#858792',lineHeight:1.6}}>Already have an account? <button type="button" onClick={()=>{ if (typeof setAuthDefaultRole === 'function') setAuthDefaultRole('login'); nav('auth'); }} style={{background:'none',border:'none',padding:0,color:'#22301B',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"var(--font-sans),sans-serif"}}>Sign in →</button></div>
                 <button type="button" disabled={!canSubmit || loading} onClick={handleSubmit} style={{height:48,padding:'0 22px',borderRadius:12,border:'none',background:!canSubmit || loading ? 'rgba(31,42,34,0.35)' : '#1f2a22',fontSize:14,fontWeight:800,color:'#fff',cursor:!canSubmit || loading ? 'not-allowed' : 'pointer',fontFamily:"var(--font-sans),sans-serif"}}>{loading ? 'Creating account…' : `${roleMeta.primary} →`}</button>
@@ -62518,6 +62522,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
   const [successMsg,setSuccessMsg]=useState("");
+  const [agreedToTerms,setAgreedToTerms]=useState(false);
   const [cityState,setCityState]=useState("");
   const [denomination,setDenomination]=useState("");
   const [faithStatement,setFaithStatement]=useState("");
@@ -62610,6 +62615,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
       if (!isValidEmail(email)) { setError("Please enter a valid email address."); setLoading(false); return; }
       const pwErr = passwordStrengthError(form.password);
       if (pwErr) { setError(pwErr); setLoading(false); return; }
+      if (!agreedToTerms) { setError("Please agree to the Terms and acknowledge the Privacy Policy to continue."); setLoading(false); return; }
       const displayName = String(form.org || form.name || '').trim();
       if (!displayName || isHandleLikeChurchName(displayName)) {
         setError(selectedRole === "church" ? "Enter your church or ministry name (for example, Grace Community Church)." : "Enter your name or family name.");
@@ -62622,6 +62628,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
         options:{ data:{ role:selectedRole, org_name:form.org||form.name } },
       });
       if(signUpErr)throw signUpErr;
+      void recordLegalConsent({ email, kind: selectedRole==="church" ? CONSENT_KINDS.church : CONSENT_KINDS.individual });
       if(data.user){
         const{error:profileErr}=await supabase.from("profiles").upsert({
           id:data.user.id,role:selectedRole,org_name:form.org||form.name,
@@ -62791,10 +62798,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
     {eyebrow:"Step 3 of 3",title:"Your faith story.",sub:"The heart of everything we do here.",
      fields:<>
        <AuthFloatingField label="Faith statement" type="textarea" value={faithStatement} onChange={e=>setFaithStatement(e.target.value)} selectedRole={selectedRole}/>
-       <div style={{display:"flex",gap:14,alignItems:"flex-start",paddingTop:8,borderTop:"1px solid rgba(255,255,255,0.07)"}}>
-         <input type="checkbox" style={{marginTop:3,accentColor:"var(--gold-light)",flexShrink:0,width:16,height:16,cursor:"pointer"}}/>
-         <span style={{fontSize:13,color:"var(--atext-muted)",lineHeight:1.7}}>I agree to the <strong style={{color:"var(--gold-light)",fontWeight:600}}>Terms of Service</strong> and <strong style={{color:"var(--gold-light)",fontWeight:600}}>Community Standards</strong>. I affirm this platform will be used in alignment with Christian values.</span>
-       </div>
+       <LegalConsentCheckbox id="kb-signup-consent" tone="dark" checked={agreedToTerms} onChange={setAgreedToTerms} style={{paddingTop:8,borderTop:"1px solid rgba(255,255,255,0.07)"}}> I will use FaithBid in alignment with Christian values.</LegalConsentCheckbox>
      </>},
   ];
   const cur=steps[step-1];
@@ -62956,6 +62960,7 @@ function VendorSignupFlow({ nav, showToast, setAuthDefaultRole, telemetryEnabled
 function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", authReady = true, setRole, showToast, setAuthDefaultRole }) {
   const [pendingData, setPendingData] = useState(null);
   const [acct, setAcct] = useState({ churchName: "", email: "", password: "" });
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [acctErr, setAcctErr] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [posted, setPosted] = useState(false);
@@ -63214,6 +63219,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     const churchName = acct.churchName.trim();
     const email = acct.email.trim().toLowerCase();
     const password = acct.password;
+    if (!agreedToTerms) { setAcctErr("Please agree to the Terms and acknowledge the Privacy Policy to continue."); return; }
     if (!churchName || isHandleLikeChurchName(churchName)) { setAcctErr("Please add your church or organization name (for example, Grace Community Church)."); return; }
     if (!isValidEmail(email)) { setAcctErr("Please enter a valid email."); return; }
     const pwErr = passwordStrengthError(password);
@@ -63225,6 +63231,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
         password,
         options: { data: { role: "church", org_name: churchName } },
       });
+      if (!signUpErr) void recordLegalConsent({ email, kind: CONSENT_KINDS.guestPost });
       if (signUpErr) {
         const m = signUpErr?.message || "";
         if (/already/i.test(m)) {
@@ -63398,6 +63405,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
                 <label style={{ fontSize: 12, fontWeight: 600, color: "var(--navy)", display: "block", marginBottom: 4 }}>Create a password</label>
                 <input aria-label="Create a password" type="password" autoComplete="new-password" required value={acct.password} onChange={e => setAcct(a => ({ ...a, password: e.target.value }))} placeholder="At least 8 characters" style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "var(--font-sans), sans-serif", boxSizing: "border-box", outline: "none" }} />
               </div>
+              <LegalConsentCheckbox id="kb-guest-consent" checked={agreedToTerms} onChange={setAgreedToTerms} />
               <button type="button" onClick={createAccountAndPost} disabled={submitting} style={{ padding: "12px", borderRadius: 10, border: "none", background: submitting ? "#e5e7eb" : "var(--gold-light)", color: submitting ? "#9ca3af" : "var(--navy)", fontSize: 14, fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer", marginTop: 4 }}>
                 {submitting ? "Publishing…" : "Create account & publish →"}
               </button>

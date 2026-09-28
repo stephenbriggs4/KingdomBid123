@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
+import { LegalConsentCheckbox, recordLegalConsent, CONSENT_KINDS } from "./LegalConsent";
 import {
   clearPendingWaitlistInvitationContext,
   loadPendingWaitlistInvitationContext,
@@ -69,6 +70,7 @@ export default function WaitlistInvitationScreen({
   const [finalizeBusy, setFinalizeBusy] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
   const [authError, setAuthError] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const inspectSeq = React.useRef(0);
 
   const role = normalizeWaitlistInvitationRole(state.role || invitation?.role);
@@ -176,6 +178,7 @@ export default function WaitlistInvitationScreen({
 
       const passwordError = passwordStrengthError(password);
       if (passwordError) throw new Error(passwordError);
+      if (!agreedToTerms) throw new Error("Please agree to the Terms and acknowledge the Privacy Policy to continue.");
 
       const { data, error } = await supabase.auth.signUp({
         email: normalizedEmail,
@@ -188,6 +191,7 @@ export default function WaitlistInvitationScreen({
         },
       });
       if (error) throw error;
+      void recordLegalConsent({ email: normalizedEmail, kind: (role || "church") === "vendor" ? CONSENT_KINDS.vendor : CONSENT_KINDS.church });
 
       if (data?.session) {
         setAuthMessage("Account created. Checking your invitation…");
@@ -402,6 +406,7 @@ export default function WaitlistInvitationScreen({
             <input aria-label="Email address" type="email" autoComplete="email" placeholder="Email address" value={email} onChange={event => setEmail(event.target.value)} style={inputStyle} />
             <input aria-label="Password" type="password" autoComplete={authMode === "login" ? "current-password" : "new-password"} placeholder="Password" value={password} onChange={event => setPassword(event.target.value)} onKeyDown={event => { if (event.key === "Enter") submitAuth(); }} style={inputStyle} />
           </div>
+          {authMode === "signup" ? <LegalConsentCheckbox id="kb-invite-consent" checked={agreedToTerms} onChange={setAgreedToTerms} style={{ marginTop: 14 }} /> : null}
           {authError ? <div style={{ marginTop: 14, borderRadius: 10, padding: "11px 13px", background: "#FFF0EE", color: "#9B2C22", fontSize: 13, lineHeight: 1.5 }}>{authError}</div> : null}
           {authMessage ? <div style={{ marginTop: 14, borderRadius: 10, padding: "11px 13px", background: "#EEF7EC", color: "#285D2B", fontSize: 13, lineHeight: 1.5 }}>{authMessage}</div> : null}
           <button type="button" disabled={authBusy} onClick={submitAuth} style={{ ...buttonStyle, marginTop: 18, opacity: authBusy ? .6 : 1 }}>
