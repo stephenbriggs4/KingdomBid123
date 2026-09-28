@@ -9,6 +9,15 @@ function initialsOf(name = '') {
   return ((parts[0]?.[0] || '?') + (parts[1]?.[0] || '')).toUpperCase();
 }
 
+// A church name that is really an account handle (one lowercase token, e.g. an
+// email local-part like "stephenbriggs0128") must never be shown to a vendor.
+// Kept in sync with the same helper in src/App.jsx.
+function isHandleLikeChurchName(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+  return /^[a-z0-9._-]+$/.test(raw) && /[0-9._-]/.test(raw);
+}
+
 function formatWhen(value, { list = false } = {}) {
   if (!value) return '';
   const d = new Date(value);
@@ -203,7 +212,11 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, n
   const unreadTotal = useMemo(() => convos.reduce((n, c) => n + (Number(c.unread_count) || 0), 0), [convos]);
   useEffect(() => { if (typeof onUnreadChange === 'function') onUnreadChange(unreadTotal); }, [unreadTotal, onUnreadChange]);
 
-  const counterpart = useCallback((c) => (role === 'vendor' ? c.church_name : c.vendor_name) || (role === 'vendor' ? 'Church' : 'Vendor'), [role]);
+  const counterpart = useCallback((c) => {
+    const raw = (role === 'vendor' ? c.church_name : c.vendor_name) || '';
+    if (raw && !isHandleLikeChurchName(raw)) return raw;
+    return role === 'vendor' ? 'Church' : 'Vendor';
+  }, [role]);
 
   const active = useMemo(() => convos.find((c) => String(c.id) === String(activeId)) || null, [convos, activeId]);
   useEffect(() => {
