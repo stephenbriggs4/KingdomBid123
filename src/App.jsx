@@ -55468,6 +55468,38 @@ const SCREENS = {
 	kids: KidsPage,
 	me: MePage
 };
+
+// R-56: App() and NotificationBell each used to open their own Realtime
+// channel subscribed to postgres_changes on `notifications` for the same
+// user_id filter — two live websockets doing overlapping work per session.
+// This registry shares a single channel per userId across every subscriber,
+// ref-counted so it tears down once the last consumer unmounts.
+const __kbNotifChannelRegistry = new Map();
+function subscribeToNotificationsChannel(userId, onChange) {
+  if (!userId) return () => {};
+  let entry = __kbNotifChannelRegistry.get(userId);
+  if (!entry) {
+    const listeners = new Set();
+    const channel = supabase.channel(`kb-notifs-shared-${userId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+        (payload) => { listeners.forEach(fn => { try { fn(payload); } catch (e) { logError('shared-notif-channel-listener', e, { userId }); } }); }
+      )
+      .subscribe();
+    entry = { channel, listeners, refCount: 0 };
+    __kbNotifChannelRegistry.set(userId, entry);
+  }
+  entry.listeners.add(onChange);
+  entry.refCount += 1;
+  return () => {
+    entry.listeners.delete(onChange);
+    entry.refCount -= 1;
+    if (entry.refCount <= 0) {
+      try { entry.channel.unsubscribe(); } catch {}
+      __kbNotifChannelRegistry.delete(userId);
+    }
+  };
+}
+
 function App() {
 	const { session, workspace, features, error, reload, signOut } = useAuth();
 	const [route, go] = useHashRoute();
@@ -56913,16 +56945,11 @@ export default function App() {
       }
     };
     const initialUnreadTimer = setTimeout(() => loadUnread(), 1400);
-    const sub = supabase.channel("unread_msgs_" + currentUser.id)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications",
-        filter: `user_id=eq.${currentUser.id}` },
-        (p) => { if (p.new.type === "new_message") setUnreadMsgs(n => n + 1); }
-      )
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "notifications",
-        filter: `user_id=eq.${currentUser.id}` },
-        () => { loadUnread(); }
-      ).subscribe();
-    return () => { cancelled = true; clearTimeout(initialUnreadTimer); if (retryTimer) clearTimeout(retryTimer); sub.unsubscribe(); };
+    const unsubscribe = subscribeToNotificationsChannel(currentUser.id, (payload) => {
+      if (payload.eventType === "INSERT") { if (payload.new?.type === "new_message") setUnreadMsgs(n => n + 1); }
+      else if (payload.eventType === "UPDATE") { loadUnread(); }
+    });
+    return () => { cancelled = true; clearTimeout(initialUnreadTimer); if (retryTimer) clearTimeout(retryTimer); unsubscribe(); };
     // Depend on user id only — the whole currentUser object is recreated on
     // every auth-state event, which would tear down + rebuild the realtime
     // channel constantly and could miss messages during reconnect windows.
@@ -69342,11 +69369,10 @@ function NotificationBell({currentUser, role, nav, onBidAccepted}){
     window.addEventListener('kb:storage-sync', syncLocal);
     window.addEventListener('online', syncAfterReconnect);
     document.addEventListener('visibilitychange', syncWhenVisible);
-    const sub = supabase.channel("notifs_"+currentUser.id)
-      .on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:`user_id=eq.${currentUser.id}`},
-        p=>setNotifs(n=>[parseNotif(p.new),...n.slice(0,14)])
-      ).subscribe();
-    return ()=>{ cancelled = true; clearTimeout(notifTimer); clearTimeout(opTimer); clearTimeout(reconnectTimer); window.removeEventListener('storage', syncLocal); window.removeEventListener('kb:storage-sync', syncLocal); window.removeEventListener('online', syncAfterReconnect); document.removeEventListener('visibilitychange', syncWhenVisible); sub.unsubscribe(); };
+    const unsubscribe = subscribeToNotificationsChannel(currentUser.id, (payload) => {
+      if (payload.eventType === "INSERT") setNotifs(n=>[parseNotif(payload.new),...n.slice(0,14)]);
+    });
+    return ()=>{ cancelled = true; clearTimeout(notifTimer); clearTimeout(opTimer); clearTimeout(reconnectTimer); window.removeEventListener('storage', syncLocal); window.removeEventListener('kb:storage-sync', syncLocal); window.removeEventListener('online', syncAfterReconnect); document.removeEventListener('visibilitychange', syncWhenVisible); unsubscribe(); };
     // Depend on user id only — the whole currentUser object is recreated on
     // auth-state events, which would tear down + rebuild the realtime channel
     // and could miss notifications during reconnect windows.
