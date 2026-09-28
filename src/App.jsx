@@ -31432,7 +31432,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   useEffect(() => { setTab(initialTab || 'overview'); }, [project?.id, initialTab]);
   useEffect(() => {
     const title = project.title || 'Project';
-    const church = project.church_name || project.church || '';
+    const church = [project.church_name, project.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || '';
     const city = project.city ? ` · ${project.city}` : '';
     const desc = project.description
       ? String(project.description).slice(0, 155)
