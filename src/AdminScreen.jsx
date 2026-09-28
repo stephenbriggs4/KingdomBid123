@@ -60,6 +60,8 @@ const ADMIN_LIGHT_THEME_CSS = String.raw`
 .faithbid-admin-v853bl.admin-premium-shell .admin-page-heading{margin-bottom:20px!important;}
 `;
 
+const ADMIN_PROJECT_ORIGIN_LABEL = { real: 'Real', qa: 'Test', synthetic: 'Demo', unclassified: 'Unclassified' };
+
 export default function AdminScreen({showToast, adminUser, adminProfile, nav, dependencies}){
   const {
     activateOnKey,
@@ -158,6 +160,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
   const [adminProjects, setAdminProjects] = useState([]);
   const [adminProjectsLoading, setAdminProjectsLoading] = useState(false);
   const [adminProjectsError, setAdminProjectsError] = useState(false);
+  const [adminProjectPreviewId, setAdminProjectPreviewId] = useState(null);
   const [adminProjectBusyId, setAdminProjectBusyId] = useState(null);
   const adminContentRef = useRef(null);
   const adminNavScrollRef = useRef(null);
@@ -229,7 +232,8 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
   const [userPageSize, setUserPageSize] = useState(50);
   const [userTotal, setUserTotal] = useState(0);
   const [userSort, setUserSort] = useState("newest");
-  const [userTriageMode, setUserTriageMode] = useState("recent");
+  const [userTriageMode, setUserTriageMode] = useState("attention");
+  const userTriageChosenRef = useRef(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [userActionId, setUserActionId] = useState(null);
   // Suspension state: DB is the source of truth (account_status field on profiles).
@@ -321,7 +325,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     try {
       const { data, error } = await supabase
         .from('projects')
-        .select('id,title,church_name,church_id,status,category,budget,city,project_city,posted_at,record_origin,proposal_response_window_ends_at,qualified_comparable_proposal_count,liquidity_status,liquidity_evaluated_at,thin_coverage_alerted_at')
+        .select('id,title,description,timeline,church_name,church_id,status,category,budget,city,project_city,posted_at,record_origin,proposal_response_window_ends_at,qualified_comparable_proposal_count,liquidity_status,liquidity_evaluated_at,thin_coverage_alerted_at')
         .order('posted_at', { ascending:false })
         .limit(250);
       if (error) throw error;
@@ -362,6 +366,34 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     } catch (error) {
       logError('admin-project-moderation', error, { projectId:project.id, action });
       showToast(`Could not ${verb} this project.`, 'error');
+    } finally {
+      setAdminProjectBusyId(null);
+    }
+  };
+  const classifyAdminProject = async (project, origin) => {
+    if (!project?.id || adminProjectBusyId || origin === project.record_origin) return;
+    const label = ADMIN_PROJECT_ORIGIN_LABEL[origin] || origin;
+    const reason = typeof window !== 'undefined'
+      ? window.prompt(`Reason to classify "${project.title || 'this project'}" as ${label} (required):`, '')
+      : '';
+    if (reason == null) return;
+    if (String(reason).trim().length < 5) {
+      showToast('Enter a clear reason (at least 5 characters).', 'error');
+      return;
+    }
+    setAdminProjectBusyId(project.id);
+    try {
+      const { data, error } = await supabase.rpc('kb_admin_set_project_record_origin_v0', {
+        p_project_id: project.id,
+        p_record_origin: origin,
+        p_reason: String(reason).trim(),
+      });
+      if (error) throw error;
+      setAdminProjects(rows => rows.map(row => row.id === project.id ? { ...row, record_origin: data?.record_origin || origin } : row));
+      showToast(`Project classified as ${label}.`);
+    } catch (error) {
+      logError('admin-project-classify', error, { projectId: project.id, origin });
+      showToast('Could not classify this project.', 'error');
     } finally {
       setAdminProjectBusyId(null);
     }
@@ -1474,6 +1506,11 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
   });
   const adminUsersNeedingReview = allUsers.filter(adminUserNeedsReview);
   const filteredUsers = userTriageMode === "attention" ? adminUsersNeedingReview : userTriageMode === "all" ? allUsers : adminUsersNewThisWeek;
+  // Open on accounts that need review; if none, show everyone instead of an empty view.
+  useEffect(() => {
+    if (userTriageChosenRef.current || loadingUsers) return;
+    setUserTriageMode(adminUsersNeedingReview.length > 0 ? "attention" : "all");
+  }, [loadingUsers, adminUsersNeedingReview.length]);
   const exactOpenDisputes = disputeSummary.loading || disputeSummary.error ? null : disputeSummary.unresolved;
   const founderMetricCards = [
     ["real_project_records", "Real cohort projects"],
@@ -2765,17 +2802,28 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                     const removed = String(project.status || '').toLowerCase() === 'removed';
                     const actionable = removed || String(project.status || '').toLowerCase() === 'open';
                     return <div key={project.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,padding:'14px 16px',border:'1px solid var(--aborder)',borderRadius:12,background:'var(--abg2)',flexWrap:'wrap'}}>
-                      <div style={{minWidth:0,flex:'1 1 360px'}}>
+                      <div style={{minWidth:0,flex:'1 1 360px',overflowWrap:'anywhere'}}>
                         <div style={{fontSize:14,fontWeight:700,color:'var(--atext)',marginBottom:4}}>{project.title || 'Untitled project'}</div>
                         <div style={{fontSize:11,color:'var(--atext-muted)',marginBottom:6}}>{project.church_name || 'Church'} {'\u00b7'} {project.category || 'Uncategorized'} {'\u00b7'} <strong>{project.status || 'unknown'}</strong></div>
                         <div style={{display:'flex',gap:6,flexWrap:'wrap',alignItems:'center'}}>
-                          <span className="badge badge-muted">{project.record_origin === 'real' ? 'Real' : String(project.record_origin || 'Unclassified').toUpperCase()}</span>
+                          <span className="badge badge-muted">{ADMIN_PROJECT_ORIGIN_LABEL[project.record_origin] || 'Unclassified'}</span>
                           {project.record_origin === 'real' && <span className={`badge ${project.liquidity_status === 'thin' ? 'badge-red' : project.liquidity_status === 'collecting' || project.liquidity_status === 'waiting_for_window' ? 'badge-amber' : 'badge-green'}`}>{String(project.liquidity_status || 'not_applicable').replaceAll('_',' ')}</span>}
                           {project.record_origin === 'real' && <span style={{fontSize:10,color:'var(--atext-muted)'}}>{Number(project.qualified_comparable_proposal_count || 0)}/2 qualified comparable proposals</span>}
                           {project.record_origin === 'real' && <span style={{fontSize:10,color:'var(--atext-muted)'}}>Window: {project.proposal_response_window_ends_at ? new Date(project.proposal_response_window_ends_at).toLocaleString() : 'not set'}</span>}
                         </div>
+                        {adminProjectPreviewId===project.id && (
+                          <div style={{marginTop:10,padding:'10px 12px',border:'1px solid var(--aborder)',borderRadius:10,background:'var(--abg)',fontSize:12,lineHeight:1.6,color:'var(--atext-mid)',overflowWrap:'anywhere',minWidth:0}}>
+                            <div><strong>Budget:</strong> {project.budget || 'Not provided'} {'·'} <strong>Location:</strong> {project.project_city || project.city || 'Not provided'} {'·'} <strong>Timeline:</strong> {project.timeline || 'Not provided'}</div>
+                            <div><strong>Posted:</strong> {project.posted_at ? new Date(project.posted_at).toLocaleString() : 'unknown'}</div>
+                            <div style={{marginTop:6,whiteSpace:'pre-wrap'}}>{String(project.description || 'No description.').slice(0, 900)}</div>
+                          </div>
+                        )}
                       </div>
                       <div style={{display:'flex',gap:7,flexWrap:'wrap',alignItems:'center'}}>
+                        <button type="button" className="act-btn act-view" aria-expanded={adminProjectPreviewId===project.id} onClick={()=>setAdminProjectPreviewId(id => id === project.id ? null : project.id)}>{adminProjectPreviewId===project.id ? 'Hide details' : 'Preview'}</button>
+                        <select aria-label={`Classify ${project.title || 'project'}`} className="act-btn" disabled={adminProjectBusyId===project.id} value={project.record_origin || 'unclassified'} onChange={event=>classifyAdminProject(project, event.target.value)}>
+                          {Object.entries(ADMIN_PROJECT_ORIGIN_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                        </select>
                         {project.record_origin === 'real' && <button type="button" className="act-btn act-view" disabled={adminProjectBusyId===project.id} onClick={()=>setAdminProjectResponseWindow(project)}>{adminProjectBusyId===project.id ? 'Saving...' : project.proposal_response_window_ends_at ? 'Edit response window' : 'Set response window'}</button>}
                         {actionable ? <button type="button" className={`act-btn ${removed ? 'act-view' : 'act-reject'}`} disabled={adminProjectBusyId===project.id} onClick={()=>moderateAdminProject(project, removed ? 'restore' : 'remove')}>
                           {adminProjectBusyId===project.id ? 'Saving...' : removed ? 'Restore' : 'Remove'}
@@ -3089,7 +3137,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                   {key:"recent",label:"New this week",count:adminUsersNewThisWeek.length,copy:"Recent signups and accounts to scan first."},
                   {key:"all",label:"Full list",count:allUsers.length,copy:"Every loaded account on this page."},
                 ].map(item => (
-                  <button type="button" key={item.key} onClick={()=>setUserTriageMode(item.key)} style={{minHeight:78,padding:"13px 14px",borderRadius:16,border:`1px solid ${userTriageMode===item.key?"rgba(216,193,143,0.42)":"var(--aborder2)"}`,background:userTriageMode===item.key?"rgba(232,224,208,0.08)":"var(--abg2)",textAlign:"left",cursor:"pointer",boxShadow:userTriageMode===item.key?"0 0 0 1px rgba(216,193,143,0.14) inset":"none"}}>
+                  <button type="button" key={item.key} onClick={()=>{ userTriageChosenRef.current = true; setUserTriageMode(item.key); }} style={{minHeight:78,padding:"13px 14px",borderRadius:16,border:`1px solid ${userTriageMode===item.key?"rgba(216,193,143,0.42)":"var(--aborder2)"}`,background:userTriageMode===item.key?"rgba(232,224,208,0.08)":"var(--abg2)",textAlign:"left",cursor:"pointer",boxShadow:userTriageMode===item.key?"0 0 0 1px rgba(216,193,143,0.14) inset":"none"}}>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:6}}><span style={{fontSize:12,fontWeight:800,color:"var(--atext)"}}>{item.label}</span><strong style={{fontFamily:"var(--font-sans),monospace",fontSize:16,color:userTriageMode===item.key?"var(--gold-light)":"var(--atext-mid)"}}>{item.count}</strong></div>
                     <div style={{fontSize:10.5,lineHeight:1.45,color:"var(--atext-muted)"}}>{item.copy}</div>
                   </button>
