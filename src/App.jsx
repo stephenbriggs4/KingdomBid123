@@ -64653,6 +64653,8 @@ function BidAcceptedModal({vendor, project, onClose, onMessage, onViewProject}){
   const [checked, setChecked] = useState([false,false,false]);
   const allDone = checked.every(Boolean);
   const vendorFirst = vendor?.name?.split(" ")[0] || "your vendor";
+  // R-70: Escape was already wired up but there was no real focus trap.
+  const bidAcceptedTrapRef = useFocusTrap(true);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); };
@@ -64662,7 +64664,7 @@ function BidAcceptedModal({vendor, project, onClose, onMessage, onViewProject}){
 
   return (
     <div role="dialog" aria-modal="true" aria-label="Vendor hired" style={{position:"fixed",inset:0,background:"rgba(8,12,6,0.88)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9000,padding:"20px",backdropFilter:"blur(8px)",animation:"fadeIn 0.2s ease"}}>
-      <div style={{background:"#fff",borderRadius:24,width:"100%",maxWidth:500,overflow:"hidden",animation:"fadeUp 0.3s ease",boxShadow:"0 40px 100px rgba(0,0,0,0.35)"}}>
+      <div ref={bidAcceptedTrapRef} style={{background:"#fff",borderRadius:24,width:"100%",maxWidth:500,overflow:"hidden",animation:"fadeUp 0.3s ease",boxShadow:"0 40px 100px rgba(0,0,0,0.35)"}}>
 
         {/* Header // clean radial glow, no grid */}
         <div style={{background:"linear-gradient(160deg,#1A2B14 0%,#0F1A0B 100%)",padding:"40px 36px 36px",textAlign:"center",position:"relative",overflow:"hidden"}}>
@@ -64766,6 +64768,8 @@ function VendorWinModal({project, church, amount, onClose, onMessage}){
   const feeAmount = computePlatformFee(acceptedAmount, { tier: "free" });
   const proFeeAmount = computePlatformFee(acceptedAmount, { tier: "pro" });
   const proSavingsAmount = computeProSavings(acceptedAmount);
+  // R-70: Escape was already wired up but there was no real focus trap.
+  const vendorWinTrapRef = useFocusTrap(true);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); };
@@ -64774,7 +64778,7 @@ function VendorWinModal({project, church, amount, onClose, onMessage}){
   }, [onClose]);
   return (
     <div role="dialog" aria-modal="true" aria-label="Bid accepted" style={{position:"fixed",inset:0,background:"rgba(10,15,8,0.85)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9000,padding:"20px",backdropFilter:"blur(6px)",animation:"fadeIn 0.25s ease"}}>
-      <div style={{background:"#fff",borderRadius:24,width:"100%",maxWidth:480,overflow:"hidden",animation:"fadeUp 0.35s ease",boxShadow:"0 32px 80px rgba(0,0,0,0.25)"}}>
+      <div ref={vendorWinTrapRef} style={{background:"#fff",borderRadius:24,width:"100%",maxWidth:480,overflow:"hidden",animation:"fadeUp 0.35s ease",boxShadow:"0 32px 80px rgba(0,0,0,0.25)"}}>
         <div style={{background:"linear-gradient(135deg,#14532D,#166534)",padding:"36px 36px 32px",textAlign:"center",position:"relative",overflow:"hidden"}}>
           <div style={{position:"absolute",inset:0,opacity:0.06,backgroundImage:"radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px)",backgroundSize:"20px 20px"}}/>
           <div style={{position:"relative"}}>
@@ -64838,6 +64842,30 @@ function ConfirmModal({title, body, confirmLabel="Confirm", danger=false, onConf
   const [reasonNote, setReasonNote] = useState("");
   const buildReason = () => [reasonPreset, reasonNote.trim()].filter(Boolean).join(": ").slice(0, 500);
   const confirmBtnRef = React.useRef(null);
+  // R-70: this dialog already deliberately auto-focuses the confirm button
+  // (not necessarily the first focusable element, e.g. when reasonLabel
+  // renders a select/textarea before it) and restores focus on close, so
+  // the generic useFocusTrap hook isn't used here -- it would steal that
+  // intentional initial focus. This adds just the missing piece: wrapping
+  // Tab at the dialog's boundaries instead of letting it escape into the
+  // background page (used by 7 call sites across the app).
+  const dialogRef = React.useRef(null);
+  useEffect(() => {
+    const el = dialogRef.current;
+    if (!el) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key !== 'Tab') return;
+      const focusable = el.querySelectorAll('a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) { e.preventDefault(); return; }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    el.addEventListener('keydown', onKeyDown);
+    return () => el.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   // Restore focus to the previously focused element when modal closes.
   // This keeps keyboard users oriented after a confirmation interaction.
@@ -64859,7 +64887,7 @@ function ConfirmModal({title, body, confirmLabel="Confirm", danger=false, onConf
   }, [onCancel]);
   return (
     <div role="dialog" aria-modal="true" aria-label="Confirm action" style={{position:"fixed",inset:0,background:"rgba(10,15,8,0.7)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9100,padding:"20px",backdropFilter:"blur(4px)"}}>
-      <div style={{background:"#fff",borderRadius:18,width:"100%",maxWidth:400,padding:"32px 28px",animation:"fadeUp 0.2s ease",boxShadow:"0 24px 60px rgba(0,0,0,0.2)"}}>
+      <div ref={dialogRef} style={{background:"#fff",borderRadius:18,width:"100%",maxWidth:400,padding:"32px 28px",animation:"fadeUp 0.2s ease",boxShadow:"0 24px 60px rgba(0,0,0,0.2)"}}>
         <div style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:"var(--navy)",marginBottom:10}}>{title}</div>
         <div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.7,marginBottom:reasonLabel?14:24}}>{body}</div>
         {reasonLabel ? (
