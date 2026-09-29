@@ -31456,6 +31456,12 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const [myProposalEdit, setMyProposalEdit] = useState(null);
   const [myProposalSaving, setMyProposalSaving] = useState(false);
   const [myProposalWithdrawConfirm, setMyProposalWithdrawConfirm] = useState(false);
+  // R-70: these 4 modals (gallery, your-proposal, withdraw-confirm, file
+  // preview) all had role="dialog" aria-modal="true" but no real focus
+  // trap -- same useFocusTrap pattern as the other R-70 dialog fixes.
+  const activeFilePreviewTrapRef = useFocusTrap(!!activeFilePreview);
+  const myProposalModalTrapRef = useFocusTrap(myProposalModalOpen);
+  const myProposalWithdrawTrapRef = useFocusTrap(myProposalWithdrawConfirm);
   const projectDetailPanelRef = useRef(null);
   const projectDetailTabbarRef = useRef(null);
   const viewportWidth = useViewportWidth(1440);
@@ -32328,6 +32334,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const [projectSaved, setProjectSaved] = useState(Boolean(project?.is_saved));
   const [projectSaveBusy, setProjectSaveBusy] = useState(false);
   const [projectGalleryOpen, setProjectGalleryOpen] = useState(false);
+  const projectGalleryTrapRef = useFocusTrap(projectGalleryOpen);
   const [similarProjects, setSimilarProjects] = useState([]);
   const [similarProjectsLoading, setSimilarProjectsLoading] = useState(false);
   const [similarSavedIds, setSimilarSavedIds] = useState(() => new Set());
@@ -33018,10 +33025,10 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
         </div>
       </footer>
 
-      {projectGalleryOpen&&<div className="modal-bg" role="button" tabIndex={0} onClick={()=>setProjectGalleryOpen(false)} onKeyDown={(e)=>{if(e.key==='Escape')setProjectGalleryOpen(false);}}><div className="modal" role="dialog" aria-modal="true" aria-label="Project photos" onClick={e=>e.stopPropagation()} style={{maxWidth:1040,background:'#fffdf8',color:'#10261f'}}><div className="modal-hd"><div className="modal-title">Project photos</div><button type="button" className="modal-close" aria-label="Close" onClick={()=>setProjectGalleryOpen(false)}>×</button></div><div className="modal-body"><div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(2,minmax(0,1fr))',gap:12}}>{gallery.map((src,idx)=><img key={`${src}-${idx}`} src={src} alt={`${headline} project ${idx+1}`} onError={handleKbImageError} style={{width:'100%',height:280,objectFit:'cover',borderRadius:10}}/>)}</div></div></div></div>}
+      {projectGalleryOpen&&<div className="modal-bg" role="button" tabIndex={0} onClick={()=>setProjectGalleryOpen(false)} onKeyDown={(e)=>{if(e.key==='Escape')setProjectGalleryOpen(false);}}><div ref={projectGalleryTrapRef} className="modal" role="dialog" aria-modal="true" aria-label="Project photos" onClick={e=>e.stopPropagation()} style={{maxWidth:1040,background:'#fffdf8',color:'#10261f'}}><div className="modal-hd"><div className="modal-title">Project photos</div><button type="button" className="modal-close" aria-label="Close" onClick={()=>setProjectGalleryOpen(false)}>×</button></div><div className="modal-body"><div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(2,minmax(0,1fr))',gap:12}}>{gallery.map((src,idx)=><img key={`${src}-${idx}`} src={src} alt={`${headline} project ${idx+1}`} onError={handleKbImageError} style={{width:'100%',height:280,objectFit:'cover',borderRadius:10}}/>)}</div></div></div></div>}
       {myProposalModalOpen && (
         <div className="modal-bg" role="button" tabIndex={0} onClick={()=>{setMyProposalModalOpen(false);setMyProposalEdit(null);}} onKeyDown={(e)=>{if(e.key==='Escape'){setMyProposalModalOpen(false);setMyProposalEdit(null);}}}>
-          <div className="modal" role="dialog" aria-modal="true" aria-label="Your proposal" onClick={e=>e.stopPropagation()} style={{maxWidth:520,background:'#fffdf8',color:'#10261f'}}>
+          <div ref={myProposalModalTrapRef} className="modal" role="dialog" aria-modal="true" aria-label="Your proposal" onClick={e=>e.stopPropagation()} style={{maxWidth:520,background:'#fffdf8',color:'#10261f'}}>
             <div className="modal-hd">
               <div className="modal-title">Your proposal</div>
               <button type="button" className="modal-close" aria-label="Close" onClick={()=>{setMyProposalModalOpen(false);setMyProposalEdit(null);}}>×</button>
@@ -33076,7 +33083,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
       )}
       {myProposalWithdrawConfirm && (
         <div className="modal-bg" role="button" tabIndex={0} onClick={()=>setMyProposalWithdrawConfirm(false)} onKeyDown={(e)=>{if(e.key==='Escape')setMyProposalWithdrawConfirm(false);}}>
-          <div className="modal" role="dialog" aria-modal="true" aria-label="Withdraw proposal" onClick={e=>e.stopPropagation()} style={{maxWidth:420,background:'#fffdf8',color:'#10261f'}}>
+          <div ref={myProposalWithdrawTrapRef} className="modal" role="dialog" aria-modal="true" aria-label="Withdraw proposal" onClick={e=>e.stopPropagation()} style={{maxWidth:420,background:'#fffdf8',color:'#10261f'}}>
             <div className="modal-hd"><div className="modal-title">Withdraw this proposal?</div></div>
             <div className="modal-body"><div style={{fontSize:13,color:'#59625e'}}>The church will no longer see this proposal. This cannot be undone.</div></div>
             <div className="modal-footer">
@@ -33088,7 +33095,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
       )}
       {activeFilePreview && (
         <div className="modal-bg" role="button" tabIndex={0} onClick={()=>setActiveFilePreview(null)} onKeyDown={(e)=>{if(e.key==='Escape'){e.preventDefault();setActiveFilePreview(null);}}}>
-          <div className="modal" role="dialog" aria-modal="true" aria-label="File preview" onClick={e=>e.stopPropagation()} style={{maxWidth:560,background:'#fffdf8',color:'#10261f'}}>
+          <div ref={activeFilePreviewTrapRef} className="modal" role="dialog" aria-modal="true" aria-label="File preview" onClick={e=>e.stopPropagation()} style={{maxWidth:560,background:'#fffdf8',color:'#10261f'}}>
             <div className="modal-hd">
               <div className="modal-title">File preview</div>
               <button type="button" className="modal-close" aria-label="Close" onClick={()=>setActiveFilePreview(null)}>×</button>
