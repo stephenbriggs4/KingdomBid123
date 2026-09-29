@@ -63684,6 +63684,12 @@ function PostProject({ onSubmit, onBack, role, initialProject = null }) {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  // R-70: had an Escape onKeyDown on the overlay div itself, but nothing
+  // ever moved focus into it on open -- the "Preview" button that opens it
+  // is a sibling, not a descendant, so the keydown never bubbled there in
+  // practice. useFocusTrap fixes both the initial-focus gap and adds a
+  // real Tab wrap.
+  const previewTrapRef = useFocusTrap(showPreview);
   const [scope, setScope] = useState(String(seed.scope || ""));
   const [skills, setSkills] = useState(Array.isArray(seed.skills) ? seed.skills.filter(Boolean) : []);
   const [skillInput, setSkillInput] = useState("");
@@ -64153,7 +64159,7 @@ function PostProject({ onSubmit, onBack, role, initialProject = null }) {
 
       {/* Preview modal — shows the kbm-card the way vendors will see it on Marketplace */}
       {showPreview && (
-        <div className="post-project-preview-overlay" style={{position:'fixed',inset:0,background:'rgba(28,40,20,0.50)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:16,backdropFilter:'blur(4px)',overflowY:'auto'}} role="dialog" aria-modal="true" tabIndex={-1} onClick={()=>setShowPreview(false)}
+        <div ref={previewTrapRef} className="post-project-preview-overlay" style={{position:'fixed',inset:0,background:'rgba(28,40,20,0.50)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:16,backdropFilter:'blur(4px)',overflowY:'auto'}} role="dialog" aria-modal="true" tabIndex={-1} onClick={()=>setShowPreview(false)}
           onKeyDown={(e)=>{if(e.key==='Escape'){e.preventDefault();setShowPreview(false);}}}>
           <div className="post-project-preview-card" style={{background:'#f4f0e7',borderRadius:22,padding:'24px 24px 28px',maxWidth:520,width:'100%',boxShadow:'0 20px 60px rgba(28,40,20,0.30)',border:'1px solid #dfd5c2'}} onClick={e=>e.stopPropagation()}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,marginBottom:18}}>
