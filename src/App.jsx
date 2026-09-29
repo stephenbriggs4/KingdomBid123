@@ -65562,9 +65562,20 @@ function VendorPortfolioProofScreen({ role, currentUser, userProfile, showToast,
 
 
 function FaithBidModalFrame({ title, eyebrow, onClose, children, footer = null }) {
+  // R-70: this shared modal frame (used by the completed-project review and
+  // vendor-feedback dialogs) had role="dialog" aria-modal="true" but zero
+  // keyboard handling -- no Escape, no focus trap. It's only ever mounted
+  // while open, so useFocusTrap(true) + a document-level Escape listener
+  // covers both call sites in one place.
+  const trapRef = useFocusTrap(true);
+  useEffect(() => {
+    const onKeyDown = (e) => { if (e.key === 'Escape') onClose?.(); };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
   return (
     <div role="presentation" onMouseDown={e=>{ if(e.target===e.currentTarget) onClose?.(); }} style={{position:'fixed',inset:0,zIndex:9800,background:'rgba(16,27,23,.48)',backdropFilter:'blur(6px)',display:'grid',placeItems:'center',padding:18}}>
-      <div role="dialog" aria-modal="true" aria-label={title} style={{width:'min(620px,100%)',maxHeight:'calc(100vh - 36px)',overflow:'auto',borderRadius:20,border:'1px solid rgba(28,40,20,.12)',background:'#fffdf8',boxShadow:'0 30px 90px rgba(16,27,23,.26)'}}>
+      <div ref={trapRef} role="dialog" aria-modal="true" aria-label={title} style={{width:'min(620px,100%)',maxHeight:'calc(100vh - 36px)',overflow:'auto',borderRadius:20,border:'1px solid rgba(28,40,20,.12)',background:'#fffdf8',boxShadow:'0 30px 90px rgba(16,27,23,.26)'}}>
         <div style={{padding:'20px 22px 16px',borderBottom:'1px solid #ece5d9',display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:16}}>
           <div><div style={{fontSize:9.5,fontWeight:850,letterSpacing:'.15em',textTransform:'uppercase',color:'#9a7436',marginBottom:5}}>{eyebrow}</div><h2 style={{margin:0,fontFamily:'var(--font-display),serif',fontSize:28,lineHeight:1.05,color:'#17352b'}}>{title}</h2></div>
           <button type="button" onClick={onClose} aria-label="Close" style={{width:34,height:34,borderRadius:999,border:'1px solid #ddd6cb',background:'#fff',color:'#536159',cursor:'pointer',fontSize:18}}>×</button>
