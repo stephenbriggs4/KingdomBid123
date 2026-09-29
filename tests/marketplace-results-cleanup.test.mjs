@@ -11,8 +11,14 @@ test('empty project inventory renders one intentional empty state without redund
   assert.match(css, /mkt2-project-results\.is-empty \.kb-live-all-head\s*\{[^}]*display:\s*none/s);
 });
 
+// R-65 (2026-09-29): category-filter matching was simplified from a
+// canonical-category-set comparison (selectedCanonicalCats) to a direct
+// catFilter/p.category string match; __kbDeriveProjectCategories is still
+// used, just for search-term matching (termCanonicalCats) rather than the
+// category filter itself. Same guarantee (no sample-data fallback, real
+// open-project query), different implementation shape.
 test('category filters use canonical project taxonomy and never a sample-data fallback', () => {
-  assert.match(app, /selectedCanonicalCats = catFilter === 'All'/);
+  assert.match(app, /catFilter === 'All' \|\| String\(p\.category \|\| ''\) === catFilter/);
   assert.match(app, /__kbDeriveProjectCategories\(project\)/);
   assert.match(app, /const filtered = Array\.isArray\(filteredProjects\) \? filteredProjects : \[\];/);
   assert.doesNotMatch(app, /const sources = hasBrowseRefinements\s*\? \[filtered\]\s*:\s*\[filtered\.length \? filtered : open\]/s);

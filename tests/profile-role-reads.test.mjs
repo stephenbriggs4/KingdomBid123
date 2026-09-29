@@ -10,7 +10,9 @@ test('church profiles do not query the vendor table', () => {
 
   const gateStart = profileSource.indexOf('        if (shouldFetchVendorRow) {');
   const vendorQuery = profileSource.indexOf('supabase.from("vendors")', gateStart);
-  const gateEnd = profileSource.indexOf('\n        }\n        if (cancelled) return;', gateStart);
+  // R-65 (2026-09-29): this file uses CRLF line endings; the search string
+  // must match \r\n, not a bare \n, or indexOf silently never finds it.
+  const gateEnd = profileSource.indexOf('\r\n        }\r\n        if (cancelled) return;', gateStart);
   assert.ok(gateStart >= 0 && vendorQuery > gateStart && gateEnd > vendorQuery, 'vendor reads must stay inside the vendor-role gate');
   assert.match(profileSource.slice(gateEnd), /setVendorRow\(null\)/);
 });

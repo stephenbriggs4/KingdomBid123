@@ -12,7 +12,10 @@ test('the prelaunch homepage is church-first and truth-first', async () => {
   const landing = source.slice(landingStart, landingEnd);
 
   assert.ok(landingStart >= 0 && landingEnd > landingStart);
-  assert.match(landing, /forming its first Dallas pilot/);
+  // The pilot copy lives in the module-level LANDING_HERO_SUBTITLE constant
+  // (referenced via JSX interpolation inside LandingScreen), not inline in
+  // the function body itself -- check the full source, not the `landing` slice.
+  assert.match(source, /LANDING_HERO_SUBTITLE = LAUNCHED[\s\S]{0,300}our first Dallas pilot takes shape/);
   assert.doesNotMatch(landing, /fb-landing-pilot-note/);
   assert.match(landing, /Request Church Access/);
   assert.match(landing, /Apply as a Vendor/);
@@ -20,12 +23,14 @@ test('the prelaunch homepage is church-first and truth-first', async () => {
   assert.doesNotMatch(landing, /Reserve vendor access/);
   assert.doesNotMatch(landing, /<LandingFaithVerified/);
   assert.equal((landing.match(/<LandingChurchTrustStrip\s*\/>/g) || []).length, 1);
-  assert.match(source, /href="#get-plugged-in">Get Plugged In<\/a>/);
+  // Same footer link fixed in landing-footer.test.mjs: it's a button that
+  // calls nav("get-plugged-in") now, not an <a href="#get-plugged-in"> anchor.
+  assert.match(source, /nav\??\.?\("get-plugged-in"\)/);
 });
 
 test('the static browser title uses the public FaithBid brand', async () => {
   const html = await readFile(indexUrl, 'utf8');
-  assert.match(html, /<title>FaithBid<\/title>/);
+  assert.match(html, /<title>FaithBid — Faith-Aligned Marketplace<\/title>/);
   assert.doesNotMatch(html, /<title>kingdombid<\/title>/i);
 });
 
