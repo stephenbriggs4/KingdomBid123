@@ -30078,6 +30078,19 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     return () => document.removeEventListener('click', close);
   }, [menuProjectId]);
 
+  // R-70: same gap as the notification bell / account menu -- outside-click
+  // only, no keyboard way to dismiss this per-project "more actions" menu.
+  useEffect(() => {
+    if (!menuProjectId) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key !== 'Escape') return;
+      setMenuProjectId(null);
+      document.querySelector('.kb1005-more[aria-expanded="true"]')?.focus();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [menuProjectId]);
+
   const [savedVendorRows, setSavedVendorRows] = useState([]);
   const startedKey = `kb_church_getting_started_dismissed:${currentUser?.id || ""}`;
   const [startedDismissed, setStartedDismissed] = useState(() => { try { return window.localStorage.getItem(startedKey) === "1"; } catch { return false; } });
