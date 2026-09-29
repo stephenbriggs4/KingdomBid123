@@ -26003,6 +26003,10 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   const [featuredCollapsed, setFeaturedCollapsed] = useState(() => savedState.featuredCollapsed !== false);
   const [saveSearchModal, setSaveSearchModal] = useState(null); // { suggested } | null
   const saveSearchInputRef = useRef(null);
+  // R-70: had an autoFocus input (so Escape already bubbled correctly) but
+  // no real Tab trap -- same useFocusTrap pattern as the bid review /
+  // confirm-project-action fixes, closing that gap too.
+  const saveSearchTrapRef = useFocusTrap(!!saveSearchModal);
 
   // Scroll lock: prevent the page behind the filter sheet from scrolling
   // on iOS and Android. We apply/remove overflow:hidden on document.body.
@@ -27641,7 +27645,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
 
               {saveSearchModal && (
                 <div className="modal-bg" role="button" tabIndex={0} onClick={()=>setSaveSearchModal(null)} onKeyDown={(e)=>{if(e.key==='Escape')setSaveSearchModal(null);}}>
-                  <div className="modal" role="dialog" aria-modal="true" aria-label="Save search" onClick={e=>e.stopPropagation()} style={{maxWidth:420}}>
+                  <div ref={saveSearchTrapRef} className="modal" role="dialog" aria-modal="true" aria-label="Save search" onClick={e=>e.stopPropagation()} style={{maxWidth:420}}>
                     <div className="modal-hd"><div className="modal-title">Save this search</div><button type="button" className="modal-close" aria-label="Close" onClick={()=>setSaveSearchModal(null)}>×</button></div>
                     <div className="modal-body">
                       <input
