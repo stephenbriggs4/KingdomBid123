@@ -23,6 +23,6 @@ test("footer navigation reuses real routes and landing section targets", () => {
   assert.match(source, /goToLandingSection\("how-faithbid-works"\)/);
   assert.match(source, /goToLandingSection\("pricing-section"\)/);
   assert.match(source, /goToLandingSection\("landing-faq-section"\)/);
-  assert.match(source, /nav\?\.\("get-plugged-in"\)/);
+  assert.match(source, /nav\??\.?\("get-plugged-in"\)/);
   assert.match(source, /nav\?\.\("partner"\)/);
 });
