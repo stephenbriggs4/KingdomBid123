@@ -56568,6 +56568,24 @@ export default function App() {
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
+
+  // R-70: the account menu's own onKeyDown={...Escape...} only fires when
+  // focus is already inside the menu (React's synthetic event bubbles from
+  // whatever element has focus). Opening the menu never moves focus into
+  // it, so a keyboard user who opens it and immediately presses Escape --
+  // the common case -- found nothing happened. Mirror the document-level
+  // pattern already used correctly for the notification bell.
+  useEffect(() => {
+    if (!menuOpen && !mobileNavOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key !== "Escape") return;
+      setMenuOpen(false);
+      setMobileNavOpen(false);
+      document.querySelector(".kb-topnav-menu-trigger")?.focus();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen, mobileNavOpen]);
   const persistenceHydratedFor = React.useRef(null);
   const screenRef = React.useRef(screen);
   const navSubTabRef = React.useRef(navSubTab);
