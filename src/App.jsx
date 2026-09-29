@@ -41967,6 +41967,10 @@ function CalendarPage() {
 							key={day.toISOString()}
 							className={(outside ? "is-outside " : "") + (sameDay(day, today) ? "is-today" : "") + (canEdit ? " can-edit" : "")}
 							onClick={() => canEdit && setEditing({ day })}
+							role={canEdit ? "button" : undefined}
+							tabIndex={canEdit ? 0 : undefined}
+							aria-label={canEdit ? `Edit ${day.toDateString()}` : undefined}
+							onKeyDown={canEdit ? activateOnKey(() => setEditing({ day })) : undefined}
 						>
 							<span className="tk-calendar-date">{day.getDate()}</span>
 							<div className="tk-calendar-events">{events.slice(0, 3).map((item) => <button
