@@ -1,0 +1,13 @@
+-- Found while independently auditing Codex's Church Intelligence work: all
+-- three prior migrations (phase1, auth_dependency_bridge, rpc_acl_hardening)
+-- grant postgres temporary membership in church_intel_api_owner to do admin
+-- work, then revoke it at the end of the same file -- but live inspection
+-- showed postgres still held the membership after all three had applied.
+-- Traced to a separate grant issued by supabase_admin (grantor), the same
+-- pattern applied to every custom role in this project (anon, authenticated,
+-- service_role, etc.) as standard Supabase platform provisioning -- not a
+-- Codex mistake, and postgres already has rolbypassrls=true so this never
+-- granted any *new* privilege. Restoring the documented "no lingering
+-- membership" state for hygiene; this revoke may be a no-op against the
+-- platform-level grant, which is expected and harmless.
+revoke church_intel_api_owner from postgres;
