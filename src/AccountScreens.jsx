@@ -313,6 +313,12 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
 
   const launchOperationalAlerts = useMemo(() => collectOperationalAlertsForProjects(launchProjects, launchOpsState, role).slice(0, 4), [launchProjects, launchOpsState, role]);
 
+  const markComplete = async () => {
+    if (currentUser) {
+      try { await supabase.from("profiles").update({onboarding_complete:true}).eq("id",currentUser.id); } catch(err){ logError('onboarding-complete', err, { userId: currentUser.id }); }
+    }
+  };
+
   const churchSteps = [
     {
       icon:"",
@@ -486,12 +492,6 @@ function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
   const steps = role === "vendor" ? vendorSteps : role === "individual" ? individualSteps : churchSteps;
   const current = steps[step];
   const isLast = step === steps.length - 1;
-
-  const markComplete = async () => {
-    if (currentUser) {
-      try { await supabase.from("profiles").update({onboarding_complete:true}).eq("id",currentUser.id); } catch(err){ logError('onboarding-complete', err, { userId: currentUser.id }); }
-    }
-  };
 
   const goNext = async () => {
     if (isLast) {
