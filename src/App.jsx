@@ -55402,37 +55402,6 @@ const SCREENS = {
 	me: MePage
 };
 
-// R-56: App() and NotificationBell each used to open their own Realtime
-// channel subscribed to postgres_changes on `notifications` for the same
-// user_id filter — two live websockets doing overlapping work per session.
-// This registry shares a single channel per userId across every subscriber,
-// ref-counted so it tears down once the last consumer unmounts.
-const __kbNotifChannelRegistry = new Map();
-function subscribeToNotificationsChannel(userId, onChange) {
-  if (!userId) return () => {};
-  let entry = __kbNotifChannelRegistry.get(userId);
-  if (!entry) {
-    const listeners = new Set();
-    const channel = supabase.channel(`kb-notifs-shared-${userId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
-        (payload) => { listeners.forEach(fn => { try { fn(payload); } catch (e) { logError('shared-notif-channel-listener', e, { userId }); } }); }
-      )
-      .subscribe();
-    entry = { channel, listeners, refCount: 0 };
-    __kbNotifChannelRegistry.set(userId, entry);
-  }
-  entry.listeners.add(onChange);
-  entry.refCount += 1;
-  return () => {
-    entry.listeners.delete(onChange);
-    entry.refCount -= 1;
-    if (entry.refCount <= 0) {
-      try { entry.channel.unsubscribe(); } catch {}
-      __kbNotifChannelRegistry.delete(userId);
-    }
-  };
-}
-
 function App() {
 	const { session, workspace, features, error, reload, signOut } = useAuth();
 	const [route, go] = useHashRoute();
@@ -56462,6 +56431,37 @@ function ChurchOSSurface({ currentUser, onSignOut, onNavigateProduct }) {
 return { ChurchOSSurface };
 })();
 /* ============================= END CHURCH OS ============================== */
+
+// R-56: App() and NotificationBell each used to open their own Realtime
+// channel subscribed to postgres_changes on `notifications` for the same
+// user_id filter — two live websockets doing overlapping work per session.
+// This registry shares a single channel per userId across every subscriber,
+// ref-counted so it tears down once the last consumer unmounts.
+const __kbNotifChannelRegistry = new Map();
+function subscribeToNotificationsChannel(userId, onChange) {
+  if (!userId) return () => {};
+  let entry = __kbNotifChannelRegistry.get(userId);
+  if (!entry) {
+    const listeners = new Set();
+    const channel = supabase.channel(`kb-notifs-shared-${userId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+        (payload) => { listeners.forEach(fn => { try { fn(payload); } catch (e) { logError('shared-notif-channel-listener', e, { userId }); } }); }
+      )
+      .subscribe();
+    entry = { channel, listeners, refCount: 0 };
+    __kbNotifChannelRegistry.set(userId, entry);
+  }
+  entry.listeners.add(onChange);
+  entry.refCount += 1;
+  return () => {
+    entry.listeners.delete(onChange);
+    entry.refCount -= 1;
+    if (entry.refCount <= 0) {
+      try { entry.channel.unsubscribe(); } catch {}
+      __kbNotifChannelRegistry.delete(userId);
+    }
+  };
+}
 
 export default function App() {
   const [screen, setScreen] = useState(() => readAppScreenFromHash(window.location.hash));
