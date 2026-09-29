@@ -34,83 +34,83 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
   ];
 
   const css = `
-    .pricing-shell { background: #0f1410; min-height: 100vh; padding: 60px 24px 80px; color: #fff; }
+    .pricing-shell { background: var(--kb-paper); min-height: 100vh; padding: 60px 24px 80px; color: var(--kb-text-primary); }
     .pricing-inner { max-width: 1100px; margin: 0 auto; }
-    .pricing-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #C4973A; margin-bottom: 14px; text-align: center; }
-    .pricing-headline { font-family: var(--font-display), serif; font-size: 52px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; text-align: center; margin-bottom: 16px; max-width: 760px; margin-left: auto; margin-right: auto; }
-    .pricing-sub { font-size: 16px; color: rgba(255,255,255,0.62); line-height: 1.65; text-align: center; max-width: 580px; margin: 0 auto 40px; font-weight: 400; }
+    .pricing-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--kb-text-eyebrow); margin-bottom: 14px; text-align: center; }
+    .pricing-headline { font-family: var(--font-display), serif; font-size: 52px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; text-align: center; margin-bottom: 16px; max-width: 760px; margin-left: auto; margin-right: auto; color: var(--kb-text-primary); }
+    .pricing-sub { font-size: 16px; color: var(--kb-text-body); line-height: 1.65; text-align: center; max-width: 580px; margin: 0 auto 40px; font-weight: 400; }
     .pricing-toggle-wrap { display: flex; justify-content: center; margin-bottom: 48px; }
-    .pricing-toggle { display: inline-flex; padding: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; gap: 4px; }
-    .pricing-toggle button { background: none; border: none; padding: 9px 22px; border-radius: 999px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.55); cursor: pointer; font-family: var(--font-sans), sans-serif; transition: all 0.18s; }
-    .pricing-toggle button.on { background: #C4973A; color: #1C2814; }
-    .pricing-toggle .save-pill { font-size: 10px; font-weight: 800; padding: 2px 7px; background: #2f855a; color: #fff; border-radius: 999px; margin-left: 6px; letter-spacing: 0.06em; }
+    .pricing-toggle { display: inline-flex; padding: 4px; background: var(--kb-paper-alt); border: 1px solid var(--kb-border-light); border-radius: 999px; gap: 4px; }
+    .pricing-toggle button { background: none; border: none; padding: 9px 22px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--kb-text-muted); cursor: pointer; font-family: var(--font-sans), sans-serif; transition: all 0.18s; }
+    .pricing-toggle button.on { background: var(--kb-gold-rich); color: #fff; }
+    .pricing-toggle .save-pill { font-size: 10px; font-weight: 800; padding: 2px 7px; background: var(--success); color: #fff; border-radius: 999px; margin-left: 6px; letter-spacing: 0.06em; }
     .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 56px; }
     @media (max-width: 800px) { .pricing-grid { grid-template-columns: 1fr; } .pricing-headline { font-size: 36px; } }
-    .pricing-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 22px; padding: 38px 32px 32px; position: relative; transition: all 0.2s; }
-    .pricing-card.featured { background: linear-gradient(180deg, rgba(196,151,58,0.08), rgba(196,151,58,0.02) 60%, rgba(255,255,255,0.02)); border: 1px solid rgba(196,151,58,0.4); box-shadow: 0 24px 80px rgba(196,151,58,0.12); }
-    .pricing-featured-tag { position: absolute; top: -12px; left: 32px; padding: 5px 12px; background: #C4973A; color: #1C2814; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 999px; }
-    .pricing-card-name { font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 10px; }
-    .pricing-card.featured .pricing-card-name { color: #C4973A; }
-    .pricing-card-tagline { font-family: var(--font-display), serif; font-size: 24px; font-weight: 600; line-height: 1.25; color: #fff; margin-bottom: 22px; letter-spacing: -0.01em; }
+    .pricing-card { background: var(--kb-paper-alt); border: 1px solid var(--kb-border-light); border-radius: 22px; padding: 38px 32px 32px; position: relative; transition: all 0.2s; }
+    .pricing-card.featured { background: linear-gradient(180deg, rgba(196,151,58,0.08), rgba(196,151,58,0.02) 60%, var(--kb-paper-alt)); border: 1px solid rgba(196,151,58,0.4); box-shadow: 0 24px 80px rgba(196,151,58,0.12); }
+    .pricing-featured-tag { position: absolute; top: -12px; left: 32px; padding: 5px 12px; background: var(--kb-gold-rich); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 999px; }
+    .pricing-card-name { font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--kb-text-muted); margin-bottom: 10px; }
+    .pricing-card.featured .pricing-card-name { color: var(--kb-gold-rich); }
+    .pricing-card-tagline { font-family: var(--font-display), serif; font-size: 24px; font-weight: 600; line-height: 1.25; color: var(--kb-text-primary); margin-bottom: 22px; letter-spacing: -0.01em; }
     .pricing-price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
-    .pricing-price-amount { font-family: var(--font-display), serif; font-size: 60px; font-weight: 700; color: #fff; letter-spacing: -0.03em; line-height: 1; }
-    .pricing-price-suffix { font-size: 15px; color: rgba(255,255,255,0.5); font-weight: 400; }
-    .pricing-price-note { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 28px; line-height: 1.6; min-height: 32px; }
+    .pricing-price-amount { font-family: var(--font-display), serif; font-size: 60px; font-weight: 700; color: var(--kb-text-primary); letter-spacing: -0.03em; line-height: 1; }
+    .pricing-price-suffix { font-size: 15px; color: var(--kb-text-muted); font-weight: 400; }
+    .pricing-price-note { font-size: 12px; color: var(--kb-text-dim); margin-bottom: 28px; line-height: 1.6; min-height: 32px; }
     .pricing-cta { display: block; width: 100%; padding: 14px 24px; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: var(--font-sans), sans-serif; cursor: pointer; transition: all 0.18s; letter-spacing: 0.02em; margin-bottom: 28px; }
-    .pricing-cta-free { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #fff; }
-    .pricing-cta-free:hover { background: rgba(255,255,255,0.1); }
-    .pricing-cta-pro { background: linear-gradient(135deg, #C4973A, #A87B2A); color: #1C2814; box-shadow: 0 8px 24px rgba(196,151,58,0.28); }
+    .pricing-cta-free { background: var(--kb-paper); border: 1px solid var(--kb-border-mid); color: var(--kb-text-primary); }
+    .pricing-cta-free:hover { background: var(--kb-parchment); }
+    .pricing-cta-pro { background: linear-gradient(135deg, var(--kb-gold-rich), var(--kb-gold-deep)); color: #fff; box-shadow: 0 8px 24px rgba(196,151,58,0.28); }
     .pricing-cta-pro:hover { box-shadow: 0 12px 32px rgba(196,151,58,0.4); transform: translateY(-1px); }
     .pricing-cta:disabled { opacity: 0.55; cursor: not-allowed; }
-    .pricing-perks-label { font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 14px; }
+    .pricing-perks-label { font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--kb-text-dim); margin-bottom: 14px; }
     .pricing-perks { list-style: none; padding: 0; margin: 0; }
-    .pricing-perks li { display: flex; gap: 11px; padding: 9px 0; font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.55; }
-    .pricing-perks li::before { content: ''; flex-shrink: 0; margin-top: 8px; width: 6px; height: 6px; border-radius: 50%; background: #C4973A; }
-    .pricing-card.free .pricing-perks li::before { background: rgba(255,255,255,0.3); }
-    .pricing-currentpill { display: inline-block; padding: 4px 10px; background: rgba(47,133,90,0.15); color: #6dc991; border: 1px solid rgba(47,133,90,0.3); border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
+    .pricing-perks li { display: flex; gap: 11px; padding: 9px 0; font-size: 14px; color: var(--kb-text-body); line-height: 1.55; }
+    .pricing-perks li::before { content: ''; flex-shrink: 0; margin-top: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--kb-gold-rich); }
+    .pricing-card.free .pricing-perks li::before { background: var(--kb-text-dim); }
+    .pricing-currentpill { display: inline-block; padding: 4px 10px; background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
 
     /* Calculator */
-    .pricing-calc { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 22px; padding: 32px 36px; margin-bottom: 48px; }
+    .pricing-calc { background: var(--kb-paper-alt); border: 1px solid var(--kb-border-light); border-radius: 22px; padding: 32px 36px; margin-bottom: 48px; }
     .pricing-calc-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 14px; }
-    .pricing-calc-title { font-family: var(--font-display), serif; font-size: 24px; font-weight: 600; color: #fff; letter-spacing: -0.01em; }
+    .pricing-calc-title { font-family: var(--font-display), serif; font-size: 24px; font-weight: 600; color: var(--kb-text-primary); letter-spacing: -0.01em; }
     .pricing-calc-input-wrap { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
-    .pricing-calc-slider { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: rgba(255,255,255,0.12); border-radius: 999px; outline: none; }
-    .pricing-calc-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #C4973A; cursor: pointer; box-shadow: 0 2px 8px rgba(196,151,58,0.4); }
-    .pricing-calc-slider::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #C4973A; cursor: pointer; border: none; box-shadow: 0 2px 8px rgba(196,151,58,0.4); }
-    .pricing-calc-bidlabel { font-family: var(--font-display), serif; font-size: 32px; font-weight: 700; color: #fff; min-width: 130px; text-align: right; letter-spacing: -0.01em; }
+    .pricing-calc-slider { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: var(--kb-border-mid); border-radius: 999px; outline: none; }
+    .pricing-calc-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--kb-gold-rich); cursor: pointer; box-shadow: 0 2px 8px rgba(196,151,58,0.4); }
+    .pricing-calc-slider::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--kb-gold-rich); cursor: pointer; border: none; box-shadow: 0 2px 8px rgba(196,151,58,0.4); }
+    .pricing-calc-bidlabel { font-family: var(--font-display), serif; font-size: 32px; font-weight: 700; color: var(--kb-text-primary); min-width: 130px; text-align: right; letter-spacing: -0.01em; }
     .pricing-calc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
     @media (max-width: 700px) { .pricing-calc-grid { grid-template-columns: 1fr; } }
-    .pricing-calc-card { padding: 18px 20px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; }
-    .pricing-calc-card.savings { background: rgba(47,133,90,0.08); border-color: rgba(47,133,90,0.3); }
-    .pricing-calc-label { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
-    .pricing-calc-value { font-family: var(--font-display), serif; font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.01em; line-height: 1; margin-bottom: 4px; }
-    .pricing-calc-card.savings .pricing-calc-value { color: #6dc991; }
-    .pricing-calc-sub { font-size: 11px; color: rgba(255,255,255,0.5); }
-    .pricing-giveback { background: linear-gradient(135deg, rgba(47,133,90,0.11), rgba(196,151,58,0.07)); border: 1px solid rgba(196,151,58,0.22); border-radius: 22px; padding: 26px 28px; margin: -24px 0 48px; box-shadow: 0 18px 60px rgba(0,0,0,0.18); }
-    .pricing-giveback-kicker { font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #C4973A; margin-bottom: 8px; }
-    .pricing-giveback-title { font-family: var(--font-display), serif; font-size: 28px; line-height: 1.15; color: #fff; margin-bottom: 8px; }
-    .pricing-giveback-copy { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.68); max-width: 760px; margin-bottom: 18px; }
+    .pricing-calc-card { padding: 18px 20px; background: var(--kb-paper); border: 1px solid var(--kb-border-light); border-radius: 14px; }
+    .pricing-calc-card.savings { background: var(--success-bg); border-color: var(--success-border); }
+    .pricing-calc-label { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--kb-text-muted); margin-bottom: 6px; }
+    .pricing-calc-value { font-family: var(--font-display), serif; font-size: 28px; font-weight: 700; color: var(--kb-text-primary); letter-spacing: -0.01em; line-height: 1; margin-bottom: 4px; }
+    .pricing-calc-card.savings .pricing-calc-value { color: var(--success); }
+    .pricing-calc-sub { font-size: 11px; color: var(--kb-text-muted); }
+    .pricing-giveback { background: linear-gradient(135deg, rgba(47,133,90,0.09), rgba(196,151,58,0.07)); border: 1px solid rgba(196,151,58,0.22); border-radius: 22px; padding: 26px 28px; margin: -24px 0 48px; box-shadow: var(--kb-shadow-lg); }
+    .pricing-giveback-kicker { font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--kb-gold-dark); margin-bottom: 8px; }
+    .pricing-giveback-title { font-family: var(--font-display), serif; font-size: 28px; line-height: 1.15; color: var(--kb-text-primary); margin-bottom: 8px; }
+    .pricing-giveback-copy { font-size: 14px; line-height: 1.7; color: var(--kb-text-body); max-width: 760px; margin-bottom: 18px; }
     .pricing-giveback-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
     @media (max-width: 760px) { .pricing-giveback-grid { grid-template-columns: 1fr 1fr; } }
-    .pricing-giveback-stat { background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 14px 15px; }
-    .pricing-giveback-stat b { display: block; font-size: 18px; color: #E8D3B5; margin-bottom: 4px; }
-    .pricing-giveback-stat span { display: block; font-size: 10px; line-height: 1.45; color: rgba(255,255,255,0.52); text-transform: uppercase; letter-spacing: 0.08em; }
+    .pricing-giveback-stat { background: var(--kb-paper); border: 1px solid var(--kb-border-light); border-radius: 14px; padding: 14px 15px; }
+    .pricing-giveback-stat b { display: block; font-size: 18px; color: var(--kb-gold-dark); margin-bottom: 4px; }
+    .pricing-giveback-stat span { display: block; font-size: 10px; line-height: 1.45; color: var(--kb-text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
 
     /* FAQ */
     .pricing-faq { max-width: 720px; margin: 0 auto; }
-    .pricing-faq-title { font-family: var(--font-display), serif; font-size: 32px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 32px; letter-spacing: -0.02em; }
-    .pricing-faq-item { padding: 22px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .pricing-faq-title { font-family: var(--font-display), serif; font-size: 32px; font-weight: 700; color: var(--kb-text-primary); text-align: center; margin-bottom: 32px; letter-spacing: -0.02em; }
+    .pricing-faq-item { padding: 22px 0; border-bottom: 1px solid var(--kb-border-light); }
     .pricing-faq-item:last-child { border-bottom: none; }
-    .pricing-faq-q { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }
-    .pricing-faq-a { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; font-weight: 400; }
+    .pricing-faq-q { font-size: 16px; font-weight: 600; color: var(--kb-text-primary); margin-bottom: 8px; }
+    .pricing-faq-a { font-size: 14px; color: var(--kb-text-body); line-height: 1.7; font-weight: 400; }
 
-    .pricing-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: rgba(255,255,255,0.55); font-size: 13px; cursor: pointer; font-family: var(--font-sans), sans-serif; padding: 0; margin-bottom: 28px; }
-    .pricing-back:hover { color: #fff; }
+    .pricing-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--kb-text-muted); font-size: 13px; cursor: pointer; font-family: var(--font-sans), sans-serif; padding: 0; margin-bottom: 28px; }
+    .pricing-back:hover { color: var(--kb-text-primary); }
 
     .charter-banner { background: rgba(196,151,58,0.08); border: 1px solid rgba(196,151,58,0.3); border-radius: 16px; padding: 18px 22px; margin-bottom: 32px; display: flex; gap: 14px; align-items: center; }
     .charter-banner-icon { width: 42px; height: 42px; border-radius: 50%; background: rgba(196,151,58,0.18); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-    .charter-banner-text { flex: 1; font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; }
-    .charter-banner-text strong { color: #E8D3B5; }
+    .charter-banner-text { flex: 1; font-size: 13px; color: var(--kb-text-body); line-height: 1.6; }
+    .charter-banner-text strong { color: var(--kb-gold-dark); }
   `;
 
   const monthlyEquivProYearly = (VENDOR_PRO_PRICE_YEARLY / 12).toFixed(2);
@@ -152,57 +152,31 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
           </div>}
 
           <div className="pricing-grid">
-            {pricingPreviewItems.map(tier => {
-              const isCurrent = false;
-              const isFeatured = !!tier.featured;
-              const showPrice = tier.id === "pro" ? proPrice : tier.priceMonthly;
-              const showSuffix = tier.id === "pro" ? proPriceSuffix : "";
-              return (
-                <div key={tier.id} className={`pricing-card ${isFeatured ? "featured" : "free"}`}>
-                  {isFeatured && <div className="pricing-featured-tag">Most popular</div>}
-                  {isCurrent && <div className="pricing-currentpill">✓ Your current plan</div>}
-                  <div className="pricing-card-name">{tier.name}</div>
-                  <div className="pricing-card-tagline">{tier.tagline}</div>
+            {pricingPreviewItems.map(tier => (
+              <div key={tier.id} className="pricing-card free">
+                <div className="pricing-card-name">{tier.name}</div>
+                <div className="pricing-card-tagline">{tier.tagline}</div>
 
-                  <div className="pricing-price-row"><span className="pricing-price-amount">Coming soon</span></div>
-                  <div className="pricing-price-note">
-                    No subscription purchase or in-app payment rail is active.
-                  </div>
+                <button
+                  className="pricing-cta pricing-cta-free"
+                  onClick={() => nav("projects")}
+                >
+                  {tier.cta}
+                </button>
 
-                  <button
-                    className={`pricing-cta ${isFeatured ? "pricing-cta-pro" : "pricing-cta-free"}`}
-                    onClick={() => nav("projects")}
-                    disabled={isCurrent}
-                  >
-                    {isCurrent ? "Current plan" : tier.cta}
-                  </button>
-
-                  <div className="pricing-perks-label">What's included</div>
-                  <ul className="pricing-perks">
-                    {tier.perks.map(perk => <li key={perk}>{perk}</li>)}
-                  </ul>
-                </div>
-              );
-            })}
+                <div className="pricing-perks-label">What's included</div>
+                <ul className="pricing-perks">
+                  {tier.perks.map(perk => <li key={perk}>{perk}</li>)}
+                </ul>
+              </div>
+            ))}
           </div>
 
-          {/* Fee calculator */}
+          {/* Current commercial status */}
           <div className="pricing-calc">
             <div className="pricing-calc-head">
               <div className="pricing-calc-title">Current commercial status</div>
             </div>
-            {false && <div className="pricing-calc-input-wrap">
-              <input
-                type="range"
-                min={500}
-                max={10000}
-                step={100}
-                value={exampleBid}
-                onChange={e => setExampleBid(Number(e.target.value))}
-                className="pricing-calc-slider"
-              />
-              <div className="pricing-calc-bidlabel">{formatMoney(exampleBid)}</div>
-            </div>}
             <div className="pricing-calc-grid">
               <div className="pricing-calc-card">
                 <div className="pricing-calc-label">Standard platform fee</div>
