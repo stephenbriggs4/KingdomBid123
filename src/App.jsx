@@ -30099,6 +30099,24 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [menuProjectId]);
 
+  // R-70: the delete/cancel-project confirm dialog (a destructive-action
+  // modal) had role="dialog" aria-modal="true" but its backdrop was
+  // role="presentation" with zero keyboard handling -- no Escape, no focus
+  // trap, so a keyboard user had no way to back out except finding the
+  // Cancel button with a mouse. Same useFocusTrap hook as the bid review
+  // modal fix, plus a document-level Escape handler (this backdrop has no
+  // onKeyDown of its own to rely on bubbling through).
+  const confirmActionTrapRef = useFocusTrap(!!confirmAction);
+  useEffect(() => {
+    if (!confirmAction) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key !== 'Escape' || actionBusy) return;
+      setConfirmAction(null);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [confirmAction, actionBusy]);
+
   const [savedVendorRows, setSavedVendorRows] = useState([]);
   const startedKey = `kb_church_getting_started_dismissed:${currentUser?.id || ""}`;
   const [startedDismissed, setStartedDismissed] = useState(() => { try { return window.localStorage.getItem(startedKey) === "1"; } catch { return false; } });
@@ -30444,7 +30462,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     {reviewProject && <ProjectReviewModal project={reviewProject} onClose={()=>setReviewProject(null)} onSaved={()=>{setReviewedProjectIds(prev=>new Set([...Array.from(prev),String(reviewProject.id)]));setReviewProject(null);showToast&&showToast('Review submitted.');}} showToast={showToast}/>}
     {confirmAction && (
       <div className="modal-bg" role="presentation" onClick={()=>!actionBusy&&setConfirmAction(null)}>
-        <div className="modal" role="dialog" aria-modal="true" aria-label={confirmAction.type === 'delete' ? 'Delete project' : 'Cancel project'} onClick={e=>e.stopPropagation()} style={{maxWidth:440,width:'92vw',padding:'26px 24px',background:'#fffdf8',color:'#10261f'}}>
+        <div ref={confirmActionTrapRef} className="modal" role="dialog" aria-modal="true" aria-label={confirmAction.type === 'delete' ? 'Delete project' : 'Cancel project'} onClick={e=>e.stopPropagation()} style={{maxWidth:440,width:'92vw',padding:'26px 24px',background:'#fffdf8',color:'#10261f'}}>
           <h3 style={{margin:'0 0 8px',fontFamily:'var(--font-display),serif',fontSize:22,color:'#13392e'}}>{confirmAction.type === 'delete' ? (confirmAction.project.draft ? 'Delete this draft?' : 'Delete this project?') : 'Cancel this project?'}</h3>
           <p style={{margin:'0 0 14px',fontSize:13.5,lineHeight:1.55,color:'#4c5a55'}}>
             {confirmAction.type === 'delete'
