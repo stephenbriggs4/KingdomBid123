@@ -51,6 +51,8 @@
     "test:gpi-stage4": "node --test supabase/functions/gpi-occurrence-notice-auth/validation.test.ts",
     "test:gpi-db": "supabase test db supabase/tests/gpi_stage2_stage3_contract_test.sql",
     "test:gpi-stage4-db": "supabase test db supabase/tests/gpi_stage4_change_notices_contract_test.sql",
+    "test:church-intel-db": "supabase test db supabase/tests/church_intelligence_phase1_test.sql",
+    "church-intel:fetch-dallas-boundary": "node scripts/fetch-dallas-boundary.mjs",
     "test:build-budget": "node scripts/check-build-budget.mjs",
     "lint": "eslint .",
     "preview": "vite preview"

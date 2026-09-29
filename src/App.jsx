@@ -22850,14 +22850,14 @@ function setPageMeta({ title, description } = {}) {
   };
 }
 
-const PROTECTED_ROUTES = ["church-os","projects","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","settings","admin","growth","concierge","compare","saved-projects","activity","analytics","qa","my-projects","my-work"];
+const PROTECTED_ROUTES = ["church-os","projects","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","settings","admin","growth","concierge","church-intelligence","compare","saved-projects","activity","analytics","qa","my-projects","my-work"];
 const APP_PROJECT_SUBTAB_BY_ROUTE = Object.freeze({
   "my-projects": "mine",
   "my-work": "work",
   "vendors": "vendors",
 });
 const APP_HASH_ROUTES = Object.freeze([
-  "landing","church-os","projects","my-projects","my-work","vendors","vendor","get-plugged-in","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","pricing","admin","settings","about","help","unsubscribe","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","invite",
+  "landing","church-os","projects","my-projects","my-work","vendors","vendor","get-plugged-in","inbox","messages","reviews","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","pricing","admin","settings","about","help","unsubscribe","privacy","terms","activity","analytics","compare","saved-projects","guest-post-project","church-signup","vendor-signup","start-free","auth","reset-password","ambassador","partner","join","qa","growth","concierge","church-intelligence","invite",
 ]);
 const APP_HASH_ROUTE_SET = new Set(APP_HASH_ROUTES);
 
@@ -23027,6 +23027,7 @@ function kbLazyWithSingleReload(importer, key) {
 
 // Growth is admin-only and large enough to deserve a real route chunk.
 const GrowthEngine = kbLazyWithSingleReload(() => import("./GrowthEngine.jsx"), "growth_engine");
+const ChurchIntelligence = kbLazyWithSingleReload(() => import("./ChurchIntelligence.jsx"), "church_intelligence");
 const AnalyticsScreen = React.lazy(() => import("./AnalyticsScreen.jsx"));
 const QAConsoleScreen = React.lazy(() => import("./QAConsoleScreen.jsx"));
 const AdminScreen = React.lazy(() => import("./AdminScreen.jsx"));
@@ -56496,6 +56497,7 @@ export default function App() {
       admin: 'Admin — FaithBid',
       growth: 'Growth Engine — FaithBid',
       concierge: 'Concierge Operations — FaithBid',
+      'church-intelligence': 'Church Intelligence — FaithBid',
       qa: 'QA Console — FaithBid',
       'not-found': 'Page Not Found — FaithBid',
       ambassador: 'Ambassador — FaithBid',
@@ -57907,7 +57909,7 @@ export default function App() {
             <div className="nav-right" style={{position:"relative",display:"flex",alignItems:"center",gap:8}}>
               {/* 1008: Workspace dropdown retired; its destinations now live contextually. */}
               {/* Phase 5 polish lock: preserve the existing shared 48px authenticated nav geometry; simplification comes from fewer destinations, not a replacement nav. */}
-              {currentUser && isAdmin && <button type="button" className={`nav-tab${["admin","growth","concierge","qa"].includes(screen) ? " active" : ""}`} onClick={()=>nav("admin")} aria-current={["admin","growth","concierge","qa"].includes(screen) ? "page" : undefined} style={{position:"relative",height:32,padding:"0 10px",borderRadius:0,fontSize:11.25,fontWeight:["admin","growth","concierge","qa"].includes(screen)?800:650,background:"transparent",color:["admin","growth","concierge","qa"].includes(screen)?"#172116":"rgba(28,40,20,0.58)",boxShadow:"none"}}>Admin Review</button>}
+              {currentUser && isAdmin && <button type="button" className={`nav-tab${["admin","growth","concierge","church-intelligence","qa"].includes(screen) ? " active" : ""}`} onClick={()=>nav("admin")} aria-current={["admin","growth","concierge","church-intelligence","qa"].includes(screen) ? "page" : undefined} style={{position:"relative",height:32,padding:"0 10px",borderRadius:0,fontSize:11.25,fontWeight:["admin","growth","concierge","church-intelligence","qa"].includes(screen)?800:650,background:"transparent",color:["admin","growth","concierge","church-intelligence","qa"].includes(screen)?"#172116":"rgba(28,40,20,0.58)",boxShadow:"none"}}>Admin Review</button>}
               {currentUser && <NotificationBell currentUser={currentUser} role={role} nav={nav} onBidAccepted={()=>{ setScreen("projects"); setNavSubTab("work"); }}/>}
               {currentUser ? (
                 <>
@@ -58131,11 +58133,12 @@ export default function App() {
         {screen==="join"      && <JoinScreen nav={nav} setAuthDefaultRole={setAuthDefaultRole}/>}
         {screen==="growth" && (isAdmin ? <><AdminReviewSubnav active="growth" nav={nav}/><React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Growth Engine…</div>}><div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:8,padding:"10px 16px"}}><button type="button" aria-pressed={dallasPilotOnly} onClick={()=>setDallasPilotOnly((value)=>!value)} style={{padding:"6px 12px",borderRadius:6,border:"1px solid var(--navy,#1C2814)",background:dallasPilotOnly?"var(--navy,#1C2814)":"transparent",color:dallasPilotOnly?"#fff":"var(--navy,#1C2814)",fontSize:13,cursor:"pointer"}}>Dallas Pilot only</button></div><GrowthEngine currentUser={currentUser} isAdmin={isAdmin} nav={nav} dallasPilotOnly={dallasPilotOnly}/></React.Suspense></> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>The growth engine is restricted to admins.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
         {screen==="concierge" && (isAdmin ? <><AdminReviewSubnav active="concierge" nav={nav}/><ConciergeOpsScreen currentUser={currentUser} showToast={showToast} dallasPilotOnly={dallasPilotOnly} onToggleDallasPilotOnly={()=>setDallasPilotOnly((value)=>!value)}/></> : <div style={{minHeight:"70vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px"}}><div style={{fontFamily:"var(--font-display),serif",fontSize:24,fontWeight:700,color:"var(--navy)",marginBottom:8}}>Admin-only workspace</div><div style={{fontSize:14,color:"var(--text-muted)",lineHeight:1.6,marginBottom:22}}>FaithBid Concierge is restricted to platform administrators.</div><button type="button" className="btn-primary" onClick={()=>nav("projects")}>Back to marketplace</button></div>)}
+        {screen==="church-intelligence" && <>{isAdmin && <AdminReviewSubnav active="church-intelligence" nav={nav}/>}<React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Church Intelligence…</div>}><ChurchIntelligence currentUser={currentUser} isAdmin={isAdmin} nav={nav}/></React.Suspense></>}
         </div>
         </PlatformScreenShell>
         </ScreenBoundary>
         {showPublicLegalFooter && <PublicLegalFooter compact={compactPublicLegalFooter} nav={nav} screen={screen} />}
-        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","church-os","projects","vendor","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","settings","about","help","unsubscribe","privacy","terms","ambassador","partner","join","growth","concierge","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
+        {!["landing","start-free","church-signup","vendor-signup","auth","invite","onboarding","reset-password","church-os","projects","vendor","get-plugged-in","inbox","messages","compare","saved-projects","reviews","admin","profile","profile-proof","profile-reviews","profile-feedback","profile-insights","verify-profile","settings","about","help","unsubscribe","privacy","terms","ambassador","partner","join","growth","concierge","church-intelligence","activity","analytics","qa","guest-post-project","pricing"].includes(screen) && (
           <div style={{minHeight:"80vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"40px 20px",animation:"fadeUp 0.4s ease"}}>
             <div style={{fontFamily:"var(--font-display),serif",fontSize:72,fontWeight:700,color:"var(--navy)",opacity:0.08,lineHeight:1,marginBottom:24}}>404</div>
             <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"var(--navy)",marginBottom:10}}>Page not found</div>
@@ -58179,12 +58182,12 @@ export default function App() {
           {(role === "vendor" ? [
             {id:"projects", label:"Marketplace", icon:<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>, subTab:null, activeSubTabs:[null,"browse"]},
             {id:"projects", label:"My Projects", icon:<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>, subTab:"work"},
-            ...(isAdmin ? [{id:"admin",label:"Admin Review",icon:<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>,subTab:null,activeOn:["admin","growth","concierge","qa"]}] : []),
+            ...(isAdmin ? [{id:"admin",label:"Admin Review",icon:<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>,subTab:null,activeOn:["admin","growth","concierge","church-intelligence","qa"]}] : []),
           ] : [
             {id:"projects", label:"Marketplace", icon:<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>, subTab:null, activeSubTabs:[null,"vendors","browse"]},
             {id:"projects", label:"My Projects", icon:<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>, subTab:"mine"},
             ...(role === "church" ? [{id:"church-os", label:"Church Toolkit", icon:<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h3v3H8zM13 9h3v3h-3zM8 14h8"/></svg>, subTab:null, activeOn:["church-os"]}] : []),
-            ...(isAdmin ? [{id:"admin",label:"Admin Review",icon:<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>,subTab:null,activeOn:["admin","growth","concierge","qa"]}] : []),
+            ...(isAdmin ? [{id:"admin",label:"Admin Review",icon:<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>,subTab:null,activeOn:["admin","growth","concierge","church-intelligence","qa"]}] : []),
           ]).map((t,i)=>{
             const isActive = t.subTab
               ? screen==="projects" && navSubTab===t.subTab
@@ -65595,7 +65598,7 @@ function LegacyDestinationRedirect({ nav, role, kind }) {
 }
 
 function AdminReviewSubnav({ active, nav }) {
-  const tabs=[['admin','Review'],['concierge','Concierge'],['growth','Growth Engine'],['qa','QA Console']];
+  const tabs=[['admin','Review'],['concierge','Concierge'],['growth','Growth Engine'],['church-intelligence','Church Intelligence'],['qa','QA Console']];
   return <div style={{position:'relative',zIndex:12,background:'#f7f3eb',borderBottom:'1px solid rgba(28,40,20,.11)'}}><div style={{maxWidth:1480,margin:'0 auto',padding:'0 22px',display:'flex',alignItems:'center',gap:7,overflowX:'auto'}}><span style={{fontSize:9.5,fontWeight:900,letterSpacing:'.14em',textTransform:'uppercase',color:'#9a7436',marginRight:8,whiteSpace:'nowrap'}}>Admin Review</span>{tabs.map(([id,label])=><button key={id} type="button" onClick={()=>nav(id)} aria-current={active===id?'page':undefined} style={{height:44,padding:'0 12px',border:0,borderBottom:active===id?'2px solid #174737':'2px solid transparent',background:'transparent',color:active===id?'#17352b':'#69726e',fontSize:11.5,fontWeight:active===id?850:700,cursor:'pointer',whiteSpace:'nowrap'}}>{label}</button>)}</div></div>;
 }
 
