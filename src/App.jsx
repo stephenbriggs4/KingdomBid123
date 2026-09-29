@@ -69323,6 +69323,16 @@ function NotificationBell({currentUser, role, nav, onBidAccepted}){
     return ()=>document.removeEventListener("mousedown",h);
   },[]);
 
+  // R-70: the outside-click handler above never covered keyboard users --
+  // there was no way to close the dropdown without a mouse. Escape is the
+  // standard dismissal key for an open disclosure/popover.
+  useEffect(()=>{
+    if (!open) return;
+    const onKeyDown=(e)=>{ if(e.key==="Escape"){ setOpen(false); bellRef.current?.querySelector("button")?.focus(); } };
+    document.addEventListener("keydown",onKeyDown);
+    return ()=>document.removeEventListener("keydown",onKeyDown);
+  },[open]);
+
   useEffect(()=>{
     if (!open) return;
     setTimeNow(Date.now());
