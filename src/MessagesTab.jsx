@@ -147,7 +147,7 @@ button.mt-file{cursor:pointer;font-family:inherit}
 
 const rateLimitMessage = (err) => { const text = String(err?.message || ''); return text.startsWith('rate_limited:') ? text.slice('rate_limited:'.length).trim() : null; };
 
-export default function MessagesTab({ currentUser, role, showToast = () => {}, nav = () => {}, onOpenProject = null, initialConversationId = null, onUnreadChange = null }) {
+export default function MessagesTab({ currentUser, role, showToast = () => {}, onOpenProject = null, initialConversationId = null, onUnreadChange = null }) {
   const uid = currentUser?.id || null;
   const [convos, setConvos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -162,7 +162,7 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, n
       // the parent panel can remount this tab (e.g. after a project status change); keep the open thread
       const remembered = window.sessionStorage.getItem('kb_messages_active_conversation');
       if (remembered) return remembered;
-    } catch {}
+    } catch { /* sessionStorage unavailable -- fall back to the initial conversation */ }
     return initialConversationId;
   });
   const [messages, setMessages] = useState([]);
@@ -180,7 +180,7 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, n
     try {
       if (activeId) window.sessionStorage.setItem('kb_messages_active_conversation', String(activeId));
       else window.sessionStorage.removeItem('kb_messages_active_conversation');
-    } catch {}
+    } catch { /* sessionStorage unavailable -- non-fatal */ }
   }, [activeId]);
 
   const loadConvos = useCallback(async ({ quiet = false } = {}) => {
@@ -191,7 +191,7 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, n
       if (err) throw err;
       setConvos(Array.isArray(data) ? data : []);
       setError(false);
-    } catch (err) {
+    } catch {
       if (!quiet) setError(true);
     } finally {
       setLoading(false);
@@ -203,7 +203,7 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, n
   useEffect(() => {
     const onOpen = (e) => {
       const id = e?.detail?.conversationId;
-      if (id) { setActiveId(id); try { window.sessionStorage.removeItem('kb_messages_open_conversation'); } catch {} loadConvos({ quiet: true }); }
+      if (id) { setActiveId(id); try { window.sessionStorage.removeItem('kb_messages_open_conversation'); } catch { /* non-fatal */ } loadConvos({ quiet: true }); }
     };
     window.addEventListener('kb:messages-open', onOpen);
     return () => window.removeEventListener('kb:messages-open', onOpen);
@@ -251,7 +251,7 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, n
       if (!readErr) setConvos((prev) => prev.map((c) => (String(c.id) === String(id) ? { ...c, unread_count: 0 } : c)));
       // keep the bell honest: the notification rows for this thread are now read too
       supabase.from('notifications').update({ read: true }).eq('user_id', uid).eq('type', 'new_message').eq('read', false).eq('meta->>conversation_id', String(id)).then(() => {}, () => {});
-    } catch (err) {
+    } catch {
       if (String(activeIdRef.current) === String(id)) setMsgError(true);
     } finally {
       setLoadingMsgs(false);
@@ -280,7 +280,7 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, n
         loadConvos({ quiet: true });
       })
       .subscribe();
-    return () => { try { channel.unsubscribe(); } catch {} };
+    return () => { try { channel.unsubscribe(); } catch { /* channel already gone -- non-fatal */ } };
   }, [uid, loadConvos]);
 
   const send = async (retryMessage = null) => {
