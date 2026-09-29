@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import { LegalConsentCheckbox, recordLegalConsent, CONSENT_KINDS } from "./LegalConsent";
 import {
-  clearPendingWaitlistInvitationContext,
   loadPendingWaitlistInvitationContext,
   normalizeWaitlistInvitationRole,
   parseWaitlistInvitationHash,

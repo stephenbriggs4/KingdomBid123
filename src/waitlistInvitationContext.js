@@ -49,6 +49,7 @@ function isValidWaitlistInvitationToken(value) {
   return token.length >= 16
     && token.length <= 1024
     && token === token.trim()
+    // eslint-disable-next-line no-control-regex -- deliberately rejecting control characters, not an accidental pattern
     && !/[\u0000-\u001f\u007f]/.test(token);
 }
 
