@@ -84,3 +84,20 @@ h6 {
 p {
   margin: 0;
 }
+
+/* R-70 accessibility: dozens of interactive elements across the app set
+   `outline:none` (some with !important) with no replacement focus
+   indicator, so keyboard users lose all visual focus tracking on them.
+   Rather than hand-edit every site (high risk in a file with a history of
+   scope bugs from exactly that kind of scattered edit), restore focus
+   visibility globally for keyboard navigation only (:focus-visible, not
+   plain :focus, so mouse/touch clicks are unaffected). The selector is
+   deliberately higher-specificity than the typical single-class
+   `outline:none!important` rules it needs to beat, and !important is
+   required to win over those too. This does not fix inconsistent focus
+   *styling* per component, only guarantees every keyboard-focused
+   interactive element has *some* visible indicator. */
+html body :focus-visible {
+  outline: 2px solid #b88a38 !important;
+  outline-offset: 2px !important;
+}
