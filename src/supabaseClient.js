@@ -1,16 +1,23 @@
 import { createClient } from '@supabase/supabase-js'
 
 const FAITHBID_PRODUCTION_PROJECT_REF = 'knkwaphosqronbhrvlsu'
-const fallbackSupabaseUrl = `https://${FAITHBID_PRODUCTION_PROJECT_REF}.supabase.co`
-const fallbackSupabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Imtua3dhcGhvc3Fyb25iaHJ2bHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3ODU1ODgsImV4cCI6MjA4OTM2MTU4OH0.HvFXoCzHihc8CjQfcgdVooCpJ_ztI7sM2G2m07Y2srM'
 const viteEnv = import.meta.env || {}
 
-const supabaseUrl = String(viteEnv.VITE_SUPABASE_URL || fallbackSupabaseUrl).trim()
+// R-66: this used to fall back to a hardcoded production URL/anon key when
+// the env vars were missing, so a broken local/deploy config either silently
+// pointed at production or surfaced as a confusing "Failed to fetch" deep in
+// the auth flow instead of a clear, immediate error.
+const supabaseUrl = String(viteEnv.VITE_SUPABASE_URL || '').trim()
 const supabaseAnonKey = String(
   viteEnv.VITE_SUPABASE_PUBLISHABLE_KEY
   || viteEnv.VITE_SUPABASE_ANON_KEY
-  || fallbackSupabaseAnonKey,
+  || '',
 ).trim()
+
+export const supabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
+export const supabaseConfigError = supabaseConfigured
+  ? ''
+  : 'Missing VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_ANON_KEY). Set them in .env.local and restart the dev server.'
 
 export { supabaseUrl, supabaseAnonKey }
 
@@ -79,9 +86,18 @@ const existingBrowserProjectRef = typeof window !== 'undefined'
   ? window.__FAITHBID_SUPABASE_PROJECT_REF__
   : null
 
+// A missing URL/key must not throw here -- that would crash the whole module
+// graph before App.jsx gets a chance to render the clear "configuration
+// missing" screen. createClient needs *some* well-formed URL to construct
+// without throwing; the placeholder is never used for a real request because
+// nothing renders past the config-missing screen when supabaseConfigured is false.
 export const supabase = existingBrowserClient && existingBrowserProjectRef === supabaseProjectRef
   ? existingBrowserClient
-  : createClient(supabaseUrl, supabaseAnonKey, { global: { fetch: dedupedFetch } })
+  : createClient(
+      supabaseConfigured ? supabaseUrl : 'https://not-configured.invalid',
+      supabaseConfigured ? supabaseAnonKey : 'not-configured',
+      { global: { fetch: dedupedFetch } },
+    )
 
 // Vite can re-evaluate this module during hot updates while the prior Auth
 // client is still subscribed. Keep one client per browser page so both clients
@@ -90,4 +106,3 @@ if (typeof window !== 'undefined') {
   window.__FAITHBID_SUPABASE_CLIENT__ = supabase
   window.__FAITHBID_SUPABASE_PROJECT_REF__ = supabaseProjectRef
 }
-export const supabaseConfigured = true
