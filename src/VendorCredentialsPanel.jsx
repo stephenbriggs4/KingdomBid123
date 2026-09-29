@@ -87,7 +87,7 @@ export function VendorBusinessDetailsPanel({ vendorRow, currentUser, showToast =
       }
       onSaved({ website: String(website || "").trim() || null, social_links: socialLinks, contact_preference: preference, church_sizes_served: sizes });
       showToast("Business details saved.");
-    } catch (error) {
+    } catch {
       showToast("Could not save business details. Check the links and try again.", "error");
     } finally {
       setSaving(false);
@@ -177,7 +177,7 @@ export function VendorCredentialsPanel({ vendorRow, currentUser, showToast = () 
       if (error) throw error;
       showToast("Submitted for review.");
       load();
-    } catch (error) {
+    } catch {
       showToast("Could not submit that document. Please try again.", "error");
     } finally {
       setBusyKind("");
