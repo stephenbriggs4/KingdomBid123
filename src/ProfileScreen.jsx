@@ -496,7 +496,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
         <div style={firstRunShell}>
           <div style={firstRunCard}>
             <StepHeader eyebrow="Charter Vendor setup" title="We couldn't load your vendor profile." body="Your approved account has not been changed. Reload this page to retry the profile read before continuing setup."/>
-            <div style={{padding:"28px 34px 34px"}}><button type="button" onClick={()=>{try{window.location.reload();}catch{}}} style={{...psx.btnPrimary,width:"100%",minHeight:50,borderRadius:12}}>Reload profile</button></div>
+            <div style={{padding:"28px 34px 34px"}}><button type="button" onClick={()=>{try{window.location.reload();}catch{ /* reload unavailable -- nothing more to do */ }}} style={{...psx.btnPrimary,width:"100%",minHeight:50,borderRadius:12}}>Reload profile</button></div>
           </div>
         </div>
       );
@@ -799,7 +799,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                               {label:"Deal Rooms",      val: overviewStats.messages},
                               {label:"Reviews Left",    val: overviewStats.reviews},
                             ]
-                        ).map((s,i)=>(
+                        ).map((s)=>(
                           <div key={s.label} style={{padding:"14px 14px",background:"#fffdf8",border:"1px solid #ece4d2",borderRadius:14,textAlign:"left",position:"relative",overflow:"hidden"}}>
                             <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:"linear-gradient(180deg,#c9a45c,#b08840)"}}/>
                             <div style={{paddingLeft:8}}>
