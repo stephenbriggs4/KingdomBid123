@@ -15,7 +15,14 @@ export default defineConfig([
     ],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        // Injected by vite.config.js's `define` (see resolveBuildCommit()).
+        __KB_BUILD_COMMIT__: 'readonly',
+        // Some browser code feature-detects a bundler/Node env via
+        // `typeof process !== "undefined"` before touching process.env.
+        process: 'readonly',
+      },
       parserOptions: {
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
