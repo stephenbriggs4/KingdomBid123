@@ -154,14 +154,6 @@ function gpiWordForTone(tone) {
   return GPI_WORD_BY_TONE[tone] || "BELONG";
 }
 
-function gpiTokenize(value) {
-  return String(value || "")
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .map((token) => token.trim())
-    .filter((token) => token.length >= 3);
-}
-
 function gpiRowSearchText(row) {
   const category = gpiPrimaryCategoryKey(row);
   const tagText = [
@@ -192,81 +184,6 @@ function gpiRowSearchText(row) {
     row?.city,
     tagText,
   ].filter(Boolean).join(" ").toLowerCase();
-}
-
-function gpiDiscoveryScore(row, signals = {}) {
-  let score = 0;
-  const text = gpiRowSearchText(row);
-  const queryTokens = gpiTokenize(signals.query);
-  const rowGoal = String(row?.goal || "").toLowerCase();
-  const rowSchedule = String(row?.schedule_type || row?.schedule || "").toLowerCase();
-  const rowCityId = String(row?.city_area_id || row?.cityAreaId || row?.city_id || "");
-  const rowTone = gpiToneForOpportunity(row);
-
-  if (signals.goal && rowGoal === String(signals.goal).toLowerCase()) score += 45;
-  if (signals.schedule && rowSchedule === String(signals.schedule).toLowerCase()) score += 34;
-  if (signals.cityAreaId && rowCityId && rowCityId === String(signals.cityAreaId)) score += 28;
-
-  queryTokens.forEach((token) => {
-    if (!text.includes(token)) return;
-    score += text.includes(` ${token} `) ? 14 : 9;
-    if (String(row?.title || row?.opportunity_title || "").toLowerCase().includes(token)) score += 8;
-    if (String(row?.activity_label || row?.activity_slug || "").toLowerCase().includes(token)) score += 6;
-  });
-
-  if (!signals.goal && rowGoal === "connect") score += 5;
-  if (!signals.schedule && ["one_time", "recurring", "flexible"].includes(rowSchedule)) score += 3;
-  if (rowTone === "belong" && !signals.query && !signals.goal) score += 2;
-
-  return score;
-}
-
-function gpiStableRowId(row, index) {
-  return String(row?.id || row?.opportunity_id || row?.title || row?.opportunity_title || `row-${index}`);
-}
-
-function gpiDiversityPenalty(row, selectedRows) {
-  const tone = gpiToneForOpportunity(row);
-  const host = String(row?.organization_id || row?.organization_name || row?.host_name || "").toLowerCase();
-  const category = gpiPrimaryCategoryKey(row);
-  let penalty = 0;
-  if (selectedRows.some((item) => gpiToneForOpportunity(item) === tone)) penalty += 6;
-  if (host && selectedRows.some((item) => String(item?.organization_id || item?.organization_name || item?.host_name || "").toLowerCase() === host)) penalty += 5;
-  if (category && selectedRows.some((item) => gpiPrimaryCategoryKey(item) === category)) penalty += 4;
-  return penalty;
-}
-
-function gpiRankDiscoveryRows(rows, signals = {}) {
-  const source = Array.isArray(rows) ? rows : [];
-  if (source.length <= 1) return source;
-  const scored = source.map((row, index) => ({
-    row,
-    index,
-    score: gpiDiscoveryScore(row, signals),
-    id: gpiStableRowId(row, index),
-  }));
-  scored.sort((left, right) => right.score - left.score || left.index - right.index);
-
-  const remaining = scored.slice();
-  const selected = [];
-  while (remaining.length) {
-    let bestIndex = 0;
-    let bestValue = -Infinity;
-    remaining.forEach((candidate, index) => {
-      const value = candidate.score - gpiDiversityPenalty(candidate.row, selected.map((item) => item.row));
-      if (value > bestValue || (value === bestValue && candidate.index < remaining[bestIndex].index)) {
-        bestValue = value;
-        bestIndex = index;
-      }
-    });
-    selected.push(remaining.splice(bestIndex, 1)[0]);
-  }
-
-  return selected.map((item, rankIndex) => ({
-    ...item.row,
-    gpi_match_score: item.score,
-    gpi_rank_position: rankIndex + 1,
-  }));
 }
 
 const GPI_DISCOVERY_TERMS = [
@@ -446,13 +363,6 @@ const GPI_DISCOVERY_EMBEDDED_IMAGES = {
   missions: "/gpi/missions.jpg",
 };
 
-function gpiDiscoveryGoalForTerms(terms = []) {
-  const goals = terms.map((term) => term.goal).filter(Boolean);
-  if (goals.includes("serve")) return "serve";
-  if (goals.includes("connect")) return "connect";
-  return "";
-}
-
 function GpiDiscoveryCard({ term, selected, imageMeta, onToggle }) {
   const [imageFailed, setImageFailed] = useState(false);
   return (
@@ -479,7 +389,6 @@ function GpiDiscoveryCard({ term, selected, imageMeta, onToggle }) {
 
 function GpiDiscoveryStage({
   cityAreas,
-  cityAreaId,
   setCityAreaId,
   cityQuery,
   setCityQuery,
@@ -531,7 +440,6 @@ function GpiDiscoveryStage({
   }, [activityTags, normalizedSearchQuery]);
   const selectedSearchOnlyTerms = selectedInterests.filter((term) => !GPI_DISCOVERY_GRID_ORDER.includes(gpiDiscoveryInterestKey(term)));
   const citySuggestions = useMemo(() => gpiBuildNationalCitySuggestions(cityAreas), [cityAreas]);
-  const citySearchLabel = cityQuery || "Search any U.S. city";
   const filteredCitySuggestions = useMemo(() => {
     const needle = gpiNormalizeCityLabel(cityQuery);
     if (!needle) return [];
@@ -960,7 +868,7 @@ function gpiDisplayOpportunity(row, index) {
         dayLabel = dayLabel || d.toLocaleDateString("en-US", { weekday: "short" });
         timeLabel = timeLabel || d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
       }
-    } catch {}
+    } catch { /* unparseable date -- fall back to the schedule-type label below */ }
   }
   timeLabel = timeLabel || scheduleType || "Flexible";
   const distance = row?.distance_miles != null
@@ -2330,7 +2238,7 @@ async function gpiStage3OccurrenceIntentAction(action, payload) {
       const response = result.error?.context;
       const detail = response?.clone ? await response.clone().json() : null;
       message = detail?.error || detail?.code || message;
-    } catch {}
+    } catch { /* couldn't parse the error response body -- use the fallback message above */ }
     throw new Error(message);
   }
   return result?.data?.data ?? result?.data ?? null;
@@ -2345,7 +2253,7 @@ async function gpiStage4OccurrenceNoticeAction(payload = {}) {
       const response = result.error?.context;
       const detail = response?.clone ? await response.clone().json() : null;
       message = detail?.error || detail?.code || message;
-    } catch {}
+    } catch { /* couldn't parse the error response body -- use the fallback message above */ }
     throw new Error(message);
   }
   return result?.data?.data ?? result?.data ?? [];
@@ -2922,7 +2830,7 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
     // into an already-running Vite session. This is cleanup only; no runtime
     // measurement or layout mutation remains in the product build.
     document.getElementById("gpi-diagnostic-panel")?.remove();
-    try { delete window.__gpiDiagnostic; } catch {}
+    try { delete window.__gpiDiagnostic; } catch { /* non-configurable in some environments -- non-fatal */ }
     return () => {
       html.classList.remove("gpi-public-host-active");
       body.classList.remove("gpi-public-host-active");
@@ -3405,7 +3313,7 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
     dragRef.current = { active: true, startX: e.clientX, lastX: e.clientX, lastT: performance.now(), velocity: 0, moved: false, pendingProgress: 0, raf: 0 };
     setDragging(true);
     setDragProgress(0);
-    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* pointer capture unsupported -- drag still works without it */ }
   };
 
   const onPointerMove = (e) => {
