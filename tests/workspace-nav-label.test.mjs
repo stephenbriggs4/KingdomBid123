@@ -1,18 +1,24 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
+// R-65 (2026-09-29): this test used to assert the topnav "Workspace"
+// dropdown trigger's label/CSS geometry. That dropdown was deliberately
+// retired -- see the comment at its old call site: "1008: Workspace
+// dropdown retired; its destinations now live contextually." -- so
+// asserting the old markup exists is testing for a regression that was
+// actually an intentional redesign. Rewritten to confirm the retirement
+// holds instead of chasing the old, no-longer-true contract.
 const app = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
-const css = fs.readFileSync(new URL("../src/styles/legacy-route-patches.css", import.meta.url), "utf8");
 
-assert.match(app, /className="kb-topnav-trigger-label">Workspace<\/span>/);
-assert.match(css, /\.kb-topnav-workspace-trigger\{[\s\S]{0,180}width:148px!important;min-width:148px!important/);
-assert.match(css, /grid-template-columns:26px max-content 12px!important/);
-assert.match(css, /\.kb-topnav-trigger-label\{[^}]*overflow:visible!important;[^}]*text-overflow:clip!important;[^}]*white-space:nowrap!important/);
-assert.match(css, /@media\(max-width:1180px\)[\s\S]{0,500}\.topnav-utility-btn\{display:none!important;/);
+assert.doesNotMatch(
+  app,
+  /className="kb-topnav-trigger-label">Workspace<\/span>/,
+  "the Workspace dropdown trigger was intentionally retired (see the 1008 comment) -- if this now matches, either it was reintroduced or the retirement comment should be checked",
+);
+assert.match(
+  app,
+  /Workspace dropdown retired; its destinations now live contextually/,
+  "expected the retirement comment marking where the Workspace trigger used to live",
+);
 
-const triggerWidth = 148;
-const fixedChrome = 26 + 12 + (7 * 2) + (9 * 2);
-const workspaceTextAllowance = triggerWidth - fixedChrome;
-assert.ok(workspaceTextAllowance >= 72, `Workspace label allowance is only ${workspaceTextAllowance}px`);
-
-console.log(`B4c workspace label passed: ${workspaceTextAllowance}px is reserved for the full desktop label, with mobile using the drawer.`);
+console.log("B4c workspace label: confirmed the Workspace dropdown trigger stays retired, as intended.");

@@ -1,16 +1,27 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
+// R-65 (2026-09-29): this test's original assertions targeted a "Workspace"
+// dropdown containing an "Admin operations" mobile-nav submenu -- both were
+// retired (see App.jsx's "1008: Workspace dropdown retired; its
+// destinations now live contextually" comment). The destinations it used to
+// check (Concierge Pilot Operations, Growth Engine, QA Console) are real
+// and still present, just reachable through AdminReviewSubnav's tabs
+// instead. Rewritten against the current architecture, and extended to
+// cover the Church Intelligence tab that didn't exist when this was
+// written.
 const app = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const contract = fs.readFileSync(new URL("../docs/admin-navigation-contract.md", import.meta.url), "utf8");
 
-assert.equal((app.match(/label:"Admin Review"/g) || []).length, 2, "both role navs must identify the review surface");
-assert.match(app, /section:'Admin operations'/);
-assert.match(app, /label:'Concierge Pilot Operations'[\s\S]{0,160}right:'Pilot ops'/);
-assert.match(app, /label:'Growth Engine'[\s\S]{0,160}right:'Research'/);
-assert.match(app, /label:'QA Console'[\s\S]{0,160}right:'Release'/);
-assert.match(app, /<div className="mobile-nav-section-label">Admin operations<\/div>/);
-assert.match(app, />Concierge Pilot Operations<\/button>/);
+assert.equal((app.match(/label:"Admin Review"/g) || []).length, 2, "both role navs must identify the review surface exactly once each");
+assert.match(app, /Workspace dropdown retired; its destinations now live contextually/, "expected the retirement comment documenting where the old Workspace menu used to be");
+
+assert.match(app, /function AdminReviewSubnav\(/);
+const subnavStart = app.indexOf("function AdminReviewSubnav(");
+const subnavTabsLine = app.slice(subnavStart, subnavStart + 400);
+for (const [id, label] of [["admin", "Review"], ["concierge", "Concierge"], ["growth", "Growth Engine"], ["church-intelligence", "Church Intelligence"], ["qa", "QA Console"]]) {
+  assert.match(subnavTabsLine, new RegExp(`\\['${id}',\\s*'${label}'\\]`), `expected AdminReviewSubnav to include the ${label} tab`);
+}
 
 const accountStart = app.indexOf('{label:"My Profile"');
 const accountEnd = app.indexOf('].map((item)=>(', accountStart);
@@ -19,7 +30,7 @@ const accountMenu = app.slice(accountStart, accountEnd);
 assert.doesNotMatch(accountMenu, /Growth Engine|Concierge/, "operational tools must not be duplicated in the account menu");
 
 assert.match(contract, /Admin Review/);
-assert.match(contract, /Admin operations/);
+assert.match(contract, /AdminReviewSubnav/);
 assert.match(contract, /founder-owned/);
 
-console.log("B4d navigation contract passed: review and operations are differentiated, and Concierge has one clear admin-operations entry per viewport.");
+console.log("B4d navigation contract passed: Admin Review is the single entry point, AdminReviewSubnav carries every operational tab, and Concierge is not duplicated in the account menu.");

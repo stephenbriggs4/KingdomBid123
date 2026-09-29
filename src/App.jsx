@@ -30495,7 +30495,7 @@ function BidReviewCompact({ project = {}, bids = [], loading = false, error = nu
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14 }}>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#8b672e', marginBottom: 4 }}>Bid review</div>
-            <div style={{ fontFamily: "'Bodoni Moda',Georgia,serif", fontSize: 21, fontWeight: 500, color: '#10261f', letterSpacing: '-.02em', lineHeight: 1.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{project?.title || 'Project'}</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 21, fontWeight: 500, color: '#10261f', letterSpacing: '-.02em', lineHeight: 1.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{project?.title || 'Project'}</div>
             <div style={{ fontSize: 11.5, color: '#66716c', marginTop: 3 }}>{[project?.city, project?.budget].filter(Boolean).join(' · ')}</div>
           </div>
           <button type="button" onClick={onClose} aria-label="Close" style={{ border: 0, background: 'transparent', fontSize: 22, lineHeight: 1, color: '#66716c', cursor: 'pointer', padding: 4, flexShrink: 0 }}>×</button>
@@ -30514,7 +30514,7 @@ function BidReviewCompact({ project = {}, bids = [], loading = false, error = nu
         {!loading && error && <div style={{ padding: '30px 10px', textAlign: 'center', fontSize: 13, color: '#8b3b2f' }}>Couldn't load bids. Please try again.</div>}
         {!loading && !error && safeBids.length === 0 && (
           <div style={{ padding: '40px 10px', textAlign: 'center' }}>
-            <div style={{ fontFamily: "'Bodoni Moda',Georgia,serif", fontSize: 17, color: '#173d31', marginBottom: 6 }}>Waiting for proposals</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 17, color: '#173d31', marginBottom: 6 }}>Waiting for proposals</div>
             <div style={{ fontSize: 12.5, color: '#66716c' }}>Proposals appear here as vendors respond.</div>
           </div>
         )}
@@ -32622,7 +32622,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
         body.kb-project-detail-open .kb-project-detail-reference{margin-top:0!important;padding-top:0!important;padding-left:0!important;padding-right:0!important;}
         .kb-project-detail-reference{
           min-height:0;overflow-x:clip;background:#fbfaf6;color:#10261f;
-          font-family:'DM Sans',var(--font-sans),-apple-system,BlinkMacSystemFont,sans-serif;
+          font-family:var(--font-sans),-apple-system,BlinkMacSystemFont,sans-serif;
           --pd-ink:#0e3128;--pd-green:#0b5b43;--pd-gold:#b88a38;--pd-copy:#59635f;--pd-border:rgba(16,38,31,.13);
           --pd-stage:1320px;--pd-shell:1320px;--pd-side:318px;
         }
@@ -32630,7 +32630,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
         .kb-project-detail-reference button{font:inherit}
         .kb-project-detail-reference button:focus-visible,.kb-project-detail-reference a:focus-visible{outline:2px solid var(--pd-green);outline-offset:3px}
         .kb-pdr-shell{width:var(--pd-shell);margin:0 auto}
-        .kb-pdr-serif{font-family:'Bodoni Moda',Georgia,serif;color:var(--pd-ink);font-weight:500;letter-spacing:-.028em}
+        .kb-pdr-serif{font-family:var(--font-display);color:var(--pd-ink);font-weight:500;letter-spacing:-.028em}
         .kb-pdr-hero-top{position:absolute;left:16px;right:16px;top:14px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:14px}
         .kb-pdr-backoverlay{pointer-events:auto;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);height:34px;padding:0 12px;border:1px solid rgba(255,255,255,.72);border-radius:999px;background:rgba(255,253,248,.90);box-shadow:0 4px 14px rgba(12,28,22,.10);color:#173d31;font-size:11px;font-weight:750;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
         .kb-pdr-hero{width:var(--pd-shell);height:270px;margin:0 auto;position:relative;overflow:hidden;background:#d8d1c4}
@@ -32659,7 +32659,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
         .kb-pdr-scope-text{font-size:12.5px;line-height:1.3;color:#59625e;font-weight:450}
         .kb-pdr-side{display:grid;gap:11px}
         .kb-pdr-card{border:1px solid rgba(16,38,31,.12);border-radius:9px;background:#fffdfa;padding:14px}
-        .kb-pdr-card-title{font-family:'Bodoni Moda',Georgia,serif;font-size:16.5px;line-height:1.08;font-weight:500;color:#10261f;margin:0 0 10px;letter-spacing:-.022em}
+        .kb-pdr-card-title{font-family:var(--font-display);font-size:16.5px;line-height:1.08;font-weight:500;color:#10261f;margin:0 0 10px;letter-spacing:-.022em}
         .kb-pdr-church-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid rgba(16,38,31,.10)}
         .kb-pdr-church-icon{width:40px;height:40px;border-radius:50%;background:#edf0e1;color:#37604f;display:grid;place-items:center;flex:0 0 40px}
         .kb-pdr-church-name{font-size:13.5px;font-weight:800;color:#1a4537;margin-bottom:2px}
@@ -32679,7 +32679,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
         .kb-pdr-question{background:#f1f2e9;border:0;padding:14px}
         .kb-pdr-question-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:7px}
         .kb-pdr-question-icon{color:#1d5d49;flex:0 0 auto}
-        .kb-pdr-question h3{font-family:'Bodoni Moda',Georgia,serif;font-size:15px;line-height:1.08;font-weight:500;color:#15382d;margin:0;max-width:250px}
+        .kb-pdr-question h3{font-family:var(--font-display);font-size:15px;line-height:1.08;font-weight:500;color:#15382d;margin:0;max-width:250px}
         .kb-pdr-question p{font-size:9.75px;line-height:1.4;color:#65706a;margin:0 0 9px 34px;max-width:310px}
         .kb-pdr-question button{height:30px;padding:0 14px;margin-left:34px;border-radius:5px;border:1px solid rgba(16,38,31,.32);background:transparent;color:#0b5b43;font-size:10px;font-weight:800;cursor:pointer}
         .kb-pdr-files{display:grid;border-top:1px solid rgba(16,38,31,.10)}
@@ -32689,7 +32689,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
         .kb-pdr-file button{border:0;background:none;color:#0d5b43;font-size:10.5px;font-weight:800;cursor:pointer}
         .kb-pdr-detailmap{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(0,1fr);gap:10px;margin-top:18px;align-items:stretch}
         .kb-pdr-details-card{border:1px solid rgba(16,38,31,.12);border-radius:9px;background:#fffdfa;padding:14px 17px}
-        .kb-pdr-details-title{font-family:'Bodoni Moda',Georgia,serif;font-size:17px;line-height:1.05;font-weight:500;color:#173d31;margin:0 0 11px}
+        .kb-pdr-details-title{font-family:var(--font-display);font-size:17px;line-height:1.05;font-weight:500;color:#173d31;margin:0 0 11px}
         .kb-pdr-detailrows{display:grid;gap:9px}
         .kb-pdr-detailrow{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:center;min-height:27px}
         .kb-pdr-detailrow .icon{color:#2f6653}
@@ -32703,7 +32703,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
         .kb-pdr-map-note{font-size:8.75px;color:#87908b;display:flex;align-items:center;justify-content:center;gap:5px}
         .kb-pdr-cta{position:relative;overflow:hidden;background:#075440;color:#fffdfa;width:var(--pd-shell);margin:0 auto}
         .kb-pdr-cta-inner{width:var(--pd-shell);margin:0 auto;min-height:92px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:34px;align-items:center;position:relative;z-index:2}
-        .kb-pdr-cta h2{font-family:'Bodoni Moda',Georgia,serif;font-size:29px;line-height:1.01;font-weight:500;letter-spacing:-.03em;margin:0 0 4px;color:#fffdfa}
+        .kb-pdr-cta h2{font-family:var(--font-display);font-size:29px;line-height:1.01;font-weight:500;letter-spacing:-.03em;margin:0 0 4px;color:#fffdfa}
         .kb-pdr-cta p{font-size:10.5px;line-height:1.36;color:rgba(255,253,248,.80);margin:0}
         .kb-pdr-cta button{height:40px;padding:0 22px;border-radius:6px;border:1px solid rgba(255,255,255,.88);background:#fffdfa;color:#15382d;font-size:10.75px;font-weight:800;cursor:pointer;justify-self:end;width:auto;white-space:nowrap;margin-right:28px}
         .kb-pdr-leaves{position:absolute;left:-10px;bottom:-28px;width:260px;height:185px;opacity:.46;pointer-events:none}
@@ -35282,7 +35282,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
         body.kb-project-detail-open .kb-project-detail-reference{margin-top:0!important;padding-top:0!important;padding-left:0!important;padding-right:0!important;}
         .kb-project-detail-reference{
           min-height:0;overflow-x:clip;background:#fbfaf6;color:#10261f;
-          font-family:'DM Sans',var(--font-sans),-apple-system,BlinkMacSystemFont,sans-serif;
+          font-family:var(--font-sans),-apple-system,BlinkMacSystemFont,sans-serif;
           --pd-ink:#0e3128;--pd-green:#0b5b43;--pd-gold:#b88a38;--pd-copy:#59635f;--pd-border:rgba(16,38,31,.13);
           --pd-stage:1320px;--pd-shell:1320px;--pd-side:318px;
         }
@@ -35290,7 +35290,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
         .kb-project-detail-reference button{font:inherit}
         .kb-project-detail-reference button:focus-visible,.kb-project-detail-reference a:focus-visible{outline:2px solid var(--pd-green);outline-offset:3px}
         .kb-pdr-shell{width:var(--pd-shell);margin:0 auto}
-        .kb-pdr-serif{font-family:'Bodoni Moda',Georgia,serif;color:var(--pd-ink);font-weight:500;letter-spacing:-.028em}
+        .kb-pdr-serif{font-family:var(--font-display);color:var(--pd-ink);font-weight:500;letter-spacing:-.028em}
         .kb-pdr-hero-top{position:absolute;left:16px;right:16px;top:14px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:14px;pointer-events:none}
         .kb-pdr-backoverlay,.kb-pdr-previewtruth{pointer-events:auto;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
         .kb-pdr-backoverlay{height:34px;padding:0 12px;border:1px solid rgba(255,255,255,.72);border-radius:999px;background:rgba(255,253,248,.90);box-shadow:0 4px 14px rgba(12,28,22,.10);color:#173d31;font-size:11px;font-weight:750;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
@@ -35321,7 +35321,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
         .kb-pdr-scope-text{font-size:12.5px;line-height:1.3;color:#59625e;font-weight:450}
         .kb-pdr-side{display:grid;gap:11px}
         .kb-pdr-card{border:1px solid rgba(16,38,31,.12);border-radius:9px;background:#fffdfa;padding:14px}
-        .kb-pdr-card-title{font-family:'Bodoni Moda',Georgia,serif;font-size:16.5px;line-height:1.08;font-weight:500;color:#10261f;margin:0 0 10px;letter-spacing:-.022em}
+        .kb-pdr-card-title{font-family:var(--font-display);font-size:16.5px;line-height:1.08;font-weight:500;color:#10261f;margin:0 0 10px;letter-spacing:-.022em}
         .kb-pdr-church-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid rgba(16,38,31,.10)}
         .kb-pdr-church-icon{width:40px;height:40px;border-radius:50%;background:#edf0e1;color:#37604f;display:grid;place-items:center;flex:0 0 40px}
         .kb-pdr-church-name{font-size:13.5px;font-weight:800;color:#1a4537;margin-bottom:2px}
@@ -35341,7 +35341,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
         .kb-pdr-question{background:#f1f2e9;border:0;padding:14px}
         .kb-pdr-question-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:7px}
         .kb-pdr-question-icon{color:#1d5d49;flex:0 0 auto}
-        .kb-pdr-question h3{font-family:'Bodoni Moda',Georgia,serif;font-size:15px;line-height:1.08;font-weight:500;color:#15382d;margin:0;max-width:250px}
+        .kb-pdr-question h3{font-family:var(--font-display);font-size:15px;line-height:1.08;font-weight:500;color:#15382d;margin:0;max-width:250px}
         .kb-pdr-question p{font-size:9.75px;line-height:1.4;color:#65706a;margin:0 0 9px 34px;max-width:310px}
         .kb-pdr-question button{height:30px;padding:0 14px;margin-left:34px;border-radius:5px;border:1px solid rgba(16,38,31,.32);background:transparent;color:#0b5b43;font-size:10px;font-weight:800}
         .kb-pdr-files{display:grid;border-top:1px solid rgba(16,38,31,.10)}
@@ -35355,7 +35355,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
         .kb-pdr-qitem span{font-size:11.5px;color:#747d78;line-height:1.45}
         .kb-pdr-detailmap{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(0,1fr);gap:10px;margin-top:18px;align-items:stretch}
         .kb-pdr-details-card{border:1px solid rgba(16,38,31,.12);border-radius:9px;background:#fffdfa;padding:14px 17px}
-        .kb-pdr-details-title{font-family:'Bodoni Moda',Georgia,serif;font-size:17px;line-height:1.05;font-weight:500;color:#173d31;margin:0 0 11px}
+        .kb-pdr-details-title{font-family:var(--font-display);font-size:17px;line-height:1.05;font-weight:500;color:#173d31;margin:0 0 11px}
         .kb-pdr-detailrows{display:grid;gap:9px}
         .kb-pdr-detailrow{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:center;min-height:27px}
         .kb-pdr-detailrow .icon{color:#2f6653}
@@ -35369,7 +35369,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
         .kb-pdr-map-note{font-size:8.75px;color:#87908b;display:flex;align-items:center;justify-content:center;gap:5px}
         .kb-pdr-cta{position:relative;overflow:hidden;background:#075440;color:#fffdfa}
         .kb-pdr-cta-inner{width:var(--pd-shell);margin:0 auto;min-height:92px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:34px;align-items:center;position:relative;z-index:2}
-        .kb-pdr-cta h2{font-family:'Bodoni Moda',Georgia,serif;font-size:29px;line-height:1.01;font-weight:500;letter-spacing:-.03em;margin:0 0 4px;color:#fffdfa}
+        .kb-pdr-cta h2{font-family:var(--font-display);font-size:29px;line-height:1.01;font-weight:500;letter-spacing:-.03em;margin:0 0 4px;color:#fffdfa}
         .kb-pdr-cta p{font-size:10.5px;line-height:1.36;color:rgba(255,253,248,.80);margin:0}
         .kb-pdr-cta button{height:40px;padding:0 22px;border-radius:6px;border:1px solid rgba(255,255,255,.88);background:#fffdfa;color:#15382d;font-size:10.75px;font-weight:800;cursor:pointer;justify-self:end;width:auto;white-space:nowrap;margin-right:28px}
         .kb-pdr-leaves{position:absolute;left:-10px;bottom:-28px;width:260px;height:185px;opacity:.46;pointer-events:none}
