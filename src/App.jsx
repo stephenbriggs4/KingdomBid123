@@ -28479,7 +28479,25 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
   }, [loading, projects]);
   const [interopVersion, setInteropVersion] = useState(0);
   const [vendorPickModal, setVendorPickModal] = useState(null); // { project, links }
+  // R-70: had role="dialog" aria-modal="true" but no Escape handling and no
+  // focus trap -- only a mouse-clickable "Cancel" button.
+  const vendorPickTrapRef = useFocusTrap(!!vendorPickModal);
+  useEffect(() => {
+    if (!vendorPickModal) return undefined;
+    const onKeyDown = (e) => { if (e.key === 'Escape') setVendorPickModal(null); };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [vendorPickModal]);
   const [stagePickModal, setStagePickModal] = useState(null);   // { project, vendor }
+  // R-70: same gap as vendorPickModal above -- role="dialog" aria-modal but
+  // no Escape handling and no focus trap.
+  const stagePickTrapRef = useFocusTrap(!!stagePickModal);
+  useEffect(() => {
+    if (!stagePickModal) return undefined;
+    const onKeyDown = (e) => { if (e.key === 'Escape') setStagePickModal(null); };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [stagePickModal]);
   const viewportWidth = useViewportWidth(1440);
   const isMobile = viewportWidth < KB_BP_MOBILE;
   const interopEntries = useMemo(() => (interopHydrated ? listProjectInteropEntries() : {}), [interopHydrated, interopVersion]);
@@ -29165,7 +29183,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       )}
       {vendorPickModal && (
         <div style={{position:'fixed',inset:0,background:'rgba(28,40,20,0.50)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:16,backdropFilter:'blur(4px)'}} role="dialog" aria-modal="true">
-          <div style={{background:'#fff',borderRadius:22,padding:'24px 26px',maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(28,40,20,0.30)',border:'1px solid #dfd5c2'}}>
+          <div ref={vendorPickTrapRef} style={{background:'#fff',borderRadius:22,padding:'24px 26px',maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(28,40,20,0.30)',border:'1px solid #dfd5c2'}}>
             <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Vendor selection</div>
             <h3 style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:'0 0 4px'}}>Update which vendor?</h3>
             <p style={{margin:'0 0 18px',fontSize:13,color:'#565862'}}>{vendorPickModal.project?.title}</p>
@@ -29209,7 +29227,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
 
       {stagePickModal && (
         <div style={{position:'fixed',inset:0,background:'rgba(28,40,20,0.50)',zIndex:9000,display:'flex',alignItems:'center',justifyContent:'center',padding:16,backdropFilter:'blur(4px)'}} role="dialog" aria-modal="true">
-          <div style={{background:'#fff',borderRadius:22,padding:'24px 26px',maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(28,40,20,0.30)',border:'1px solid #dfd5c2'}}>
+          <div ref={stagePickTrapRef} style={{background:'#fff',borderRadius:22,padding:'24px 26px',maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(28,40,20,0.30)',border:'1px solid #dfd5c2'}}>
             <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:700,letterSpacing:'0.16em',textTransform:'uppercase',color:'#b08840',marginBottom:6}}>Vendor stage</div>
             <h3 style={{fontFamily:"var(--font-display),serif",fontSize:20,fontWeight:700,color:'#1C2814',letterSpacing:'-0.02em',margin:'0 0 4px'}}>Set stage for {stagePickModal.vendor?.name}</h3>
             <p style={{margin:'0 0 18px',fontSize:13,color:'#565862'}}>Current: <strong style={{color:'#1C2814',fontWeight:700}}>{PROJECT_VENDOR_STAGE_META[stagePickModal.vendor?.stage]?.label || 'Watching'}</strong></p>
