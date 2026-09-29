@@ -1685,6 +1685,17 @@ function SuccessMomentConfetti({ kind }) {
 }
 
 function SuccessMomentModal({ moment, onClose, onPrimary, onSecondary }) {
+  // R-70: had role="dialog" aria-modal="true" but no Escape handling and no
+  // focus trap -- only a mouse-clickable × close button. This component is
+  // only ever mounted while a moment is active, so useFocusTrap(true) is
+  // safe to call unconditionally before the early-return below.
+  const successMomentTrapRef = useFocusTrap(!!moment);
+  useEffect(() => {
+    if (!moment) return undefined;
+    const onKeyDown = (e) => { if (e.key === 'Escape' && typeof onClose === 'function') onClose(); };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [moment, onClose]);
   if (!moment) return null;
   const cfg = getSuccessMomentConfig(moment.type || moment, moment);
   const isCelebration = cfg.kind === "celebration";
@@ -1700,7 +1711,7 @@ function SuccessMomentModal({ moment, onClose, onPrimary, onSecondary }) {
   };
 
   return (
-    <div className="kbm-overlay" role="dialog" aria-modal="true" aria-label={cfg.title}>
+    <div ref={successMomentTrapRef} className="kbm-overlay" role="dialog" aria-modal="true" aria-label={cfg.title}>
       <style>{`
         .kbm-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 20%,rgba(213,184,115,.18),transparent 34%),rgba(9,18,13,.66);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
         .kbm-card{position:relative;width:min(620px,100%);max-height:calc(100vh - 36px);overflow:hidden auto;background:linear-gradient(180deg,#fffdf7 0%,#fbf3e4 100%);border:1px solid rgba(190,169,132,.72);border-radius:28px;box-shadow:0 34px 94px rgba(0,0,0,.36),0 0 0 1px rgba(255,255,255,.55) inset,0 18px 44px rgba(120,86,34,.14);animation:kbmCardIn .38s cubic-bezier(.22,1,.36,1) both;color:#172116;font-family:var(--font-sans),system-ui,sans-serif;}
