@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "./supabaseClient";
 import { LegalConsentCheckbox, recordLegalConsent, CONSENT_KINDS } from "./LegalConsent";
 
-let CATEGORIES, CHARTER_VENDOR_PRO_FREE_MONTHS, CHARTER_VENDOR_PRO_VALUE_LABEL, KB_US_STATE_CODES, LAUNCH_LABEL, PLATFORM_FEE_CAP, VENDOR_PRO_FEE_CAP, buildWaitlistAttributionFields, buildWaitlistSnapshot, formatMoney, getActiveGroupAttribution, getAppUrl, getWaitlistSourceForMode, isValidEmail, isWaitlistDuplicateEmailError, kbSafeLocalGet, kbSafeLocalRemove, kbSafeLocalSet, logError, normalizeRefCode, recordPublicFunnelEvent, runSupabaseWithTimeout, sendWaitlistEmail;
+let CATEGORIES, CHARTER_VENDOR_PRO_FREE_MONTHS, CHARTER_VENDOR_PRO_VALUE_LABEL, KB_US_STATE_CODES, LAUNCH_LABEL, PLATFORM_FEE_CAP, VENDOR_PRO_FEE_CAP, buildWaitlistAttributionFields, buildWaitlistSnapshot, getAppUrl, getWaitlistSourceForMode, isValidEmail, isWaitlistDuplicateEmailError, kbSafeLocalGet, kbSafeLocalRemove, kbSafeLocalSet, logError, normalizeRefCode, recordPublicFunnelEvent, runSupabaseWithTimeout, sendWaitlistEmail;
 
 function applyWaitlistScreenDependencies(values = {}) {
-  ({ CATEGORIES, CHARTER_VENDOR_PRO_FREE_MONTHS, CHARTER_VENDOR_PRO_VALUE_LABEL, KB_US_STATE_CODES, LAUNCH_LABEL, PLATFORM_FEE_CAP, VENDOR_PRO_FEE_CAP, buildWaitlistAttributionFields, buildWaitlistSnapshot, formatMoney, getActiveGroupAttribution, getAppUrl, getWaitlistSourceForMode, isValidEmail, isWaitlistDuplicateEmailError, kbSafeLocalGet, kbSafeLocalRemove, kbSafeLocalSet, logError, normalizeRefCode, recordPublicFunnelEvent, runSupabaseWithTimeout, sendWaitlistEmail } = values || {});
+  ({ CATEGORIES, CHARTER_VENDOR_PRO_FREE_MONTHS, CHARTER_VENDOR_PRO_VALUE_LABEL, KB_US_STATE_CODES, LAUNCH_LABEL, PLATFORM_FEE_CAP, VENDOR_PRO_FEE_CAP, buildWaitlistAttributionFields, buildWaitlistSnapshot, getAppUrl, getWaitlistSourceForMode, isValidEmail, isWaitlistDuplicateEmailError, kbSafeLocalGet, kbSafeLocalRemove, kbSafeLocalSet, logError, normalizeRefCode, recordPublicFunnelEvent, runSupabaseWithTimeout, sendWaitlistEmail } = values || {});
 }
 
 function getWaitlistRoleMeta() {
@@ -97,7 +97,7 @@ function saveWaitlistReceipt(mode, result) {
       referralValidated: result.referralValidated === true,
       savedAt: Date.now(),
     }));
-  } catch {}
+  } catch { /* localStorage unavailable (quota, private mode) -- receipt save is best-effort */ }
 }
 
 function loadWaitlistReceipt(mode) {
@@ -145,7 +145,6 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
   const [learnMoreOpen, setLearnMoreOpen] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   const [mounted, setMounted] = useState(false);
-  const [successMoment, setSuccessMoment] = useState(null);
   const mountedRef = useRef(false);
 
   useEffect(() => {
@@ -165,10 +164,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
       const q = String(window.location.search || "");
       const m = h.match(/[?&]ref=([^&#]+)/i) || q.match(/[?&]ref=([^&#]+)/i);
       let rawRef = m?.[1] || "";
-      try { rawRef = decodeURIComponent(rawRef); } catch {}
+      try { rawRef = decodeURIComponent(rawRef); } catch { /* malformed encoding -- fall back to the raw value */ }
       const code = normalizeRefCode(rawRef);
       if (code) setForm(f => ({ ...f, referred_by: code }));
-    } catch {}
+    } catch { /* no ref param present or URL parsing failed -- not fatal */ }
   }, []);
 
   // Returnable receipt: if this browser already completed a signup for this
@@ -727,10 +726,6 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
     );
   }
 
-  const secondaryAction = () => {
-    nav("landing");
-  };
-
   const completedRequired = isVendor
     ? [form.full_name.trim(), form.org_name.trim(), isValidEmail(form.email), form.category, form.city.trim(), form.state_code, form.delivery_model].filter(Boolean).length
     : [form.full_name.trim(), form.org_name.trim(), isValidEmail(form.email), form.city.trim(), form.state_code].filter(Boolean).length;
@@ -750,15 +745,6 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
     </div>
   );
   const inputBorderFor = (name) => focusedField === name ? formAccent : inputBorder;
-
-  const socialProof = isVendor
-    ? "Invitations going out in waves"
-    : "Opening in focused waves this fall";
-  const inboundAttribution = getActiveGroupAttribution(mode);
-  const inboundGroupLabel = inboundAttribution?.groupName || inboundAttribution?.source || '';
-  const inboundPlatformLabel = inboundAttribution?.platform
-    ? inboundAttribution.platform.charAt(0).toUpperCase() + inboundAttribution.platform.slice(1)
-    : 'group';
 
   return (
     <div className={`kb-waitlist-page ${isVendor ? "kb-waitlist-page-vendor" : "kb-waitlist-page-church"}`} style={shellStyle}>
