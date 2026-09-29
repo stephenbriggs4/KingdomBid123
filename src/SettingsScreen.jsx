@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "./supabaseClient";
 
 let BRAND, KB_SETTINGS_NOTIFICATION_OPTIONS, KB_SETTINGS_TABS, LegalProtectionPanel, PAYMENT_STATUS_COPY, PLATFORM_RELEASE, buildSettingsAccountInfoRows, getPlatformCapabilityTone, getPlatformStatusSummary, getReturnNavigationTarget, getTrustSignalSummary, goToLandingFAQ, isValidEmail, logError, passwordStrengthError, readReturnContext;

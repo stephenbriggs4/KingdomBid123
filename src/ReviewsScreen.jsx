@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 import KBWorkspaceEmptyState from "./KBWorkspaceEmptyState";
 
@@ -638,7 +638,7 @@ function ReviewsDashboard({reviews, loading, role, onReply, onHelpful, onWrite, 
   );
 }
 
-function PendingReviews({pending, role, onSelect, onBack, onOpenProject}){
+function PendingReviews({pending, onSelect, onBack, onOpenProject}){
   const prx = {
     shell:{background:"#faf8f4",minHeight:"100vh",paddingBottom:60},
     topbar:{maxWidth:980,margin:"0 auto",padding:"22px 28px 0",display:"flex",alignItems:"center",gap:12},
