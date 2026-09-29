@@ -60545,7 +60545,23 @@ function LandingMobileMenu({nav, setAuthDefaultRole, setStartFreeDefaultRole}){
 
     window.requestAnimationFrame(() => drawerRef.current?.focus?.());
 
+    // R-70: the drawer already focuses itself and closes on Escape, but had
+    // no Tab-wrap -- a keyboard user could tab straight out into the
+    // (visually hidden but still-in-DOM) background landing page.
+    const onKeyDownTrap = (e) => {
+      if (e.key !== 'Tab' || !drawerRef.current) return;
+      const focusable = drawerRef.current.querySelectorAll('a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', onKeyDownTrap);
+
     return () => {
+      document.removeEventListener('keydown', onKeyDownTrap);
       landingNav?.classList.remove("land-menu-open");
       html.classList.remove("land-mobile-menu-open");
       body.classList.remove("land-mobile-menu-open");
@@ -63126,6 +63142,15 @@ function VendorSignupFlow({ nav, showToast, setAuthDefaultRole, telemetryEnabled
 
 function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", authReady = true, setRole, showToast, setAuthDefaultRole }) {
   const [pendingData, setPendingData] = useState(null);
+  // R-70: the "Create your account to publish" modal had role="dialog"
+  // aria-modal="true" but no Escape handling and no focus trap.
+  const pendingDataTrapRef = useFocusTrap(!!pendingData);
+  useEffect(() => {
+    if (!pendingData) return undefined;
+    const onKeyDown = (e) => { if (e.key === 'Escape' && !submitting) setPendingData(null); };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [pendingData, submitting]);
   const [acct, setAcct] = useState({ churchName: "", email: "", password: "" });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [acctErr, setAcctErr] = useState("");
@@ -63521,7 +63546,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
       <PostProject onSubmit={handleFormSubmit} onBack={() => nav("landing")} role="church" />
       {pendingData && (
         <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(12,18,13,0.5)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={(e) => { if (e.target === e.currentTarget && !submitting) setPendingData(null); }}>
-          <div style={{ width: "100%", maxWidth: 440, background: "#fff", borderRadius: 14, border: "1px solid var(--border)", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+          <div ref={pendingDataTrapRef} style={{ width: "100%", maxWidth: 440, background: "#fff", borderRadius: 14, border: "1px solid var(--border)", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
             <div style={{ padding: "22px 24px 14px", borderBottom: "1px solid var(--border)", background: "linear-gradient(135deg, #fffdf7, #faf6ed)" }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", color: "var(--gold-text)", marginBottom: 6 }}>Almost done</div>
               <div style={{ fontFamily: "var(--font-display), serif", fontSize: 22, fontWeight: 700, color: "var(--navy)", lineHeight: 1.3 }}>Create your account to publish</div>
