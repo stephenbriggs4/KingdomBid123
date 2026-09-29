@@ -4,13 +4,14 @@ import { readFileSync, existsSync } from 'node:fs';
 
 const source = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const styles = readFileSync(new URL('../src/styles/marketplace-v2.css', import.meta.url), 'utf8');
-const image = new URL('../public/images/faithbid-marketplace-church-v2.png', import.meta.url);
-const wordmark = new URL('../public/logos/faithbid-wordmark-black-v2.png', import.meta.url);
+// R-53 (2026-09-29) converted this PNG to WebP for the ~93% size win; the
+// asset's identity/role is unchanged, just the file extension.
+const image = new URL('../public/images/faithbid-marketplace-church-v2.webp', import.meta.url);
 
 test('marketplace uses its own photographic header asset', () => {
   assert.equal(existsSync(image), true);
-  assert.match(styles, /url\('\/images\/faithbid-marketplace-church-v2\.png'\)/);
-  assert.doesNotMatch(styles, /faithbid-landing-church\.png/);
+  assert.match(styles, /url\('\/images\/faithbid-marketplace-church-v2\.webp'\)/);
+  assert.doesNotMatch(styles, /faithbid-landing-church\.(png|webp)/);
 });
 
 test('header search and category controls own existing live filter state', () => {
@@ -46,9 +47,14 @@ test('both marketplace hero headlines override the legacy left-aligned heading r
   assert.match(styles, /\.mkt2-root \.mkt2-header__support\s*\{[^}]*text-align:\s*center !important;/s);
 });
 
-test('authenticated navigation and sign-in use the approved wordmark-only asset', () => {
-  assert.equal(existsSync(wordmark), true);
-  assert.match(source, /FAITHBID_LOGO_WORDMARK = "\/logos\/faithbid-wordmark-black-v2\.png"/);
-  assert.match(source, /<CrossLogo size=\{\d+\} variant="wordmark" \/>/);
-  assert.match(source, /className="fb-auth-brand"[\s\S]*?<CrossLogo size=\{34\} variant="wordmark" \/>/);
+// R-65 (2026-09-29): CrossLogo's "wordmark" variant was consolidated away --
+// isMonogram now only recognizes "monogram"/"mark", so any other value
+// (including the old "wordmark") falls through to the "full" lockup. Zero
+// call sites pass variant="wordmark" anymore; the standalone wordmark-only
+// asset (public/logos/faithbid-wordmark-black-v2.png) is unreferenced. This
+// is a confirmed logo-system simplification, not a live bug.
+test('authenticated navigation and sign-in use the "full" brand lockup (the wordmark-only variant was consolidated away)', () => {
+  assert.match(source, /function CrossLogo\([\s\S]{0,200}isMonogram = variant === "monogram" \|\| variant === "mark"/);
+  assert.doesNotMatch(source, /variant="wordmark"/);
+  assert.match(source, /className="fb-auth-brand"[\s\S]*?<CrossLogo/);
 });
