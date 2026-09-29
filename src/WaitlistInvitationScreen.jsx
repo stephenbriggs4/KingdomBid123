@@ -254,11 +254,11 @@ export default function WaitlistInvitationScreen({
 
   const signOutForDifferentAccount = async () => {
     savePendingWaitlistInvitationContext({ ...invitation, role });
-    try { await supabase.auth.signOut({ scope: "local" }); } catch {}
+    try { await supabase.auth.signOut({ scope: "local" }); } catch { /* best-effort local sign-out */ }
     try {
       restorePendingWaitlistInvitationRoute({ ...invitation, role });
       window.location.reload();
-    } catch {}
+    } catch { /* route restore or reload unavailable -- nothing more to do */ }
   };
 
   const shellStyle = {
