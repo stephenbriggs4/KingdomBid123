@@ -1,0 +1,1 @@
+drop index if exists public.messages_call_details_conversation_created_idx;
