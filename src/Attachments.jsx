@@ -51,7 +51,7 @@ async function uploadFiles({ bucket, table, folder, userId, rowBase, files }) {
         throw rowError;
       }
       uploaded += 1;
-    } catch (error) {
+    } catch {
       failed.push(file.name);
     }
   }
