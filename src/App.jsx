@@ -23160,6 +23160,14 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [selectedProjectFallback, setSelectedProjectFallback] = useState(null);
   const [bidReviewModalOpen, setBidReviewModalOpen] = useState(false);
+  // R-70: the bid review modal had role="dialog" aria-modal="true" but no
+  // actual focus trap, so Tab could walk a keyboard/screen-reader user out
+  // into the background page while it was open -- the established
+  // useFocusTrap hook (already used for the filter sheet and elsewhere)
+  // fixes that and, as a side effect, makes the modal-bg's Escape handler
+  // reliably fire (focus now starts and stays inside it, so the keydown
+  // bubbles up as expected).
+  const bidReviewTrapRef = useFocusTrap(bidReviewModalOpen);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   // V736: Marketplace header parity added a My Projects-style tools row.
@@ -24263,7 +24271,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   const closeBidReviewModal = () => setBidReviewModalOpen(false);
   const bidReviewModalNode = (bidReviewModalOpen && (selectedProject || selectedProjectFallback)) ? (
     <div className="modal-bg" role="button" tabIndex={0} onClick={closeBidReviewModal} onKeyDown={(e)=>{if(e.key==='Escape')closeBidReviewModal();}}>
-      <div className="modal" role="dialog" aria-modal="true" aria-label="Review bids" onClick={e=>e.stopPropagation()} style={{maxWidth:600,width:'92vw',padding:0,overflow:'hidden',background:'#fffdf8',color:'#10261f'}}>
+      <div ref={bidReviewTrapRef} className="modal" role="dialog" aria-modal="true" aria-label="Review bids" onClick={e=>e.stopPropagation()} style={{maxWidth:600,width:'92vw',padding:0,overflow:'hidden',background:'#fffdf8',color:'#10261f'}}>
         <BidReviewCompact project={selectedProject || selectedProjectFallback} bids={bids} loading={loadingBids} error={bidFetchError} onAccept={handleAcceptBid} onDecline={handleDeclineBid} onClose={closeBidReviewModal} showToast={showToast} nav={nav}/>
       </div>
     </div>
