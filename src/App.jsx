@@ -23232,6 +23232,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   const [stripeModal, setStripeModal] = useState(null);
   const [myBids, setMyBids] = useState([]);
   const [loadingMyBids, setLoadingMyBids] = useState(false);
+  const [myBidsFetchError, setMyBidsFetchError] = useState(null);
   const [vendorVerified, setVendorVerified] = useState(null);
   const [bidAcceptedModal, setBidAcceptedModal] = useState(null);
   const [successMoment, setSuccessMoment] = useState(null);
@@ -23723,6 +23724,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
     myBidsInFlightRef.current = true;
     const canKeepVisible = hasFetched || (Array.isArray(myBids) && myBids.length > 0);
     if (!background || !canKeepVisible) setLoadingMyBids(true);
+    setMyBidsFetchError(null);
     try {
     const { data, error } = await supabase
       .from("bids")
@@ -23740,9 +23742,11 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
       myBidsFetchedAtRef.current = Date.now();
     } else if (error) {
       logError("fetch-my-bids-response", error, { userId: user.id });
+      setMyBidsFetchError(error);
     }
     } catch (err) {
       logError("fetch-my-bids", err);
+      setMyBidsFetchError(err);
     } finally {
       myBidsInFlightRef.current = false;
       setLoadingMyBids(false);
@@ -25050,7 +25054,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
 
       {visitedProjectTabs.has("work") && role==="vendor" && (
         <div className={`kb-warm-tab-panel ${projectTab === "work" ? "is-active" : "is-hidden"}`} aria-hidden={projectTab !== "work"}>
-          <MemoMyWorkPanel bids={myBids} loading={loadingMyBids} projects={myActiveProjects} loadingProjects={loadingMyProjects} onBrowse={browseProjectsStable} onSelectProject={safeOpenProjectStable} nav={nav} onFetchBids={ensureMyWorkDataStable} showToast={showToast} currentUser={currentUser}/>
+          <MemoMyWorkPanel bids={myBids} loading={loadingMyBids} error={myBidsFetchError} projects={myActiveProjects} loadingProjects={loadingMyProjects} onBrowse={browseProjectsStable} onSelectProject={safeOpenProjectStable} nav={nav} onFetchBids={ensureMyWorkDataStable} showToast={showToast} currentUser={currentUser}/>
         </div>
       )}
 
@@ -27567,7 +27571,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
                     <div>
                       <p className="kb-marketplace-section-kicker">Featured</p>
                       <h2 id="kb-marketplace-featured-projects-title">{catFilter && catFilter !== 'All' ? `Featured ${formatMarketplaceCategoryLabel(catFilter, catFilter)} Projects` : 'Featured Projects'}</h2>
-                      <span>Grab and drag to explore.</span>
+                      <span>Grab and drag to explore. Highlighted placement is not a FaithBid recommendation.</span>
                     </div>
                   </div>
                   <div className="kb-rail-wrap">
@@ -29282,7 +29286,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
   );
 }
 
-function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, onFetchBids, onSelectProject, showToast, currentUser}){
+function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse, nav, onFetchBids, onSelectProject, showToast, currentUser}){
   const [bucket, setBucket] = useState(() => consumeMyProjectsLens("active"));
   const [msgUnread, setMsgUnread] = useMessagesUnread(currentUser?.id);
   useEffect(() => {
@@ -29943,7 +29947,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
           .kb1004-layout>main{container-type:inline-size}
           @media(min-width:821px){@container (max-width:999px){.kb1004-filter-cell{gap:7px;padding:0 8px;font-size:14px;white-space:nowrap}.kb1004-filter-cell svg{display:none}.kb1004-filter-count{min-width:22px;height:22px;font-size:11px}}@container (max-width:799px){.kb1004-filter-cell{gap:6px;padding:0 5px;font-size:13px}.kb1004-filter-count{min-width:20px;height:20px;font-size:10.5px}}}
           @media(max-width:820px){.kb1004-myprojects{padding:22px 16px 84px}.kb1004-intro h1{font-size:46px}.kb1004-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;background:transparent;border:0;box-shadow:none;gap:8px}.kb1004-filter-cell{border:1px solid #ded8cc!important;border-radius:8px;background:#fff;min-height:50px}.kb1004-toolbar{grid-template-columns:1fr auto}.kb1004-sort{grid-column:1/-1;grid-row:2}.kb1004-card-grid{grid-template-columns:1fr}.kb1004-project-card{grid-template-columns:150px minmax(0,1fr);min-height:230px}.kb1004-card-media{min-height:200px}.kb1004-card-actions{grid-template-columns:1fr}.kb1004-side{grid-template-columns:1fr}.kb1004-proposal-stats{grid-template-columns:1fr}}
-          @media(max-width:560px){.kb1004-project-card{grid-template-columns:1fr}.kb1004-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1004-filter-cells{grid-template-columns:1fr 1fr}.kb1004-intro p{font-size:14px}.kb1004-toolbar{grid-template-columns:1fr}.kb1004-view-toggle{display:none}.kb1004-card-main{padding:14px}.kb1004-side-card{padding:16px}}
+          @media(max-width:560px){.kb1004-project-card{grid-template-columns:1fr}.kb1004-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1004-filter-cells{grid-template-columns:1fr 1fr}.kb1004-intro p{font-size:14px}.kb1004-toolbar{grid-template-columns:1fr}.kb1004-view-toggle{display:flex}.kb1004-card-main{padding:14px}.kb1004-side-card{padding:16px}}
           .kb1005-hero-art{position:absolute;top:0;left:0;right:0;height:min(330px,20vw + 30px);pointer-events:none;z-index:0;background:url("/images/my-projects-hero.webp") 2% top/84% auto no-repeat;-webkit-mask-image:linear-gradient(180deg,#000 60%,transparent 100%),linear-gradient(90deg,transparent 4%,#000 22%,#000 83%,transparent 87%);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,#000 60%,transparent 100%),linear-gradient(90deg,transparent 4%,#000 22%,#000 83%,transparent 87%);mask-composite:intersect}
                 .kb1005-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;font:500 10.5px/1 var(--font-sans),sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#8a6c3c}.kb1005-eyebrow i{width:38px;height:1px;background:#c9b48c}
                 .kb1005-quote{border:0;padding:0;white-space:normal;display:grid;gap:4px;font-family:var(--font-display),serif}
@@ -29972,7 +29976,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
           @media(min-width:1181px){.kb1004-layout.is-messages .kb1004-filter-cells{width:calc(100% - 392px)}}
           /* Compact vendor project cards: short horizontal card, small thumbnail, one-line meta. */
           @media(min-width:561px){
-            .kb1004-project-card{grid-template-columns:104px minmax(0,1fr)!important;min-height:0!important}
+            .kb1004-project-card{grid-template-columns:176px minmax(0,1fr)!important;min-height:0!important}
             .kb1004-card-media{margin:10px 0 10px 10px!important;min-height:0!important;height:calc(100% - 20px)!important}
             .kb1004-card-main{padding:10px 12px 10px 14px!important}
             .kb1004-status{height:22px!important;padding:0 10px!important;font-size:10px!important}
@@ -30019,7 +30023,13 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
             </div>
 
             <div className={`kb1004-card-grid${viewMode==='list'?' list':''}`}>
-              {showLoading ? [0,1,2,3].map(i=><div className="kb1004-skeleton" key={i}/>) : bucket==='saved' && savedError ? (
+              {showLoading ? [0,1,2,3].map(i=><div className="kb1004-skeleton" key={i}/>) : error && !bidRows.length && !['saved','invited','messages'].includes(bucket) ? (
+                <div className="kb1004-empty" role="alert">
+                  <h3>Your work couldn't load.</h3>
+                  <p>Your FaithBid records have not changed. Retry to reconnect and load this workspace.</p>
+                  <button type="button" onClick={()=>onFetchBids?.({ force:true })}>Retry My Work</button>
+                </div>
+              ) : bucket==='saved' && savedError ? (
                 <div className="kb1004-empty">
                   <h3>Saved opportunities couldn't load.</h3>
                   <p>Your saved projects are still stored in FaithBid. Retry this view to reconnect to the saved-projects source.</p>
@@ -30348,7 +30358,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
   const primaryAction = project => {
     if (project.actionableBidsCount > 0 && !project.completed && !project.archived) return {label:project.actionableBidsCount===1?'Review bid':`Review bids (${project.actionableBidsCount})`, run:()=>onManageBids(project)};
     if (project.bidsCount > 0 && !project.completed && !project.archived) return {label:'View bid history', run:()=>onManageBids(project)};
-    return {label: project.completed || project.archived ? 'View project record' : project.draft ? 'Continue draft' : 'Open workspace', run:()=>onSelect(project)};
+    return {label: project.completed || project.archived ? 'View project record' : project.draft ? 'Continue draft' : 'Manage project', run:()=>onSelect(project)};
   };
 
   const renderCard = project => {
@@ -30372,7 +30382,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
         <div className="kb1005-card-actions">
           <button type="button" className="primary" onClick={action.run}>{action.label}</button>
           {project.completed ? <button type="button" disabled={reviewed} onClick={()=>!reviewed&&setReviewProject(project)}>{reviewed?'Review submitted':'Leave vendor review'}</button> : null}
-          {(project.actionableBidsCount > 0 || project.bidsCount > 0) && !project.completed && !project.archived ? <button type="button" onClick={()=>onSelect(project)}>Open workspace</button> : null}
+          {(project.actionableBidsCount > 0 || project.bidsCount > 0) && !project.completed && !project.archived ? <button type="button" onClick={()=>onSelect(project)}>Manage project</button> : null}
         </div>
       </div>
     </article>;
@@ -30413,7 +30423,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
         .kb1005-card-actions button{height:32px;font-size:9.5px}
       }}
       @media(max-width:820px){.kb1005-myprojects{padding:22px 16px 84px}.kb1005-intro h1{font-size:46px}.kb1005-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));height:auto;background:transparent;border:0;box-shadow:none;gap:8px;overflow:visible}.kb1005-filter-cell{min-height:50px;border:1px solid #ded8cc!important;border-radius:8px;background:#fff}.kb1005-toolbar{grid-template-columns:1fr auto}.kb1005-sort{grid-column:1/-1;grid-row:2}.kb1005-card-grid{grid-template-columns:1fr}.kb1005-project-card{grid-template-columns:150px minmax(0,1fr);min-height:230px}.kb1005-card-media{min-height:200px}.kb1005-side{grid-template-columns:1fr}}
-      @media(max-width:560px){.kb1005-project-card{grid-template-columns:1fr}.kb1005-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1005-filter-cells{grid-template-columns:1fr 1fr}.kb1005-toolbar{grid-template-columns:1fr}.kb1005-view-toggle{display:none}.kb1005-card-main{padding:14px}.kb1005-side-card{padding:16px}}
+      @media(max-width:560px){.kb1005-project-card{grid-template-columns:1fr}.kb1005-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1005-filter-cells{grid-template-columns:1fr 1fr}.kb1005-toolbar{grid-template-columns:1fr}.kb1005-view-toggle{display:flex}.kb1005-card-main{padding:14px}.kb1005-side-card{padding:16px}}
     `}</style>
     <style>{`
       .kb1005-myprojects{position:relative;overflow:hidden;background:radial-gradient(circle at 78% 2%,rgba(231,225,210,.38),transparent 28%),linear-gradient(rgba(250,247,240,.55),rgba(250,247,240,.55)),url("/textures/kb852bf-beige-texture-current.jpg") center/cover,#f8f6f1}
@@ -30446,7 +30456,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
       .kb1005-menu button{height:36px;padding:0 12px;border:0;border-radius:7px;background:transparent;text-align:left;font-size:12.5px;font-weight:600;color:#17382f;cursor:pointer}
       .kb1005-menu button:hover{background:#f1efe8}.kb1005-menu button.danger{color:#a3352b}
       @media(min-width:561px){
-        .kb1005-project-card{grid-template-columns:104px minmax(0,1fr);min-height:0}
+        .kb1005-project-card{grid-template-columns:176px minmax(0,1fr);min-height:0}
         .kb1005-card-media{margin:10px 0 10px 10px;min-height:0;height:calc(100% - 20px)}
         .kb1005-card-main{padding:10px 12px 10px 14px}
         .kb1005-status{height:22px;padding:0 10px;font-size:10px}
@@ -33032,7 +33042,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
               </div>
             )}
 
-            {(similarProjectsLoading || similarProjects.length > 0) && (
+            {!viewerCanManageProject && (similarProjectsLoading || similarProjects.length > 0) && (
               <div className="kb-pdr-card">
                 <div className="kb-pdr-similar-head"><h3 className="kb-pdr-card-title">Similar projects</h3><button type="button" className="kb-pdr-viewmore" onClick={returnToMarketplaceFloor}>View more&nbsp; →</button></div>
                 <div className="kb-pdr-similar-list">
@@ -34333,7 +34343,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                 <p className="kb-marketplace-section-kicker">Featured</p>
                 <div className="kb-marketplace-section-title-line">
                   <h2 id="kb-marketplace-featured-title">{category && category !== 'All' ? `Featured ${formatMarketplaceCategoryLabel(category, category)} Vendors` : 'Featured Vendors'}</h2>
-                  <span>Drag to explore →</span>
+                  <span>Drag to explore → Highlighted placement is not a FaithBid recommendation.</span>
                 </div>
               </div>
               <div className="kb-marketplace-featured-controls">
@@ -35182,7 +35192,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
       disabled: false,
     };
     if (s === 'hired' || s === 'active' || s === 'milestone_pending') return {
-      label: 'Open workspace',
+      label: 'Manage project',
       action: () => queueProjectNavigation(nav, { projectId: profileProjectId, projectTitle: profileProjectTitle, screen: KB_NAV_SCREENS.projects, tab: 'overview', returnContext: { scope:'vendor-profile', projectId:profileProjectId, vendorId:v.id||v.user_id, tab } }),
       disabled: false,
     };
@@ -56842,6 +56852,7 @@ export default function App() {
         if (active) {
           setPrivateMarketplaceAccess(false);
           setMarketplaceGateError("FaithBid could not verify marketplace access. No access decision was changed; please retry.");
+          setMarketplaceGateLoaded(true);
         }
       }
     };
@@ -56925,12 +56936,19 @@ export default function App() {
       return true;
     }
     if (["landing","start-free","auth","vendor-signup","church-signup"].includes(screenRef.current)) {
+      const fallbackSubTab = fallbackScreen === "projects" ? (roleRef.current === "vendor" ? "work" : "mine") : null;
+      setNavSubTab(fallbackSubTab);
       setScreen(fallbackScreen);
-      try { window.location.hash = fallbackScreen; } catch { /* non-fatal */ }
+      try { window.location.hash = fallbackSubTab ? getProjectSubTabRoute(fallbackSubTab) : fallbackScreen; } catch { /* non-fatal */ }
       return true;
     }
     return false;
   }, [consumePostAuthTarget]);
+
+  useEffect(() => {
+    if (!authReady || !currentUser || screen !== "auth") return;
+    applyPostAuthDestination("projects");
+  }, [authReady, currentUser, screen, applyPostAuthDestination]);
 
   const completeWaitlistInvitationFrontend = React.useCallback(async (result = {}) => {
     const resolvedRole = normalizeWaitlistInvitationRole(result?.role) || normalizeAuthRole(roleRef.current) || "church";
@@ -58363,12 +58381,10 @@ export default function App() {
           {(role === "vendor" ? [
             {id:"projects", label:"Marketplace", icon:<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>, subTab:null, activeSubTabs:[null,"browse"]},
             {id:"projects", label:"My Projects", icon:<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>, subTab:"work"},
-            ...(isAdmin ? [{id:"admin",label:"Admin Review",icon:<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>,subTab:null,activeOn:["admin","growth","concierge","church-intelligence","qa"]}] : []),
           ] : [
             {id:"projects", label:"Marketplace", icon:<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>, subTab:null, activeSubTabs:[null,"vendors","browse"]},
             {id:"projects", label:"My Projects", icon:<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>, subTab:"mine"},
             ...(role === "church" ? [{id:"church-os", label:"Church Toolkit", icon:<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h3v3H8zM13 9h3v3h-3zM8 14h8"/></svg>, subTab:null, activeOn:["church-os"]}] : []),
-            ...(isAdmin ? [{id:"admin",label:"Admin Review",icon:<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>,subTab:null,activeOn:["admin","growth","concierge","church-intelligence","qa"]}] : []),
           ]).map((t,i)=>{
             const isActive = t.subTab
               ? screen==="projects" && navSubTab===t.subTab
@@ -59528,7 +59544,7 @@ function LandingTestimonials(){
   return (
     <div style={{background:"var(--cream)",padding:"52px 0",overflow:"hidden"}}>
       <div style={{textAlign:"center",marginBottom:28,padding:"0 24px"}}>
-        <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--gold-text)",marginBottom:8}}>Internal preview · placeholder testimonials</div>
+        <div role="note" style={{display:"inline-flex",alignItems:"center",gap:7,padding:"7px 11px",borderRadius:999,border:"1px solid #d7bd87",background:"#fff8e8",fontSize:10,fontWeight:800,letterSpacing:1.4,textTransform:"uppercase",color:"#76521d",marginBottom:10}}>Preview examples — not customer endorsements</div>
         <div style={{display:"flex",justifyContent:"center",gap:2,fontSize:13,color:"#ca8a04"}}>★★★★★</div>
       </div>
       <div
@@ -59667,7 +59683,7 @@ function HelpModal({onClose, role, asPage = false}){
           ))}
           <div className="help-contact" style={{margin:"20px 24px 0",padding:"16px 18px",borderRadius:14,background:"rgba(155,113,41,0.08)",fontSize:14,lineHeight:1.6,color:"#4a5043"}}>
             <strong style={{display:"block",color:"#1C2814",marginBottom:4}}>Still need help?</strong>
-            Email <a href={`mailto:${BRAND.supportEmail}`} style={{color:"#74551f",fontWeight:800}}>{BRAND.supportEmail}</a> and a person on the FaithBid team will reply. For a problem on an active project, use the dispute tool inside that project.
+            <span>Email a person on the FaithBid team. Choose a topic so your request reaches the right workflow:</span><div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>{[["Account help","Account support"],["Marketplace help","Marketplace support"],["Trust & safety","Trust and safety support"]].map(([label,subject])=><a key={label} href={`mailto:${BRAND.supportEmail}?subject=${encodeURIComponent(subject)}`} style={{display:"inline-flex",minHeight:40,alignItems:"center",padding:"0 12px",borderRadius:999,border:"1px solid #cdbb96",color:"#614719",fontWeight:800,textDecoration:"none",background:"#fffdf8"}}>{label}</a>)}</div><span style={{display:"block",marginTop:10}}>For a problem on an active project, use the dispute tool inside that project.</span>
           </div>
           {/* Bottom padding */}
           <div style={{height:24}}/>
@@ -59712,7 +59728,7 @@ const KB_START_FREE_ROLE_META = {
     proofs: [
       "Browse live church opportunities and matched work.",
       "Build trust with reviews, verification, and a profile that clearly proves what has been reviewed.",
-      "No platform fee until you actually win work.",
+      "No charge to bid in the current preview; future terms will be published before they apply.",
     ],
     chips: ['Build your profile','Bid on church work','Grow ministry clients'],
   },
@@ -62878,7 +62894,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
       if (!isValidEmail(email)) { setError("Please enter a valid email address."); setLoading(false); return; }
       const pwErr = passwordStrengthError(form.password);
       if (pwErr) { setError(pwErr); setLoading(false); return; }
-      if (!agreedToTerms) { setError("Please agree to the Terms and acknowledge the Privacy Policy to continue."); setLoading(false); return; }
+      if (!agreedToTerms) { setError("Please acknowledge the current early-access Terms and Privacy Notice to continue."); setLoading(false); return; }
       const displayName = String(form.org || form.name || '').trim();
       if (!displayName || isHandleLikeChurchName(displayName)) {
         setError(selectedRole === "church" ? "Enter your church or ministry name (for example, Grace Community Church)." : "Enter your name or family name.");
@@ -63490,7 +63506,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     const churchName = acct.churchName.trim();
     const email = acct.email.trim().toLowerCase();
     const password = acct.password;
-    if (!agreedToTerms) { setAcctErr("Please agree to the Terms and acknowledge the Privacy Policy to continue."); return; }
+    if (!agreedToTerms) { setAcctErr("Please acknowledge the current early-access Terms and Privacy Notice to continue."); return; }
     if (!churchName || isHandleLikeChurchName(churchName)) { setAcctErr("Please add your church or organization name (for example, Grace Community Church)."); return; }
     if (!isValidEmail(email)) { setAcctErr("Please enter a valid email."); return; }
     const pwErr = passwordStrengthError(password);
@@ -65837,7 +65853,7 @@ function VendorInsightsProfileScreen({ currentUser, nav, role }) {
 }
 
 function LegacyDestinationRedirect({ nav, role, kind }) {
-  useEffect(()=>{
+  React.useLayoutEffect(()=>{
     if(typeof nav!=='function')return;
     if(kind==='reviews'){ nav(role==='vendor'?'profile-reviews':'my-projects'); return; }
     if(kind==='analytics'){ nav(role==='vendor'?'profile-insights':'my-projects'); return; }
