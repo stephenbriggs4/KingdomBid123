@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { supabase } from "./supabaseClient";
+import { supabase, supabaseQaMode } from "./supabaseClient";
 import AdminPrivacyRequests from "./AdminPrivacyRequests";
 import AdminVendorCredentials from "./AdminVendorCredentials";
 
@@ -2132,7 +2132,8 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
             <button type="button" className="admin-topbar-action admin-refresh-action" disabled={refreshingAdmin} onClick={()=>refreshAdminConsole()} aria-label={`Refresh ${VIEWS[adminView] || "Admin"} data`}>
               <span aria-hidden="true">↻</span>{refreshingAdmin?"Refreshing":"Refresh"}
             </button>
-            {typeof nav === "function" && <button type="button" className="admin-topbar-action" onClick={()=>nav("qa")}>QA Console</button>}
+            {/* R-71: test-only surface, never shown outside QA mode. */}
+            {supabaseQaMode && typeof nav === "function" && <button type="button" className="admin-topbar-action" onClick={()=>nav("qa")}>QA Console</button>}
           </div>
         </div>
 
