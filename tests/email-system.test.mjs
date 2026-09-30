@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
-const mig = read('../supabase/migrations/20260929000000_email_system.sql');
-const wlMig = read('../supabase/migrations/20260929001000_waitlist_email_log.sql');
+const mig = read('../supabase/migrations/20260928182514_email_system.sql');
+const wlMig = read('../supabase/migrations/20260928182805_waitlist_email_log.sql');
+const leaseMig = read('../supabase/migrations/20260930183715_lease_email_outbox_claims.sql');
 const worker = read('../supabase/functions/email-worker/index.ts');
 const waitlist = read('../supabase/functions/send-waitlist-email/index.ts');
 const settings = read('../src/SettingsScreen.jsx');
@@ -29,14 +30,19 @@ has(worker, /List-Unsubscribe-Post/, 'one-click unsubscribe header is sent');
 has(worker, /if \(req\.method === "GET"\) return json\(200, \{ ok: true, valid: true \}\); \/\/ GET never changes anything/, 'GET never unsubscribes (mail scanners prefetch links)');
 has(worker, /email\.bounced[\s\S]{0,200}email\.complained/, 'bounces and complaints are handled');
 has(worker, /svix-signature/, 'the webhook verifies signatures');
-has(worker, /update\(\{ status: "sending" \}\)[\s\S]{0,120}eq\("status", "pending"\)/, 'sends are claimed so nothing is emailed twice');
+has(leaseMig, /for update skip locked/, 'outbox claims serialize competing workers without blocking');
+has(leaseMig, /claim_expires_at/, 'worker claims have an expiry and can be recovered');
+has(leaseMig, /grant execute[\s\S]*to service_role/, 'only the service role may claim outbox rows');
+has(worker, /rpc\("kb_claim_email_outbox_v1"/, 'worker uses the database claim primitive');
+has(worker, /eq\("worker_id", workerId\)/, 'worker completion is scoped to its own lease');
 has(worker, /esc\(row\.subject\)/, 'user-authored text is escaped in emails');
 
 // waitlist function
-has(waitlist, /reason: "not_on_waitlist"/, 'only real waitlist addresses are emailed');
+has(waitlist, /if \(!entry\) return accepted\(req\)/, 'non-members receive the same opaque acceptance response');
 has(waitlist, /MAX_SENDS = 5/, 'waitlist sends are capped');
-has(waitlist, /reason: "address_suppressed"/, 'suppressed addresses are respected');
-has(waitlist, /reason: "email_provider_not_configured"/, 'inert until configured');
+has(waitlist, /if \(suppressed\) return accepted\(req\)/, 'suppressed addresses are respected without exposing status');
+has(waitlist, /ALLOWED_ORIGINS\.has/, 'CORS permits only configured FaithBid origins');
+has(waitlist, /\{ accepted: true \}, 202/, 'public responses do not reveal delivery or waitlist state');
 
 // app
 has(settings, /email_frequency/, 'Settings saves the email frequency');

@@ -104,6 +104,7 @@ async function send(to: string, subject: string, html: string, unsubUrl: string)
     method: "POST",
     headers: { authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
     body: JSON.stringify({ from: RESEND_FROM_EMAIL, to: [to], subject, html, headers }),
+    signal: AbortSignal.timeout(15_000),
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(`provider ${response.status}: ${JSON.stringify(data).slice(0, 200)}`);
@@ -118,31 +119,53 @@ async function recipient(userId: string): Promise<string | null> {
   return suppressed ? null : email;
 }
 
-async function markFailed(row: { id: string; attempts: number }, error: unknown) {
-  const attempts = (row.attempts || 0) + 1;
-  const exhausted = attempts >= 5;
+type OutboxRow = {
+  id: string;
+  user_id: string;
+  template: string;
+  subject: string;
+  payload: Record<string, unknown>;
+  attempts: number;
+  digest: boolean;
+};
+
+async function claimRows(digest: boolean, limit: number, workerId: string): Promise<OutboxRow[]> {
+  const { data, error } = await admin.rpc("kb_claim_email_outbox_v1", {
+    p_digest: digest,
+    p_limit: limit,
+    p_worker_id: workerId,
+    p_lease_seconds: 300,
+  });
+  if (error) throw error;
+  return (data || []) as OutboxRow[];
+}
+
+async function markFailed(row: Pick<OutboxRow, "id" | "attempts">, workerId: string, error: unknown) {
+  const exhausted = row.attempts >= 5;
   await admin.from("email_outbox").update({
     status: exhausted ? "failed" : "pending",
-    attempts,
     last_error: String(error instanceof Error ? error.message : error).slice(0, 500),
-    send_after: new Date(Date.now() + Math.min(attempts, 4) * 15 * 60 * 1000).toISOString(),
-  }).eq("id", row.id);
+    send_after: new Date(Date.now() + Math.min(row.attempts, 4) * 15 * 60 * 1000).toISOString(),
+    worker_id: null,
+    claimed_at: null,
+    claim_expires_at: null,
+  }).eq("id", row.id).eq("worker_id", workerId);
 }
 
 async function processInstant() {
-  const { data: rows } = await admin.from("email_outbox").select("id,user_id,template,subject,payload,attempts")
-    .eq("status", "pending").eq("digest", false).lte("send_after", new Date().toISOString()).lt("attempts", 5)
-    .order("created_at", { ascending: true }).limit(25);
+  const workerId = crypto.randomUUID();
+  const rows = await claimRows(false, 25, workerId);
   let sent = 0, skipped = 0, failed = 0;
-  for (const row of rows || []) {
-    // Claim so parallel workers cannot double-send.
-    const { data: claimed } = await admin.from("email_outbox").update({ status: "sending" }).eq("id", row.id).eq("status", "pending").select("id").maybeSingle();
-    if (!claimed) continue;
+  for (const row of rows) {
     try {
       const to = await recipient(row.user_id);
       const template = TEMPLATES[row.template];
       if (!to || !template) {
-        await admin.from("email_outbox").update({ status: "skipped", last_error: !to ? "no deliverable recipient" : "unknown template" }).eq("id", row.id);
+        await admin.from("email_outbox").update({
+          status: "skipped",
+          last_error: !to ? "no deliverable recipient" : "unknown template",
+          worker_id: null, claimed_at: null, claim_expires_at: null,
+        }).eq("id", row.id).eq("worker_id", workerId);
         skipped++;
         continue;
       }
@@ -150,10 +173,13 @@ async function processInstant() {
       const unsubPage = await unsubscribePageUrl(row.user_id);
       const html = layout({ heading: template.heading, bodyHtml: itemBody(row.payload), ctaLabel: template.cta, ctaUrl: PUBLIC_URL ? `${PUBLIC_URL}/${template.path}` : "", unsubUrl: unsubPage || unsub });
       const messageId = await send(to, row.subject, html, unsub);
-      await admin.from("email_outbox").update({ status: "sent", sent_at: new Date().toISOString(), provider_message_id: messageId || null, attempts: (row.attempts || 0) + 1, last_error: null }).eq("id", row.id);
+      await admin.from("email_outbox").update({
+        status: "sent", sent_at: new Date().toISOString(), provider_message_id: messageId || null,
+        last_error: null, worker_id: null, claimed_at: null, claim_expires_at: null,
+      }).eq("id", row.id).eq("worker_id", workerId);
       sent++;
     } catch (error) {
-      await markFailed(row, error);
+      await markFailed(row, workerId, error);
       failed++;
     }
   }
@@ -161,21 +187,21 @@ async function processInstant() {
 }
 
 async function processDigest() {
-  const { data: users } = await admin.from("email_outbox").select("user_id").eq("status", "pending").eq("digest", true)
-    .lte("send_after", new Date().toISOString()).limit(200);
-  const userIds = Array.from(new Set((users || []).map((row: { user_id: string }) => row.user_id))).slice(0, 50);
+  const workerId = crypto.randomUUID();
+  const claimedRows = await claimRows(true, 200, workerId);
+  const userIds = Array.from(new Set(claimedRows.map((row) => row.user_id))).slice(0, 50);
   let sent = 0, skipped = 0, failed = 0;
   for (const userId of userIds) {
-    const { data: rows } = await admin.from("email_outbox").select("id,template,subject,payload,attempts")
-      .eq("user_id", userId).eq("status", "pending").eq("digest", true).order("created_at", { ascending: true }).limit(50);
-    if (!rows?.length) continue;
-    const ids = rows.map((row: { id: string }) => row.id);
-    const { data: claimed } = await admin.from("email_outbox").update({ status: "sending" }).in("id", ids).eq("status", "pending").select("id");
-    if (!claimed?.length) continue;
+    const rows = claimedRows.filter((row) => row.user_id === userId);
+    if (!rows.length) continue;
+    const ids = rows.map((row) => row.id);
     try {
       const to = await recipient(userId);
       if (!to) {
-        await admin.from("email_outbox").update({ status: "skipped", last_error: "no deliverable recipient" }).in("id", ids);
+        await admin.from("email_outbox").update({
+          status: "skipped", last_error: "no deliverable recipient",
+          worker_id: null, claimed_at: null, claim_expires_at: null,
+        }).in("id", ids).eq("worker_id", workerId);
         skipped += ids.length;
         continue;
       }
@@ -189,10 +215,13 @@ async function processDigest() {
         ctaLabel: "Open FaithBid", ctaUrl: PUBLIC_URL ? `${PUBLIC_URL}/#inbox` : "", unsubUrl: unsubPage || unsub,
       });
       const messageId = await send(to, `Your FaithBid summary: ${rows.length} update${rows.length === 1 ? "" : "s"}`, html, unsub);
-      await admin.from("email_outbox").update({ status: "sent", sent_at: new Date().toISOString(), provider_message_id: messageId || null }).in("id", ids);
+      await admin.from("email_outbox").update({
+        status: "sent", sent_at: new Date().toISOString(), provider_message_id: messageId || null,
+        last_error: null, worker_id: null, claimed_at: null, claim_expires_at: null,
+      }).in("id", ids).eq("worker_id", workerId);
       sent += ids.length;
     } catch (error) {
-      for (const row of rows) await markFailed(row, error);
+      for (const row of rows) await markFailed(row, workerId, error);
       failed += ids.length;
     }
   }
