@@ -36687,6 +36687,8 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
   const [form, setForm] = useState(() => ({ ...FB_CONCIERGE_EMPTY_INTAKE }));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(open);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -36756,7 +36758,7 @@ function FBConciergeIntakeModal({ client, open, onClose, onCreated }) {
 
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-intake-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-intake-title">
         <div className="fb-concierge-modal-head">
           <div className="fb-concierge-eyebrow">Step {step} of 4</div>
           <h2 id="fb-concierge-intake-title">{step === 1 ? "Organization" : step === 2 ? "Primary contact" : step === 3 ? "Need basics" : "Budget & logistics"}</h2>
@@ -36890,6 +36892,8 @@ function FBConciergeIntakeReviewModal({ client, need, operatorId, onClose, onRev
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [contact, setContact] = useState({ first_name:"", last_name:"", title_role:"", email:"", phone:"" });
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
 
   useEffect(() => {
     setForm({ ...(need || {}) });
@@ -37038,7 +37042,7 @@ function FBConciergeIntakeReviewModal({ client, need, operatorId, onClose, onRev
 
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-review-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-review-title">
         <div className="fb-concierge-modal-head">
           <div className="fb-concierge-eyebrow">Intake Review</div>
           <h2 id="fb-concierge-review-title">{form.need_title || "Review submitted need"}</h2>
@@ -37127,6 +37131,8 @@ const FB_CONCIERGE_EMPTY_MATCH = Object.freeze({
 });
 
 function FBConciergeSourcingModal({ client, need, vendors, matches, onClose, onChanged }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const needMatches = useMemo(() => matches.filter((item) => item.need_id === need?.id), [matches, need?.id]);
   const existingVendorIds = useMemo(() => new Set(needMatches.map((item) => item.vendor_id)), [needMatches]);
   const availableVendors = useMemo(() => vendors
@@ -37269,7 +37275,7 @@ function FBConciergeSourcingModal({ client, need, vendors, matches, onClose, onC
 
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-sourcing-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-sourcing-title">
         <div className="fb-concierge-modal-head">
           <div className="fb-concierge-eyebrow">Sourcing / Shortlist</div>
           <h2 id="fb-concierge-sourcing-title">{need.need_title}</h2>
@@ -37318,6 +37324,8 @@ function FBConciergeSourcingModal({ client, need, vendors, matches, onClose, onC
 }
 
 function FBConciergeIntroductionModal({ client, match, need, vendor, preference, onClose, onFinalized }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const provisional = fbConciergeProvisionalFees(need?.budget_band);
   const recurringByNeed = ["recurring_service","hybrid"].includes(need?.need_type);
   const [form, setForm] = useState(() => ({
@@ -37388,7 +37396,7 @@ function FBConciergeIntroductionModal({ client, match, need, vendor, preference,
   const input = (label,key,props={}) => <label className={"fb-concierge-field"+(props.wide?" wide":"")}>{label}<input value={form[key] ?? ""} onChange={(event)=>update(key,event.target.value)} {...props} wide={undefined}/></label>;
   const select = (label,key,options) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(event)=>update(key,event.target.value)}>{options.map(([value,text])=><option value={value} key={value}>{text}</option>)}</select></label>;
   return <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event)=>{if(event.target===event.currentTarget&&!busy)onClose();}}>
-    <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-introduction-title">
+    <section ref={conciergeTrapRef} className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-introduction-title">
       <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Introduction & Placement Agreement Gate</div><h2 id="fb-concierge-introduction-title">{vendor.vendor_name} for {need.need_title}</h2><div className="fb-concierge-subtitle">Record the church's selection and the already-disclosed fee terms. Finalizing creates a preparing Engagement; it does not claim payment, project start, or successful completion.</div></div>
       <div className="fb-concierge-form"><div className="fb-concierge-review-layout"><div className="fb-concierge-fields">
         {preference && <div className="fb-concierge-safe"><strong>Church OS preference</strong><br/>{preference.preferred_vendor_name} was recorded as the church's preferred provider{preference.preferred_match_recorded_at ? " on " + new Date(preference.preferred_match_recorded_at).toLocaleDateString() : ""}. {preference.preferred_match_id === match.id ? "This is the preferred Match; the placement gate remains authoritative." : "You are reviewing an alternative Match; document the church's updated confirmation before finalizing."}</div>}
@@ -37475,6 +37483,8 @@ function fbConciergeLaunchChecks(engagement, form) {
 }
 
 function FBConciergeLaunchModal({ client, engagement, onClose, onLaunched }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const [form, setForm] = useState(() => ({
     actual_start_on: engagement?.planned_start_on || "",
     church_start_confirmed_on: "",
@@ -37518,7 +37528,7 @@ function FBConciergeLaunchModal({ client, engagement, onClose, onLaunched }) {
 
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-launch-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-launch-title">
         <div className="fb-concierge-modal-head">
           <div className="fb-concierge-eyebrow">Engagement Launch</div>
           <h2 id="fb-concierge-launch-title">{engagement.vendor_name} for {engagement.need_title}</h2>
@@ -37565,6 +37575,8 @@ function fbConciergeCheckInChecks(engagement, form) {
 }
 
 function FBConciergeCheckInModal({ client, engagement, onClose, onCheckedIn }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const today = new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState(() => ({
     check_in_on: today,
@@ -37621,7 +37633,7 @@ function FBConciergeCheckInModal({ client, engagement, onClose, onCheckedIn }) {
 
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-checkin-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-checkin-title">
         <div className="fb-concierge-modal-head">
           <div className="fb-concierge-eyebrow">Delivery Check-in</div>
           <h2 id="fb-concierge-checkin-title">{engagement.vendor_name} for {engagement.need_title}</h2>
@@ -37653,6 +37665,8 @@ function FBConciergeCheckInModal({ client, engagement, onClose, onCheckedIn }) {
 }
 
 function FBConciergeOutcomeModal({ client, engagement, onClose, onSaved }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const [form, setForm] = useState(() => ({
     outcome_review_status: "complete",
     outcome_assessment: "",
@@ -37709,7 +37723,7 @@ function FBConciergeOutcomeModal({ client, engagement, onClose, onSaved }) {
   const sel = (label, key, opts) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(e) => update(key, e.target.value)}>{opts.map(([v, t]) => <option value={v} key={v}>{t}</option>)}</select></label>;
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-outcome-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-outcome-title">
         <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Outcome Review</div><h2 id="fb-concierge-outcome-title">{engagement.vendor_name} for {engagement.need_title}</h2><div className="fb-concierge-subtitle">{engagement.organization_name} · Record the honest result. This does not, by itself, mark the vendor "proven."</div></div>
         <div className="fb-concierge-form"><div className="fb-concierge-review-layout"><div className="fb-concierge-fields">
           {sel("Review outcome", "outcome_review_status", [["complete", "Complete"], ["unable_to_complete", "Unable to complete"]])}
@@ -37734,6 +37748,8 @@ function FBConciergeOutcomeModal({ client, engagement, onClose, onSaved }) {
 }
 
 function FBConciergeRecurringModal({ client, engagement, onClose, onSaved }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const today = new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState(() => ({
     recurring_confirmation_status: "confirmed_ongoing",
@@ -37766,7 +37782,7 @@ function FBConciergeRecurringModal({ client, engagement, onClose, onSaved }) {
   const sel = (label, key, opts) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(e) => update(key, e.target.value)}>{opts.map(([v, t]) => <option value={v} key={v}>{t}</option>)}</select></label>;
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-recurring-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-recurring-title">
         <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Recurring Confirmation</div><h2 id="fb-concierge-recurring-title">{engagement.vendor_name} for {engagement.need_title}</h2><div className="fb-concierge-subtitle">{engagement.organization_name} · Recorded at the normal check-in — no new touchpoint.</div></div>
         <div className="fb-concierge-form"><div className="fb-concierge-fields">
           {sel("Does the engagement continue?", "recurring_confirmation_status", [["confirmed_ongoing", "Confirmed ongoing"], ["ended_or_not_ongoing", "Ended / not ongoing"], ["waived", "Waived"]])}
@@ -37787,6 +37803,8 @@ function FBConciergeRecurringModal({ client, engagement, onClose, onSaved }) {
 }
 
 function FBConciergeFeeCollectionModal({ client, engagement, onClose, onSaved }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const today = new Date().toISOString().slice(0, 10);
   const renewalStage = Boolean(engagement?.renewal_fee_triggered_on);
   const initScope = (engagement?.introduction_invoice_status === "paid" && renewalStage) ? "renewal" : "introduction";
@@ -37830,7 +37848,7 @@ function FBConciergeFeeCollectionModal({ client, engagement, onClose, onSaved })
   const money = (label, key) => <label className="fb-concierge-field">{label}<input type="number" min="0" step="1" value={form[key]} onChange={(e) => update(key, e.target.value)}/></label>;
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-fee-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-fee-title">
         <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Fee Collection</div><h2 id="fb-concierge-fee-title">{engagement.vendor_name} for {engagement.need_title}</h2><div className="fb-concierge-subtitle">{engagement.organization_name} · Invoiced amounts are fixed to the pre-agreed fee. Give-back is calculated only on money actually collected.</div></div>
         <div className="fb-concierge-form"><div className="fb-concierge-fields">
           <label className="fb-concierge-field">Fee<select value={scope} onChange={(e) => setScope(e.target.value)}><option value="introduction">Introduction</option>{renewalStage && <option value="renewal">Renewal</option>}</select></label>
@@ -37849,6 +37867,8 @@ function FBConciergeFeeCollectionModal({ client, engagement, onClose, onSaved })
 }
 
 function FBConciergeGiveBackModal({ client, engagement, onClose, onSaved }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const today = new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState(() => ({
     give_back_recipient_type: engagement?.give_back_recipient_type || "buyer_organization",
@@ -37903,7 +37923,7 @@ function FBConciergeGiveBackModal({ client, engagement, onClose, onSaved }) {
   const sel = (label, key, opts) => <label className="fb-concierge-field">{label}<select value={form[key] || ""} onChange={(e) => update(key, e.target.value)}>{opts.map(([v, t]) => <option value={v} key={v}>{t}</option>)}</select></label>;
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-giveback-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-giveback-title">
         <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Give-back</div><h2 id="fb-concierge-giveback-title">{engagement.vendor_name} for {engagement.need_title}</h2><div className="fb-concierge-subtitle">{engagement.organization_name} · Give-back is 10% of net fees actually collected. Eligible now: {fbConciergeMoney(eligible)}.</div></div>
         <div className="fb-concierge-form"><div className="fb-concierge-review-layout"><div className="fb-concierge-fields">
           {sel("Recipient type", "give_back_recipient_type", [["buyer_organization", "The church itself"], ["selected_ministry_or_cause", "A verified ministry / cause"]])}
@@ -37928,6 +37948,8 @@ function FBConciergeGiveBackModal({ client, engagement, onClose, onSaved }) {
 function FBConciergeCloseModal({ client, engagement, onClose, onSaved }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   useEffect(() => {
     const k = (e) => { if (e.key === "Escape" && !busy) onClose(); };
     window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
@@ -37950,7 +37972,7 @@ function FBConciergeCloseModal({ client, engagement, onClose, onSaved }) {
   };
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-close-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-close-title">
         <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Close Engagement</div><h2 id="fb-concierge-close-title">{engagement.vendor_name} for {engagement.need_title}</h2><div className="fb-concierge-subtitle">{engagement.organization_name} · Closing is the terminal reconciliation. Every gate below must be satisfied.</div></div>
         <div className="fb-concierge-form"><div className="fb-concierge-checklist">{checks.map((c) => <div key={c.label} className={"fb-concierge-check " + (c.ok ? "good" : "bad")}><span className="fb-concierge-check-mark">{c.ok ? "✓" : "!"}</span><span>{c.label}</span></div>)}</div>{error && <div role="alert" className="fb-concierge-notice fb-concierge-error" style={{ margin: "14px 0 0" }}>{error}</div>}</div>
         <div className="fb-concierge-modal-actions"><button type="button" className="fb-concierge-btn" onClick={onClose} disabled={busy}>Cancel</button><button type="button" className="fb-concierge-btn primary" onClick={() => void save()} disabled={busy || !ready}>{busy ? "Closing…" : "Close engagement"}</button></div>
@@ -37960,6 +37982,8 @@ function FBConciergeCloseModal({ client, engagement, onClose, onSaved }) {
 }
 
 function FBConciergeVendorModal({ client, vendor, seed, evidence = [], operatorId, onClose, onSaved }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const source = vendor || seed;
   const [form, setForm] = useState(() => source ? {
     ...FB_CONCIERGE_EMPTY_VENDOR,
@@ -38061,7 +38085,7 @@ function FBConciergeVendorModal({ client, vendor, seed, evidence = [], operatorI
 
   return (
     <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
-      <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-vendor-title">
+      <section ref={conciergeTrapRef} className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-vendor-title">
         <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">{isNew ? "Vendor Intake" : "Vendor Vetting"}</div><h2 id="fb-concierge-vendor-title">{form.vendor_name || "Add a vendor"}</h2><div className="fb-concierge-subtitle">Capture real capabilities first. Approval, bench status, and proven performance remain separate decisions.</div></div>
         <div className="fb-concierge-form">
           <div className="fb-concierge-review-layout">
@@ -38112,6 +38136,8 @@ function FBConciergeVendorModal({ client, vendor, seed, evidence = [], operatorI
 }
 
 function FBConciergeVendorEvidenceModal({ client, vendor, contacts, evidence, operatorId, onClose, onChanged }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const emptyContact = { first_name:"", last_name:"", title_role:"", decision_role:"unknown", email:"", phone:"", preferred_channel:"unknown", contact_status:"unverified", is_primary_contact:false, contact_notes:"" };
   const emptyCheck = { check_type:"business_identity_or_registration", review_status:"not_started", outcome:"", requested_on:"", completed_on:"", expires_on:"", evidence_method:"document_reviewed", evidence_source:"", evidence_reference:"", evidence_summary:"", concern_exception_notes:"", follow_up_on:"", authoritative_registry_verified:false, registry_verification_on:"" };
   const [contactForm, setContactForm] = useState(emptyContact);
@@ -38201,7 +38227,7 @@ function FBConciergeVendorEvidenceModal({ client, vendor, contacts, evidence, op
   const field = (label, value, setter, props={}) => <label className={"fb-concierge-field" + (props.wide ? " wide" : "")}>{label}<input value={value ?? ""} onChange={(event) => setter(event.target.value)} {...props} wide={undefined}/></label>;
   const selectField = (label, value, setter, options) => <label className="fb-concierge-field">{label}<select value={value || ""} onChange={(event) => setter(event.target.value)}>{options.map(([optionValue, optionLabel]) => <option value={optionValue} key={optionValue}>{optionLabel}</option>)}</select></label>;
   return <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
-    <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-evidence-title">
+    <section ref={conciergeTrapRef} className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-concierge-evidence-title">
       <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Vendor Contacts & Vetting Evidence</div><h2 id="fb-concierge-evidence-title">{vendor.vendor_name}</h2><div className="fb-concierge-subtitle">Contacts, evidence sources, outcomes, expiration dates, and accountable review stay separate from marketplace claims.</div></div>
       <div className="fb-concierge-form"><div className="fb-concierge-review-layout"><div className="fb-concierge-fields">
         <div className="fb-concierge-section-title">{editingContactId ? "Edit vendor contact" : "Add vendor contact"}</div>
@@ -38259,6 +38285,8 @@ function FBGrowthVendorVerificationModal({ vendor, operatorId, onClose, onSaved 
   const [form, setForm] = useState(() => ({ ...vendor }));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const verification = fbGrowthVendorVerification(form);
   const consent = fbConsiderationConsentReady(form);
 
@@ -38306,7 +38334,7 @@ function FBGrowthVendorVerificationModal({ vendor, operatorId, onClose, onSaved 
   };
 
   return <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
-    <section className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-growth-verification-title">
+    <section ref={conciergeTrapRef} className="fb-concierge-modal wide" role="dialog" aria-modal="true" aria-labelledby="fb-growth-verification-title">
       <div className="fb-concierge-modal-head"><div className="fb-concierge-eyebrow">Growth Engine Verification</div><h2 id="fb-growth-verification-title">{vendor.name}</h2><div className="fb-concierge-subtitle">Founder-only evidence and consent review before Concierge intake. Saving never contacts, approves, or promotes this vendor.</div></div>
       <div className="fb-concierge-form"><div className="fb-concierge-review-layout"><div className="fb-concierge-fields">
         {select("Growth status", "status", statusOptions)}
@@ -38335,6 +38363,8 @@ function FBGrowthVendorVerificationModal({ vendor, operatorId, onClose, onSaved 
 }
 
 function FBConciergePilotEntryModal({ organization, operatorId, onClose, onConfirm }) {
+  // R-70: had Escape handling but no real focus trap.
+  const conciergeTrapRef = useFocusTrap(true);
   const [enteredOn, setEnteredOn] = useState(() => new Date().toISOString().slice(0, 10));
   const [source, setSource] = useState("");
   const [reference, setReference] = useState("");
@@ -38352,7 +38382,7 @@ function FBConciergePilotEntryModal({ organization, operatorId, onClose, onConfi
   };
 
   return <div className="fb-concierge-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <section className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-pilot-entry-title">
+    <section ref={conciergeTrapRef} className="fb-concierge-modal" role="dialog" aria-modal="true" aria-labelledby="fb-pilot-entry-title">
       <div className="fb-concierge-modal-head">
         <div className="fb-concierge-eyebrow">Dallas Pilot entry</div>
         <h2 id="fb-pilot-entry-title">{organization.organization_name}</h2>
