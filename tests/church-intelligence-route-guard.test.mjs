@@ -18,5 +18,14 @@ test("the ChurchIntelligence component denies non-admins before fetching or rend
 
 test("the component only calls the narrow ci_list_organizations RPC, never a private church_intel table directly", () => {
   assert.match(component, /supabase\.rpc\("ci_list_organizations"/);
+  assert.match(component, /withRequestDeadline/);
+  assert.match(component, /\.abortSignal\(signal\)/);
   assert.doesNotMatch(component, /from\(["']church_intel\./);
+});
+
+test("data health distinguishes verified runtime evidence from designed or unpopulated controls", () => {
+  assert.match(component, /\["Private RPC boundary",online\?"Verified"/);
+  assert.match(component, /\["Canonical hierarchy","Designed"/);
+  assert.match(component, /\["Dallas geography","Not populated"/);
+  assert.doesNotMatch(component, /\["Canonical hierarchy",true/);
 });

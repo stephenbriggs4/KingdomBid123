@@ -1,6 +1,8 @@
 import React, { Component, createContext, useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback, useContext } from "react";
 import { supabase, supabaseQaMode } from './supabaseClient'
-import { LegalConsentCheckbox, recordLegalConsent, CONSENT_KINDS } from "./LegalConsent";
+import { withRequestDeadline } from './supabaseReliability'
+import { LegalConsentCheckbox } from "./LegalConsent";
+import { buildLegalConsentMetadata, CONSENT_KINDS } from "./legalConsentModel";
 import { VendorVerifiedCredentials, VendorPublicContact } from "./VendorCredentialsPanel";
 import { FilePicker, uploadBidAttachments, BidAttachmentList, ProjectFilesList } from "./Attachments";
 import * as Sentry from "@sentry/react";
@@ -2089,8 +2091,9 @@ async function sendWaitlistEmail({
     });
     if (error) return { delivered: false, reason: error?.message || "not_deployed" };
     return {
-      delivered: !!data?.delivered,
-      reason: data?.reason || null,
+      accepted: data?.accepted === true,
+      delivered: data?.delivered === true,
+      reason: data?.accepted === true ? "accepted" : (data?.reason || null),
       sequence: data?.sequence || null,
       messageId: data?.messageId || null,
     };
@@ -2955,7 +2958,7 @@ if (typeof window !== 'undefined') {
 const __kbQueryCache = new Map();
 const __kbInflight = new Map();
 
-async function cachedQuery(key, queryFn, { ttl = 30000 } = {}) {
+async function cachedQuery(key, queryFn, { ttl = 30000, timeoutMs = 15000 } = {}) {
   const cached = __kbQueryCache.get(key);
   const now = Date.now();
 
@@ -2978,7 +2981,10 @@ async function cachedQuery(key, queryFn, { ttl = 30000 } = {}) {
   // Fire the query, dedupe in-flight
   const promise = (async () => {
     try {
-      const result = await queryFn();
+      const result = await withRequestDeadline(
+        signal => queryFn(signal),
+        { timeoutMs, label: `Supabase read (${key})` },
+      );
       if (!result.error && result.data != null) {
         __kbQueryCache.set(key, { data: result.data, ts: Date.now() });
       }
@@ -3040,6 +3046,7 @@ const KB_STORAGE_KEYS = Object.freeze({
   persistenceManifest: "kb_persistence_manifest_v1",
   projectInterop: "kb_project_interop_v1",
   reviewTarget: "kb_review_target_v1",
+  postProjectDraftPrefix: "kb:postProjectDraft:v2:",
 });
 // Keys that hold one account's data and must not survive into a different
 // account signing in on the same browser (B5: cross-account localStorage
@@ -3074,6 +3081,13 @@ function clearAccountDerivedLocalStorage() {
   KB_ACCOUNT_DERIVED_STORAGE_KEYS.forEach(key => {
     try { localStorage.removeItem(key); } catch { /* non-fatal */ }
   });
+  try {
+    for (let index = localStorage.length - 1; index >= 0; index -= 1) {
+      const key = localStorage.key(index);
+      if (key?.startsWith(KB_STORAGE_KEYS.postProjectDraftPrefix)) localStorage.removeItem(key);
+    }
+    localStorage.removeItem("kb:postProjectDraft:v1");
+  } catch { /* non-fatal */ }
 }
 const KB_SESSION_TARGET_KEYS = Object.freeze({
   inbox: KB_STORAGE_KEYS.inboxTarget,
@@ -22729,6 +22743,23 @@ class ScreenBoundary extends React.Component {
   }
 }
 
+// Navigation utilities render outside the screen-level boundary and must
+// never take down the active workspace.
+class NavUtilityBoundary extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = { hasError:false };
+  }
+  static getDerivedStateFromError(){ return { hasError:true }; }
+  componentDidCatch(error, info){
+    logError("nav-utility-boundary", error, { componentStack: info?.componentStack });
+  }
+  componentDidUpdate(prevProps){
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) this.setState({ hasError:false });
+  }
+  render(){ return this.state.hasError ? null : this.props.children; }
+}
+
 /* ── ClickDebugOverlay ─────────────────────────────────────────────
    Dev-only button-click tracer. Activate by any of:
      - URL param:   ?kb_debug_clicks=1
@@ -22986,11 +23017,15 @@ let kbMarketplacePublicSessionPromise = null;
 async function getMarketplacePublicOncePerSession() {
   if (typeof kbMarketplacePublicSessionValue === "boolean") return kbMarketplacePublicSessionValue;
   if (!kbMarketplacePublicSessionPromise) {
-    kbMarketplacePublicSessionPromise = supabase
-      .from("platform_settings")
-      .select("value")
-      .eq("key", "marketplace_public")
-      .maybeSingle()
+    kbMarketplacePublicSessionPromise = withRequestDeadline(
+      signal => supabase
+        .from("platform_settings")
+        .select("value")
+        .eq("key", "marketplace_public")
+        .maybeSingle()
+        .abortSignal(signal),
+      { timeoutMs: 12000, label: "Marketplace availability check" },
+    )
       .then(({ data, error }) => {
         if (error) throw error;
         const enabled = ["true","1","yes","on"].includes(String(data?.value || "").trim().toLowerCase());
@@ -22999,8 +23034,8 @@ async function getMarketplacePublicOncePerSession() {
       })
       .catch((error) => {
         logError("marketplace-public-read", error);
-        kbMarketplacePublicSessionValue = false;
-        return false;
+        kbMarketplacePublicSessionPromise = null;
+        throw error;
       });
   }
   return kbMarketplacePublicSessionPromise;
@@ -23766,7 +23801,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   // exactly the same query construction. Pulling them apart was the bug
   // surface in the previous version of this code (an off-by-one in the
   // initial `.limit()` would silently truncate the marketplace).
-  const fetchOpenProjectsPage = async (cursor = null) => {
+  const fetchOpenProjectsPage = async (cursor = null, signal = null) => {
     let query = supabase
       .from("projects")
       .select("id,title,description,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,church_id,church_size,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,posted_at,urgent,bids_count,scope,skills,requirements,hero_image_path")
@@ -23774,6 +23809,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
       .order("posted_at", { ascending: false })
       .limit(PROJECTS_PAGE_SIZE);
     if (cursor) query = query.lt("posted_at", cursor);
+    if (signal) query = query.abortSignal(signal);
     const { data, error } = await query;
     if (error) throw error;
     const sourceRows = data || [];
@@ -23804,7 +23840,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
       // IntersectionObserver. Stops at PROJECTS_HARD_CEILING.
       const { rows, nextCursor, exhausted } = await cachedQuery(
         'projects-board',
-        () => fetchOpenProjectsPage(null),
+        signal => fetchOpenProjectsPage(null, signal),
         { ttl: 30000 }
       );
       setProjects(rows);
@@ -23834,7 +23870,10 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
     }
     setLoadingMoreProjects(true);
     try {
-      const { rows, nextCursor, exhausted } = await fetchOpenProjectsPage(projectsCursor);
+      const { rows, nextCursor, exhausted } = await withRequestDeadline(
+        signal => fetchOpenProjectsPage(projectsCursor, signal),
+        { timeoutMs: 15000, label: "Marketplace project page" },
+      );
       // De-dupe by id. If two rows share posted_at across the cursor
       // boundary, the cursor strategy may re-fetch the boundary row.
       // Cheaper to filter than to use a compound (posted_at, id) cursor.
@@ -24591,7 +24630,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
     />
   );
 
-  if(view==="post" && !postSuccess) return (<PostProject key={editingProject?.id || 'new'} onSubmit={handlePostProject} onBack={()=>{setEditingProject(null);setView("board");if(onMounted)onMounted();}} role={role} initialProject={editingProject}/>);
+  if(view==="post" && !postSuccess) return (<PostProject key={editingProject?.id || 'new'} onSubmit={handlePostProject} onBack={()=>{setEditingProject(null);setView("board");if(onMounted)onMounted();}} role={role} currentUser={currentUser} initialProject={editingProject}/>);
   if(view==="post" && postSuccess) return (
     <>
     <div className="page" style={{padding:'24px 20px 64px'}}>
@@ -29883,7 +29922,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
           .kb1004-sort{height:45px;display:flex;align-items:center;gap:8px;border:1px solid #ded8cc;border-radius:10px;background:#fff;padding:0 11px 0 14px;font-size:12px;color:#55635d}.kb1004-sort select{height:34px;border:1px solid #e2ddd2;border-radius:8px;background:#fff;color:#203830;font-weight:700;padding:0 32px 0 10px}
           .kb1004-view-toggle{height:45px;border:1px solid #ded8cc;border-radius:10px;background:#fff;display:flex;overflow:hidden}.kb1004-view-toggle button{width:47px;border:0;background:#fff;color:#31483e;cursor:pointer;font-size:18px}.kb1004-view-toggle button.active{background:#124638;color:#fff}
           .kb1004-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.kb1004-card-grid.list{grid-template-columns:1fr}
-          .kb1004-project-card{position:relative;background:#fff;border:1px solid #ded8cc;border-radius:10px;display:grid;grid-template-columns:190px minmax(0,1fr);min-height:270px;overflow:visible;box-shadow:0 6px 20px rgba(31,43,35,.04)}
+          .kb1004-project-card{position:relative;background:#fff;border:1px solid #ded8cc;border-radius:10px;display:grid;grid-template-columns:215px minmax(0,1fr);min-height:270px;overflow:visible;box-shadow:0 6px 20px rgba(31,43,35,.04)}
           .kb1004-card-media{margin:14px 0 14px 14px;border-radius:6px;overflow:hidden;background:#ece9e1;min-height:238px}.kb1004-card-media img{width:100%;height:100%;object-fit:cover;display:block}.kb1004-card-fallback{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display),serif;font-size:44px;color:#6d756e}
           .kb1004-card-main{position:relative;padding:14px 16px 14px 18px;display:flex;flex-direction:column;min-width:0}.kb1004-card-topline{display:flex;align-items:center;justify-content:space-between;gap:10px}.kb1004-status{display:inline-flex;align-items:center;min-height:29px;border-radius:999px;padding:0 13px;font-size:12px;font-weight:700}.kb1004-status.is-bidding{background:#e4f0e8;color:#285b46}.kb1004-status.is-progress{background:#e5f0fb;color:#255783}.kb1004-status.is-complete{background:#eeeeec;color:#5c6460}.kb1004-status.is-saved{background:#f5ecda;color:#806025}.kb1004-status.is-archived{background:#f1eeee;color:#756666}
           .kb1004-card-main h3{font-family:var(--font-display),serif;font-size:21px;line-height:1.05;letter-spacing:-.02em;margin:9px 0 4px;color:#172f28}.kb1004-card-church{font-size:13px;color:#56615c;margin-bottom:9px}.kb1004-meta-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#52615b;line-height:1.4;margin:2px 0}.kb1004-meta-row>span:first-child{width:14px;color:#1f4a3b;text-align:center}
@@ -29903,7 +29942,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
           /* Tabs size to their own column, not the screen: on a laptop the main column is ~745px, so each of the five tabs gets ~150px. */
           .kb1004-layout>main{container-type:inline-size}
           @media(min-width:821px){@container (max-width:999px){.kb1004-filter-cell{gap:7px;padding:0 8px;font-size:14px;white-space:nowrap}.kb1004-filter-cell svg{display:none}.kb1004-filter-count{min-width:22px;height:22px;font-size:11px}}@container (max-width:799px){.kb1004-filter-cell{gap:6px;padding:0 5px;font-size:13px}.kb1004-filter-count{min-width:20px;height:20px;font-size:10.5px}}}
-          @media(max-width:820px){.kb1004-myprojects{padding:22px 16px 84px}.kb1004-intro h1{font-size:46px}.kb1004-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;background:transparent;border:0;box-shadow:none;gap:8px}.kb1004-filter-cell{border:1px solid #ded8cc!important;border-radius:8px;background:#fff;min-height:50px}.kb1004-toolbar{grid-template-columns:1fr auto}.kb1004-sort{grid-column:1/-1;grid-row:2}.kb1004-card-grid{grid-template-columns:1fr}.kb1004-project-card{grid-template-columns:132px minmax(0,1fr);min-height:230px}.kb1004-card-media{min-height:200px}.kb1004-card-actions{grid-template-columns:1fr}.kb1004-side{grid-template-columns:1fr}.kb1004-proposal-stats{grid-template-columns:1fr}}
+          @media(max-width:820px){.kb1004-myprojects{padding:22px 16px 84px}.kb1004-intro h1{font-size:46px}.kb1004-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;background:transparent;border:0;box-shadow:none;gap:8px}.kb1004-filter-cell{border:1px solid #ded8cc!important;border-radius:8px;background:#fff;min-height:50px}.kb1004-toolbar{grid-template-columns:1fr auto}.kb1004-sort{grid-column:1/-1;grid-row:2}.kb1004-card-grid{grid-template-columns:1fr}.kb1004-project-card{grid-template-columns:150px minmax(0,1fr);min-height:230px}.kb1004-card-media{min-height:200px}.kb1004-card-actions{grid-template-columns:1fr}.kb1004-side{grid-template-columns:1fr}.kb1004-proposal-stats{grid-template-columns:1fr}}
           @media(max-width:560px){.kb1004-project-card{grid-template-columns:1fr}.kb1004-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1004-filter-cells{grid-template-columns:1fr 1fr}.kb1004-intro p{font-size:14px}.kb1004-toolbar{grid-template-columns:1fr}.kb1004-view-toggle{display:none}.kb1004-card-main{padding:14px}.kb1004-side-card{padding:16px}}
           .kb1005-hero-art{position:absolute;top:0;left:0;right:0;height:min(330px,20vw + 30px);pointer-events:none;z-index:0;background:url("/images/my-projects-hero.webp") 2% top/84% auto no-repeat;-webkit-mask-image:linear-gradient(180deg,#000 60%,transparent 100%),linear-gradient(90deg,transparent 4%,#000 22%,#000 83%,transparent 87%);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,#000 60%,transparent 100%),linear-gradient(90deg,transparent 4%,#000 22%,#000 83%,transparent 87%);mask-composite:intersect}
                 .kb1005-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;font:500 10.5px/1 var(--font-sans),sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#8a6c3c}.kb1005-eyebrow i{width:38px;height:1px;background:#c9b48c}
@@ -30349,7 +30388,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
       .kb1005-myprojects *{box-sizing:border-box}.kb1005-intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end;margin:0 auto 25px;max-width:1510px}.kb1005-intro h1{margin:0;font-family:var(--font-display),serif;font-size:clamp(48px,4.4vw,70px);line-height:.98;letter-spacing:-.04em;color:#102b24}.kb1005-intro p{margin:9px 0 0;font-size:16px;color:#63706b}.kb1005-quote{padding:6px 0 4px 24px;border-left:1px solid #ddd7cc;font-family:var(--font-display),serif;font-size:16px;line-height:1.25;color:#243b34;white-space:nowrap}.kb1005-quote span{display:block;font-family:var(--font-sans),sans-serif;font-size:12px;color:#727872;margin-top:3px}
       .kb1005-layout{max-width:1510px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:24px;align-items:start}.kb1005-filter-cells{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));height:58px;margin-bottom:16px;background:rgba(255,255,255,.68);border:1px solid #ddd7cc;border-radius:9px;overflow:hidden;box-shadow:0 7px 20px rgba(25,49,41,.05)}.kb1005-filter-cell{display:flex;align-items:center;justify-content:center;gap:9px;border:0;border-right:1px solid #e4dfd5;background:transparent;color:#213a32;font-family:var(--font-display),serif;font-size:16px;cursor:pointer;transition:.18s}.kb1005-filter-cell:last-child{border-right:0}.kb1005-filter-cell svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8}.kb1005-filter-cell:hover{background:#fff}.kb1005-filter-cell.active{background:linear-gradient(135deg,#184d3c,#123c31);color:#fff;box-shadow:0 5px 14px rgba(23,71,55,.22);font-family:var(--font-sans),sans-serif;font-size:13px;font-weight:800}.kb1005-filter-count{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 7px;border-radius:50%;background:#ece9e2;color:#33413c;font-family:var(--font-sans),sans-serif;font-size:12px}.kb1005-filter-cell.active .kb1005-filter-count{background:#f8f3e9;color:#183c31}
       .kb1005-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 265px 122px;gap:12px;margin-bottom:17px}.kb1005-search,.kb1005-sort,.kb1005-view-toggle{height:43px;background:#fff;border:1px solid #ddd7cc;border-radius:7px;box-shadow:0 2px 8px rgba(25,49,41,.025)}.kb1005-search{display:flex;align-items:center;gap:10px;padding:0 15px}.kb1005-search svg{width:19px;height:19px;fill:none;stroke:#50625c;stroke-width:1.8}.kb1005-search input{width:100%;border:0;outline:0;background:transparent;font:13px var(--font-sans),sans-serif;color:#16372d}.kb1005-sort{display:grid;grid-template-columns:auto 1fr;align-items:center;padding-left:13px;overflow:hidden}.kb1005-sort span{font-size:11px;color:#5d6864}.kb1005-sort select{height:100%;border:0;border-left:1px solid #ebe6dc;margin-left:10px;padding:0 10px;background:#fff;color:#17382f;font-size:12px;font-weight:700;outline:0}.kb1005-view-toggle{display:grid;grid-template-columns:1fr 1fr;overflow:hidden}.kb1005-view-toggle button{border:0;background:#fff;color:#496059;font-size:21px;cursor:pointer}.kb1005-view-toggle button+button{border-left:1px solid #e7e2d8}.kb1005-view-toggle button.active{background:#164b3a;color:#fff}
-      .kb1005-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.kb1005-card-grid.list{grid-template-columns:1fr}.kb1005-project-card{display:grid;grid-template-columns:190px minmax(0,1fr);min-height:268px;background:#fff;border:1px solid #ded8cc;border-radius:9px;overflow:hidden;box-shadow:0 5px 17px rgba(26,45,38,.035)}.kb1005-card-media{margin:15px 0 15px 15px;border-radius:6px;overflow:hidden;min-height:236px;background:#ebe7de}.kb1005-card-media img{width:100%;height:100%;object-fit:cover;display:block}.kb1005-card-fallback{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display),serif;font-size:36px;color:#9a9488}.kb1005-card-main{position:relative;padding:14px 16px 14px 18px;display:flex;flex-direction:column;min-width:0}.kb1005-card-topline{display:flex;align-items:center;justify-content:space-between;gap:10px}.kb1005-status{display:inline-flex;align-items:center;height:27px;padding:0 12px;border-radius:999px;background:#e7f0eb;color:#225e49;font-size:11px;font-weight:700}.kb1005-status.warm{background:#f6ead7;color:#876021}.kb1005-status.progress{background:#e4eff6;color:#315d7a}.kb1005-status.done{background:#eceeef;color:#586461}.kb1005-more{border:0;background:transparent;color:#50615b;cursor:pointer;font-size:16px}.kb1005-category{display:block;margin:8px 0 3px;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a2762f}.kb1005-card-copy h3{margin:0 0 6px;font-family:var(--font-display),serif;font-size:20px;line-height:1.04;color:#13392e}.kb1005-card-copy p{margin:2px 0;font-size:12px;color:#5d6a65}.kb1005-card-copy .kb1005-budget{margin-top:7px;color:#42504b}.kb1005-next{margin-top:auto;padding:11px 0 10px;border-top:1px solid #e6e1d7}.kb1005-next span{display:block;font-size:9px;color:#7a817e}.kb1005-next strong{display:block;margin-top:2px;font-size:12px;font-weight:500;color:#4c5a55}.kb1005-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kb1005-card-actions button{height:38px;border-radius:5px;border:1px solid #b9c2bd;background:#fff;color:#183f33;font-size:11px;font-weight:700;cursor:pointer}.kb1005-card-actions button.primary{background:#174b3a;color:#fff;border-color:#174b3a}
+      .kb1005-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.kb1005-card-grid.list{grid-template-columns:1fr}.kb1005-project-card{display:grid;grid-template-columns:215px minmax(0,1fr);min-height:268px;background:#fff;border:1px solid #ded8cc;border-radius:9px;overflow:hidden;box-shadow:0 5px 17px rgba(26,45,38,.035)}.kb1005-card-media{margin:15px 0 15px 15px;border-radius:6px;overflow:hidden;min-height:236px;background:#ebe7de}.kb1005-card-media img{width:100%;height:100%;object-fit:cover;display:block}.kb1005-card-fallback{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display),serif;font-size:36px;color:#9a9488}.kb1005-card-main{position:relative;padding:14px 16px 14px 18px;display:flex;flex-direction:column;min-width:0}.kb1005-card-topline{display:flex;align-items:center;justify-content:space-between;gap:10px}.kb1005-status{display:inline-flex;align-items:center;height:27px;padding:0 12px;border-radius:999px;background:#e7f0eb;color:#225e49;font-size:11px;font-weight:700}.kb1005-status.warm{background:#f6ead7;color:#876021}.kb1005-status.progress{background:#e4eff6;color:#315d7a}.kb1005-status.done{background:#eceeef;color:#586461}.kb1005-more{border:0;background:transparent;color:#50615b;cursor:pointer;font-size:16px}.kb1005-category{display:block;margin:8px 0 3px;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a2762f}.kb1005-card-copy h3{margin:0 0 6px;font-family:var(--font-display),serif;font-size:20px;line-height:1.04;color:#13392e}.kb1005-card-copy p{margin:2px 0;font-size:12px;color:#5d6a65}.kb1005-card-copy .kb1005-budget{margin-top:7px;color:#42504b}.kb1005-next{margin-top:auto;padding:11px 0 10px;border-top:1px solid #e6e1d7}.kb1005-next span{display:block;font-size:9px;color:#7a817e}.kb1005-next strong{display:block;margin-top:2px;font-size:12px;font-weight:500;color:#4c5a55}.kb1005-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kb1005-card-actions button{height:38px;border-radius:5px;border:1px solid #b9c2bd;background:#fff;color:#183f33;font-size:11px;font-weight:700;cursor:pointer}.kb1005-card-actions button.primary{background:#174b3a;color:#fff;border-color:#174b3a}
       .kb1005-side{display:grid;gap:12px}.kb1005-side-card{background:#fff;border:1px solid #ded8cc;border-radius:9px;padding:20px;box-shadow:0 5px 17px rgba(26,45,38,.035)}.kb1005-side-card h2{margin:0;font-family:var(--font-display),serif;font-size:23px;line-height:1;color:#15372e}.kb1005-side-card p{margin:9px 0 15px;font-size:12px;line-height:1.45;color:#63706b}.kb1005-profile-head{display:flex;align-items:center;justify-content:space-between}.kb1005-profile-head strong{font:700 17px var(--font-sans),sans-serif;color:#163f33}.kb1005-progress{height:10px;border-radius:999px;background:#e7e4de;overflow:hidden;margin:13px 0 9px}.kb1005-progress span{display:block;height:100%;border-radius:inherit;background:#195442}.kb1005-side-cta{width:100%;height:39px;border-radius:5px;border:1px solid #bfd1c9;background:#edf5f1;color:#163e32;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer}.kb1005-side-actions{border:1px solid #e0dbd1;border-radius:7px;overflow:hidden}.kb1005-side-actions button{width:100%;height:49px;border:0;border-bottom:1px solid #e6e1d8;background:#fff;display:grid;grid-template-columns:27px 1fr auto;align-items:center;text-align:left;padding:0 12px;color:#17382f;font-size:12px;font-weight:700;cursor:pointer}.kb1005-side-actions button:last-child{border-bottom:0}.kb1005-attention-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.kb1005-attention-head h2{font-size:21px}.kb1005-link-button{border:0;background:transparent;color:#174737;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}.kb1005-attention-count{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;background:#eeeae2;font:700 11px var(--font-sans),sans-serif}.kb1005-attention-item{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid #eee9df}.kb1005-attention-thumb{width:54px;height:48px;border-radius:5px;background:#e8e4dc;overflow:hidden}.kb1005-attention-thumb img{width:100%;height:100%;object-fit:cover}.kb1005-attention-item strong{display:block;font-size:11px;color:#17392f}.kb1005-attention-item span{display:block;margin-top:3px;font-size:10px;color:#6a7470}.kb1005-attention-item button{border:0;background:transparent;color:#174737;font-size:18px;cursor:pointer}.kb1005-impact{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center;background:linear-gradient(135deg,#fbfaf6,#f1eee6)}.kb1005-impact-icon{width:54px;height:54px;border-radius:50%;background:#e9eee8;display:flex;align-items:center;justify-content:center;font-size:24px;color:#195442}.kb1005-impact h2{font-size:18px}.kb1005-impact p{margin-bottom:0}.kb1005-empty{grid-column:1/-1;padding:54px 26px;text-align:center;border:1px dashed #d8d2c7;border-radius:10px;background:rgba(255,255,255,.62)}.kb1005-empty h3{margin:0 0 7px;font-family:var(--font-display),serif;font-size:24px;color:#17352b}.kb1005-empty p{margin:0 auto 17px;max-width:430px;font-size:13px;line-height:1.55;color:#66706b}.kb1005-empty button{height:40px;border-radius:6px;border:1px solid #174737;background:#174737;color:#fff;padding:0 16px;font-size:12px;font-weight:700;cursor:pointer}.kb1005-error{margin-bottom:15px;padding:12px 14px;border-radius:8px;border:1px solid #ead1cc;background:#fff5f2;color:#8b3b2f;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}.kb1005-error button{border:0;background:#8b3b2f;color:#fff;padding:7px 10px;border-radius:5px;cursor:pointer}
       @media(max-width:1180px){.kb1005-layout{grid-template-columns:1fr}.kb1005-side{grid-template-columns:repeat(2,minmax(0,1fr))}.kb1005-impact{display:none}.kb1005-intro{grid-template-columns:1fr}.kb1005-quote{display:none}}
       /* Tabs size to their own column, not the screen: on a laptop the main column is ~745px, so each of the five tabs gets ~150px. */
@@ -30358,7 +30397,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
       /* Laptop card proportion lock: preserve the two-card row while scaling only
          the card internals. The monitor composition above remains authoritative. */
       @media(min-width:821px){@container (max-width:999px){
-        .kb1005-project-card{grid-template-columns:132px minmax(0,1fr);min-height:214px}
+        .kb1005-project-card{grid-template-columns:150px minmax(0,1fr);min-height:214px}
         .kb1005-card-media{margin:11px 0 11px 11px;min-height:192px}
         .kb1005-card-main{padding:11px 12px 11px 13px}
         .kb1005-status{height:23px;padding:0 10px;font-size:10px}
@@ -30373,7 +30412,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
         .kb1005-card-actions{gap:6px;padding-top:0}
         .kb1005-card-actions button{height:32px;font-size:9.5px}
       }}
-      @media(max-width:820px){.kb1005-myprojects{padding:22px 16px 84px}.kb1005-intro h1{font-size:46px}.kb1005-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));height:auto;background:transparent;border:0;box-shadow:none;gap:8px;overflow:visible}.kb1005-filter-cell{min-height:50px;border:1px solid #ded8cc!important;border-radius:8px;background:#fff}.kb1005-toolbar{grid-template-columns:1fr auto}.kb1005-sort{grid-column:1/-1;grid-row:2}.kb1005-card-grid{grid-template-columns:1fr}.kb1005-project-card{grid-template-columns:132px minmax(0,1fr);min-height:230px}.kb1005-card-media{min-height:200px}.kb1005-side{grid-template-columns:1fr}}
+      @media(max-width:820px){.kb1005-myprojects{padding:22px 16px 84px}.kb1005-intro h1{font-size:46px}.kb1005-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));height:auto;background:transparent;border:0;box-shadow:none;gap:8px;overflow:visible}.kb1005-filter-cell{min-height:50px;border:1px solid #ded8cc!important;border-radius:8px;background:#fff}.kb1005-toolbar{grid-template-columns:1fr auto}.kb1005-sort{grid-column:1/-1;grid-row:2}.kb1005-card-grid{grid-template-columns:1fr}.kb1005-project-card{grid-template-columns:150px minmax(0,1fr);min-height:230px}.kb1005-card-media{min-height:200px}.kb1005-side{grid-template-columns:1fr}}
       @media(max-width:560px){.kb1005-project-card{grid-template-columns:1fr}.kb1005-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1005-filter-cells{grid-template-columns:1fr 1fr}.kb1005-toolbar{grid-template-columns:1fr}.kb1005-view-toggle{display:none}.kb1005-card-main{padding:14px}.kb1005-side-card{padding:16px}}
     `}</style>
     <style>{`
@@ -56540,27 +56579,35 @@ return { ChurchOSSurface };
 // This registry shares a single channel per userId across every subscriber,
 // ref-counted so it tears down once the last consumer unmounts.
 const __kbNotifChannelRegistry = new Map();
+let __kbNotifChannelGeneration = 0;
 function subscribeToNotificationsChannel(userId, onChange) {
   if (!userId) return () => {};
   let entry = __kbNotifChannelRegistry.get(userId);
   if (!entry) {
     const listeners = new Set();
-    const channel = supabase.channel(`kb-notifs-shared-${userId}`)
+    const generation = ++__kbNotifChannelGeneration;
+    const channel = supabase.channel(`kb-notifs-${userId}-${generation}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
         (payload) => { listeners.forEach(fn => { try { fn(payload); } catch (e) { logError('shared-notif-channel-listener', e, { userId }); } }); }
       )
       .subscribe();
-    entry = { channel, listeners, refCount: 0 };
+    entry = { channel, listeners, refCount: 0, generation, closing: false };
     __kbNotifChannelRegistry.set(userId, entry);
   }
   entry.listeners.add(onChange);
   entry.refCount += 1;
+  let released = false;
   return () => {
+    if (released) return;
+    released = true;
     entry.listeners.delete(onChange);
-    entry.refCount -= 1;
-    if (entry.refCount <= 0) {
-      try { entry.channel.unsubscribe(); } catch { /* non-fatal */ }
-      __kbNotifChannelRegistry.delete(userId);
+    entry.refCount = Math.max(0, entry.refCount - 1);
+    if (entry.refCount <= 0 && !entry.closing) {
+      entry.closing = true;
+      if (__kbNotifChannelRegistry.get(userId) === entry) __kbNotifChannelRegistry.delete(userId);
+      Promise.resolve(supabase.removeChannel(entry.channel)).catch(error => {
+        logError('shared-notif-channel-remove', error, { userId, generation: entry.generation });
+      });
     }
   };
 }
@@ -56650,6 +56697,8 @@ export default function App() {
   const [authReady, setAuthReady] = useState(false);
   const [marketplacePublic, setMarketplacePublic] = useState(false);
   const [marketplaceGateLoaded, setMarketplaceGateLoaded] = useState(false);
+  const [marketplaceGateError, setMarketplaceGateError] = useState("");
+  const [marketplaceGateRetry, setMarketplaceGateRetry] = useState(0);
   const [privateMarketplaceAccess, setPrivateMarketplaceAccess] = useState(false);
   const marketplaceGateUserIdRef = useRef(undefined);
   const [refSurveyToken, setRefSurveyToken] = useState(() => {
@@ -56753,50 +56802,53 @@ export default function App() {
     }
 
     const loadGate = async () => {
-      const publicEnabled = await getMarketplacePublicOncePerSession();
-      if (!active) return;
-      setMarketplacePublic(publicEnabled === true);
-
-      if (!userId) {
-        setPrivateMarketplaceAccess(false);
-        setMarketplaceGateLoaded(true);
-        return;
-      }
-
+      setMarketplaceGateError("");
+      setMarketplaceGateLoaded(false);
       try {
-        const [inviteByUser, inviteByVendor, linkedProject, charterProfile, charterVendor] = await Promise.all([
-          supabase.from("vendor_invites").select("id").eq("vendor_user_id", userId).eq("status", "invited").limit(1),
-          supabase.from("vendor_invites").select("id").eq("vendor_id", userId).eq("status", "invited").limit(1),
-          supabase.from("project_vendor_links").select("project_id").eq("vendor_user_id", userId).eq("stage", "invited").limit(1),
-          supabase.from("profiles").select("id,role,onboarding_complete,account_status,access_status,private_marketplace_access").eq("id", userId).maybeSingle(),
-          supabase.from("vendors").select("user_id,founding_vendor,verification_status,suspended").eq("user_id", userId).maybeSingle(),
-        ]);
+        const publicEnabled = await getMarketplacePublicOncePerSession();
         if (!active) return;
-        const hasExplicitAccess =
-          (!inviteByUser.error && (inviteByUser.data || []).length > 0) ||
-          (!inviteByVendor.error && (inviteByVendor.data || []).length > 0) ||
-          (!linkedProject.error && (linkedProject.data || []).length > 0);
-        const hasCharterWorkspaceAccess =
-          !charterProfile.error
-          && !charterVendor.error
-          && normalizeAuthRole(charterProfile.data?.role) === "vendor"
+        setMarketplacePublic(publicEnabled === true);
+        if (!userId) {
+          setPrivateMarketplaceAccess(false);
+          setMarketplaceGateLoaded(true);
+          return;
+        }
+        const [inviteByUser, inviteByVendor, linkedProject, charterProfile, charterVendor] = await withRequestDeadline(
+          signal => Promise.all([
+            supabase.from("vendor_invites").select("id").eq("vendor_user_id", userId).eq("status", "invited").limit(1).abortSignal(signal),
+            supabase.from("vendor_invites").select("id").eq("vendor_id", userId).eq("status", "invited").limit(1).abortSignal(signal),
+            supabase.from("project_vendor_links").select("project_id").eq("vendor_user_id", userId).eq("stage", "invited").limit(1).abortSignal(signal),
+            supabase.from("profiles").select("id,role,onboarding_complete,account_status,access_status,private_marketplace_access").eq("id", userId).maybeSingle().abortSignal(signal),
+            supabase.from("vendors").select("user_id,founding_vendor,verification_status,suspended").eq("user_id", userId).maybeSingle().abortSignal(signal),
+          ]),
+          { timeoutMs: 12000, label: "Marketplace access check" },
+        );
+        const gateReadError = [inviteByUser, inviteByVendor, linkedProject, charterProfile, charterVendor]
+          .map(result => result?.error)
+          .find(Boolean);
+        if (gateReadError) throw gateReadError;
+        if (!active) return;
+        const hasExplicitAccess = (inviteByUser.data || []).length > 0 || (inviteByVendor.data || []).length > 0 || (linkedProject.data || []).length > 0;
+        const hasCharterWorkspaceAccess = normalizeAuthRole(charterProfile.data?.role) === "vendor"
           && charterProfile.data?.onboarding_complete === true
           && charterVendor.data?.founding_vendor === true
           && normalizeVendorAdmissionStatus(charterVendor.data?.verification_status) === "approved"
           && charterVendor.data?.suspended !== true;
-        const hasChurchWorkspaceAccess = !charterProfile.error && hasActiveChurchWorkspaceAccess(charterProfile.data);
+        const hasChurchWorkspaceAccess = hasActiveChurchWorkspaceAccess(charterProfile.data);
         setPrivateMarketplaceAccess(hasExplicitAccess || hasCharterWorkspaceAccess || hasChurchWorkspaceAccess);
+        setMarketplaceGateLoaded(true);
       } catch (error) {
         logError("private-marketplace-access-read", error, { userId });
-        if (active) setPrivateMarketplaceAccess(false);
-      } finally {
-        if (active) setMarketplaceGateLoaded(true);
+        if (active) {
+          setPrivateMarketplaceAccess(false);
+          setMarketplaceGateError("FaithBid could not verify marketplace access. No access decision was changed; please retry.");
+        }
       }
     };
 
     loadGate();
     return () => { active = false; };
-  }, [currentUser?.id, userProfile?.onboarding_complete]);
+  }, [currentUser?.id, userProfile?.onboarding_complete, marketplaceGateRetry]);
 
 
   useEffect(() => {
@@ -57664,7 +57716,7 @@ export default function App() {
   // Avoids the flash where currentUser is null for one render after loadProfile sets role.
   const isAdmin = useMemo(
     () => isAdminUser(currentUser, userProfile),
-    [currentUser?.id, userProfile?.role, userProfile?.admin]
+    [currentUser]
   );
 
   const canAccessMarketplace = marketplacePublic || isAdmin || privateMarketplaceAccess;
@@ -58030,7 +58082,7 @@ export default function App() {
               {/* 1008: Workspace dropdown retired; its destinations now live contextually. */}
               {/* Phase 5 polish lock: preserve the existing shared 48px authenticated nav geometry; simplification comes from fewer destinations, not a replacement nav. */}
               {currentUser && isAdmin && <button type="button" className={`nav-tab${["admin","growth","concierge","church-intelligence","qa"].includes(screen) ? " active" : ""}`} onClick={()=>nav("admin")} aria-current={["admin","growth","concierge","church-intelligence","qa"].includes(screen) ? "page" : undefined} style={{position:"relative",height:32,padding:"0 10px",borderRadius:0,fontSize:11.25,fontWeight:["admin","growth","concierge","church-intelligence","qa"].includes(screen)?800:650,background:"transparent",color:["admin","growth","concierge","church-intelligence","qa"].includes(screen)?"#172116":"rgba(28,40,20,0.58)",boxShadow:"none"}}>Admin Review</button>}
-              {currentUser && <NotificationBell currentUser={currentUser} role={role} nav={nav} onBidAccepted={()=>{ setScreen("projects"); setNavSubTab("work"); }}/>}
+              {currentUser && <NavUtilityBoundary resetKey={currentUser.id}><NotificationBell currentUser={currentUser} role={role} nav={nav} onBidAccepted={()=>{ setScreen("projects"); setNavSubTab("work"); }}/></NavUtilityBoundary>}
               {currentUser ? (
                 <>
                   <button type="button"
@@ -58212,16 +58264,19 @@ export default function App() {
             <div style={{textAlign:"center",maxWidth:440}}>
               <div style={{width:34,height:34,borderRadius:"50%",border:"3px solid rgba(28,40,20,0.10)",borderTopColor:"#1C2814",animation:"spin 0.7s linear infinite",margin:"0 auto 16px"}}/>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.16em",textTransform:"uppercase",color:"#B08840",marginBottom:8}}>
-                {!authReady || !marketplaceGateLoaded ? "Checking private access" : "Private prelaunch"}
+                {marketplaceGateError ? "Access check unavailable" : !authReady || !marketplaceGateLoaded ? "Checking private access" : "Private prelaunch"}
               </div>
               <div style={{fontFamily:"var(--font-display),serif",fontSize:26,fontWeight:700,color:"#1C2814",lineHeight:1.15,marginBottom:8}}>
-                {!authReady || !marketplaceGateLoaded ? "Preparing your FaithBid workspace." : "Returning you to early access."}
+                {marketplaceGateError ? "We could not verify access safely." : !authReady || !marketplaceGateLoaded ? "Preparing your FaithBid workspace." : "Returning you to early access."}
               </div>
               <div style={{fontSize:13.5,lineHeight:1.65,color:"#6f7569"}}>
-                {!authReady || !marketplaceGateLoaded
-                  ? "FaithBid is verifying your session and launch access."
-                  : "The Marketplace is still private while the first launch markets are prepared."}
+                {marketplaceGateError
+                  ? marketplaceGateError
+                  : !authReady || !marketplaceGateLoaded
+                    ? "FaithBid is verifying your session and launch access."
+                    : "The Marketplace is still private while the first launch markets are prepared."}
               </div>
+              {marketplaceGateError && <button type="button" onClick={()=>setMarketplaceGateRetry(value=>value+1)} style={{marginTop:16,minHeight:44,padding:"0 18px",borderRadius:9,border:"1px solid #1C2814",background:"#1C2814",color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer"}}>Retry access check</button>}
             </div>
           </div>
         )}
@@ -62017,11 +62072,11 @@ function StartFreeScreen({nav, defaultRole=null, setAuthDefaultRole=null, setSta
             role: roleValue,
             org_name: orgName.trim(),
             full_name: fullName.trim(),
+            legal_consent: buildLegalConsentMetadata(CONSENT_KINDS.church),
           },
         },
       });
       if (signUpErr) throw signUpErr;
-      void recordLegalConsent({ email: email.trim(), kind: CONSENT_KINDS.church });
       const userId = data?.user?.id;
       if (userId) {
         const { error: profileErr } = await supabase.from("profiles").upsert({
@@ -62833,10 +62888,9 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
       const{data,error:signUpErr}=await supabase.auth.signUp({
         email,
         password:form.password,
-        options:{ data:{ role:selectedRole, org_name:form.org||form.name } },
+        options:{ data:{ role:selectedRole, org_name:form.org||form.name, legal_consent:buildLegalConsentMetadata(selectedRole==="church" ? CONSENT_KINDS.church : CONSENT_KINDS.individual) } },
       });
       if(signUpErr)throw signUpErr;
-      void recordLegalConsent({ email, kind: selectedRole==="church" ? CONSENT_KINDS.church : CONSENT_KINDS.individual });
       if(data.user){
         const{error:profileErr}=await supabase.from("profiles").upsert({
           id:data.user.id,role:selectedRole,org_name:form.org||form.name,
@@ -63446,9 +63500,8 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
       const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { role: "church", org_name: churchName } },
+        options: { data: { role: "church", org_name: churchName, legal_consent: buildLegalConsentMetadata(CONSENT_KINDS.guestPost) } },
       });
-      if (!signUpErr) void recordLegalConsent({ email, kind: CONSENT_KINDS.guestPost });
       if (signUpErr) {
         const m = signUpErr?.message || "";
         if (/already/i.test(m)) {
@@ -63568,7 +63621,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
 
   return (
     <>
-      <PostProject onSubmit={handleFormSubmit} onBack={() => nav("landing")} role="church" />
+      <PostProject onSubmit={handleFormSubmit} onBack={() => nav("landing")} role="church" currentUser={currentUser} />
       {pendingData && (
         <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(12,18,13,0.5)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={(e) => { if (e.target === e.currentTarget && !submitting) setPendingData(null); }}>
           <div ref={pendingDataTrapRef} style={{ width: "100%", maxWidth: 440, background: "#fff", borderRadius: 14, border: "1px solid var(--border)", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
@@ -63696,7 +63749,7 @@ function AIBriefAssistant({ title, category, budget, timeline, description, urge
   );
 }
 
-function PostProject({ onSubmit, onBack, role, initialProject = null }) {
+function PostProject({ onSubmit, onBack, role, currentUser = null, initialProject = null }) {
   const editing = !!(initialProject && initialProject.id);
   const seed = initialProject || {};
   const [title, setTitle] = useState(String(seed.title || ""));
@@ -63781,15 +63834,17 @@ function PostProject({ onSubmit, onBack, role, initialProject = null }) {
       if (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) setTimeout(() => { try { el.focus({ preventScroll: true }); } catch { /* non-fatal */ } }, 350);
     } catch { /* non-fatal */ }
   };
-  const AUTOSAVE_KEY = "kb:postProjectDraft:v1";
+  const AUTOSAVE_KEY = `${KB_STORAGE_KEYS.postProjectDraftPrefix}${currentUser?.id || "anonymous-session"}`;
+  const autosaveStorage = currentUser?.id ? window.localStorage : window.sessionStorage;
   const [restored, setRestored] = useState(false);
   useEffect(() => {
     if (editing) return;
     try {
-      const raw = window.localStorage.getItem(AUTOSAVE_KEY);
+      window.localStorage.removeItem("kb:postProjectDraft:v1");
+      const raw = autosaveStorage.getItem(AUTOSAVE_KEY);
       if (!raw) return;
       const d = JSON.parse(raw);
-      if (!d || !d.t || Date.now() - d.t > 7 * 86400000) { window.localStorage.removeItem(AUTOSAVE_KEY); return; }
+      if (!d || !d.t || Date.now() - d.t > 7 * 86400000) { autosaveStorage.removeItem(AUTOSAVE_KEY); return; }
       if (d.title) setTitle(String(d.title));
       if (d.category) setCategory(String(d.category));
       if (d.customCategory) setCustomCategory(String(d.customCategory));
@@ -63808,11 +63863,11 @@ function PostProject({ onSubmit, onBack, role, initialProject = null }) {
   useEffect(() => {
     if (editing || !dirty) return undefined;
     const t = setTimeout(() => {
-      try { window.localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ t: Date.now(), title, category, customCategory, budget, timeline, description, urgent, scope, skills, deliveryPreference, projectCity, projectState })); } catch { /* non-fatal */ }
+      try { autosaveStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ t: Date.now(), title, category, customCategory, budget, timeline, description, urgent, scope, skills, deliveryPreference, projectCity, projectState })); } catch { /* non-fatal */ }
     }, 600);
     return () => clearTimeout(t);
   }, [formSnapshot]);
-  const clearAutosave = () => { try { window.localStorage.removeItem(AUTOSAVE_KEY); } catch { /* non-fatal */ } };
+  const clearAutosave = () => { try { autosaveStorage.removeItem(AUTOSAVE_KEY); } catch { /* non-fatal */ } };
   useEffect(() => {
     const shell = document.querySelector(".platform-fullscreen-shell");
     if (!shell) return undefined;

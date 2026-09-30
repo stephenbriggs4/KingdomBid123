@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "./supabaseClient";
-import { LegalConsentCheckbox, recordLegalConsent, CONSENT_KINDS } from "./LegalConsent";
+import { LegalConsentCheckbox } from "./LegalConsent";
 
 let CATEGORIES, CHARTER_VENDOR_PRO_FREE_MONTHS, CHARTER_VENDOR_PRO_VALUE_LABEL, KB_US_STATE_CODES, LAUNCH_LABEL, PLATFORM_FEE_CAP, VENDOR_PRO_FEE_CAP, buildWaitlistAttributionFields, buildWaitlistSnapshot, getAppUrl, getWaitlistSourceForMode, isValidEmail, isWaitlistDuplicateEmailError, kbSafeLocalGet, kbSafeLocalRemove, kbSafeLocalSet, logError, normalizeRefCode, recordPublicFunnelEvent, runSupabaseWithTimeout, sendWaitlistEmail;
 
@@ -159,6 +159,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
   }, []);
 
   useEffect(() => {
+    let task;
     try {
       const h = String(window.location.hash || "");
       const q = String(window.location.search || "");
@@ -166,8 +167,9 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
       let rawRef = m?.[1] || "";
       try { rawRef = decodeURIComponent(rawRef); } catch { /* malformed encoding -- fall back to the raw value */ }
       const code = normalizeRefCode(rawRef);
-      if (code) setForm(f => ({ ...f, referred_by: code }));
+      if (code) task = setTimeout(() => setForm(f => ({ ...f, referred_by: code })), 0);
     } catch { /* no ref param present or URL parsing failed -- not fatal */ }
+    return () => clearTimeout(task);
   }, []);
 
   // Returnable receipt: if this browser already completed a signup for this
@@ -175,7 +177,9 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
   // resumed flag keeps copy calm and suppresses the celebratory modal replay.
   useEffect(() => {
     const saved = loadWaitlistReceipt(mode);
-    if (saved) setResult(saved);
+    if (!saved) return undefined;
+    const task = setTimeout(() => setResult(saved), 0);
+    return () => clearTimeout(task);
   }, [mode]);
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: typeof e === "string" ? e : e.target.value }));
@@ -234,6 +238,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
         referral_code: null,
         referred_by: normalizeRefCode(form.referred_by) || null,
         source: getWaitlistSourceForMode(mode),
+        legal_consent: { accepted: true, marketing_opt_in: false },
       };
       // 853ar (brief #3/#4/#6): dedicated waitlist attribution helper.
       // These fields are added to the RPC payload as browser CLAIMS. They do
@@ -389,7 +394,6 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           referralValidated,
           snapshot,
         };
-        void recordLegalConsent({ email: payload.email, kind: CONSENT_KINDS.waitlist });
         setResult(nextResult);
         saveWaitlistReceipt(mode, nextResult);
         if (telemetryEnabled) recordPublicFunnelEvent("waitlist_submit_result", {
@@ -416,7 +420,6 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           referralValidated,
           snapshot,
         };
-        void recordLegalConsent({ email: payload.email, kind: CONSENT_KINDS.waitlist });
         setResult(nextResult);
         saveWaitlistReceipt(mode, nextResult);
         if (telemetryEnabled) recordPublicFunnelEvent("waitlist_submit_result", {
@@ -563,8 +566,9 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
         ? await runSupabaseWithTimeout(resendRequest, "Charter Vendor confirmation resend", 8000)
         : await resendRequest;
       if (!mountedRef.current) return;
-      setResult(prev => prev ? ({ ...prev, emailDelivered: !!emailSend?.delivered, emailReason: emailSend?.reason || null, snapshot }) : prev);
-      if (emailSend?.delivered) showToast && showToast("Confirmation email sent");
+      setResult(prev => prev ? ({ ...prev, emailAccepted: !!emailSend?.accepted, emailDelivered: !!emailSend?.delivered, emailReason: emailSend?.reason || null, snapshot }) : prev);
+      if (emailSend?.accepted) showToast && showToast("Confirmation request accepted");
+      else if (emailSend?.delivered) showToast && showToast("Confirmation email sent");
       else showToast && showToast("Confirmation email isn't live yet — your spot is still saved.", "error");
     } catch (error) {
       logError("waitlist-email-resend", error, { mode, email: result?.email });

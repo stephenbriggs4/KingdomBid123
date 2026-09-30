@@ -1,39 +1,4 @@
 import React from "react";
-import { supabase } from "./supabaseClient";
-
-// Bump a version string whenever the published text of that document changes.
-// Consent rows store these strings so we can prove which text a person saw.
-// "draft-" versions mean the document is still awaiting counsel review.
-export const LEGAL_DOC_VERSIONS = Object.freeze({
-  terms: "draft-2026-09-28",
-  privacy: "draft-2026-09-28",
-});
-
-export const CONSENT_KINDS = Object.freeze({
-  waitlist: "waitlist",
-  church: "church_signup",
-  vendor: "vendor_signup",
-  individual: "individual_signup",
-  guestPost: "guest_post_project",
-});
-
-// Best effort: consent capture must never block a signup, but a failure is
-// reported so it is not silently lost.
-export async function recordLegalConsent({ email, kind, marketingOptIn = false }) {
-  try {
-    const { error } = await supabase.rpc("kb_record_legal_consent", {
-      p_email: String(email || "").trim().toLowerCase(),
-      p_kind: kind,
-      p_documents: { ...LEGAL_DOC_VERSIONS },
-      p_marketing_opt_in: !!marketingOptIn,
-    });
-    if (error) throw error;
-    return true;
-  } catch (err) {
-    try { console.error("[legal-consent] could not record consent", err?.message || err); } catch { /* console unavailable */ }
-    return false;
-  }
-}
 
 // Same-tab-safe links: open in a new tab so a half-filled form is never lost.
 const linkStyle = { color: "inherit", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2 };
