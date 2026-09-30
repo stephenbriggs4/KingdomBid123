@@ -4,9 +4,9 @@ import { readFileSync } from 'node:fs';
 
 const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../src/styles/marketplace-v2.css', import.meta.url), 'utf8');
-const directoryMigration = readFileSync(new URL('../supabase/migrations/20260915170203_marketplace_vendor_directory_body.sql', import.meta.url), 'utf8');
-const nearbyMigration = readFileSync(new URL('../supabase/migrations/20260915170828_marketplace_vendor_nearby_sort.sql', import.meta.url), 'utf8');
-const savedVendorMigration = readFileSync(new URL('../supabase/migrations/20260916145138_harden_saved_vendors_ownership.sql', import.meta.url), 'utf8');
+const directoryMigration = readFileSync(new URL('../supabase/migrations/20260915170354_marketplace_vendor_directory_body.sql', import.meta.url), 'utf8');
+const nearbyMigration = readFileSync(new URL('../supabase/migrations/20260915170942_marketplace_vendor_nearby_sort.sql', import.meta.url), 'utf8');
+const savedVendorMigration = readFileSync(new URL('../supabase/migrations/20260916145426_harden_saved_vendors_ownership.sql', import.meta.url), 'utf8');
 
 test('church marketplace keeps the existing hero and replaces only the body', () => {
   assert.match(app, /<ChurchMarketplaceHero[\s\S]*?<main className="kb-marketplace-directory-body"/);

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import test from 'node:test';
 
 const appSource = fs.readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
-const migrationSource = fs.readFileSync(new URL('../supabase/migrations/20260914162521_require_reachable_primary_contact.sql', import.meta.url), 'utf8');
+const migrationSource = fs.readFileSync(new URL('../supabase/migrations/20260914163038_require_reachable_primary_contact.sql', import.meta.url), 'utf8');
 
 test('church intake requires a reachable primary contact', () => {
   assert.match(appSource, /Enter an email address or phone number so FaithBid can reach the primary contact/);

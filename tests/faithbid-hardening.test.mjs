@@ -94,7 +94,7 @@ test("participants cannot rewrite conversation offer terms, and reviews are not 
 });
 
 test("endorsements are church-only, pending-only, and one per church per vendor without a recursive policy", () => {
-  const m = migrations.find((x) => x.includes("Churches can submit pending endorsements"));
+  const m = migrations.filter((x) => x.includes("Churches can submit pending endorsements")).pop();
   assert.ok(m);
   assert.match(m, /p.role = .church./);
   assert.match(m, /vendor_endorsements_one_per_endorser_uidx/);

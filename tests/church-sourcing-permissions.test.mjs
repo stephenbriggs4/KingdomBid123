@@ -4,7 +4,7 @@ import { test } from 'node:test';
 
 const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const migration = readFileSync(
-  new URL('../supabase/migrations/20260914155751_capture_church_sourcing_permissions.sql', import.meta.url),
+  new URL('../supabase/migrations/20260914161929_capture_church_sourcing_permissions.sql', import.meta.url),
   'utf8',
 );
 

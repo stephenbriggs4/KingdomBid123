@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
-const hard = read('../supabase/migrations/20260928170000_low_severity_hardening.sql');
-const fix = read('../supabase/migrations/20260928171000_fix_vendor_invites_policy_recursion.sql');
+const hard = read('../supabase/migrations/20260928175904_low_severity_hardening.sql');
+const fix = read('../supabase/migrations/20260928180140_fix_vendor_invites_policy_recursion.sql');
 const has = (src, re, msg) => assert.ok(re.test(src), msg);
 
 has(hard, /Vendor invitation response fields change only through the bidding workflow/, 'invite response fields are locked');

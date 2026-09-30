@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
-const mig = read('../supabase/migrations/20260928140000_geo_city_state_parse_and_sync.sql');
-const fix = read('../supabase/migrations/20260928141000_vendor_profile_location_sync_fix.sql');
+const mig = read('../supabase/migrations/20260928174414_geo_city_state_parse_and_sync.sql');
+const fix = read('../supabase/migrations/20260928174522_vendor_profile_location_sync_fix.sql');
 const profile = read('../src/ProfileScreen.jsx');
 const has = (src, re, msg) => assert.ok(re.test(src), msg);
 

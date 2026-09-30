@@ -21,6 +21,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run test:build-budget
+      - run: npm run test:migration-integrity
       - run: npm run test:hardening
       - run: npm run test:launch-surface
       - run: npm run test:my-projects-routing

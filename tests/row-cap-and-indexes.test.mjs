@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const client = read('../src/supabaseClient.js');
 const app = read('../src/App.jsx');
-const idx = read('../supabase/migrations/20260928160000_fk_covering_indexes.sql');
+const idx = read('../supabase/migrations/20260928175531_fk_covering_indexes.sql');
 const has = (src, re, msg) => assert.ok(re.test(src), msg);
 
 has(client, /REST_ROW_CAP = 1000/, 'the 1000-row API cap is named');

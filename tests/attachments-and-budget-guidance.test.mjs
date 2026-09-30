@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
-const mig = read('../supabase/migrations/20260928210000_bid_and_project_attachments.sql');
+const mig = read('../supabase/migrations/20260928181520_bid_and_project_attachments.sql');
 const app = read('../src/App.jsx');
 const att = read('../src/Attachments.jsx');
 const has = (src, re, msg) => assert.ok(re.test(src), msg);

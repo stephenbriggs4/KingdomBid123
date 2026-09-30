@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
-const mig = read('../supabase/migrations/20260928190000_vendor_profile_credentials.sql');
+const mig = read('../supabase/migrations/20260928180549_vendor_profile_credentials.sql');
 const profile = read('../src/ProfileScreen.jsx');
 const panel = read('../src/VendorCredentialsPanel.jsx');
 const admin = read('../src/AdminScreen.jsx');

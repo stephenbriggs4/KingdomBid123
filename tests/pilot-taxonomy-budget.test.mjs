@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const appUrl = new URL('../src/App.jsx', import.meta.url);
-const migrationUrl = new URL('../supabase/migrations/20260910143000_unify_service_taxonomy_and_budget_translation.sql', import.meta.url);
-const demandMigrationUrl = new URL('../supabase/migrations/20260910151500_admin_demand_reconciliation_summary.sql', import.meta.url);
-const governanceMigrationUrl = new URL('../supabase/migrations/20260910163000_pilot_governance_decision_ledger.sql', import.meta.url);
-const demandTruthMigrationUrl = new URL('../supabase/migrations/20260911011500_truth_label_demand_reconciliation.sql', import.meta.url);
+const migrationUrl = new URL('../supabase/migrations/20260910212121_unify_service_taxonomy_and_budget_translation.sql', import.meta.url);
+const demandMigrationUrl = new URL('../supabase/migrations/20260910213840_admin_demand_reconciliation_summary.sql', import.meta.url);
+const governanceMigrationUrl = new URL('../supabase/migrations/20260910215411_pilot_governance_decision_ledger.sql', import.meta.url);
+const demandTruthMigrationUrl = new URL('../supabase/migrations/20260911015642_truth_label_demand_reconciliation.sql', import.meta.url);
 
 test('Marketplace and Concierge derive categories from one application taxonomy', async () => {
   const source = await readFile(appUrl, 'utf8');

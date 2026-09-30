@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const app = fs.readFileSync(path.join(root, "src", "App.jsx"), "utf8");
 const migration = fs.readFileSync(
-  path.join(root, "supabase", "migrations", "20260912154703_restrict_vendor_directory_reads_to_admitted_rows.sql"),
+  path.join(root, "supabase", "migrations", "20260912155042_restrict_vendor_directory_reads_to_admitted_rows.sql"),
   "utf8",
 );
 

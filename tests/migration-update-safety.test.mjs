@@ -22,7 +22,7 @@ test('new UPDATE-only migrations assert their affected row count', () => {
 
 test('Deal Room audit fixture cleanup is provenance-bound and recoverable', () => {
   const sql = readFileSync(
-    new URL('../supabase/migrations/20260911161650_archive_deal_room_ui_audit_fixture.sql', import.meta.url),
+    new URL('../supabase/migrations/20260911172016_archive_deal_room_ui_audit_fixture.sql', import.meta.url),
     'utf8',
   );
 

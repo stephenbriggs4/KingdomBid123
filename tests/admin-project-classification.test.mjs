@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const admin = read('../src/AdminScreen.jsx');
-const mig = read('../supabase/migrations/20260928150000_project_origin_audit.sql');
+const mig = read('../supabase/migrations/20260928174852_project_origin_audit.sql');
 const has = (src, re, msg) => assert.ok(re.test(src), msg);
 
 has(admin, /ADMIN_PROJECT_ORIGIN_LABEL = \{ real: 'Real', qa: 'Test', synthetic: 'Demo', unclassified: 'Unclassified' \}/, 'admin sees Real / Test / Demo labels');

@@ -5,7 +5,7 @@ const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const settings = read('../src/SettingsScreen.jsx');
 const admin = read('../src/AdminScreen.jsx');
 const panel = read('../src/AdminPrivacyRequests.jsx');
-const mig = read('../supabase/migrations/20260928130000_privacy_requests.sql');
+const mig = read('../supabase/migrations/20260928173931_privacy_requests.sql');
 const has = (src, re, msg) => assert.ok(re.test(src), msg);
 
 has(settings, /rpc\("kb_submit_privacy_request"/, 'settings files requests through the RPC');

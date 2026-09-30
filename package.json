@@ -34,6 +34,7 @@
     "test:marketplace-column-system": "node tests/marketplace-column-system.test.mjs",
     "test:marketplace-results-cleanup": "node tests/marketplace-results-cleanup.test.mjs",
     "test:migration-update-safety": "node tests/migration-update-safety.test.mjs",
+    "test:migration-integrity": "node scripts/check-migration-integrity.mjs",
     "test:reconciliation-regressions": "node tests/reconciliation-regressions.test.mjs",
     "test:budget-truth": "node tests/budget-truth.test.mjs",
     "test:profile-role-reads": "node tests/profile-role-reads.test.mjs",

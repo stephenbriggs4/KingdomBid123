@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import test from 'node:test';
 
 const appSource = fs.readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
-const migrationSource = fs.readFileSync(new URL('../supabase/migrations/20260914165000_require_intake_follow_up.sql', import.meta.url), 'utf8');
+const migrationSource = fs.readFileSync(new URL('../supabase/migrations/20260914195307_require_intake_follow_up.sql', import.meta.url), 'utf8');
 
 test('new church intake requires an actionable dated follow-up', () => {
   assert.match(appSource, /Assign the concrete next action before saving this intake/);
