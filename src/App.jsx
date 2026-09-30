@@ -251,7 +251,7 @@ const kbIsDevRuntime = () => {
 if (typeof window !== "undefined") {
   // V836 cleanup: remove only the retired V833 localhost fake-auth marker/residue.
   // This does not touch real Supabase auth tokens, app drafts, filters, or UI cache.
-  try { window.sessionStorage?.removeItem("__kb_local_dev_auth_user_v833"); } catch {}
+  try { window.sessionStorage?.removeItem("__kb_local_dev_auth_user_v833"); } catch { /* non-fatal */ }
   try {
     const shouldRemoveValue = (value = "") => /kb_local_dev|Local Dev Church|Local Dev Vendor|00000000-0000-4000-8000-00000000083[34]/i.test(String(value || ""));
     [window.sessionStorage, window.localStorage].forEach((store) => {
@@ -261,12 +261,12 @@ if (typeof window !== "undefined") {
         const key = store.key(i);
         if (!key) continue;
         let value = "";
-        try { value = store.getItem(key) || ""; } catch {}
+        try { value = store.getItem(key) || ""; } catch { /* non-fatal */ }
         if (String(key).includes("local_dev_auth") || shouldRemoveValue(value)) keys.push(key);
       }
-      keys.forEach((key) => { try { store.removeItem(key); } catch {} });
+      keys.forEach((key) => { try { store.removeItem(key); } catch { /* non-fatal */ } });
     });
-  } catch {}
+  } catch { /* non-fatal */ }
 
   window.__KB_BUILD_INFO = {
     label: KB_BUILD_LABEL,
@@ -476,7 +476,7 @@ function PublicLegalFooter({ compact = false, nav, screen }) {
       document.getElementById(sectionId)?.scrollIntoView({ behavior:"smooth", block:"start" });
       return;
     }
-    try { sessionStorage.setItem("kb_landing_scroll_target", sectionId); } catch {}
+    try { sessionStorage.setItem("kb_landing_scroll_target", sectionId); } catch { /* non-fatal */ }
     nav?.("landing");
   };
   return (
@@ -949,7 +949,7 @@ function recordSupabaseNetworkFailure(where = "unknown", err = null, meta = {}) 
         window.dispatchEvent(new CustomEvent("kb:supabase-network-degraded", {
           detail: { online, where: String(where || "unknown"), burstCount: state.count },
         }));
-      } catch {}
+      } catch { /* non-fatal */ }
     }
 
     if (
@@ -1070,7 +1070,7 @@ const kbPerfAfterPaint = (label, meta = {}) => {
       ? window.requestAnimationFrame.bind(window)
       : (fn) => window.setTimeout(fn, 0);
     raf(() => raf(() => kbPerfMark(label, meta)));
-  } catch {}
+  } catch { /* non-fatal */ }
 };
 
 const __KB_STORAGE_AVAILABLE = (() => {
@@ -1188,11 +1188,11 @@ if (typeof window !== "undefined" && !window.__kb_error_handlers_installed) {
     // StrictMode/remount/focus refreshes. This is transient and should not trip
     // the app-wide runtime error bridge or spam the console as a fatal app error.
     if (isSupabaseAuthLockAbort(err)) {
-      try { event.preventDefault?.(); } catch {}
+      try { event.preventDefault?.(); } catch { /* non-fatal */ }
       return;
     }
     if (isTransientSupabaseNetworkError(err)) {
-      try { event.preventDefault?.(); } catch {}
+      try { event.preventDefault?.(); } catch { /* non-fatal */ }
       recordSupabaseNetworkFailure("window-error", err, {
         filename: event?.filename,
         lineno: event?.lineno,
@@ -1207,23 +1207,23 @@ if (typeof window !== "undefined" && !window.__kb_error_handlers_installed) {
     });
     try {
       window.dispatchEvent(new CustomEvent("kb:runtime-error", { detail: { kind: "window-error" } }));
-    } catch {}
+    } catch { /* non-fatal */ }
   });
   window.addEventListener("unhandledrejection", (event) => {
     const reason = event?.reason || "unknown";
     if (isSupabaseAuthLockAbort(reason)) {
-      try { event.preventDefault?.(); } catch {}
+      try { event.preventDefault?.(); } catch { /* non-fatal */ }
       return;
     }
     if (isTransientSupabaseNetworkError(reason)) {
-      try { event.preventDefault?.(); } catch {}
+      try { event.preventDefault?.(); } catch { /* non-fatal */ }
       recordSupabaseNetworkFailure("unhandled-rejection", reason, {});
       return;
     }
     logError("unhandled-rejection", reason, {});
     try {
       window.dispatchEvent(new CustomEvent("kb:runtime-error", { detail: { kind: "unhandled-rejection" } }));
-    } catch {}
+    } catch { /* non-fatal */ }
   });
 }
 
@@ -1469,10 +1469,10 @@ function kbScheduleAfterPaint(callback, options = {}) {
   }
   return () => {
     cancelled = true;
-    try { if (raf1 !== null && typeof window !== 'undefined') window.cancelAnimationFrame(raf1); } catch {}
-    try { if (raf2 !== null && typeof window !== 'undefined') window.cancelAnimationFrame(raf2); } catch {}
-    try { if (idleId !== null && typeof window !== 'undefined' && typeof window.cancelIdleCallback === 'function') window.cancelIdleCallback(idleId); } catch {}
-    try { if (timerId !== null) clearTimeout(timerId); } catch {}
+    try { if (raf1 !== null && typeof window !== 'undefined') window.cancelAnimationFrame(raf1); } catch { /* non-fatal */ }
+    try { if (raf2 !== null && typeof window !== 'undefined') window.cancelAnimationFrame(raf2); } catch { /* non-fatal */ }
+    try { if (idleId !== null && typeof window !== 'undefined' && typeof window.cancelIdleCallback === 'function') window.cancelIdleCallback(idleId); } catch { /* non-fatal */ }
+    try { if (timerId !== null) clearTimeout(timerId); } catch { /* non-fatal */ }
   };
 }
 
@@ -2024,7 +2024,7 @@ async function sendReferenceEmail({ token, referenceId, clientName, clientEmail,
         const response = error?.context;
         if (response && typeof response.clone === "function") responseData = await response.clone().json();
         else if (response && typeof response.json === "function") responseData = await response.json();
-      } catch {}
+      } catch { /* non-fatal */ }
     }
     if (error) {
       return {
@@ -3072,7 +3072,7 @@ const KB_ACCOUNT_DERIVED_STORAGE_KEYS = Object.freeze([
 ]);
 function clearAccountDerivedLocalStorage() {
   KB_ACCOUNT_DERIVED_STORAGE_KEYS.forEach(key => {
-    try { localStorage.removeItem(key); } catch {}
+    try { localStorage.removeItem(key); } catch { /* non-fatal */ }
   });
 }
 const KB_SESSION_TARGET_KEYS = Object.freeze({
@@ -4024,7 +4024,7 @@ async function uploadProjectHeroImageSafe(projectId, file) {
       p_path: path,
     });
     if (attachError) {
-      try { await supabase.storage.from(KB_PROJECT_MEDIA_BUCKET).remove([path]); } catch {}
+      try { await supabase.storage.from(KB_PROJECT_MEDIA_BUCKET).remove([path]); } catch { /* non-fatal */ }
       throw attachError;
     }
 
@@ -5055,7 +5055,7 @@ function kbMaybeRepairSupabaseAuthStorage(reason = "auth-stall", err = null, { r
         at: new Date().toISOString(),
       };
     }
-  } catch {}
+  } catch { /* non-fatal */ }
   return false;
 }
 
@@ -5117,7 +5117,7 @@ function writeVendorDirectoryCache(rows = []) {
     const admitted = safeArray(rows).filter(row => isVendorAdmittedToDirectory(row)).slice(0, 200);
     if (!admitted.length) return;
     localStorage.setItem(KB_STORAGE_KEYS.vendorDirectoryCache, JSON.stringify({ savedAt: Date.now(), rows: admitted }));
-  } catch {}
+  } catch { /* non-fatal */ }
 }
 const KB_VENDOR_MATCH_BASE_COLUMNS = "id,user_id,name,category,city,rating,reviews_count,verified,response_time,bio,tagline";
 const KB_VENDOR_MATCH_MIN_COLUMNS = "id,user_id,name,category,city,verified";
@@ -5159,7 +5159,7 @@ async function selectVendorDirectorySafe({ limit = 200, verifiedOnly = false, ti
           Math.min(2600, Math.max(1200, Number(timeoutMs || 4500) - 1000))
         );
         if (!narrow?.error && safeArray(narrow?.data).length) return withCache(narrow.data, { narrowFallback: true });
-      } catch {}
+      } catch { /* non-fatal */ }
       const cached = readVendorDirectoryCache({ verifiedOnly }).slice(0, limit);
       if (cached.length) return withCache(cached, { timedOut: true, cacheFallback: true });
       return { data: [], error: null, timedOut: true };
@@ -5558,7 +5558,7 @@ function runVendorPairSignalSliceCProof() {
   cases.push(['bid wins over invite', buildVendorPairSignals({ vendorId: 'vendor-g', vendorUserId: 'vendor-g', project, maps: bidWinsMaps, role: 'church', now })]);
 
   const rows = cases.map(([label, bucket]) => ({ label, bucket: serializeVendorPairSignalsForDebug(bucket), derivedState: deriveCanonicalDealState(bucket) }));
-  try { console.table(rows.map(row => ({ label: row.label, derivedState: row.derivedState, hasVendorReply: !!row.bucket?.conversationSignal?.hasVendorReply, hasInvite: !!row.bucket?.invite, hasBid: !!row.bucket?.linkedBid }))); } catch {}
+  try { console.table(rows.map(row => ({ label: row.label, derivedState: row.derivedState, hasVendorReply: !!row.bucket?.conversationSignal?.hasVendorReply, hasInvite: !!row.bucket?.invite, hasBid: !!row.bucket?.linkedBid }))); } catch { /* non-fatal */ }
   return rows;
 }
 
@@ -5900,7 +5900,7 @@ function reportAuthProfileLookupFailure(where, err, meta = {}) {
       value: true,
       configurable: true,
     });
-  } catch {}
+  } catch { /* non-fatal */ }
   if (!isKbTimeoutError(err)) {
     logError(where, err, meta);
     return;
@@ -6498,7 +6498,7 @@ function __kbEnsureStorageSyncBridge() {
     __kbStorageSyncChannel.onmessage = (event) => {
       const detail = event?.data || {};
       if (!detail || detail.__kbOrigin === __KB_STORAGE_SYNC_ORIGIN) return;
-      try { window.dispatchEvent(new CustomEvent(__KB_STORAGE_SYNC_EVENT, { detail })); } catch {}
+      try { window.dispatchEvent(new CustomEvent(__KB_STORAGE_SYNC_EVENT, { detail })); } catch { /* non-fatal */ }
     };
     __kbStorageSyncBridgeReady = true;
   } catch {
@@ -6509,7 +6509,7 @@ function __kbEnsureStorageSyncBridge() {
 
 function __kbEmitStorageSync(key, value) {
   const detail = { key, value };
-  try { window.dispatchEvent(new CustomEvent(__KB_STORAGE_SYNC_EVENT, { detail })); } catch {}
+  try { window.dispatchEvent(new CustomEvent(__KB_STORAGE_SYNC_EVENT, { detail })); } catch { /* non-fatal */ }
   try {
     const channel = __kbEnsureStorageSyncBridge();
     channel?.postMessage({ ...detail, __kbOrigin: __KB_STORAGE_SYNC_ORIGIN });
@@ -6527,7 +6527,7 @@ function readLocalJson(key, fallback) {
   }
 }
 function writeLocalJson(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* non-fatal */ }
   __kbEmitStorageSync(key, value);
   return value;
 }
@@ -6886,7 +6886,7 @@ let kbSavedVendorDbCount = null;
 function setSavedVendorDbCount(count) {
   if (kbSavedVendorDbCount === count) return;
   kbSavedVendorDbCount = count;
-  try { window.dispatchEvent(new CustomEvent("kb:saved-vendors-count")); } catch {}
+  try { window.dispatchEvent(new CustomEvent("kb:saved-vendors-count")); } catch { /* non-fatal */ }
 }
 function getCompareWorkspaceCount(type = null) {
   if (type === "vendors" && kbSavedVendorDbCount !== null) return kbSavedVendorDbCount;
@@ -7729,7 +7729,7 @@ function parseDealSystemEventFromText(text = '', meta = {}) {
   if (trimmed.startsWith('__KB_WORKSPACE_SYNC__')) {
     const raw = trimmed.slice('__KB_WORKSPACE_SYNC__'.length).trim();
     let workspace = null;
-    try { workspace = raw ? JSON.parse(raw) : null; } catch {}
+    try { workspace = raw ? JSON.parse(raw) : null; } catch { /* non-fatal */ }
     const deliverableCount = Array.isArray(workspace?.deliverables) ? workspace.deliverables.length : 0;
     return {
       kind: 'workspace_sync',
@@ -20428,7 +20428,7 @@ function readScopedSessionTarget(storageKey, ttlMs = 1000 * 60 * 20) {
   } catch { return null; }
 }
 function clearScopedSessionTarget(storageKey) {
-  try { kbSafeSessionRemove(storageKey); } catch {}
+  try { kbSafeSessionRemove(storageKey); } catch { /* non-fatal */ }
 }
 function createScopedSessionTargetAccessors(storageKey, ttlMs = 1000 * 60 * 20) {
   return {
@@ -20487,13 +20487,13 @@ function queueCompareNavigation(nav, { returnContext = null } = {}) {
 
 const KB_MY_PROJECTS_LENS_KEY = 'kb_my_projects_lens_v1';
 function queueMyProjectsLens(nav, role, lens = 'active') {
-  try { kbSafeSessionSet(KB_MY_PROJECTS_LENS_KEY, String(lens || 'active')); } catch {}
+  try { kbSafeSessionSet(KB_MY_PROJECTS_LENS_KEY, String(lens || 'active')); } catch { /* non-fatal */ }
   if (typeof nav === 'function') nav(role === 'vendor' ? 'my-work' : 'my-projects');
   return { screen: role === 'vendor' ? 'my-work' : 'my-projects', lens };
 }
 function consumeMyProjectsLens(fallback = 'active') {
   let lens = '';
-  try { lens = String(kbSafeSessionGet(KB_MY_PROJECTS_LENS_KEY) || ''); kbSafeSessionRemove(KB_MY_PROJECTS_LENS_KEY); } catch {}
+  try { lens = String(kbSafeSessionGet(KB_MY_PROJECTS_LENS_KEY) || ''); kbSafeSessionRemove(KB_MY_PROJECTS_LENS_KEY); } catch { /* non-fatal */ }
   return ['active','saved','completed','drafts','archived','messages'].includes(lens) ? lens : fallback;
 }
 function queueActivityNavigation(nav, { projectId = null, returnContext = null } = {}) {
@@ -20519,7 +20519,7 @@ function queueDealRoomsHubNavigation(nav, { returnContext = null } = {}) {
   setPendingInboxTarget({ mode:'hub' });
   try {
     if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('kb:dealrooms-hub-open'));
-  } catch {}
+  } catch { /* non-fatal */ }
   if (typeof nav === 'function') nav(KB_NAV_SCREENS.inbox);
   return { screen: KB_NAV_SCREENS.inbox, mode:'hub' };
 }
@@ -20539,7 +20539,7 @@ function savePendingSignupContext(ctx){
   } catch(e) { logError("persist-pending-signup", e); }
 }
 function clearPendingSignupContext(){
-  try { kbSafeLocalRemove(KB_PENDING_SIGNUP_KEY); } catch {}
+  try { kbSafeLocalRemove(KB_PENDING_SIGNUP_KEY); } catch { /* non-fatal */ }
 }
 
 function loadPostAuthTarget(){
@@ -20751,8 +20751,8 @@ function clearLastKnownGoodRole(userId) {
   try {
     const key = getLastKnownGoodRoleKey(userId);
     if (key) kbSafeLocalRemove(key);
-  } catch {}
-  try { clearAuthProfileCache(userId); } catch {}
+  } catch { /* non-fatal */ }
+  try { clearAuthProfileCache(userId); } catch { /* non-fatal */ }
 }
 function resolveNonDestructiveAuthRole(user, currentRole) {
   return readLastKnownGoodRole(user?.id) || normalizeAuthRole(currentRole) || 'church';
@@ -20761,7 +20761,7 @@ function emitAuthProfileRecovered(userId, role) {
   try {
     if (typeof window === 'undefined') return;
     window.dispatchEvent(new CustomEvent('kb:auth-profile-restored', { detail: { userId, role } }));
-  } catch {}
+  } catch { /* non-fatal */ }
 }
 
 /** Build the profile row to upsert on first sign-in. Maps to the 'profiles' table. */
@@ -20972,7 +20972,7 @@ function getUrlParamFromSearchOrHash(names = []) {
         const value = params.get(name);
         if (value) return value;
       }
-    } catch {}
+    } catch { /* non-fatal */ }
     return '';
   };
   return read(window.location.search) || read(window.location.hash);
@@ -21327,7 +21327,7 @@ function setAuthDefaultRole(value){
     if (typeof window !== 'undefined' && typeof window.__kbSetAuthDefaultRole === 'function') {
       window.__kbSetAuthDefaultRole(value);
     }
-  } catch {}
+  } catch { /* non-fatal */ }
 }
 
 /* openProjectContextBack is referenced from a Back button inside a deeply-nested
@@ -21686,8 +21686,8 @@ async function openInboxThread(nav, target = {}) {
   if (convo?.id) {
     // Conversations now live in the Messages tab of My Projects (not a separate Inbox page).
     const asVendor = String(convo.vendor_id || '') === String(user.id) || target?.viewerRole === 'vendor';
-    try { window.sessionStorage.setItem('kb_messages_open_conversation', String(convo.id)); } catch {}
-    try { window.dispatchEvent(new CustomEvent('kb:messages-open', { detail: { conversationId: convo.id } })); } catch {}
+    try { window.sessionStorage.setItem('kb_messages_open_conversation', String(convo.id)); } catch { /* non-fatal */ }
+    try { window.dispatchEvent(new CustomEvent('kb:messages-open', { detail: { conversationId: convo.id } })); } catch { /* non-fatal */ }
     queueMyProjectsLens(nav, asVendor ? 'vendor' : 'church', 'messages');
     return;
   } else if (target?.projectId || target?.projectTitle) {
@@ -21762,7 +21762,7 @@ const KB_PERSISTENCE_WRITE_CACHE = {
 
 function resetPersistenceWriteCache() {
   Object.values(KB_PERSISTENCE_WRITE_CACHE).forEach(bucket => {
-    try { bucket?.clear?.(); } catch {}
+    try { bucket?.clear?.(); } catch { /* non-fatal */ }
   });
 }
 function readPersistenceManifest() {
@@ -21846,7 +21846,7 @@ function emitKbStorageSync(key, value){
 }
 
 function emitKbConversationStateSync(){
-  try { window.dispatchEvent(new CustomEvent('kb:conversation-state', { detail:{ at:Date.now() } })); } catch {}
+  try { window.dispatchEvent(new CustomEvent('kb:conversation-state', { detail:{ at:Date.now() } })); } catch { /* non-fatal */ }
 }
 function writeStorageAndEmit(key, value){
   const changed = writeJsonStorage(key, value);
@@ -22701,7 +22701,7 @@ class ScreenBoundary extends React.Component {
   componentDidCatch(error, info){
     // Raw error + React component stack go to telemetry; users see a generic message.
     logError("screen-boundary", error, { componentStack: info?.componentStack });
-    try { if (typeof Sentry !== 'undefined' && Sentry.captureException) Sentry.captureException(error, { extra: { componentStack: info?.componentStack } }); } catch {}
+    try { if (typeof Sentry !== 'undefined' && Sentry.captureException) Sentry.captureException(error, { extra: { componentStack: info?.componentStack } }); } catch { /* non-fatal */ }
   }
   componentDidUpdate(prevProps){
     if(prevProps.resetKey !== this.props.resetKey && this.state.hasError){
@@ -22746,7 +22746,7 @@ function ClickDebugOverlay() {
       const qs = new URLSearchParams(window.location.search);
       if (qs.get('kb_debug_clicks') === '1') return true;
       if (window.localStorage?.getItem('kb_debug_clicks') === '1') return true;
-    } catch {}
+    } catch { /* non-fatal */ }
     return false;
   });
   const [log, setLog] = useState([]);
@@ -22779,7 +22779,7 @@ function ClickDebugOverlay() {
         const devMode = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV;
         const consoleTrace = kbSafeLocalGet('kb_debug_clicks_console') === '1';
         if (devMode || consoleTrace) console.log('[kb-click]', entry, btn);
-      } catch {}
+      } catch { /* non-fatal */ }
       setLog(prev => [entry, ...prev].slice(0, 20));
     };
     // Capture phase so we see every click even if someone stops propagation
@@ -22796,7 +22796,7 @@ function ClickDebugOverlay() {
         <span style={{marginLeft:'auto',opacity:0.6}}>{log.length}</span>
         <button type="button" aria-label={collapsed ? 'Expand click trace' : 'Collapse click trace'} onClick={()=>setCollapsed(c=>!c)} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.16)',color:'#e4e7eb',borderRadius:6,padding:'2px 7px',fontSize:10,cursor:'pointer'}}>{collapsed ? '▴' : '▾'}</button>
         <button type="button" onClick={()=>setLog([])} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.16)',color:'#e4e7eb',borderRadius:6,padding:'2px 7px',fontSize:10,cursor:'pointer'}}>clear</button>
-        <button type="button" onClick={()=>{ try { window.localStorage?.removeItem('kb_debug_clicks'); } catch {}; setEnabled(false); }} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.16)',color:'#e4e7eb',borderRadius:6,padding:'2px 7px',fontSize:10,cursor:'pointer'}}>off</button>
+        <button type="button" onClick={()=>{ try { window.localStorage?.removeItem('kb_debug_clicks'); } catch { /* non-fatal */ }; setEnabled(false); }} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.16)',color:'#e4e7eb',borderRadius:6,padding:'2px 7px',fontSize:10,cursor:'pointer'}}>off</button>
       </div>
       {!collapsed && (
         <div style={{maxHeight:260,overflowY:'auto'}}>
@@ -24327,9 +24327,9 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
       // Marketplace means the marketplace floor, not whatever return context
       // may have been stored by Activity, Compare, Inbox, or a project detail rail.
       // Keep this path functional-only so it cannot unexpectedly redesign cards/header UI.
-      try { clearReturnContext(); } catch {}
-      try { clearPendingProjectTarget(); } catch {}
-      try { clearPendingVendorTarget(); } catch {}
+      try { clearReturnContext(); } catch { /* non-fatal */ }
+      try { clearPendingProjectTarget(); } catch { /* non-fatal */ }
+      try { clearPendingVendorTarget(); } catch { /* non-fatal */ }
       resetMarketplaceSurface();
       setProjectTab(defaultMarketplaceProjectTab);
       if (typeof nav === 'function') {
@@ -24534,7 +24534,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
     setProjectTab("vendors");
     resetMarketplaceSurface();
     if (typeof nav === 'function') {
-      try { nav('vendors'); } catch { try { nav('projects'); } catch {} }
+      try { nav('vendors'); } catch { try { nav('projects'); } catch { /* non-fatal */ } }
     }
   };
 
@@ -25906,8 +25906,8 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
   const cardIsOpenable = typeof onOpen === 'function';
   const openCard = (event) => {
     if (!cardIsOpenable) return;
-    try { event?.preventDefault?.(); } catch {}
-    try { event?.stopPropagation?.(); } catch {}
+    try { event?.preventDefault?.(); } catch { /* non-fatal */ }
+    try { event?.stopPropagation?.(); } catch { /* non-fatal */ }
     onOpen();
   };
   return (
@@ -26094,7 +26094,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
         requestAnimationFrame(() => window.scrollTo({ top: y, behavior: 'instant' }));
         sessionStorage.removeItem(SCROLL_KEY);
       }
-    } catch {}
+    } catch { /* non-fatal */ }
   }, []);
 
   // Tab-aware mode sync. Compare/shortlist is intentionally hidden for now.
@@ -26126,7 +26126,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   }, [projectTab]);
 
   const stashBoardScroll = () => {
-    try { sessionStorage.setItem(SCROLL_KEY, String(window.scrollY || 0)); } catch {}
+    try { sessionStorage.setItem(SCROLL_KEY, String(window.scrollY || 0)); } catch { /* non-fatal */ }
   };
   const scrollMarketplaceGridIntoView = () => {
     requestAnimationFrame(() => {
@@ -26143,7 +26143,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
         window.scrollTo({ top: y, behavior:'instant' });
         sessionStorage.removeItem(SCROLL_KEY);
       }
-    } catch {}
+    } catch { /* non-fatal */ }
   };
 
   const normalizedProjects = useMemo(
@@ -26595,7 +26595,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     stripVelocityRef.current = { samples: [{ x: e.clientX, t: now }], lastX: e.clientX, lastT: now };
     featuredClickSuppressRef.current = false;
     if (cardId) setStripPressedCardId(cardId);
-    try { el.setPointerCapture(e.pointerId); } catch {}
+    try { el.setPointerCapture(e.pointerId); } catch { /* non-fatal */ }
     el.style.scrollSnapType = 'none';
   };
 
@@ -26626,7 +26626,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     const state = featuredDragRef.current;
     if (!el || !state.active) return;
     state.active = false;
-    try { if (state.pointerId != null) el.releasePointerCapture(state.pointerId); } catch {}
+    try { if (state.pointerId != null) el.releasePointerCapture(state.pointerId); } catch { /* non-fatal */ }
     el.style.scrollSnapType = '';
     setStripPressedCardId(null);
     setStripIsDragging(false);
@@ -26658,14 +26658,14 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
               stripMomentumRafRef.current = requestAnimationFrame(tick);
             } else {
               stripMomentumRafRef.current = null;
-              try { updateFeaturedCarouselState(); } catch {}
+              try { updateFeaturedCarouselState(); } catch { /* non-fatal */ }
             }
           };
           stripMomentumRafRef.current = requestAnimationFrame(tick);
         }
       }
     }
-    try { updateFeaturedCarouselState(); } catch {}
+    try { updateFeaturedCarouselState(); } catch { /* non-fatal */ }
     window.setTimeout(() => { featuredClickSuppressRef.current = false; }, 90);
   };
 
@@ -26918,7 +26918,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
           saved: false,
           attention:[`Removed from saved projects`, ...((prevEntry.attention || []).filter(Boolean))].slice(0,8),
         }));
-        try { removeCompareWorkspaceItem('projects', projectId); } catch {}
+        try { removeCompareWorkspaceItem('projects', projectId); } catch { /* non-fatal */ }
         showToast && showToast('Removed from saved projects');
       }
       setInteropVersion(v => v + 1);
@@ -27217,7 +27217,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
       return;
     }
     openProject(project);
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { /* non-fatal */ }
   };
 
   // Click handler for All Projects cards: opens the actual project, not via the
@@ -27227,7 +27227,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     if (liveVisualSuppressClickRef.current) return;
     if (!project) { showToast && showToast('Project unavailable.', 'error'); return; }
     openProject(project);
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { /* non-fatal */ }
   };
   /* ╚════════════════════════════════════════════════════════════════════════ */
 
@@ -27239,7 +27239,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
       return;
     }
     openProject(project);
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { /* non-fatal */ }
   };
 
   const applyMarketplaceVisualCategory = (terms = [], fallback = 'All') => {
@@ -27419,7 +27419,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     if (liveVisualDragRef.current.raf) cancelAnimationFrame(liveVisualDragRef.current.raf);
     liveVisualDragRef.current = { active: true, x: event.clientX, left: rail.scrollLeft, moved: false, vx: 0, lastX: event.clientX, lastT: Date.now(), raf: null };
     rail.classList.add('is-dragging');
-    try { rail.setPointerCapture(event.pointerId); } catch {}
+    try { rail.setPointerCapture(event.pointerId); } catch { /* non-fatal */ }
   };
   const handleLiveRailPointerMove = (event) => {
     const state = liveVisualDragRef.current;
@@ -27445,7 +27445,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     let vx = state.vx * -1;
     state.active = false;
     rail.classList.remove('is-dragging');
-    try { rail.releasePointerCapture(event.pointerId); } catch {}
+    try { rail.releasePointerCapture(event.pointerId); } catch { /* non-fatal */ }
     if (!moved) {
       liveVisualDragRef.current = { active: false, x: 0, left: 0, moved: false, vx: 0, lastX: 0, lastT: 0, raf: null };
       try {
@@ -27455,7 +27455,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
           const target = Number(card.getAttribute('data-live-project-target'));
           if (Number.isFinite(target)) openLiveVisualTarget(target);
         }
-      } catch {}
+      } catch { /* non-fatal */ }
       return;
     }
     const decay = 0.94;
@@ -28159,7 +28159,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
   const safeBack = () => {
     if (submitting) return;
     if (typeof onBack === 'function') return onBack();
-    try { if (typeof window !== 'undefined' && window.history?.length > 1) window.history.back(); } catch {}
+    try { if (typeof window !== 'undefined' && window.history?.length > 1) window.history.back(); } catch { /* non-fatal */ }
   };
   const appendProposalSnippet = (snippet) => {
     const clean = String(snippet || '').trim();
@@ -28177,7 +28177,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
   ];
 
   const handleSubmit = async (e) => {
-    try { e?.preventDefault?.(); } catch {}
+    try { e?.preventDefault?.(); } catch { /* non-fatal */ }
     setErr("");
     if (normalizedAmount <= 0) { setErr("Please enter a proposed amount greater than zero."); return; }
     if (!timeline.trim()) { setErr("Please share a timeline so the church knows when to expect delivery."); return; }
@@ -28193,7 +28193,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
     } catch (submitErr) {
       setErr("Something went wrong submitting that proposal. Please try again.");
       if (typeof showToast === "function") {
-        try { showToast("Couldn't submit bid — please try again.", "error"); } catch {}
+        try { showToast("Couldn't submit bid — please try again.", "error"); } catch { /* non-fatal */ }
       }
     } finally {
       setSubmitting(false);
@@ -28455,7 +28455,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
     try { return localStorage.getItem('kb-myproj-attention-collapsed') === '1'; } catch { return false; }
   });
   useEffect(() => {
-    try { localStorage.setItem('kb-myproj-attention-collapsed', attentionCollapsed ? '1' : '0'); } catch {}
+    try { localStorage.setItem('kb-myproj-attention-collapsed', attentionCollapsed ? '1' : '0'); } catch { /* non-fatal */ }
   }, [attentionCollapsed]);
   const hasFetchedOnce = useRef(false);
   // Only mark as fetched when loading transitions from true→false with a
@@ -29397,7 +29397,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
       })
       .subscribe();
     return () => {
-      try { channel.unsubscribe(); } catch {}
+      try { channel.unsubscribe(); } catch { /* non-fatal */ }
     };
   }, [currentUser?.id, loadSavedProjects]);
 
@@ -29456,7 +29456,7 @@ function MyWorkPanel({bids, loading, projects, loadingProjects, onBrowse, nav, o
       })
       .subscribe();
     return () => {
-      try { channel.unsubscribe(); } catch {}
+      try { channel.unsubscribe(); } catch { /* non-fatal */ }
     };
   }, [currentUser?.id, loadInvitedProjects]);
 
@@ -30461,7 +30461,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
                 </div>
               ))}
               <button type="button" className="kb1005-side-cta" onClick={next.go}>{next.label}</button>
-              <button type="button" className="kb1005-link-button" style={{ marginTop: 8 }} onClick={() => { try { window.localStorage.setItem(startedKey, "1"); } catch {} setStartedDismissed(true); }}>Dismiss</button>
+              <button type="button" className="kb1005-link-button" style={{ marginTop: 8 }} onClick={() => { try { window.localStorage.setItem(startedKey, "1"); } catch { /* non-fatal */ } setStartedDismissed(true); }}>Dismiss</button>
             </section>
           );
         })()}
@@ -30477,7 +30477,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
               <button type="button" aria-label={`Open ${v.name || 'vendor'} profile`} onClick={()=>openSavedVendor(v)}>›</button>
             </div>
           )) : <p style={{margin:'6px 0 12px'}}>Tap the heart on any vendor to keep them here for later.</p>}
-          <button type="button" className="kb1005-side-cta" onClick={()=>{ try { nav('vendors'); } catch {} }}>Browse vendors</button>
+          <button type="button" className="kb1005-side-cta" onClick={()=>{ try { nav('vendors'); } catch { /* non-fatal */ } }}>Browse vendors</button>
         </section>
       </aside>
     </div>
@@ -31343,7 +31343,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
             btn.textContent = "Copied!";
             setTimeout(()=>{ btn.textContent = orig; }, 2000);
           } catch(err) {
-            try { logError("my-bids-referral-copy", err, { userId:currentUser?.id || null }); } catch {}
+            try { logError("my-bids-referral-copy", err, { userId:currentUser?.id || null }); } catch { /* non-fatal */ }
             showToast?.("Couldn't copy your referral link.", "error");
           }
         }}>Copy Referral Link</button>
@@ -31643,12 +31643,12 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
         try {
           const top = tabbar.getBoundingClientRect().top + window.scrollY - 126;
           window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-        } catch {}
+        } catch { /* non-fatal */ }
       };
       try {
         if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(focusTabbar);
         else window.setTimeout(focusTabbar, 0);
-      } catch {}
+      } catch { /* non-fatal */ }
     }
     return nextTab;
   }, [isVendor, hasPostHireWorkflow, fileItems.length]);
@@ -31840,7 +31840,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     const canCreateDealThread = Boolean(isVendor ? project?.church_id : project?.hired_vendor_id);
     if (!canCreateDealThread && !project?.conversation_id && !project?.conversationId) {
       showToast && showToast(isVendor ? 'This project needs a church contact before a thread can be opened.' : 'Hire or attach a vendor before opening a deal room.');
-      if (isVendor) { try { focusProjectDetailTab('scope'); } catch {} }
+      if (isVendor) { try { focusProjectDetailTab('scope'); } catch { /* non-fatal */ } }
       else handleVendorMatches();
       return;
     }
@@ -31872,18 +31872,18 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     // "Invite to bid" on a vendor profile reads this same stored context.
     try { if (currentUser?.id) rememberProjectForVendorMatching(currentUser.id, project, 'project-detail-invite'); } catch (err) { logError('project-detail-remember-vendor-project', err, { projectId: project?.id || null }); }
     if (typeof nav === 'function') { try { nav('vendors'); return; } catch (err) { logError('project-detail-nav-vendors', err, { projectId: project?.id || null }); } }
-    try { focusProjectDetailTab('vendors'); } catch (err) { logError('project-detail-focus-vendors', err, { projectId: project?.id || null }); try { setTab('vendors'); } catch {} }
+    try { focusProjectDetailTab('vendors'); } catch (err) { logError('project-detail-focus-vendors', err, { projectId: project?.id || null }); try { setTab('vendors'); } catch { /* non-fatal */ } }
   };
   const handlePrepWorkflow = () => {
     try { rememberReturnContext({ scope:'project-detail', projectId: projectDetailId || null, linkedProjectId: projectDetailId || null, tab:'ops' }); } catch (e) { if (kbIsDevRuntime()) console.warn('[kb] handlePrepWorkflow: remember return context failed', e); }
-    try { focusProjectDetailTab('ops'); } catch (e) { if (kbIsDevRuntime()) console.warn('[kb] handlePrepWorkflow: focus ops tab failed', e); logError('project-detail-focus-ops', e, { projectId: project?.id || null }); try { setTab('ops'); } catch {} }
+    try { focusProjectDetailTab('ops'); } catch (e) { if (kbIsDevRuntime()) console.warn('[kb] handlePrepWorkflow: focus ops tab failed', e); logError('project-detail-focus-ops', e, { projectId: project?.id || null }); try { setTab('ops'); } catch { /* non-fatal */ } }
   };
   const openProjectEditor = () => {
     if (typeof onPost === 'function') {
       try { return onPost(project); } catch (err) { logError('project-detail-edit-project', err, { projectId: project?.id || null }); }
     }
     if (typeof nav === 'function') { try { nav('projects:post'); return; } catch (err) { logError('project-detail-nav-post', err, { projectId: project?.id || null }); } }
-    try { focusProjectDetailTab('scope'); } catch {}
+    try { focusProjectDetailTab('scope'); } catch { /* non-fatal */ }
   };
   const openVendorProfileFromDetail = (vendorMatch) => {
     const seeded = buildVendorProfileSeed({ ...vendorMatch, category, city: vendorMatch?.city || city, verified:!!vendorMatch?.verified });
@@ -31976,7 +31976,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
         await window.navigator.clipboard.writeText(shareUrl || shareText);
         showToast && showToast('Link copied to clipboard');
         return;
-      } catch {}
+      } catch { /* non-fatal */ }
     }
     showToast && showToast('Copy the URL from your browser bar to share this project');
   };
@@ -32083,8 +32083,8 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
       const { data, error } = await supabase.rpc('marketplace_publish_project', { p_project_id: project.id });
       if (error) throw error;
       setProjectOverride(prev => ({ ...(prev || {}), ...(data && typeof data === 'object' ? data : {}), status:'open' }));
-      try { if (rawProject && typeof rawProject === 'object') rawProject.status = 'open'; } catch {}
-      try { if (typeof onProjectUpdate === 'function' && data) onProjectUpdate(data); } catch {}
+      try { if (rawProject && typeof rawProject === 'object') rawProject.status = 'open'; } catch { /* non-fatal */ }
+      try { if (typeof onProjectUpdate === 'function' && data) onProjectUpdate(data); } catch { /* non-fatal */ }
       try {
         const { error: notifError } = await createTrustedNotificationSafe("project_posted", project.id);
         if (notifError) logError("project-publish-notification", notifError);
@@ -32103,8 +32103,8 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     if (!project?.id) throw new Error('Project is missing its live identity.');
     const updated = await transitionProjectLifecycleSafe(project.id, action, note);
     setProjectOverride(prev => ({ ...(prev || {}), ...(updated || {}) }));
-    try { if (rawProject && typeof rawProject === 'object' && updated?.status) rawProject.status = updated.status; } catch {}
-    try { if (typeof onProjectUpdate === 'function') onProjectUpdate(updated); } catch {}
+    try { if (rawProject && typeof rawProject === 'object' && updated?.status) rawProject.status = updated.status; } catch { /* non-fatal */ }
+    try { if (typeof onProjectUpdate === 'function') onProjectUpdate(updated); } catch { /* non-fatal */ }
     return updated;
   };
 
@@ -32292,7 +32292,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   })();
 
   const runDetailAction = (action, fallback = null, where = 'project-detail-action') => async (event) => {
-    try { event?.preventDefault?.(); event?.stopPropagation?.(); } catch {}
+    try { event?.preventDefault?.(); event?.stopPropagation?.(); } catch { /* non-fatal */ }
     try {
       if (typeof action === 'function') return await action(project);
       if (typeof fallback === 'function') return await fallback(project);
@@ -32311,7 +32311,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const projectDetailSecondaryFallback = isVendor ? handleUtilitySecondary : handleVendorMatches;
   const projectDetailTertiaryFallback = isVendor ? reviewProjectScopeAction : handlePrepWorkflow;
   const runProjectDetailDirectAction = (kind) => (event) => {
-    try { event?.preventDefault?.(); event?.stopPropagation?.(); } catch {}
+    try { event?.preventDefault?.(); event?.stopPropagation?.(); } catch { /* non-fatal */ }
     try {
       if (kind === 'bids') { handleReviewBids(); return; }
       if (kind === 'ops') { handlePrepWorkflow(); return; }
@@ -32320,7 +32320,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
       handleVendorMatches();
     } catch (err) {
       logError(`project-detail-direct-${kind || 'vendors'}`, err, { projectId: project?.id || null, tab });
-      try { focusProjectDetailTab(kind === 'ops' ? 'ops' : 'vendors'); } catch {}
+      try { focusProjectDetailTab(kind === 'ops' ? 'ops' : 'vendors'); } catch { /* non-fatal */ }
     }
   };
   const projectDetailRoleParityRail = [
@@ -32331,9 +32331,9 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const returnToMarketplaceFloor = () => {
     // This top-left Marketplace pill is an absolute route back to the browse floor.
     // It should never be hijacked by a stale Activity/Compare/Inbox return context.
-    try { clearReturnContext(); } catch {}
-    try { clearPendingProjectTarget(); } catch {}
-    try { clearPendingVendorTarget(); } catch {}
+    try { clearReturnContext(); } catch { /* non-fatal */ }
+    try { clearPendingProjectTarget(); } catch { /* non-fatal */ }
+    try { clearPendingVendorTarget(); } catch { /* non-fatal */ }
     if (typeof nav === 'function') {
       try { nav('marketplace'); return; } catch (err) { logError('project-detail-return-marketplace', err, { projectId: project?.id || null }); }
     }
@@ -32518,7 +32518,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
         showToast && showToast('Project link copied.');
         return;
       }
-    } catch {}
+    } catch { /* non-fatal */ }
     showToast && showToast('Copy the URL from your browser to share this project.');
   };
 
@@ -32655,7 +32655,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     if (!item?.id) return;
     rememberReturnContext({ scope:'project-detail', projectId:project?.id || null, linkedProjectId:item.id, tab:'overview' });
     queueProjectNavigation(nav, { projectId:item.id, projectTitle:item?.title || null, screen:KB_NAV_SCREENS.projects, tab:'overview', returnContext:{ scope:'project-detail', projectId:project?.id || null, tab:'overview' } });
-    try { window.scrollTo({ top:0, behavior:'smooth' }); } catch {}
+    try { window.scrollTo({ top:0, behavior:'smooth' }); } catch { /* non-fatal */ }
   };
   const detailIcon = (kind, size=18) => {
     if (kind === 'pin') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>;
@@ -33131,7 +33131,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
             <div className="modal-footer">
               <button type="button" className="btn-cancel-modal" onClick={()=>setActiveFilePreview(null)}>Close</button>
               {!!activeFilePreview.url && (
-                <button type="button" className="btn-approve-modal" onClick={()=>{ try { window.open(activeFilePreview.url,'_blank','noopener,noreferrer'); } catch {}; }}>Open file</button>
+                <button type="button" className="btn-approve-modal" onClick={()=>{ try { window.open(activeFilePreview.url,'_blank','noopener,noreferrer'); } catch { /* non-fatal */ }; }}>Open file</button>
               )}
             </div>
           </div>
@@ -33201,7 +33201,7 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
         loadSavedProjects();
       })
       .subscribe();
-    return () => { try { channel.unsubscribe(); } catch {} };
+    return () => { try { channel.unsubscribe(); } catch { /* non-fatal */ } };
   }, [currentUser?.id, loadSavedProjects]);
 
   const openProject = (project) => {
@@ -33797,7 +33797,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     const delta = event.clientX - drag.startX;
     if (Math.abs(delta) > 5) {
       if (!drag.captured) {
-        try { rail.setPointerCapture?.(event.pointerId); } catch {}
+        try { rail.setPointerCapture?.(event.pointerId); } catch { /* non-fatal */ }
         drag.captured = true;
       }
       drag.moved = true;
@@ -33810,7 +33810,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     const drag = featuredRailDragRef.current;
     const rail = featuredRailRef.current;
     if (drag.active && drag.captured && rail && drag.pointerId === event.pointerId) {
-      try { rail.releasePointerCapture?.(event.pointerId); } catch {}
+      try { rail.releasePointerCapture?.(event.pointerId); } catch { /* non-fatal */ }
     }
     drag.active = false;
     drag.captured = false;
@@ -35543,7 +35543,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
             <div className="kb-pdr-utils">
               <button type="button" onClick={saveVendorToCompare}>{vendorPdrIcon('bookmark',15)} Save</button>
               <button type="button" onClick={shareVendorFromDetail}>{vendorPdrIcon('share',15)} Share</button>
-              <button type="button" onClick={()=>{setProfileToast('Vendor profile reported for review');try{setTimeout(()=>setProfileToast(''),1800);}catch{}}}>{vendorPdrIcon('flag',15)} Report</button>
+              <button type="button" onClick={()=>{setProfileToast('Vendor profile reported for review');try{setTimeout(()=>setProfileToast(''),1800);}catch{ /* non-fatal */ }}}>{vendorPdrIcon('flag',15)} Report</button>
             </div>
           </div>
         </section>
@@ -35624,7 +35624,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
                     <div className="kb-pdr-file" key={`${item.title}-${idx}`}>
                       <span><strong>{item.title}</strong><small>{item.meta}</small></span>
                       <button type="button" onClick={()=>{
-                        if(item.url){ try{ window.open(item.url,'_blank','noopener,noreferrer'); }catch{} return; }
+                        if(item.url){ try{ window.open(item.url,'_blank','noopener,noreferrer'); }catch{ /* non-fatal */ } return; }
                         if(item.sourceProjectId){ queueProjectNavigation(nav,{projectId:item.sourceProjectId,screen:'projects',tab:'overview',returnContext:{scope:'vendor-profile',vendorId:v.id||v.user_id}}); return; }
                         setProfileToast('Work sample details are shown on this vendor profile');
                       }}>View →</button>
@@ -39448,7 +39448,7 @@ function AcceptInviteScreen({ token }) {
 			await acceptInvitation(token, username.trim().toLowerCase(), name);
 			try {
 				sessionStorage.removeItem("tk_invite");
-			} catch {}
+			} catch { /* non-fatal */ }
 			await reload();
 		} catch (x) {
 			setErr(x.message);
@@ -39458,7 +39458,7 @@ function AcceptInviteScreen({ token }) {
 	const forget = () => {
 		try {
 			sessionStorage.removeItem("tk_invite");
-		} catch {}
+		} catch { /* non-fatal */ }
 		signOut();
 	};
 	return /* @__PURE__ */ jsx(AuthLayout, {
@@ -41128,7 +41128,7 @@ function Checklist({ ws }) {
 	const dismiss = () => {
 		try {
 			localStorage.setItem(key(ws), "1");
-		} catch {}
+		} catch { /* non-fatal */ }
 		setHidden(true);
 	};
 	const row = (x) => /* @__PURE__ */ jsxs("a", {
@@ -48462,7 +48462,7 @@ function ConnectTab({ ws }) {
 											try {
 												await navigator.clipboard.writeText(url);
 												setCopied(true);
-											} catch {}
+											} catch { /* non-fatal */ }
 										},
 										children: copied ? "Copied" : "Copy"
 									})]
@@ -48656,7 +48656,7 @@ function FindGroupTab({ ws }) {
 											try {
 												await navigator.clipboard.writeText(url);
 												setCopied(true);
-											} catch {}
+											} catch { /* non-fatal */ }
 										},
 										children: copied ? "Copied" : "Copy"
 									})]
@@ -49005,7 +49005,7 @@ function ChurchlyTab({ ws }) {
 				try {
 					const plan = await getPlan(ws, plans[0].id);
 					names = [...new Set((plan?.roles || []).map((r) => r.name).filter(Boolean))];
-				} catch {}
+				} catch { /* non-fatal */ }
 			}
 			setRoleNames(names);
 			setRolePerson((cur) => cur || (pe || []).find((x) => x.age_group === "adult" && ["regular", "member"].includes(x.status))?.id || "");
@@ -49580,7 +49580,7 @@ function TeamTab({ ws }) {
 											try {
 												await navigator.clipboard.writeText(link);
 												setCopied(true);
-											} catch {}
+											} catch { /* non-fatal */ }
 										},
 										children: copied ? "Copied" : "Copy"
 									})]
@@ -53828,7 +53828,7 @@ function EventsPage() {
 			const one = (cal || []).filter((item) => item.kind !== "service" && (!item.recurrence || item.recurrence === "none"));
 			setItems(one); setPage(publicPage);
 			const statuses = {};
-			await Promise.all(one.map(async (item) => { try { statuses[item.item_id] = await getEventSignup(ws, item.item_id); } catch {} }));
+			await Promise.all(one.map(async (item) => { try { statuses[item.item_id] = await getEventSignup(ws, item.item_id); } catch { /* non-fatal */ } }));
 			setStat(statuses); setErr("");
 		} catch (e) { setErr(e.message); setItems(false); }
 	}, [ws, manage]);
@@ -53861,10 +53861,10 @@ function EventsPage() {
 		{manage && <p className="tk-events-source"><Icon name="info" size={14} /> Events are created and scheduled in Calendar.</p>}
 		<div className="tk-events-tabs" role="tablist" aria-label="Event views"><button type="button" role="tab" aria-selected={tab === "upcoming"} className={tab === "upcoming" ? "active" : ""} onClick={() => setTab("upcoming")}>Upcoming</button><button type="button" role="tab" aria-selected={tab === "past"} className={tab === "past" ? "active" : ""} onClick={() => setTab("past")}>Past events</button>{manage && <button type="button" role="tab" aria-selected={tab === "settings"} className={tab === "settings" ? "active" : ""} onClick={() => setTab("settings")}>Sign-up settings</button>}</div>
 		{err && <p className="tk-inline-error" role="alert">{err}</p>}
-		{items === null ? <p className="tk-loading-copy">Loading events…</p> : items === false ? <LoadFailure title="Events couldn't load" body={err || "Church Toolkit couldn't refresh events."} onRetry={load} /> : tab === "settings" && manage ? <section className="tk-events-settings"><header><h2>Public sign-up page</h2><p>One private-to-your-church link for every event you explicitly open for sign-up.</p></header><div className="tk-events-publish"><div><strong>{page?.events_public ? "Published" : "Not published"}</strong><span>{page?.events_public ? "Anyone with the link can see open events." : "Turn it on when you are ready to accept registrations."}</span></div><Switch$1 on={!!page?.events_public} label="Event sign-up page" onClick={() => run(() => setEventsPublic(ws, !page?.events_public))} /></div>{page?.events_public && <div className="tk-events-public-details">{qr && <img src={qr} alt="QR code for the event sign-up page" />}<div><strong>{url}</strong><p>Lists only events opened for sign-up. Internal notes stay private. Adults can register guests; children’s names are never collected here.</p><div><button type="button" onClick={async () => { try { await navigator.clipboard.writeText(url); setCopied(true); } catch {} }}>{copied ? "Copied" : "Copy link"}</button><a href={url}>View page →</a></div></div></div>}</section> : <>
+		{items === null ? <p className="tk-loading-copy">Loading events…</p> : items === false ? <LoadFailure title="Events couldn't load" body={err || "Church Toolkit couldn't refresh events."} onRetry={load} /> : tab === "settings" && manage ? <section className="tk-events-settings"><header><h2>Public sign-up page</h2><p>One private-to-your-church link for every event you explicitly open for sign-up.</p></header><div className="tk-events-publish"><div><strong>{page?.events_public ? "Published" : "Not published"}</strong><span>{page?.events_public ? "Anyone with the link can see open events." : "Turn it on when you are ready to accept registrations."}</span></div><Switch$1 on={!!page?.events_public} label="Event sign-up page" onClick={() => run(() => setEventsPublic(ws, !page?.events_public))} /></div>{page?.events_public && <div className="tk-events-public-details">{qr && <img src={qr} alt="QR code for the event sign-up page" />}<div><strong>{url}</strong><p>Lists only events opened for sign-up. Internal notes stay private. Adults can register guests; children’s names are never collected here.</p><div><button type="button" onClick={async () => { try { await navigator.clipboard.writeText(url); setCopied(true); } catch { /* non-fatal */ } }}>{copied ? "Copied" : "Copy link"}</button><a href={url}>View page →</a></div></div></div>}</section> : <>
 			<div className="tk-events-toolbar"><label><Icon name="search" size={18} /><span className="sr-only">Search events</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search events…" /></label><select value={signupFilter} onChange={(event) => setSignupFilter(event.target.value)} aria-label="Filter by sign-up status"><option value="all">All events</option><option value="open">Open for sign-up</option><option value="closed">Not open</option></select></div>
 			<div className="tk-events-layout"><section className="tk-events-directory"><header><p>{tab === "upcoming" ? "Upcoming events" : "Past events"} · {shown.length}</p></header>{shown.length ? <><div className="tk-events-columns" aria-hidden="true"><span>Date</span><span>Event</span><span>Time & location</span><span>Sign-up</span><span>Capacity</span><span /></div><ol>{shown.map((item) => { const status = stat[item.item_id]; const when = new Date(item.occurrence_start); const full = status?.capacity && Number(status.registered || 0) >= Number(status.capacity); return <li key={item.item_id + item.occurrence_start}><button type="button" onClick={() => setOpen(item.item_id)}><time><b>{when.toLocaleDateString([], { month: "short" }).toUpperCase()}</b><strong>{when.toLocaleDateString([], { day: "2-digit" })}</strong></time><strong>{item.title}</strong><span>{item.all_day ? "All day" : when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}{item.location ? " · " + item.location : ""}</span><b className={status?.enabled ? full ? "full" : "open" : "closed"}>{status?.enabled ? full ? "Full" : "Open" : "Not open"}</b><span>{status?.enabled ? Number(status.registered || 0) + (status.capacity ? " of " + status.capacity : "") + " signed up" + (Number(status.waitlist) ? " · " + status.waitlist + " waiting" : "") : "Sign-up not configured"}</span><i>→</i></button></li>; })}</ol></> : <div className="tk-events-empty"><h2>{query || signupFilter !== "all" ? "No events match" : tab === "upcoming" ? "No one-time events coming up" : "No past events in this view"}</h2><p>{tab === "upcoming" ? "Create the date in Calendar, then return here to open sign-up." : "Past one-time events appear here when they are in the calendar."}</p><a href="#church-os/calendar">Open full calendar →</a></div>}</section>
-				{manage && <aside className="tk-events-rail"><section><h2>Public sign-up page</h2><div className="tk-events-published"><Switch$1 on={!!page?.events_public} label="Event sign-up page" onClick={() => run(() => setEventsPublic(ws, !page?.events_public))} /><strong>{page?.events_public ? "Published" : "Off"}</strong></div>{page?.events_public && <><p className="tk-events-url">{url}</p><div className="tk-events-link-actions"><button type="button" onClick={async () => { try { await navigator.clipboard.writeText(url); setCopied(true); } catch {} }}>{copied ? "Copied" : "Copy link"}</button><a href={url}>View page →</a></div>{qr && <div className="tk-events-qr"><img src={qr} alt="QR code for the event sign-up page" /><p>Only events explicitly opened for sign-up are listed. Internal notes remain private.</p></div>}</>}</section><section><h2>Sign-up activity</h2><dl><div><dd>{registrationCount}</dd><dt>people registered for upcoming events</dt></div><div><dd>{waitlistCount}</dd><dt>people on waitlists</dt></div><div><dd>{spaceCount}</dd><dt>events have space remaining</dt></div><div><dd>{openCount}</dd><dt>events open for sign-up</dt></div></dl></section></aside>}
+				{manage && <aside className="tk-events-rail"><section><h2>Public sign-up page</h2><div className="tk-events-published"><Switch$1 on={!!page?.events_public} label="Event sign-up page" onClick={() => run(() => setEventsPublic(ws, !page?.events_public))} /><strong>{page?.events_public ? "Published" : "Off"}</strong></div>{page?.events_public && <><p className="tk-events-url">{url}</p><div className="tk-events-link-actions"><button type="button" onClick={async () => { try { await navigator.clipboard.writeText(url); setCopied(true); } catch { /* non-fatal */ } }}>{copied ? "Copied" : "Copy link"}</button><a href={url}>View page →</a></div>{qr && <div className="tk-events-qr"><img src={qr} alt="QR code for the event sign-up page" /><p>Only events explicitly opened for sign-up are listed. Internal notes remain private.</p></div>}</>}</section><section><h2>Sign-up activity</h2><dl><div><dd>{registrationCount}</dd><dt>people registered for upcoming events</dt></div><div><dd>{waitlistCount}</dd><dt>people on waitlists</dt></div><div><dd>{spaceCount}</dd><dt>events have space remaining</dt></div><div><dd>{openCount}</dd><dt>events open for sign-up</dt></div></dl></section></aside>}
 			</div>
 		</>}
 		<RecordPanel open={!!open} onOpenChange={(value) => !value && setOpen(null)} title={openItem?.title || "Event"}>{openItem && <EventPanel ws={ws} item={openItem} manage={manage} onChanged={load} key={open} />}</RecordPanel>
@@ -56447,10 +56447,10 @@ function ChurchOSSurface({ currentUser, onSignOut, onNavigateProduct }) {
 				} else {
 					previous.get(owner).sheet = sheet;
 				}
-				try { sheet.disabled = true; } catch {}
+				try { sheet.disabled = true; } catch { /* non-fatal */ }
 				try {
 					if (owner.getAttribute?.("media") !== "not all") owner.setAttribute("media", "not all");
-				} catch {}
+				} catch { /* non-fatal */ }
 			}
 		};
 
@@ -56482,8 +56482,8 @@ function ChurchOSSurface({ currentUser, onSignOut, onNavigateProduct }) {
 				try {
 					if (state.media === null) owner.removeAttribute("media");
 					else owner.setAttribute("media", state.media);
-				} catch {}
-				try { state.sheet.disabled = state.wasDisabled; } catch {}
+				} catch { /* non-fatal */ }
+				try { state.sheet.disabled = state.wasDisabled; } catch { /* non-fatal */ }
 			}
 		};
 	}, []);
@@ -56529,7 +56529,7 @@ function subscribeToNotificationsChannel(userId, onChange) {
     entry.listeners.delete(onChange);
     entry.refCount -= 1;
     if (entry.refCount <= 0) {
-      try { entry.channel.unsubscribe(); } catch {}
+      try { entry.channel.unsubscribe(); } catch { /* non-fatal */ }
       __kbNotifChannelRegistry.delete(userId);
     }
   };
@@ -56797,11 +56797,11 @@ export default function App() {
     if (!hasExplicitHashTarget && screenRef.current === 'landing') {
       if (freshFromUrl.role === 'church' && freshFromUrl.intent === 'quick_match') {
         setScreen('guest-post-project');
-        try { window.location.hash = 'guest-post-project'; } catch {}
+        try { window.location.hash = 'guest-post-project'; } catch { /* non-fatal */ }
         resolvedLandingScreen = 'guest-post-project';
       } else if (freshFromUrl.role === 'vendor' && freshFromUrl.intent === 'vendor_signup') {
         setScreen('vendor-signup');
-        try { window.location.hash = 'vendor-signup'; } catch {}
+        try { window.location.hash = 'vendor-signup'; } catch { /* non-fatal */ }
         resolvedLandingScreen = 'vendor-signup';
       }
     }
@@ -56839,12 +56839,12 @@ export default function App() {
       const destinationHash = safeScreen === "projects" && pending?.navSubTab
         ? getProjectSubTabRoute(pending.navSubTab)
         : safeScreen;
-      try { window.location.hash = destinationHash; } catch {}
+      try { window.location.hash = destinationHash; } catch { /* non-fatal */ }
       return true;
     }
     if (["landing","start-free","auth","vendor-signup","church-signup"].includes(screenRef.current)) {
       setScreen(fallbackScreen);
-      try { window.location.hash = fallbackScreen; } catch {}
+      try { window.location.hash = fallbackScreen; } catch { /* non-fatal */ }
       return true;
     }
     return false;
@@ -56878,7 +56878,7 @@ export default function App() {
     const charterFirstRun = result?.onboarding_required !== false && isCharterVendorFirstRunProfile(refreshedProfile);
     const nextScreen = result?.onboarding_required === false ? "projects" : charterFirstRun ? "profile" : "onboarding";
     setScreen(nextScreen);
-    try { window.location.hash = nextScreen; } catch {}
+    try { window.location.hash = nextScreen; } catch { /* non-fatal */ }
     return true;
   }, []);
 
@@ -56888,7 +56888,7 @@ export default function App() {
     // fresh even though the deps are empty — needed because `nav` is declared
     // later in App(), and referencing it in deps here would hit the TDZ.
     const handler = (e) => {
-      try { (typeof window !== 'undefined' && typeof window.__kbNav === 'function' ? window.__kbNav : (x)=>x)(e.detail); } catch {}
+      try { (typeof window !== 'undefined' && typeof window.__kbNav === 'function' ? window.__kbNav : (x)=>x)(e.detail); } catch { /* non-fatal */ }
     };
     document.addEventListener("kb:nav", handler);
     return () => document.removeEventListener("kb:nav", handler);
@@ -56949,7 +56949,7 @@ export default function App() {
         applyConversationUserStateMutation(row, payload?.eventType || 'UPSERT');
       })
       .subscribe();
-    return () => { try { channel.unsubscribe(); } catch {} };
+    return () => { try { channel.unsubscribe(); } catch { /* non-fatal */ } };
   }, [currentUser?.id]);
 
   useEffect(() => {
@@ -57066,7 +57066,7 @@ export default function App() {
             setNavSubTab(null);
             setAutoPost(false);
             setScreen("profile");
-            try { window.location.hash = "profile"; } catch {}
+            try { window.location.hash = "profile"; } catch { /* non-fatal */ }
           } else {
             applyPostAuthDestination("projects");
           }
@@ -57442,14 +57442,14 @@ export default function App() {
       const messagesRole = role === "vendor" ? "vendor" : "church";
       let openId = null;
       let pendingProjectId = null;
-      try { const pending = getPendingInboxTarget(); openId = pending?.conversationId || null; pendingProjectId = pending?.projectId || null; } catch {}
-      if (!openId) { try { const m = /^#inbox-(.+)$/.exec(window.location.hash || ""); if (m) openId = decodeURIComponent(m[1]); } catch {} }
+      try { const pending = getPendingInboxTarget(); openId = pending?.conversationId || null; pendingProjectId = pending?.projectId || null; } catch { /* non-fatal */ }
+      if (!openId) { try { const m = /^#inbox-(.+)$/.exec(window.location.hash || ""); if (m) openId = decodeURIComponent(m[1]); } catch { /* non-fatal */ } }
       if (!openId && pendingProjectId) {
         void kbOpenMessagesForProject(pendingProjectId, nav, messagesRole).then((ok) => { if (!ok) queueMyProjectsLens(nav, messagesRole, "messages"); });
         return;
       }
-      if (openId) { try { window.sessionStorage.setItem("kb_messages_open_conversation", String(openId)); } catch {} }
-      try { window.dispatchEvent(new CustomEvent("kb:messages-open", { detail: { conversationId: openId } })); } catch {}
+      if (openId) { try { window.sessionStorage.setItem("kb_messages_open_conversation", String(openId)); } catch { /* non-fatal */ } }
+      try { window.dispatchEvent(new CustomEvent("kb:messages-open", { detail: { conversationId: openId } })); } catch { /* non-fatal */ }
       queueMyProjectsLens(nav, messagesRole, "messages");
       return;
     }
@@ -57471,30 +57471,30 @@ export default function App() {
       if (!currentUser) {
         if (screen !== "church-signup" && screen !== "vendor-signup") {
           setScreen("landing");
-          try { window.location.hash = "landing"; } catch {}
+          try { window.location.hash = "landing"; } catch { /* non-fatal */ }
         }
         showToast("FaithBid Marketplace is in private prelaunch. Join early access to be invited when your wave opens.");
       } else {
         setScreen("landing");
-        try { window.location.hash = "landing"; } catch {}
+        try { window.location.hash = "landing"; } catch { /* non-fatal */ }
         showToast("FaithBid Marketplace is still in private prelaunch. Access is limited to invited testers.", "error");
       }
       closeNavChrome();
       return;
     }
     if (navTarget === "projects:post") {
-      if (!currentUser) { savePostAuthTarget({ screen:"projects", autoPost:true, navSubTab:null }); setAuthDefaultRole("church"); setScreen("auth"); try { window.location.hash = "auth"; } catch {} closeNavChrome(); return; }
+      if (!currentUser) { savePostAuthTarget({ screen:"projects", autoPost:true, navSubTab:null }); setAuthDefaultRole("church"); setScreen("auth"); try { window.location.hash = "auth"; } catch { /* non-fatal */ } closeNavChrome(); return; }
       // 852aj: Inbox/Post Project CTAs must land inside the Marketplace tab
       // on the real post-project view. Keep this as navigation state only:
       // no query/data/message/auth handlers are touched.
       setNavSubTab(null);
-      try { window.location.hash = "projects"; } catch {}
+      try { window.location.hash = "projects"; } catch { /* non-fatal */ }
       // Important: if we are already on the Projects screen, merely setting
       // autoPost + setScreen("projects") will not remount ProjectsScreen, so
       // its internal view state stays unchanged. Dispatch the in-screen event
       // that ProjectsScreen already listens for.
       if (screen === "projects") {
-        try { document.dispatchEvent(new CustomEvent("kb:post-project")); } catch {}
+        try { document.dispatchEvent(new CustomEvent("kb:post-project")); } catch { /* non-fatal */ }
         closeNavChrome();
         return;
       }
@@ -57531,13 +57531,13 @@ export default function App() {
     // Alias and subtab mappings — defined at module level (NAV_ALIAS / NAV_SUBTAB)
     // to avoid object recreation on every nav() invocation.
     if (NAV_SUBTAB[navTarget]) {
-      if (!currentUser) { savePostAuthTarget({ screen:"projects", navSubTab:NAV_SUBTAB[navTarget], autoPost:false }); setAuthDefaultRole(NAV_SUBTAB[navTarget] === "work" ? "vendor" : "church"); setScreen("auth"); try { window.location.hash = "auth"; } catch {} closeNavChrome(); return; }
+      if (!currentUser) { savePostAuthTarget({ screen:"projects", navSubTab:NAV_SUBTAB[navTarget], autoPost:false }); setAuthDefaultRole(NAV_SUBTAB[navTarget] === "work" ? "vendor" : "church"); setScreen("auth"); try { window.location.hash = "auth"; } catch { /* non-fatal */ } closeNavChrome(); return; }
       setScreen("projects");
       setNavSubTab(NAV_SUBTAB[navTarget]);
-      try { window.location.hash = getProjectSubTabRoute(NAV_SUBTAB[navTarget]); } catch {}
+      try { window.location.hash = getProjectSubTabRoute(NAV_SUBTAB[navTarget]); } catch { /* non-fatal */ }
       // 852am: switching top-level Marketplace/My Projects/My Work CTAs must
       // clear any stale detail/vendor/chat-return surface without touching data.
-      try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch {}
+      try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch { /* non-fatal */ }
       closeNavChrome();
       return;
     }
@@ -57546,7 +57546,7 @@ export default function App() {
       // Preserve the hash so the user lands on the right screen after auth,
       // even if they arrived via a direct URL with a #inbox or #reviews hash.
       savePostAuthTarget({ screen:target, navSubTab:null, autoPost:false });
-      try { window.location.hash = target; } catch {}
+      try { window.location.hash = target; } catch { /* non-fatal */ }
       if (!authReady) return;
       setAuthDefaultRole(target === "reviews" ? "vendor" : "login");
       setScreen("auth");
@@ -57556,10 +57556,10 @@ export default function App() {
     setScreen(target);
     const marketplaceDefaultSubTab = (role === "church" || role === "individual") ? "vendors" : "browse";
     const nextSubTab = target === "projects" ? marketplaceDefaultSubTab : null;
-    try { window.location.hash = target === "projects" ? getProjectSubTabRoute(nextSubTab) : target; } catch {}
+    try { window.location.hash = target === "projects" ? getProjectSubTabRoute(nextSubTab) : target; } catch { /* non-fatal */ }
     setNavSubTab(nextSubTab);
     if (target === "projects") {
-      try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch {}
+      try { document.dispatchEvent(new CustomEvent("kb:marketplace-reset-surface")); } catch { /* non-fatal */ }
     }
     closeNavChrome();
   }, [closeNavChrome, currentUser, userProfile, role, startFreeDefaultRole, authReady, marketplaceGateLoaded, screen, marketplacePublic, privateMarketplaceAccess]);
@@ -57569,7 +57569,7 @@ export default function App() {
     setNavSubTab(normalizedSubTab);
     try {
       window.location.hash = getProjectSubTabRoute(normalizedSubTab);
-    } catch {}
+    } catch { /* non-fatal */ }
   }, []);
 
   useEffect(() => {
@@ -57597,7 +57597,7 @@ export default function App() {
       setNavSubTab(target === "projects" ? targetSubTab : null);
       setAutoPost(targetAutoPost);
       if (target === "projects") {
-        try { document.dispatchEvent(new CustomEvent(targetAutoPost ? "kb:post-project" : "kb:marketplace-reset-surface")); } catch {}
+        try { document.dispatchEvent(new CustomEvent(targetAutoPost ? "kb:post-project" : "kb:marketplace-reset-surface")); } catch { /* non-fatal */ }
       }
       closeNavChrome();
     };
@@ -57625,7 +57625,7 @@ export default function App() {
       try {
         if (window.__kbNav === nav) delete window.__kbNav;
         if (window.__kbSetAuthDefaultRole === setAuthDefaultRole) delete window.__kbSetAuthDefaultRole;
-      } catch {}
+      } catch { /* non-fatal */ }
     };
   }, [nav]);
 
@@ -57655,7 +57655,7 @@ export default function App() {
       );
     }
     setScreen("landing");
-    try { window.location.hash = "landing"; } catch {}
+    try { window.location.hash = "landing"; } catch { /* non-fatal */ }
   }, [screen, marketplaceGateLoaded, authReady, canAccessMarketplace]);
 
   useEffect(() => {
@@ -57664,7 +57664,7 @@ export default function App() {
     setScreen("projects");
     const safeSubTab = normalizeAuthRole(userProfile?.role || role) === "vendor" ? "browse" : "vendors";
     setNavSubTab(safeSubTab);
-    try { window.location.hash = getProjectSubTabRoute(safeSubTab); } catch {}
+    try { window.location.hash = getProjectSubTabRoute(safeSubTab); } catch { /* non-fatal */ }
   }, [screen, authReady, currentUser?.id, userProfile?.role, role]);
 
 
@@ -57708,7 +57708,7 @@ export default function App() {
         setNavSubTab(null);
         setAutoPost(false);
         setScreen("profile");
-        try { window.location.hash = "profile"; } catch {}
+        try { window.location.hash = "profile"; } catch { /* non-fatal */ }
       } else {
         applyPostAuthDestination("projects");
       }
@@ -57895,7 +57895,7 @@ export default function App() {
         <VendorReferenceSurveyPage
           token={refSurveyToken}
           onDone={() => {
-            try { window.location.hash = ""; } catch {}
+            try { window.location.hash = ""; } catch { /* non-fatal */ }
             setRefSurveyToken(null);
           }}
         />
@@ -58515,7 +58515,7 @@ function SeasonalAlert({role, nav}){
     } catch { return false; }
   });
   const dismiss = () => {
-    try { localStorage.setItem("kb_seasonal_dismissed", Date.now()); } catch {}
+    try { localStorage.setItem("kb_seasonal_dismissed", Date.now()); } catch { /* non-fatal */ }
     setDismissed(true);
   };
   const now = new Date();
@@ -59238,7 +59238,7 @@ function goToLandingFAQ(nav){
       return;
     }
   }
-  try { sessionStorage.setItem("kb_landing_scroll_target", "landing-faq-section"); } catch {}
+  try { sessionStorage.setItem("kb_landing_scroll_target", "landing-faq-section"); } catch { /* non-fatal */ }
   if (typeof nav === "function") nav("landing");
 }
 
@@ -60051,7 +60051,7 @@ async function shareReferralMessage(kind, shareUrl, showToast){
     return true;
   }catch(err){
     if(err?.name === "AbortError") return false;
-    try { logError("referral-share", err, { kind }); } catch {}
+    try { logError("referral-share", err, { kind }); } catch { /* non-fatal */ }
     showToast?.("Couldn't share that invite. Please copy your referral link instead.", "error");
     return false;
   }
@@ -60074,7 +60074,7 @@ function ShareableCard({refCode, orgName, onClose}){
       if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
       copiedTimerRef.current = setTimeout(()=>setCopied(false), 2000);
     }catch(e){
-      try { logError("clipboard-or-storage", e); } catch {}
+      try { logError("clipboard-or-storage", e); } catch { /* non-fatal */ }
     }
   };
 
@@ -60417,7 +60417,7 @@ function ReferralDashboard({currentUser, showToast}){
       copiedTimerRef.current = setTimeout(()=>setCopied(false),2000);
       showToast?.("Referral link copied");
     }catch(e){
-      try { logError("clipboard-or-storage", e); } catch {}
+      try { logError("clipboard-or-storage", e); } catch { /* non-fatal */ }
       showToast?.("Couldn't copy your referral link.", "error");
     }
   };
@@ -62752,7 +62752,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
           if (typeof nav === 'function') nav('projects');
         } catch (e) {
           logError('login-safety-bootstrap', e);
-          try { if (typeof nav === 'function') nav('projects'); } catch {}
+          try { if (typeof nav === 'function') nav('projects'); } catch { /* non-fatal */ }
         }
       }, 900);
     }catch(err){
@@ -63161,7 +63161,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     if (kbGuestTrapArmed) return;
     setKbGuestTrap("");
     if (kbGuestTrapRef.current) {
-      try { kbGuestTrapRef.current.value = ""; } catch {}
+      try { kbGuestTrapRef.current.value = ""; } catch { /* non-fatal */ }
     }
     setKbGuestTrapArmed(true);
   };
@@ -63378,7 +63378,7 @@ function GuestPostProjectScreen({ nav, currentUser, currentRole = "church", auth
     setKbGuestTrap("");
     setKbGuestTrapArmed(false);
     if (kbGuestTrapRef.current) {
-      try { kbGuestTrapRef.current.value = ""; } catch {}
+      try { kbGuestTrapRef.current.value = ""; } catch { /* non-fatal */ }
     }
     setPendingData(data);
     setAcctErr("");
@@ -63742,8 +63742,8 @@ function PostProject({ onSubmit, onBack, role, initialProject = null }) {
       const el = document.getElementById(id);
       if (!el) return;
       el.scrollIntoView({ behavior: "smooth", block: "center" });
-      if (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) setTimeout(() => { try { el.focus({ preventScroll: true }); } catch {} }, 350);
-    } catch {}
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) setTimeout(() => { try { el.focus({ preventScroll: true }); } catch { /* non-fatal */ } }, 350);
+    } catch { /* non-fatal */ }
   };
   const AUTOSAVE_KEY = "kb:postProjectDraft:v1";
   const [restored, setRestored] = useState(false);
@@ -63767,16 +63767,16 @@ function PostProject({ onSubmit, onBack, role, initialProject = null }) {
       if (d.projectCity) setProjectCity(String(d.projectCity));
       if (d.projectState) setProjectState(String(d.projectState));
       if (d.title || d.description) setRestored(true);
-    } catch {}
+    } catch { /* non-fatal */ }
   }, []);
   useEffect(() => {
     if (editing || !dirty) return undefined;
     const t = setTimeout(() => {
-      try { window.localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ t: Date.now(), title, category, customCategory, budget, timeline, description, urgent, scope, skills, deliveryPreference, projectCity, projectState })); } catch {}
+      try { window.localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ t: Date.now(), title, category, customCategory, budget, timeline, description, urgent, scope, skills, deliveryPreference, projectCity, projectState })); } catch { /* non-fatal */ }
     }, 600);
     return () => clearTimeout(t);
   }, [formSnapshot]);
-  const clearAutosave = () => { try { window.localStorage.removeItem(AUTOSAVE_KEY); } catch {} };
+  const clearAutosave = () => { try { window.localStorage.removeItem(AUTOSAVE_KEY); } catch { /* non-fatal */ } };
   useEffect(() => {
     const shell = document.querySelector(".platform-fullscreen-shell");
     if (!shell) return undefined;
@@ -64895,7 +64895,7 @@ function ConfirmModal({title, body, confirmLabel="Confirm", danger=false, onConf
     if (confirmBtnRef.current) confirmBtnRef.current.focus();
     return () => {
       if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
-        try { previouslyFocused.focus(); } catch {}
+        try { previouslyFocused.focus(); } catch { /* non-fatal */ }
       }
     };
   }, []);
@@ -65189,12 +65189,12 @@ function VendorPortfolioEditor({ currentUser, showToast, onCountChange, nav = nu
       const path = `vendor-photos/${currentUser.id}/portfolio/${token}-${idx}.${ext}`;
       const { error } = await supabase.storage.from('vendor-assets').upload(path, file, { upsert:false, contentType:file.type });
       if (error) {
-        if (paths.length) { try { await supabase.storage.from('vendor-assets').remove(paths); } catch {} }
+        if (paths.length) { try { await supabase.storage.from('vendor-assets').remove(paths); } catch { /* non-fatal */ } }
         throw error;
       }
       const { data:urlData } = supabase.storage.from('vendor-assets').getPublicUrl(path);
       if (!urlData?.publicUrl) {
-        try { await supabase.storage.from('vendor-assets').remove([path, ...paths]); } catch {}
+        try { await supabase.storage.from('vendor-assets').remove([path, ...paths]); } catch { /* non-fatal */ }
         throw new Error('Portfolio image URL was unavailable after upload.');
       }
       paths.push(path);
@@ -65264,7 +65264,7 @@ function VendorPortfolioEditor({ currentUser, showToast, onCountChange, nav = nu
       setWorkImageFiles([]);
       showToast && showToast('External project added to your portfolio');
     } catch (error) {
-      if (uploadedPaths.length) { try { await supabase.storage.from('vendor-assets').remove(uploadedPaths); } catch {} }
+      if (uploadedPaths.length) { try { await supabase.storage.from('vendor-assets').remove(uploadedPaths); } catch { /* non-fatal */ } }
       logError('vendor-portfolio-add-project', error, { userId:currentUser.id });
       showToast && showToast("Couldn't add that project.", 'error');
     } finally { setSavingKind(''); }
@@ -65366,7 +65366,7 @@ function VendorPortfolioEditor({ currentUser, showToast, onCountChange, nav = nu
       cancelEdit();
       showToast && showToast('Portfolio item updated');
     } catch (error) {
-      if (uploadedPaths.length) { try { await supabase.storage.from('vendor-assets').remove(uploadedPaths); } catch {} }
+      if (uploadedPaths.length) { try { await supabase.storage.from('vendor-assets').remove(uploadedPaths); } catch { /* non-fatal */ } }
       logError('vendor-portfolio-edit', error, { itemId:item.id });
       showToast && showToast("Couldn't update that portfolio item.", 'error');
     } finally { setSavingKind(''); }
@@ -69126,7 +69126,7 @@ function parseNotificationLink(link = '') {
       parsed.bidId = parsed.bidId || query.get('bid_id') || query.get('bidId') || query.get('bid');
       parsed.conversationId = parsed.conversationId || query.get('conversation_id') || query.get('conversationId') || query.get('thread_id') || query.get('threadId');
     }
-  } catch {}
+  } catch { /* non-fatal */ }
   return parsed;
 }
 function getNotificationProjectId(notification = {}) {
@@ -69156,10 +69156,10 @@ async function kbOpenMessagesForProject(projectId, nav, role) {
   try {
     const { data } = await supabase.from('conversations').select('id').eq('project_id', projectId).order('last_message_at', { ascending: false }).limit(1);
     conversationId = data?.[0]?.id || null;
-  } catch {}
+  } catch { /* non-fatal */ }
   if (!conversationId) return false;
-  try { window.sessionStorage.setItem('kb_messages_open_conversation', String(conversationId)); } catch {}
-  try { window.dispatchEvent(new CustomEvent('kb:messages-open', { detail: { conversationId } })); } catch {}
+  try { window.sessionStorage.setItem('kb_messages_open_conversation', String(conversationId)); } catch { /* non-fatal */ }
+  try { window.dispatchEvent(new CustomEvent('kb:messages-open', { detail: { conversationId } })); } catch { /* non-fatal */ }
   queueMyProjectsLens(nav, role === 'vendor' ? 'vendor' : 'church', 'messages');
   return true;
 }
@@ -70162,7 +70162,7 @@ function ReferralPanel({ currentUser, showToast }) {
       copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
       showToast?.("Referral link copied");
     }catch(err){
-      try { logError("clipboard-or-storage", err); } catch {}
+      try { logError("clipboard-or-storage", err); } catch { /* non-fatal */ }
       showToast?.("Couldn't copy your referral link.", "error");
     }
   };
@@ -70649,7 +70649,7 @@ function detailPostedLabel(project) {
       if (days <= 0) return 'Today';
       if (days === 1) return '1 day ago';
       if (days < 30) return `${days} days ago`;
-    } catch {}
+    } catch { /* non-fatal */ }
   }
   return 'Date not available';
 }
