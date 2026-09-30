@@ -26,3 +26,4 @@ jobs:
       - run: npm run test:my-projects-routing
       - run: npm run test:budget-truth
       - run: npm run test:reconciliation-regressions
+      - run: npm run test
