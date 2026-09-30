@@ -14,13 +14,6 @@ const supabaseAnonKey = String(
   || '',
 ).trim()
 
-export const supabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
-export const supabaseConfigError = supabaseConfigured
-  ? ''
-  : 'Missing VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_ANON_KEY). Set them in .env.local and restart the dev server.'
-
-export { supabaseUrl, supabaseAnonKey }
-
 const projectRefFromUrl = (url) => {
   try {
     return new URL(url).hostname.split('.')[0] || ''
@@ -32,10 +25,31 @@ const projectRefFromUrl = (url) => {
 export const supabaseProjectRef = projectRefFromUrl(supabaseUrl)
 export const supabaseQaMode = viteEnv.MODE === 'qa'
   || /^(1|true|yes)$/i.test(String(viteEnv.VITE_FAITHBID_QA_MODE || '').trim())
+export const supabaseProductionDevOverride = /^(1|true|yes)$/i.test(
+  String(viteEnv.VITE_FAITHBID_ALLOW_PRODUCTION_DEV || '').trim(),
+)
+export const supabaseProductionDevWarning = Boolean(
+  viteEnv.DEV
+  && supabaseProjectRef === FAITHBID_PRODUCTION_PROJECT_REF
+  && !supabaseProductionDevOverride,
+)
+
+export const supabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
+export const supabaseConfigError = supabaseConfigured
+  ? ''
+  : 'Missing VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_ANON_KEY). Set them in .env.local and restart the dev server.'
+
+export { supabaseUrl, supabaseAnonKey }
 
 if (supabaseQaMode && supabaseProjectRef === FAITHBID_PRODUCTION_PROJECT_REF) {
   throw new Error(
     `FaithBid QA mode cannot use the production Supabase project ${FAITHBID_PRODUCTION_PROJECT_REF}. Configure a full-app non-production project first.`,
+  )
+}
+
+if (supabaseProductionDevWarning) {
+  console.warn(
+    `[FaithBid] Local development is connected to production Supabase (${FAITHBID_PRODUCTION_PROJECT_REF}). Keep validation read-only or use a local/disposable project.`,
   )
 }
 

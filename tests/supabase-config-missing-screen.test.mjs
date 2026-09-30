@@ -22,3 +22,12 @@ test("main.jsx renders a configuration-missing screen instead of mounting App wh
   assert.match(mainSource, /ConfigurationMissingScreen/);
   assert.match(mainSource, /supabaseConfigured \? <App \/> : <ConfigurationMissingScreen \/>/);
 });
+
+test("ordinary Vite development warns when configured against production without breaking preview", () => {
+  assert.match(clientSource, /VITE_FAITHBID_ALLOW_PRODUCTION_DEV/);
+  assert.match(clientSource, /viteEnv\.DEV/);
+  assert.match(clientSource, /supabaseProjectRef === FAITHBID_PRODUCTION_PROJECT_REF/);
+  assert.match(clientSource, /export const supabaseProductionDevWarning/);
+  assert.match(clientSource, /export const supabaseConfigured = Boolean\(supabaseUrl && supabaseAnonKey\)/);
+  assert.match(clientSource, /console\.warn/);
+});
