@@ -21,7 +21,7 @@ has(waitlist, /canSubmit = agreedToTerms &&/, 'waitlist submit is gated on conse
 has(waitlist, /legal_consent: \{ accepted: true/, 'waitlist consent is submitted inside the canonical waitlist transaction');
 assert.ok(!waitlist.includes('recordLegalConsent'), 'waitlist does not use a forgeable follow-up consent call');
 has(waitlist, /<LegalConsentCheckbox id="kb-waitlist-consent"/, 'waitlist shows the consent checkbox');
-has(app, /if \(!agreedToTerms\) \{ setError\("Please agree to the Terms/, 'AuthScreen signup blocks without consent');
+has(app, /if \(!agreedToTerms\) \{ setError\("Please acknowledge the current early-access Terms/, 'AuthScreen signup blocks without consent');
 has(app, /legal_consent:buildLegalConsentMetadata\(selectedRole==="church"/, 'AuthScreen binds consent to auth signup');
 has(app, /const canSubmit = agreedToTerms && fullName/, 'StartFree church signup is gated on consent');
 has(app, /legal_consent: buildLegalConsentMetadata\(CONSENT_KINDS\.church\)/, 'StartFree church signup binds consent to auth signup');

@@ -13,7 +13,8 @@ import fs from "node:fs";
 const app = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const contract = fs.readFileSync(new URL("../docs/admin-navigation-contract.md", import.meta.url), "utf8");
 
-assert.equal((app.match(/label:"Admin Review"/g) || []).length, 2, "both role navs must identify the review surface exactly once each");
+assert.equal((app.match(/label:"Admin Review"/g) || []).length, 0, "the fixed mobile bottom nav must not duplicate the desktop/drawer Admin Review entry");
+assert.match(app, />Admin Review<\/button>/, "the authenticated admin header keeps one deliberate Admin Review entry");
 assert.match(app, /Workspace dropdown retired; its destinations now live contextually/, "expected the retirement comment documenting where the old Workspace menu used to be");
 
 assert.match(app, /function AdminReviewSubnav\(/);
@@ -33,4 +34,4 @@ assert.match(contract, /Admin Review/);
 assert.match(contract, /AdminReviewSubnav/);
 assert.match(contract, /founder-owned/);
 
-console.log("B4d navigation contract passed: Admin Review is the single entry point, AdminReviewSubnav carries every operational tab, and Concierge is not duplicated in the account menu.");
+console.log("B4d navigation contract passed: Admin Review is not duplicated in the mobile bottom bar, AdminReviewSubnav carries every operational tab, and Concierge is not duplicated in the account menu.");

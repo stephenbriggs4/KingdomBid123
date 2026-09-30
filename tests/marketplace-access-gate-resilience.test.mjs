@@ -11,10 +11,11 @@ test("marketplace access reads have a deadline and abortable Supabase requests",
   assert.ok((gateBlock.match(/\.abortSignal\(signal\)/g) || []).length >= 5);
 });
 
-test("an unavailable gate remains pending and offers retry instead of becoming a denial", () => {
+test("an unavailable gate exits pending state and offers retry without granting access", () => {
   assert.match(source, /setMarketplaceGateError\("FaithBid could not verify marketplace access/);
   assert.match(source, /setMarketplaceGateRetry\(value=>value\+1\)/);
   const catchStart = source.indexOf('logError("private-marketplace-access-read"');
   const catchBlock = source.slice(catchStart, catchStart + 600);
-  assert.doesNotMatch(catchBlock, /setMarketplaceGateLoaded\(true\)/);
+  assert.match(catchBlock, /setMarketplaceGateLoaded\(true\)/);
+  assert.match(catchBlock, /setPrivateMarketplaceAccess\(false\)/);
 });
