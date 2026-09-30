@@ -191,7 +191,7 @@ export default function WaitlistInvitationScreen({
 
       const passwordError = passwordStrengthError(password);
       if (passwordError) throw new Error(passwordError);
-      if (!agreedToTerms) throw new Error("Please agree to the Terms and acknowledge the Privacy Policy to continue.");
+      if (!agreedToTerms) throw new Error("Please acknowledge the current early-access Terms and Privacy Notice to continue.");
 
       const { data, error } = await supabase.auth.signUp({
         email: normalizedEmail,

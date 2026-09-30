@@ -1092,7 +1092,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                         className="kb-waitlist-input"
                         value={form.city}
                         onChange={set("city")}
-                        placeholder="Nashville"
+                        placeholder="Dallas"
                         maxLength={120}
                         autoComplete="address-level2"
                         style={{ ...fieldStyle, borderColor: inputBorderFor("city") }}

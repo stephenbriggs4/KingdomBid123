@@ -100,7 +100,10 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
   const leader = scoredVendors.find(item => !item?.score?.rejected) || scoredVendors[0] || null;
   const projectCount = projects.length;
   const vendorCount = vendors.length;
-  const decisionReadiness = Math.min(100, (projectCount ? 30 : 0) + (vendorCount >= 2 ? 40 : vendorCount ? 22 : 0) + (criteria.length >= 3 ? 18 : 10) + (String(workspace?.notes || '').trim() ? 12 : 0));
+  const hasDecisionSet = projectCount > 0 && vendorCount > 0;
+  const decisionReadiness = hasDecisionSet
+    ? Math.min(100, 30 + (vendorCount >= 2 ? 40 : 22) + (criteria.length >= 3 ? 18 : 0) + (String(workspace?.notes || '').trim() ? 12 : 0))
+    : 0;
   const comparePhaseOneRows = scoredVendors.slice(0, 3).map(({ vendor, score }) => {
     const dealMeta = compareVendorDealStateByKey.get(String(vendor?.id || vendor?.user_id || vendor?.name || '').trim())?.dealSummary || null;
     return {

@@ -9,14 +9,14 @@
   --kb-weight-semibold: 600;
   --kb-weight-bold: 700;
   --kb-weight-heavy: 800;
-  --kb-control-forest: #1c2814;
-  --kb-control-forest-hover: #293923;
-  --kb-control-paper: #fffdf8;
-  --kb-control-linen: #f5efe4;
-  --kb-control-border: #d9cfbd;
-  --kb-control-gold-text-paper: #8a6a2e;
-  --kb-control-gold-text-linen: #75561f;
-  --kb-control-muted: #6f6a60;
+  --kb-control-forest: var(--fb-forest);
+  --kb-control-forest-hover: var(--fb-forest-hover);
+  --kb-control-paper: var(--fb-paper);
+  --kb-control-linen: var(--fb-linen);
+  --kb-control-border: var(--fb-border);
+  --kb-control-gold-text-paper: var(--fb-gold-dark);
+  --kb-control-gold-text-linen: var(--fb-gold-dark);
+  --kb-control-muted: var(--fb-muted);
 }
 
 /*

@@ -303,7 +303,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
     eyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:10.5,fontWeight:700,letterSpacing:2.4,textTransform:"uppercase",color:"#b08840",marginBottom:10},
     headline:{fontFamily:"var(--font-display),serif",fontSize:36,fontWeight:700,color:"#1C2814",letterSpacing:-0.7,lineHeight:1.05,marginBottom:6},
     sub:{fontSize:14,color:"#5a5246",lineHeight:1.55,maxWidth:560},
-    tabsWrap:{maxWidth:1100,margin:"0 auto",padding:"0 28px",borderBottom:"1px solid #ece4d2",display:"flex",gap:24,overflowX:"auto"},
+    tabsWrap:{maxWidth:1100,margin:"0 auto",padding:"0 28px",borderBottom:"1px solid #ece4d2",display:"flex",gap:24,overflowX:"auto",overscrollBehaviorX:"contain",WebkitOverflowScrolling:"touch",touchAction:"pan-x pan-y",scrollbarWidth:"thin",scrollbarColor:"#c9a45c #f4efe5",maskImage:"linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%)",WebkitMaskImage:"linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%)"},
     tab:(active)=>({padding:"12px 0 14px",fontSize:13,fontWeight:active?700:600,color:active?"#1C2814":"#7d7363",position:"relative",background:"none",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"color 0.15s",whiteSpace:"nowrap"}),
     tabBar:{position:"absolute",left:0,right:0,bottom:-1,height:2.5,background:"linear-gradient(90deg,#c9a45c,#b08840)",borderRadius:2},
     body:{maxWidth:760,margin:"0 auto",padding:"24px 28px 0"},
@@ -317,7 +317,7 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
     input:{width:"100%",height:46,padding:"0 14px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",fontSize:14,color:"#1C2814",fontFamily:"var(--font-sans),sans-serif",outline:"none",transition:"border-color 0.15s,box-shadow 0.15s"},
     field:{marginBottom:18},
     helperText:{fontSize:12,color:"#7d7363",marginBottom:14,lineHeight:1.5},
-    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#c9a45c,#b08840)",color:"#fff",fontSize:13,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(176,136,64,0.25),inset 0 1px 0 rgba(255,255,255,0.18)",transition:"all 0.15s"},
+    btnPrimary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"11px 22px",borderRadius:999,background:"linear-gradient(180deg,#315d3a,#1c3d25)",color:"#fff",fontSize:13,fontWeight:700,border:"1px solid #17351f",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",letterSpacing:0.2,boxShadow:"0 4px 12px rgba(28,61,37,0.2),inset 0 1px 0 rgba(255,255,255,0.15)",transition:"all 0.15s"},
     btnSecondary:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#1C2814",fontSize:13,fontWeight:600,border:"1px solid #dfd5c2",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
     btnDanger:{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 20px",borderRadius:999,background:"#fffdf8",color:"#a23b3b",fontSize:13,fontWeight:600,border:"1px solid #e6c4c4",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"all 0.15s"},
     infoBlock:{padding:"12px 14px",background:"#fffdf8",border:"1px solid #ece4d2",borderRadius:12,fontSize:12.5,color:"#5a5246",lineHeight:1.6,marginBottom:14},
@@ -347,9 +347,9 @@ function SettingsScreen({currentUser, role, showToast, nav, onSignOut}){
       </div>
 
       {/* Tab bar */}
-      <div className="kb-settings-tabs" style={sx.tabsWrap}>
+      <div className="kb-settings-tabs" style={sx.tabsWrap} role="tablist" aria-label="Settings sections">
         {TABS.map(t=>(
-          <button key={t.id} type="button" onClick={()=>setTab(t.id)} style={sx.tab(tab===t.id)}>
+          <button key={t.id} type="button" role="tab" aria-selected={tab===t.id} onClick={event=>{setTab(t.id);event.currentTarget.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});}} style={sx.tab(tab===t.id)}>
             {t.label}
             {tab===t.id && <span style={sx.tabBar}/>}
           </button>
