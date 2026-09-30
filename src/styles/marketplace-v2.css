@@ -1735,8 +1735,8 @@ html body #root .mkt2-root .kbm-mp-toolbar {
 }
 
 .kb-marketplace-project-card__status.is-urgent {
-  background: rgba(255, 241, 228, .94);
-  color: #94521e;
+  background: #fbf4e6;
+  color: #806126;
 }
 
 .kb-marketplace-project-card__save {
@@ -2900,4 +2900,30 @@ html body #root .mkt2-root main.kb-marketplace-projects-body { padding-top: 16px
 @media (prefers-reduced-motion: reduce) {
   .kb-marketplace-all-vendors .kb-marketplace-project-grid::before,
   .kb-marketplace-project-directory .kb-marketplace-project-grid::before { animation: none; }
+}
+
+/* Rail v7: finish the migration above for the Featured rows -- they were
+   left behind on the old static gold line + end-dot (see "Rail v5" /
+   "Rail v6" above) after the All Projects / All Vendors grids moved to the
+   shimmering line with no end mark. Bring Featured Projects and Featured
+   Vendors in line with everything else instead of leaving them on the old
+   look. */
+.kb-rail-wrap::after { content: none !important; }
+.kb-rail-wrap::before {
+  height: 2px !important;
+  background:
+    linear-gradient(90deg, rgba(168,121,40,0) 0%, rgba(168,121,40,.9) 12%, rgba(168,121,40,.9) 88%, rgba(168,121,40,0) 100%),
+    linear-gradient(90deg, transparent 0%, rgba(240,213,143,.9) 50%, transparent 100%) !important;
+  background-size: 100% 100%, 55% 100% !important;
+  background-position: 0 0, -55% 0 !important;
+  background-repeat: no-repeat, no-repeat !important;
+  animation: kbRailShimmer 4.5s ease-in-out infinite;
+  transition: filter .25s ease;
+}
+.kb-rail-wrap:hover::before {
+  filter: brightness(1.25) drop-shadow(0 0 5px rgba(216,177,97,.45));
+  animation-duration: 2.2s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kb-rail-wrap::before { animation: none; }
 }
