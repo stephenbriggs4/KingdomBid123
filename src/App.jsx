@@ -836,7 +836,6 @@ const isValidEmail = (value) => typeof value === "string" && EMAIL_RE.test(value
 // Password policy: 8+ chars, at least one letter and one digit.
 const PASSWORD_MIN_LEN = 8;
 const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
-const isValidPassword = (value) => typeof value === "string" && PASSWORD_RE.test(value);
 const passwordStrengthError = (value) => {
   const s = String(value || "");
   if (s.length < PASSWORD_MIN_LEN) return `Password must be at least ${PASSWORD_MIN_LEN} characters.`;
@@ -844,16 +843,6 @@ const passwordStrengthError = (value) => {
   if (!/\d/.test(s))       return "Password must include at least one number.";
   return null;
 };
-
-// Sanitize a user-typed term before it hits a PostgREST `.ilike` / `.or()`
-// expression. Strips characters that could let the user break out of the
-// intended filter (commas, parens, colons, dots, percent, braces). RLS is
-// the real boundary — this is defense-in-depth against filter injection.
-const sanitizePostgrestTerm = (value) =>
-  String(value || "")
-    .replace(/[%,()\.:*+?^$|\\{}\[\]]/g, "")
-    .trim()
-    .slice(0, 80);
 
 // Referral code: short, alphanumeric, upper-case. Returns null on invalid.
 const REF_CODE_RE = /^[A-Z0-9]{4,16}$/;
