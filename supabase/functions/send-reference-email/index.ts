@@ -76,7 +76,7 @@ serve(async (req: Request) => {
 
   let refQuery = admin
     .from("vendor_references")
-    .select("id,vendor_id,client_name,client_email,project_context,token,status,sent_at,completed_at,purpose,verification_id");
+    .select("id,vendor_id,client_name,client_email,project_context,token,status,sent_at,completed_at,expires_at,purpose,verification_id");
 
   if (referenceId) {
     refQuery = refQuery.eq("id", referenceId);
@@ -108,6 +108,11 @@ serve(async (req: Request) => {
 
   if (ref.completed_at || String(ref.status || "").toLowerCase() === "completed") {
     return json(req, 409, { delivered: false, reason: "reference_already_completed" });
+  }
+
+  const expiresAtMs = new Date(ref.expires_at || "").getTime();
+  if (!Number.isFinite(expiresAtMs) || expiresAtMs <= Date.now()) {
+    return json(req, 409, { delivered: false, reason: "reference_expired" });
   }
 
   const resendCooldownMs = purpose === "faith_community" ? 24 * 60 * 60 * 1000 : 30_000;
@@ -186,6 +191,10 @@ serve(async (req: Request) => {
   // parallel requests can win. This prevents duplicate emails and provider cost.
   const previousStatus = String(ref.status || "pending");
   const previousSentAt = ref.sent_at || null;
+  // A provider timeout can happen after Resend accepted the email. Derive the
+  // idempotency key from durable pre-claim state so restoring and retrying the
+  // same logical send cannot create a duplicate delivery.
+  const idempotencyKey = `faithbid-reference/${ref.id}/${previousSentAt || "first"}`;
   const claimedAt = new Date().toISOString();
   let claimQuery = admin
     .from("vendor_references")
@@ -244,6 +253,7 @@ serve(async (req: Request) => {
       headers: {
         "authorization": `Bearer ${RESEND_API_KEY}`,
         "content-type": "application/json",
+        "idempotency-key": idempotencyKey,
       },
       body: JSON.stringify({
         from: RESEND_FROM_EMAIL,
