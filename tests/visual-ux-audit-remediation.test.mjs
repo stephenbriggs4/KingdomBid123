@@ -10,6 +10,7 @@ const waitlist = read("../src/WaitlistScreen.jsx");
 const messages = read("../src/MessagesTab.jsx");
 const compare = read("../src/WorkspaceScreens.jsx");
 const tokens = read("../src/index.css");
+const landingStyles = read("../src/styles/landing-v2.css");
 
 test("mobile settings tabs expose touch scrolling and real tab semantics", () => {
   assert.match(settings, /WebkitOverflowScrolling:"touch"/);
@@ -20,6 +21,8 @@ test("mobile settings tabs expose touch scrolling and real tab semantics", () =>
 
 test("legal acknowledgement wraps safely and describes draft early-access policy honestly", () => {
   assert.match(consent, /minWidth: 0, flex: "1 1 auto"/);
+  assert.match(consent, /className="kb-legal-consent-control"/);
+  assert.match(tokens, /\.kb-legal-consent-row > \.kb-legal-consent-control[\s\S]*inline-size: 16px !important/);
   assert.match(consent, /current early-access/);
   assert.match(consent, /Final policies will be presented before general activation/);
   assert.doesNotMatch(consent, /I agree to FaithBid/);
@@ -73,4 +76,16 @@ test("global tokens use the FaithBid palette instead of starter purple and force
 test("signed-in users cannot remain on the anonymous auth screen", () => {
   assert.match(app, /if \(!authReady \|\| !currentUser \|\| screen !== "auth"\) return/);
   assert.match(app, /const fallbackSubTab = fallbackScreen === "projects"/);
+});
+
+test("mobile auth chrome keeps its wordmark and actions on one readable row", () => {
+  assert.match(landingStyles, /\.fb-auth-brand \.kb-brand-logo-full[\s\S]*width: 116px !important/);
+  assert.match(landingStyles, /\.fb-auth-home-link[^}]*white-space: nowrap/);
+  assert.match(landingStyles, /\.fb-auth-top-actions \{ flex: 0 0 auto/);
+  assert.match(app, /currentUser && screen !== "landing" && screen !== "auth"/);
+});
+
+test("church accounts cannot render the vendor-only verification flow", () => {
+  assert.match(app, /screen==="verify-profile" && authReady && \(role==="vendor"/);
+  assert.match(app, /LegacyDestinationRedirect nav=\{nav\} role=\{role\} kind="profile"/);
 });

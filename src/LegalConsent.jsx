@@ -6,8 +6,9 @@ const linkStyle = { color: "inherit", fontWeight: 700, textDecoration: "underlin
 export function LegalConsentCheckbox({ checked, onChange, id = "kb-legal-consent", style, tone = "light", children }) {
   const color = tone === "dark" ? "var(--atext-muted)" : "#4a5043";
   return (
-    <div style={{ display: "flex", gap: 12, alignItems: "flex-start", width: "100%", minWidth: 0, ...style }}>
+    <div className="kb-legal-consent-row" style={{ display: "flex", gap: 12, alignItems: "flex-start", width: "100%", minWidth: 0, ...style }}>
       <input
+        className="kb-legal-consent-control"
         id={id}
         type="checkbox"
         checked={!!checked}

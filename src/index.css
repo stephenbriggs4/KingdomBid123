@@ -46,6 +46,28 @@ html, body {
   max-width: 100%;
 }
 
+/*
+ * Consent controls must stay intrinsic even though the legacy mobile form
+ * layer makes ordinary inputs full width with !important. Without this
+ * exception, a checkbox consumes the entire row and collapses its label.
+ */
+.kb-legal-consent-row {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.kb-legal-consent-row > .kb-legal-consent-control {
+  flex: 0 0 16px;
+  inline-size: 16px !important;
+  min-inline-size: 16px !important;
+  max-inline-size: 16px !important;
+}
+
+.kb-legal-consent-row > label {
+  min-inline-size: 0;
+  max-inline-size: calc(100% - 28px);
+}
+
 body {
   margin: 0;
   font-family: var(--font-sans);

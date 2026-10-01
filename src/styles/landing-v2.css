@@ -663,8 +663,20 @@ html body #root #kb-main-content footer.fb-public-footer-v2 .fb-public-footer-v2
     padding: 16px 18px 36px !important;
   }
 
-  .fb-auth-top-actions { gap: 9px; }
-  .fb-auth-home-link { min-height: 42px; font-size: 11px; }
+  .fb-auth-topbar { gap: 12px; }
+  .fb-auth-brand {
+    flex: 0 0 116px;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .fb-auth-brand .kb-brand-logo-full {
+    width: 116px !important;
+    height: auto !important;
+    max-width: 116px !important;
+    filter: none !important;
+  }
+  .fb-auth-top-actions { flex: 0 0 auto; gap: 9px; }
+  .fb-auth-home-link { min-height: 42px; font-size: 11px; white-space: nowrap; }
   .fb-auth-access-link { min-height: 42px; padding: 0 12px; font-size: 11px; }
 
   html body .fb-auth-shell-v2 .fb-auth-card {
