@@ -11,7 +11,7 @@ const card = app.slice(
 );
 
 test('retains the existing project hero and replaces only its body', () => {
-  assert.match(app, /<ChurchProjectsMarketplaceHero[\s\S]*?<main className="kb-marketplace-projects-body"/);
+  assert.match(app, /<ChurchProjectsMarketplaceHero[\s\S]*?<div className="kb-marketplace-projects-body"/);
   assert.match(app, /const useStreamlinedProjectDirectory = true/);
 });
 

@@ -50,7 +50,7 @@ export default function UnsubscribeScreen({ nav }) {
   const card = { width: "min(560px,100%)", margin: "0 auto", padding: "clamp(24px,5vw,40px)", border: "1px solid rgba(28,40,20,.12)", borderRadius: 20, background: "rgba(255,255,255,.85)" };
   const copy = { fontSize: 15, lineHeight: 1.7, color: "#5f6659", margin: "0 0 18px" };
   return (
-    <main id="kb-main-content" style={{ minHeight: "72vh", background: "#fffdf8", padding: "clamp(96px,12vw,140px) 20px 80px" }}>
+    <div style={{ minHeight: "72vh", background: "#fffdf8", padding: "clamp(96px,12vw,140px) 20px 80px" }}>
       <section style={card} aria-live="polite">
         {state === "checking" ? <p style={copy}>Checking your link…</p> : null}
         {state === "ready" ? (
@@ -82,6 +82,6 @@ export default function UnsubscribeScreen({ nav }) {
           </>
         ) : null}
       </section>
-    </main>
+    </div>
   );
 }

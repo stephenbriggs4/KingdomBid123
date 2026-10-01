@@ -244,7 +244,7 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
   );
 
   return (
-    <main className="kb-compare-workspace-root" style={shellStyle}>
+    <div className="kb-compare-workspace-root" style={shellStyle}>
       <div style={{maxWidth:1240,margin:'0 auto'}}>
         <section style={{...cardStyle,overflow:'hidden',marginBottom:18,background:'linear-gradient(135deg,#172116 0%,#273d24 58%,#594222 100%)',color:'#fffdf8'}}>
           <div style={{padding:isCompact ? '24px 22px' : '30px 34px',display:'grid',gridTemplateColumns:isCompact ? '1fr' : '1.35fr 0.65fr',gap:22,alignItems:'stretch'}}>
@@ -478,7 +478,7 @@ function CompareWorkspaceScreen({ nav = () => {}, role = '', showToast, currentU
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
 

@@ -953,9 +953,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
               />
             </div>
             <div>
-              <label style={labelStyle}>Your name {requiredMark}</label>
+              <label htmlFor="kb-wl-full-name" style={labelStyle}>Your name {requiredMark}</label>
               {fieldWrap("full_name",
                 <input
+                  id="kb-wl-full-name"
                   className="kb-waitlist-input"
                   value={form.full_name}
                   onChange={set("full_name")}
@@ -969,9 +970,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
             {!isVendor ? (
               <>
                 <div>
-                  <label style={labelStyle}>Church name {requiredMark}</label>
+                  <label htmlFor="kb-wl-org-name" style={labelStyle}>Church name {requiredMark}</label>
                   {fieldWrap("org_name",
                     <input
+                      id="kb-wl-org-name"
                       className="kb-waitlist-input"
                       value={form.org_name}
                       onChange={set("org_name")}
@@ -982,9 +984,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                   )}
                 </div>
                 <div>
-                  <label style={labelStyle}>Email {requiredMark}</label>
+                  <label htmlFor="kb-wl-email" style={labelStyle}>Email {requiredMark}</label>
                   {fieldWrap("email",
                     <input
+                      id="kb-wl-email"
                       className="kb-waitlist-input"
                       type="email"
                       value={form.email}
@@ -997,9 +1000,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "minmax(0,2fr) minmax(92px,0.8fr)", gap: 12 }} className="kb-waitlist-form-row">
                   <div>
-                    <label style={labelStyle}>Church city {requiredMark}</label>
+                    <label htmlFor="kb-wl-city" style={labelStyle}>Church city {requiredMark}</label>
                     {fieldWrap("city",
                       <input
+                        id="kb-wl-city"
                         className="kb-waitlist-input"
                         value={form.city}
                         onChange={set("city")}
@@ -1011,9 +1015,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                     )}
                   </div>
                   <div>
-                    <label style={labelStyle}>State {requiredMark}</label>
+                    <label htmlFor="kb-wl-state" style={labelStyle}>State {requiredMark}</label>
                     {fieldWrap("state_code",
                       <select
+                        id="kb-wl-state"
                         className="kb-waitlist-input"
                         value={form.state_code}
                         onChange={set("state_code")}
@@ -1027,9 +1032,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                   </div>
                 </div>
                 <div>
-                  <label style={labelStyle}>First project <span style={{ color: muted, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
+                  <label htmlFor="kb-wl-first-project" style={labelStyle}>First project <span style={{ color: muted, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
                   {fieldWrap("first_project",
                     <input
+                      id="kb-wl-first-project"
                       className="kb-waitlist-input"
                       value={form.first_project}
                       onChange={set("first_project")}
@@ -1044,9 +1050,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
               <>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="kb-waitlist-form-row">
                   <div>
-                    <label style={labelStyle}>Email {requiredMark}</label>
+                    <label htmlFor="kb-wl-email" style={labelStyle}>Email {requiredMark}</label>
                     {fieldWrap("email",
                       <input
+                        id="kb-wl-email"
                         className="kb-waitlist-input"
                         type="email"
                         value={form.email}
@@ -1058,9 +1065,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                     )}
                   </div>
                   <div>
-                    <label style={labelStyle}>Business {requiredMark}</label>
+                    <label htmlFor="kb-wl-org-name" style={labelStyle}>Business {requiredMark}</label>
                     {fieldWrap("org_name",
                       <input
+                        id="kb-wl-org-name"
                         className="kb-waitlist-input"
                         value={form.org_name}
                         onChange={set("org_name")}
@@ -1072,9 +1080,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                   </div>
                 </div>
                 <div>
-                  <label style={labelStyle}>Category {requiredMark}</label>
+                  <label htmlFor="kb-wl-category" style={labelStyle}>Category {requiredMark}</label>
                   {fieldWrap("category",
                     <select
+                      id="kb-wl-category"
                       value={form.category}
                       onChange={set("category")}
                       style={{ ...fieldStyle, appearance: "none", WebkitAppearance: "none", MozAppearance: "none", borderColor: inputBorderFor("category"), cursor: "pointer", paddingRight: 40, backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%235C6358' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 14px center" }}
@@ -1086,9 +1095,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "minmax(0,2fr) minmax(92px,0.8fr)", gap: 12 }} className="kb-waitlist-form-row">
                   <div>
-                    <label style={labelStyle}>Business base city {requiredMark}</label>
+                    <label htmlFor="kb-wl-city" style={labelStyle}>Business base city {requiredMark}</label>
                     {fieldWrap("city",
                       <input
+                        id="kb-wl-city"
                         className="kb-waitlist-input"
                         value={form.city}
                         onChange={set("city")}
@@ -1100,9 +1110,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                     )}
                   </div>
                   <div>
-                    <label style={labelStyle}>State {requiredMark}</label>
+                    <label htmlFor="kb-wl-state" style={labelStyle}>State {requiredMark}</label>
                     {fieldWrap("state_code",
                       <select
+                        id="kb-wl-state"
                         className="kb-waitlist-input"
                         value={form.state_code}
                         onChange={set("state_code")}
@@ -1117,7 +1128,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                 </div>
                 <div>
                   <label style={labelStyle}>How you deliver {requiredMark}</label>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }} className="kb-waitlist-delivery-grid">
+                  <div role="group" aria-label="How you deliver" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }} className="kb-waitlist-delivery-grid">
                     {[{ id: "remote", label: "Remote" }, { id: "onsite", label: "On-site" }, { id: "both", label: "Both" }].map(opt => {
                       const active = form.delivery_model === opt.id;
                       return (
@@ -1125,6 +1136,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                           key={opt.id}
                           type="button"
                           className="kb-waitlist-chip"
+                          aria-pressed={active}
                           onClick={() => set("delivery_model")(opt.id)}
                           style={{
                             padding: "12px",
@@ -1145,9 +1157,10 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                   </div>
                 </div>
                 <div>
-                  <label style={labelStyle}>Past church client <span style={{ color: muted, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
+                  <label htmlFor="kb-wl-past-client" style={labelStyle}>Past church client <span style={{ color: muted, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
                   {fieldWrap("past_church_client",
                     <input
+                      id="kb-wl-past-client"
                       className="kb-waitlist-input"
                       value={form.past_church_client}
                       onChange={set("past_church_client")}

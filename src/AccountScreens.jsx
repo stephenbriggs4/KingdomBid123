@@ -534,13 +534,31 @@ function ResetPasswordScreen({nav, showToast}){
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [recoveryState, setRecoveryState] = useState("checking");
   const navTimerRef = useRef(null);
 
   useEffect(() => {
-    return () => { if (navTimerRef.current) clearTimeout(navTimerRef.current); };
+    let active = true;
+    const locationValue = `${window.location.search || ""}${window.location.hash || ""}`;
+    const hasRecoveryMarker = /(?:type=recovery|access_token=|recovery_token=)/i.test(locationValue);
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (active && event === "PASSWORD_RECOVERY" && session) setRecoveryState("valid");
+    });
+    supabase.auth.getSession().then(({ data, error: sessionError }) => {
+      if (!active) return;
+      setRecoveryState(!sessionError && hasRecoveryMarker && data?.session ? "valid" : "invalid");
+    }).catch(() => {
+      if (active) setRecoveryState("invalid");
+    });
+    return () => {
+      active = false;
+      authListener?.subscription?.unsubscribe?.();
+      if (navTimerRef.current) clearTimeout(navTimerRef.current);
+    };
   }, []);
 
   const handleReset = async () => {
+    if (recoveryState !== "valid") { setError("Open a fresh password-reset link from your email before choosing a new password."); return; }
     const strengthError = passwordStrengthError(password);
     if (strengthError) { setError(strengthError); return; }
     if (password !== confirm) { setError("Passwords don't match."); return; }
@@ -567,14 +585,14 @@ function ResetPasswordScreen({nav, showToast}){
         <div style={{textAlign:"center",marginBottom:40}}>
           <div style={{display:"flex",justifyContent:"center",marginBottom:0}}><CrossLogo size={44}/></div>
           <div style={{fontFamily:"var(--font-display),serif",fontSize:32,fontWeight:700,color:"#fff",marginTop:16,marginBottom:8}}>
-            {done ? "Password updated." : "Set a new password."}
+            {done ? "Password updated." : recoveryState === "checking" ? "Checking your reset link…" : recoveryState === "invalid" ? "This reset link is invalid or expired." : "Set a new password."}
           </div>
           <div style={{fontSize:14,color:"var(--atext-2)"}}>
-            {done ? "Redirecting you to sign in…" : "Choose a strong password for your account."}
+            {done ? "Redirecting you to sign in…" : recoveryState === "checking" ? "This will only take a moment." : recoveryState === "invalid" ? "Request a fresh reset email from the sign-in screen and use its secure link." : "Choose a strong password for your account."}
           </div>
         </div>
 
-        {!done && (
+        {!done && recoveryState === "valid" && (
           <>
             {error && <div style={{padding:"12px 16px",background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"var(--r-sm)",fontSize:13,color:"#FCA5A5",marginBottom:20}}>Error: {error}</div>}
             <div style={{position:"relative",marginBottom:28}}>
@@ -593,6 +611,12 @@ function ResetPasswordScreen({nav, showToast}){
               <button type="button" onClick={()=>{setAuthDefaultRole("login");nav("auth");}} style={{background:"none",border:"none",color:"var(--atext-muted)",fontSize:12,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>← Back to Sign in</button>
             </div>
           </>
+        )}
+
+        {!done && recoveryState === "invalid" && (
+          <div style={{textAlign:"center",padding:"24px",background:"rgba(245,240,232,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"var(--r-md)"}}>
+            <button type="button" onClick={()=>{setAuthDefaultRole("login");nav("auth");}} style={{padding:"13px 18px",background:"var(--gold-light)",color:"var(--navy)",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Back to sign in</button>
+          </div>
         )}
 
         {done && (

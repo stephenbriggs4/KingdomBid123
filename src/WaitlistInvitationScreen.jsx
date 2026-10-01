@@ -325,7 +325,7 @@ export default function WaitlistInvitationScreen({
 
   if (state.loading || !authReady) {
     return (
-      <main id="kb-main-content" style={shellStyle}>
+      <div style={shellStyle}>
         <section style={cardStyle}>
           <InvitationHeader isVendorInvitation={isVendorInvitation} title="Checking your invitation…" body="FaithBid is securely validating this link." />
           <div style={{ marginTop: 30, height: 4, borderRadius: 999, background: "rgba(28,40,20,.08)", overflow: "hidden" }}>
@@ -333,68 +333,68 @@ export default function WaitlistInvitationScreen({
           </div>
           <style>{`@keyframes kbInviteLoad{from{transform:translateX(-20%)}to{transform:translateX(160%)}}`}</style>
         </section>
-      </main>
+      </div>
     );
   }
 
   if (state.statusCode === "endpoint_not_ready") {
     return (
-      <main id="kb-main-content" style={shellStyle}>
+      <div style={shellStyle}>
         <section style={cardStyle}>
           <InvitationHeader isVendorInvitation={isVendorInvitation} title="Invitation access is being prepared." body="No action is required yet. Your invitation has not been used or changed." />
           <button type="button" style={{ ...secondaryButtonStyle, marginTop: 28 }} onClick={() => nav?.("landing")}>Return to FaithBid</button>
         </section>
-      </main>
+      </div>
     );
   }
 
   if (!invitation || state.statusCode === "unavailable" || !state.invitationAvailable) {
     return (
-      <main id="kb-main-content" style={shellStyle}>
+      <div style={shellStyle}>
         <section style={cardStyle}>
           <InvitationHeader isVendorInvitation={isVendorInvitation} title="This invitation is unavailable." body="The link may be expired, revoked, already replaced, or incomplete. For privacy, FaithBid does not disclose which condition applies." />
           <button type="button" style={{ ...secondaryButtonStyle, marginTop: 28 }} onClick={() => nav?.("landing")}>Return to FaithBid</button>
         </section>
-      </main>
+      </div>
     );
   }
 
   if (state.statusCode === "authenticated_email_mismatch") {
     return (
-      <main id="kb-main-content" style={shellStyle}>
+      <div style={shellStyle}>
         <section style={cardStyle}>
           <InvitationHeader isVendorInvitation={isVendorInvitation} title="Use the invited email address." body="You are signed in with a different email. Sign out, then use the same email address that received this invitation." />
           <button type="button" style={{ ...buttonStyle, marginTop: 28 }} onClick={signOutForDifferentAccount}>Sign out and try again</button>
         </section>
-      </main>
+      </div>
     );
   }
 
   if (state.statusCode === "email_confirmation_required") {
     return (
-      <main id="kb-main-content" style={shellStyle}>
+      <div style={shellStyle}>
         <section style={cardStyle}>
           <InvitationHeader isVendorInvitation={isVendorInvitation} title="Confirm your email first." body="Open the confirmation message from Supabase, confirm this account, then return to the original FaithBid invitation link." />
           <button type="button" style={{ ...secondaryButtonStyle, marginTop: 28 }} onClick={inspectInvitation}>I've confirmed — check again</button>
         </section>
-      </main>
+      </div>
     );
   }
 
   if (state.statusCode === "attention_required") {
     return (
-      <main id="kb-main-content" style={shellStyle}>
+      <div style={shellStyle}>
         <section style={cardStyle}>
           <InvitationHeader isVendorInvitation={isVendorInvitation} title="FaithBid needs to review this account." body="The account already has a conflicting role or profile state. Nothing was overwritten. FaithBid will need to resolve it before access can continue." />
           <button type="button" style={{ ...secondaryButtonStyle, marginTop: 28 }} onClick={() => nav?.("landing")}>Return to FaithBid</button>
         </section>
-      </main>
+      </div>
     );
   }
 
   if (!currentUser) {
     return (
-      <main id="kb-main-content" style={shellStyle}>
+      <div style={shellStyle}>
         <section style={cardStyle}>
           <InvitationHeader isVendorInvitation={isVendorInvitation}
             title={isVendorInvitation
@@ -420,12 +420,12 @@ export default function WaitlistInvitationScreen({
           </button>
           <p style={{ margin: "16px 0 0", fontSize: 12, color: "#7A8376", lineHeight: 1.65 }}>FaithBid will not create a church or vendor profile until the invitation token, authenticated email, and email-confirmation state all pass server validation.</p>
         </section>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main id="kb-main-content" style={shellStyle}>
+    <div style={shellStyle}>
       <section style={cardStyle}>
         <InvitationHeader isVendorInvitation={isVendorInvitation}
           eyebrow={state.alreadyCompleted ? (isVendorInvitation ? "Charter Vendor activated" : "Invitation already accepted") : "Identity confirmed"}
@@ -441,7 +441,7 @@ export default function WaitlistInvitationScreen({
           {finalizeBusy ? "Finishing setup…" : state.alreadyCompleted ? "Continue to FaithBid" : isVendorInvitation ? "Activate my Charter Vendor access" : "Complete my access"}
         </button>
       </section>
-    </main>
+    </div>
   );
 }
 

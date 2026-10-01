@@ -579,7 +579,7 @@ function PublicLegalFooter({ compact = false, nav, screen }) {
 function PublicPolicyUnderReviewScreen({ nav, type }) {
   const isPrivacy = type === "privacy";
   return (
-    <main id="kb-main-content" style={{minHeight:"72vh",background:"#fffdf8",padding:"clamp(96px,12vw,150px) 24px 80px"}}>
+    <div style={{minHeight:"72vh",background:"#fffdf8",padding:"clamp(96px,12vw,150px) 24px 80px"}}>
       <section style={{width:"min(760px,100%)",margin:"0 auto",padding:"clamp(30px,5vw,52px)",border:"1px solid rgba(28,40,20,.12)",borderRadius:24,background:"rgba(255,255,255,.78)",boxShadow:"0 24px 70px rgba(28,40,20,.08)"}} aria-labelledby="public-policy-title">
         <div style={{fontSize:10,fontWeight:800,letterSpacing:".18em",textTransform:"uppercase",color:"#9b7129",marginBottom:14}}>Public policy</div>
         <h1 id="public-policy-title" style={{fontFamily:"var(--font-display),Georgia,serif",fontSize:"clamp(36px,6vw,58px)",lineHeight:1.02,letterSpacing:"-.035em",color:"#1C2814",margin:"0 0 18px"}}>{isPrivacy ? "Privacy policy under review." : "Terms of service under review."}</h1>
@@ -587,7 +587,7 @@ function PublicPolicyUnderReviewScreen({ nav, type }) {
         <p style={{fontSize:14,lineHeight:1.75,color:"#6f7569",margin:"0 0 30px"}}>Questions about {isPrivacy ? "information handling" : "early-access terms"} can be sent to <a href={`mailto:${BRAND.supportEmail}`} style={{color:"#74551f",fontWeight:800}}>{BRAND.supportEmail}</a>.</p>
         <button type="button" className="btn-primary" onClick={()=>nav?.("landing")}>Return to FaithBid</button>
       </section>
-    </main>
+    </div>
   );
 }
 
@@ -2869,20 +2869,26 @@ function useFocusTrap(active) {
   React.useEffect(() => {
     if (!active || !ref.current) return;
     const el = ref.current;
-    const focusable = el.querySelectorAll(
-      'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])'
-    );
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+    const getFocusable = () => Array.from(el.querySelectorAll(
+      'a[href],button:not([disabled]),textarea:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])'
+    )).filter(node => {
+      if (node.hidden || node.getAttribute('aria-hidden') === 'true') return false;
+      const style = window.getComputedStyle(node);
+      return style.display !== 'none' && style.visibility !== 'hidden' && node.getClientRects().length > 0;
+    });
+    const initialFocusable = getFocusable();
     const prev = document.activeElement;
-    if (first) first.focus();
+    if (initialFocusable[0]) initialFocusable[0].focus();
     function onKey(e) {
       if (e.key !== 'Tab') return;
+      const focusable = getFocusable();
       if (focusable.length === 0) { e.preventDefault(); return; }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
       if (e.shiftKey) {
-        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        if (!el.contains(document.activeElement) || document.activeElement === first) { e.preventDefault(); last.focus(); }
       } else {
-        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        if (!el.contains(document.activeElement) || document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     }
     el.addEventListener('keydown', onKey);
@@ -27548,7 +27554,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
       />
 
       {useStreamlinedProjectDirectory ? (
-        <main className="kb-marketplace-projects-body" ref={projectGridRef}>
+        <div className="kb-marketplace-projects-body" ref={projectGridRef}>
           {marketplaceProjectsLoading ? (
             <KBSkeleton variant="list" count={6} style={{margin:'8px 0 0'}} />
           ) : openProjects.length === 0 ? (
@@ -27751,7 +27757,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
             </section>
             </>
           )}
-        </main>
+        </div>
       ) : (
       <div className="kb-live-shell kb-mp-mobile-unified-shell kb-mp-exact-marketplace-shell">
 
@@ -29944,7 +29950,7 @@ function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse,
           .kb1004-skeleton{height:270px;border-radius:10px;border:1px solid #ded8cc;background:linear-gradient(90deg,#f2eee6,#faf8f3,#f2eee6);background-size:200% 100%;animation:kb1004-shimmer 1.4s linear infinite}@keyframes kb1004-shimmer{to{background-position:-200% 0}}
           @media(max-width:1180px){.kb1004-layout{grid-template-columns:1fr}.kb1004-side{grid-template-columns:repeat(2,minmax(0,1fr))}.kb1004-impact{display:none}.kb1004-intro{grid-template-columns:1fr}.kb1004-quote{display:none}}
           /* Tabs size to their own column, not the screen: on a laptop the main column is ~745px, so each of the five tabs gets ~150px. */
-          .kb1004-layout>main{container-type:inline-size}
+          .kb1004-layout>.kb1004-main{container-type:inline-size}
           @media(min-width:821px){@container (max-width:999px){.kb1004-filter-cell{gap:7px;padding:0 8px;font-size:14px;white-space:nowrap}.kb1004-filter-cell svg{display:none}.kb1004-filter-count{min-width:22px;height:22px;font-size:11px}}@container (max-width:799px){.kb1004-filter-cell{gap:6px;padding:0 5px;font-size:13px}.kb1004-filter-count{min-width:20px;height:20px;font-size:10.5px}}}
           @media(max-width:820px){.kb1004-myprojects{padding:22px 16px 84px}.kb1004-intro h1{font-size:46px}.kb1004-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;background:transparent;border:0;box-shadow:none;gap:8px}.kb1004-filter-cell{border:1px solid #ded8cc!important;border-radius:8px;background:#fff;min-height:50px}.kb1004-toolbar{grid-template-columns:1fr auto}.kb1004-sort{grid-column:1/-1;grid-row:2}.kb1004-card-grid{grid-template-columns:1fr}.kb1004-project-card{grid-template-columns:150px minmax(0,1fr);min-height:230px}.kb1004-card-media{min-height:200px}.kb1004-card-actions{grid-template-columns:1fr}.kb1004-side{grid-template-columns:1fr}.kb1004-proposal-stats{grid-template-columns:1fr}}
           @media(max-width:560px){.kb1004-project-card{grid-template-columns:1fr}.kb1004-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1004-filter-cells{grid-template-columns:1fr 1fr}.kb1004-intro p{font-size:14px}.kb1004-toolbar{grid-template-columns:1fr}.kb1004-view-toggle{display:flex}.kb1004-card-main{padding:14px}.kb1004-side-card{padding:16px}}
@@ -29999,7 +30005,7 @@ function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse,
         </header>
 
         <div className={`kb1004-layout${bucket==='messages' ? ' is-messages' : ''}`}>
-          <main>
+          <div className="kb1004-main">
             <div className="kb1004-filter-cells" role="tablist" aria-label="Project filters">
               {tabs.map(tab => (
                 <button key={tab.key} type="button" role="tab" aria-selected={bucket===tab.key} className={`kb1004-filter-cell${bucket===tab.key?' active':''}`} onClick={()=>{setBucket(tab.key);setCardMenuId(null);setExpandedBidId(null);}}>
@@ -30046,7 +30052,7 @@ function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse,
               )}
             </div>
             </>}
-          </main>
+          </div>
 
           <aside className="kb1004-side">
             <section className="kb1004-side-card">
@@ -30402,7 +30408,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
       .kb1005-side{display:grid;gap:12px}.kb1005-side-card{background:#fff;border:1px solid #ded8cc;border-radius:9px;padding:20px;box-shadow:0 5px 17px rgba(26,45,38,.035)}.kb1005-side-card h2{margin:0;font-family:var(--font-display),serif;font-size:23px;line-height:1;color:#15372e}.kb1005-side-card p{margin:9px 0 15px;font-size:12px;line-height:1.45;color:#63706b}.kb1005-profile-head{display:flex;align-items:center;justify-content:space-between}.kb1005-profile-head strong{font:700 17px var(--font-sans),sans-serif;color:#163f33}.kb1005-progress{height:10px;border-radius:999px;background:#e7e4de;overflow:hidden;margin:13px 0 9px}.kb1005-progress span{display:block;height:100%;border-radius:inherit;background:#195442}.kb1005-side-cta{width:100%;height:39px;border-radius:5px;border:1px solid #bfd1c9;background:#edf5f1;color:#163e32;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer}.kb1005-side-actions{border:1px solid #e0dbd1;border-radius:7px;overflow:hidden}.kb1005-side-actions button{width:100%;height:49px;border:0;border-bottom:1px solid #e6e1d8;background:#fff;display:grid;grid-template-columns:27px 1fr auto;align-items:center;text-align:left;padding:0 12px;color:#17382f;font-size:12px;font-weight:700;cursor:pointer}.kb1005-side-actions button:last-child{border-bottom:0}.kb1005-attention-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.kb1005-attention-head h2{font-size:21px}.kb1005-link-button{border:0;background:transparent;color:#174737;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}.kb1005-attention-count{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;background:#eeeae2;font:700 11px var(--font-sans),sans-serif}.kb1005-attention-item{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid #eee9df}.kb1005-attention-thumb{width:54px;height:48px;border-radius:5px;background:#e8e4dc;overflow:hidden}.kb1005-attention-thumb img{width:100%;height:100%;object-fit:cover}.kb1005-attention-item strong{display:block;font-size:11px;color:#17392f}.kb1005-attention-item span{display:block;margin-top:3px;font-size:10px;color:#6a7470}.kb1005-attention-item button{border:0;background:transparent;color:#174737;font-size:18px;cursor:pointer}.kb1005-impact{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center;background:linear-gradient(135deg,#fbfaf6,#f1eee6)}.kb1005-impact-icon{width:54px;height:54px;border-radius:50%;background:#e9eee8;display:flex;align-items:center;justify-content:center;font-size:24px;color:#195442}.kb1005-impact h2{font-size:18px}.kb1005-impact p{margin-bottom:0}.kb1005-empty{grid-column:1/-1;padding:54px 26px;text-align:center;border:1px dashed #d8d2c7;border-radius:10px;background:rgba(255,255,255,.62)}.kb1005-empty h3{margin:0 0 7px;font-family:var(--font-display),serif;font-size:24px;color:#17352b}.kb1005-empty p{margin:0 auto 17px;max-width:430px;font-size:13px;line-height:1.55;color:#66706b}.kb1005-empty button{height:40px;border-radius:6px;border:1px solid #174737;background:#174737;color:#fff;padding:0 16px;font-size:12px;font-weight:700;cursor:pointer}.kb1005-error{margin-bottom:15px;padding:12px 14px;border-radius:8px;border:1px solid #ead1cc;background:#fff5f2;color:#8b3b2f;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}.kb1005-error button{border:0;background:#8b3b2f;color:#fff;padding:7px 10px;border-radius:5px;cursor:pointer}
       @media(max-width:1180px){.kb1005-layout{grid-template-columns:1fr}.kb1005-side{grid-template-columns:repeat(2,minmax(0,1fr))}.kb1005-impact{display:none}.kb1005-intro{grid-template-columns:1fr}.kb1005-quote{display:none}}
       /* Tabs size to their own column, not the screen: on a laptop the main column is ~745px, so each of the five tabs gets ~150px. */
-      .kb1005-layout>main{container-type:inline-size}
+      .kb1005-layout>.kb1005-main{container-type:inline-size}
       @media(min-width:821px){@container (max-width:999px){.kb1005-filter-cell{gap:7px;padding:0 8px;font-size:14px;white-space:nowrap}.kb1005-filter-cell.active{font-size:13px}.kb1005-filter-cell svg{display:none}.kb1005-filter-count{min-width:22px;height:22px;padding:0 5px;font-size:11px}}@container (max-width:799px){.kb1005-filter-cell{gap:6px;padding:0 5px;font-size:13px}.kb1005-filter-cell.active{font-size:12.5px}.kb1005-filter-count{min-width:20px;height:20px;font-size:10.5px}}}
       /* Laptop card proportion lock: preserve the two-card row while scaling only
          the card internals. The monitor composition above remains authoritative. */
@@ -30477,7 +30483,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     <div className="kb1005-hero-art" aria-hidden="true"></div>
     <header className="kb1005-intro"><div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1><p>Track your projects, manage vendor activity, and move every decision forward.</p></div><div className="kb1005-quote"><b>Building What Matters.</b><em>For a Stronger Tomorrow.</em></div><span className="kb1005-intro-gap" aria-hidden="true" /><figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure></header>
     <div className={`kb1005-layout${bucket==='messages' ? ' is-messages' : ''}`}>
-      <main>
+      <div className="kb1005-main">
         <div className="kb1005-filter-cells" role="tablist" aria-label="Project filters">{tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={bucket===tab.key} className={`kb1005-filter-cell${bucket===tab.key?' active':''}`} onClick={()=>setBucket(tab.key)}>{renderTabIcon(tab.icon)}<span>{tab.label}</span>{tab.key !== 'messages' || tab.count > 0 ? <span className="kb1005-filter-count" aria-label={tab.key === 'messages' ? `${tab.count} unread messages` : undefined}>{tab.count}</span> : null}</button>)}</div>
         {bucket==='messages' ? (
           <React.Suspense fallback={<div className="kb1005-empty"><p>Loading messages…</p></div>}>
@@ -30488,7 +30494,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
         {myProjectsFetchError ? <div className="kb1005-error"><span>We couldn't refresh your projects.</span><button type="button" onClick={onRetryMyProjects}>Retry</button></div> : null}
         <div className={`kb1005-card-grid${viewMode==='list'?' list':''}`}>{loading ? [0,1,2,3].map(i=><div key={i} className="kb1005-empty" style={{minHeight:220}}><p>Loading project…</p></div>) : visible.length ? visible.map(renderCard) : <div className="kb1005-empty">{bucket==='active'?<MyProjectsEmptyArt />:null}<h3>{bucket==='completed'?'No completed projects yet.':bucket==='drafts'?'No drafts right now.':bucket==='archived'?'Nothing archived.':bucket==='attention'?'Nothing needs your attention.':'No active projects yet.'}</h3><p>{bucket==='active'?'Post your first project and vendor responses will collect here in one place.':'This view will fill automatically as projects move through their lifecycle.'}</p>{bucket==='active'||bucket==='drafts'?<button type="button" onClick={onPost}><MyProjectsIcon kind="plus" />Post a project</button>:null}{bucket==='active'?<div className="kb1005-empty-foot"><span/><em>A stronger tomorrow starts here</em><span/></div>:null}</div>}</div>
         </>}
-      </main>
+      </div>
       <aside className="kb1005-side">
         {(() => {
           if (startedDismissed || loading || churchProfileDone === null) return null;
@@ -32728,7 +32734,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     { key:'share', label:'↗ Share', onClick:shareProjectFromDetail },
   ];
   return (
-    <main className="kb-project-preview-page kb-project-detail-reference" id="kb-project-detail-main">
+    <div className="kb-project-preview-page kb-project-detail-reference" id="kb-project-detail-main">
       <style>{`
         body.kb-project-detail-open .topnav{display:flex!important;position:relative!important;top:auto!important;}
         body.kb-project-detail-open{overflow-x:hidden!important;}
@@ -33186,7 +33192,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
 
@@ -33280,7 +33286,7 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
   };
 
   return (
-    <main className="kb-saved-projects-fullbleed-page" style={{minHeight:'100vh',width:'100%',maxWidth:'none',margin:0,backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND,backgroundSize:'cover',backgroundPosition:'center top',padding:'34px clamp(18px,4vw,52px) 86px',fontFamily:"var(--font-sans),sans-serif"}}>
+    <div className="kb-saved-projects-fullbleed-page" style={{minHeight:'100vh',width:'100%',maxWidth:'none',margin:0,backgroundImage:KB_WORKSPACE_CLAY_BACKGROUND,backgroundSize:'cover',backgroundPosition:'center top',padding:'34px clamp(18px,4vw,52px) 86px',fontFamily:"var(--font-sans),sans-serif"}}>
       <div style={{width:'100%',maxWidth:'none',margin:0}}>
         <button type="button" onClick={() => nav('projects')} style={{border:'1px solid rgba(28,40,20,0.12)',background:'#fffdf8',borderRadius:999,padding:'9px 14px',fontSize:12,fontWeight:800,color:'#1C2814',cursor:'pointer',marginBottom:20}}>Back to Marketplace</button>
         <section style={{display:'grid',gap:12,marginBottom:24}}>
@@ -33313,7 +33319,7 @@ function SavedProjectsScreen({ nav = () => {}, role = '', currentUser = null, sh
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -34336,7 +34342,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
       ) : null}
 
       {isChurchMarketplace ? (
-        <main className="kb-marketplace-directory-body" ref={directoryRef}>
+        <div className="kb-marketplace-directory-body" ref={directoryRef}>
           <section className="kb-marketplace-featured" aria-labelledby="kb-marketplace-featured-title">
             <div className="kb-marketplace-section-head">
               <div>
@@ -34431,7 +34437,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               </div>
             ) : null}
           </section>
-        </main>
+        </div>
       ) : (
       <div className="kb-live-shell" ref={directoryRef}>
         <div ref={isChurchMarketplace ? directoryRef : null} className={isChurchMarketplace ? 'kb-church-marketplace-directory-panel' : 'kb-market-ivory-command-basin kb-market-ivory-command-basin--find-vendors kb-audit-vine-seam'}>
@@ -35381,7 +35387,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const vendorProfileTab = tab === 'work' || tab === 'reviews' ? tab : 'about';
 
   return (
-    <main className="kb-project-preview-page kb-project-detail-reference kb-vendor-project-detail-clone" id="kb-project-detail-main" style={vendorDetailRootStyle}>
+    <div className="kb-project-preview-page kb-project-detail-reference kb-vendor-project-detail-clone" id="kb-project-detail-main" style={vendorDetailRootStyle}>
       <style>{`
         /* Keep the exact shared workspace nav, but disable sticky capture only on
            Project Detail so full-page screenshots never stitch it into the middle. */
@@ -35771,7 +35777,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
           </div>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }
 
@@ -68420,7 +68426,7 @@ function GetPluggedInAdmin({showToast, previewData=null, founderGrowthContext=nu
     {error && <div className="gpi-alert"><div><strong>Get Plugged In could not load</strong><span>{error}</span></div><button type="button" onClick={()=>setRefreshKey(value=>value+1)}>Try again</button></div>}
 
     <div className="gpi-workspace">
-      <main className="gpi-list-panel">
+      <div className="gpi-list-panel">
         <div className="gpi-list-heading"><div><span>{mode === "queue" ? "Priority order" : mode === "opportunities" ? "Opportunity inventory" : mode === "organizations" ? "Participating organizations" : "Organization access requests"}</span><strong>{loading ? "Loading" : `${mode === "queue" ? queueItems.length : mode === "opportunities" ? opportunities.length : mode === "organizations" ? organizations.length : visibleAccessRequests.length} shown`}</strong></div>{mode === "queue" && !loading && <div className="gpi-severity-summary"><span><i className="critical"/>{numberValue(queueSummary?.critical_count)} critical</span><span><i className="high"/>{numberValue(queueSummary?.high_count)} high</span><span><i className="medium"/>{numberValue(queueSummary?.medium_count)} medium</span></div>}{mode === "access" && !loading && <div className="gpi-access-summary"><span><i className={pendingAccessRequestCount ? "waiting" : "clear"}/>{pendingAccessRequestCount} pending</span></div>}</div>
         {loading ? <LoadingRows count={5}/> : mode === "queue" ? (
           queueItems.length ? <div className="gpi-queue-list">{queueItems.map((item,index)=><button type="button" className="gpi-queue-row" key={`${item.queue_key}-${item.entity_id}-${index}`} onClick={()=>openDetail(item.entity_type,item.entity_id)}><span className={`gpi-priority ${item.severity}`}>{String(item.severity || "medium").slice(0,1).toUpperCase()}</span><span className="gpi-row-copy"><span><b>{item.title || item.organization_name || "Untitled item"}</b><StatusPill value={item.current_status}/></span><small>{item.organization_name}</small><p>{item.reason}</p><em>{QUEUE_LABELS[item.queue_key] || titleCase(item.queue_key)}</em></span><span className="gpi-row-next"><small>{item.due_at ? `Due ${formatWhen(item.due_at)}` : "Next best action"}</small><strong>{item.recommended_action}</strong></span><GpiIcon name="arrow"/></button>)}</div> : <EmptyState title="The queue is clear" copy="There are no operational items waiting in this view. New review, freshness, delivery, and follow-up signals will appear here."/>
@@ -68431,7 +68437,7 @@ function GetPluggedInAdmin({showToast, previewData=null, founderGrowthContext=nu
         ) : (
           visibleAccessRequests.length ? <div className="gpi-card-list">{visibleAccessRequests.map(item=><button type="button" className="gpi-record-row gpi-access-row" key={item.request_id} onClick={()=>openAccessRequest(item)}><span className="gpi-record-mark access"><GpiIcon name="access"/></span><span className="gpi-row-copy"><span><b>{item.organization_name}</b><StatusPill value={item.status}/></span><small>{item.requester_email || "Requester email unavailable"}</small><p>{item.request_message || "No request note supplied."}</p></span><span className="gpi-record-stats"><span><strong>{titleCase(item.requested_role)}</strong><small>requested GPI role</small></span><span><strong>{titleCase(item.requester_role)}</strong><small>Marketplace role</small></span></span><GpiIcon name="arrow"/></button>)}</div> : <EmptyState title={accessRequestStatus === "pending" ? "No host access requests waiting" : "No requests in this view"} copy={accessRequestStatus === "pending" ? "New church or ministry access claims will appear here for an explicit FaithBid review before membership is granted." : "Choose another request status to review organization access history."}/>
         )}
-      </main>
+      </div>
       {mode === "access" ? <AccessRequestDetailRail request={detail?.access_request || null} onClose={()=>{setDetail(null);setDetailError("");}} onReview={reviewAccessRequest} busy={accessReviewBusy}/> : <DetailRail loading={detailLoading} error={detailError} detail={detail} onClose={()=>{setDetail(null);setDetailError("");}} onReviewOpportunity={reviewOpportunityRevision} onPublishOpportunity={publishReviewedOpportunity} onRequestChanges={requestOpportunityChanges} onVerifyPrimaryEndpoint={verifyOrganizationPrimaryEndpoint} onVerifyOrganization={verifyOrganizationIdentity} onSuspendOrganization={suspendTrustedOrganization} onReinstateOrganization={reinstateTrustedOrganization} onRevokeOrganizationVerification={revokeTrustedOrganizationVerification} onCloseOrganization={closeTrustedOrganization} actionBusy={opportunityReviewBusy} organizationActionBusy={organizationTrustBusy}/>}
     </div>
   </section>;

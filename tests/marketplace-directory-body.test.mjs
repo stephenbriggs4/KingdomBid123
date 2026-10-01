@@ -9,7 +9,7 @@ const nearbyMigration = readFileSync(new URL('../supabase/migrations/20260915170
 const savedVendorMigration = readFileSync(new URL('../supabase/migrations/20260916145426_harden_saved_vendors_ownership.sql', import.meta.url), 'utf8');
 
 test('church marketplace keeps the existing hero and replaces only the body', () => {
-  assert.match(app, /<ChurchMarketplaceHero[\s\S]*?<main className="kb-marketplace-directory-body"/);
+  assert.match(app, /<ChurchMarketplaceHero[\s\S]*?<div className="kb-marketplace-directory-body"/);
   assert.match(app, /const KB_MARKETPLACE_DIRECTORY_CATEGORIES = Object\.freeze\(\[/);
   assert.match(app, /<ChurchMarketplaceHero[\s\S]*?categories=\{KB_MARKETPLACE_DIRECTORY_CATEGORIES\}/);
 });
