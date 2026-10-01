@@ -1,0 +1,318 @@
+{
+  "generatedBy": "scripts/check-lint-baseline.mjs",
+  "scope": [
+    "src",
+    "scripts",
+    "tests",
+    "vite.config.js",
+    "eslint.config.js"
+  ],
+  "errors": 533,
+  "warnings": 103,
+  "files": {
+    "src/AccountScreens.jsx": {
+      "errors": 14,
+      "warnings": 0,
+      "rules": {
+        "no-constant-binary-expression": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "no-unused-vars": {
+          "errors": 13,
+          "warnings": 0
+        }
+      }
+    },
+    "src/AdminPrivacyRequests.jsx": {
+      "errors": 1,
+      "warnings": 0,
+      "rules": {
+        "react-hooks/set-state-in-effect": {
+          "errors": 1,
+          "warnings": 0
+        }
+      }
+    },
+    "src/AdminScreen.jsx": {
+      "errors": 23,
+      "warnings": 9,
+      "rules": {
+        "no-unused-vars": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-hooks/exhaustive-deps": {
+          "errors": 0,
+          "warnings": 9
+        },
+        "react-hooks/immutability": {
+          "errors": 4,
+          "warnings": 0
+        },
+        "react-hooks/purity": {
+          "errors": 8,
+          "warnings": 0
+        },
+        "react-hooks/refs": {
+          "errors": 3,
+          "warnings": 0
+        },
+        "react-hooks/set-state-in-effect": {
+          "errors": 7,
+          "warnings": 0
+        }
+      }
+    },
+    "src/AdminVendorCredentials.jsx": {
+      "errors": 1,
+      "warnings": 0,
+      "rules": {
+        "react-hooks/set-state-in-effect": {
+          "errors": 1,
+          "warnings": 0
+        }
+      }
+    },
+    "src/AnalyticsScreen.jsx": {
+      "errors": 1,
+      "warnings": 0,
+      "rules": {
+        "react-hooks/set-state-in-effect": {
+          "errors": 1,
+          "warnings": 0
+        }
+      }
+    },
+    "src/App.jsx": {
+      "errors": 436,
+      "warnings": 88,
+      "rules": {
+        "no-constant-binary-expression": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "no-irregular-whitespace": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "no-unused-vars": {
+          "errors": 214,
+          "warnings": 0
+        },
+        "no-useless-escape": {
+          "errors": 7,
+          "warnings": 0
+        },
+        "parser": {
+          "errors": 0,
+          "warnings": 4
+        },
+        "react-hooks/exhaustive-deps": {
+          "errors": 0,
+          "warnings": 84
+        },
+        "react-hooks/immutability": {
+          "errors": 15,
+          "warnings": 0
+        },
+        "react-hooks/preserve-manual-memoization": {
+          "errors": 4,
+          "warnings": 0
+        },
+        "react-hooks/purity": {
+          "errors": 17,
+          "warnings": 0
+        },
+        "react-hooks/refs": {
+          "errors": 44,
+          "warnings": 0
+        },
+        "react-hooks/set-state-in-effect": {
+          "errors": 131,
+          "warnings": 0
+        },
+        "react-hooks/static-components": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-hooks/use-memo": {
+          "errors": 1,
+          "warnings": 0
+        }
+      }
+    },
+    "src/Attachments.jsx": {
+      "errors": 5,
+      "warnings": 0,
+      "rules": {
+        "react-hooks/set-state-in-effect": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-refresh/only-export-components": {
+          "errors": 4,
+          "warnings": 0
+        }
+      }
+    },
+    "src/ChurchIntelligence.jsx": {
+      "errors": 6,
+      "warnings": 0,
+      "rules": {
+        "no-unused-vars": {
+          "errors": 6,
+          "warnings": 0
+        }
+      }
+    },
+    "src/GetPluggedInScreen.jsx": {
+      "errors": 20,
+      "warnings": 3,
+      "rules": {
+        "react-hooks/exhaustive-deps": {
+          "errors": 0,
+          "warnings": 3
+        },
+        "react-hooks/purity": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-hooks/set-state-in-effect": {
+          "errors": 19,
+          "warnings": 0
+        }
+      }
+    },
+    "src/GrowthEngine.jsx": {
+      "errors": 5,
+      "warnings": 0,
+      "rules": {
+        "react-hooks/preserve-manual-memoization": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-hooks/set-state-in-effect": {
+          "errors": 4,
+          "warnings": 0
+        }
+      }
+    },
+    "src/main.jsx": {
+      "errors": 1,
+      "warnings": 0,
+      "rules": {
+        "react-refresh/only-export-components": {
+          "errors": 1,
+          "warnings": 0
+        }
+      }
+    },
+    "src/MessagesTab.jsx": {
+      "errors": 5,
+      "warnings": 2,
+      "rules": {
+        "react-hooks/exhaustive-deps": {
+          "errors": 0,
+          "warnings": 2
+        },
+        "react-hooks/immutability": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-hooks/purity": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-hooks/refs": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-hooks/set-state-in-effect": {
+          "errors": 2,
+          "warnings": 0
+        }
+      }
+    },
+    "src/ProfileScreen.jsx": {
+      "errors": 7,
+      "warnings": 0,
+      "rules": {
+        "react-hooks/set-state-in-effect": {
+          "errors": 2,
+          "warnings": 0
+        },
+        "react-hooks/static-components": {
+          "errors": 5,
+          "warnings": 0
+        }
+      }
+    },
+    "src/ReviewsScreen.jsx": {
+      "errors": 2,
+      "warnings": 1,
+      "rules": {
+        "react-hooks/exhaustive-deps": {
+          "errors": 0,
+          "warnings": 1
+        },
+        "react-hooks/immutability": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-hooks/set-state-in-effect": {
+          "errors": 1,
+          "warnings": 0
+        }
+      }
+    },
+    "src/SettingsScreen.jsx": {
+      "errors": 1,
+      "warnings": 0,
+      "rules": {
+        "react-hooks/set-state-in-effect": {
+          "errors": 1,
+          "warnings": 0
+        }
+      }
+    },
+    "src/UnsubscribeScreen.jsx": {
+      "errors": 1,
+      "warnings": 0,
+      "rules": {
+        "react-hooks/set-state-in-effect": {
+          "errors": 1,
+          "warnings": 0
+        }
+      }
+    },
+    "src/VendorCredentialsPanel.jsx": {
+      "errors": 3,
+      "warnings": 0,
+      "rules": {
+        "react-hooks/preserve-manual-memoization": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-hooks/set-state-in-effect": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "react-refresh/only-export-components": {
+          "errors": 1,
+          "warnings": 0
+        }
+      }
+    },
+    "src/WorkspaceScreens.jsx": {
+      "errors": 1,
+      "warnings": 0,
+      "rules": {
+        "react-hooks/set-state-in-effect": {
+          "errors": 1,
+          "warnings": 0
+        }
+      }
+    }
+  }
+}
