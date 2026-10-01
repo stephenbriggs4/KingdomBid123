@@ -10,7 +10,11 @@ function applyProfileScreenDependencies(dependencies = {}) {
 
 function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToast, nav, initialTab, charterFirstRun = false}){
   const profileReturnTarget = getReturnNavigationTarget(readReturnContext(), "projects");
-  const [tab, setTab] = useState(initialTab || "profile");
+  const [profileScrollTarget] = useState(() => {
+    try { return window.sessionStorage.getItem("kb_profile_scroll_to"); }
+    catch { return null; }
+  });
+  const [tab, setTab] = useState(initialTab || (profileScrollTarget ? "vendor" : "profile"));
   const [loading, setLoading] = useState(true);
   const [charterFirstRunActive, setCharterFirstRunActive] = useState(Boolean(charterFirstRun));
   const [charterStep, setCharterStep] = useState(1);
@@ -24,13 +28,10 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
   }, [charterFirstRun]);
 
   useEffect(() => {
-    let targetId = null;
-    try { targetId = window.sessionStorage.getItem('kb_profile_scroll_to'); } catch { /* sessionStorage unavailable -- non-fatal */ }
-    if (!targetId) return;
-    setTab('vendor');
+    if (!profileScrollTarget) return;
     let attempts = 0;
     const tryScroll = () => {
-      const el = document.getElementById(targetId);
+      const el = document.getElementById(profileScrollTarget);
       if (el) {
         el.scrollIntoView({ behavior: 'instant', block: 'start' });
         try { window.sessionStorage.removeItem('kb_profile_scroll_to'); } catch { /* non-fatal */ }
@@ -41,7 +42,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
     };
     const t = setTimeout(tryScroll, 100);
     return () => clearTimeout(t);
-  }, []);
+  }, [profileScrollTarget]);
 
   useEffect(() => {
     const PROFILE_TAB_TITLES = {
