@@ -20,7 +20,7 @@ test("supabaseConfigured/supabaseConfigError reflect real env presence, declared
 test("main.jsx renders a configuration-missing screen instead of mounting App when unconfigured", () => {
   assert.match(mainSource, /supabaseConfigured/);
   assert.match(mainSource, /ConfigurationMissingScreen/);
-  assert.match(mainSource, /supabaseConfigured \? <App \/> : <ConfigurationMissingScreen \/>/);
+  assert.match(mainSource, /supabaseConfigured \? <>\s*<App \/>\s*<ProductionDevelopmentWarning \/>\s*<\/> : <ConfigurationMissingScreen \/>/);
 });
 
 test("ordinary Vite development warns when configured against production without breaking preview", () => {
@@ -28,6 +28,7 @@ test("ordinary Vite development warns when configured against production without
   assert.match(clientSource, /viteEnv\.DEV/);
   assert.match(clientSource, /supabaseProjectRef === FAITHBID_PRODUCTION_PROJECT_REF/);
   assert.match(clientSource, /export const supabaseProductionDevWarning/);
+  assert.match(mainSource, /Local preview connected to live production data/);
   assert.match(clientSource, /export const supabaseConfigured = Boolean\(supabaseUrl && supabaseAnonKey\)/);
   assert.match(clientSource, /console\.warn/);
 });
