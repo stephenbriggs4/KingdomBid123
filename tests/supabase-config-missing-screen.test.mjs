@@ -4,6 +4,7 @@ import test from "node:test";
 
 const clientSource = fs.readFileSync(new URL("../src/supabaseClient.js", import.meta.url), "utf8");
 const mainSource = fs.readFileSync(new URL("../src/main.jsx", import.meta.url), "utf8");
+const startupSource = fs.readFileSync(new URL("../src/StartupScreens.jsx", import.meta.url), "utf8");
 
 test("supabaseClient no longer falls back to a hardcoded production URL/key", () => {
   assert.doesNotMatch(clientSource, /fallbackSupabaseUrl/);
@@ -20,7 +21,7 @@ test("supabaseConfigured/supabaseConfigError reflect real env presence, declared
 test("main.jsx renders a configuration-missing screen instead of mounting App when unconfigured", () => {
   assert.match(mainSource, /supabaseConfigured/);
   assert.match(mainSource, /ConfigurationMissingScreen/);
-  assert.match(mainSource, /supabaseConfigured \? <>\s*<App \/>\s*<ProductionDevelopmentWarning \/>\s*<\/> : <ConfigurationMissingScreen \/>/);
+  assert.match(mainSource, /supabaseConfigured \? <>\s*<App \/>\s*<ProductionDevelopmentWarning visible=\{supabaseProductionDevWarning\} \/>\s*<\/> : <ConfigurationMissingScreen message=\{supabaseConfigError\} \/>/);
 });
 
 test("ordinary Vite development warns when configured against production without breaking preview", () => {
@@ -28,7 +29,7 @@ test("ordinary Vite development warns when configured against production without
   assert.match(clientSource, /viteEnv\.DEV/);
   assert.match(clientSource, /supabaseProjectRef === FAITHBID_PRODUCTION_PROJECT_REF/);
   assert.match(clientSource, /export const supabaseProductionDevWarning/);
-  assert.match(mainSource, /Local preview connected to live production data/);
+  assert.match(startupSource, /Local preview connected to live production data/);
   assert.match(clientSource, /export const supabaseConfigured = Boolean\(supabaseUrl && supabaseAnonKey\)/);
   assert.match(clientSource, /console\.warn/);
 });
