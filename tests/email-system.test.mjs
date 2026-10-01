@@ -34,6 +34,12 @@ has(leaseMig, /for update skip locked/, 'outbox claims serialize competing worke
 has(leaseMig, /claim_expires_at/, 'worker claims have an expiry and can be recovered');
 has(leaseMig, /grant execute[\s\S]*to service_role/, 'only the service role may claim outbox rows');
 has(worker, /rpc\("kb_claim_email_outbox_v1"/, 'worker uses the database claim primitive');
+has(leaseMig, /kb_renew_email_outbox_lease_v1/, 'workers can renew only the leases they still own');
+has(leaseMig, /o\.worker_id = p_worker_id/, 'stale workers cannot renew reclaimed rows');
+has(worker, /rpc\("kb_renew_email_outbox_lease_v1"/, 'workers renew each owned batch immediately before external delivery');
+has(worker, /"idempotency-key": idempotencyKey/, 'provider sends use durable idempotency keys');
+has(worker, /`faithbid-outbox\/\$\{row\.id\}`/, 'instant retries reuse the outbox row identity');
+has(worker, /sha256Hex\(ids\.slice\(\)\.sort\(\)\.join\(","\)\)/, 'digest retries derive identity from the exact owned row set');
 has(worker, /eq\("worker_id", workerId\)/, 'worker completion is scoped to its own lease');
 has(worker, /esc\(row\.subject\)/, 'user-authored text is escaped in emails');
 

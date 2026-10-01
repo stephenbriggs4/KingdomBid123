@@ -94,7 +94,12 @@ function itemBody(payload: Record<string, unknown>) {
   return body ? `<p style="font-size:15px;line-height:1.65;color:#5d5548;margin:0">${esc(body)}</p>` : "";
 }
 
-async function send(to: string, subject: string, html: string, unsubUrl: string) {
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(value));
+  return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function send(to: string, subject: string, html: string, unsubUrl: string, idempotencyKey: string) {
   const headers: Record<string, string> = {};
   if (unsubUrl) {
     headers["List-Unsubscribe"] = `<${unsubUrl}>, <mailto:${SUPPORT_EMAIL}?subject=unsubscribe>`;
@@ -102,7 +107,11 @@ async function send(to: string, subject: string, html: string, unsubUrl: string)
   }
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+    headers: {
+      authorization: `Bearer ${RESEND_API_KEY}`,
+      "content-type": "application/json",
+      "idempotency-key": idempotencyKey,
+    },
     body: JSON.stringify({ from: RESEND_FROM_EMAIL, to: [to], subject, html, headers }),
     signal: AbortSignal.timeout(15_000),
   });
@@ -140,6 +149,18 @@ async function claimRows(digest: boolean, limit: number, workerId: string): Prom
   return (data || []) as OutboxRow[];
 }
 
+async function renewOwnedRows(rows: OutboxRow[], workerId: string): Promise<OutboxRow[]> {
+  if (!rows.length) return [];
+  const { data, error } = await admin.rpc("kb_renew_email_outbox_lease_v1", {
+    p_ids: rows.map((row) => row.id),
+    p_worker_id: workerId,
+    p_lease_seconds: 300,
+  });
+  if (error) throw error;
+  const owned = new Set((data || []).map((row: { id: string }) => row.id));
+  return rows.filter((row) => owned.has(row.id));
+}
+
 async function markFailed(row: Pick<OutboxRow, "id" | "attempts">, workerId: string, error: unknown) {
   const exhausted = row.attempts >= 5;
   await admin.from("email_outbox").update({
@@ -156,7 +177,9 @@ async function processInstant() {
   const workerId = crypto.randomUUID();
   const rows = await claimRows(false, 25, workerId);
   let sent = 0, skipped = 0, failed = 0;
-  for (const row of rows) {
+  for (const claimedRow of rows) {
+    const [row] = await renewOwnedRows([claimedRow], workerId);
+    if (!row) continue;
     try {
       const to = await recipient(row.user_id);
       const template = TEMPLATES[row.template];
@@ -172,7 +195,7 @@ async function processInstant() {
       const unsub = await unsubscribeUrl(row.user_id);
       const unsubPage = await unsubscribePageUrl(row.user_id);
       const html = layout({ heading: template.heading, bodyHtml: itemBody(row.payload), ctaLabel: template.cta, ctaUrl: PUBLIC_URL ? `${PUBLIC_URL}/${template.path}` : "", unsubUrl: unsubPage || unsub });
-      const messageId = await send(to, row.subject, html, unsub);
+      const messageId = await send(to, row.subject, html, unsub, `faithbid-outbox/${row.id}`);
       await admin.from("email_outbox").update({
         status: "sent", sent_at: new Date().toISOString(), provider_message_id: messageId || null,
         last_error: null, worker_id: null, claimed_at: null, claim_expires_at: null,
@@ -192,7 +215,7 @@ async function processDigest() {
   const userIds = Array.from(new Set(claimedRows.map((row) => row.user_id))).slice(0, 50);
   let sent = 0, skipped = 0, failed = 0;
   for (const userId of userIds) {
-    const rows = claimedRows.filter((row) => row.user_id === userId);
+    const rows = await renewOwnedRows(claimedRows.filter((row) => row.user_id === userId), workerId);
     if (!rows.length) continue;
     const ids = rows.map((row) => row.id);
     try {
@@ -214,7 +237,14 @@ async function processDigest() {
         bodyHtml: `<ul style="padding-left:18px;margin:0;font-size:15px;line-height:1.55">${items}</ul>`,
         ctaLabel: "Open FaithBid", ctaUrl: PUBLIC_URL ? `${PUBLIC_URL}/#inbox` : "", unsubUrl: unsubPage || unsub,
       });
-      const messageId = await send(to, `Your FaithBid summary: ${rows.length} update${rows.length === 1 ? "" : "s"}`, html, unsub);
+      const digestIdentity = await sha256Hex(ids.slice().sort().join(","));
+      const messageId = await send(
+        to,
+        `Your FaithBid summary: ${rows.length} update${rows.length === 1 ? "" : "s"}`,
+        html,
+        unsub,
+        `faithbid-digest/${digestIdentity}`,
+      );
       await admin.from("email_outbox").update({
         status: "sent", sent_at: new Date().toISOString(), provider_message_id: messageId || null,
         last_error: null, worker_id: null, claimed_at: null, claim_expires_at: null,

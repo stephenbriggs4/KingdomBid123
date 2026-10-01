@@ -84,3 +84,32 @@ grant execute on function public.kb_claim_email_outbox_v1(boolean, integer, uuid
 
 comment on function public.kb_claim_email_outbox_v1(boolean, integer, uuid, integer) is
   'Service-only outbox claim. Uses row locks plus expiring leases; returned rows are the exact owned batch.';
+
+create or replace function public.kb_renew_email_outbox_lease_v1(
+  p_ids uuid[],
+  p_worker_id uuid,
+  p_lease_seconds integer default 300
+)
+returns table(id uuid)
+language sql
+security definer
+set search_path = ''
+as $$
+  update public.email_outbox o
+  set claim_expires_at = clock_timestamp()
+    + make_interval(secs => greatest(30, least(coalesce(p_lease_seconds, 300), 1800)))
+  where o.id = any(coalesce(p_ids, '{}'::uuid[]))
+    and cardinality(coalesce(p_ids, '{}'::uuid[])) between 1 and 200
+    and p_worker_id is not null
+    and o.status = 'sending'
+    and o.worker_id = p_worker_id
+  returning o.id;
+$$;
+
+revoke all on function public.kb_renew_email_outbox_lease_v1(uuid[], uuid, integer)
+  from public, anon, authenticated;
+grant execute on function public.kb_renew_email_outbox_lease_v1(uuid[], uuid, integer)
+  to service_role;
+
+comment on function public.kb_renew_email_outbox_lease_v1(uuid[], uuid, integer) is
+  'Service-only lease renewal. Returns only rows still owned by the requesting worker so stale workers cannot send reclaimed work.';
