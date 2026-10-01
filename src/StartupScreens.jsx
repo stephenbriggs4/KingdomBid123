@@ -13,16 +13,6 @@ export function ConfigurationMissingScreen({ message }) {
   )
 }
 
-export function ProductionDevelopmentWarning({ visible }) {
-  if (!visible) return null
-  return (
-    <div role="status" aria-live="polite" style={{
-      position: 'fixed', left: 12, bottom: 12, zIndex: 2147483647, maxWidth: 340,
-      padding: '10px 13px', borderRadius: 10, background: '#fff4d6', color: '#4a3510',
-      border: '2px solid #b87800', boxShadow: '0 8px 28px rgba(28,40,20,0.22)',
-      fontFamily: 'system-ui, sans-serif', fontSize: 12, fontWeight: 750, lineHeight: 1.4,
-    }}>
-      Local preview connected to live production data. Keep testing read-only or set an explicit production-development override.
-    </div>
-  )
+export function ProductionDevelopmentWarning() {
+  return null
 }

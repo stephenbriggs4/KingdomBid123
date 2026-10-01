@@ -24,6 +24,26 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
   }, [charterFirstRun]);
 
   useEffect(() => {
+    let targetId = null;
+    try { targetId = window.sessionStorage.getItem('kb_profile_scroll_to'); } catch { /* sessionStorage unavailable -- non-fatal */ }
+    if (!targetId) return;
+    setTab('vendor');
+    let attempts = 0;
+    const tryScroll = () => {
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'instant', block: 'start' });
+        try { window.sessionStorage.removeItem('kb_profile_scroll_to'); } catch { /* non-fatal */ }
+        return;
+      }
+      attempts += 1;
+      if (attempts < 20) setTimeout(tryScroll, 100);
+    };
+    const t = setTimeout(tryScroll, 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
     const PROFILE_TAB_TITLES = {
       overview: 'My Profile — FaithBid',
       profile: 'Edit Profile — FaithBid',
@@ -444,6 +464,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
     panelHd:{padding:"16px 22px 14px",background:"#fffdf8",borderBottom:"1px solid #ece4d2",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"},
     panelEyebrow:{fontFamily:"var(--font-sans),monospace",fontSize:9.5,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"#b08840"},
     panelTitle:{fontFamily:"var(--font-display),serif",fontSize:18,fontWeight:700,color:"#1C2814",letterSpacing:-0.3,marginTop:2},
+    panelIco:{flex:"none",width:34,height:34,borderRadius:"50%",background:"rgba(176,136,64,.12)",color:"#8a6729",display:"grid",placeItems:"center"},
     panelBody:{padding:"22px"},
     label:{display:"block",fontSize:11.5,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase",color:"#5a5246",marginBottom:8,fontFamily:"var(--font-sans),sans-serif"},
     labelHelper:{fontSize:11,fontWeight:500,color:"#9c917f",letterSpacing:0,textTransform:"none",marginLeft:6},
@@ -611,7 +632,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
       {/* Top bar */}
       <div style={psx.topbar}>
         <button type="button" onClick={()=>nav(profileReturnTarget?.screen || "projects")} style={psx.backPill} onMouseOver={e=>{e.currentTarget.style.background="#fffaf0";e.currentTarget.style.borderColor="#c9a45c";}} onMouseOut={e=>{e.currentTarget.style.background="#fffdf8";e.currentTarget.style.borderColor="#dfd5c2";}}>
-          <span style={{fontSize:14,lineHeight:1}}>←</span> {profileReturnTarget?.label || "Back"}
+          <span style={{fontSize:14,lineHeight:1}}>←</span> {(profileReturnTarget?.screen === "projects" && profileReturnTarget?.label === "Back to Marketplace") ? "Back to My Projects" : (profileReturnTarget?.label || "Back")}
         </button>
         <span style={{color:"#c8bfa9"}}>·</span>
         <span style={psx.crumb}>Profile</span>
@@ -901,9 +922,12 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                 )}
                 <div style={psx.panel}>
                   <div style={psx.panelHd}>
-                    <div>
-                      <div style={psx.panelEyebrow}>Public listing</div>
-                      <div style={psx.panelTitle}>Directory listing</div>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <span style={psx.panelIco}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1m4 0h1m-6 4h1m4 0h1m-6 4h1m4 0h1"/></svg></span>
+                      <div>
+                        <div style={psx.panelEyebrow}>Public listing</div>
+                        <div style={psx.panelTitle}>Business identity</div>
+                      </div>
                     </div>
                   </div>
                   <div style={psx.panelBody}>
@@ -927,6 +951,20 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                         })}
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div style={psx.panel}>
+                  <div style={psx.panelHd}>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <span style={psx.panelIco}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9Z"/></svg></span>
+                      <div>
+                        <div style={psx.panelEyebrow}>Where you work</div>
+                        <div style={psx.panelTitle}>Service area</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={psx.panelBody}>
                     <div style={psx.field}>
                       <label style={psx.label}>{normalizeDeliveryModel(vendorForm.delivery_model)==='remote' ? 'Business base (optional)' : 'Center of your on-site service area'}</label>
                       <div style={{display:'grid',gridTemplateColumns:'minmax(0,2fr) minmax(92px,0.8fr)',gap:10}} className="profile-location-grid">
@@ -938,19 +976,33 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                       </div>
                     </div>
                     {normalizeDeliveryModel(vendorForm.delivery_model) !== 'remote' && (
-                      <div style={psx.field}>
+                      <div style={{...psx.field,marginBottom:0}}>
                         <label style={psx.label}>Service radius (miles)</label>
                         <input aria-label="50" value={vendorForm.service_radius_miles || ''} onChange={e=>setV('service_radius_miles', e.target.value.replace(/[^0-9]/g,''))} placeholder="50" style={psx.input} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>
                       </div>
                     )}
+                  </div>
+                </div>
+
+                <div style={psx.panel}>
+                  <div style={psx.panelHd}>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <span style={psx.panelIco}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 3a2.83 2.83 0 0 1 4 4L7 21l-4 1 1-4Z"/></svg></span>
+                      <div>
+                        <div style={psx.panelEyebrow}>Tell your story</div>
+                        <div style={psx.panelTitle}>About</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={psx.panelBody}>
+                    <div style={psx.field}>
+                      <label style={psx.label} htmlFor="vf-tagline">Tagline<span style={psx.labelHelper}>· one line shown on your marketplace card</span></label>
+                      <input id="vf-tagline" value={vendorForm.tagline} onChange={e=>setV("tagline", e.target.value)} maxLength={100} placeholder="e.g. Audio and lighting for growing ministries" style={psx.input} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>
+                    </div>
                     <div style={psx.field}>
                       <label style={psx.label} htmlFor="vf-bio">Bio<span style={psx.labelHelper}>· public profile</span></label>
                       <textarea id="vf-bio" rows={4} value={vendorForm.bio} onChange={e=>setV("bio",e.target.value)} maxLength={500} placeholder="Describe your services and how you serve ministries…" style={psx.textarea} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>
                       <div style={{fontSize:11,color:"#9c917f",marginTop:4,textAlign:"right",fontFamily:"var(--font-sans),monospace"}}>{vendorForm.bio.length}/500</div>
-                    </div>
-                    <div style={psx.field}>
-                      <label style={psx.label} htmlFor="vf-tagline">Tagline<span style={psx.labelHelper}>· one line shown on your marketplace card</span></label>
-                      <input id="vf-tagline" value={vendorForm.tagline} onChange={e=>setV("tagline", e.target.value)} maxLength={100} placeholder="e.g. Audio and lighting for growing ministries" style={psx.input} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>
                     </div>
                     <div style={psx.field}>
                       <label style={psx.label}>Project budget range<span style={psx.labelHelper}>· helps churches know if you're the right fit</span></label>
@@ -963,11 +1015,25 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                       <label style={psx.label} htmlFor="vf-response">Typical response time<span style={psx.labelHelper}>· shown to churches on your profile</span></label>
                       <input id="vf-response" value={vendorForm.response_time} onChange={e=>setV("response_time", e.target.value)} maxLength={60} placeholder="e.g. Usually responds within 24 hours" style={psx.input} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>
                     </div>
-                    <div style={psx.field}>
+                    <div style={{...psx.field,marginBottom:0}}>
                       <label style={psx.label} htmlFor="vf-faith">Faith statement<span style={psx.labelHelper}>· public</span></label>
                       <textarea id="vf-faith" rows={3} value={vendorForm.faith_statement} onChange={e=>setV("faith_statement",e.target.value)} maxLength={300} placeholder="How does your faith shape your work?" style={psx.textarea} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>
                       <div style={{fontSize:11,color:"#9c917f",marginTop:4,textAlign:"right",fontFamily:"var(--font-sans),monospace"}}>{vendorForm.faith_statement.length}/300</div>
                     </div>
+                  </div>
+                </div>
+
+                <div id="profile-specialties-panel" style={{...psx.panel,scrollMarginTop:80}}>
+                  <div style={psx.panelHd}>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <span style={psx.panelIco}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="m20.6 11.1-8.5-8.5H3v9.1l8.5 8.5a2 2 0 0 0 2.8 0l6.3-6.3a2 2 0 0 0 0-2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span>
+                      <div>
+                        <div style={psx.panelEyebrow}>Get matched right</div>
+                        <div style={psx.panelTitle}>Specialties</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={psx.panelBody}>
                     <div style={{...psx.field,marginBottom:0}}>
                       <label style={psx.label} htmlFor="vf-tags">Skills / tags<span style={psx.labelHelper}>· press Enter to add</span></label>
                       <div style={{display:"flex",flexWrap:"wrap",gap:6,padding:"10px 12px",borderRadius:12,border:"1.5px solid #dfd5c2",background:"#fffdf8",minHeight:46,alignItems:"center"}}>

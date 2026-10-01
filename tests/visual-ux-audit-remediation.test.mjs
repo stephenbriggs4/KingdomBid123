@@ -45,8 +45,8 @@ test("mobile navigation does not duplicate Admin Review", () => {
 });
 
 test("project cards retain meaningful imagery and mobile controls remain operable", () => {
-  assert.match(app, /kb1004-project-card\{grid-template-columns:176px/);
-  assert.match(app, /kb1005-project-card\{grid-template-columns:176px/);
+  assert.match(app, /\.kb1004-project-card\{[\s\S]{0,120}grid-template-columns:168px/);
+  assert.match(app, /\.kb1005-project-card\{[\s\S]{0,120}grid-template-columns:168px/);
   assert.match(app, /kb1004-view-toggle\{display:flex\}/);
   assert.match(app, /kb1005-view-toggle\{display:flex\}/);
 });

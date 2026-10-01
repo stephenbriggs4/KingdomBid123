@@ -29846,13 +29846,13 @@ function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse,
     const bid = card.bid;
     const isPending = card.badge?.tone === 'bidding';
     return (
-      <article key={card.id} className="kb1004-project-card">
+      <article key={card.id} className={`kb1004-project-card is-${card.badge?.tone || 'neutral'}`}>
         <div className="kb1004-card-media">
           {card.image ? <img src={card.image} alt="" loading="lazy" onError={handleKbImageError}/> : <div className="kb1004-card-fallback">FB</div>}
+          <span className={`kb1004-status is-${card.badge?.tone || 'neutral'}`}>{card.badge?.label || 'Project'}</span>
         </div>
         <div className="kb1004-card-main">
           <div className="kb1004-card-topline">
-            <span className={`kb1004-status is-${card.badge?.tone || 'neutral'}`}>{card.badge?.label || 'Project'}</span>
             <div className="kb1004-card-menu-wrap">
               <button type="button" className="kb1004-more" aria-label={`More actions for ${card.title}`} onClick={(e)=>{e.stopPropagation();setCardMenuId(prev=>prev===card.id?null:card.id);}}>•••</button>
               {cardMenuId === card.id ? (
@@ -29865,11 +29865,11 @@ function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse,
               ) : null}
             </div>
           </div>
-          <h3>{card.title}</h3>
-          <div className="kb1004-card-church">{card.church}</div>
-          <div className="kb1004-meta-row"><span>⌖</span><span>{card.location}</span></div>
-          <div className="kb1004-meta-row"><span>◉</span><span>{card.budget}</span></div>
-          <div className="kb1004-next"><span>Next step</span><strong>{card.nextLabel}</strong></div>
+          <div className="kb1004-card-copy">
+            <h3>{card.title}</h3>
+            <p className="kb1004-meta"><span>{card.church}</span>{card.location ? <i aria-hidden="true">&middot;</i> : null}<span>{card.location}</span>{card.budget ? <i aria-hidden="true">&middot;</i> : null}<span className="kb1004-budget">{card.budget}</span></p>
+          </div>
+          <button type="button" className="kb1004-next" onClick={card.primaryAction}><span className="kb1004-next-ico"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/></svg></span><span className="kb1004-next-copy"><span>Next step</span><strong>{card.nextLabel}</strong></span><span className="kb1004-next-chev" aria-hidden="true">›</span></button>
           <div className="kb1004-card-actions">
             <button type="button" className="primary" onClick={card.primaryAction}>{card.primaryLabel} <span aria-hidden="true">→</span></button>
             {card.secondaryAction ? <button type="button" className="secondary" disabled={portfolioAddingProjectId===card.project?.id} onClick={card.secondaryAction}>{card.secondaryLabel}</button> : null}
@@ -29919,25 +29919,25 @@ function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse,
           .kb1004-quote{border-left:1px solid rgba(23,53,43,.12);padding-left:22px;margin-top:2px;font-family:var(--font-display),serif;font-size:18px;line-height:1.25;color:#2d3f38}
           .kb1004-quote span{display:block;margin-top:3px;font-family:var(--font-sans),sans-serif;font-size:13px;color:#5d6a64}
           .kb1004-layout{max-width:1470px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 368px;gap:24px;align-items:start}
-          .kb1004-filter-cells{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border:1px solid #ded8cc;background:rgba(255,255,255,.7);border-radius:11px;overflow:hidden;box-shadow:0 8px 22px rgba(31,43,35,.055);margin-bottom:18px}
-          .kb1004-filter-cell{min-height:58px;border:0;border-right:1px solid #e4ded3;background:transparent;color:#263a32;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 8px;font-family:var(--font-display),serif;font-size:14px;font-weight:700;cursor:pointer;transition:.16s ease}
-          .kb1004-filter-cell:last-child{border-right:0}.kb1004-filter-cell:hover{background:rgba(255,255,255,.72)}
-          .kb1004-filter-cell.active{background:linear-gradient(135deg,#184f40,#0e3d31);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+          .kb1004-filter-cells{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;border:0;background:transparent;box-shadow:none;margin-bottom:18px}
+          .kb1004-filter-cell{min-height:50px;border:1px solid #ded8cc;border-radius:999px;background:#fff;color:#263a32;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 8px;font-family:var(--font-sans),sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.16s ease;box-shadow:0 2px 8px rgba(31,43,35,.04)}
+          .kb1004-filter-cell:hover{background:#faf8f3;border-color:#c9bfa8}
+          .kb1004-filter-cell.active{background:linear-gradient(135deg,#184f40,#0e3d31);color:#fff;border-color:transparent;box-shadow:0 5px 14px rgba(23,71,55,.22)}
           .kb1004-filter-cell svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
           .kb1004-filter-count{min-width:24px;height:24px;border-radius:50%;background:#efede7;color:#273b33;display:inline-flex;align-items:center;justify-content:center;font:700 11px/1 var(--font-sans),sans-serif;flex:0 0 auto}
-          .kb1004-filter-cell.active .kb1004-filter-count{background:#f8f4ec;color:#17352b}
+          .kb1004-filter-cell.active .kb1004-filter-count{background:rgba(255,255,255,.2);color:#fff}
           .kb1004-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;margin-bottom:18px}
           .kb1004-search{height:45px;border:1px solid #ded8cc;border-radius:10px;background:#fff;display:flex;align-items:center;gap:10px;padding:0 15px;box-shadow:0 4px 14px rgba(31,43,35,.035)}
           .kb1004-search svg{width:19px;height:19px;fill:none;stroke:#23463a;stroke-width:1.8}.kb1004-search input{border:0;outline:0;background:transparent;width:100%;font:500 13px/1 var(--font-sans),sans-serif;color:#253a33}
           .kb1004-sort{height:45px;display:flex;align-items:center;gap:8px;border:1px solid #ded8cc;border-radius:10px;background:#fff;padding:0 11px 0 14px;font-size:12px;color:#55635d}.kb1004-sort select{height:34px;border:1px solid #e2ddd2;border-radius:8px;background:#fff;color:#203830;font-weight:700;padding:0 32px 0 10px}
           .kb1004-view-toggle{height:45px;border:1px solid #ded8cc;border-radius:10px;background:#fff;display:flex;overflow:hidden}.kb1004-view-toggle button{width:47px;border:0;background:#fff;color:#31483e;cursor:pointer;font-size:18px}.kb1004-view-toggle button.active{background:#124638;color:#fff}
-          .kb1004-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.kb1004-card-grid.list{grid-template-columns:1fr}
-          .kb1004-project-card{position:relative;background:#fff;border:1px solid #ded8cc;border-radius:10px;display:grid;grid-template-columns:215px minmax(0,1fr);min-height:270px;overflow:visible;box-shadow:0 6px 20px rgba(31,43,35,.04)}
-          .kb1004-card-media{margin:14px 0 14px 14px;border-radius:6px;overflow:hidden;background:#ece9e1;min-height:238px}.kb1004-card-media img{width:100%;height:100%;object-fit:cover;display:block}.kb1004-card-fallback{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display),serif;font-size:44px;color:#6d756e}
-          .kb1004-card-main{position:relative;padding:14px 16px 14px 18px;display:flex;flex-direction:column;min-width:0}.kb1004-card-topline{display:flex;align-items:center;justify-content:space-between;gap:10px}.kb1004-status{display:inline-flex;align-items:center;min-height:29px;border-radius:999px;padding:0 13px;font-size:12px;font-weight:700}.kb1004-status.is-bidding{background:#e4f0e8;color:#285b46}.kb1004-status.is-progress{background:#e5f0fb;color:#255783}.kb1004-status.is-complete{background:#eeeeec;color:#5c6460}.kb1004-status.is-saved{background:#f5ecda;color:#806025}.kb1004-status.is-archived{background:#f1eeee;color:#756666}
-          .kb1004-card-main h3{font-family:var(--font-display),serif;font-size:21px;line-height:1.05;letter-spacing:-.02em;margin:9px 0 4px;color:#172f28}.kb1004-card-church{font-size:13px;color:#56615c;margin-bottom:9px}.kb1004-meta-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#52615b;line-height:1.4;margin:2px 0}.kb1004-meta-row>span:first-child{width:14px;color:#1f4a3b;text-align:center}
-          .kb1004-next{border-top:1px solid #ece7de;margin-top:10px;padding-top:9px;display:grid;gap:1px}.kb1004-next span{font-size:9.5px;color:#7f827c}.kb1004-next strong{font-size:12.5px;font-weight:500;color:#4b5853}
-          .kb1004-card-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.75fr);gap:10px;margin-top:auto;padding-top:10px}.kb1004-card-actions button{height:40px;border-radius:5px;font:700 12px/1 var(--font-sans),sans-serif;cursor:pointer}.kb1004-card-actions .primary{border:1px solid #15493a;background:linear-gradient(135deg,#195442,#0f4334);color:#fff}.kb1004-card-actions .secondary{border:1px solid #ced3ce;background:#fff;color:#233d34}.kb1004-card-actions button:only-child{grid-column:1/-1}
+          .kb1004-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}.kb1004-card-grid.list{grid-template-columns:1fr;gap:10px}.kb1004-card-grid.list .kb1004-project-card{grid-template-columns:96px minmax(0,1fr);align-items:center}.kb1004-card-grid.list .kb1004-card-media{margin:10px;aspect-ratio:1/1;align-self:center}.kb1004-card-grid.list .kb1004-card-main{padding:10px 44px 10px 0;display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"copy next actions";align-items:center;column-gap:16px;row-gap:8px}.kb1004-card-grid.list .kb1004-card-copy{grid-area:copy;min-width:0}.kb1004-card-grid.list .kb1004-card-copy h3{padding-right:0;-webkit-line-clamp:1;font-size:16px}.kb1004-card-grid.list .kb1004-next{grid-area:next;width:260px;margin-top:0;padding:6px 9px}.kb1004-card-grid.list .kb1004-card-actions{grid-area:actions;margin-top:0}.kb1004-card-grid.list .kb1004-card-actions button{flex:none;width:auto;padding:0 16px}.kb1004-card-grid.list .kb1004-proposal-panel,.kb1004-card-grid.list .kb1008-completion-tools{grid-column:1/-1;margin-top:8px;padding-top:9px}
+          .kb1004-project-card{position:relative;background:#fffdf9;border:1px solid #e3ddd0;border-radius:12px;display:grid;grid-template-columns:168px minmax(0,1fr);min-height:0;overflow:visible;box-shadow:0 6px 20px rgba(31,43,35,.05);transition:box-shadow .18s,transform .18s}.kb1004-project-card:hover{box-shadow:0 10px 26px rgba(31,43,35,.1);transform:translateY(-1px)}
+          .kb1004-card-media{position:relative;margin:12px 0 12px 12px;border-radius:8px;overflow:hidden;aspect-ratio:1/1;background:#ece9e1;align-self:start}.kb1004-card-media img{width:100%;height:100%;object-fit:cover;display:block}.kb1004-card-fallback{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display),serif;font-size:30px;color:#6d756e;background:linear-gradient(135deg,#f1ede3,#e6e0d2)}.kb1004-card-media .kb1004-status{position:absolute;top:8px;left:8px;box-shadow:0 2px 8px rgba(20,40,32,.18)}
+          .kb1004-card-main{position:relative;padding:12px 14px;display:flex;flex-direction:column;min-width:0}.kb1004-card-topline{display:flex;align-items:center;justify-content:flex-end;position:absolute;top:8px;right:6px}.kb1004-status{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:10.5px;font-weight:700}.kb1004-status.is-bidding{background:#e4f0e8;color:#285b46}.kb1004-status.is-progress{background:#e5f0fb;color:#255783}.kb1004-status.is-complete{background:#eeeeec;color:#5c6460}.kb1004-status.is-saved{background:#f5ecda;color:#806025}.kb1004-status.is-archived{background:#f1eeee;color:#756666}
+          .kb1004-card-copy h3{font-family:var(--font-display),serif;font-size:18px;line-height:1.14;letter-spacing:-.01em;margin:0 0 5px;padding-right:28px;color:#172f28;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.kb1004-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0;font-size:12px;color:#5d6a65}.kb1004-meta i{font-style:normal;color:#b7b0a1}.kb1004-meta .kb1004-budget{color:#42504b;font-weight:600}
+          .kb1004-next{margin-top:auto;display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:8px;border:1px solid transparent;background:#f3f1ea;width:100%;text-align:left;cursor:pointer;font-family:inherit}.kb1004-next:hover{border-color:#d7d1c3}.kb1004-project-card.is-bidding .kb1004-next{background:#eaf4ee}.kb1004-project-card.is-progress .kb1004-next{background:#eaf2f7}.kb1004-project-card.is-saved .kb1004-next{background:#faf1e0}.kb1004-next-ico{flex:none;width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#4c5a55}.kb1004-next-ico svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}.kb1004-next-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.kb1004-next-copy span{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8f87}.kb1004-next-copy strong{font-size:12px;font-weight:600;color:#2c3a35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kb1004-next-chev{flex:none;font-size:16px;color:#9a9488}
+          .kb1004-card-actions{display:flex;gap:10px;margin-top:10px}.kb1004-card-actions button{flex:1;height:40px;border-radius:7px;font:700 12px/1 var(--font-sans),sans-serif;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}.kb1004-card-actions .primary{border:1px solid #15493a;background:linear-gradient(135deg,#195442,#0f4334);color:#fff}.kb1004-card-actions .secondary{border:1px solid #ced3ce;background:#fff;color:#233d34}
           .kb1004-card-menu-wrap{position:relative}.kb1004-more{border:0;background:transparent;color:#344a42;font-weight:900;letter-spacing:2px;cursor:pointer;padding:5px}.kb1004-card-menu{position:absolute;right:0;top:30px;z-index:30;min-width:160px;background:#fff;border:1px solid #ddd7cb;border-radius:9px;box-shadow:0 14px 34px rgba(25,40,32,.14);padding:6px}.kb1004-card-menu button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:9px 10px;border-radius:6px;font:600 12px/1.2 var(--font-sans),sans-serif;color:#273b33;cursor:pointer}.kb1004-card-menu button:hover{background:#f5f1e9}.kb1004-card-menu button.danger{color:#a43d35}
           .kb1004-proposal-panel{grid-column:1/-1;margin-top:10px;border-top:1px solid #e8e2d7;padding-top:10px}.kb1008-completion-tools{margin-top:10px;padding-top:9px;border-top:1px solid #ece6dc;display:flex;align-items:center;justify-content:space-between;gap:10px}.kb1008-completion-tools span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#839087}.kb1008-completion-tools button{border:0;background:transparent;color:#174737;font-size:11px;font-weight:800;cursor:pointer;padding:3px 0}.kb1004-proposal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kb1004-proposal-stats>div{background:#f9f7f2;border:1px solid #ebe5da;border-radius:7px;padding:8px}.kb1004-proposal-stats span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#84847d}.kb1004-proposal-stats strong{display:block;margin-top:3px;font-family:var(--font-display),serif;font-size:15px;color:#1d362e}.kb1004-proposal-panel p{font-size:12px;line-height:1.55;color:#5a625f}.kb1004-proposal-actions,.kb1004-edit-actions{display:flex;gap:8px;justify-content:flex-end}.kb1004-proposal-actions button,.kb1004-edit-actions button{height:32px;border:1px solid #d7d2c8;border-radius:7px;background:#fff;color:#34443e;padding:0 11px;font-size:11px;font-weight:700;cursor:pointer}.kb1004-edit-proposal{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}.kb1004-edit-proposal label{display:grid;gap:4px}.kb1004-edit-proposal label span{font-size:9px;text-transform:uppercase;color:#777}.kb1004-edit-proposal input{height:34px;border:1px solid #d7d2c8;border-radius:7px;padding:0 10px}
           .kb1004-side{display:grid;gap:14px}.kb1004-side-card{background:#fff;border:1px solid #ded8cc;border-radius:10px;padding:18px 20px;box-shadow:0 6px 20px rgba(31,43,35,.035)}.kb1004-side-card h2{margin:0;font-family:var(--font-display),serif;font-size:22px;letter-spacing:-.02em;color:#183129}.kb1004-side-card p{margin:5px 0 14px;font-size:12.5px;line-height:1.45;color:#64706a}
@@ -29980,28 +29980,17 @@ function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse,
           .kb1005-empty-foot{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:38px;color:#8f958f}.kb1005-empty-foot span{width:42px;height:1px;background:#d8d2c7}.kb1005-empty-foot em{font:500 10px/1 var(--font-sans),sans-serif;letter-spacing:.3em;text-transform:uppercase;font-style:normal}
           .kb1004-layout.is-messages{grid-template-columns:minmax(0,1fr)}.kb1004-layout.is-messages .kb1004-side{display:none}
           @media(min-width:1181px){.kb1004-layout.is-messages .kb1004-filter-cells{width:calc(100% - 392px)}}
-          /* Compact vendor project cards: short horizontal card, small thumbnail, one-line meta. */
-          @media(min-width:561px){
-            .kb1004-project-card{grid-template-columns:176px minmax(0,1fr)!important;min-height:0!important}
-            .kb1004-card-media{margin:10px 0 10px 10px!important;min-height:0!important;height:calc(100% - 20px)!important}
-            .kb1004-card-main{padding:10px 12px 10px 14px!important}
-            .kb1004-status{height:22px!important;padding:0 10px!important;font-size:10px!important}
-            .kb1004-card-church{margin:2px 0!important}
-            .kb1004-meta-row{gap:0 12px!important;flex-wrap:wrap}
-            .kb1004-next{display:flex!important;align-items:baseline;gap:8px;margin-top:6px!important;padding:5px 0!important}
-            .kb1004-card-actions{gap:6px!important}
-            .kb1004-card-actions button{height:30px!important;font-size:10.5px!important}
-          }
           @media(max-width:1180px){.kb1004-hero-art{opacity:.6}.kb1004-intro{grid-template-columns:1fr}.kb1005-scripture,.kb1005-intro-gap{display:none}}
           @media(max-width:820px){.kb1004-hero-art,.kb1005-quote{display:none}.kb1004-intro{min-height:0}.kb1004-intro h1{font-size:52px}}
+          .kb1004-intro-compact{min-height:0!important;margin-bottom:14px!important;padding-top:0!important}.kb1004-intro-compact h1{font-size:clamp(32px,3.2vw,42px)!important;line-height:1!important}.kb1004-intro-compact .kb1005-eyebrow{margin-bottom:6px!important}.kb1004-hero-compact{opacity:.35!important;height:min(140px,12vw + 20px)!important}
         `}</style>
 
-        <div className="kb1005-hero-art kb1004-hero-art" aria-hidden="true" />
-        <header className="kb1004-intro">
-          <div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1><p>Track your opportunities, manage your proposals, and grow your impact.</p></div>
-          <div className="kb1005-quote"><b>Building What Matters.</b><em>For A Stronger Tomorrow.</em></div>
-          <span className="kb1005-intro-gap" aria-hidden="true" />
-          <figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure>
+        <div className={`kb1005-hero-art kb1004-hero-art${bucket==='messages' ? ' kb1004-hero-compact' : ''}`} aria-hidden="true" />
+        <header className={`kb1004-intro${bucket==='messages' ? ' kb1004-intro-compact' : ''}`}>
+          <div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1>{bucket!=='messages' ? <p>Track your opportunities, manage your proposals, and grow your impact.</p> : null}</div>
+          {bucket!=='messages' ? <div className="kb1005-quote"><b>Building What Matters.</b><em>For A Stronger Tomorrow.</em></div> : null}
+          {bucket!=='messages' ? <span className="kb1005-intro-gap" aria-hidden="true" /> : null}
+          {bucket!=='messages' ? <figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure> : null}
         </header>
 
         <div className={`kb1004-layout${bucket==='messages' ? ' is-messages' : ''}`}>
@@ -30067,7 +30056,7 @@ function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse,
               <div className="kb1004-side-actions">
                 <button type="button" onClick={()=>nav('profile-proof')}><span className="kb1005-act-ico"><MyProjectsIcon kind="edit" /></span><span>Edit portfolio</span><span>›</span></button>
                 <button type="button" onClick={()=>nav('profile-proof')}><span className="kb1005-act-ico"><MyProjectsIcon kind="image" /></span><span>Add external work</span><span>›</span></button>
-                <button type="button" onClick={()=>nav('profile')}><span className="kb1005-act-ico"><MyProjectsIcon kind="tag" /></span><span>Manage specialties</span><span>›</span></button>
+                <button type="button" onClick={()=>{try{window.sessionStorage.setItem('kb_profile_scroll_to','profile-specialties-panel');}catch{/* non-fatal */}nav('profile');}}><span className="kb1005-act-ico"><MyProjectsIcon kind="tag" /></span><span>Manage specialties</span><span>›</span></button>
               </div>
             </section>
 
@@ -30378,13 +30367,20 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     if (!project.completed && !project.archived && typeof onPost === 'function') menuActions.push({ key:'edit', label: project.draft ? 'Edit draft' : 'Edit project', run:()=>onPost(project) });
     if (project.draft || (!hasBids && !hired && !project.completed)) menuActions.push({ key:'delete', label: project.draft ? 'Delete draft' : 'Delete project', danger:true, run:()=>setConfirmAction({ type:'delete', project }) });
     else if (!project.completed && !project.archived && (hasBids || hired)) menuActions.push({ key:'cancel', label:'Cancel project', danger:true, run:()=>setConfirmAction({ type:'cancel', project }) });
-    return <article className="kb1005-project-card" key={project.id}>
-      <div className="kb1005-card-media">{project.image ? <img src={project.image} alt="" loading="lazy" onError={handleKbImageError}/> : <div className="kb1005-card-fallback">FB</div>}</div>
+    return <article className={`kb1005-project-card tone-${badgeTone}`} key={project.id}>
+      <div className="kb1005-card-media">
+        {project.image ? <img src={project.image} alt="" loading="lazy" onError={handleKbImageError}/> : <div className="kb1005-card-fallback">FB</div>}
+        <span className={`kb1005-status ${badgeTone}`}>{badgeLabel}</span>
+      </div>
       <div className="kb1005-card-main">
-        <div className="kb1005-card-topline"><span className={`kb1005-status ${badgeTone}`}>{badgeLabel}</span>{menuActions.length ? <button type="button" className="kb1005-more" aria-label="More project actions" aria-haspopup="menu" aria-expanded={menuProjectId === project.id} onClick={(e)=>{e.stopPropagation();setMenuProjectId(menuProjectId === project.id ? null : project.id);}}>•••</button> : null}</div>
+        {menuActions.length ? <div className="kb1005-card-topline"><button type="button" className="kb1005-more" aria-label="More project actions" aria-haspopup="menu" aria-expanded={menuProjectId === project.id} onClick={(e)=>{e.stopPropagation();setMenuProjectId(menuProjectId === project.id ? null : project.id);}}>•••</button></div> : null}
         {menuProjectId === project.id ? <div className="kb1005-menu" role="menu" onClick={e=>e.stopPropagation()}>{menuActions.map(a => <button key={a.key} type="button" role="menuitem" className={a.danger ? 'danger' : ''} onClick={()=>{setMenuProjectId(null);a.run();}}>{a.label}</button>)}</div> : null}
-        <div className="kb1005-card-copy"><span className="kb1005-category">{(project.primary_category || project.category) === 'Other' ? getProjectCategoryDisplay(project) : formatMarketplaceCategoryLabel(project.primary_category || project.category || 'Project')}</span><h3>{project.title || 'Untitled project'}</h3><p>{project.location || 'Location not set'}</p><p className="kb1005-budget">{project.budget}</p></div>
-        <div className="kb1005-next"><span>Next step</span><strong>{project.nextLabel}</strong></div>
+        <div className="kb1005-card-copy">
+          <span className="kb1005-category">{(project.primary_category || project.category) === 'Other' ? getProjectCategoryDisplay(project) : formatMarketplaceCategoryLabel(project.primary_category || project.category || 'Project')}</span>
+          <h3>{project.title || 'Untitled project'}</h3>
+          <p className="kb1005-meta"><span>{project.location || 'Location not set'}</span>{project.budget ? <i aria-hidden="true">&middot;</i> : null}<span className="kb1005-budget">{project.budget}</span></p>
+        </div>
+        <button type="button" className="kb1005-next" onClick={action.run}><span className="kb1005-next-ico"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/></svg></span><span className="kb1005-next-copy"><span>Next step</span><strong>{project.nextLabel}</strong></span><span className="kb1005-next-chev" aria-hidden="true">›</span></button>
         <div className="kb1005-card-actions">
           <button type="button" className="primary" onClick={action.run}>{action.label}</button>
           {project.completed ? <button type="button" disabled={reviewed} onClick={()=>!reviewed&&setReviewProject(project)}>{reviewed?'Review submitted':'Leave vendor review'}</button> : null}
@@ -30402,33 +30398,16 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     <style>{`
       .kb1005-myprojects{--ink:#0f2f27;--green:#174737;--cream:#f7f4ed;--card:#fffdf9;--line:#ddd7cc;box-sizing:border-box;min-height:calc(100vh - 64px);width:100%;padding:34px clamp(24px,5vw,86px) 78px;background:radial-gradient(circle at 78% 2%,rgba(231,225,210,.38),transparent 28%),#f8f6f1;color:var(--ink);font-family:var(--font-sans),sans-serif}
       .kb1005-myprojects *{box-sizing:border-box}.kb1005-intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end;margin:0 auto 25px;max-width:1510px}.kb1005-intro h1{margin:0;font-family:var(--font-display),serif;font-size:clamp(48px,4.4vw,70px);line-height:.98;letter-spacing:-.04em;color:#102b24}.kb1005-intro p{margin:9px 0 0;font-size:16px;color:#63706b}.kb1005-quote{padding:6px 0 4px 24px;border-left:1px solid #ddd7cc;font-family:var(--font-display),serif;font-size:16px;line-height:1.25;color:#243b34;white-space:nowrap}.kb1005-quote span{display:block;font-family:var(--font-sans),sans-serif;font-size:12px;color:#727872;margin-top:3px}
-      .kb1005-layout{max-width:1510px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:24px;align-items:start}.kb1005-filter-cells{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));height:58px;margin-bottom:16px;background:rgba(255,255,255,.68);border:1px solid #ddd7cc;border-radius:9px;overflow:hidden;box-shadow:0 7px 20px rgba(25,49,41,.05)}.kb1005-filter-cell{display:flex;align-items:center;justify-content:center;gap:9px;border:0;border-right:1px solid #e4dfd5;background:transparent;color:#213a32;font-family:var(--font-display),serif;font-size:16px;cursor:pointer;transition:.18s}.kb1005-filter-cell:last-child{border-right:0}.kb1005-filter-cell svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8}.kb1005-filter-cell:hover{background:#fff}.kb1005-filter-cell.active{background:linear-gradient(135deg,#184d3c,#123c31);color:#fff;box-shadow:0 5px 14px rgba(23,71,55,.22);font-family:var(--font-sans),sans-serif;font-size:13px;font-weight:800}.kb1005-filter-count{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 7px;border-radius:50%;background:#ece9e2;color:#33413c;font-family:var(--font-sans),sans-serif;font-size:12px}.kb1005-filter-cell.active .kb1005-filter-count{background:#f8f3e9;color:#183c31}
+      .kb1005-layout{max-width:1510px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:24px;align-items:start}.kb1005-filter-cells{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;height:auto;margin-bottom:16px;background:transparent;border:0;box-shadow:none}.kb1005-filter-cell{display:flex;align-items:center;justify-content:center;gap:8px;height:50px;border:1px solid #ded8cc;border-radius:999px;background:#fff;color:#213a32;font-family:var(--font-sans),sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.18s;box-shadow:0 2px 8px rgba(25,49,41,.04)}.kb1005-filter-cell svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8}.kb1005-filter-cell:hover{background:#faf8f3;border-color:#c9bfa8}.kb1005-filter-cell.active{background:linear-gradient(135deg,#184d3c,#123c31);color:#fff;border-color:transparent;box-shadow:0 5px 14px rgba(23,71,55,.22)}.kb1005-filter-count{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 7px;border-radius:50%;background:#ece9e2;color:#33413c;font-family:var(--font-sans),sans-serif;font-size:11.5px}.kb1005-filter-cell.active .kb1005-filter-count{background:rgba(255,255,255,.2);color:#fff}
       .kb1005-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 265px 122px;gap:12px;margin-bottom:17px}.kb1005-search,.kb1005-sort,.kb1005-view-toggle{height:43px;background:#fff;border:1px solid #ddd7cc;border-radius:7px;box-shadow:0 2px 8px rgba(25,49,41,.025)}.kb1005-search{display:flex;align-items:center;gap:10px;padding:0 15px}.kb1005-search svg{width:19px;height:19px;fill:none;stroke:#50625c;stroke-width:1.8}.kb1005-search input{width:100%;border:0;outline:0;background:transparent;font:13px var(--font-sans),sans-serif;color:#16372d}.kb1005-sort{display:grid;grid-template-columns:auto 1fr;align-items:center;padding-left:13px;overflow:hidden}.kb1005-sort span{font-size:11px;color:#5d6864}.kb1005-sort select{height:100%;border:0;border-left:1px solid #ebe6dc;margin-left:10px;padding:0 10px;background:#fff;color:#17382f;font-size:12px;font-weight:700;outline:0}.kb1005-view-toggle{display:grid;grid-template-columns:1fr 1fr;overflow:hidden}.kb1005-view-toggle button{border:0;background:#fff;color:#496059;font-size:21px;cursor:pointer}.kb1005-view-toggle button+button{border-left:1px solid #e7e2d8}.kb1005-view-toggle button.active{background:#164b3a;color:#fff}
-      .kb1005-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.kb1005-card-grid.list{grid-template-columns:1fr}.kb1005-project-card{display:grid;grid-template-columns:215px minmax(0,1fr);min-height:268px;background:#fff;border:1px solid #ded8cc;border-radius:9px;overflow:hidden;box-shadow:0 5px 17px rgba(26,45,38,.035)}.kb1005-card-media{margin:15px 0 15px 15px;border-radius:6px;overflow:hidden;min-height:236px;background:#ebe7de}.kb1005-card-media img{width:100%;height:100%;object-fit:cover;display:block}.kb1005-card-fallback{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display),serif;font-size:36px;color:#9a9488}.kb1005-card-main{position:relative;padding:14px 16px 14px 18px;display:flex;flex-direction:column;min-width:0}.kb1005-card-topline{display:flex;align-items:center;justify-content:space-between;gap:10px}.kb1005-status{display:inline-flex;align-items:center;height:27px;padding:0 12px;border-radius:999px;background:#e7f0eb;color:#225e49;font-size:11px;font-weight:700}.kb1005-status.warm{background:#f6ead7;color:#876021}.kb1005-status.progress{background:#e4eff6;color:#315d7a}.kb1005-status.done{background:#eceeef;color:#586461}.kb1005-more{border:0;background:transparent;color:#50615b;cursor:pointer;font-size:16px}.kb1005-category{display:block;margin:8px 0 3px;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a2762f}.kb1005-card-copy h3{margin:0 0 6px;font-family:var(--font-display),serif;font-size:20px;line-height:1.04;color:#13392e}.kb1005-card-copy p{margin:2px 0;font-size:12px;color:#5d6a65}.kb1005-card-copy .kb1005-budget{margin-top:7px;color:#42504b}.kb1005-next{margin-top:auto;padding:11px 0 10px;border-top:1px solid #e6e1d7}.kb1005-next span{display:block;font-size:9px;color:#7a817e}.kb1005-next strong{display:block;margin-top:2px;font-size:12px;font-weight:500;color:#4c5a55}.kb1005-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kb1005-card-actions button{height:38px;border-radius:5px;border:1px solid #b9c2bd;background:#fff;color:#183f33;font-size:11px;font-weight:700;cursor:pointer}.kb1005-card-actions button.primary{background:#174b3a;color:#fff;border-color:#174b3a}
+      .kb1005-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}.kb1005-project-card{display:grid;grid-template-columns:168px minmax(0,1fr);min-height:0;height:100%;background:#fffdf9;border:1px solid #e3ddd0;border-radius:12px;overflow:hidden;box-shadow:0 6px 20px rgba(26,45,38,.05);transition:box-shadow .18s,transform .18s}.kb1005-project-card:hover{box-shadow:0 10px 26px rgba(26,45,38,.1);transform:translateY(-1px)}.kb1005-card-media{position:relative;margin:12px 0 12px 12px;border-radius:8px;overflow:hidden;aspect-ratio:1/1;background:#ebe7de;align-self:start}.kb1005-card-media img{width:100%;height:100%;object-fit:cover;display:block}.kb1005-card-fallback{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display),serif;font-size:30px;color:#9a9488;background:linear-gradient(135deg,#f1ede3,#e6e0d2)}.kb1005-card-media .kb1005-status{position:absolute;top:8px;left:8px;box-shadow:0 2px 8px rgba(20,40,32,.18)}.kb1005-card-main{position:relative;padding:12px 14px 12px 14px;display:flex;flex-direction:column;min-width:0}.kb1005-card-topline{display:flex;align-items:center;justify-content:flex-end;min-height:0;position:absolute;top:8px;right:6px}.kb1005-status{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;background:#e7f0eb;color:#225e49;font-size:10.5px;font-weight:700}.kb1005-status.warm{background:#f6ead7;color:#876021}.kb1005-status.progress{background:#e4eff6;color:#315d7a}.kb1005-status.done{background:#eceeef;color:#586461}.kb1005-more{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:0;background:rgba(255,255,255,.9);color:#50615b;cursor:pointer;font-size:14px;letter-spacing:1px;box-shadow:0 2px 6px rgba(20,40,32,.1)}.kb1005-category{display:block;margin:0 0 4px;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a2762f}.kb1005-card-copy h3{margin:0 0 5px;padding-right:28px;font-family:var(--font-display),serif;font-size:18px;line-height:1.14;color:#13392e;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.kb1005-meta{display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:#5d6a65}.kb1005-meta i{font-style:normal;color:#b7b0a1}.kb1005-meta .kb1005-budget{color:#42504b;font-weight:600}.kb1005-next{margin-top:auto;display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:8px;border:1px solid transparent;background:#f3f1ea;width:100%;text-align:left;cursor:pointer;font-family:inherit}.kb1005-next:hover{border-color:#d7d1c3}.kb1005-project-card.tone-warm .kb1005-next{background:#faf1e0}.kb1005-project-card.tone-progress .kb1005-next{background:#eaf2f7}.kb1005-next-ico{flex:none;width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#4c5a55}.kb1005-next-ico svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}.kb1005-next-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.kb1005-next-copy span{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8f87}.kb1005-next-copy strong{font-size:12px;font-weight:600;color:#2c3a35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kb1005-next-chev{flex:none;font-size:16px;color:#9a9488}.kb1005-card-actions{display:flex;gap:8px;margin-top:10px}.kb1005-card-actions button{flex:1;height:38px;border-radius:7px;border:1px solid #b9c2bd;background:#fff;color:#183f33;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}.kb1005-card-actions button.primary{background:#174b3a;color:#fff;border-color:#174b3a}.kb1005-card-actions button:disabled{opacity:.6;cursor:default}
+      .kb1005-card-grid.list{grid-template-columns:1fr;gap:10px}.kb1005-card-grid.list .kb1005-project-card{grid-template-columns:96px minmax(0,1fr);align-items:center;min-height:0}.kb1005-card-grid.list .kb1005-card-media{margin:10px;aspect-ratio:1/1;align-self:center}.kb1005-card-grid.list .kb1005-card-main{padding:10px 44px 10px 0;display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"copy next actions";align-items:center;column-gap:16px;row-gap:8px}.kb1005-card-grid.list .kb1005-card-copy{grid-area:copy;min-width:0}.kb1005-card-grid.list .kb1005-card-copy h3{padding-right:0;-webkit-line-clamp:1;font-size:16px}.kb1005-card-grid.list .kb1005-next{grid-area:next;width:260px;margin-top:0;padding:6px 9px}.kb1005-card-grid.list .kb1005-card-actions{grid-area:actions;margin-top:0}.kb1005-card-grid.list .kb1005-card-actions button{flex:none;width:auto;padding:0 16px}
       .kb1005-side{display:grid;gap:12px}.kb1005-side-card{background:#fff;border:1px solid #ded8cc;border-radius:9px;padding:20px;box-shadow:0 5px 17px rgba(26,45,38,.035)}.kb1005-side-card h2{margin:0;font-family:var(--font-display),serif;font-size:23px;line-height:1;color:#15372e}.kb1005-side-card p{margin:9px 0 15px;font-size:12px;line-height:1.45;color:#63706b}.kb1005-profile-head{display:flex;align-items:center;justify-content:space-between}.kb1005-profile-head strong{font:700 17px var(--font-sans),sans-serif;color:#163f33}.kb1005-progress{height:10px;border-radius:999px;background:#e7e4de;overflow:hidden;margin:13px 0 9px}.kb1005-progress span{display:block;height:100%;border-radius:inherit;background:#195442}.kb1005-side-cta{width:100%;height:39px;border-radius:5px;border:1px solid #bfd1c9;background:#edf5f1;color:#163e32;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer}.kb1005-side-actions{border:1px solid #e0dbd1;border-radius:7px;overflow:hidden}.kb1005-side-actions button{width:100%;height:49px;border:0;border-bottom:1px solid #e6e1d8;background:#fff;display:grid;grid-template-columns:27px 1fr auto;align-items:center;text-align:left;padding:0 12px;color:#17382f;font-size:12px;font-weight:700;cursor:pointer}.kb1005-side-actions button:last-child{border-bottom:0}.kb1005-attention-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.kb1005-attention-head h2{font-size:21px}.kb1005-link-button{border:0;background:transparent;color:#174737;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}.kb1005-attention-count{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;background:#eeeae2;font:700 11px var(--font-sans),sans-serif}.kb1005-attention-item{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid #eee9df}.kb1005-attention-thumb{width:54px;height:48px;border-radius:5px;background:#e8e4dc;overflow:hidden}.kb1005-attention-thumb img{width:100%;height:100%;object-fit:cover}.kb1005-attention-item strong{display:block;font-size:11px;color:#17392f}.kb1005-attention-item span{display:block;margin-top:3px;font-size:10px;color:#6a7470}.kb1005-attention-item button{border:0;background:transparent;color:#174737;font-size:18px;cursor:pointer}.kb1005-impact{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center;background:linear-gradient(135deg,#fbfaf6,#f1eee6)}.kb1005-impact-icon{width:54px;height:54px;border-radius:50%;background:#e9eee8;display:flex;align-items:center;justify-content:center;font-size:24px;color:#195442}.kb1005-impact h2{font-size:18px}.kb1005-impact p{margin-bottom:0}.kb1005-empty{grid-column:1/-1;padding:54px 26px;text-align:center;border:1px dashed #d8d2c7;border-radius:10px;background:rgba(255,255,255,.62)}.kb1005-empty h3{margin:0 0 7px;font-family:var(--font-display),serif;font-size:24px;color:#17352b}.kb1005-empty p{margin:0 auto 17px;max-width:430px;font-size:13px;line-height:1.55;color:#66706b}.kb1005-empty button{height:40px;border-radius:6px;border:1px solid #174737;background:#174737;color:#fff;padding:0 16px;font-size:12px;font-weight:700;cursor:pointer}.kb1005-error{margin-bottom:15px;padding:12px 14px;border-radius:8px;border:1px solid #ead1cc;background:#fff5f2;color:#8b3b2f;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}.kb1005-error button{border:0;background:#8b3b2f;color:#fff;padding:7px 10px;border-radius:5px;cursor:pointer}
       @media(max-width:1180px){.kb1005-layout{grid-template-columns:1fr}.kb1005-side{grid-template-columns:repeat(2,minmax(0,1fr))}.kb1005-impact{display:none}.kb1005-intro{grid-template-columns:1fr}.kb1005-quote{display:none}}
       /* Tabs size to their own column, not the screen: on a laptop the main column is ~745px, so each of the five tabs gets ~150px. */
       .kb1005-layout>.kb1005-main{container-type:inline-size}
       @media(min-width:821px){@container (max-width:999px){.kb1005-filter-cell{gap:7px;padding:0 8px;font-size:14px;white-space:nowrap}.kb1005-filter-cell.active{font-size:13px}.kb1005-filter-cell svg{display:none}.kb1005-filter-count{min-width:22px;height:22px;padding:0 5px;font-size:11px}}@container (max-width:799px){.kb1005-filter-cell{gap:6px;padding:0 5px;font-size:13px}.kb1005-filter-cell.active{font-size:12.5px}.kb1005-filter-count{min-width:20px;height:20px;font-size:10.5px}}}
-      /* Laptop card proportion lock: preserve the two-card row while scaling only
-         the card internals. The monitor composition above remains authoritative. */
-      @media(min-width:821px){@container (max-width:999px){
-        .kb1005-project-card{grid-template-columns:150px minmax(0,1fr);min-height:214px}
-        .kb1005-card-media{margin:11px 0 11px 11px;min-height:192px}
-        .kb1005-card-main{padding:11px 12px 11px 13px}
-        .kb1005-status{height:23px;padding:0 10px;font-size:10px}
-        .kb1005-more{padding:2px;font-size:14px}
-        .kb1005-category{margin:6px 0 2px;font-size:8px}
-        .kb1005-card-copy h3{margin:0 0 4px;font-size:16px;line-height:1.03}
-        .kb1005-card-copy p{margin:1px 0;font-size:10.5px}
-        .kb1005-card-copy .kb1005-budget{margin-top:5px}
-        .kb1005-next{padding:7px 0 7px;margin-top:7px}
-        .kb1005-next span{font-size:8px}
-        .kb1005-next strong{font-size:10.5px}
-        .kb1005-card-actions{gap:6px;padding-top:0}
-        .kb1005-card-actions button{height:32px;font-size:9.5px}
-      }}
-      @media(max-width:820px){.kb1005-myprojects{padding:22px 16px 84px}.kb1005-intro h1{font-size:46px}.kb1005-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));height:auto;background:transparent;border:0;box-shadow:none;gap:8px;overflow:visible}.kb1005-filter-cell{min-height:50px;border:1px solid #ded8cc!important;border-radius:8px;background:#fff}.kb1005-toolbar{grid-template-columns:1fr auto}.kb1005-sort{grid-column:1/-1;grid-row:2}.kb1005-card-grid{grid-template-columns:1fr}.kb1005-project-card{grid-template-columns:150px minmax(0,1fr);min-height:230px}.kb1005-card-media{min-height:200px}.kb1005-side{grid-template-columns:1fr}}
+      @media(max-width:820px){.kb1005-myprojects{padding:22px 16px 84px}.kb1005-intro h1{font-size:46px}.kb1005-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));height:auto;background:transparent;border:0;box-shadow:none;gap:8px;overflow:visible}.kb1005-filter-cell{min-height:50px;border:1px solid #ded8cc!important;border-radius:8px;background:#fff}.kb1005-toolbar{grid-template-columns:1fr auto}.kb1005-sort{grid-column:1/-1;grid-row:2}.kb1005-card-grid{grid-template-columns:1fr}.kb1005-side{grid-template-columns:1fr}}
       @media(max-width:560px){.kb1005-project-card{grid-template-columns:1fr}.kb1005-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1005-filter-cells{grid-template-columns:1fr 1fr}.kb1005-toolbar{grid-template-columns:1fr}.kb1005-view-toggle{display:flex}.kb1005-card-main{padding:14px}.kb1005-side-card{padding:16px}}
     `}</style>
     <style>{`
@@ -30457,31 +30436,13 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
       @media(max-width:820px){.kb1005-hero-art,.kb1005-quote{display:none}.kb1005-intro{min-height:0}.kb1005-intro h1{font-size:52px}}
       .kb1005-layout.is-messages{grid-template-columns:minmax(0,1fr)}.kb1005-layout.is-messages .kb1005-side{display:none}
       @media(min-width:1181px){.kb1005-layout.is-messages .kb1005-filter-cells{width:calc(100% - 380px)}}
-      /* Compact project cards: short horizontal card, small thumbnail, one-line next step. */
       .kb1005-menu{position:absolute;top:42px;right:12px;z-index:5;min-width:170px;padding:6px;background:#fffdf8;border:1px solid #ddd7cc;border-radius:10px;box-shadow:0 12px 30px rgba(20,40,32,.16);display:grid;gap:2px}
       .kb1005-menu button{height:36px;padding:0 12px;border:0;border-radius:7px;background:transparent;text-align:left;font-size:12.5px;font-weight:600;color:#17382f;cursor:pointer}
       .kb1005-menu button:hover{background:#f1efe8}.kb1005-menu button.danger{color:#a3352b}
-      @media(min-width:561px){
-        .kb1005-project-card{grid-template-columns:176px minmax(0,1fr);min-height:0}
-        .kb1005-card-media{margin:10px 0 10px 10px;min-height:0;height:calc(100% - 20px)}
-        .kb1005-card-main{padding:10px 12px 10px 14px}
-        .kb1005-status{height:22px;padding:0 10px;font-size:10px}
-        .kb1005-category{margin:5px 0 1px;font-size:8.5px}
-        .kb1005-card-copy h3{margin:0 0 3px;font-size:16px;line-height:1.08}
-        .kb1005-card-copy p{margin:1px 0;font-size:11px}
-        .kb1005-card-copy{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 12px}
-        .kb1005-card-copy .kb1005-category,.kb1005-card-copy h3{flex:0 0 100%}
-        .kb1005-card-copy .kb1005-budget{margin-top:1px;font-weight:600}
-        .kb1005-next{display:flex;align-items:baseline;gap:8px;margin-top:4px;padding:3px 0 6px;border-top:0}
-        .kb1005-card-main{padding-top:8px;padding-bottom:10px}
-        .kb1005-next span{display:inline;font-size:9px}.kb1005-next strong{display:inline;margin:0;font-size:11px}
-        .kb1005-card-actions{gap:6px}
-        .kb1005-card-actions button{height:30px;font-size:10.5px}
-      }
 `}</style>
 
-    <div className="kb1005-hero-art" aria-hidden="true"></div>
-    <header className="kb1005-intro"><div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1><p>Track your projects, manage vendor activity, and move every decision forward.</p></div><div className="kb1005-quote"><b>Building What Matters.</b><em>For a Stronger Tomorrow.</em></div><span className="kb1005-intro-gap" aria-hidden="true" /><figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure></header>
+    <div className={`kb1005-hero-art${bucket==='messages' ? ' kb1004-hero-compact' : ''}`} aria-hidden="true"></div>
+    <header className={`kb1005-intro${bucket==='messages' ? ' kb1004-intro-compact' : ''}`}><div className="kb1005-intro-main"><div className="kb1005-eyebrow"><span>Your work matters</span><i /></div><h1>My Projects</h1>{bucket!=='messages' ? <p>Track your projects, manage vendor activity, and move every decision forward.</p> : null}</div>{bucket!=='messages' ? <div className="kb1005-quote"><b>Building What Matters.</b><em>For a Stronger Tomorrow.</em></div> : null}{bucket!=='messages' ? <span className="kb1005-intro-gap" aria-hidden="true" /> : null}{bucket!=='messages' ? <figure className="kb1005-scripture"><blockquote>“For where two or three gather in my name…”</blockquote><figcaption>Matthew 18:20</figcaption></figure> : null}</header>
     <div className={`kb1005-layout${bucket==='messages' ? ' is-messages' : ''}`}>
       <div className="kb1005-main">
         <div className="kb1005-filter-cells" role="tablist" aria-label="Project filters">{tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={bucket===tab.key} className={`kb1005-filter-cell${bucket===tab.key?' active':''}`} onClick={()=>setBucket(tab.key)}>{renderTabIcon(tab.icon)}<span>{tab.label}</span>{tab.key !== 'messages' || tab.count > 0 ? <span className="kb1005-filter-count" aria-label={tab.key === 'messages' ? `${tab.count} unread messages` : undefined}>{tab.count}</span> : null}</button>)}</div>
@@ -34820,12 +34781,15 @@ const VENDOR_PROFILE_KICKER_STYLE = {
   color: "#b08840",
 };
 
-function VendorProfilePanel({ title, children, style = {}, headerStyle = {}, bodyStyle = {}, right = null }) {
+function VendorProfilePanel({ title, children, style = {}, headerStyle = {}, bodyStyle = {}, right = null, icon = null }) {
   return (
     <div style={{ ...VENDOR_PROFILE_PANEL_STYLE, ...style }}>
       {title && (
         <div style={{ ...VENDOR_PROFILE_PANEL_HD_STYLE, ...headerStyle }}>
-          <div style={VENDOR_PROFILE_PANEL_TITLE_STYLE}>{title}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+            {icon ? <span style={{ flex: "none", width: 38, height: 38, borderRadius: "50%", background: "rgba(176,136,64,.12)", color: "#8a6729", display: "grid", placeItems: "center" }}>{icon}</span> : null}
+            <div style={VENDOR_PROFILE_PANEL_TITLE_STYLE}>{title}</div>
+          </div>
           {right}
         </div>
       )}
@@ -65232,7 +65196,7 @@ function getVendorPortfolioSourceLabel(item = {}) {
 
 function VendorPortfolioEditor({ currentUser, showToast, onCountChange, nav = null }) {
   const PORTFOLIO_SELECT = 'id,vendor_id,type,title,description,url,category,client_name,client_name_permission,image_urls,pdf_url,source,source_project_id,display_order,created_at,updated_at';
-  const EMPTY_WORK_FORM = { title:'', category:'', clientName:'', clientPermission:false, url:'', pdfUrl:'', description:'' };
+  const EMPTY_WORK_FORM = { title:'', category:'', clientName:'', clientPermission:false, url:'', pdfUrl:'', description:'', isBeforeAfter:false };
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -65241,7 +65205,10 @@ function VendorPortfolioEditor({ currentUser, showToast, onCountChange, nav = nu
   const [movingId, setMovingId] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [workForm, setWorkForm] = useState(EMPTY_WORK_FORM);
+  const [composerExpanded, setComposerExpanded] = useState(false);
   const [workImageFiles, setWorkImageFiles] = useState([]);
+  const workImagePreviews = useMemo(() => workImageFiles.map(file => URL.createObjectURL(file)), [workImageFiles]);
+  useEffect(() => () => { workImagePreviews.forEach(url => URL.revokeObjectURL(url)); }, [workImagePreviews]);
   const [linkForm, setLinkForm] = useState({ title:'Website', url:'' });
   const [editForm, setEditForm] = useState({ ...EMPTY_WORK_FORM, imageUrls:[] });
   const [editImageFiles, setEditImageFiles] = useState([]);
@@ -65544,74 +65511,188 @@ function VendorPortfolioEditor({ currentUser, showToast, onCountChange, nav = nu
   const miniButton = {height:31,padding:'0 10px',borderRadius:999,border:'1px solid #ded6c8',background:'#fffdf8',color:'#554d42',fontSize:10.5,fontWeight:800,cursor:'pointer'};
   const badgeStyle = (faithbid=false) => ({display:'inline-flex',alignItems:'center',gap:5,padding:'5px 8px',borderRadius:999,border:faithbid?'1px solid rgba(33,108,69,.18)':'1px solid rgba(176,136,64,.18)',background:faithbid?'rgba(33,108,69,.07)':'rgba(176,136,64,.07)',color:faithbid?'#246c49':'#8a6729',fontSize:9.5,fontWeight:800,letterSpacing:'.02em'});
 
-  const imageFileSummary = (files) => files.length ? `${files.length} image${files.length===1?'':'s'} ready` : 'Add up to 3 JPG, PNG, or WebP images';
-
   return (
     <div style={{display:'grid',gap:18}}>
-      <div style={{display:'grid',gridTemplateColumns:'minmax(0,1.2fr) minmax(280px,.8fr)',gap:16}} className="kb1007-proof-composer-grid">
-        <VendorProfilePanel title="Add external project" right={<span style={badgeStyle(false)}>External example</span>}>
+      {composerExpanded ? (
+        <VendorProfilePanel title="Spotlight one project" icon={<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/></svg>} right={<button type="button" onClick={()=>setComposerExpanded(false)} aria-label="Collapse" style={{border:0,background:'transparent',fontSize:18,color:'#8b8171',cursor:'pointer'}}>×</button>}>
           <div style={{fontSize:13,color:'#61594d',lineHeight:1.65,marginBottom:15}}>Show work completed outside FaithBid. Keep it factual. Client names and uploaded images should only be used when you have permission to publish them.</div>
-          <div style={{display:'grid',gap:10}}>
-            <input value={workForm.title} onChange={e=>setWorkForm(f=>({...f,title:e.target.value}))} maxLength={120} placeholder="Project title" aria-label="External project title" style={fieldStyle}/>
-            <select value={workForm.category} onChange={e=>setWorkForm(f=>({...f,category:e.target.value}))} aria-label="External project category" style={fieldStyle}><option value="">Category (optional)</option>{categoryOptions.map(label=><option key={label} value={label}>{label}</option>)}</select>
-            <textarea value={workForm.description} onChange={e=>setWorkForm(f=>({...f,description:e.target.value.slice(0,280)}))} maxLength={280} rows={4} placeholder="What did you deliver? Keep it specific and verifiable." aria-label="External project description" style={textAreaStyle}/>
-            <div style={{display:'flex',justifyContent:'flex-end',fontSize:10.5,color:'#8b8171',marginTop:-4}}>{String(workForm.description||'').length}/280</div>
-            <div style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:9,alignItems:'center'}}>
+          <div className="kb1007-spotlight-form" style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:'0 16px'}}>
+            <div style={{display:'grid',gap:10,alignContent:'start'}}>
+              <input value={workForm.title} onChange={e=>setWorkForm(f=>({...f,title:e.target.value}))} maxLength={120} placeholder="Project title" aria-label="External project title" style={fieldStyle}/>
+              <select value={workForm.category} onChange={e=>setWorkForm(f=>({...f,category:e.target.value}))} aria-label="External project category" style={fieldStyle}><option value="">Category (optional)</option>{categoryOptions.map(label=><option key={label} value={label}>{label}</option>)}</select>
+              <textarea value={workForm.description} onChange={e=>setWorkForm(f=>({...f,description:e.target.value.slice(0,280)}))} maxLength={280} rows={4} placeholder="What did you deliver? Keep it specific and verifiable." aria-label="External project description" style={textAreaStyle}/>
+              <div style={{display:'flex',justifyContent:'flex-end',fontSize:10.5,color:'#8b8171',marginTop:-4}}>{String(workForm.description||'').length}/280</div>
+            </div>
+            <div style={{display:'grid',gap:10,alignContent:'start'}}>
               <input value={workForm.clientName} onChange={e=>setWorkForm(f=>({...f,clientName:e.target.value}))} maxLength={160} placeholder="Client or church name (optional)" aria-label="External project client name" style={fieldStyle}/>
               <label style={{display:'flex',alignItems:'center',gap:7,fontSize:10.5,color:'#675f53',whiteSpace:'nowrap'}}><input type="checkbox" checked={!!workForm.clientPermission} onChange={e=>setWorkForm(f=>({...f,clientPermission:e.target.checked}))}/> I can publish this name</label>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,padding:'2px 1px'}}>
+                <div><div style={{fontSize:11.5,fontWeight:700,color:'#3c362c'}}>This is a before/after</div><div style={{fontSize:10,color:'#8b8171',marginTop:1}}>Show before and after photos for this project</div></div>
+                <button type="button" role="switch" aria-checked={!!workForm.isBeforeAfter} aria-label="This is a before/after" onClick={()=>setWorkForm(f=>({...f,isBeforeAfter:!f.isBeforeAfter}))} style={{flex:'none',width:40,height:23,borderRadius:999,border:'1px solid #ded6c8',background:workForm.isBeforeAfter?'#174737':'#e8e3d7',position:'relative',cursor:'pointer',padding:0}}><span style={{position:'absolute',top:1,left:workForm.isBeforeAfter?18:1,width:19,height:19,borderRadius:'50%',background:'#fff',transition:'left .15s',boxShadow:'0 1px 3px rgba(0,0,0,.22)'}}/></button>
+              </div>
+              <div>
+                <div style={{fontSize:11.5,fontWeight:800,color:'#5d5140',marginBottom:2}}>Project photos</div>
+                <div style={{fontSize:10.5,color:'#817665',marginBottom:7}}>Add up to 3 photos. {workForm.isBeforeAfter ? 'First photo is Before, second is After.' : 'Show before/after or key views of the work.'}</div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+                  {[0,1,2].map(idx => {
+                    const file = workImageFiles[idx];
+                    if (file) return (
+                      <div key={idx} style={{position:'relative',aspectRatio:'1/1',borderRadius:9,overflow:'hidden',border:'1px solid #e2d9ca',background:'#ece6d8'}}>
+                        <img src={workImagePreviews[idx]} alt="" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}}/>
+                        {workForm.isBeforeAfter && idx < 2 ? <span style={{position:'absolute',bottom:4,left:4,padding:'2px 7px',borderRadius:5,background:'rgba(20,20,16,.68)',color:'#fff',fontSize:9,fontWeight:800,textTransform:'uppercase',letterSpacing:'.03em'}}>{idx===0?'Before':'After'}</span> : null}
+                        <button type="button" aria-label="Remove photo" onClick={()=>setWorkImageFiles(prev=>prev.filter((_,i)=>i!==idx))} style={{position:'absolute',top:4,right:4,width:19,height:19,borderRadius:'50%',border:0,background:'rgba(255,255,255,.92)',cursor:'pointer',fontSize:11,lineHeight:1,color:'#4a4237'}}>×</button>
+                      </div>
+                    );
+                    return (
+                      <label key={idx} style={{aspectRatio:'1/1',borderRadius:9,border:'1px dashed #d9cfbd',background:'#fffaf2',display:'grid',placeItems:'center',cursor:'pointer',gap:3,textAlign:'center',padding:4}}>
+                        <span style={{fontSize:15,color:'#b0883f',lineHeight:1}}>⤒</span>
+                        <span style={{fontSize:8.5,fontWeight:700,color:'#8a7f6c'}}>Upload photo</span>
+                        <input type="file" accept="image/jpeg,image/png,image/webp" style={{display:'none'}} onChange={e=>{const chosen=Array.from(e.target.files||[]).slice(0,1); if(!chosen.length) return; const next=validateImageFiles(chosen, workImageFiles.length); if(next!==null) setWorkImageFiles(prev=>[...prev, ...next]); e.target.value='';}}/>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-            <label style={{display:'grid',gap:6,padding:'11px 12px',border:'1px dashed #d9cfbd',borderRadius:11,background:'#fffaf2',cursor:'pointer'}}><span style={{fontSize:11.5,fontWeight:800,color:'#5d5140'}}>Project images</span><span style={{fontSize:10.5,color:'#817665'}}>{imageFileSummary(workImageFiles)}</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>{const next=validateImageFiles(e.target.files,0);if(next!==null)setWorkImageFiles(next);e.target.value='';}} style={{fontSize:11,color:'#665e52'}}/></label>
-            {workImageFiles.length ? <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>{workImageFiles.map((file,idx)=><span key={`${file.name}-${idx}`} style={{padding:'5px 8px',borderRadius:999,background:'#f1eee6',fontSize:10,color:'#675f53'}}>{file.name}<button type="button" onClick={()=>setWorkImageFiles(prev=>prev.filter((_,i)=>i!==idx))} style={{border:0,background:'transparent',marginLeft:5,cursor:'pointer',color:'#9b4036'}}>×</button></span>)}</div> : null}
-            <input value={workForm.url} onChange={e=>setWorkForm(f=>({...f,url:e.target.value}))} placeholder="Project or case-study URL (optional)" aria-label="External project URL" inputMode="url" style={fieldStyle}/>
-            <input value={workForm.pdfUrl} onChange={e=>setWorkForm(f=>({...f,pdfUrl:e.target.value}))} placeholder="PDF or document URL (optional)" aria-label="External project document URL" inputMode="url" style={fieldStyle}/>
-            <div><button type="button" onClick={addExternalProject} disabled={savingKind==='work'} style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,opacity:savingKind==='work' ? .62 : 1}}>{savingKind==='work'?'Adding…':'Add external project'}</button></div>
+            <div style={{display:'grid',gap:10,alignContent:'space-between'}}>
+              <div style={{display:'grid',gap:10}}>
+                <input value={workForm.url} onChange={e=>setWorkForm(f=>({...f,url:e.target.value}))} placeholder="Project or case-study URL (optional)" aria-label="External project URL" inputMode="url" style={fieldStyle}/>
+                <input value={workForm.pdfUrl} onChange={e=>setWorkForm(f=>({...f,pdfUrl:e.target.value}))} placeholder="PDF or document URL (optional)" aria-label="External project document URL" inputMode="url" style={fieldStyle}/>
+              </div>
+              <div style={{display:'flex',gap:8}}>
+                <button type="button" onClick={()=>setComposerExpanded(false)} style={VENDOR_PROFILE_SECONDARY_BUTTON_STYLE}>Cancel</button>
+                <button type="button" onClick={async()=>{await addExternalProject();setComposerExpanded(false);}} disabled={savingKind==='work'} style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,flex:1,opacity:savingKind==='work' ? .62 : 1}}>{savingKind==='work'?'Adding…':'Add to portfolio'}</button>
+              </div>
+            </div>
           </div>
         </VendorProfilePanel>
+      ) : (
+        <div style={{display:'grid',gridTemplateColumns:'minmax(0,1.3fr) minmax(240px,.7fr)',gap:16}} className="kb1007-proof-composer-grid">
+          <VendorProfilePanel title="Link where your work already lives" icon={<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.5-1.5"/></svg>}>
+            <div style={{fontSize:13,color:'#61594d',lineHeight:1.65,marginBottom:13}}>Paste a link to instantly add work from your website or social media.</div>
+            <div style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:9}}>
+              <input value={linkForm.url} onChange={e=>setLinkForm(f=>({...f,url:e.target.value}))} placeholder="https://…" aria-label="External profile URL" inputMode="url" style={fieldStyle}/>
+              <button type="button" onClick={addElsewhereLink} disabled={savingKind==='link'} style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,opacity:savingKind==='link' ? .62 : 1}}>{savingKind==='link'?'Adding…':'Add link →'}</button>
+            </div>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>{[
+              {label:'Website',bg:'#eef2f6',fg:'#4a5a68',glyph:<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9Z"/></svg>},
+              {label:'Instagram',bg:'linear-gradient(135deg,#f58529,#dd2a7b,#8134af)',fg:'#fff',glyph:<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>},
+              {label:'YouTube',bg:'#ff0000',fg:'#fff',glyph:<svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>},
+              {label:'Google',bg:'#fff',fg:'#4285F4',glyph:'G',border:'1px solid #e3dccb'},
+              {label:'LinkedIn',bg:'#0A66C2',fg:'#fff',glyph:'in'},
+            ].map(p=><button key={p.label} type="button" onClick={()=>setLinkForm(f=>({...f,title:p.label}))} style={{display:'inline-flex',alignItems:'center',gap:7,height:34,padding:'0 13px 0 9px',borderRadius:999,border:`1px solid ${linkForm.title===p.label?'#174737':'#ded6c8'}`,background:linkForm.title===p.label?'rgba(23,71,55,.08)':'#fff',color:linkForm.title===p.label?'#174737':'#554d42',fontSize:11.5,fontWeight:700,cursor:'pointer'}}><span style={{width:18,height:18,borderRadius:'50%',background:p.bg,color:p.fg,border:p.border,fontSize:9,fontWeight:800,display:'grid',placeItems:'center',lineHeight:1}}>{p.glyph}</span>{p.label}</button>)}</div>
+            {elsewhereLinks.length ? <div style={{display:'grid',gap:7,marginTop:16}}>{elsewhereLinks.map(item=><div key={item.id} style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',alignItems:'center',gap:8,padding:'9px 10px',border:'1px solid #ece4d7',borderRadius:10,background:'#fffdf9'}}><div style={{minWidth:0}}><div style={{fontSize:11.5,fontWeight:800,color:'#1C2814'}}>{item.title}</div><a href={item.url} target="_blank" rel="noreferrer" style={{display:'block',fontSize:10.5,color:'#8a6729',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.url}</a></div><button type="button" onClick={()=>removeItem(item)} disabled={removingId===item.id} style={{...miniButton,color:'#a83c31'}}>{removingId===item.id?'…':'Remove'}</button></div>)}</div> : null}
+          </VendorProfilePanel>
 
-        <VendorProfilePanel title="Elsewhere" right={<span style={{fontSize:11,color:'#8b8171'}}>{elsewhereLinks.length}/8</span>}>
-          <div style={{fontSize:13,color:'#61594d',lineHeight:1.65,marginBottom:15}}>Connect churches to the places where your work already lives — website, Instagram, YouTube, Google, LinkedIn, or another public page.</div>
-          <div style={{display:'grid',gap:10}}>
-            <select value={linkForm.title} onChange={e=>setLinkForm(f=>({...f,title:e.target.value}))} aria-label="External link type" style={fieldStyle}>{['Website','Instagram','YouTube','Google','LinkedIn','Other'].map(label=><option key={label} value={label}>{label}</option>)}</select>
-            <input value={linkForm.url} onChange={e=>setLinkForm(f=>({...f,url:e.target.value}))} placeholder="https://…" aria-label="External profile URL" inputMode="url" style={fieldStyle}/>
-            <div><button type="button" onClick={addElsewhereLink} disabled={savingKind==='link'} style={{...VENDOR_PROFILE_SECONDARY_BUTTON_STYLE,opacity:savingKind==='link' ? .62 : 1}}>{savingKind==='link'?'Adding…':'Add link'}</button></div>
-          </div>
-          {elsewhereLinks.length ? <div style={{display:'grid',gap:7,marginTop:16}}>{elsewhereLinks.map(item=><div key={item.id} style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',alignItems:'center',gap:8,padding:'9px 10px',border:'1px solid #ece4d7',borderRadius:10,background:'#fffdf9'}}><div style={{minWidth:0}}><div style={{fontSize:11.5,fontWeight:800,color:'#1C2814'}}>{item.title}</div><a href={item.url} target="_blank" rel="noreferrer" style={{display:'block',fontSize:10.5,color:'#8a6729',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.url}</a></div><button type="button" onClick={()=>removeItem(item)} disabled={removingId===item.id} style={{...miniButton,color:'#a83c31'}}>{removingId===item.id?'…':'Remove'}</button></div>)}</div> : null}
-        </VendorProfilePanel>
-      </div>
+          <VendorProfilePanel title="Spotlight one project" icon={<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/></svg>} right={<span aria-hidden="true" style={{color:'#8b8171',fontSize:16}}>›</span>}>
+            <div style={{fontSize:12.5,color:'#716858',lineHeight:1.6,marginBottom:14}}>Add a detailed project with description, photos, and results.</div>
+            <button type="button" onClick={()=>setComposerExpanded(true)} style={{...VENDOR_PROFILE_SECONDARY_BUTTON_STYLE,width:'100%'}}>+ Add a project</button>
+          </VendorProfilePanel>
+        </div>
+      )}
 
       <VendorProfilePanel title={`Your portfolio · ${workItems.length}`} right={<button type="button" onClick={load} disabled={loading} style={miniButton}>{loading?'Loading…':'Refresh'}</button>}>
         {loadError ? <div role="alert" style={{padding:'15px 16px',border:'1px solid rgba(175,63,52,.15)',background:'rgba(175,63,52,.055)',borderRadius:12,color:'#8d332a',fontSize:12.5,lineHeight:1.55}}>{loadError} <button type="button" onClick={load} style={{...miniButton,marginLeft:8}}>Try again</button></div> : loading ? <KBSkeleton variant="list" count={3}/> : workItems.length === 0 ? (
           <div style={{padding:'24px 18px',border:'1px dashed #d9cfbd',borderRadius:14,background:'#fffdf9',textAlign:'center'}}><div style={{width:42,height:42,borderRadius:14,margin:'0 auto 11px',display:'grid',placeItems:'center',background:'rgba(176,136,64,.08)',color:'#8a6729',fontSize:18}}>✦</div><div style={{fontFamily:'var(--font-display),serif',fontSize:19,fontWeight:700,color:'#1C2814',marginBottom:5}}>Show churches what you've built.</div><div style={{fontSize:12.5,color:'#716858',lineHeight:1.6,maxWidth:520,margin:'0 auto'}}>Even one example builds trust. Add an external project above, or turn completed FaithBid work into verified proof from the Completed filter in My Projects.</div></div>
         ) : (
-          <div style={{display:'grid',gap:10}}>
+          <div className="kb1007-portfolio-grid" style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:14}}>
             {workItems.map((item,index) => {
               const faithbid = item.source === 'faithbid_project';
               const editing = editingId === item.id;
               const itemImages = Array.isArray(item?.image_urls) ? item.image_urls.filter(Boolean).slice(0,3) : [];
-              return <div key={item.id} style={{border:'1px solid #e4dccd',borderRadius:14,background:'#fffdf9',padding:'14px 15px'}}>
-                {editing ? <div style={{display:'grid',gap:9}}>
-                  <input value={editForm.title} onChange={e=>setEditForm(f=>({...f,title:e.target.value}))} maxLength={120} style={fieldStyle} aria-label="Edit portfolio title"/>
-                  <select value={editForm.category} onChange={e=>setEditForm(f=>({...f,category:e.target.value}))} style={fieldStyle} aria-label="Edit portfolio category"><option value="">Category (optional)</option>{categoryOptions.map(label=><option key={label} value={label}>{label}</option>)}</select>
-                  <textarea value={editForm.description} onChange={e=>setEditForm(f=>({...f,description:e.target.value.slice(0,280)}))} maxLength={280} rows={3} style={textAreaStyle} aria-label="Edit portfolio description"/>
-                  <div style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:9,alignItems:'center'}}><input value={editForm.clientName} onChange={e=>setEditForm(f=>({...f,clientName:e.target.value}))} maxLength={160} placeholder="Client or church name (optional)" style={fieldStyle}/><label style={{display:'flex',alignItems:'center',gap:7,fontSize:10.5,color:'#675f53',whiteSpace:'nowrap'}}><input type="checkbox" checked={!!editForm.clientPermission} onChange={e=>setEditForm(f=>({...f,clientPermission:e.target.checked}))}/> Permission confirmed</label></div>
-                  <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{(editForm.imageUrls||[]).map((urlValue,imgIdx)=><span key={`${urlValue}-${imgIdx}`} style={{display:'inline-flex',alignItems:'center',gap:6,padding:'5px 7px',border:'1px solid #e4dccd',borderRadius:9,background:'#fff'}}><img src={urlValue} alt="" style={{width:42,height:32,objectFit:'cover',borderRadius:5}}/><button type="button" onClick={()=>setEditForm(f=>({...f,imageUrls:(f.imageUrls||[]).filter((_,i)=>i!==imgIdx)}))} style={{border:0,background:'transparent',cursor:'pointer',color:'#9b4036'}}>Remove</button></span>)}</div>
-                  {(editForm.imageUrls||[]).length < 3 ? <label style={{display:'grid',gap:5,padding:'9px 10px',border:'1px dashed #d9cfbd',borderRadius:10,background:'#fffaf2'}}><span style={{fontSize:10.5,fontWeight:800,color:'#61594d'}}>Add images · {3-(editForm.imageUrls||[]).length} slot{3-(editForm.imageUrls||[]).length===1?'':'s'} left</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>{const next=validateImageFiles(e.target.files,(editForm.imageUrls||[]).length);if(next!==null)setEditImageFiles(next);e.target.value='';}} style={{fontSize:11}}/></label> : null}
-                  {editImageFiles.length ? <div style={{fontSize:10.5,color:'#7b7163'}}>{editImageFiles.length} new image{editImageFiles.length===1?'':'s'} ready to upload.</div> : null}
-                  <input value={editForm.url} onChange={e=>setEditForm(f=>({...f,url:e.target.value}))} placeholder="Project URL (optional)" style={fieldStyle} aria-label="Edit portfolio URL"/>
-                  <input value={editForm.pdfUrl} onChange={e=>setEditForm(f=>({...f,pdfUrl:e.target.value}))} placeholder="PDF or document URL (optional)" style={fieldStyle} aria-label="Edit portfolio document URL"/>
-                  <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" onClick={()=>saveEdit(item)} disabled={savingKind===`edit:${item.id}`} style={VENDOR_PROFILE_PRIMARY_BUTTON_STYLE}>{savingKind===`edit:${item.id}`?'Saving…':'Save changes'}</button><button type="button" onClick={cancelEdit} style={VENDOR_PROFILE_SECONDARY_BUTTON_STYLE}>Cancel</button></div>
-                </div> : <div style={{display:'grid',gridTemplateColumns:itemImages[0]?'112px minmax(0,1fr) auto':'minmax(0,1fr) auto',gap:14,alignItems:'start'}}>
-                  {itemImages[0] ? <img src={itemImages[0]} alt="" style={{width:112,height:84,objectFit:'cover',borderRadius:10,border:'1px solid #e2d9ca'}}/> : null}
-                  <div style={{minWidth:0}}><div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap',marginBottom:7}}><span style={badgeStyle(faithbid)}>{faithbid?'✓ ':''}{getVendorPortfolioSourceLabel(item)}</span>{item.category?<span style={badgeStyle(false)}>{item.category}</span>:null}</div><div style={{fontFamily:'var(--font-display),serif',fontSize:18,fontWeight:700,color:'#1C2814',lineHeight:1.2,marginBottom:5}}>{item.title}</div>{item.client_name?<div style={{fontSize:10.5,fontWeight:750,color:'#7d7363',marginBottom:5}}>For {item.client_name}</div>:null}{item.description ? <div style={{fontSize:12.5,color:'#665e52',lineHeight:1.6,maxWidth:760}}>{item.description}</div> : null}<div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:(item.url||item.pdf_url)?7:0}}>{item.url ? <a href={item.url} target="_blank" rel="noreferrer" style={{fontSize:11.5,fontWeight:700,color:'#7f642e'}}>View external proof ↗</a> : null}{item.pdf_url ? <a href={item.pdf_url} target="_blank" rel="noreferrer" style={{fontSize:11.5,fontWeight:700,color:'#7f642e'}}>Open document ↗</a> : null}</div></div>
-                  <div className="kb1007-proof-item-actions" style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap',justifyContent:'flex-end'}}><button type="button" onClick={()=>moveWorkItem(item,-1)} disabled={index===0||movingId===item.id} aria-label={`Move ${item.title} up`} style={{...miniButton,opacity:index===0 ? .35 : 1}}>↑</button><button type="button" onClick={()=>moveWorkItem(item,1)} disabled={index===workItems.length-1||movingId===item.id} aria-label={`Move ${item.title} down`} style={{...miniButton,opacity:index===workItems.length-1 ? .35 : 1}}>↓</button>{faithbid && item.source_project_id ? <button type="button" onClick={()=>openSourceProject(item)} style={miniButton}>Project</button> : null}{!faithbid ? <button type="button" onClick={()=>startEdit(item)} style={miniButton}>Edit</button> : null}<button type="button" onClick={()=>removeItem(item)} disabled={removingId===item.id} style={{...miniButton,color:'#a83c31'}}>{removingId===item.id?'Removing…':'Remove'}</button></div>
-                </div>}
+              const tone = faithbid ? 'green' : itemImages.length ? 'green' : (item.url || item.pdf_url) ? 'gold' : 'blue';
+              const toneBg = {green:'rgba(33,108,69,.08)',gold:'rgba(176,136,64,.1)',blue:'rgba(50,95,140,.08)'}[tone];
+              const toneColor = {green:'#246c49',gold:'#8a6729',blue:'#2f5c86'}[tone];
+              if (editing) return <div key={item.id} style={{gridColumn:'1/-1',border:'1px solid #e4dccd',borderRadius:14,background:'#fffdf9',padding:'14px 15px',display:'grid',gap:9}}>
+                <input value={editForm.title} onChange={e=>setEditForm(f=>({...f,title:e.target.value}))} maxLength={120} style={fieldStyle} aria-label="Edit portfolio title"/>
+                <select value={editForm.category} onChange={e=>setEditForm(f=>({...f,category:e.target.value}))} style={fieldStyle} aria-label="Edit portfolio category"><option value="">Category (optional)</option>{categoryOptions.map(label=><option key={label} value={label}>{label}</option>)}</select>
+                <textarea value={editForm.description} onChange={e=>setEditForm(f=>({...f,description:e.target.value.slice(0,280)}))} maxLength={280} rows={3} style={textAreaStyle} aria-label="Edit portfolio description"/>
+                <div style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:9,alignItems:'center'}}><input value={editForm.clientName} onChange={e=>setEditForm(f=>({...f,clientName:e.target.value}))} maxLength={160} placeholder="Client or church name (optional)" style={fieldStyle}/><label style={{display:'flex',alignItems:'center',gap:7,fontSize:10.5,color:'#675f53',whiteSpace:'nowrap'}}><input type="checkbox" checked={!!editForm.clientPermission} onChange={e=>setEditForm(f=>({...f,clientPermission:e.target.checked}))}/> Permission confirmed</label></div>
+                <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{(editForm.imageUrls||[]).map((urlValue,imgIdx)=><span key={`${urlValue}-${imgIdx}`} style={{display:'inline-flex',alignItems:'center',gap:6,padding:'5px 7px',border:'1px solid #e4dccd',borderRadius:9,background:'#fff'}}><img src={urlValue} alt="" style={{width:42,height:32,objectFit:'cover',borderRadius:5}}/><button type="button" onClick={()=>setEditForm(f=>({...f,imageUrls:(f.imageUrls||[]).filter((_,i)=>i!==imgIdx)}))} style={{border:0,background:'transparent',cursor:'pointer',color:'#9b4036'}}>Remove</button></span>)}</div>
+                {(editForm.imageUrls||[]).length < 3 ? <label style={{display:'grid',gap:5,padding:'9px 10px',border:'1px dashed #d9cfbd',borderRadius:10,background:'#fffaf2'}}><span style={{fontSize:10.5,fontWeight:800,color:'#61594d'}}>Add images · {3-(editForm.imageUrls||[]).length} slot{3-(editForm.imageUrls||[]).length===1?'':'s'} left</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>{const next=validateImageFiles(e.target.files,(editForm.imageUrls||[]).length);if(next!==null)setEditImageFiles(next);e.target.value='';}} style={{fontSize:11}}/></label> : null}
+                {editImageFiles.length ? <div style={{fontSize:10.5,color:'#7b7163'}}>{editImageFiles.length} new image{editImageFiles.length===1?'':'s'} ready to upload.</div> : null}
+                <input value={editForm.url} onChange={e=>setEditForm(f=>({...f,url:e.target.value}))} placeholder="Project URL (optional)" style={fieldStyle} aria-label="Edit portfolio URL"/>
+                <input value={editForm.pdfUrl} onChange={e=>setEditForm(f=>({...f,pdfUrl:e.target.value}))} placeholder="PDF or document URL (optional)" style={fieldStyle} aria-label="Edit portfolio document URL"/>
+                <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button type="button" onClick={()=>saveEdit(item)} disabled={savingKind===`edit:${item.id}`} style={VENDOR_PROFILE_PRIMARY_BUTTON_STYLE}>{savingKind===`edit:${item.id}`?'Saving…':'Save changes'}</button><button type="button" onClick={cancelEdit} style={VENDOR_PROFILE_SECONDARY_BUTTON_STYLE}>Cancel</button></div>
               </div>;
+              return <article key={item.id} style={{display:'flex',flexDirection:'column',height:'100%',border:'1px solid #e4dccd',borderRadius:14,background:'#fffdf9',overflow:'hidden'}}>
+                {itemImages.length ? (
+                  <div style={{display:'flex',aspectRatio:'16/10',background:'#ece6d8'}}>{itemImages.slice(0,2).map((src,i)=><img key={i} src={src} alt="" style={{flex:1,width:'100%',height:'100%',objectFit:'cover'}}/>)}</div>
+                ) : (
+                  <div style={{aspectRatio:'16/10',background:'linear-gradient(135deg,#f1ede3,#e6e0d2)',display:'grid',placeItems:'center'}}><span style={{width:44,height:44,borderRadius:'50%',background:'rgba(176,136,64,.14)',color:'#8a6729',display:'grid',placeItems:'center',fontSize:19}}>{faithbid ? '✓' : (item.url || item.pdf_url) ? '↗' : '✦'}</span></div>
+                )}
+                <div style={{padding:'13px 14px',display:'flex',flexDirection:'column',flex:1}}>
+                  <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap',marginBottom:7}}><span style={badgeStyle(faithbid)}>{faithbid?'✓ ':''}{getVendorPortfolioSourceLabel(item)}</span>{item.category?<span style={badgeStyle(false)}>{item.category}</span>:null}</div>
+                  <div style={{fontFamily:'var(--font-display),serif',fontSize:17,fontWeight:700,color:'#1C2814',lineHeight:1.18,marginBottom:4}}>{item.title}</div>
+                  {item.client_name?<div style={{fontSize:10.5,fontWeight:750,color:'#7d7363',marginBottom:5}}>For {item.client_name}</div>:null}
+                  {item.description ? <div style={{fontSize:12,color:'#665e52',lineHeight:1.55,marginBottom:9}}>{item.description.length > 110 ? `${item.description.slice(0,110)}…` : item.description}</div> : null}
+                  <div style={{marginTop:'auto',display:'flex',alignItems:'center',gap:8,padding:'8px 9px',borderRadius:9,background:toneBg}}>
+                    <span style={{fontSize:13,color:toneColor}}>{faithbid ? '✓' : (item.url || item.pdf_url) ? '↗' : '✦'}</span>
+                    <span style={{fontSize:11,fontWeight:650,color:toneColor,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.url ? 'View external proof' : item.pdf_url ? 'Open document' : faithbid ? 'Verified by FaithBid' : 'Added by you'}</span>
+                  </div>
+                  <div className="kb1007-proof-item-actions" style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap',marginTop:10,paddingTop:10,borderTop:'1px solid #ece4d7'}}>
+                    <button type="button" onClick={()=>moveWorkItem(item,-1)} disabled={index===0||movingId===item.id} aria-label={`Move ${item.title} up`} style={{...miniButton,opacity:index===0 ? .35 : 1}}>↑</button>
+                    <button type="button" onClick={()=>moveWorkItem(item,1)} disabled={index===workItems.length-1||movingId===item.id} aria-label={`Move ${item.title} down`} style={{...miniButton,opacity:index===workItems.length-1 ? .35 : 1}}>↓</button>
+                    {faithbid && item.source_project_id ? <button type="button" onClick={()=>openSourceProject(item)} style={miniButton}>Project</button> : null}
+                    {!faithbid ? <button type="button" onClick={()=>startEdit(item)} style={miniButton}>Edit</button> : null}
+                    <button type="button" onClick={()=>removeItem(item)} disabled={removingId===item.id} style={{...miniButton,color:'#a83c31',marginLeft:'auto'}}>{removingId===item.id?'Removing…':'Remove'}</button>
+                  </div>
+                </div>
+              </article>;
             })}
           </div>
         )}
       </VendorProfilePanel>
 
       <div style={{padding:'13px 15px',borderRadius:13,border:'1px solid rgba(176,136,64,.16)',background:'rgba(176,136,64,.055)',fontSize:11.5,color:'#6d604b',lineHeight:1.6}}><strong style={{color:'#4f432f'}}>Portfolio truth standard:</strong> “Completed via FaithBid” is reserved for work tied to a completed FaithBid project. Anything you add yourself is labeled “External example.” Only publish work, client names, images, or documents you have the right to share.</div>
+    </div>
+  );
+}
+
+// VendorPortfolioProofScreen is top-level, while the original profile panel
+// primitives remain scoped to the ProjectsScreen IIFE. Keep this exact local
+// copy at top level so the proof route cannot cross that lexical boundary.
+const VENDOR_PROFILE_PANEL_STYLE = {
+  background: "#fff",
+  border: "1px solid #dfd5c2",
+  borderRadius: 16,
+  overflow: "hidden",
+  boxShadow: "0 1px 2px rgba(28,40,20,0.035)",
+};
+
+const VENDOR_PROFILE_PANEL_HD_STYLE = {
+  padding: "12px 16px",
+  background: "#fffdf8",
+  borderBottom: "1px solid #efe7d9",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 10,
+};
+
+const VENDOR_PROFILE_PANEL_TITLE_STYLE = {
+  fontFamily: "var(--font-display),serif",
+  fontSize: 16,
+  fontWeight: 700,
+  color: "#1C2814",
+  letterSpacing: "-0.01em",
+};
+
+const VENDOR_PROFILE_PANEL_BODY_STYLE = { padding: 16 };
+
+function VendorProfilePanel({ title, children, style = {}, headerStyle = {}, bodyStyle = {}, right = null, icon = null }) {
+  return (
+    <div style={{ ...VENDOR_PROFILE_PANEL_STYLE, ...style }}>
+      {title && (
+        <div style={{ ...VENDOR_PROFILE_PANEL_HD_STYLE, ...headerStyle }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+            {icon ? <span style={{ flex: "none", width: 38, height: 38, borderRadius: "50%", background: "rgba(176,136,64,.12)", color: "#8a6729", display: "grid", placeItems: "center" }}>{icon}</span> : null}
+            <div style={VENDOR_PROFILE_PANEL_TITLE_STYLE}>{title}</div>
+          </div>
+          {right}
+        </div>
+      )}
+      <div style={{ ...VENDOR_PROFILE_PANEL_BODY_STYLE, ...bodyStyle }}>{children}</div>
     </div>
   );
 }
@@ -65710,35 +65791,36 @@ function VendorPortfolioProofScreen({ role, currentUser, userProfile, showToast,
   }
 
   return (
-    <div className="kb1007-proof-screen" style={{minHeight:'calc(100vh - 48px)',background:'linear-gradient(180deg,#fbf8f1 0%,#f8f5ee 100%)',paddingBottom:64}}>
+    <div className="kb1007-proof-screen" style={{position:'relative',overflow:'hidden',minHeight:'calc(100vh - 48px)',background:'radial-gradient(circle at 78% 2%,rgba(231,225,210,.38),transparent 28%),linear-gradient(180deg,#fbf8f1 0%,#f8f5ee 100%)',paddingBottom:64}}>
       <style>{`
-        @media(max-width:900px){.kb1007-proof-head-grid{grid-template-columns:1fr!important}.kb1007-proof-composer-grid{grid-template-columns:1fr!important}}
-        @media(max-width:760px){.kb1007-proof-wrap{padding-left:14px!important;padding-right:14px!important}.kb1007-proof-title{font-size:36px!important}.kb1007-proof-head-actions{justify-content:flex-start!important}.kb1007-proof-item-actions{justify-content:flex-start!important}}
+        @media(max-width:900px){.kb1007-proof-head-grid{grid-template-columns:1fr!important}.kb1007-proof-composer-grid{grid-template-columns:1fr!important}.kb1007-portfolio-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.kb1007-spotlight-form{grid-template-columns:1fr!important}}
+        @media(max-width:760px){.kb1007-proof-wrap{padding-left:14px!important;padding-right:14px!important}.kb1007-proof-title{font-size:36px!important}.kb1007-proof-head-actions{justify-content:flex-start!important}.kb1007-proof-item-actions{justify-content:flex-start!important}.kb1007-portfolio-grid{grid-template-columns:1fr!important}}
       `}</style>
-      <div className="kb1007-proof-wrap" style={{maxWidth:1180,margin:'0 auto',padding:compact?'22px 14px 0':'30px 28px 0'}}>
+      <svg aria-hidden="true" viewBox="0 0 200 200" style={{position:'absolute',top:-20,left:-30,width:220,height:220,opacity:.28,color:'#8a6c3c',pointerEvents:'none'}}><g fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M20 180C10 120 30 60 90 20"/><path d="M30 160c20-10 35-28 40-55"/><path d="M45 130c18-4 32-18 38-40"/></g></svg>
+      <svg aria-hidden="true" viewBox="0 0 200 200" style={{position:'absolute',top:40,right:-40,width:260,height:260,opacity:.22,color:'#8a6c3c',pointerEvents:'none'}}><g fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M180 20C190 90 165 150 100 185"/><path d="M165 50c-15 15-25 35-25 60"/><path d="M150 85c-14 6-24 20-27 42"/></g></svg>
+      <div className="kb1007-proof-wrap" style={{position:'relative',zIndex:1,maxWidth:1180,margin:'0 auto',padding:compact?'22px 14px 0':'30px 28px 0'}}>
         <div className="kb1007-proof-head-grid" style={{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',gap:22,alignItems:'end',paddingBottom:24,borderBottom:'1px solid rgba(28,40,20,.10)'}}>
           <div>
             <div style={{fontSize:10.5,fontWeight:800,letterSpacing:'.16em',textTransform:'uppercase',color:'#a27b35',marginBottom:8}}>Your portfolio</div>
             <h1 className="kb1007-proof-title" style={{fontFamily:'var(--font-display),serif',fontSize:48,lineHeight:1.02,letterSpacing:'-.045em',color:'#152411',margin:0,fontWeight:700}}>Turn good work into proof.</h1>
             <div style={{fontSize:14,color:'#665e52',lineHeight:1.65,maxWidth:680,marginTop:9}}>Build a concise, credible showcase churches can understand quickly. External work stays clearly labeled; FaithBid-completed work carries its own platform-backed label.</div>
+            <div style={{fontSize:11.5,color:'#8b8171',marginTop:9}}>{workCount} work example{workCount===1?'':'s'}{!portfolioPublic ? ' · Public at Marketplace launch' : ''}</div>
           </div>
           <div className="kb1007-proof-head-actions" style={{display:'flex',gap:9,alignItems:'center',justifyContent:'flex-end',flexWrap:'wrap'}}>
-            <span style={{fontSize:11,color:'#756b5c',padding:'8px 10px',borderRadius:999,border:'1px solid #ded6c8',background:'#fffdf8'}}>{workCount} work example{workCount===1?'':'s'}</span>
-            {!portfolioPublic ? <span style={{fontSize:10.5,color:'#8a6729',padding:'7px 9px',borderRadius:999,border:'1px solid rgba(176,136,64,.18)',background:'rgba(176,136,64,.06)'}}>Public at Marketplace launch</span> : null}
             <button type="button" onClick={sharePublicProfile} disabled={loadingVendor||!vendor?.id} style={{...VENDOR_PROFILE_SECONDARY_BUTTON_STYLE,opacity:(loadingVendor||!vendor?.id) ? .55 : 1}}>Copy public link</button>
-            <button type="button" onClick={previewPublicProfile} disabled={loadingVendor||!vendor?.id} style={{...VENDOR_PROFILE_SECONDARY_BUTTON_STYLE,opacity:(loadingVendor||!vendor?.id) ? .55 : 1}}>Preview public profile</button>
+            <button type="button" onClick={previewPublicProfile} disabled={loadingVendor||!vendor?.id} style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,opacity:(loadingVendor||!vendor?.id) ? .55 : 1}}>Preview public profile →</button>
           </div>
         </div>
 
         <div style={{display:'grid',gridTemplateColumns:compact?'1fr':'minmax(0,1fr) 330px',gap:16,marginTop:22,marginBottom:18}}>
-          <VendorProfilePanel title="Positioning statement" right={<span style={{fontSize:10.5,color:'#8b8171'}}>{positioning.length}/160</span>}>
+          <VendorProfilePanel title="Positioning statement" icon={<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 3a2.83 2.83 0 0 1 4 4L7 21l-4 1 1-4Z"/></svg>} right={<span style={{fontSize:10.5,color:'#8b8171'}}>{positioning.length}/160</span>}>
             <div style={{fontSize:12.5,color:'#665e52',lineHeight:1.6,marginBottom:11}}>One clear line that tells a church what you do best. This also updates the tagline on your public vendor profile.</div>
             <div style={{display:'grid',gridTemplateColumns:compact?'1fr':'minmax(0,1fr) auto',gap:9,alignItems:'center'}}>
               <input value={positioning} onChange={e=>setPositioning(e.target.value.slice(0,160))} maxLength={160} placeholder="Example: Church roofing and exterior systems built for long-term stewardship." style={{width:'100%',boxSizing:'border-box',height:44,padding:'0 13px',borderRadius:11,border:'1px solid #ded6c8',background:'#fffdf9',fontSize:13,color:'#1C2814',outline:'none'}}/>
               <button type="button" onClick={savePositioning} disabled={savingPositioning||loadingVendor} style={{...VENDOR_PROFILE_PRIMARY_BUTTON_STYLE,opacity:(savingPositioning||loadingVendor) ? .6 : 1}}>{savingPositioning?'Saving…':'Save'}</button>
             </div>
           </VendorProfilePanel>
-          <VendorProfilePanel title="Proof standard">
+          <VendorProfilePanel title="Proof standard" icon={<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6Z"/></svg>}>
             <div style={{fontSize:12.5,color:'#665e52',lineHeight:1.65}}>FaithBid separates platform-completed work from examples you add yourself. That distinction stays visible so churches know what the platform can verify.</div>
             <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:12}}><span style={{padding:'6px 9px',borderRadius:999,background:'rgba(33,108,69,.07)',border:'1px solid rgba(33,108,69,.15)',fontSize:10.5,fontWeight:800,color:'#246c49'}}>✓ Completed via FaithBid</span><span style={{padding:'6px 9px',borderRadius:999,background:'rgba(176,136,64,.07)',border:'1px solid rgba(176,136,64,.17)',fontSize:10.5,fontWeight:800,color:'#8a6729'}}>External example</span></div>
           </VendorProfilePanel>

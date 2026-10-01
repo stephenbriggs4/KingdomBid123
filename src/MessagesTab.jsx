@@ -132,6 +132,7 @@ button.mt-file{cursor:pointer;font-family:inherit}
 .mt-hint{padding:0 18px 12px;font-size:12px;color:#8a918d}
 @media(max-width:560px){.mt-compose{gap:7px;padding:10px 10px 6px}.mt-compose textarea{padding:11px 10px;font-size:13.5px}.mt-attach{width:42px}.mt-send{padding:0 14px}}
 .mt-empty{flex:1;display:grid;place-items:center;text-align:center;padding:30px;color:var(--muted)}
+.mt-empty-ico{width:52px;height:52px;margin:0 auto 14px;border-radius:50%;background:rgba(176,136,64,.1);color:var(--gold);display:grid;place-items:center}
 .mt-empty h4{margin:0 0 6px;font-family:var(--font-display),serif;font-size:22px;color:var(--ink)}
 .mt-empty p{margin:0 auto;max-width:360px;font-size:14px;line-height:1.5}
 .mt-empty button{margin-top:14px;height:40px;padding:0 18px;border:0;border-radius:10px;background:var(--green);color:#fff;font:800 13px var(--font-sans),sans-serif;cursor:pointer}
@@ -504,6 +505,7 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, o
           ) : (
             <div className="mt-empty">
               <div>
+                <div className="mt-empty-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 5h16v11H10l-4 4v-4H4z"/></svg></div>
                 <h4>Select a conversation</h4>
                 <p>Pick a project on the left to read and reply.</p>
               </div>

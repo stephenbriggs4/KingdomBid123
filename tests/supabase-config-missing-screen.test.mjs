@@ -29,7 +29,10 @@ test("ordinary Vite development warns when configured against production without
   assert.match(clientSource, /viteEnv\.DEV/);
   assert.match(clientSource, /supabaseProjectRef === FAITHBID_PRODUCTION_PROJECT_REF/);
   assert.match(clientSource, /export const supabaseProductionDevWarning/);
-  assert.match(startupSource, /Local preview connected to live production data/);
   assert.match(clientSource, /export const supabaseConfigured = Boolean\(supabaseUrl && supabaseAnonKey\)/);
   assert.match(clientSource, /console\.warn/);
+});
+
+test("ProductionDevelopmentWarning banner is intentionally retired (removed at Stephen's request, 2026-10-01) but the underlying production-dev detection it was wired to still exists", () => {
+  assert.match(startupSource, /export function ProductionDevelopmentWarning\(\)\s*\{\s*return null\s*\}/);
 });
