@@ -28,6 +28,28 @@ async function expectSingleMain(page) {
   await expect(page.locator('main')).toHaveCount(1)
 }
 
+async function expectMobileControlTargets(page) {
+  const undersized = await page.locator(
+    '#root button, #root [role="button"], #root [role="tab"], #root input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), #root select, #root textarea',
+  ).evaluateAll((elements) => elements
+    .filter((element) => {
+      const rect = element.getBoundingClientRect()
+      const style = getComputedStyle(element)
+      const hiddenFromUsers = element.closest('[aria-hidden="true"]') || element.tabIndex < 0
+      return !hiddenFromUsers && rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden'
+    })
+    .map((element) => {
+      const rect = element.getBoundingClientRect()
+      return {
+        label: (element.innerText || element.getAttribute('aria-label') || element.getAttribute('placeholder') || '').trim(),
+        width: Math.round(rect.width),
+        height: Math.round(rect.height),
+      }
+    })
+    .filter((target) => target.width < 44 || target.height < 44))
+  expect(undersized).toEqual([])
+}
+
 async function openAnonymousRoute(page, hash) {
   await page.route('http://127.0.0.1:54321/rest/v1/**', async (route) => {
     await route.fulfill({
@@ -52,6 +74,7 @@ test('anonymous landing renders one main landmark without viewport overflow', as
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expectSingleMain(page)
   await expectNoHorizontalDocumentOverflow(page)
+  await expectMobileControlTargets(page)
 })
 
 for (const route of ['#vendor-signup', '#guest-post-project']) {
@@ -90,6 +113,7 @@ for (const route of ['#vendor-signup', '#guest-post-project']) {
     expect(geometry.labelLeft).toBeGreaterThanOrEqual(geometry.checkboxRight)
     expect(geometry.labelRight).toBeLessThanOrEqual(geometry.viewportWidth)
     await expectNoHorizontalDocumentOverflow(page)
+    await expectMobileControlTargets(page)
   })
 }
 
@@ -102,6 +126,7 @@ test('mobile auth header stays readable and anonymous', async ({ page }) => {
   await expect(homeLink).toBeVisible()
   await expectSingleMain(page)
   await expectNoHorizontalDocumentOverflow(page)
+  await expectMobileControlTargets(page)
 })
 
 test('a direct password-reset route fails closed without a recovery session', async ({ page }) => {
@@ -111,4 +136,5 @@ test('a direct password-reset route fails closed without a recovery session', as
   await expect(page.getByText(/reset link is invalid or expired/i)).toBeVisible()
   await expect(page.locator('input[type="password"]')).toHaveCount(0)
   await expectSingleMain(page)
+  await expectMobileControlTargets(page)
 })

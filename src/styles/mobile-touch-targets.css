@@ -1,0 +1,27 @@
+/*
+ * Final mobile interaction layer.
+ *
+ * FaithBid's product surfaces intentionally use different visual systems, but
+ * their tap targets share one physical requirement. Keep the visible icon and
+ * type treatments intact while guaranteeing a 44px interaction box on phones.
+ */
+@media (max-width: 700px) {
+  #root:not(:has(.kbge-root)) button,
+  #root:not(:has(.kbge-root)) [role="button"],
+  #root:not(:has(.kbge-root)) [role="tab"] {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    touch-action: manipulation;
+  }
+
+  #root:not(:has(.kbge-root)) [role="tab"] {
+    flex: 0 0 auto !important;
+    white-space: nowrap;
+  }
+
+  #root:not(:has(.kbge-root)) input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+  #root:not(:has(.kbge-root)) select,
+  #root:not(:has(.kbge-root)) textarea {
+    min-height: 44px !important;
+  }
+}
