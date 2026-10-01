@@ -66,6 +66,7 @@
     "@sentry/react": "^10.51.0",
     "@supabase/supabase-js": "2.112.4",
     "clsx": "^2.1.1",
+    "leaflet": "^1.9.4",
     "pptxgenjs": "^4.0.1",
     "qrcode": "^1.5.4",
     "react": "^19.2.4",

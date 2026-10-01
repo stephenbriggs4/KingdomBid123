@@ -104,7 +104,10 @@ insert into church_intel.church_system_links(organization_id,system_key,growth_c
 select throws_ok($$insert into church_intel.church_system_links(organization_id,system_key,growth_church_id,link_status,evidence_claim_id) values('aaaaaaaa-0000-0000-0000-000000000002','growth_church','99999999-0000-0000-0000-000000000001','active','ffffffff-0000-0000-0000-000000000001')$$,'23505',null,'external operational record cannot actively link twice');
 
 -- AT-09 exact external privileges and zero operational writes.
-select ok(not has_table_privilege('church_intel_api_owner','public.profiles','SELECT'),'no Profiles read');
+select ok(has_column_privilege('church_intel_api_owner','public.profiles','org_name','SELECT'),'narrow Profiles organization-name read');
+select ok(has_column_privilege('church_intel_api_owner','public.profiles','denomination','SELECT'),'narrow Profiles denomination read');
+select ok(not has_column_privilege('church_intel_api_owner','public.profiles','email','SELECT'),'no Profiles contact/email read');
+select ok(not has_table_privilege('church_intel_api_owner','public.profiles','SELECT'),'no whole Profiles-table read');
 select ok(not has_table_privilege('church_intel_api_owner','public.growth_churches','SELECT'),'no Growth read');
 select ok(not has_table_privilege('church_intel_api_owner','concierge_ops.organizations','SELECT'),'no Concierge read');
 select ok(not has_table_privilege('church_intel_api_owner','public.gpi_organizations','SELECT'),'no GPI read');
@@ -125,7 +128,7 @@ insert into church_intel.source_records(id,source_id,source_external_key,retriev
 delete from auth.users where id='33333333-3333-3333-3333-333333333333';
 select ok((select created_by is null from church_intel.source_records where id='eeeeeeee-0000-0000-0000-000000000002'),'actor deletion nulls attribution without deleting history');
 select is((select count(*)::int from pg_constraint c join pg_class t on t.oid=c.conrelid join pg_namespace n on n.oid=t.relnamespace where n.nspname='church_intel' and c.contype='f' and c.confrelid='auth.users'::regclass and c.confdeltype<>'n'),0,'all Church Intelligence auth-user FKs use SET NULL');
-select is((select count(*)::int from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'ci_%' and p.prosecdef and pg_get_userbyid(p.proowner)='church_intel_api_owner' and has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE') and not has_function_privilege('service_role',p.oid,'EXECUTE')),13,'all 13 public CI RPCs are owned narrowly and executable only by authenticated');
+select is((select count(*)::int from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'ci_%' and p.prosecdef and pg_get_userbyid(p.proowner)='church_intel_api_owner' and has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE') and not has_function_privilege('service_role',p.oid,'EXECUTE')),19,'all 19 public CI RPCs are owned narrowly and executable only by authenticated');
 select is((select count(*)::int from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='church_intel' and c.relkind='r' and c.relrowsecurity and c.relforcerowsecurity),11,'RLS enabled and forced on all 11 tables');
 select is((select count(*)::int from pg_tables t where t.schemaname='church_intel' and (has_table_privilege('anon',format('%I.%I',t.schemaname,t.tablename),'SELECT,INSERT,UPDATE,DELETE') or has_table_privilege('authenticated',format('%I.%I',t.schemaname,t.tablename),'SELECT,INSERT,UPDATE,DELETE') or has_table_privilege('service_role',format('%I.%I',t.schemaname,t.tablename),'SELECT,INSERT,UPDATE,DELETE'))),0,'browser/service roles have no private base-table privileges');
 

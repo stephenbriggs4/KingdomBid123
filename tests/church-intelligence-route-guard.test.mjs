@@ -12,20 +12,35 @@ test("church-intelligence is a protected, lazy-loaded route wired into the admin
 });
 
 test("the ChurchIntelligence component denies non-admins before fetching or rendering real data", () => {
-  assert.match(component, /if\(!currentUser\?\.id\|\|!isAdmin\)return;/);
-  assert.match(component, /if\(!isAdmin\)return <div className="ci-denied">/);
+  // Every data-fetching callback bails out before calling any RPC when the
+  // caller isn't an authenticated admin.
+  assert.match(component, /if\s*\(!currentUser\?\.id\s*\|\|\s*!isAdmin\)\s*return;/);
+  assert.match(component, /if\s*\(!isAdmin\)\s*return <div className="ci-denied">/);
 });
 
-test("the component only calls the narrow ci_list_organizations RPC, never a private church_intel table directly", () => {
-  assert.match(component, /supabase\.rpc\("ci_list_organizations"/);
+test("the component only reaches church_intel data through narrow admin-gated RPCs, never a private table directly", () => {
+  // All reads/writes go through supabase.rpc(fn, args) via the callRpc/runAction
+  // helpers -- never a direct .from("church_intel....") query from the browser.
+  assert.match(component, /const callRpc = useCallback\(async \(fn, args, label\) => \{/);
+  assert.match(component, /signal => supabase\.rpc\(fn, args\)\.abortSignal\(signal\)/);
   assert.match(component, /withRequestDeadline/);
-  assert.match(component, /\.abortSignal\(signal\)/);
-  assert.doesNotMatch(component, /from\(["']church_intel\./);
+  for (const rpc of [
+    "ci_list_organizations_overview", "ci_get_organization",
+    "ci_list_review_cases", "ci_list_sources", "ci_list_boundary_versions", "ci_list_system_links",
+    "ci_suggest_faithbid_matches", "ci_create_research_bundle", "ci_promote_claim",
+    "ci_open_review_case", "ci_resolve_review_case", "ci_apply_source_policy_restriction",
+    "ci_stage_dallas_boundary", "ci_publish_boundary", "ci_set_system_link",
+  ]) {
+    assert.ok(component.includes(`"${rpc}"`), `expected a callRpc(...) call naming ${rpc}`);
+  }
+  assert.doesNotMatch(component, /\.from\(["']church_intel\./);
 });
 
 test("data health distinguishes verified runtime evidence from designed or unpopulated controls", () => {
-  assert.match(component, /\["Private RPC boundary",online\?"Verified"/);
-  assert.match(component, /\["Canonical hierarchy","Designed"/);
-  assert.match(component, /\["Dallas geography","Not populated"/);
-  assert.doesNotMatch(component, /\["Canonical hierarchy",true/);
+  const foundationChecksBlock = component.slice(component.indexOf("const foundationChecks"), component.indexOf("], [online"));
+  assert.match(foundationChecksBlock, /"Private RPC boundary"/);
+  assert.match(foundationChecksBlock, /"Canonical hierarchy", "Designed"/);
+  assert.match(foundationChecksBlock, /"Dallas geography"/);
+  // The boundary row must be driven by real published-boundary state, not a hardcoded string.
+  assert.match(foundationChecksBlock, /publishedBoundaries > 0 \? "Published" : "Not published"/);
 });

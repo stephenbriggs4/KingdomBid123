@@ -33,6 +33,8 @@ test("CSP allows every external origin the app actually uses, and nothing else",
   assert.match(cspLine, /img-src[^;]*images\.unsplash\.com/);
   assert.match(cspLine, /img-src[^;]*blob:/);
   assert.match(cspLine, /img-src[^;]*\*\.supabase\.co/);
+  // Church Intelligence Dallas map: free OpenStreetMap tiles (Leaflet).
+  assert.match(cspLine, /img-src[^;]*tile\.openstreetmap\.org/);
   // API + Realtime (websocket) + error reporting.
   assert.match(cspLine, /connect-src[^;]*\*\.supabase\.co/);
   assert.match(cspLine, /connect-src[^;]*wss:\/\/\*\.supabase\.co/);
