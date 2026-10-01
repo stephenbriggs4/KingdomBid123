@@ -62980,7 +62980,7 @@ function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallb
     <AuthShell nav={nav}>
       <div className="fb-auth-intro" style={{marginBottom:48}}>
         <div className="fb-auth-eyebrow" style={{fontSize:11,letterSpacing:3,textTransform:"uppercase",color:"var(--gold-light)",fontWeight:700,marginBottom:18}}>Sign in</div>
-        <div className="fb-auth-title" style={{fontFamily:"var(--font-display),serif",fontSize:52,fontWeight:700,color:"#fff",lineHeight:1,letterSpacing:-2,marginBottom:14}}>Welcome back.</div>
+        <h1 className="fb-auth-title" style={{fontFamily:"var(--font-display),serif",fontSize:52,fontWeight:700,color:"#fff",lineHeight:1,letterSpacing:-2,margin:"0 0 14px"}}>Welcome back.</h1>
         <div className="fb-auth-subtitle" style={{fontSize:15,color:"var(--atext-muted)",fontWeight:400}}>Enter your details below.</div>
       </div>
       {errBanner}
