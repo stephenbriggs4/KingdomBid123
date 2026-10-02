@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "./supabaseClient";
 
 let COMPARE_CRITERIA_META, DEFAULT_COMPARE_CRITERIA, KB_BP_MOBILE, KB_BP_TABLET, KB_COMPARE_WORKSPACE_MAX_ITEMS, KB_NAV_SCREENS, KB_PROJECT_OPS_KEY, OperationalAlertList, buildActivityCenterInteropItem, buildActivityCenterNotificationItem, buildActivityCenterProjectItem, buildOperationalAlertFeedItem, buildVendorPairSignals, buildVendorProfileSeed, collectOperationalAlertsForProjects, deriveCanonicalDealState, fetchVendorPairSignalMaps, firstNonEmpty, getCompareWorkspaceCount, getDealStateSummary, getInitialsSafe, getReturnNavigationTarget, listProjectInteropEntries, loadCompareWorkspaceState, logError, makeEmptyVendorPairSignalMaps, normalizeCompareCriteria, normalizeProjectEntity, normalizeProjectOpsSnapshot, queueInboxNavigation, queueProjectNavigation, queueVendorNavigation, readLocalJson, readReturnContext, removeCompareWorkspaceItem, runReturnNavigation, safeArray, saveCompareWorkspaceState, scoreVendorAgainstProject, selectNotificationsSafe, selectUserConversationsSafe, updateNotificationsSafe, useViewportWidth;
+const EMPTY_ACTIVITY_ITEMS = Object.freeze([]);
 
 function applyWorkspaceScreenDependencies(dependencies = {}) {
   ({ COMPARE_CRITERIA_META, DEFAULT_COMPARE_CRITERIA, KB_BP_MOBILE, KB_BP_TABLET, KB_COMPARE_WORKSPACE_MAX_ITEMS, KB_NAV_SCREENS, KB_PROJECT_OPS_KEY, OperationalAlertList, buildActivityCenterInteropItem, buildActivityCenterNotificationItem, buildActivityCenterProjectItem, buildOperationalAlertFeedItem, buildVendorPairSignals, buildVendorProfileSeed, collectOperationalAlertsForProjects, deriveCanonicalDealState, fetchVendorPairSignalMaps, firstNonEmpty, getCompareWorkspaceCount, getDealStateSummary, getInitialsSafe, getReturnNavigationTarget, listProjectInteropEntries, loadCompareWorkspaceState, logError, makeEmptyVendorPairSignalMaps, normalizeCompareCriteria, normalizeProjectEntity, normalizeProjectOpsSnapshot, queueInboxNavigation, queueProjectNavigation, queueVendorNavigation, readLocalJson, readReturnContext, removeCompareWorkspaceItem, runReturnNavigation, safeArray, saveCompareWorkspaceState, scoreVendorAgainstProject, selectNotificationsSafe, selectUserConversationsSafe, updateNotificationsSafe, useViewportWidth } = dependencies || {});
@@ -494,21 +495,18 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
   // widths this screen already classified correctly.
   const isPhone = viewportWidth < KB_BP_MOBILE;
   const isTablet = viewportWidth < 1040;
-  const [notifications, setNotifications] = useState([]);
-  const [conversations, setConversations] = useState([]);
-  const [projects, setProjects] = useState([]);
+  const [storedNotifications, setNotifications] = useState([]);
+  const [storedConversations, setConversations] = useState([]);
+  const [storedProjects, setProjects] = useState([]);
+  const [loadedActivityScope, setLoadedActivityScope] = useState("");
   const [opsState, setOpsState] = useState(() => readLocalJson(KB_PROJECT_OPS_KEY, {}));
   const [interopState, setInteropState] = useState(() => listProjectInteropEntries());
   const [feedFilter, setFeedFilter] = useState('all');
   const [markingAllRead, setMarkingAllRead] = useState(false);
+  const currentActivityScope = currentUser?.id ? `${currentUser.id}:${role || "church"}` : "";
 
   useEffect(() => {
-    if (!currentUser?.id) {
-      setNotifications([]);
-      setConversations([]);
-      setProjects([]);
-      return;
-    }
+    if (!currentUser?.id) return;
     let cancelled = false;
     (async() => {
       try {
@@ -523,12 +521,14 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
         setNotifications(notifRes.data || []);
         setConversations(convoRes.data || []);
         setProjects((projectRes.data || []).map(row => row.projects ? normalizeProjectEntity(row.projects) : normalizeProjectEntity(row)).filter(Boolean));
+        setLoadedActivityScope(currentActivityScope);
       } catch(err) {
         logError('activity-center-fetch', err);
         if (cancelled) return;
         setNotifications([]);
         setConversations([]);
         setProjects([]);
+        setLoadedActivityScope(currentActivityScope);
       }
     })();
     const sync = () => {
@@ -542,8 +542,12 @@ function ActivityCenterScreen({ currentUser, nav = () => {}, role = '', showToas
       window.removeEventListener('storage', sync);
       window.removeEventListener('kb:storage-sync', sync);
     };
-  }, [currentUser?.id, role]);
+  }, [currentUser?.id, role, currentActivityScope]);
 
+  const activityDataIsCurrent = !!currentActivityScope && loadedActivityScope === currentActivityScope;
+  const notifications = activityDataIsCurrent ? storedNotifications : EMPTY_ACTIVITY_ITEMS;
+  const conversations = activityDataIsCurrent ? storedConversations : EMPTY_ACTIVITY_ITEMS;
+  const projects = activityDataIsCurrent ? storedProjects : EMPTY_ACTIVITY_ITEMS;
   const unreadNotifs = notifications.filter(n => !n.read).length;
   const normalizedOpsEntries = Object.entries(opsState || {}).map(([projectId, value]) => {
     const project = projects.find(item => String(item?.id || '') === String(projectId)) || { id:projectId };
