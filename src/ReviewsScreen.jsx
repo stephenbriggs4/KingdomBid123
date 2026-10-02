@@ -8,45 +8,41 @@ function applyReviewsScreenDependencies(values = {}) {
   ({ HIGHLIGHT_TAGS, KB_NAV_SCREENS, KB_REVIEW_FILTER_OPTIONS, KB_REVIEW_SORT_OPTIONS, KB_WORKSPACE_CLAY_BACKGROUND, STAR_LABELS, activateOnKey, clearPendingReviewTarget, filterAndSortReviewRecords, getCurrentUserSafe, getPendingReviewTarget, getReturnNavigationTarget, getReviewDashboardStats, getReviewFooterChips, getReviewResultSummary, getReviewSidebarGuidance, getReviewStrongestSignal, logError, queueProjectNavigation, readReturnContext, runSupabaseWithFallback, starFill } = values || {});
 }
 
+function mapReview(r) {
+  return {
+    id: r.id,
+    vendor_id: r.vendor_id || null,
+    project_id: r.project_id || null,
+    author: r.church_name || "Church",
+    avatar: (r.church_name || "C").slice(0,1).toUpperCase(),
+    city: r.city || "",
+    rating: r.rating || 5,
+    body: r.body || "",
+    title: r.title || "",
+    date: r.created_at ? new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "",
+    project: r.project_title || "",
+    reply: r.vendor_reply || null,
+    helpful: r.helpful_count || 0,
+    recommend: r.recommend ?? true,
+    verified: r.verified ?? true,
+    featured: r.featured ?? false,
+    tags: r.tags || [],
+    cats: r.sub_ratings ? Object.entries(r.sub_ratings).map(([label, stars]) => ({ label, stars })) : [],
+  };
+}
+
 function ReviewsScreen({role, showToast, nav}){
-  const [view, setView] = useState("dashboard");
+  const [initialPendingTarget] = useState(() => getPendingReviewTarget());
+  const [view, setView] = useState(() => initialPendingTarget?.vendor_id ? "write" : "dashboard");
   const [reviews, setReviews] = useState([]);
   const [pending, setPending] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
-  const [selectedVendor, setSelectedVendor] = useState(null);
+  const [selectedVendor, setSelectedVendor] = useState(() => initialPendingTarget?.vendor_id ? initialPendingTarget : null);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [currentVendorId, setCurrentVendorId] = useState(null);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    let mounted = true;
-    getCurrentUserSafe().then(user => {
-      if (!mounted) return;
-      const uid = user?.id;
-      setCurrentUserId(uid);
-      if (uid) fetchReviews(uid, controller.signal);
-    });
-    const pendingTarget = getPendingReviewTarget();
-    if (pendingTarget?.vendor_id) {
-      clearPendingReviewTarget();
-      setSelectedVendor(pendingTarget);
-      setView("write");
-    }
-    const handler = (e) => {
-      const v = e.detail;
-      if (v && v.vendor_id) {
-        setSelectedVendor(v);
-        setView("write");
-      } else {
-        setView("pending");
-      }
-    };
-    document.addEventListener("kb:open-review", handler);
-    return () => { mounted = false; controller.abort(); document.removeEventListener("kb:open-review", handler); };
-  }, []);
-
-  const fetchReviews = async (uid, signal) => {
+  const fetchReviews = React.useCallback(async (uid, signal) => {
     setLoading(true);
     try {
       if (role === "vendor") {
@@ -115,28 +111,30 @@ function ReviewsScreen({role, showToast, nav}){
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
-  };
+  }, [role]);
 
-  const mapReview = (r) => ({
-    id: r.id,
-    vendor_id: r.vendor_id || null,
-    project_id: r.project_id || null,
-    author: r.church_name || "Church",
-    avatar: (r.church_name || "C").slice(0,1).toUpperCase(),
-    city: r.city || "",
-    rating: r.rating || 5,
-    body: r.body || "",
-    title: r.title || "",
-    date: r.created_at ? new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "",
-    project: r.project_title || "",
-    reply: r.vendor_reply || null,
-    helpful: r.helpful_count || 0,
-    recommend: r.recommend ?? true,
-    verified: r.verified ?? true,
-    featured: r.featured ?? false,
-    tags: r.tags || [],
-    cats: r.sub_ratings ? Object.entries(r.sub_ratings).map(([label, stars]) => ({ label, stars })) : [],
-  });
+  useEffect(() => {
+    const controller = new AbortController();
+    let mounted = true;
+    getCurrentUserSafe().then(user => {
+      if (!mounted) return;
+      const uid = user?.id;
+      setCurrentUserId(uid);
+      if (uid) fetchReviews(uid, controller.signal);
+    });
+    if (initialPendingTarget?.vendor_id) clearPendingReviewTarget();
+    const handler = (e) => {
+      const v = e.detail;
+      if (v && v.vendor_id) {
+        setSelectedVendor(v);
+        setView("write");
+      } else {
+        setView("pending");
+      }
+    };
+    document.addEventListener("kb:open-review", handler);
+    return () => { mounted = false; controller.abort(); document.removeEventListener("kb:open-review", handler); };
+  }, [fetchReviews, initialPendingTarget]);
 
   const handleReply = async (reviewId, text) => {
     if (role !== "vendor" || !currentVendorId) {
