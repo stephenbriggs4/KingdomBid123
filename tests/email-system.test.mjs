@@ -5,6 +5,7 @@ const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const mig = read('../supabase/migrations/20260928182514_email_system.sql');
 const wlMig = read('../supabase/migrations/20260928182805_waitlist_email_log.sql');
 const leaseMig = read('../supabase/migrations/20260930183715_lease_email_outbox_claims.sql');
+const enqueueFailureMig = read('../supabase/migrations/20261002001853_record_email_enqueue_failures.sql');
 const worker = read('../supabase/functions/email-worker/index.ts');
 const waitlist = read('../supabase/functions/send-waitlist-email/index.ts');
 const settings = read('../src/SettingsScreen.jsx');
@@ -42,6 +43,10 @@ has(worker, /`faithbid-outbox\/\$\{row\.id\}`/, 'instant retries reuse the outbo
 has(worker, /sha256Hex\(ids\.slice\(\)\.sort\(\)\.join\(","\)\)/, 'digest retries derive identity from the exact owned row set');
 has(worker, /eq\("worker_id", workerId\)/, 'worker completion is scoped to its own lease');
 has(worker, /esc\(row\.subject\)/, 'user-authored text is escaped in emails');
+has(enqueueFailureMig, /set search_path = ''/, 'enqueue telemetry replacement keeps an empty search path');
+has(enqueueFailureMig, /'email_enqueue_failed', true/, 'enqueue exceptions leave a durable generic marker');
+has(enqueueFailureMig, /raise warning 'email enqueue failed for notification %/, 'enqueue exceptions emit operator diagnostics');
+has(enqueueFailureMig, /revoke all on function private\.kb_enqueue_email_for_notification_v1\(\)[\s\S]*from public, anon, authenticated/, 'the private trigger function is not a callable browser API');
 
 // waitlist function
 has(waitlist, /if \(!entry\) return accepted\(req\)/, 'non-members receive the same opaque acceptance response');
