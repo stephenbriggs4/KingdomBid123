@@ -4,7 +4,8 @@ import { withRequestDeadline } from './supabaseReliability'
 import { LegalConsentCheckbox } from "./LegalConsent";
 import { buildLegalConsentMetadata, CONSENT_KINDS } from "./legalConsentModel";
 import { VendorVerifiedCredentials, VendorPublicContact } from "./VendorCredentialsPanel";
-import { FilePicker, uploadBidAttachments, BidAttachmentList, ProjectFilesList } from "./Attachments";
+import { FilePicker, BidAttachmentList, ProjectFilesList } from "./Attachments";
+import { uploadBidAttachments } from "./attachmentUtils";
 import * as Sentry from "@sentry/react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import clsx from "clsx";

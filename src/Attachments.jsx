@@ -1,72 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
-
-export const ATTACH_MAX_BYTES = 15 * 1024 * 1024;
-export const ATTACH_ACCEPT = ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.webp,.txt,.csv";
-const ALLOWED_TYPES = new Set([
-  "application/pdf", "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "image/jpeg", "image/png", "image/webp", "text/plain", "text/csv",
-]);
-
-export function formatFileSize(bytes) {
-  const n = Number(bytes) || 0;
-  if (n >= 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-  return `${Math.max(1, Math.round(n / 1024))} KB`;
-}
-
-// Returns { ok, files, error } for a candidate list added to an existing selection.
-export function validateAttachmentFiles(existing = [], incoming = [], maxFiles = 5) {
-  const next = [...existing];
-  for (const file of incoming) {
-    if (!ALLOWED_TYPES.has(file.type)) return { ok: false, files: existing, error: `"${file.name}" is not a supported file type.` };
-    if (file.size > ATTACH_MAX_BYTES) return { ok: false, files: existing, error: `"${file.name}" is over 15 MB.` };
-    if (file.size <= 0) return { ok: false, files: existing, error: `"${file.name}" is empty.` };
-    if (next.length >= maxFiles) return { ok: false, files: existing, error: `You can attach up to ${maxFiles} files.` };
-    next.push(file);
-  }
-  return { ok: true, files: next, error: "" };
-}
-
-function safeExtension(name) {
-  return (String(name).split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5) || "bin";
-}
-
-async function uploadFiles({ bucket, table, folder, userId, rowBase, files }) {
-  let uploaded = 0;
-  const failed = [];
-  for (let index = 0; index < files.length; index += 1) {
-    const file = files[index];
-    const path = `${userId}/${folder}/${Date.now()}-${index}.${safeExtension(file.name)}`;
-    try {
-      const { error: uploadError } = await supabase.storage.from(bucket).upload(path, file, { contentType: file.type, upsert: false });
-      if (uploadError) throw uploadError;
-      const { error: rowError } = await supabase.from(table).insert({
-        ...rowBase, file_path: path, file_name: file.name.slice(0, 200), mime_type: file.type || null, size_bytes: file.size,
-      });
-      if (rowError) {
-        await supabase.storage.from(bucket).remove([path]);
-        throw rowError;
-      }
-      uploaded += 1;
-    } catch {
-      failed.push(file.name);
-    }
-  }
-  return { uploaded, failed };
-}
-
-export function uploadBidAttachments({ bidId, userId, files }) {
-  if (!bidId || !userId || !files?.length) return Promise.resolve({ uploaded: 0, failed: [] });
-  return uploadFiles({ bucket: "bid-attachments", table: "bid_attachments", folder: bidId, userId, rowBase: { bid_id: bidId, vendor_user_id: userId }, files });
-}
-
-export function uploadProjectAttachments({ projectId, userId, files }) {
-  if (!projectId || !userId || !files?.length) return Promise.resolve({ uploaded: 0, failed: [] });
-  return uploadFiles({ bucket: "project-files", table: "project_attachments", folder: projectId, userId, rowBase: { project_id: projectId, church_id: userId }, files });
-}
+import { ATTACH_ACCEPT, formatFileSize, uploadBidAttachments, uploadProjectAttachments, validateAttachmentFiles } from "./attachmentUtils";
 
 const box = { border: "1px dashed #d8ccb4", borderRadius: 12, padding: 12, background: "#fffdf8" };
 const linkButton = { background: "none", border: "none", padding: 0, color: "#74551f", fontWeight: 700, textDecoration: "underline", cursor: "pointer", font: "inherit" };
@@ -136,15 +70,28 @@ function AttachmentRows({ rows, bucket, canDelete, table, onDeleted, showToast }
 }
 
 function useAttachmentRows(table, column, id) {
-  const [rows, setRows] = useState([]);
-  const [loaded, setLoaded] = useState(false);
+  const [storedRows, setRows] = useState([]);
+  const [loadedScope, setLoadedScope] = useState("");
+  const currentScope = id ? `${table}:${column}:${id}` : "";
   const load = useCallback(async () => {
-    if (!id) { setRows([]); setLoaded(true); return; }
+    if (!id) return;
     const { data } = await supabase.from(table).select("id,file_path,file_name,mime_type,size_bytes,created_at").eq(column, id).order("created_at", { ascending: true });
     setRows(data || []);
-    setLoaded(true);
-  }, [table, column, id]);
-  useEffect(() => { load(); }, [load]);
+    setLoadedScope(currentScope);
+  }, [table, column, id, currentScope]);
+  useEffect(() => {
+    if (!id) return undefined;
+    let cancelled = false;
+    supabase.from(table).select("id,file_path,file_name,mime_type,size_bytes,created_at").eq(column, id).order("created_at", { ascending: true })
+      .then(({ data }) => {
+        if (cancelled) return;
+        setRows(data || []);
+        setLoadedScope(currentScope);
+      });
+    return () => { cancelled = true; };
+  }, [table, column, id, currentScope]);
+  const loaded = !currentScope || loadedScope === currentScope;
+  const rows = loaded ? storedRows : [];
   return { rows, loaded, reload: load };
 }
 
