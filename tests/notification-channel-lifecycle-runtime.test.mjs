@@ -5,19 +5,19 @@ import vm from 'node:vm';
 
 const app = fs.readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 
-function loadRegistry(fakeSupabase) {
-  const start = app.indexOf('const __kbNotifChannelRegistry = new Map();');
+function loadRegistry(fakeSupabase, existingContext = null) {
+  const start = app.indexOf("const __kbNotifChannelStateKey = Symbol.for('faithbid.notification-channel-state');");
   const end = app.indexOf('export default function App()', start);
   assert.ok(start >= 0 && end > start, 'notification registry source must be extractable');
-  const context = vm.createContext({
+  const context = existingContext || vm.createContext({
     supabase: fakeSupabase,
     logError: () => {},
     Promise,
     Set,
     Map,
   });
-  vm.runInContext(`${app.slice(start, end)}\nglobalThis.subscribe = subscribeToNotificationsChannel;`, context);
-  return context.subscribe;
+  vm.runInContext(`(() => {\n${app.slice(start, end)}\nglobalThis.subscribe = subscribeToNotificationsChannel;\n})();`, context);
+  return { subscribe: context.subscribe, context };
 }
 
 test('notification registry survives Strict Mode release/remount with unique physical channels', async () => {
@@ -49,7 +49,7 @@ test('notification registry survives Strict Mode release/remount with unique phy
     },
   };
 
-  const subscribe = loadRegistry(fakeSupabase);
+  const { subscribe } = loadRegistry(fakeSupabase);
   let deliveries = 0;
   const releaseA = subscribe('user-1', () => { deliveries += 1; });
   const releaseB = subscribe('user-1', () => { deliveries += 10; });
@@ -68,4 +68,34 @@ test('notification registry survives Strict Mode release/remount with unique phy
   releaseC();
   await Promise.resolve();
   assert.deepEqual(removed, [channels[0].name, channels[1].name]);
+});
+
+test('notification registry reuses its subscribed channel after a simulated Vite hot reload', () => {
+  const channels = [];
+  const fakeSupabase = {
+    channel(name) {
+      const channel = {
+        name,
+        subscribed: false,
+        on() {
+          assert.equal(this.subscribed, false, 'must never add callbacks after subscribe');
+          return this;
+        },
+        subscribe() {
+          this.subscribed = true;
+          return this;
+        },
+      };
+      channels.push(channel);
+      return channel;
+    },
+    async removeChannel() { return 'ok'; },
+  };
+
+  const firstModule = loadRegistry(fakeSupabase);
+  firstModule.subscribe('user-1', () => {});
+  const reloadedModule = loadRegistry(fakeSupabase, firstModule.context);
+  reloadedModule.subscribe('user-1', () => {});
+
+  assert.equal(channels.length, 1, 'hot reload reuses the subscribed physical channel');
 });

@@ -23364,7 +23364,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
       try {
         const { data, error } = await supabase
           .from("projects")
-          .select("id,church_id,title,description,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,posted_at,urgent,scope,hired_vendor_id,hired_vendor_name,hired_bid_id,amount,hero_image_path")
+          .select("id,church_id,title,description,church_name,city,project_city,project_state,project_place_id,hired_at,work_started_at,work_started_by,completion_requested_at,completion_requested_by,completed_at,completed_by,category,primary_category,category_tags,budget,budget_min,budget_max,delivery_preference,timeline,status,posted_at,urgent,scope,hired_vendor_id,hero_image_path")
           .eq("id", targetId)
           .maybeSingle();
         if (!cancelled && data) {
@@ -56563,15 +56563,22 @@ return { ChurchOSSurface };
 // user_id filter — two live websockets doing overlapping work per session.
 // This registry shares a single channel per userId across every subscriber,
 // ref-counted so it tears down once the last consumer unmounts.
-const __kbNotifChannelRegistry = new Map();
-let __kbNotifChannelGeneration = 0;
+const __kbNotifChannelStateKey = Symbol.for('faithbid.notification-channel-state');
+const __kbNotifChannelState = globalThis[__kbNotifChannelStateKey] || (
+  globalThis[__kbNotifChannelStateKey] = {
+    registry: new Map(),
+    generation: 0,
+    sessionId: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  }
+);
+const __kbNotifChannelRegistry = __kbNotifChannelState.registry;
 function subscribeToNotificationsChannel(userId, onChange) {
   if (!userId) return () => {};
   let entry = __kbNotifChannelRegistry.get(userId);
   if (!entry) {
     const listeners = new Set();
-    const generation = ++__kbNotifChannelGeneration;
-    const channel = supabase.channel(`kb-notifs-${userId}-${generation}`)
+    const generation = ++__kbNotifChannelState.generation;
+    const channel = supabase.channel(`kb-notifs-${userId}-${__kbNotifChannelState.sessionId}-${generation}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
         (payload) => { listeners.forEach(fn => { try { fn(payload); } catch (e) { logError('shared-notif-channel-listener', e, { userId }); } }); }
       )

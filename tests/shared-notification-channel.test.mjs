@@ -6,10 +6,21 @@ const source = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8
 
 test("App and NotificationBell share a single Realtime channel instead of opening one each", () => {
   assert.match(source, /function subscribeToNotificationsChannel\(userId, onChange\)/);
-  assert.match(source, /supabase\.channel\(`kb-notifs-\$\{userId\}-\$\{generation\}`\)/);
+  assert.match(source, /supabase\.channel\(`kb-notifs-\$\{userId\}-\$\{__kbNotifChannelState\.sessionId\}-\$\{generation\}`\)/);
   // The two old per-component channel names must be gone.
   assert.doesNotMatch(source, /supabase\.channel\("unread_msgs_"/);
   assert.doesNotMatch(source, /supabase\.channel\("notifs_"\+currentUser\.id\)/);
+});
+
+test("the shared registry and channel identity survive Vite hot reloads", () => {
+  assert.match(source, /Symbol\.for\('faithbid\.notification-channel-state'\)/);
+  assert.match(source, /globalThis\[__kbNotifChannelStateKey\] \|\|/);
+  assert.match(source, /registry: new Map\(\)/);
+  assert.match(source, /generation: 0/);
+  assert.match(source, /sessionId: globalThis\.crypto\?\.randomUUID\?\.\(\)/);
+  assert.match(source, /const __kbNotifChannelRegistry = __kbNotifChannelState\.registry/);
+  assert.match(source, /\+\+__kbNotifChannelState\.generation/);
+  assert.doesNotMatch(source, /let __kbNotifChannelGeneration = 0/);
 });
 
 test("both consumers route through the shared subscription helper", () => {
