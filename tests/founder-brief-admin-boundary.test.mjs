@@ -5,7 +5,7 @@ import test from "node:test";
 
 const root = path.resolve(import.meta.dirname, "..");
 const migration = fs.readFileSync(
-  path.join(root, "supabase/migrations/20261001232009_harden_founder_brief_admin_access.sql"),
+  path.join(root, "supabase/migrations/20261002184446_harden_founder_brief_admin_access.sql"),
   "utf8",
 );
 
