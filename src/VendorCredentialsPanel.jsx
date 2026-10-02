@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
+import { isHttpUrl } from "./vendorCredentialUtils";
 
 const SOCIAL_FIELDS = [
   ["facebook", "Facebook"],
@@ -30,12 +31,6 @@ const help = { fontSize: 13, color: "#5a5246", margin: "0 0 14px", lineHeight: 1
 const label = { display: "block", fontSize: 12, fontWeight: 700, color: "#1C2814", marginBottom: 4 };
 const input = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: "1.5px solid #dfd5c2", background: "#fff", fontSize: 14, fontFamily: "var(--font-sans),sans-serif" };
 const button = { padding: "10px 18px", borderRadius: 999, border: "none", background: "#1C2814", color: "#fffdf8", fontWeight: 700, fontSize: 13, cursor: "pointer" };
-
-export function isHttpUrl(value) {
-  const text = String(value || "").trim();
-  if (!text) return true;
-  return /^https?:\/\/[^\s/$.?#][^\s]*$/i.test(text) && text.length <= 300;
-}
 
 export function VendorBusinessDetailsPanel({ vendorRow, currentUser, showToast = () => {}, onSaved = () => {} }) {
   const [website, setWebsite] = useState(vendorRow?.website || "");
@@ -140,14 +135,23 @@ export function VendorCredentialsPanel({ vendorRow, currentUser, showToast = () 
   const [rows, setRows] = useState([]);
   const [busyKind, setBusyKind] = useState("");
   const [forms, setForms] = useState({ insurance: { reference: "", expires: "" }, license: { reference: "", expires: "" } });
+  const vendorId = vendorRow?.id || null;
 
   const load = useCallback(async () => {
-    if (!vendorRow?.id) return;
+    if (!vendorId) return;
     const { data } = await supabase.from("vendor_credentials")
-      .select("id,kind,status,reference_number,expires_on,admin_notes,submitted_at,verified_at").eq("vendor_id", vendorRow.id);
+      .select("id,kind,status,reference_number,expires_on,admin_notes,submitted_at,verified_at").eq("vendor_id", vendorId);
     setRows(data || []);
-  }, [vendorRow?.id]);
-  useEffect(() => { load(); }, [load]);
+  }, [vendorId]);
+  useEffect(() => {
+    if (!vendorId) return undefined;
+    let cancelled = false;
+    supabase.from("vendor_credentials")
+      .select("id,kind,status,reference_number,expires_on,admin_notes,submitted_at,verified_at")
+      .eq("vendor_id", vendorId)
+      .then(({ data }) => { if (!cancelled) setRows(data || []); });
+    return () => { cancelled = true; };
+  }, [vendorId]);
 
   const setField = (kind, field, value) => setForms((prev) => ({ ...prev, [kind]: { ...prev[kind], [field]: value } }));
 
