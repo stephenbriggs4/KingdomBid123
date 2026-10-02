@@ -30299,41 +30299,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
   const ratedActive = active.filter((bid) => Number(bid?.rating || 0) > 0);
   const highestRated = ratedActive.length>0 ? ratedActive.reduce((best,b)=>(b.rating||0)>(best.rating||0)?b:best, ratedActive[0]) : null;
   const avgBid = safeBids.length>0 ? Math.round(safeBids.reduce((a,b)=>a+(Number(b.amount)||0),0)/safeBids.length) : 0;
-  const seedCompareForBid = (bid) => {
-    if (!p?.id) return;
-    const projectCompareResult = upsertCompareWorkspaceItem('projects', {
-      id: p.id,
-      title: p.title,
-      church_name: [p.church_name, p.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || null,
-      city: p.city,
-      category: p.category,
-      budget: p.budget,
-      image: getProjectHeroImage(p),
-    });
-    if (projectCompareResult?.compareLimitReached) {
-      showToast && showToast(getCompareWorkspaceLimitMessage('projects'), 'error');
-      return;
-    }
-    const vendorCompareResult = upsertCompareWorkspaceItem('vendors', {
-      id: bid.vendor_id || bid.id,
-      initials: (bid.vendor||bid.vendor_name||'V').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),
-      name: bid.vendor || bid.vendor_name || 'Vendor',
-      role: bid.category || 'Vendor',
-      city: bid.city || p.city || 'Remote',
-      rating: Number(bid.rating || 0),
-      reviews: Number(bid.reviews || 0),
-      badge: (getVendorIdentityBadges(bid)?.[0]?.label) || ((bid.verified || bid.faith_verified) ? 'Faith Verified' : 'Member'),
-      gradient: 'linear-gradient(145deg,#5b7a5e,#3d5940)',
-      price: bid.amount ? formatMoney(Number(bid.amount)) : 'Custom proposal',
-    });
-    if (vendorCompareResult?.compareLimitReached) {
-      showToast && showToast(getCompareWorkspaceLimitMessage('vendors'), 'error');
-      return;
-    }
-    saveCompareWorkspaceState({ ...loadCompareWorkspaceState(), linkedProjectId: p.id });
-    rememberReturnContext({ scope:'bid-review', projectId: p.id, vendorId: bid.vendor_id || null });
-    safeNav('compare');
-  };
+
   const shortlistBid = async (bid) => {
     if (!p?.id || !bid?.id) { showToast && showToast("Project or bid context is missing.", "error"); return false; }
     try {
@@ -30430,7 +30396,7 @@ function ManageBids({project:p, bids, loading, error, onRetry, onAccept, onDecli
     };
   };
 
-  const canMessageBidVendor = (bid) => Boolean(bid?.vendor_id);
+
 
   const openConversationWithBid = async (bid) => {
     if (!bid?.vendor_id) { showToast && showToast("Vendor messaging is unavailable for this bid."); return; }
@@ -30902,7 +30868,7 @@ function MyBidsScreen({bids, loading, currentUser, showToast, onBack, onEditSucc
     declined:     {bg:"var(--danger-bg)",  color:"var(--danger)",  border:"var(--danger-border)",  label:"Declined"},
     withdrawn:    {bg:"var(--cream-dark)", color:"var(--text-muted)",border:"var(--border)",        label:"Withdrawn"},
   };
-  const active  = localBids.filter(b => b.status === "pending" || b.status === "under_review");
+
   const won     = localBids.filter(b => b.status === "hired");
   const lost    = localBids.filter(b => b.status === "declined");
 
@@ -31101,7 +31067,7 @@ const KB_PROJECT_DETAIL_BID_STATUS_PILL = {
   active: { label:'Active', background:'rgba(47,133,90,0.12)', color:'#2f855a' },
   milestone_pending: { label:'Active', background:'rgba(47,133,90,0.12)', color:'#2f855a' },
 };
-function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav, onBack, onPost, onBid, onViewMyBids = null, biddingEnabled = false, biddingSettingLoaded = false, onNotifyBidding = null, bidNotifyPendingId = null, onManageBids, onProjectUpdate = null, onComplete, onCancel, showToast = () => {}, currentUser = null }) {
+function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav, onBack, onPost, onBid, biddingEnabled = false, biddingSettingLoaded = false, onNotifyBidding = null, bidNotifyPendingId = null, onManageBids, onProjectUpdate = null, showToast = () => {}, currentUser = null }) {
   const baseProject = normalizeProjectEntity(rawProject) || rawProject || {};
   const [projectOverride, setProjectOverride] = useState(null);
   const [projectPublishPending, setProjectPublishPending] = useState(false);
@@ -31109,8 +31075,8 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const hasPostHireWorkflow = projectHasPostHireWorkflow(project);
   const [tab, setTab] = useState('overview');
   const [activeFilePreview, setActiveFilePreview] = useState(null);
-  const [scrolled, setScrolled] = useState(false);
-  const [savedVendorCount, setSavedVendorCount] = useState(() => getCompareWorkspaceCount('vendors'));
+  const [, setScrolled] = useState(false);
+  const [, setSavedVendorCount] = useState(() => getCompareWorkspaceCount('vendors'));
   const [projectDetailVendorMatches, setProjectDetailVendorMatches] = useState([]);
   const [projectDetailVendorMatchesLoading, setProjectDetailVendorMatchesLoading] = useState(false);
   const [projectDetailVendorMatchesError, setProjectDetailVendorMatchesError] = useState(null);
@@ -31134,9 +31100,9 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const { workspace: opsWorkspace } = useDealState(project, { status: project?.status || 'draft', archived: !!project?.archived }, role);
   const gallery = detailGallery(project);
   const [heroImage, setHeroImage] = useState(gallery[0]);
-  const isTablet = viewportWidth < KB_BP_WORKSPACE;
+
   const isMobile = viewportWidth < 700;
-  const isCompactMobile = viewportWidth < 390;
+
 
   useEffect(() => { injectMarketplaceDetailFonts(); }, []);
   useEffect(() => {
@@ -31208,29 +31174,16 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const desc = firstNonEmpty(project?.description, project?.desc, 'No project description has been added yet.');
   const timeline = firstNonEmpty(project?.timeline, 'Timeline shared after intake');
   const scope = firstNonEmpty(project?.scope, 'Not specified');
-  const postedLabel = detailPostedLabel(project);
+
   const scopeItems = detailScopeItems(project);
   const vendorMatches = projectDetailVendorMatches;
-  const opsSummary = {
-    phase: PROJECT_PHASES.find(p => p.key === opsWorkspace?.phase)?.label || 'Kickoff',
-    deliverables: Array.isArray(opsWorkspace?.deliverables) ? opsWorkspace.deliverables.length : 0,
-    nextAction: String(opsWorkspace?.nextAction || '').trim(),
-  };
+
   const opsState = loadProjectOpsState(project);
-  const workflowSummary = getProjectWorkflowSummary(project, opsState, opsWorkspace);
+
   const projectDetailId = project?.id || project?.project_id || project?.slug || headline || null;
   const projectDetailTitle = headline || project?.title || project?.name || null;
   const projectRelation = useMemo(() => getProjectInteropEntry(project?.id || null), [project?.id]);
-  const getVendorMatchLink = (vendorMatch) => {
-    const vendorKeys = [vendorMatch?.user_id, vendorMatch?.id, vendorMatch?.vendor_id, vendorMatch?.name]
-      .map(value => String(value || '').trim())
-      .filter(Boolean);
-    for (const vendorKey of vendorKeys) {
-      const linkedVendor = projectRelation?.vendorsById?.[vendorKey];
-      if (linkedVendor) return linkedVendor;
-    }
-    return null;
-  };
+
   const applyVendorMatchStage = (vendorMatch, stage, extras = {}) => {
     if (!(projectDetailId || projectDetailTitle)) return;
     const seeded = buildVendorProfileSeed({ ...vendorMatch, category, city: vendorMatch?.city || city, verified:!!vendorMatch?.verified });
@@ -31246,7 +31199,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
       notificationText: extras.notificationText || `${seeded.name} moved to ${stageMeta.label.toLowerCase()} from project detail`,
     });
   };
-  const savedProjectReferences = [];
+
   const rawProjectFileCandidates = [
     ...safeArray(rawProject?.attachments),
     ...safeArray(rawProject?.files),
@@ -31450,39 +31403,9 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     });
   }, [isVendor, projectDetailVendorId, projectDetailVendorUserId, projectDetailId, project, projectDetailVendorPairSignalMaps]);
   const projectDetailVendorDealState = projectDetailVendorEngineBucket ? deriveCanonicalDealState(projectDetailVendorEngineBucket) : null;
-  const projectDetailVendorDealSummary = projectDetailVendorDealState ? getDealStateSummary(projectDetailVendorDealState, { role:'vendor', linkedBid: projectDetailVendorEngineBucket?.linkedBid || null }) : null;
-  const projectDetailInvitedVendorTrackerRows = useMemo(() => {
-    if (isVendor || !projectDetailId || !currentUser?.id) return [];
-    const inviteRows = projectDetailChurchSignalMaps?.invitesByVendor instanceof Map ? Array.from(projectDetailChurchSignalMaps.invitesByVendor.values()) : [];
-    const seen = new Set();
-    const now = new Date().toISOString();
-    return inviteRows.map(normalizeVendorPairInviteRow).filter(Boolean).map((invite) => {
-      const vendorId = String(firstNonEmpty(invite?.vendor_id, invite?.vendorId, invite?.vendor_user_id, invite?.vendorUserId, '')).trim();
-      const vendorUserId = String(firstNonEmpty(invite?.vendor_user_id, invite?.vendorUserId, invite?.vendor_id, invite?.vendorId, '')).trim();
-      const rowKey = String(firstNonEmpty(invite?.id, `${vendorId}:${vendorUserId}`, '')).trim();
-      if (!vendorId && !vendorUserId) return null;
-      if (rowKey && seen.has(rowKey)) return null;
-      if (rowKey) seen.add(rowKey);
-      const linkRow = getVendorPairSignalMapEntry(projectDetailChurchSignalMaps?.linksByVendor, vendorUserId, vendorId);
-      const bidRow = getVendorPairSignalMapEntry(projectDetailChurchSignalMaps?.bidsByVendor, vendorUserId, vendorId);
-      const displayName = firstNonEmpty(linkRow?.vendor_name, linkRow?.name, bidRow?.vendor_name, `Vendor ${String(firstNonEmpty(vendorId, vendorUserId, '')).slice(0, 6)}`);
-      const engineBucket = buildVendorPairSignals({
-        vendorId,
-        vendorUserId,
-        project,
-        maps: projectDetailChurchSignalMaps,
-        role: 'church',
-        now,
-      });
-      const engineDealState = deriveCanonicalDealState(engineBucket);
-      const dealSummary = getDealStateSummary(engineDealState, { role:'church', linkedBid: engineBucket?.linkedBid || null });
-      const invitedAt = firstNonEmpty(invite?.invited_at, invite?.invitedAt, invite?.created_at, invite?.createdAt, '');
-      let invitedAtLabel = '';
-      try { invitedAtLabel = invitedAt ? new Date(invitedAt).toLocaleDateString(undefined, { month:'short', day:'numeric' }) : ''; } catch { invitedAtLabel = ''; }
-      return { vendorId, vendorUserId, displayName, engineDealState, dealSummary, invitedAtLabel };
-    }).filter(Boolean);
-  }, [isVendor, projectDetailId, currentUser?.id, project, projectDetailChurchSignalMaps]);
-  const utilitySecondaryLabel = isVendor ? 'Message Church' : 'Share Project';
+
+
+
   const openDealRoomFromDetail = async () => {
     rememberReturnContext({ scope:'project-detail', projectId: projectDetailId || null, linkedProjectId: projectDetailId || null, tab:'ops' });
     const canCreateDealThread = Boolean(isVendor ? project?.church_id : project?.hired_vendor_id);
@@ -31542,41 +31465,8 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     }
     queueVendorNavigation(nav, seeded, { returnContext:{ scope:'project-detail', projectId: projectDetailId || null, vendorId: vendorUserId, linkedProjectId: project?.id || null, tab:'vendors' } });
   };
-  const saveVendorFromDetail = (vendorMatch) => {
-    const seeded = buildVendorProfileSeed({ ...vendorMatch, category, city: vendorMatch?.city || city, verified:!!vendorMatch?.verified });
-    const vendorUserId = String(seeded?.user_id || vendorMatch?.user_id || '').trim();
-    if (!vendorUserId) {
-      showToast && showToast('This vendor is missing a live account identity, so it cannot be saved yet.');
-      return;
-    }
-    try {
-      applyVendorMatchStage(vendorMatch, 'shortlisted');
-      rememberReturnContext({ scope:'project-detail', projectId: projectDetailId || null, vendorId: vendorUserId, linkedProjectId: project?.id || null, tab:'vendors' });
-      showToast && showToast(`${seeded.name || 'Vendor'} saved for review`);
-      setTab('vendors');
-    } catch (err) {
-      logError('project-detail-save-vendor', err, { projectId: project?.id || null, vendorId: vendorUserId || null });
-    }
-  };
-  const messageVendorFromDetail = async (vendorMatch) => {
-    const seeded = buildVendorProfileSeed({ ...vendorMatch, category, city: vendorMatch?.city || city, verified:!!vendorMatch?.verified });
-    const vendorContactId = String(seeded?.user_id || vendorMatch?.user_id || '').trim();
-    if (!vendorContactId) {
-      showToast && showToast('This vendor profile is missing a contact id, so a thread cannot be opened yet.');
-      return;
-    }
-    rememberReturnContext({ scope:'project-detail', projectId: projectDetailId || null, vendorId: vendorContactId, linkedProjectId: project?.id || null, tab:'vendors' });
-    await openInboxThread(nav, {
-      projectId: projectDetailId || null,
-      projectTitle: projectDetailTitle || headline,
-      churchId: project?.church_id || null,
-      churchName,
-      vendorId: vendorContactId,
-      vendorName: seeded.name,
-      viewerRole: isVendor ? 'vendor' : 'church',
-      createIfMissing: true,
-    });
-  };
+
+
   const openFilePreviewFromDetail = (file) => {
     if (!file) {
       showToast && showToast('No file is attached to preview yet.');
@@ -31584,15 +31474,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     }
     setActiveFilePreview(file);
   };
-  const openSavedProjectItem = (item) => {
-    if (!item) return;
-    if (item.current) {
-      setTab('overview');
-      rememberReturnContext({ scope:'project-detail', projectId: projectDetailId || null, linkedProjectId: projectDetailId || null, tab:'overview' });
-      return;
-    }
-    queueMyProjectsLens(nav, role, 'active');
-  };
+
   const handleUtilitySecondary = async () => {
     if (isVendor) {
       rememberReturnContext({ scope:'project-detail', projectId: projectDetailId || null, linkedProjectId: projectDetailId || null, tab });
@@ -31628,8 +31510,8 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     }
     showToast && showToast('Copy the URL from your browser bar to share this project');
   };
-  const posterStats = getProjectPosterStats(project);
-  const detailStatusLabel = project?.status === 'open' ? 'Accepting proposals' : String(project?.status || 'Project').replace(/_/g,' ');
+
+
   const submitVendorProposalAction = () => { if (typeof onBid === 'function') return onBid(project); if (typeof nav === 'function') return nav('projects'); };
   const loadMyProposal = async () => {
     if (!project?.id || !currentUser?.id) return;
@@ -31702,27 +31584,9 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     }
   };
   const browseVendorProjectsAction = () => { if (typeof nav === 'function') return nav('projects'); };
-  const projectDetailReadinessItems = [
-    ['Brief clarity', scopeItems.length >= 3 ? 'Strong' : 'Needs detail'],
-    ['Scope detail', scopeItems.length >= 3 ? 'Ready to quote' : 'Needs detail'],
-    ['Communication cue', isVendor ? 'Ask before pricing' : 'Keep vendors aligned'],
-    ['Next step', hasPostHireWorkflow ? 'Run delivery' : isVendor ? 'Submit proposal' : 'Use the action rail'],
-  ];
-  const projectDetailScopeCards = [
-    { label:'What they need', value: scopeItems[0] || desc },
-    { label:'Deliverables', value: scopeItems.slice(1, 3).join(' · ') || scope },
-    { label:'Location', value: city },
-    { label:'Ideal partner', value: isVendor ? 'Clear scope, credible timeline, ministry-aware communication.' : 'Faith-aligned vendor with relevant work, clean communication, and realistic pricing.' },
-  ];
-  const projectDetailNextSteps = isVendor ? [
-    'Review files and scope before pricing.',
-    'Submit a tight proposal with milestones.',
-    'Keep the church warm with one useful follow-up.',
-  ] : [
-    bidCount > 0 ? 'Review proposals side-by-side.' : 'Invite matched vendors to bid.',
-    'Clarify the scope before awarding work.',
-    hasPostHireWorkflow ? 'Run delivery from the operations plan.' : 'Move the best vendor into a deal room.',
-  ];
+
+
+
   const reviewProjectScopeAction = () => setTab('scope');
   const publishProjectFromDetail = async () => {
     if (projectPublishPending || role === 'vendor' || !project?.id) return null;
@@ -31747,14 +31611,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
       setProjectPublishPending(false);
     }
   };
-  const transitionLifecycleFromDetail = async (action, note = null) => {
-    if (!project?.id) throw new Error('Project is missing its live identity.');
-    const updated = await transitionProjectLifecycleSafe(project.id, action, note);
-    setProjectOverride(prev => ({ ...(prev || {}), ...(updated || {}) }));
-    try { if (rawProject && typeof rawProject === 'object' && updated?.status) rawProject.status = updated.status; } catch { /* non-fatal */ }
-    try { if (typeof onProjectUpdate === 'function') onProjectUpdate(updated); } catch { /* non-fatal */ }
-    return updated;
-  };
+
 
   const actionModel = (() => {
     if (!isVendor && project?.status === 'draft') {
@@ -31956,26 +31813,10 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const projectDetailPrimaryFallback = isVendor
     ? (() => { if (typeof onBid === 'function') return onBid(project); if (typeof nav === 'function') return nav('projects'); })
     : (bidCount > 0 ? handleReviewBids : handleVendorMatches);
-  const projectDetailSecondaryFallback = isVendor ? handleUtilitySecondary : handleVendorMatches;
-  const projectDetailTertiaryFallback = isVendor ? reviewProjectScopeAction : handlePrepWorkflow;
-  const runProjectDetailDirectAction = (kind) => (event) => {
-    try { event?.preventDefault?.(); event?.stopPropagation?.(); } catch { /* non-fatal */ }
-    try {
-      if (kind === 'bids') { handleReviewBids(); return; }
-      if (kind === 'ops') { handlePrepWorkflow(); return; }
-      if (kind === 'edit') { openProjectEditor(); return; }
-      if (kind === 'deal') { openDealRoomFromDetail(); return; }
-      handleVendorMatches();
-    } catch (err) {
-      logError(`project-detail-direct-${kind || 'vendors'}`, err, { projectId: project?.id || null, tab });
-      try { focusProjectDetailTab(kind === 'ops' ? 'ops' : 'vendors'); } catch { /* non-fatal */ }
-    }
-  };
-  const projectDetailRoleParityRail = [
-    { label:'Shared brief', value:'Project overview, budget, timeline, and category stay identical for every role.' },
-    { label:'Shared workspace', value:hasPostHireWorkflow ? 'Scope, files, operations, and activity stay connected to one project record.' : 'Scope and files stay in one project record before any role-specific action.' },
-    { label:isVendor ? 'Vendor next action' : 'Church next action', value:actionModel?.primaryLabel || actionModel?.secondaryLabel || 'Review project details' },
-  ];
+
+
+
+
   const returnToMarketplaceFloor = () => {
     // This top-left Marketplace pill is an absolute route back to the browse floor.
     // It should never be hijacked by a stale Activity/Compare/Inbox return context.
@@ -31988,13 +31829,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     if (typeof onBack === 'function') onBack();
   };
 
-  const overviewBrief = useMemo(() => {
-    const normalized = String(desc || '').replace(/\s+/g, ' ').trim();
-    if (!normalized) return '';
-    if (normalized.length <= 220) return normalized;
-    const stop = normalized.lastIndexOf('.', 220);
-    return `${normalized.slice(0, stop > 120 ? stop + 1 : 220).trim()}${stop > 120 ? '' : '…'}`;
-  }, [desc]);
+
 
 
   const [projectSaved, setProjectSaved] = useState(Boolean(project?.is_saved));
@@ -32098,30 +31933,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     return () => { cancelled = true; };
   }, [currentUser?.id, project?.id, similarProjects]);
 
-  const toggleSimilarProjectSaved = async (item) => {
-    const key = String(item?.id || '');
-    if (!key) return;
-    if (!currentUser?.id) {
-      showToast && showToast('Sign in to save this project.');
-      return;
-    }
-    const wasSaved = similarSavedIds.has(key);
-    setSimilarSavedIds(prev => {
-      const next = new Set(prev);
-      if (wasSaved) next.delete(key); else next.add(key);
-      return next;
-    });
-    try {
-      await persistSavedProjectRecord(key, !wasSaved, currentUser.id);
-    } catch (err) {
-      setSimilarSavedIds(prev => {
-        const next = new Set(prev);
-        if (wasSaved) next.add(key); else next.delete(key);
-        return next;
-      });
-      showToast && showToast("We couldn't update your saved projects.", 'error');
-    }
-  };
+
 
   const toggleProjectSavedFromDetail = async () => {
     if (projectSaveBusy) return;
@@ -32275,29 +32087,16 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
 
   // V997 parity lock: vendor detail uses the exact church visual shell, but never inherits church edit controls.
   const viewerCanManageProject = !isVendor && canManageProjectWithRole(role, currentUser, project);
-  const contentWidth = viewportWidth >= 1800 ? Math.min(1680, viewportWidth - 192) : viewportWidth >= 1400 ? viewportWidth - 112 : viewportWidth >= 1200 ? viewportWidth - 80 : 'calc(100vw - 40px)';
+
   const liveScopeItems = scopeItems.length ? scopeItems : safeArray(project?.requirements).filter(Boolean);
   const rawStartValue = firstNonEmpty(project?.target_start_date, project?.preferred_start_date, project?.desired_start_date, project?.start_date, timeline);
-  const targetStartLabel = (() => {
-    const value = String(rawStartValue || '').trim();
-    if (!value) return 'To be coordinated';
-    if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
-      const d = new Date(value);
-      if (!Number.isNaN(d.getTime())) return d.toLocaleDateString(undefined,{ month:'long', year:'numeric' });
-    }
-    return value;
-  })();
+
   const deliveryRaw = String(firstNonEmpty(project?.delivery_preference, project?.service_model, '')).trim().toLowerCase();
   const deliveryBase = deliveryRaw === 'remote' ? 'Remote' : (deliveryRaw === 'either' || deliveryRaw === 'both') ? 'On-site or remote' : deliveryRaw ? 'On-site' : 'Delivery to be coordinated';
   const scheduleSignals = `${liveScopeItems.join(' ')} ${desc}`.toLowerCase();
   const offHoursSignal = /off[- ]?hours|weekend service|during services|outside service|after hours/.test(scheduleSignals);
-  const projectTypeLabel = `${deliveryBase}${offHoursSignal ? ' · Off-hours preferred' : ''}`;
-  const experienceSummary = (() => {
-    const skills = safeArray(project?.skills).filter(Boolean).slice(0,3);
-    if (skills.length) return `Relevant ${skills.join(', ')} experience is preferred.`;
-    if (liveScopeItems.length) return 'Relevant experience, clear communication, and a practical project plan are preferred.';
-    return 'Qualified vendors with relevant experience are encouraged to respond.';
-  })();
+
+
   const canAskQuestion = isVendor && !projectStatusIsClosed && typeof handleUtilitySecondary === 'function';
   const openSimilarProjectFromDetail = (item) => {
     if (!item?.id) return;
@@ -33245,8 +33044,8 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
   const totalPages = Math.max(1, Math.ceil(filteredVendors.length / pageSize));
   const safePage = Math.min(page, totalPages);
   const pagedVendors = filteredVendors.slice((safePage - 1) * pageSize, safePage * pageSize);
-  const verifiedCount = vendors.filter(v => v.verified).length;
-  const specialtyCount = new Set(vendors.map(v => v.specialty).filter(Boolean)).size;
+
+
 
   const vendorProjectShape = (vendor = {}) => ({
     title: vendor.name,
@@ -33562,75 +33361,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
     showToast && showToast(`Opening ${seeded.name}`);
   };
 
-  const handleCompareVendor = (vendor, e) => {
-    if (e) { e.stopPropagation(); e.preventDefault(); }
-    const seeded = {
-      ...buildVendorProfileSeed(vendor),
-      recommendedFit: vendor?.recommendedFit || null,
-      match_context_project: matchContextProject || null,
-      match_context_label: matchContextProject?.title || '',
-    };
-    const fit = vendor?.recommendedFit || {};
-    const compareItemId = seeded.id || seeded.user_id || seeded.name;
-    const snapshotClean = (value = '') => String(value || '').trim();
-    const snapshotCreatedAt = new Date().toISOString();
-    const snapshotDisplayDate = new Date(snapshotCreatedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' });
-    const compareResult = upsertCompareWorkspaceItem('vendors', {
-      id: compareItemId,
-      initials: seeded.initials || vendor.initials,
-      name: seeded.name,
-      role: seeded.headline || seeded.role || seeded.category || vendor.role,
-      city: seeded.city || vendor.city,
-      rating: Number(seeded.rating || vendor.rating || 0),
-      reviews: Number(seeded.reviews_count || seeded.reviews || vendor.reviews || 0),
-      badge: seeded.verified ? 'Faith Verified' : 'Member',
-      gradient: vendor.gradient || 'linear-gradient(145deg,#5b7a5e,#3d5940)',
-      price: seeded.price_range || vendor.price || 'Custom proposal',
-      recommendation_snapshot: {
-        source: 'recommended_vendors_app_only',
-        created_at: snapshotCreatedAt,
-        display_date: snapshotDisplayDate,
-        lens: sortBy || 'Best match',
-        fit_label: fit.label || '',
-        label_key: fit.labelKey || '',
-        reasons: safeArray(fit.reasons).map(snapshotClean).filter(Boolean),
-        reason_keys: safeArray(fit.reasonKeys).map(snapshotClean).filter(Boolean),
-        watchout: snapshotClean(fit.watchout || ''),
-        watchout_key: snapshotClean(fit.watchoutKey || ''),
-        confidence_level: fit.confidenceLevel || '',
-        ranking_score: Number(fit.rankingScore || 0) || 0,
-        distribution_tier: fit.distributionTier || '',
-        needs_human_review: !!fit.needsHumanReview,
-        hard_eligibility_passed: !!fit.hardEligibilityPassed,
-        rail: fit.rail || null,
-        input_version: fit.inputVersion || KB_MATCHMAKER_INPUT_VERSION,
-        project_id: matchContextProject?.id || null,
-        project_title: matchContextProject?.title || null,
-        project_category: matchContextProject?.category || matchContextProject?.primary_category || null,
-        project_budget: matchContextProject?.budget || null,
-      },
-      match_context_project: matchContextProject || null,
-    });
-    if (compareResult?.compareLimitReached) {
-      showToast && showToast(getCompareWorkspaceLimitMessage('vendors'), 'error');
-      return;
-    }
-    void (async () => {
-      const matchSnapshotId = await persistRecommendedVendorMatchSnapshot({ compareItemId, vendor, project: matchContextProject, currentUser, lens: sortBy });
-      await persistMatchmakerOutcomeEvent({
-        eventType: 'compared',
-        vendor,
-        project: matchContextProject,
-        currentUser,
-        lens: sortBy,
-        sourceAction: 'compare',
-        matchSnapshotId,
-        actorRole: 'church',
-      });
-    })();
-    queueCompareNavigation(nav, { returnContext:{ scope:'vendor-directory', vendorId: seeded.id || seeded.user_id || null } });
-    showToast && showToast(`${seeded.name} added to compare`);
-  };
+
 
   const clearVendorFilters = () => {
     setSearch('');
@@ -34446,14 +34177,14 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const [currentUserSelf, setCurrentUserSelf] = useState(null);
   const [portfolioItems, setPortfolioItems] = useState(() => Array.isArray(v?.portfolio_items) ? v.portfolio_items.filter(Boolean) : []);
   const currentUser = currentUserProp ?? currentUserSelf;
-  const [elderApplying, setElderApplying] = useState(false);
+  const [] = useState(false);
   const [elderForm, setElderForm] = useState({elderName:"", elderTitle:"", elderEmail:"", church:"", statement:""});
   const [elderSubmitted, setElderSubmitted] = useState(false);
   const [elderLoading, setElderLoading] = useState(false);
   const [profileToast, setProfileToast] = useState("");
   const viewportWidth = useViewportWidth(1440);
-  const isMobile = viewportWidth < KB_BP_MOBILE;
-  const isTablet = viewportWidth < KB_BP_WORKSPACE;
+
+
   useEffect(() => { injectMarketplaceDetailFonts(); }, []);
   useEffect(() => {
     if (typeof document === 'undefined') return undefined;
@@ -34510,28 +34241,28 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
 
   const isOwner = currentUser && v.user_id === currentUser.id;
   const isVendorViewingPeer = role === 'vendor' && !isOwner;
-  const isElderEndorsed = false; // P0-A: Elder Endorsed quarantined from active UI.
-  const elderPending = false;
+   // P0-A: Elder Endorsed quarantined from active UI.
+
   const initials = getInitialsSafe(v.name, 'VN');
   const vendorHeroImage = getVendorPrimaryImage(v);
   const vendorPresentation = getVendorProfilePresentation(v);
   const deliveryBadge = getVendorDeliveryBadge(v);
   const profileTags = vendorPresentation.tags;
-  const identityBadges = vendorPresentation.identityBadges;
+
   const bestFitItems = vendorPresentation.bestFitItems;
   const proofPoints = vendorPresentation.proofPoints;
   const caseStudies = vendorPresentation.caseStudies;
-  const profileSnapshot = vendorPresentation.profileSnapshot;
+
   const reviewCount = Number(v.reviews_count || v.reviews || 0);
-  const projectCount = Number(v.projects_count || v.projects || 0);
+
   const ratingValue = getEvidenceBackedRating(v.rating, reviewCount);
-  const ratingLabel = ratingValue ? `${ratingValue.toFixed(1)} ★` : 'No reviews yet';
+
   const responseSignal = firstNonEmpty(v.response_sla, v.response_time, '');
   const primaryResponseLabel = responseSignal || 'Not specified';
   const serviceAreaSignal = firstNonEmpty(v.service_area, Array.isArray(v.service_regions) ? v.service_regions.join(', ') : null, v.city, '');
-  const serviceAreaLabel = serviceAreaSignal || 'Not specified';
+
   const churchSizeSignal = Array.isArray(v.church_sizes_served) && v.church_sizes_served.length > 0 ? v.church_sizes_served.join(', ') : (Array.isArray(v.church_size_fit) && v.church_size_fit.length > 0 ? v.church_size_fit.slice(0,3).join(', ') : '');
-  const churchSizeLabel = churchSizeSignal || 'Not specified';
+
   const hasDeliverySignal = Boolean(firstNonEmpty(v.delivery_model, v.service_model, ''));
   const returnContext = readReturnContext();
   const profileChurchId = String(currentUser?.id || '').trim();
@@ -34562,7 +34293,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
     return profileProjectOptions.find(p => ['open','review','draft'].includes(String(p.status || 'draft'))) || null;
   }, [profileProjectOptions, profileStoredProjectSelection, profileStoredProjectSnapshot]);
   const profileProjectId = String(firstNonEmpty(profileProjectForDeal?.id, returnContext?.projectId, returnContext?.linkedProjectId, '')).trim();
-  const projectContextLabel = profileProjectForDeal || returnContext?.projectId || returnContext?.linkedProjectId ? 'Best for the project you were just reviewing' : null;
+
   const profileInteropEntry = profileProjectId ? getProjectInteropEntry(profileProjectId) : null;
   const profileProjectTitle = firstNonEmpty(
     returnContext?.projectTitle,
@@ -34572,9 +34303,9 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   );
   const profileLinkState = profileProjectId ? (profileInteropEntry?.vendorsById?.[String(v.id)] || profileInteropEntry?.vendorsById?.[String(v.user_id || '')] || null) : null;
   const canProjectContextActions = !!profileProjectId && !!currentUser && !isOwner && isHirerRole(role);
-  const profileBackLabel = returnContext?.scope === 'compare' ? '← Back to Compare' : profileProjectId ? '← Back to Project' : '← Back to Vendors';
+
   const profileStageMeta = profileLinkState ? (PROJECT_VENDOR_STAGE_META?.[profileLinkState.stage] || null) : null;
-  const profileStageLabel = profileStageMeta?.label || (profileLinkState?.stageLabel || 'Watching');
+
   const profileVendorId = String(firstNonEmpty(v?.id, v?.vendor_id, v?.user_id, '')).trim();
   const profileVendorUserId = String(firstNonEmpty(v?.user_id, v?.vendor_user_id, v?.vendor_id, v?.id, '')).trim();
   useEffect(() => {
@@ -34626,13 +34357,13 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
     });
   }, [profileVendorId, profileVendorUserId, profileProjectForDeal, profileProjectId, profileVendorPairSignalMaps, role, currentUser?.id]);
   const profileEngineDealState = profileEngineBucket ? deriveCanonicalDealState(profileEngineBucket) : null;
-  const profileDealSummary = profileEngineDealState ? getDealStateSummary(profileEngineDealState, { role:'church', linkedBid: profileEngineBucket?.linkedBid || null }) : null;
+
   const profileRecommendedFit = useMemo(() => {
     if (v?.recommendedFit) return v.recommendedFit;
     if (profileProjectForDeal && isHirerRole(role)) return computeRecommendedVendorFit(v, profileProjectForDeal, currentUser?.city || currentUser?.profile?.city || '');
     return null;
   }, [v, profileProjectForDeal, role, currentUser?.city, currentUser?.profile?.city]);
-  const profileRecommendedPresentation = profileRecommendedFit ? getRecommendedFitPresentation(profileRecommendedFit) : null;
+
   const saveVendorToCompare = () => {
     const compareResult = upsertCompareWorkspaceItem('vendors', {
       id: v.id || v.user_id || v.name,
@@ -34762,8 +34493,8 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   }, [profileToast]);
 
   const canStartVendorConversation = Boolean(v?.user_id || v?.vendor_id || v?.id);
-  const vendorContactLabel = canProjectContextActions ? 'Message about this project →' : `Contact ${v.name?.split(" ")[0] || 'vendor'} →`;
-  const vendorAvailabilityLabel = canProjectContextActions ? 'Check availability for this project →' : 'Check availability & contact →';
+
+
   const openVendorConversationFromProfile = async (source = 'vendor-profile-cta') => {
     try {
       await startConversation(v, nav, profileProjectId || null, profileProjectTitle || null);
@@ -34810,10 +34541,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
     };
   })();
 
-  const profileDealShowMessageSecondary =
-    canProjectContextActions &&
-    canStartVendorConversation &&
-    profileDealPrimary.label !== 'Message about this project';
+
 
   /* 0999 — Vendor detail / approved Project Detail visual parity lock.
      The vendor card destination now uses the SAME visual contract as the approved
@@ -34839,11 +34567,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
     pickMarketplacePresetImage({ title: vendorDetailName, category: vendorDetailCategory, primary_category: vendorDetailCategory }, 0),
     KB_PROJECT_MEDIA_FALLBACK,
   );
-  const vendorDetailGallery = Array.from(new Set([
-    vendorDetailHeroImage,
-    ...safeArray(v.gallery),
-    ...safeArray(portfolioItems).map(item => firstNonEmpty(item?.image_url, item?.image, item?.thumbnail_url, '')).filter(Boolean),
-  ].filter(Boolean)));
+
   const vendorDetailAbout = firstNonEmpty(
     v.bio,
     v.tagline,
@@ -34857,15 +34581,8 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
     ...safeArray(v.services),
     ...safeArray(bestFitItems),
   ].map(item => typeof item === 'string' ? item.trim() : firstNonEmpty(item?.title, item?.label, item?.name, '')).filter(Boolean))).slice(0, 6);
-  const vendorDetailProofItems = Array.from(new Set([
-    ...safeArray(proofPoints),
-    ...safeArray(caseStudies).map(item => firstNonEmpty(item?.title, item?.body, '')).filter(Boolean),
-  ].filter(Boolean))).slice(0, 5);
-  const vendorDetailMetaItems = [
-    vendorDetailLocation,
-    hasDeliverySignal ? deliveryBadge.label : null,
-    ratingValue ? `${ratingValue.toFixed(1)} ★ · ${reviewCount} review${reviewCount === 1 ? '' : 's'}` : 'New to FaithBid',
-  ].filter(Boolean);
+
+
   const vendorDetailContextLine = v.verified
     ? 'Faith Verified · Profile information reviewed by FaithBid'
     : 'Marketplace vendor · Trust signals build as the profile develops';
@@ -34899,7 +34616,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
       if (String(error?.name || '') !== 'AbortError') setProfileToast('Could not share this vendor right now');
     }
   };
-  const contentWidth = viewportWidth >= 1800 ? Math.min(1680, viewportWidth - 192) : viewportWidth >= 1400 ? viewportWidth - 112 : viewportWidth >= 1200 ? viewportWidth - 80 : 'calc(100vw - 40px)';
+
   const vendorDetailFooterTitle = isOwner
     ? 'Keep your FaithBid profile ready for the next church.'
     : canProjectContextActions
@@ -34910,13 +34627,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
     : canProjectContextActions
       ? 'Use the current project context when you reach out so the conversation stays tied to the church need you are reviewing.'
       : 'Ask a question, confirm fit and availability, and keep the conversation organized inside FaithBid.';
-  const detailIcon = (kind, size=18) => {
-    if (kind === 'pin') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>;
-    if (kind === 'shield') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 3 20 6v6c0 5-3.4 8-8 10-4.6-2-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-5"/></svg>;
-    if (kind === 'star') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>;
-    if (kind === 'clock') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>;
-    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>;
-  };
+
 
   /* 1000 — Vendor card destination exact church Project Detail parity lock.
      This intentionally reuses the approved MarketplaceProjectPreviewDetail visual
@@ -34933,7 +34644,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   // Detail page, so this component just uses that instead of re-deriving
   // its own width.
   const vendorDetailRootStyle = undefined;
-  const vendorPdrIsMobile = viewportWidth < 720;
+
   const vendorDetailCity = firstNonEmpty(v.service_city, v.city, 'Dallas');
   const vendorDetailState = firstNonEmpty(v.service_state, v.state, 'TX');
   const vendorDetailDisplayLocation = firstNonEmpty(v.service_area, [vendorDetailCity, vendorDetailState].filter(Boolean).join(', '), 'Service area not listed');
@@ -37477,7 +37188,7 @@ function FBConciergeFeeCollectionModal({ client, engagement, onClose, onSaved })
   if (!engagement) return null;
   const update = (key, value) => setForm((c) => ({ ...c, [key]: value }));
   const agreed = scope === "introduction" ? engagement.agreed_introduction_fee_cents : engagement.agreed_renewal_fee_cents;
-  const dollars = (cents) => cents == null ? "" : String(Number(cents) / 100);
+
   const toCents = (d) => d === "" || d == null ? null : String(Math.round(Number(d) * 100));
   const save = async () => {
     setBusy(true); setError("");
@@ -39856,11 +39567,7 @@ const cancelMessage = (ws, id) => call$11("tk_cancel_message", {
 	p_id: id
 });
 const dispatchTestMode = (ws) => call$11("tk_dispatch_dry_run", { p_ws: ws });
-const simulateReply = (ws, person, body) => call$11("tk_simulate_inbound", {
-	p_ws: ws,
-	p_person: person,
-	p_body: body
-});
+
 const queueMessage = (ws, v) => call$11("tk_queue_message", {
 	p_ws: ws,
 	p_person: v.person,
