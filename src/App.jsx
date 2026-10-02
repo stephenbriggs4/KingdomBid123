@@ -45,7 +45,7 @@ function FaithBidCard11A({
   actionDisabled = false,
   saved = false,
   onToggleSave,
-  matchPercent = null,
+  matchLabel = "",
   variant = "legacy",
   trustLabel = "",
   detail = "",
@@ -54,9 +54,10 @@ function FaithBidCard11A({
   ariaLabel,
   className = "",
 }) {
-  const safeMatch = matchPercent == null
-    ? null
-    : (Number.isFinite(Number(matchPercent)) ? Math.max(0, Math.min(100, Math.round(Number(matchPercent)))) : null);
+  // Plain-English fit label only — never a numeric match score/percentage.
+  // A visible number invites gaming and false precision; a short label like
+  // "Strong fit" or "Possible fit" is honest about what the match actually is.
+  const safeMatchLabel = String(matchLabel || "").trim() || null;
   const normalizedTopLabel = String(topLabel || "").trim();
   const isReviewStatus = /^bid under review$/i.test(normalizedTopLabel);
   const topColor = topTone === "green" ? "oklch(0.85 0.13 145)" : "oklch(0.85 0.1 85)";
@@ -92,7 +93,7 @@ function FaithBidCard11A({
             {trustLabel ? <span className="faithbid-card-11a__trust">{trustLabel}</span> : null}
           </div>
           <div className="faithbid-card-11a__utilities">
-            {safeMatch != null ? <span className="faithbid-card-11a__match" aria-label={`${safeMatch}% match`}>{safeMatch}% match</span> : null}
+            {safeMatchLabel ? <span className="faithbid-card-11a__match" aria-label={safeMatchLabel}>{safeMatchLabel}</span> : null}
             {typeof onToggleSave === "function" ? (
               <button
                 type="button"
@@ -172,14 +173,14 @@ function FaithBidCard11A({
       </div>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(20,14,8,.88) 0%, rgba(20,14,8,.02) 50%)", pointerEvents: "none" }} />
 
-      <div className={isReviewStatus ? "kb-card-review-status" : "kb-card-top-label"} style={{ position: "absolute", top: 16, left: 18, right: safeMatch == null ? 58 : 92, minHeight: isReviewStatus ? 28 : undefined, padding: isReviewStatus ? "5px 10px" : 0, borderRadius: isReviewStatus ? 999 : 0, background: isReviewStatus ? "rgba(20,14,8,.78)" : "transparent", border: isReviewStatus ? "1px solid rgba(255,255,255,.22)" : 0, font: isReviewStatus ? "700 13px var(--font-sans), sans-serif" : "700 12px var(--font-sans), sans-serif", letterSpacing: isReviewStatus ? 0 : ".08em", color: isReviewStatus ? "#fff" : topColor, textTransform: isReviewStatus ? "none" : "uppercase", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", display: "inline-flex", alignItems: "center", width: "fit-content", maxWidth: "calc(100% - 110px)" }}>
+      <div className={isReviewStatus ? "kb-card-review-status" : "kb-card-top-label"} style={{ position: "absolute", top: 16, left: 18, right: safeMatchLabel == null ? 58 : 92, minHeight: isReviewStatus ? 28 : undefined, padding: isReviewStatus ? "5px 10px" : 0, borderRadius: isReviewStatus ? 999 : 0, background: isReviewStatus ? "rgba(20,14,8,.78)" : "transparent", border: isReviewStatus ? "1px solid rgba(255,255,255,.22)" : 0, font: isReviewStatus ? "700 13px var(--font-sans), sans-serif" : "700 12px var(--font-sans), sans-serif", letterSpacing: isReviewStatus ? 0 : ".08em", color: isReviewStatus ? "#fff" : topColor, textTransform: isReviewStatus ? "none" : "uppercase", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", display: "inline-flex", alignItems: "center", width: "fit-content", maxWidth: "calc(100% - 110px)" }}>
         {normalizedTopLabel}
       </div>
 
-      {safeMatch != null ? (
-        <div className="kb-match-chip" aria-label={`${safeMatch}% match`} style={{ position: "absolute", top: 14, right: 14, minHeight: 30, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.25)", background: "rgba(20,14,8,.82)", color: "#fff", font: "700 13px var(--font-sans), sans-serif", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+      {safeMatchLabel ? (
+        <div className="kb-match-chip" aria-label={safeMatchLabel} style={{ position: "absolute", top: 14, right: 14, minHeight: 30, padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.25)", background: "rgba(20,14,8,.82)", color: "#fff", font: "700 13px var(--font-sans), sans-serif", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
           <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: "oklch(0.85 0.13 85)" }} />
-          {safeMatch}% match
+          {safeMatchLabel}
         </div>
       ) : (
         <button
@@ -4468,6 +4469,25 @@ function kbMatchLocationFit(vendor = {}, { viewerCity = '', project = null } = {
 
 
 const KB_MATCHMAKER_INPUT_VERSION = 'faithbid_matchmaker_rules_v0072';
+
+// Faith-trust tier for a vendor, independent of any specific project. Mirrors the
+// verified > covenant-signed > self-reported-experience precedence used inside
+// computeRecommendedVendorFit's match reasoning, so a vendor's trust signal reads the
+// same whether or not a project is in context (e.g. browsing a profile with no invite).
+function getVendorFaithTrustTier(vendor = {}) {
+  const clean = (value = '') => String(value || '').trim();
+  const lower = (value = '') => clean(value).toLowerCase();
+  const firstNonEmptyLocal = (...values) => values.find(v => clean(v)) || '';
+  const textHasChurch = (value = '') => /\b(church|ministry|worship|sanctuary|pastor|congregation)\b/i.test(String(value || ''));
+  const verified = vendor?.verified === true || lower(vendor?.faith_verification_status) === 'verified';
+  if (verified) return { tier: 'verified', label: 'Faith Verified' };
+  const covenantSigned = /signed|complete|accepted/.test(lower(firstNonEmptyLocal(vendor?.faith_covenant_status, vendor?.covenant_status)));
+  if (covenantSigned) return { tier: 'covenant', label: 'Faith Covenant Signed' };
+  const churchExperienceCount = Number(vendor?.church_experience_count || 0) || 0;
+  const churchExperienceText = [vendor?.church_experience, vendor?.church_experience_summary, vendor?.bio, vendor?.headline, vendor?.tagline].some(textHasChurch);
+  if (churchExperienceCount > 0 || churchExperienceText) return { tier: 'self_reported', label: 'Church Experience Reported' };
+  return { tier: 'none', label: '' };
+}
 
 // Recommended Vendors MVP Slice 2: honest structural fit labels for the canonical
 // AllVendorsLanding surface only. Hard guardrail: this helper uses real normalized
@@ -33657,12 +33677,9 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
               const inviteLabel = relationshipUnconfirmed
                 ? (vendorPairSignalsLoading ? 'Checking relationship…' : 'Relationship unavailable')
                 : getInviteButtonLabelForDealState(displayDealState, { isInviting, hasProject: hasInviteProject, hasUser: hasInviteUser });
-              const matchPercent = Math.max(0, Math.min(100, Number(
-                recommendedFit?.score
-                ?? recommendedFit?.percent
-                ?? String(recommendedPresentation.scoreLabel || '').match(/\d+/)?.[0]
-                ?? 0
-              ) || 0));
+              // Plain-English fit label, not a score — only shown when there's an actual
+              // project in context to match against, never a raw percentage/number.
+              const matchLabel = matchContextProject ? String(recommendedPresentation.headline || '').trim() : '';
               return (
                 <div key={vendorKey} className="kb-live-card-wrap">
                   <FaithBidCard11A
@@ -33671,14 +33688,14 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
                     imageAlt=""
                     title={vendor.name}
                     topLabel={categoryLabel}
-                    trustLabel={vendor.verified === true ? 'Faith Verified' : ''}
+                    trustLabel={getVendorFaithTrustTier(vendor).label}
                     avatarText={getInitialsSafe(vendor.name || 'Vendor')}
                     meta={vendor.city || vendor.service_city || 'Remote delivery'}
                     detail={vendorDetail && vendorDetail !== categoryLabel ? vendorDetail : ''}
                     reviewLabel={reviewLabel}
                     valueLabel="Relationship"
                     value={dealStatusLabel || 'Available'}
-                    matchPercent={matchPercent}
+                    matchLabel={matchLabel}
                     actionLabel={hasInviteProject ? inviteLabel : 'View profile'}
                     actionDisabled={hasInviteProject && inviteDisabled}
                     onOpen={() => handleOpenVendor(vendor)}
@@ -33980,6 +33997,10 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
     if (profileProjectForDeal && isHirerRole(role)) return computeRecommendedVendorFit(v, profileProjectForDeal, currentUser?.city || currentUser?.profile?.city || '');
     return null;
   }, [v, profileProjectForDeal, role, currentUser?.city, currentUser?.profile?.city]);
+  // One-sentence, plain-English reason this vendor was recommended for the project
+  // currently in context. Only computed (and only shown) when there's a real project
+  // to match against — never a score, never shown as a generic profile-wide claim.
+  const profileRecommendedPresentation = profileRecommendedFit ? getRecommendedFitPresentation(profileRecommendedFit) : null;
 
   const saveVendorToCompare = () => {
     const compareResult = upsertCompareWorkspaceItem('vendors', {
@@ -34553,13 +34574,20 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
                   ))}
                 </div>
 
+                {profileRecommendedPresentation?.summary ? (
+                  <div style={{marginBottom:14,padding:'12px 14px',border:'1px solid #e5e0d6',borderRadius:8,background:'#fffdf9'}}>
+                    <div style={{fontSize:9,fontWeight:850,letterSpacing:'.12em',textTransform:'uppercase',color:'#91713a',marginBottom:6}}>Why this fit{profileRecommendedPresentation.headline ? ` · ${profileRecommendedPresentation.headline}` : ''}</div>
+                    <div style={{fontSize:12.5,color:'#3b3426',lineHeight:1.5}}>{profileRecommendedPresentation.summary}</div>
+                  </div>
+                ) : null}
+
                 <div className="kb-pdr-detailmap">
                   <div className="kb-pdr-details-card">
                     <h3 className="kb-pdr-details-title">Vendor details</h3>
                     <div className="kb-pdr-detailrows">
                       <div className="kb-pdr-detailrow"><span className="icon">{vendorPdrIcon('pin',18)}</span><span><small>Service area</small><strong>{vendorDetailDisplayLocation}</strong></span></div>
                       <div className="kb-pdr-detailrow"><span className="icon">{vendorPdrIcon('clock',18)}</span><span><small>Response</small><strong>{primaryResponseLabel}</strong></span></div>
-                      <div className="kb-pdr-detailrow"><span className="icon">{vendorPdrIcon('shield',18)}</span><span><small>Trust</small><strong>{v.verified ? 'Faith Verified' : 'Directory profile'}</strong></span></div>
+                      <div className="kb-pdr-detailrow"><span className="icon">{vendorPdrIcon('shield',18)}</span><span><small>Trust</small><strong>{getVendorFaithTrustTier(v).label || 'Directory profile'}</strong></span></div>
                       <div className="kb-pdr-detailrow"><span className="icon">{vendorPdrIcon('flag',18)}</span><span><small>Service category</small><strong>{formatMarketplaceCategoryLabel(vendorDetailCategory,vendorDetailCategory)}</strong></span></div>
                     </div>
                   </div>
@@ -34626,7 +34654,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
                 <span><div className="kb-pdr-church-name">{vendorDetailName}</div><div className="kb-pdr-church-sub">{formatMarketplaceCategoryLabel(vendorDetailCategory,vendorDetailCategory)}<br/>{vendorDetailDisplayLocation}</div></span>
               </div>
               <div className="kb-pdr-church-stats">
-                <div className="kb-pdr-church-stat">{vendorPdrIcon('shield',15)}<span>{v.verified ? 'Faith Verified on FaithBid' : 'Marketplace profile'}</span></div>
+                <div className="kb-pdr-church-stat">{vendorPdrIcon('shield',15)}<span>{getVendorFaithTrustTier(v).label ? `${getVendorFaithTrustTier(v).label} on FaithBid` : 'Marketplace profile'}</span></div>
                 <div className="kb-pdr-church-stat">{vendorPdrIcon('clock',15)}<span>{primaryResponseLabel === 'Not specified' ? 'Response time not specified' : `Response: ${primaryResponseLabel}`}</span></div>
                 <div className="kb-pdr-church-stat">{vendorPdrIcon('star',15)}<span>{ratingValue ? `${ratingValue.toFixed(1)} ★ from ${reviewCount} review${reviewCount===1?'':'s'}` : 'Reviews forming'}</span></div>
               </div>
