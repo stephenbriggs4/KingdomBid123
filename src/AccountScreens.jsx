@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { supabase } from "./supabaseClient";
 
-let CHARTER_VENDOR_PRO_FREE_MONTHS, CHARTER_VENDOR_PRO_VALUE_LABEL, CHURCH_REBATE_FINALITY_WINDOW_DAYS, CHURCH_REBATE_PAYOUT_FREQUENCY_LABEL, CHURCH_REBATE_PAYOUT_THRESHOLD_LABEL, CHURCH_REBATE_POLICY_SUMMARY, CHURCH_REBATE_RATE_LABEL, CLAY_BG, ChurchWorkspaceLaunchPanel, CrossLogo, FoundingVendorBadgeReveal, KB_ONBOARDING_CONTENT, KB_PROJECT_OPS_KEY, PLATFORM_FEE_CAP, VENDOR_PRO_FEE_CAP, VENDOR_PRO_PRICE_LABEL, VENDOR_PRO_PRICE_MONTHLY, VENDOR_PRO_PRICE_YEARLY, VENDOR_TIERS, VendorWorkspaceLaunchPanel, collectOperationalAlertsForProjects, computePlatformFee, computeProSavings, formatMoney, logError, normalizeProjectEntity, passwordStrengthError, readLocalJson, runSupabaseWithFallback, setAuthDefaultRole;
+let CHARTER_VENDOR_PRO_FREE_MONTHS, CHARTER_VENDOR_PRO_VALUE_LABEL, CHURCH_REBATE_FINALITY_WINDOW_DAYS, CHURCH_REBATE_PAYOUT_FREQUENCY_LABEL, CHURCH_REBATE_PAYOUT_THRESHOLD_LABEL, CHURCH_REBATE_POLICY_SUMMARY, CHURCH_REBATE_RATE_LABEL, CLAY_BG, ChurchWorkspaceLaunchPanel, CrossLogo, FoundingVendorBadgeReveal, KB_ONBOARDING_CONTENT, KB_PROJECT_OPS_KEY, PLATFORM_FEE_CAP, VENDOR_PRO_FEE_CAP, VENDOR_PRO_PRICE_LABEL, VENDOR_PRO_PRICE_MONTHLY, VENDOR_PRO_PRICE_YEARLY, VENDOR_TIERS, VendorWorkspaceLaunchPanel, collectOperationalAlertsForProjects, logError, normalizeProjectEntity, passwordStrengthError, readLocalJson, runSupabaseWithFallback, setAuthDefaultRole;
 
 function applyAccountScreenDependencies(values = {}) {
-  ({ CHARTER_VENDOR_PRO_FREE_MONTHS, CHARTER_VENDOR_PRO_VALUE_LABEL, CHURCH_REBATE_FINALITY_WINDOW_DAYS, CHURCH_REBATE_PAYOUT_FREQUENCY_LABEL, CHURCH_REBATE_PAYOUT_THRESHOLD_LABEL, CHURCH_REBATE_POLICY_SUMMARY, CHURCH_REBATE_RATE_LABEL, CLAY_BG, ChurchWorkspaceLaunchPanel, CrossLogo, FoundingVendorBadgeReveal, KB_ONBOARDING_CONTENT, KB_PROJECT_OPS_KEY, PLATFORM_FEE_CAP, VENDOR_PRO_FEE_CAP, VENDOR_PRO_PRICE_LABEL, VENDOR_PRO_PRICE_MONTHLY, VENDOR_PRO_PRICE_YEARLY, VENDOR_TIERS, VendorWorkspaceLaunchPanel, collectOperationalAlertsForProjects, computePlatformFee, computeProSavings, formatMoney, logError, normalizeProjectEntity, passwordStrengthError, readLocalJson, runSupabaseWithFallback, setAuthDefaultRole } = values || {});
+  ({ CHARTER_VENDOR_PRO_FREE_MONTHS, CHARTER_VENDOR_PRO_VALUE_LABEL, CHURCH_REBATE_FINALITY_WINDOW_DAYS, CHURCH_REBATE_PAYOUT_FREQUENCY_LABEL, CHURCH_REBATE_PAYOUT_THRESHOLD_LABEL, CHURCH_REBATE_POLICY_SUMMARY, CHURCH_REBATE_RATE_LABEL, CLAY_BG, ChurchWorkspaceLaunchPanel, CrossLogo, FoundingVendorBadgeReveal, KB_ONBOARDING_CONTENT, KB_PROJECT_OPS_KEY, PLATFORM_FEE_CAP, VENDOR_PRO_FEE_CAP, VENDOR_PRO_PRICE_LABEL, VENDOR_PRO_PRICE_MONTHLY, VENDOR_PRO_PRICE_YEARLY, VENDOR_TIERS, VendorWorkspaceLaunchPanel, collectOperationalAlertsForProjects, logError, normalizeProjectEntity, passwordStrengthError, readLocalJson, runSupabaseWithFallback, setAuthDefaultRole } = values || {});
 }
 
-function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
-  const [billing, setBilling] = useState("monthly"); // "monthly" | "yearly"
-  const [exampleBid, setExampleBid] = useState(2500);
+function PricingScreen({ userProfile, role, nav }) {
   const isVendor = role === "vendor";
   const isFounding = !!userProfile?.founding_vendor;
   const pricingPreviewItems = [
@@ -113,10 +111,6 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
     .charter-banner-text strong { color: var(--kb-gold-dark); }
   `;
 
-  const monthlyEquivProYearly = (VENDOR_PRO_PRICE_YEARLY / 12).toFixed(2);
-  const proPrice = billing === "yearly" ? monthlyEquivProYearly : VENDOR_PRO_PRICE_MONTHLY;
-  const proPriceSuffix = billing === "yearly" ? `/mo billed yearly` : `/month`;
-
   return (
     <>
       <style>{css}</style>
@@ -138,18 +132,6 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
           <p className="pricing-sub">
             FaithBid is not currently advertising a standard platform fee or offering a paid Vendor Pro plan. Any future pricing will be published before it applies.
           </p>
-
-          {false && <div className="pricing-toggle-wrap">
-            <div className="pricing-toggle">
-              <button className={billing === "monthly" ? "on" : ""} onClick={() => setBilling("monthly")}>
-                Monthly
-              </button>
-              <button className={billing === "yearly" ? "on" : ""} onClick={() => setBilling("yearly")}>
-                Yearly
-                <span className="save-pill">Save 17%</span>
-              </button>
-            </div>
-          </div>}
 
           <div className="pricing-grid">
             {pricingPreviewItems.map(tier => (
@@ -249,9 +231,8 @@ function PricingScreen({ currentUser, userProfile, role, nav, showToast }) {
   );
 }
 
-function OnboardingScreen({role, currentUser, userProfile, nav, showToast}){
+function OnboardingScreen({role, currentUser, userProfile, nav}){
   const [step, setStep] = useState(0);
-  const [exiting, setExiting] = useState(false);
   const isFoundingVendor = !!(userProfile?.founding_vendor);
   const [launchProjects, setLaunchProjects] = useState([]);
   const [launchOpsState, setLaunchOpsState] = useState(() => readLocalJson(KB_PROJECT_OPS_KEY, {}));
