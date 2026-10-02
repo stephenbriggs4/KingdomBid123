@@ -17,7 +17,16 @@ export default function AdminVendorCredentials({ showToast = () => {} }) {
     setRows(data || []);
     setState("ready");
   }, []);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let cancelled = false;
+    supabase.rpc("kb_admin_list_vendor_credentials_v1").then(({ data, error }) => {
+      if (cancelled) return;
+      if (error) { setState("error"); return; }
+      setRows(data || []);
+      setState("ready");
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   const openDocument = async (row) => {
     if (!row.document_path) { showToast("No document was attached.", "error"); return; }

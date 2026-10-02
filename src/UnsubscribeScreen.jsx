@@ -22,11 +22,11 @@ const headers = () => ({ apikey: supabaseAnonKey, authorization: `Bearer ${supab
 
 export default function UnsubscribeScreen({ nav }) {
   const [params] = useState(readParams);
-  const [state, setState] = useState("checking"); // checking | ready | invalid | done | error
+  const [state, setState] = useState(() => params.u && params.s ? "checking" : "invalid"); // checking | ready | invalid | done | error
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!params.u || !params.s) { setState("invalid"); return undefined; }
+    if (!params.u || !params.s) return undefined;
     let cancelled = false;
     fetch(endpoint(params), { headers: headers() })
       .then((response) => { if (!cancelled) setState(response.ok ? "ready" : "invalid"); })

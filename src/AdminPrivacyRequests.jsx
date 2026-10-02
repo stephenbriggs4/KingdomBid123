@@ -17,7 +17,16 @@ export default function AdminPrivacyRequests({ showToast = () => {} }) {
     setRows(data || []);
     setState("ready");
   }, []);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let cancelled = false;
+    supabase.rpc("kb_admin_list_privacy_requests").then(({ data, error }) => {
+      if (cancelled) return;
+      if (error) { setState("error"); return; }
+      setRows(data || []);
+      setState("ready");
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   const resolve = async (row, status) => {
     if (busyId) return;

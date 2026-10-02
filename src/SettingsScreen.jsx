@@ -26,7 +26,21 @@ function PrivacyRequestsPanel({ showToast, buttonStyle }) {
     setLoadFailed(false);
     setRows(data || []);
   }, []);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("privacy_requests")
+      .select("id,kind,status,created_at,resolved_at")
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) { setLoadFailed(true); return; }
+        setLoadFailed(false);
+        setRows(data || []);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const hasActive = (kind) => rows.some(row => row.kind === kind && (row.status === "open" || row.status === "in_progress"));
 
