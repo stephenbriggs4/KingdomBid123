@@ -2049,6 +2049,7 @@ async function sendReferenceEmail({ token, referenceId, clientName, clientEmail,
   }
 }
 async function sendWaitlistEmail({
+  applicationId,
   role,
   email,
   fullName,
@@ -2070,6 +2071,7 @@ async function sendWaitlistEmail({
   try {
     const { data, error } = await supabase.functions.invoke("send-waitlist-email", {
       body: {
+        applicationId: String(applicationId || "").trim() || null,
         role: role === "vendor" ? "vendor" : "church",
         email: cleanEmail,
         fullName: String(fullName || "").trim() || null,

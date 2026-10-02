@@ -8,6 +8,7 @@ const leaseMig = read('../supabase/migrations/20260930183715_lease_email_outbox_
 const enqueueFailureMig = read('../supabase/migrations/20261002001853_record_email_enqueue_failures.sql');
 const worker = read('../supabase/functions/email-worker/index.ts');
 const waitlist = read('../supabase/functions/send-waitlist-email/index.ts');
+const waitlistScreen = read('../src/WaitlistScreen.jsx');
 const settings = read('../src/SettingsScreen.jsx');
 const unsub = read('../src/UnsubscribeScreen.jsx');
 const app = read('../src/App.jsx');
@@ -49,11 +50,15 @@ has(enqueueFailureMig, /raise warning 'email enqueue failed for notification %/,
 has(enqueueFailureMig, /revoke all on function private\.kb_enqueue_email_for_notification_v1\(\)[\s\S]*from public, anon, authenticated/, 'the private trigger function is not a callable browser API');
 
 // waitlist function
+has(waitlist, /const applicationId = clean\(\(body as Record<string, unknown>\)\.applicationId, 36\)/, 'waitlist email requires the committed application receipt');
+has(waitlist, /\.eq\("id", applicationId\)\.ilike\("email", email\)\.eq\("role", role\)/, 'waitlist receipt must match the email and role');
 has(waitlist, /if \(!entry\) return accepted\(req\)/, 'non-members receive the same opaque acceptance response');
 has(waitlist, /MAX_SENDS = 5/, 'waitlist sends are capped');
 has(waitlist, /if \(suppressed\) return accepted\(req\)/, 'suppressed addresses are respected without exposing status');
 has(waitlist, /ALLOWED_ORIGINS\.has/, 'CORS permits only configured FaithBid origins');
 has(waitlist, /\{ accepted: true \}, 202/, 'public responses do not reveal delivery or waitlist state');
+has(app, /applicationId: String\(applicationId \|\| ""\)\.trim\(\) \|\| null/, 'the client sends the committed waitlist receipt to the email function');
+assert.equal((waitlistScreen.match(/applicationId: inserted\.id/g) || []).length, 2, 'both church and vendor confirmation paths bind email to the committed receipt');
 
 // app
 has(settings, /email_frequency/, 'Settings saves the email frequency');

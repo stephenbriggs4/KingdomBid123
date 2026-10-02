@@ -365,6 +365,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
       if (!isVendor) {
         // Preserve the existing church early-access sequencing exactly.
         const emailSend = await sendWaitlistEmail({
+          applicationId: inserted.id,
           role: mode,
           email: snapshot.email,
           fullName: snapshot.full_name,
@@ -431,6 +432,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
 
         try {
           const emailSend = await runSupabaseWithTimeout(sendWaitlistEmail({
+            applicationId: inserted.id,
             role: mode,
             email: snapshot.email,
             fullName: snapshot.full_name,

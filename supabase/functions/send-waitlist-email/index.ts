@@ -70,8 +70,10 @@ serve(async (req: Request) => {
   }
 
   const body = await req.json().catch(() => ({} as Record<string, unknown>));
+  const applicationId = clean((body as Record<string, unknown>).applicationId, 36);
   const email = clean((body as Record<string, unknown>).email, 254).toLowerCase();
   const role = (body as Record<string, unknown>).role === "vendor" ? "vendor" : "church";
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(applicationId)) return accepted(req);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return accepted(req);
 
   if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
@@ -79,9 +81,10 @@ serve(async (req: Request) => {
     return accepted(req);
   }
 
-  // Relay guard: the address must be an actual waitlist application for this role.
+  // Relay guard: the caller must present the unguessable id returned by the
+  // committed waitlist transaction, and it must match this address and role.
   const { data: entry } = await admin.from("waitlist").select("email,role,full_name,org_name,referral_code")
-    .ilike("email", email).eq("role", role).order("created_at", { ascending: false }).limit(1).maybeSingle();
+    .eq("id", applicationId).ilike("email", email).eq("role", role).maybeSingle();
   if (!entry) return accepted(req);
 
   const { data: suppressed } = await admin.from("email_suppressions").select("email").eq("email", email).maybeSingle();
