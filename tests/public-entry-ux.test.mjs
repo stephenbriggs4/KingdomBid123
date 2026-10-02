@@ -40,4 +40,7 @@ test('founder sessions show effective role plus explicit admin access', async ()
   assert.match(source, /className="kb-effective-admin-badge">Admin<\/span>/);
   assert.match(source, /Admin access/);
   assert.match(source, /isAdminUser\(currentUser, userProfile\)/);
+  assert.match(source, /const isAdmin = isAdminUser\(currentUser, userProfile\);/);
+  assert.doesNotMatch(source, /const isAdmin = useMemo\([\s\S]{0,160}\[currentUser\]/);
+  assert.match(source, /event === "TOKEN_REFRESHED" \|\| event === "USER_UPDATED"/);
 });

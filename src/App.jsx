@@ -57297,7 +57297,7 @@ export default function App() {
       }
 
       // ── TOKEN_REFRESHED: Supabase refreshed the JWT automatically ─────────
-      if (event === "TOKEN_REFRESHED") {
+      if (event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
         // Update currentUser with fresh object (new JWT inside). Reload profile
         // only if we do not currently have a hydrated user shell.
         const eventSeq = ++authEventSeq.current;
@@ -57711,13 +57711,10 @@ export default function App() {
     };
   }, [nav]);
 
-  // Role-aware main tabs
-  // isAdmin is stable: once true for a session, stays true until sign-out.
-  // Avoids the flash where currentUser is null for one render after loadProfile sets role.
-  const isAdmin = useMemo(
-    () => isAdminUser(currentUser, userProfile),
-    [currentUser]
-  );
+  // Role-aware main tabs. Re-evaluate the server-controlled app_metadata
+  // claim on every render so TOKEN_REFRESHED/USER_UPDATED state cannot leave
+  // admin navigation visually stale within the same account session.
+  const isAdmin = isAdminUser(currentUser, userProfile);
 
   const canAccessMarketplace = marketplacePublic || isAdmin || privateMarketplaceAccess;
   const marketplaceWorkspaceReady = authReady && marketplaceGateLoaded && canAccessMarketplace;
