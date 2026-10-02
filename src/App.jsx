@@ -7197,7 +7197,7 @@ function __kbParseMoney(value) {
   if (!s) return 0;
   // Handle K/M shorthand before stripping non-numeric chars.
   // "$1.5K" → 1500, "$2.2M" → 2200000, "$10k" → 10000
-  const shorthand = s.match(/[\$\s]*([\d,.]+)\s*([KkMm])\b/);
+  const shorthand = s.match(/[$\s]*([\d,.]+)\s*([KkMm])\b/);
   if (shorthand) {
     const base = parseFloat(shorthand[1].replace(/,/g, ""));
     const multiplier = shorthand[2].toLowerCase() === "k" ? 1000 : 1000000;
@@ -17489,11 +17489,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     padding-right:12px!important;
   }
   .vendor-profile-content [style*="gridTemplateColumns:'repeat(2"],
-  .vendor-profile-content [style*="gridTemplateColumns:\"repeat(2"],
+  .vendor-profile-content [style*='gridTemplateColumns:"repeat(2'],
   .vendor-profile-content [style*="gridTemplateColumns:'repeat(3"],
-  .vendor-profile-content [style*="gridTemplateColumns:\"repeat(3"],
+  .vendor-profile-content [style*='gridTemplateColumns:"repeat(3'],
   .vendor-profile-content [style*="gridTemplateColumns:'repeat(4"],
-  .vendor-profile-content [style*="gridTemplateColumns:\"repeat(4"]{
+  .vendor-profile-content [style*='gridTemplateColumns:"repeat(4']{
     grid-template-columns:1fr!important;
   }
   .vendor-profile-content input,
@@ -17522,7 +17522,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     width:100%!important;
     max-width:100%!important;
   }
-  .vendor-profile-content [style*="gridTemplateColumns:\"repeat(2,minmax(0,1fr))"],
+  .vendor-profile-content [style*='gridTemplateColumns:"repeat(2,minmax(0,1fr))'],
   .vendor-profile-content [style*="gridTemplateColumns:'repeat(2,minmax(0,1fr))"]{
     grid-template-columns:1fr!important;
   }
@@ -20901,7 +20901,7 @@ const KB_GROUP_SOURCE_TTL_MS = 60 * 24 * 60 * 60 * 1000;
 function kbCleanAttributionValue(value, maxLen = 96) {
   return String(value || '')
     .trim()
-    .replace(/[<>"'`{}\[\]]/g, '')
+    .replace(/[<>"'`{}\x5B\x5D]/g, '')
     .slice(0, maxLen);
 }
 
@@ -21992,7 +21992,7 @@ async function persistProjectVendorLinkRecord(projectId, vendor, stage = 'watchi
     stage,
     source: extra?.source || vendor?.source || 'marketplace',
     is_saved: extra?.is_saved ?? true,
-    is_priority: extra?.is_priority ?? extra?.priority === 'priority' ?? false,
+    is_priority: extra?.is_priority ?? (extra?.priority === 'priority'),
     compare_selected: !!extra?.compare_selected,
     attention: Array.isArray(extra?.attention) ? extra.attention : (extra?.attentionText ? [extra.attentionText] : []),
     notes: extra?.notes || null,
@@ -23088,8 +23088,6 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   // Keep its search/sort state local to ProjectsScreen so the header cannot
   // throw at render time. This is intentionally header-only state; the legacy
   // marketplace feed/filter logic remains untouched.
-  const [] = useState("");
-  const [] = useState("best_match");
   // Keyset pagination state for the open-projects feed. We page by
   // posted_at desc, using the last loaded posted_at as the cursor for the
   // next request. Microsecond-precision timestamps are unique enough in
@@ -28144,7 +28142,6 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
 
 function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, nav, role, showToast, currentUser, myProjectsFetchError = false, onRetryMyProjects}){
   const [lane, setLane] = useState("active");
-  const [] = useState(false);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 180);
   const [sortBy, setSortBy] = useState("priority");
@@ -34177,7 +34174,6 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const [currentUserSelf, setCurrentUserSelf] = useState(null);
   const [portfolioItems, setPortfolioItems] = useState(() => Array.isArray(v?.portfolio_items) ? v.portfolio_items.filter(Boolean) : []);
   const currentUser = currentUserProp ?? currentUserSelf;
-  const [] = useState(false);
   const [elderForm, setElderForm] = useState({elderName:"", elderTitle:"", elderEmail:"", church:"", statement:""});
   const [elderSubmitted, setElderSubmitted] = useState(false);
   const [elderLoading, setElderLoading] = useState(false);
@@ -43781,7 +43777,7 @@ function AttendanceTab({ ws, plan, canEdit, reload, onError }) {
 //#endregion
 //#region src/modules/people/csv.js
 function parseCsv(text) {
-	const src = text.replace(/^﻿/, "");
+	const src = text.replace(/^\uFEFF/, "");
 	const first = src.split(/\r?\n/, 1)[0] || "";
 	const delim = [
 		",",
@@ -65786,7 +65782,7 @@ function FoundingMembersAdmin({showToast, refreshSignal = 0, onQueueChange = nul
   // destructive for an admin surface where full-email lookup is essential.
   const sanitizeAdminSearchTerm = (value) =>
     String(value || "")
-      .replace(/[%,()\\:*?^$|{}\[\]"]/g, "")
+      .replace(/[%,()\\:*?^$|{}\x5B\x5D"]/g, "")
       .replace(/\s+/g, " ")
       .trim()
       .slice(0, 80);
