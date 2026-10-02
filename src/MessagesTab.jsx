@@ -177,7 +177,8 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, o
   const [changesNote, setChangesNote] = useState('');
   const streamRef = useRef(null);
   const activeIdRef = useRef(activeId);
-  activeIdRef.current = activeId;
+  const tempMessageSequenceRef = useRef(0);
+  useEffect(() => { activeIdRef.current = activeId; }, [activeId]);
   useEffect(() => {
     try {
       if (activeId) window.sessionStorage.setItem('kb_messages_active_conversation', String(activeId));
@@ -200,7 +201,20 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, o
     }
   }, [uid]);
 
-  useEffect(() => { loadConvos(); }, [loadConvos]);
+  useEffect(() => {
+    if (!uid) return undefined;
+    let cancelled = false;
+    supabase.rpc('faithbid_messages_inbox_v1', { p_limit: 100 })
+      .then(({ data, error: err }) => {
+        if (cancelled) return;
+        if (err) throw err;
+        setConvos(Array.isArray(data) ? data : []);
+        setError(false);
+      })
+      .catch(() => { if (!cancelled) setError(true); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [uid]);
 
   useEffect(() => {
     const onOpen = (e) => {
@@ -227,7 +241,7 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, o
     const id = window.requestAnimationFrame(go);
     const retry = window.setTimeout(go, 450);
     return () => { window.cancelAnimationFrame(id); window.clearTimeout(retry); };
-  }, [activeId, !!active]);
+  }, [active]);
 
   const loadMessages = useCallback(async (id) => {
     if (!id) { setMessages([]); return; }
@@ -260,7 +274,10 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, o
     }
   }, [uid]);
 
-  useEffect(() => { loadMessages(activeId); }, [activeId, loadMessages]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => loadMessages(activeId), 0);
+    return () => window.clearTimeout(timer);
+  }, [activeId, loadMessages]);
 
   useEffect(() => {
     const el = streamRef.current;
@@ -289,7 +306,8 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, o
     const text = (retryMessage ? retryMessage.text : draft).trim();
     if (!text || !activeId || !uid || sending) return;
     setSending(true);
-    const tempId = retryMessage ? retryMessage.id : `tmp-${Date.now()}`;
+    tempMessageSequenceRef.current += 1;
+    const tempId = retryMessage ? retryMessage.id : `tmp-${uid}-${tempMessageSequenceRef.current}`;
     const optimistic = { id: tempId, sender_id: uid, text, created_at: new Date().toISOString(), message_type: 'text', _state: 'pending' };
     setMessages((prev) => (retryMessage ? prev.map((m) => (m.id === tempId ? optimistic : m)) : [...prev, optimistic]));
     if (!retryMessage) setDraft('');
@@ -382,8 +400,6 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, o
     </button>
   );
 
-  let lastDay = '';
-
   return (
     <div className="mt-root">
       <style>{STYLE}</style>
@@ -462,10 +478,10 @@ export default function MessagesTab({ currentUser, role, showToast = () => {}, o
                 {!loadingMsgs && !msgError && messages.length === 0 ? (
                   <div className="mt-empty"><div><h4>Start the conversation.</h4><p>Keep the first message specific: scope, timing, budget, files, or the next decision needed.</p></div></div>
                 ) : null}
-                {messages.map((m) => {
+                {messages.map((m, index) => {
                   const day = dayLabel(m.created_at);
-                  const showDay = day && day !== lastDay;
-                  if (showDay) lastDay = day;
+                  const previousDay = index > 0 ? dayLabel(messages[index - 1]?.created_at) : '';
+                  const showDay = day && day !== previousDay;
                   const body = m.text || m.body || '';
                   const isEvent = m.message_type && m.message_type !== 'text' && !m.file_name;
                   return (
