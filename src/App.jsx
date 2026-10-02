@@ -4458,43 +4458,7 @@ function kbMatchLocationFit(vendor = {}, { viewerCity = '', project = null } = {
   return { score, reasons, warnings };
 }
 
-function kbMatchTrustFit(vendor = {}) {
-  const rating = Number(vendor?.rating || 0) || 0;
-  const reviews = Number(vendor?.reviews || vendor?.reviews_count || 0) || 0;
-  const projects = Number(vendor?.completed_project_count || vendor?.projects || vendor?.projects_count || 0) || 0;
-  const churchExp = Number(vendor?.church_experience_count || 0) || 0;
-  const response = String(firstNonEmpty(vendor?.response_speed_label, vendor?.response_sla, vendor?.response_time, '')).toLowerCase();
-  const reasons = [];
-  const warnings = [];
-  let score = 0;
 
-  if (vendor?.verified) { score += 14; reasons.push('Faith Verified'); }
-  else if (vendor?.founding_vendor) { score += 8; reasons.push('Charter vendor'); }
-  else warnings.push('Not yet verified');
-
-  if (churchExp >= 5) { score += 10; reasons.push(`${churchExp} church projects`); }
-  else if (churchExp > 0) { score += 7; reasons.push('Church experience'); }
-
-  // P0-A integrity lock: reference_count is not yet synchronized from canonical
-  // completed reference evidence. Do not award matching trust points from it.
-  if (rating >= 4.7 && reviews >= 3) { score += 8; reasons.push(`${rating.toFixed(1)}★ rating`); }
-  else if (reviews >= 8) { score += 6; reasons.push(`${reviews} reviews`); }
-  else if (projects >= 5) { score += 6; reasons.push(`${projects} projects`); }
-  else if (projects > 0 || reviews > 0) { score += 4; reasons.push('Some platform proof'); }
-  else warnings.push('Limited platform proof');
-
-  if (/fast|same day|24|48|quick|responsive/.test(response)) {
-    score += 4;
-    reasons.push('Responsive');
-  }
-
-  const churchSignals = [vendor?.bio, vendor?.headline, vendor?.tagline, ...(safeArray(vendor?.best_fit_for)), ...(safeArray(vendor?.proof_points))].join(' ').toLowerCase();
-  if (!churchExp && /church|ministry|worship|sanctuary|pastor|congregation|faith/.test(churchSignals)) {
-    score += 6;
-    reasons.push('Church-aware');
-  }
-  return { score, reasons, warnings };
-}
 
 function kbMatchBudgetRangeFromEntity(entity = {}, kind = 'project') {
   const minKeys = kind === 'vendor' ? ['min_project_budget'] : ['budget_min'];
@@ -4522,30 +4486,7 @@ function kbMatchBudgetRangeFromEntity(entity = {}, kind = 'project') {
   return avg ? { min: avg, max: avg, avg, structured: false } : { min: null, max: null, avg: null, structured: false };
 }
 
-function kbMatchBudgetFit(vendor = {}, project = null) {
-  const projectRange = kbMatchBudgetRangeFromEntity(project || {}, 'project');
-  const vendorRange = kbMatchBudgetRangeFromEntity(vendor || {}, 'vendor');
-  const reasons = [];
-  const warnings = [];
-  let score = 0;
-  if (!projectRange.avg || !vendorRange.avg) return { score: 3, reasons: ['Budget flexible'], warnings };
 
-  const pMin = projectRange.min || projectRange.avg;
-  const pMax = projectRange.max || projectRange.avg;
-  const vMin = vendorRange.min || vendorRange.avg;
-  const vMax = vendorRange.max || vendorRange.avg;
-  const overlaps = pMax >= (vMin * 0.85) && pMin <= (vMax * 1.15);
-
-  if (overlaps) {
-    score += projectRange.structured || vendorRange.structured ? 11 : 9;
-    reasons.push('Budget aligned');
-  } else {
-    const ratio = projectRange.avg / Math.max(1, vendorRange.avg);
-    if (ratio >= 0.45 && ratio <= 2.3) { score += 5; reasons.push('Budget workable'); }
-    else { warnings.push('Budget may need review'); }
-  }
-  return { score, reasons, warnings };
-}
 
 
 
@@ -20873,13 +20814,7 @@ function buildVendorProfilePreviewSeed(vendorRow = {}, vendorForm = {}, currentU
 }
 
 /** Generate a unique referral/waitlist code. Format: FB + 4 alpha + 4 digits. */
-function generateWaitlistCode(prefix = '') {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const alpha = Array.from({ length: 4 }, () =>
-    chars[Math.floor(Math.random() * chars.length)]).join('');
-  const nums = String(Math.floor(Math.random() * 9000) + 1000);
-  return (prefix || BRAND.referralPrefix) + alpha + nums;
-}
+
 
 /** Ensure a referral code exists for a waitlist entry, generating one if absent. */
 
@@ -22046,28 +21981,7 @@ async function persistProjectActivityRecord(projectId, payload = {}){
 }
 const KB_COMPARE_SYNC_TITLE = '__KB_COMPARE_SYNC__';
 const KB_OPS_SYNC_TITLE = '__KB_OPS_SYNC__';
-function compactCompareWorkspaceSnapshot(workspace = {}) {
-  return {
-    linkedProjectId: workspace?.linkedProjectId || null,
-    criteria: normalizeCompareCriteria(workspace?.criteria || DEFAULT_COMPARE_CRITERIA),
-    notes: String(workspace?.notes || '').slice(0, 4000),
-    projects: (Array.isArray(workspace?.projects) ? workspace.projects : []).slice(0, 8).map(item => ({
-      id: item?.id || null,
-      title: item?.title || item?.projectTitle || 'Project',
-      category: item?.category || null,
-      budget: item?.budget || null,
-    })),
-    vendors: (Array.isArray(workspace?.vendors) ? workspace.vendors : []).slice(0, 8).map(item => ({
-      id: item?.id || item?.user_id || null,
-      user_id: item?.user_id || item?.id || null,
-      name: item?.name || 'Vendor',
-      category: item?.category || item?.role || null,
-      city: item?.city || null,
-      rating: item?.rating || null,
-    })),
-    updatedAt: workspace?.updatedAt || new Date().toISOString(),
-  };
-}
+
 async function fetchLatestProjectActivitySnapshot(projectId, kind, titlePrefix) {
   if (!projectId || !kind || !titlePrefix) return null;
   try {
@@ -22991,10 +22905,10 @@ const {
   VendorProfile: ScopedVendorProfile,
   VendorReviews: ScopedVendorReviews,
 } = (() => {
-let __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceModeMeta, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, loadProjectOpsState, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks;
+let __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks;
 
 function applyProjectsScreenDependencies(dependencies = {}) {
-  ({ __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceModeMeta, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, loadProjectOpsState, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks } = dependencies || {});
+  ({ __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks } = dependencies || {});
 }
 
 function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, initialView="board", onMounted, navSubTab, onSubTabChange, forceProjectTab=null, privateMarketplaceAccess=false, isAdmin=false}){
@@ -24060,7 +23974,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
           showToast("Couldn't post project — please try again.", "error");
         }
       }
-    } catch (err) {
+    } catch {
       showToast("Something went wrong. Please try again.", "error");
       // handlePostProject caught error
     }
@@ -24788,11 +24702,11 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   // V807: tab switches are UI state changes, not reload events.
   // Data is ensured through TTL/in-flight guards and refreshed in the
   // background so visited panels come back instantly.
-  const handleTabSwitch = handleTabSwitchStable;
 
 
-  const openCount = (projects || []).filter(p => p.status === "open").length;
-  const urgentCount = (projects || []).filter(p => p.urgent).length;
+
+
+
 
 
 
@@ -25924,7 +25838,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   });
   const [savedVendorIds, setSavedVendorIds] = useState(()=>new Set(savedState.savedVendorIds || []));
   const [showAllVendors, setShowAllVendors] = useState(false);
-  const [interopVersion, setInteropVersion] = useState(0);
+  const [, setInteropVersion] = useState(0);
   const projectGridRef = useRef(null);
 
   const filterSheetTrapRef = useFocusTrap(filterSheetOpen);
@@ -26852,7 +26766,7 @@ void emptyStateAlternatives;
     showToast && showToast(`Opening ${seeded.name}`);
   };
 
-  const vendorDataset = useMemo(() => getMarketplaceVendorDataset(marketplaceVendors), [marketplaceVendors]);
+
 
 
 
@@ -27868,7 +27782,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
         milestones: [],
         files: attachFiles,
       });
-    } catch (submitErr) {
+    } catch {
       setErr("Something went wrong submitting that proposal. Please try again.");
       if (typeof showToast === "function") {
         try { showToast("Couldn't submit bid — please try again.", "error"); } catch { /* non-fatal */ }
@@ -31059,7 +30973,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const projectDetailPanelRef = useRef(null);
   const projectDetailTabbarRef = useRef(null);
   const viewportWidth = useViewportWidth(1440);
-  const { workspace: opsWorkspace } = useDealState(project, { status: project?.status || 'draft', archived: !!project?.archived }, role);
+
   const gallery = detailGallery(project);
   const [heroImage, setHeroImage] = useState(gallery[0]);
 
@@ -31146,21 +31060,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const projectDetailTitle = headline || project?.title || project?.name || null;
 
 
-  const applyVendorMatchStage = (vendorMatch, stage, extras = {}) => {
-    if (!(projectDetailId || projectDetailTitle)) return;
-    const seeded = buildVendorProfileSeed({ ...vendorMatch, category, city: vendorMatch?.city || city, verified:!!vendorMatch?.verified });
-    const vendorUserId = String(seeded?.user_id || vendorMatch?.user_id || '').trim();
-    if (!vendorUserId) {
-      showToast && showToast('This vendor is missing a live account identity, so it cannot be saved yet.');
-      return;
-    }
-    const stageMeta = PROJECT_VENDOR_STAGE_META?.[stage] || { label:'Watching' };
-    upsertProjectVendorLink(projectDetailId, { ...seeded, id: vendorUserId, user_id: vendorUserId, vendor_id: vendorMatch?.vendor_id || vendorMatch?.id || seeded?.vendor_id || null }, stage, {
-      source:'project-detail',
-      attentionText: extras.attentionText || `${seeded.name} is now ${stageMeta.label.toLowerCase()} for this project`,
-      notificationText: extras.notificationText || `${seeded.name} moved to ${stageMeta.label.toLowerCase()} from project detail`,
-    });
-  };
+
 
   const rawProjectFileCandidates = [
     ...safeArray(rawProject?.attachments),
@@ -31575,188 +31475,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   };
 
 
-  const actionModel = (() => {
-    if (!isVendor && project?.status === 'draft') {
-      return {
-        eyebrow:'Draft project',
-        title:'Publish when the brief is complete.',
-        body:'Publishing runs FaithBid server-side completeness checks before any vendor can discover this project.',
-        primaryLabel:projectPublishPending ? 'Publishing...' : 'Publish project',
-        primaryAction:publishProjectFromDetail,
-        secondaryLabel:'Refine project brief',
-        secondaryAction:openProjectEditor,
-        tertiaryLabel:'',
-        tertiaryAction:null,
-      };
-    }
-    if (isVendor && !biddingEnabled) {
-      return {
-        eyebrow:biddingSettingLoaded ? 'Prelaunch access' : 'Checking launch access',
-        title:'Bidding opens at launch.',
-        body:'You can review every open brief now. FaithBid will keep proposal submission locked until the founder enables the server launch switch.',
-        primaryLabel:bidNotifyPendingId === project?.id ? 'Saving...' : 'Notify me',
-        primaryAction:() => typeof onNotifyBidding === 'function' ? onNotifyBidding(project) : null,
-        secondaryLabel:'Review scope',
-        secondaryAction:reviewProjectScopeAction,
-        tertiaryLabel:'',
-        tertiaryAction:null,
-      };
-    }
-    if (hasPostHireWorkflow) {
-      if (isVendor) {
-        return {
-          eyebrow:'Active project',
-          title:'Keep the work moving in one place.',
-          body:'Use Operations for the canonical start/completion lifecycle, then use the deal room for updates, files, approvals, and handoff.',
-          primaryLabel:'Open operations plan',
-          primaryAction: handlePrepWorkflow,
-          secondaryLabel:'Open deal room',
-          secondaryAction: openDealRoomFromDetail,
-          tertiaryLabel:'Review scope',
-          tertiaryAction: reviewProjectScopeAction,
-        };
-      }
-      return {
-        eyebrow:'Post-hire control center',
-        title:'Run delivery, approvals, and closeout from one place.',
-        body:'Open operations for the working plan, then use the deal room when you need to message, align, or document decisions.',
-        primaryLabel:'Open operations plan',
-        primaryAction: handlePrepWorkflow,
-        secondaryLabel:'Open deal room',
-        secondaryAction: openDealRoomFromDetail,
-        tertiaryLabel:'Open vendor matches',
-        tertiaryAction: handleVendorMatches,
-      };
-    }
-    if (isVendor) {
-      if (projectDetailVendorDealState === 'invited') {
-        return {
-          eyebrow:'Invite received',
-          title:'The church asked you to take a look.',
-          body:'You were invited to consider this project. Review the scope, then either send a proposal or ask one focused question before pricing.',
-          primaryLabel:'Submit proposal',
-          primaryAction: submitVendorProposalAction,
-          secondaryLabel:'Ask a question',
-          secondaryAction: handleUtilitySecondary,
-          tertiaryLabel:'',
-          tertiaryAction: null,
-        };
-      }
-      if (projectDetailVendorDealState === 'no_response') {
-        return {
-          eyebrow:'Waiting on you',
-          title:'You still have an open invite.',
-          body:'The church is waiting on your response. If the project fits, send a proposal. If something is unclear, ask before you price it.',
-          primaryLabel:'Submit proposal',
-          primaryAction: submitVendorProposalAction,
-          secondaryLabel:'Ask a question',
-          secondaryAction: handleUtilitySecondary,
-          tertiaryLabel:'',
-          tertiaryAction: null,
-        };
-      }
-      if (projectDetailVendorDealState === 'inquiry') {
-        return {
-          eyebrow:'In conversation',
-          title:'Keep the conversation moving.',
-          body:'You have an active thread with the church. Answer what is open, then submit a proposal when you have enough detail.',
-          primaryLabel:'Submit proposal',
-          primaryAction: submitVendorProposalAction,
-          secondaryLabel:'Open thread',
-          secondaryAction: handleUtilitySecondary,
-          tertiaryLabel:'',
-          tertiaryAction: null,
-        };
-      }
-      if (projectDetailVendorDealState === 'bid_placed') {
-        return {
-          eyebrow:'Proposal sent',
-          title:'Your proposal is with the church.',
-          body:'The church has your proposal. Sit tight unless you have a useful update or a clear question.',
-          primaryLabel:'',
-          primaryAction: null,
-          secondaryLabel:'Review scope',
-          secondaryAction: reviewProjectScopeAction,
-          tertiaryLabel:'',
-          tertiaryAction: null,
-        };
-      }
-      if (projectDetailVendorDealState === 'bid_under_review') {
-        return {
-          eyebrow:'Under review',
-          title:'The church is reviewing your proposal.',
-          body:'Stay available, but do not over-message. Use the thread for scope answers, timing updates, or next-step questions.',
-          primaryLabel:'Open thread',
-          primaryAction: handleUtilitySecondary,
-          secondaryLabel:'Review scope',
-          secondaryAction: reviewProjectScopeAction,
-          tertiaryLabel:'',
-          tertiaryAction: null,
-        };
-      }
-      if (['hired','active','milestone_pending'].includes(projectDetailVendorDealState)) {
-        return {
-          eyebrow:'Active project',
-          title:'Keep the work moving in one place.',
-          body:'Use the deal room for updates, files, approvals, and handoff so the church always knows what changed and what is next.',
-          primaryLabel:'Open deal room',
-          primaryAction: openDealRoomFromDetail,
-          secondaryLabel:'Review scope',
-          secondaryAction: reviewProjectScopeAction,
-          tertiaryLabel:'',
-          tertiaryAction: null,
-        };
-      }
-      if (projectDetailVendorDealState === 'declined') {
-        return {
-          eyebrow:'Not moving forward',
-          title:'This one is not active anymore.',
-          body:'This project is no longer a fit or has been declined. Keep your pipeline moving with other open church projects.',
-          primaryLabel:'Browse other projects',
-          primaryAction: browseVendorProjectsAction,
-          secondaryLabel:'',
-          secondaryAction: null,
-          tertiaryLabel:'',
-          tertiaryAction: null,
-        };
-      }
-      return {
-        eyebrow:'Open opportunity',
-        title:'See if this is a fit.',
-        body:'Review the brief, budget, and timing. If it fits, send a focused proposal with clear deliverables and assumptions.',
-        primaryLabel:'Submit proposal',
-        primaryAction: submitVendorProposalAction,
-        secondaryLabel:'Review scope',
-        secondaryAction: reviewProjectScopeAction,
-        tertiaryLabel:'',
-        tertiaryAction: null,
-      };
-    }
-    if (bidCount > 0) {
-      return {
-        eyebrow:'Decision workspace',
-        title:`${bidCount} proposal${bidCount === 1 ? '' : 's'} ready for review.`,
-        body:'Start with bid review, compare vendor fit, and refine the brief only if something is missing before you make the hire.',
-        primaryLabel:`Review bids${bidCount ? ` (${bidCount})` : ''}`,
-        primaryAction: handleReviewBids,
-        secondaryLabel:'Open vendor matches',
-        secondaryAction: handleVendorMatches,
-        tertiaryLabel:'Refine project brief',
-        tertiaryAction: openProjectEditor,
-      };
-    }
-    return {
-      eyebrow:'Get responses moving',
-      title:'Invite a vendor, then make sure the brief is ready.',
-      body:'Before there are proposals to review, the most useful move is to invite vendors you trust and make sure the brief is clear enough to attract quality bids.',
-      primaryLabel:'Invite a vendor',
-      primaryAction: handleVendorMatches,
-      secondaryLabel:'Refine project brief',
-      secondaryAction: openProjectEditor,
-      tertiaryLabel:'',
-      tertiaryAction: null,
-    };
-  })();
+
 
   const runDetailAction = (action, fallback = null, where = 'project-detail-action') => async (event) => {
     try { event?.preventDefault?.(); event?.stopPropagation?.(); } catch { /* non-fatal */ }
@@ -31913,7 +31632,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     try {
       await persistSavedProjectRecord(project.id, nextSaved, currentUser.id);
       showToast && showToast(nextSaved ? 'Project saved.' : 'Project removed from saved projects.');
-    } catch (err) {
+    } catch {
       setProjectSaved(!nextSaved);
       showToast && showToast("We couldn't update your saved projects.", 'error');
     } finally {
@@ -32053,9 +31772,9 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const liveScopeItems = scopeItems.length ? scopeItems : safeArray(project?.requirements).filter(Boolean);
 
 
-  const deliveryRaw = String(firstNonEmpty(project?.delivery_preference, project?.service_model, '')).trim().toLowerCase();
 
-  const scheduleSignals = `${liveScopeItems.join(' ')} ${desc}`.toLowerCase();
+
+
 
 
 
@@ -34262,7 +33981,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
     profileProjectForDeal?.title,
     null,
   );
-  const profileLinkState = profileProjectId ? (profileInteropEntry?.vendorsById?.[String(v.id)] || profileInteropEntry?.vendorsById?.[String(v.user_id || '')] || null) : null;
+
   const canProjectContextActions = !!profileProjectId && !!currentUser && !isOwner && isHirerRole(role);
 
 
@@ -59538,7 +59257,7 @@ function JoinScreen({nav, setAuthDefaultRole = null}){
 /* ══════════════════════════════════════════════════
    KINGDOM BUILDER SECTION // main landing section
 ══════════════════════════════════════════════════ */
-function KingdomBuilderSection({onVendorSignup, onChurchSignup}){
+function KingdomBuilderSection(){
   const [grandTotal, setGrandTotal] = useState(0);
   const [vendorTotal, setVendorTotal] = useState(0);
   const [churchTotal, setChurchTotal] = useState(0);
