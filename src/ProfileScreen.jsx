@@ -8,6 +8,20 @@ function applyProfileScreenDependencies(dependencies = {}) {
   ({ CATEGORIES, CrossLogo, KBSkeleton, KB_BP_MOBILE, KB_US_STATE_CODES, ProfileStats, ReferralDashboard, TrustedVendorRoster, VendorCompletionMeter, VendorPortfolioEditor, VendorReferencesTab, VendorVerificationFlow, buildVendorProfilePreviewSeed, getDeliveryModelMeta, getReturnNavigationTarget, isKbTimeoutError, kbIsDevRuntime, logError, normalizeDeliveryModel, queueVendorNavigation, readReturnContext, runSupabaseWithFallback, runSupabaseWithTimeout, selectProfilesBestEffort, serializeVendorServiceModel, syncProfileVendorMirror, useViewportWidth } = dependencies || {});
 }
 
+function CharterStepHeader({ eyebrow, title, body, step }) {
+  return (
+    <div style={{padding:"30px 34px 24px",background:"linear-gradient(180deg,#fffaf0 0%,#f5efe2 100%)",borderBottom:"1px solid #e9dfca"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16,flexWrap:"wrap",marginBottom:18}}>
+        <CrossLogo size={32} color="#22301B" wordmarkColor="#22301B"/>
+        <div style={{display:"flex",gap:6}}>{[1,2,3].map(n=><span key={n} style={{width:n===step?30:18,height:4,borderRadius:999,background:n<=step?"#b08840":"#ddd4c3",transition:"all .2s ease"}}/>)}</div>
+      </div>
+      <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#9b7331",marginBottom:10}}>{eyebrow}</div>
+      <h1 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(32px,5vw,46px)",lineHeight:1.02,letterSpacing:"-.035em",margin:0,color:"#1C2814"}}>{title}</h1>
+      <p style={{fontSize:14.5,lineHeight:1.7,color:"#625a4e",margin:"14px 0 0",maxWidth:690}}>{body}</p>
+    </div>
+  );
+}
+
 function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToast, nav, initialTab, charterFirstRun = false}){
   const profileReturnTarget = getReturnNavigationTarget(readReturnContext(), "projects");
   const [profileScrollTarget] = useState(() => {
@@ -22,10 +36,6 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
   const [charterCompletionBusy, setCharterCompletionBusy] = useState(false);
   const [charterCompletionError, setCharterCompletionError] = useState("");
   const charterCompact = useViewportWidth(1440) < KB_BP_MOBILE;
-
-  useEffect(() => {
-    if (charterFirstRun) setCharterFirstRunActive(true);
-  }, [charterFirstRun]);
 
   useEffect(() => {
     if (!profileScrollTarget) return;
@@ -87,11 +97,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
 
 
   useEffect(() => {
-    if (!currentUser?.id) {
-      setVerificationApplicationStatus(null);
-      setLoading(false);
-      return;
-    }
+    if (!currentUser?.id) return;
     let cancelled = false;
     const fetchAll = async () => {
       setLoading(true);
@@ -490,23 +496,11 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
     const firstRunCard = {width:"min(860px,100%)",margin:"0 auto",background:"#fffdf8",border:"1px solid #dfd5c2",borderRadius:26,boxShadow:"0 24px 70px rgba(28,40,20,0.10)",overflow:"hidden"};
     const firstRunInput = {...psx.input,background:"#fff"};
     const firstRunTextarea = {...psx.textarea,background:"#fff"};
-    const StepHeader = ({eyebrow,title,body}) => (
-      <div style={{padding:"30px 34px 24px",background:"linear-gradient(180deg,#fffaf0 0%,#f5efe2 100%)",borderBottom:"1px solid #e9dfca"}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16,flexWrap:"wrap",marginBottom:18}}>
-          <CrossLogo size={32} color="#22301B" wordmarkColor="#22301B"/>
-          <div style={{display:"flex",gap:6}}>{[1,2,3].map(n=><span key={n} style={{width:n===charterStep?30:18,height:4,borderRadius:999,background:n<=charterStep?"#b08840":"#ddd4c3",transition:"all .2s ease"}}/>)}</div>
-        </div>
-        <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#9b7331",marginBottom:10}}>{eyebrow}</div>
-        <h1 style={{fontFamily:"var(--font-display),serif",fontSize:"clamp(32px,5vw,46px)",lineHeight:1.02,letterSpacing:"-.035em",margin:0,color:"#1C2814"}}>{title}</h1>
-        <p style={{fontSize:14.5,lineHeight:1.7,color:"#625a4e",margin:"14px 0 0",maxWidth:690}}>{body}</p>
-      </div>
-    );
-
     if (loading) {
       return (
         <div style={firstRunShell}>
           <div style={firstRunCard}>
-            <StepHeader eyebrow="Charter Vendor setup" title="Preparing your approved profile…" body="FaithBid is loading the details carried forward from your accepted Charter Vendor application."/>
+            <CharterStepHeader step={charterStep} eyebrow="Charter Vendor setup" title="Preparing your approved profile…" body="FaithBid is loading the details carried forward from your accepted Charter Vendor application."/>
             <div style={{padding:"34px"}}><KBSkeleton variant="card"/><div style={{height:12}}/><KBSkeleton variant="card"/></div>
           </div>
         </div>
@@ -517,7 +511,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
       return (
         <div style={firstRunShell}>
           <div style={firstRunCard}>
-            <StepHeader eyebrow="Charter Vendor setup" title="We couldn't load your vendor profile." body="Your approved account has not been changed. Reload this page to retry the profile read before continuing setup."/>
+            <CharterStepHeader step={charterStep} eyebrow="Charter Vendor setup" title="We couldn't load your vendor profile." body="Your approved account has not been changed. Reload this page to retry the profile read before continuing setup."/>
             <div style={{padding:"28px 34px 34px"}}><button type="button" onClick={()=>{try{window.location.reload();}catch{ /* reload unavailable -- nothing more to do */ }}} style={{...psx.btnPrimary,width:"100%",minHeight:50,borderRadius:12}}>Reload profile</button></div>
           </div>
         </div>
@@ -528,7 +522,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
       return (
         <div style={firstRunShell}>
           <div style={firstRunCard}>
-            <StepHeader eyebrow="Step 1 of 3 · Approved" title="Your Charter Vendor account is active." body="We carried your approved application forward. Review these details — you only need to change something if it is no longer accurate."/>
+            <CharterStepHeader step={charterStep} eyebrow="Step 1 of 3 · Approved" title="Your Charter Vendor account is active." body="We carried your approved application forward. Review these details — you only need to change something if it is no longer accurate."/>
             <div style={{padding:"28px 34px 34px"}}>
               <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:24,flexWrap:"wrap"}}>
                 <span style={psx.badge("charter")}>✦ CHARTER VENDOR</span>
@@ -560,7 +554,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
       return (
         <div style={firstRunShell}>
           <div style={firstRunCard}>
-            <StepHeader eyebrow="Step 2 of 3 · Profile essentials" title="Make your profile useful to churches." body="Your approved business details are already in place. Add the few things churches need to understand what you do and whether you are a fit."/>
+            <CharterStepHeader step={charterStep} eyebrow="Step 2 of 3 · Profile essentials" title="Make your profile useful to churches." body="Your approved business details are already in place. Add the few things churches need to understand what you do and whether you are a fit."/>
             <div style={{padding:"28px 34px 34px"}}>
               <div style={psx.field}>
                 <label style={psx.label}>Marketplace tagline <span style={psx.labelHelper}>· required</span></label>
@@ -601,7 +595,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
     return (
       <div style={firstRunShell}>
         <div style={firstRunCard}>
-          <StepHeader eyebrow="Step 3 of 3 · Ready" title="Your Charter Vendor profile is ready." body="Your profile is saved, your Charter Vendor status is active, and your Marketplace Approval carried forward from the application FaithBid already reviewed."/>
+          <CharterStepHeader step={charterStep} eyebrow="Step 3 of 3 · Ready" title="Your Charter Vendor profile is ready." body="Your profile is saved, your Charter Vendor status is active, and your Marketplace Approval carried forward from the application FaithBid already reviewed."/>
           <div style={{padding:"32px 34px 36px"}}>
             <div style={{padding:"22px",borderRadius:18,background:"linear-gradient(135deg,#1C2814,#304329)",color:"#fffdf8",marginBottom:24,boxShadow:"0 16px 34px rgba(28,40,20,.18)"}}>
               <div style={{fontFamily:"var(--font-sans),monospace",fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#d9bd77",marginBottom:8}}>✦ Charter Vendor</div>
