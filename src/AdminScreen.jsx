@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import { supabase, supabaseQaMode } from "./supabaseClient";
 import AdminPrivacyRequests from "./AdminPrivacyRequests";
 import AdminVendorCredentials from "./AdminVendorCredentials";
@@ -63,6 +63,11 @@ const ADMIN_LIGHT_THEME_CSS = String.raw`
 
 const ADMIN_PROJECT_ORIGIN_LABEL = { real: 'Real', qa: 'Test', synthetic: 'Demo', unclassified: 'Unclassified' };
 
+function createFounderFeedbackEventId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  return `founder-${new Date().getTime()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export default function AdminScreen({showToast, adminUser, adminProfile, nav, dependencies}){
   const {
     activateOnKey,
@@ -104,7 +109,6 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     formatAdminKpiValue,
     formatAdminQueueToast,
     formatDateLabelSafe,
-    formatMoney,
     formatQueueAgeLabel,
     FoundingMembersAdmin,
     getAdminDisputeBadgeMeta,
@@ -242,8 +246,14 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
   const [suspendedUserIds, setSuspendedUserIds] = useState([]);
   const [refreshingAdmin, setRefreshingAdmin] = useState(false);
   const [adminRefreshKey, setAdminRefreshKey] = useState(0);
+  const [adminClockMs, setAdminClockMs] = useState(() => new Date().getTime());
   const recentDisputeStats = getDisputeDashboardStats(disputes);
   const adminReadLaneRef = useRef(Promise.resolve());
+
+  useEffect(() => {
+    const timer = setInterval(() => setAdminClockMs(new Date().getTime()), 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   const runAdminReadLane = React.useCallback(async (label, task, settleMs = 160) => {
     const previous = adminReadLaneRef.current.catch(() => {});
@@ -262,7 +272,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     } finally {
       setTimeout(releaseLane, settleMs);
     }
-  }, []);
+  }, [isSupabaseAuthLockAbort]);
 
   useEffect(() => {
     const content = adminContentRef.current;
@@ -287,19 +297,6 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
   const [adminFocus, setAdminFocus] = useState({ approvalId:null, verificationId:null, disputeId:null, userId:null, reviewSection:null, financeSection:null });
   const [founderWaitlistReviewContext, setFounderWaitlistReviewContext] = useState(null);
   const [founderGrowthContext, setFounderGrowthContext] = useState(null);
-
-  useEffect(() => {
-    const reviewLaneBySection = {
-      "admin-review-directory":"directory",
-      "admin-review-verification":"verification",
-      "admin-review-charter":"charter",
-      "admin-review-partnerships":"partnerships",
-      "admin-review-ambassadors":"ambassadors",
-    };
-    if (adminView === "approvals" && adminFocus.reviewSection && reviewLaneBySection[adminFocus.reviewSection]) {
-      setAdminReviewLane(reviewLaneBySection[adminFocus.reviewSection]);
-    }
-  }, [adminView, adminFocus.reviewSection]);
 
   useEffect(() => {
     const sectionId = adminView === "approvals"
@@ -337,10 +334,12 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     } finally {
       setAdminProjectsLoading(false);
     }
-  }, [hasAdminAccess]);
+  }, [hasAdminAccess, logError]);
 
   useEffect(() => {
-    if (adminView === 'projects' && hasAdminAccess) fetchAdminProjects();
+    if (adminView !== 'projects' || !hasAdminAccess) return undefined;
+    const timer = setTimeout(() => fetchAdminProjects(), 0);
+    return () => clearTimeout(timer);
   }, [adminView, hasAdminAccess, fetchAdminProjects]);
 
   const moderateAdminProject = async (project, action) => {
@@ -445,7 +444,9 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
   }, []);
   const adminDialogOpen = !!(rejectModal || modal);
   const adminDialogKind = rejectModal ? "reject" : modal ? "review" : "none";
-  adminDialogStateRef.current = {rejectOpen:!!rejectModal, reviewOpen:!!modal};
+  useEffect(() => {
+    adminDialogStateRef.current = {rejectOpen:!!rejectModal, reviewOpen:!!modal};
+  }, [rejectModal, modal]);
 
   const closeActiveAdminDialog = useCallback(() => {
     const state = adminDialogStateRef.current;
@@ -458,6 +459,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
   // dialog transitions directly into the rejection-reason dialog.
   useEffect(() => {
     if (!adminDialogOpen || typeof document === "undefined") return undefined;
+    const adminContent = adminContentRef.current;
     const activeElement = document.activeElement;
     adminDialogReturnFocusRef.current = (
       typeof HTMLElement !== "undefined" && activeElement instanceof HTMLElement
@@ -506,7 +508,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
       if (typeof requestAnimationFrame === "function") {
         requestAnimationFrame(() => {
           if (returnTarget?.isConnected && typeof returnTarget.focus === "function") returnTarget.focus();
-          else adminContentRef.current?.focus?.();
+          else adminContent?.focus?.();
         });
       }
     };
@@ -532,6 +534,16 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
 
   const openAdminView = (view, focusPatch = {}, toastMessage = "") => {
     const nextFocus = { approvalId:null, verificationId:null, disputeId:null, userId:null, reviewSection:null, financeSection:null, ...(focusPatch || {}) };
+    const reviewLaneBySection = {
+      "admin-review-directory":"directory",
+      "admin-review-verification":"verification",
+      "admin-review-charter":"charter",
+      "admin-review-partnerships":"partnerships",
+      "admin-review-ambassadors":"ambassadors",
+    };
+    if (view === "approvals" && nextFocus.reviewSection && reviewLaneBySection[nextFocus.reviewSection]) {
+      setAdminReviewLane(reviewLaneBySection[nextFocus.reviewSection]);
+    }
     setAdminFocus(nextFocus);
     setAdminView(view);
     if (toastMessage) showToast(toastMessage);
@@ -819,52 +831,6 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     }
   };
 
-  useEffect(() => {
-    loadFounderActionFeedback();
-  }, [hasAdminAccess]);
-
-  useEffect(() => {
-    loadFounderActionAuditEvents();
-  }, [hasAdminAccess]);
-
-  useEffect(() => {
-    if (!hasAdminAccess) {
-      reviewSummaryRequestRef.current += 1;
-      disputeSummaryRequestRef.current += 1;
-      setLoadingVendors(false);
-      setLoadingUsers(false);
-      setLoadingDisputes(false);
-      setLoadingVerifications(false);
-      setLoadingKpis(false);
-      setLoadingFeeSignals(false);
-      setFounderBrief({data:null, loading:false, error:null});
-      setMatchmakerFunnelHealth({...KB_ADMIN_MATCHMAKER_FUNNEL_EMPTY, loading:false});
-      setReviewSummary({
-        ...KB_ADMIN_REVIEW_SUMMARY_EMPTY,
-        loading:false,
-        error:false,
-      });
-      setDisputeSummary({
-        ...KB_ADMIN_DISPUTE_SUMMARY_EMPTY,
-        loading:false,
-        error:false,
-      });
-      return;
-    }
-    const timers = [
-      setTimeout(() => fetchKpis(), 250),
-      setTimeout(() => fetchAdminReviewSummary(), 2600),
-      setTimeout(() => fetchDisputes(), 4200),
-      setTimeout(() => fetchAdminDisputeSummary(), 5600),
-      setTimeout(() => hydrateFeeSignalSnapshot(), 7200),
-      setTimeout(() => fetchFounderBrief({ retry:true }), 8800),
-      setTimeout(() => fetchMatchmakerFunnelHealth(), 10400),
-    ];
-    return () => {
-      timers.forEach(timer => clearTimeout(timer));
-    };
-  }, [hasAdminAccess]);
-
   const fetchDisputes = async () => {
     setLoadingDisputes(true);
     setDisputesError(false);
@@ -1027,18 +993,25 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     }
   };
 
+  const fetchAllUsersForEffect = useEffectEvent(fetchAllUsers);
+
   useEffect(() => {
     if (!hasAdminAccess) return;
-    const timer = setTimeout(() => fetchAllUsers(), 6600);
+    const timer = setTimeout(() => fetchAllUsersForEffect(), 6600);
     return () => clearTimeout(timer);
   }, [hasAdminAccess, debouncedUserSearch, userTypeFilter, userPage, userPageSize, userSort]);
 
-  useEffect(() => { setUserPage(0); }, [debouncedUserSearch, userTypeFilter, userPageSize, userSort, userTriageMode]);
+  useEffect(() => {
+    const timer = setTimeout(() => setUserPage(0), 0);
+    return () => clearTimeout(timer);
+  }, [debouncedUserSearch, userTypeFilter, userPageSize, userSort, userTriageMode]);
 
   useEffect(() => {
     if (loadingUsers) return;
     const maxPage = Math.max(0, Math.ceil(userTotal / userPageSize) - 1);
-    if (userPage > maxPage) setUserPage(maxPage);
+    if (userPage <= maxPage) return undefined;
+    const timer = setTimeout(() => setUserPage(maxPage), 0);
+    return () => clearTimeout(timer);
   }, [loadingUsers, userTotal, userPageSize, userPage]);
 
   const fetchPendingVendors = async () => {
@@ -1088,15 +1061,19 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     }
   };
 
+  const fetchPendingVendorsForEffect = useEffectEvent(fetchPendingVendors);
+
   useEffect(() => {
     if (!hasAdminAccess) return;
-    const timer = setTimeout(() => fetchPendingVendors(), 1800);
+    const timer = setTimeout(() => fetchPendingVendorsForEffect(), 1800);
     return () => clearTimeout(timer);
   }, [hasAdminAccess, vendorApprovalPage]);
 
   useEffect(() => {
     const maxPage = Math.max(0, Math.ceil(pendingVendorTotal / 50) - 1);
-    if (!loadingVendors && vendorApprovalPage > maxPage) setVendorApprovalPage(maxPage);
+    if (loadingVendors || vendorApprovalPage <= maxPage) return undefined;
+    const timer = setTimeout(() => setVendorApprovalPage(maxPage), 0);
+    return () => clearTimeout(timer);
   }, [loadingVendors, pendingVendorTotal, vendorApprovalPage]);
 
   // Directory admission and Faith Verification are separate decisions.
@@ -1219,15 +1196,19 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     }
   };
 
+  const fetchVerificationAppsForEffect = useEffectEvent(fetchVerificationApps);
+
   useEffect(() => {
     if (!hasAdminAccess) return;
-    const timer = setTimeout(() => fetchVerificationApps(), 5000);
+    const timer = setTimeout(() => fetchVerificationAppsForEffect(), 5000);
     return () => clearTimeout(timer);
   }, [hasAdminAccess, verificationPage]);
 
   useEffect(() => {
     const maxPage = Math.max(0, Math.ceil(verificationTotal / 50) - 1);
-    if (!loadingVerifications && verificationPage > maxPage) setVerificationPage(maxPage);
+    if (loadingVerifications || verificationPage <= maxPage) return undefined;
+    const timer = setTimeout(() => setVerificationPage(maxPage), 0);
+    return () => clearTimeout(timer);
   }, [loadingVerifications, verificationTotal, verificationPage]);
 
   const getFaithVerificationApprovalReadiness = (app) => {
@@ -1455,7 +1436,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     ...pendingVendors.map(v => v.createdAt).filter(Boolean),
     ...verificationApps.map(v => v.submittedAt).filter(Boolean),
   ]
-    .map(ts => Date.now() - new Date(ts).getTime())
+    .map(ts => adminClockMs - new Date(ts).getTime())
     .filter(age => Number.isFinite(age) && age >= 0);
   const avgPendingMs = visiblePendingAges.length
     ? Math.round(visiblePendingAges.reduce((sum, age) => sum + age, 0) / visiblePendingAges.length)
@@ -1503,14 +1484,15 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
   };
   const adminUsersNewThisWeek = allUsers.filter(user => {
     const joinedMs = adminUserJoinedMs(user);
-    return joinedMs > 0 && Date.now() - joinedMs <= 7 * 24 * 60 * 60 * 1000;
+    return joinedMs > 0 && adminClockMs - joinedMs <= 7 * 24 * 60 * 60 * 1000;
   });
   const adminUsersNeedingReview = allUsers.filter(adminUserNeedsReview);
   const filteredUsers = userTriageMode === "attention" ? adminUsersNeedingReview : userTriageMode === "all" ? allUsers : adminUsersNewThisWeek;
   // Open on accounts that need review; if none, show everyone instead of an empty view.
   useEffect(() => {
     if (userTriageChosenRef.current || loadingUsers) return;
-    setUserTriageMode(adminUsersNeedingReview.length > 0 ? "attention" : "all");
+    const timer = setTimeout(() => setUserTriageMode(adminUsersNeedingReview.length > 0 ? "attention" : "all"), 0);
+    return () => clearTimeout(timer);
   }, [loadingUsers, adminUsersNeedingReview.length]);
   const exactOpenDisputes = disputeSummary.loading || disputeSummary.error ? null : disputeSummary.unresolved;
   const founderMetricCards = [
@@ -1609,7 +1591,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
       : "Not yet";
   const founderBriefGeneratedAtDate = founderBriefData?.generated_at ? new Date(founderBriefData.generated_at) : null;
   const founderBriefGeneratedAtValid = founderBriefGeneratedAtDate instanceof Date && !Number.isNaN(founderBriefGeneratedAtDate.getTime());
-  const founderBriefAgeMinutes = founderBriefGeneratedAtValid ? Math.max(0, Math.round((Date.now() - founderBriefGeneratedAtDate.getTime()) / 60000)) : null;
+  const founderBriefAgeMinutes = founderBriefGeneratedAtValid ? Math.max(0, Math.round((adminClockMs - founderBriefGeneratedAtDate.getTime()) / 60000)) : null;
   const founderBriefFreshnessState = founderBrief.loading
     ? "Checking"
     : !founderBriefGeneratedAtValid
@@ -1810,6 +1792,56 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     }
   };
 
+  const loadFounderActionFeedbackForEffect = useEffectEvent(loadFounderActionFeedback);
+  const loadFounderActionAuditEventsForEffect = useEffectEvent(loadFounderActionAuditEvents);
+  const fetchKpisForEffect = useEffectEvent(fetchKpis);
+  const fetchAdminReviewSummaryForEffect = useEffectEvent(fetchAdminReviewSummary);
+  const fetchDisputesForEffect = useEffectEvent(fetchDisputes);
+  const fetchAdminDisputeSummaryForEffect = useEffectEvent(fetchAdminDisputeSummary);
+  const hydrateFeeSignalSnapshotForEffect = useEffectEvent(hydrateFeeSignalSnapshot);
+  const fetchFounderBriefForEffect = useEffectEvent(fetchFounderBrief);
+  const fetchMatchmakerFunnelHealthForEffect = useEffectEvent(fetchMatchmakerFunnelHealth);
+
+  useEffect(() => {
+    const timer = setTimeout(() => loadFounderActionFeedbackForEffect(), 0);
+    return () => clearTimeout(timer);
+  }, [hasAdminAccess]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => loadFounderActionAuditEventsForEffect(), 0);
+    return () => clearTimeout(timer);
+  }, [hasAdminAccess]);
+
+  useEffect(() => {
+    if (!hasAdminAccess) {
+      reviewSummaryRequestRef.current += 1;
+      disputeSummaryRequestRef.current += 1;
+      const resetTimer = setTimeout(() => {
+        setLoadingVendors(false);
+        setLoadingUsers(false);
+        setLoadingDisputes(false);
+        setLoadingVerifications(false);
+        setLoadingKpis(false);
+        setLoadingFeeSignals(false);
+        setFounderBrief({data:null, loading:false, error:null});
+        setMatchmakerFunnelHealth({...KB_ADMIN_MATCHMAKER_FUNNEL_EMPTY, loading:false});
+        setReviewSummary({...KB_ADMIN_REVIEW_SUMMARY_EMPTY, loading:false, error:false});
+        setDisputeSummary({...KB_ADMIN_DISPUTE_SUMMARY_EMPTY, loading:false, error:false});
+      }, 0);
+      return () => clearTimeout(resetTimer);
+    }
+    const timers = [
+      setTimeout(() => fetchKpisForEffect(), 250),
+      setTimeout(() => fetchAdminReviewSummaryForEffect(), 2600),
+      setTimeout(() => fetchDisputesForEffect(), 4200),
+      setTimeout(() => fetchAdminDisputeSummaryForEffect(), 5600),
+      setTimeout(() => hydrateFeeSignalSnapshotForEffect(), 7200),
+      setTimeout(() => fetchFounderBriefForEffect({ retry:true }), 8800),
+      setTimeout(() => fetchMatchmakerFunnelHealthForEffect(), 10400),
+    ];
+    return () => timers.forEach(timer => clearTimeout(timer));
+  }, [hasAdminAccess, KB_ADMIN_DISPUTE_SUMMARY_EMPTY, KB_ADMIN_MATCHMAKER_FUNNEL_EMPTY, KB_ADMIN_REVIEW_SUMMARY_EMPTY]);
+
   const recordFounderActionFeedback = (feedbackKey, action, status, note = "") => {
     if (!feedbackKey || !status) return;
     const entry = {
@@ -1819,9 +1851,9 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
       note:String(note || "").trim().slice(0, 1200),
       updatedAt:new Date().toISOString(),
       syncState:"pending",
-      clientEventId:typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `founder-${Date.now()}-${Math.random().toString(36).slice(2,10)}`,
+      clientEventId:createFounderFeedbackEventId(),
       action:action || {},
-      snoozedUntil:status === "snoozed" ? Date.now() + KB_FOUNDER_ACTION_SNOOZE_MS : null,
+      snoozedUntil:status === "snoozed" ? new Date().getTime() + KB_FOUNDER_ACTION_SNOOZE_MS : null,
     };
     const next = {
       ...(founderActionFeedback || {}),
@@ -1930,7 +1962,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
     });
   };
   const resetFounderActionFeedback = () => {
-    const resetClientEventId = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `founder-reset-${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
+    const resetClientEventId = createFounderFeedbackEventId();
     setFounderActionFeedback({});
     writeLocalJson(KB_FOUNDER_ACTION_FEEDBACK_KEY, {});
     setTimeout(() => showToast("Founder action feedback reset"), 0);
@@ -2243,16 +2275,16 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                 <div className="panel-body">
                   <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:10}}>
                     {[
-                      {label:"Users / Signups", source:"profiles + auth-linked admin read", state:usersError ? "Degraded" : loadingUsers ? "Loading" : "Ready", action:()=>openAdminView("users")},
-                      {label:"Review Queue", source:"vendor admissions + Faith Verification + charter apps", state:reviewSummary.error || verificationsError ? "Degraded" : reviewSummary.loading || loadingVerifications ? "Loading" : "Ready", action:()=>openAdminView("approvals")},
-                      {label:"Disputes", source:"recent disputes + unresolved summary", state:disputeSummary.error || disputesError ? "Degraded" : disputeSummary.loading || loadingDisputes ? "Loading" : "Ready", action:()=>openAdminView("disputes")},
-                      {label:"Projects / Moderation", source:"project moderation queue + marketplace status", state:loadingKpis ? "Loading" : kpisError ? "Degraded" : "Ready", action:()=>openAdminView("projects")},
-                      {label:"Finance", source:"fee policy constants + modeled fee signals", state:loadingFeeSignals ? "Loading" : "Ready", action:()=>openAdminView("revenue")},
-                      {label:"Founder Brief", source:"deterministic founder brief RPC", state:founderBrief.error ? "Degraded" : founderBrief.loading ? "Loading" : founderBriefData ? "Ready" : "Waiting", action:()=>fetchFounderBrief()},
+                      {label:"Users / Signups", source:"profiles + auth-linked admin read", state:usersError ? "Degraded" : loadingUsers ? "Loading" : "Ready", view:"users"},
+                      {label:"Review Queue", source:"vendor admissions + Faith Verification + charter apps", state:reviewSummary.error || verificationsError ? "Degraded" : reviewSummary.loading || loadingVerifications ? "Loading" : "Ready", view:"approvals"},
+                      {label:"Disputes", source:"recent disputes + unresolved summary", state:disputeSummary.error || disputesError ? "Degraded" : disputeSummary.loading || loadingDisputes ? "Loading" : "Ready", view:"disputes"},
+                      {label:"Projects / Moderation", source:"project moderation queue + marketplace status", state:loadingKpis ? "Loading" : kpisError ? "Degraded" : "Ready", view:"projects"},
+                      {label:"Finance", source:"fee policy constants + modeled fee signals", state:loadingFeeSignals ? "Loading" : "Ready", view:"revenue"},
+                      {label:"Founder Brief", source:"deterministic founder brief RPC", state:founderBrief.error ? "Degraded" : founderBrief.loading ? "Loading" : founderBriefData ? "Ready" : "Waiting", view:"founder-brief"},
                     ].map(contract => {
                       const tone = contract.state === "Ready" ? {bg:"rgba(47,133,90,0.07)",border:"rgba(47,133,90,0.18)",color:"var(--green)"} : contract.state === "Loading" || contract.state === "Waiting" ? {bg:"var(--amber-bg)",border:"var(--amber-border)",color:"var(--amber)"} : {bg:"var(--red-bg)",border:"var(--red-border)",color:"var(--red)"};
                       return (
-                        <button type="button" key={contract.label} onClick={contract.action} style={{textAlign:"left",border:"1px solid var(--aborder)",borderRadius:14,background:"rgba(255,253,248,0.68)",padding:"13px 14px",cursor:"pointer",display:"grid",gap:7}}>
+                        <button type="button" key={contract.label} onClick={() => contract.view === "founder-brief" ? fetchFounderBrief() : openAdminView(contract.view)} style={{textAlign:"left",border:"1px solid var(--aborder)",borderRadius:14,background:"rgba(255,253,248,0.68)",padding:"13px 14px",cursor:"pointer",display:"grid",gap:7}}>
                           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
                             <span style={{fontSize:12,fontWeight:800,color:"var(--atext)"}}>{contract.label}</span>
                             <span style={{fontSize:9,fontWeight:800,letterSpacing:"0.08em",textTransform:"uppercase",padding:"4px 7px",borderRadius:999,background:tone.bg,border:`1px solid ${tone.border}`,color:tone.color}}>{contract.state}</span>
@@ -3421,7 +3453,7 @@ export default function AdminScreen({showToast, adminUser, adminProfile, nav, de
                   <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8,gap:10}}>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontSize:12,fontWeight:700,color:d.urgent?"var(--red)":"var(--atext)",marginBottom:3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{d.title}</div>
-                      <div style={{fontSize:10,color:"var(--atext-muted)"}}>Opened {d.opened} · <span style={{color:"var(--amber)",fontFamily:"var(--font-sans),monospace"}}>{d.amount}</span> · <span style={{color:d.openedAt && (Date.now()-new Date(d.openedAt).getTime()) >= 1000*60*60*24 ? "var(--red)" : "var(--atext-muted)"}}>Age {formatQueueAgeLabel(Date.now()-new Date(d.openedAt).getTime())}</span></div>
+                      <div style={{fontSize:10,color:"var(--atext-muted)"}}>Opened {d.opened} · <span style={{color:"var(--amber)",fontFamily:"var(--font-sans),monospace"}}>{d.amount}</span> · <span style={{color:d.openedAt && (adminClockMs-new Date(d.openedAt).getTime()) >= 1000*60*60*24 ? "var(--red)" : "var(--atext-muted)"}}>Age {formatQueueAgeLabel(adminClockMs-new Date(d.openedAt).getTime())}</span></div>
                     </div>
                     <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
                       {d.status!=="resolved" && (
