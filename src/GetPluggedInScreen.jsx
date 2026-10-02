@@ -1206,7 +1206,8 @@ function GpiHostPortal({ open, onClose, currentUser, cityAreas = [], showToast, 
 
   useEffect(() => {
     if (!open || !currentUser?.id) return;
-    loadContext();
+    const timer = setTimeout(() => loadContext(), 0);
+    return () => clearTimeout(timer);
   }, [open, currentUser?.id, loadContext]);
 
   useEffect(() => {
@@ -1226,23 +1227,26 @@ function GpiHostPortal({ open, onClose, currentUser, cityAreas = [], showToast, 
 
   useEffect(() => {
     if (open) return;
-    setHostScreen("home");
-    setHostError("");
-    setClaimOrg(null);
-    setWorkspaceFilter("all");
-    setEditorOpportunityId("");
-    setEditorData(null);
-    setEditorForm(null);
-    setEditorReadiness(null);
-    setEditorReviewFeedback(null);
-    setEditorTab("details");
-    setCloseReason("");
-    setRequestQueue("active");
-    setRequestWorkspace({ summary: {}, requests: [] });
-    setSelectedRequestId("");
-    setRequestDetail(null);
-    setRequestResponse("next_step_provided");
-    setRequestInstructions("");
+    const timer = setTimeout(() => {
+      setHostScreen("home");
+      setHostError("");
+      setClaimOrg(null);
+      setWorkspaceFilter("all");
+      setEditorOpportunityId("");
+      setEditorData(null);
+      setEditorForm(null);
+      setEditorReadiness(null);
+      setEditorReviewFeedback(null);
+      setEditorTab("details");
+      setCloseReason("");
+      setRequestQueue("active");
+      setRequestWorkspace({ summary: {}, requests: [] });
+      setSelectedRequestId("");
+      setRequestDetail(null);
+      setRequestResponse("next_step_provided");
+      setRequestInstructions("");
+    }, 0);
+    return () => clearTimeout(timer);
   }, [open]);
 
   useEffect(() => {
@@ -1258,23 +1262,30 @@ function GpiHostPortal({ open, onClose, currentUser, cityAreas = [], showToast, 
 
   useEffect(() => {
     if (!open || contextLoading) return;
-    if (activeMemberships.length && hostScreen === "home") setHostScreen("workspace");
+    if (!activeMemberships.length || hostScreen !== "home") return undefined;
+    const timer = setTimeout(() => setHostScreen("workspace"), 0);
+    return () => clearTimeout(timer);
   }, [open, contextLoading, activeMemberships.length, hostScreen]);
 
   useEffect(() => {
     if (!open || !["workspace", "requests", "request"].includes(hostScreen) || !selectedOrgId) return;
-    loadWorkspace(selectedOrgId);
+    const timer = setTimeout(() => loadWorkspace(selectedOrgId), 0);
+    return () => clearTimeout(timer);
   }, [open, hostScreen, selectedOrgId, loadWorkspace]);
 
   useEffect(() => {
     if (!open || !selectedOrgId || !["workspace", "requests"].includes(hostScreen)) return;
-    loadConnectionRequests(selectedOrgId, hostScreen === "workspace" ? "active" : requestQueue);
+    const timer = setTimeout(() => loadConnectionRequests(selectedOrgId, hostScreen === "workspace" ? "active" : requestQueue), 0);
+    return () => clearTimeout(timer);
   }, [open, hostScreen, selectedOrgId, requestQueue, loadConnectionRequests]);
 
   useEffect(() => {
     if (!open) return;
-    setClaimEmail((current) => current || currentUser?.email || "");
-    setNewOrgEmail((current) => current || currentUser?.email || "");
+    const timer = setTimeout(() => {
+      setClaimEmail((current) => current || currentUser?.email || "");
+      setNewOrgEmail((current) => current || currentUser?.email || "");
+    }, 0);
+    return () => clearTimeout(timer);
   }, [open, currentUser?.email]);
 
   const backToHostHome = () => setHostScreen(activeMemberships.length ? "workspace" : "home");
@@ -1548,7 +1559,8 @@ function GpiHostPortal({ open, onClose, currentUser, cityAreas = [], showToast, 
 
   useEffect(() => {
     if (!open || hostScreen !== "editor" || !editorOpportunityId) return;
-    loadOpportunityEditor(editorOpportunityId);
+    const timer = setTimeout(() => loadOpportunityEditor(editorOpportunityId), 0);
+    return () => clearTimeout(timer);
   }, [open, hostScreen, editorOpportunityId, loadOpportunityEditor]);
 
   const openOpportunityEditor = (opportunityId) => {
@@ -2276,9 +2288,10 @@ function GpiStage4OccurrenceNotices({ request }) {
   useEffect(() => {
     if (!visible || !request?.opportunity_id) return;
     let canceled = false;
-    setLoading(true);
-    setError("");
-    (async () => {
+    const timer = setTimeout(() => {
+      setLoading(true);
+      setError("");
+      (async () => {
       try {
         const data = await gpiStage4OccurrenceNoticeAction({ relationship_id: null, limit: 50 });
         const rows = Array.isArray(data) ? data : Array.isArray(data?.notices) ? data.notices : [];
@@ -2288,8 +2301,9 @@ function GpiStage4OccurrenceNotices({ request }) {
       } finally {
         if (!canceled) setLoading(false);
       }
-    })();
-    return () => { canceled = true; };
+      })();
+    }, 0);
+    return () => { canceled = true; clearTimeout(timer); };
   }, [reload, request?.opportunity_id, visible]);
 
   if (!visible || (!loading && !error && notices.length === 0)) return null;
@@ -2394,6 +2408,17 @@ function gpiStage3IntentRow(value) {
   return { ...value, id: value.id || value.intent_id || "" };
 }
 
+function createGpiPreviewRelationship() {
+  return {
+    id: "preview-relationship",
+    status: "active",
+    next_occurrence: {
+      id: "preview-occurrence",
+      starts_at: new Date(new Date().getTime() + 7 * 86400000).toISOString(),
+    },
+  };
+}
+
 function GpiStage3OccurrenceIntentModule({ request, showToast, preview = false }) {
   const visible = preview || (GPI_STAGE2_PARTICIPATION_BACKEND_ENABLED && GPI_STAGE3_OCCURRENCE_INTENT_ENABLED);
   const eligibleRequest = String(request?.status || "").toLowerCase() === "seeker_confirmed"
@@ -2410,7 +2435,7 @@ function GpiStage3OccurrenceIntentModule({ request, showToast, preview = false }
         } : null),
       }
     : null;
-  const [relationship, setRelationship] = useState(preview ? { id: "preview-relationship", status: "active", next_occurrence: { id: "preview-occurrence", starts_at: new Date(Date.now() + 7 * 86400000).toISOString() } } : seededRelationship);
+  const [relationship, setRelationship] = useState(() => preview ? createGpiPreviewRelationship() : seededRelationship);
   const [intent, setIntent] = useState(preview ? { id: "preview-intent", status: "planning", effective: true } : null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -2419,9 +2444,10 @@ function GpiStage3OccurrenceIntentModule({ request, showToast, preview = false }
   useEffect(() => {
     if (!visible || !eligibleRequest || preview || !GPI_STAGE3_OCCURRENCE_INTENT_ENABLED) return;
     let canceled = false;
-    setLoading(true);
-    setError("");
-    (async () => {
+    const timer = setTimeout(() => {
+      setLoading(true);
+      setError("");
+      (async () => {
       try {
         const participation = await gpiStage2ParticipantAction("get_state", { relationship_id: null });
         const relationshipRows = Array.isArray(participation) ? participation : Array.isArray(participation?.relationships) ? participation.relationships : [];
@@ -2448,8 +2474,9 @@ function GpiStage3OccurrenceIntentModule({ request, showToast, preview = false }
       } finally {
         if (!canceled) setLoading(false);
       }
-    })();
-    return () => { canceled = true; };
+      })();
+    }, 0);
+    return () => { canceled = true; clearTimeout(timer); };
   }, [eligibleRequest, preview, request?.occurrence_id, request?.opportunity_id, request?.next_occurrence?.id, visible]);
 
   if (!visible || !eligibleRequest) return null;
@@ -2504,7 +2531,10 @@ function GpiStage3OccurrenceIntentModule({ request, showToast, preview = false }
 
 function GpiStage2HostModule({ organizationId, opportunities = [], preview = false }) {
   const visible = preview || GPI_STAGE2_PARTICIPATION_BACKEND_ENABLED;
-  const recurring = opportunities.filter((item) => String(item?.schedule_type || "").toLowerCase() === "recurring");
+  const recurring = useMemo(
+    () => opportunities.filter((item) => String(item?.schedule_type || "").toLowerCase() === "recurring"),
+    [opportunities],
+  );
   const [counts, setCounts] = useState({});
   const [error, setError] = useState("");
 
@@ -2517,7 +2547,7 @@ function GpiStage2HostModule({ organizationId, opportunities = [], preview = fal
       return [item.id, Number(result?.data?.active_consent_count || 0)];
     })).then((entries) => { if (!canceled) setCounts(Object.fromEntries(entries)); }).catch((loadError) => { if (!canceled) setError(loadError?.message || "Private counts could not load."); });
     return () => { canceled = true; };
-  }, [organizationId, preview, visible, opportunities]);
+  }, [organizationId, preview, visible, recurring]);
 
   if (!visible || !recurring.length) return null;
   return <section className="gpi-stage2-host" aria-label="Recurring update consent counts">
@@ -2622,15 +2652,21 @@ function GpiSeekerPortal({ open, onClose, currentUser, showToast }) {
   useEffect(() => {
     if (!open) return;
     document.body.classList.add("gpi-seeker-portal-open");
-    loadRequests(queue);
-    return () => document.body.classList.remove("gpi-seeker-portal-open");
+    const timer = setTimeout(() => loadRequests(queue), 0);
+    return () => {
+      clearTimeout(timer);
+      document.body.classList.remove("gpi-seeker-portal-open");
+    };
   }, [open, queue, loadRequests]);
 
   useEffect(() => {
     if (open) return;
-    setSelectedRequestId(null);
-    setDetail(null);
-    setError("");
+    const timer = setTimeout(() => {
+      setSelectedRequestId(null);
+      setDetail(null);
+      setError("");
+    }, 0);
+    return () => clearTimeout(timer);
   }, [open]);
 
   const reportOutcome = useCallback(async (outcome) => {
@@ -2961,7 +2997,8 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
     if (!authReady || !currentUser?.id) return;
     if (kbSafeSessionGet(GPI_HOST_INTENT_SESSION_KEY) !== "post") return;
     kbSafeSessionRemove(GPI_HOST_INTENT_SESSION_KEY);
-    setHostPortalOpen(true);
+    const timer = setTimeout(() => setHostPortalOpen(true), 0);
+    return () => clearTimeout(timer);
   }, [authReady, currentUser?.id]);
 
   const openGpiSeekerPortal = useCallback(() => {
@@ -2983,7 +3020,8 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
     if (!authReady || !currentUser?.id) return;
     if (kbSafeSessionGet(GPI_SEEKER_INTENT_SESSION_KEY) !== "requests") return;
     kbSafeSessionRemove(GPI_SEEKER_INTENT_SESSION_KEY);
-    setSeekerPortalOpen(true);
+    const timer = setTimeout(() => setSeekerPortalOpen(true), 0);
+    return () => clearTimeout(timer);
   }, [authReady, currentUser?.id]);
 
   const invokeGpi = useCallback(async (action, payload = {}) => {
@@ -2995,8 +3033,8 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
 
   useEffect(() => {
     if (!authReady || !currentUser?.id) {
-      setHostMemberships([]);
-      return undefined;
+      const resetTimer = setTimeout(() => setHostMemberships([]), 0);
+      return () => clearTimeout(resetTimer);
     }
     let canceled = false;
     supabase.rpc("gpi_host_get_context")
@@ -3084,15 +3122,18 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
   useEffect(() => {
     const recurring = String(detailItem?.schedule_type || "").toLowerCase() === "recurring";
     if (!detailItem?.id || detailItem.isPreview || !recurring) {
-      setDetailOccurrences([]);
-      setDetailOccurrencesLoading(false);
-      setDetailOccurrencesError("");
-      return undefined;
+      const resetTimer = setTimeout(() => {
+        setDetailOccurrences([]);
+        setDetailOccurrencesLoading(false);
+        setDetailOccurrencesError("");
+      }, 0);
+      return () => clearTimeout(resetTimer);
     }
     let canceled = false;
-    setDetailOccurrencesLoading(true);
-    setDetailOccurrencesError("");
-    invokeGpi("list_occurrences", { opportunity_id: detailItem.id })
+    const timer = setTimeout(() => {
+      setDetailOccurrencesLoading(true);
+      setDetailOccurrencesError("");
+      invokeGpi("list_occurrences", { opportunity_id: detailItem.id })
       .then((rows) => {
         if (canceled) return;
         const occurrences = (Array.isArray(rows) ? rows : []).slice().sort((left, right) =>
@@ -3105,8 +3146,9 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
         setDetailOccurrences([]);
         setDetailOccurrencesError(loadError?.message || "Could not load the current gathering dates.");
       })
-      .finally(() => { if (!canceled) setDetailOccurrencesLoading(false); });
-    return () => { canceled = true; };
+        .finally(() => { if (!canceled) setDetailOccurrencesLoading(false); });
+    }, 0);
+    return () => { canceled = true; clearTimeout(timer); };
   }, [detailItem?.id, detailItem?.isPreview, detailItem?.schedule_type, detailOccurrencesReload, invokeGpi]);
   const invokeAuthenticatedGpiInterest = useCallback(async (payload = {}) => {
     const { data, error: fnError } = await supabase.functions.invoke("gpi-interest-auth", { body: { action: "submit_interest", payload } });
@@ -3215,66 +3257,72 @@ function GetPluggedInPage({ nav, showToast, currentUser, authReady, discoveryEna
       if (mounted && discoveryEnabled) setLoading(false);
     })();
     return () => { mounted = false; };
-  }, []);
+  }, [discoveryEnabled, loadFilters, runSearch]);
 
   useEffect(() => {
     if (!displayItems.length) return;
-    setSelected((prev) => Math.min(Math.max(prev, 0), displayItems.length - 1));
+    const timer = setTimeout(() => setSelected((prev) => Math.min(Math.max(prev, 0), displayItems.length - 1)), 0);
+    return () => clearTimeout(timer);
   }, [displayItems.length]);
 
   useEffect(() => {
-    setInterestEmail(currentUser?.email || "");
+    const timer = setTimeout(() => setInterestEmail(currentUser?.email || ""), 0);
+    return () => clearTimeout(timer);
   }, [currentUser?.email]);
 
   useEffect(() => {
-    setInterestSubmitError("");
-    setInterestSentItem(null);
+    const timer = setTimeout(() => {
+      setInterestSubmitError("");
+      setInterestSentItem(null);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [interestItem?.id]);
 
   useEffect(() => {
     const requestId = interestPrereqRequestRef.current + 1;
     interestPrereqRequestRef.current = requestId;
-    setSelectedOccurrenceId("");
-    setAffirmedRequirementIds([]);
-    setAgeRangeAffirmed(false);
+    const timer = setTimeout(() => {
+      setSelectedOccurrenceId("");
+      setAffirmedRequirementIds([]);
+      setAgeRangeAffirmed(false);
 
-    if (!interestItem || interestItem.isPreview) {
-      setInterestPrerequisites(gpiEmptyInterestPrerequisites());
-      return () => {
-        if (interestPrereqRequestRef.current === requestId) interestPrereqRequestRef.current += 1;
-      };
-    }
-
-    setInterestPrerequisites({ loading: true, loaded: false, opportunityId: interestItem.id, error: "", occurrences: [], requirements: [] });
-    Promise.all([
-      invokeGpi("list_occurrences", { opportunity_id: interestItem.id }),
-      invokeGpi("get_participant_requirements", { opportunity_id: interestItem.id }),
-    ]).then(([occurrenceRows, requirementRows]) => {
-      if (requestId !== interestPrereqRequestRef.current) return;
-      const occurrences = (Array.isArray(occurrenceRows) ? occurrenceRows : [])
-        .slice()
-        .sort((left, right) => new Date(left?.starts_at || 0) - new Date(right?.starts_at || 0));
-      const requirements = Array.isArray(requirementRows) ? requirementRows : [];
-      setInterestPrerequisites({ loading: false, loaded: true, opportunityId: interestItem.id, error: "", occurrences, requirements });
-      if (String(interestItem.schedule_type || "").toLowerCase() === "one_time" && occurrences[0]?.id) {
-        setSelectedOccurrenceId(occurrences[0].id);
+      if (!interestItem || interestItem.isPreview) {
+        setInterestPrerequisites(gpiEmptyInterestPrerequisites());
+        return;
       }
-    }).catch((prerequisiteError) => {
-      if (requestId !== interestPrereqRequestRef.current) return;
-      setInterestPrerequisites({
-        loading: false,
-        loaded: false,
-        opportunityId: interestItem.id,
-        error: prerequisiteError?.message || "Could not load the current participation details.",
-        occurrences: [],
-        requirements: [],
+
+      setInterestPrerequisites({ loading: true, loaded: false, opportunityId: interestItem.id, error: "", occurrences: [], requirements: [] });
+      Promise.all([
+        invokeGpi("list_occurrences", { opportunity_id: interestItem.id }),
+        invokeGpi("get_participant_requirements", { opportunity_id: interestItem.id }),
+      ]).then(([occurrenceRows, requirementRows]) => {
+        if (requestId !== interestPrereqRequestRef.current) return;
+        const occurrences = (Array.isArray(occurrenceRows) ? occurrenceRows : [])
+          .slice()
+          .sort((left, right) => new Date(left?.starts_at || 0) - new Date(right?.starts_at || 0));
+        const requirements = Array.isArray(requirementRows) ? requirementRows : [];
+        setInterestPrerequisites({ loading: false, loaded: true, opportunityId: interestItem.id, error: "", occurrences, requirements });
+        if (String(interestItem.schedule_type || "").toLowerCase() === "one_time" && occurrences[0]?.id) {
+          setSelectedOccurrenceId(occurrences[0].id);
+        }
+      }).catch((prerequisiteError) => {
+        if (requestId !== interestPrereqRequestRef.current) return;
+        setInterestPrerequisites({
+          loading: false,
+          loaded: false,
+          opportunityId: interestItem.id,
+          error: prerequisiteError?.message || "Could not load the current participation details.",
+          occurrences: [],
+          requirements: [],
+        });
       });
-    });
+    }, 0);
 
     return () => {
+      clearTimeout(timer);
       if (interestPrereqRequestRef.current === requestId) interestPrereqRequestRef.current += 1;
     };
-  }, [interestItem?.id, interestItem?.schedule_type, interestPrereqReload, invokeGpi]);
+  }, [interestItem, interestPrereqReload, invokeGpi]);
 
   useEffect(() => () => {
     if (dragRef.current.raf) cancelAnimationFrame(dragRef.current.raf);
