@@ -56779,6 +56779,13 @@ export default function App() {
   useEffect(() => {
     let active = true;
     const userId = currentUser?.id || null;
+    // Public information, signup, and authentication routes do not consume
+    // Marketplace data. Defer this backend gate until an authenticated session
+    // exists or a Marketplace workspace is actually requested.
+    const shouldLoadMarketplaceGate = Boolean(userId) || screen === "projects";
+    if (!shouldLoadMarketplaceGate) {
+      return () => { active = false; };
+    }
     const gateIdentityChanged = marketplaceGateUserIdRef.current !== userId;
     marketplaceGateUserIdRef.current = userId;
     if (gateIdentityChanged) {
@@ -56834,7 +56841,7 @@ export default function App() {
 
     loadGate();
     return () => { active = false; };
-  }, [currentUser?.id, userProfile?.onboarding_complete, marketplaceGateRetry]);
+  }, [currentUser?.id, userProfile?.onboarding_complete, marketplaceGateRetry, screen]);
 
 
   useEffect(() => {

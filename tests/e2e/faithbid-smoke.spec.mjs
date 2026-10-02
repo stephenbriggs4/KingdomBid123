@@ -51,6 +51,10 @@ async function expectMobileControlTargets(page) {
 }
 
 async function openAnonymousRoute(page, hash) {
+  const restRequests = []
+  page.on('request', (request) => {
+    if (request.url().includes('/rest/v1/')) restRequests.push(request.url())
+  })
   await page.route('http://127.0.0.1:54321/rest/v1/**', async (route) => {
     await route.fulfill({
       status: 200,
@@ -65,16 +69,18 @@ async function openAnonymousRoute(page, hash) {
   })
   await page.goto(`/${hash}`)
   await expect(page.locator('#root')).not.toBeEmpty()
+  return restRequests
 }
 
 test('anonymous landing renders one main landmark without viewport overflow', async ({ page }) => {
   await page.setViewportSize(mobileViewport)
-  await openAnonymousRoute(page, '#landing')
+  const restRequests = await openAnonymousRoute(page, '#landing')
 
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expectSingleMain(page)
   await expectNoHorizontalDocumentOverflow(page)
   await expectMobileControlTargets(page)
+  expect(restRequests.filter((url) => url.includes('/platform_settings'))).toEqual([])
 })
 
 for (const route of ['#vendor-signup', '#guest-post-project']) {

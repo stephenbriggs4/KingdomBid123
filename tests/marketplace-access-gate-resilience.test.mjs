@@ -11,6 +11,12 @@ test("marketplace access reads have a deadline and abortable Supabase requests",
   assert.ok((gateBlock.match(/\.abortSignal\(signal\)/g) || []).length >= 5);
 });
 
+test("anonymous public routes defer Marketplace gate traffic until the workspace is requested", () => {
+  assert.match(source, /const shouldLoadMarketplaceGate = Boolean\(userId\) \|\| screen === "projects"/);
+  assert.match(source, /if \(!shouldLoadMarketplaceGate\) \{[\s\S]*return \(\) => \{ active = false; \};[\s\S]*\}/);
+  assert.match(source, /marketplaceGateRetry, screen\]\);/);
+});
+
 test("an unavailable gate exits pending state and offers retry without granting access", () => {
   assert.match(source, /setMarketplaceGateError\("FaithBid could not verify marketplace access/);
   assert.match(source, /setMarketplaceGateRetry\(value=>value\+1\)/);
