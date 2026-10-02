@@ -24793,28 +24793,14 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
 
   const openCount = (projects || []).filter(p => p.status === "open").length;
   const urgentCount = (projects || []).filter(p => p.urgent).length;
-  const vendorCompareCount = getCompareWorkspaceCount('vendors');
-  const projectCompareCount = getCompareWorkspaceCount('projects');
-  const activeMarketMode = getMarketplaceModeMeta({ role, projectTab, openCount, urgentCount });
-  const resolveMarketplaceAction = (actionKey) => {
-    switch (actionKey) {
-      case 'postProject':
-        return goToPostProject;
-      case 'openMyProjects':
-        return () => handleTabSwitch('mine');
-      case 'openMyWork':
-        return () => handleTabSwitch('work');
-      case 'openVendors':
-        return () => handleTabSwitch('vendors');
-      case 'openBrowse':
-      default:
-        return () => handleTabSwitch('browse');
-    }
-  };
 
 
 
-  const marketplaceCategoryCount = new Set((projects || []).map(p => String(p?.category || '').trim()).filter(Boolean)).size;
+
+
+
+
+
 
 
   const marketplaceShell = null;
@@ -25864,7 +25850,7 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
   );
 }
 
-function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Your area', onSelect, onPost, showToast, nav, myBids, myActiveProjects, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null}){
+function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Your area', onSelect, onPost, showToast, nav, myActiveProjects, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null}){
   const marketplaceProjectsLoading = loading;
   const STORAGE_KEY = KB_STORAGE_KEYS.marketplaceBoardState;
   const SCROLL_KEY = KB_STORAGE_KEYS.marketplaceBoardScroll;
@@ -25956,7 +25942,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   const [stripIsDragging, setStripIsDragging] = useState(false);
   const stripVelocityRef = useRef({ samples: [], lastX: 0, lastT: 0 });
   const stripMomentumRafRef = useRef(null);
-  const [, setGridDensity] = useState('comfortable');
+
   // V45 — controls mobile "Show all" pagination of the All Projects grid.
   // Default false → cap at 6 cards on mobile / 12 desktop. Toggle reveals all.
   const [showAllProjects, setShowAllProjects] = useState(false);
@@ -26082,7 +26068,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     return dbVendor || viewerVendorProfile || currentUser || null;
   }, [role, currentUser, marketplaceVendors, viewerVendorProfile]);
 
-  const interopState = useMemo(() => listProjectInteropEntries(), [interopVersion]);
+
 
 
   useEffect(() => {
@@ -26202,15 +26188,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     return true;
   };
 
-  const churchProjectCounts = useMemo(() => {
-    const counts = {};
-    openProjects.forEach(project => {
-      const church = String(project.church || project.church_name || '').trim();
-      if (!church) return;
-      counts[church] = (counts[church] || 0) + 1;
-    });
-    return counts;
-  }, [openProjects]);
+
 
   const getProjectFreshness = (project) => {
     const postedMs = new Date(project.posted_at || project.created_at || 0).getTime();
@@ -26559,11 +26537,11 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     });
   };
 
-  const totalOpen = openProjects.length;
-  const urgentCount = openProjects.filter(p => !!p.urgent).length;
-  const reviewingCount = openProjects.filter(p => Number(p.bids || 0) >= 4).length;
 
-  const savedCount = savedIds.size;
+
+
+
+
 
 
 
@@ -26875,7 +26853,7 @@ void emptyStateAlternatives;
   };
 
   const vendorDataset = useMemo(() => getMarketplaceVendorDataset(marketplaceVendors), [marketplaceVendors]);
-  const vendorCards = vendorDataset.shelf;
+
 
 
 
@@ -27027,20 +27005,7 @@ void emptyStateAlternatives;
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { /* non-fatal */ }
   };
 
-  const applyMarketplaceVisualCategory = (terms = [], fallback = 'All') => {
-    const needles = terms.map(t => String(t || '').toLowerCase()).filter(Boolean);
-    const availableCategories = Array.from(new Set((openProjects || []).map(p => String(p?.category || '').trim()).filter(Boolean)));
-    const found = availableCategories.find(category => {
-      const hay = category.toLowerCase();
-      return needles.some(term => hay.includes(term));
-    });
-    setSavedOnly(false);
-    setUrgentOnly(false);
-    setReviewingOnly(false);
-    setLocationFilter('All Locations');
-    setBudgetFilter('Budget: Any');
-    setCatFilter(found || fallback || 'All');
-  };
+
 
 
 
@@ -29755,7 +29720,7 @@ function MyProjectsEmptyArt() {
   return <img className="kb1005-empty-art" src="/images/my-projects-empty.webp" alt="" aria-hidden="true" width="1536" height="1024" />;
 }
 
-function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onManageBids, nav, role, showToast, currentUser, myProjectsFetchError = false, onRetryMyProjects}) {
+function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onManageBids, nav, showToast, currentUser, myProjectsFetchError = false, onRetryMyProjects}) {
   const [bucket, setBucket] = useState(() => consumeMyProjectsLens('active'));
   const [msgUnread, setMsgUnread] = useMessagesUnread(currentUser?.id);
   useEffect(() => {
@@ -31170,16 +31135,16 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const headline = firstNonEmpty(project?.title, 'Untitled Church Project');
   const desc = firstNonEmpty(project?.description, project?.desc, 'No project description has been added yet.');
   const timeline = firstNonEmpty(project?.timeline, 'Timeline shared after intake');
-  const scope = firstNonEmpty(project?.scope, 'Not specified');
+
 
   const scopeItems = detailScopeItems(project);
   const vendorMatches = projectDetailVendorMatches;
 
-  const opsState = loadProjectOpsState(project);
+
 
   const projectDetailId = project?.id || project?.project_id || project?.slug || headline || null;
   const projectDetailTitle = headline || project?.title || project?.name || null;
-  const projectRelation = useMemo(() => getProjectInteropEntry(project?.id || null), [project?.id]);
+
 
   const applyVendorMatchStage = (vendorMatch, stage, extras = {}) => {
     if (!(projectDetailId || projectDetailTitle)) return;
@@ -31251,7 +31216,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     return nextTab;
   }, [isVendor, hasPostHireWorkflow, fileItems.length]);
   const [projectDetailVendorPairSignalMaps, setProjectDetailVendorPairSignalMaps] = useState(() => makeEmptyVendorPairSignalMaps());
-  const [projectDetailChurchSignalMaps, setProjectDetailChurchSignalMaps] = useState(() => makeEmptyVendorPairSignalMaps());
+  const [, setProjectDetailChurchSignalMaps] = useState(() => makeEmptyVendorPairSignalMaps());
   const projectDetailVendorId = isVendor && currentUser?.id && projectDetailId ? String(currentUser.id).trim() : '';
   const projectDetailVendorUserId = projectDetailVendorId;
   const projectDetailVendorMatchKey = JSON.stringify({
@@ -31835,7 +31800,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const projectGalleryTrapRef = useFocusTrap(projectGalleryOpen);
   const [similarProjects, setSimilarProjects] = useState([]);
   const [similarProjectsLoading, setSimilarProjectsLoading] = useState(false);
-  const [similarSavedIds, setSimilarSavedIds] = useState(() => new Set());
+  const [, setSimilarSavedIds] = useState(() => new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -32086,12 +32051,12 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
   const viewerCanManageProject = !isVendor && canManageProjectWithRole(role, currentUser, project);
 
   const liveScopeItems = scopeItems.length ? scopeItems : safeArray(project?.requirements).filter(Boolean);
-  const rawStartValue = firstNonEmpty(project?.target_start_date, project?.preferred_start_date, project?.desired_start_date, project?.start_date, timeline);
+
 
   const deliveryRaw = String(firstNonEmpty(project?.delivery_preference, project?.service_model, '')).trim().toLowerCase();
-  const deliveryBase = deliveryRaw === 'remote' ? 'Remote' : (deliveryRaw === 'either' || deliveryRaw === 'both') ? 'On-site or remote' : deliveryRaw ? 'On-site' : 'Delivery to be coordinated';
+
   const scheduleSignals = `${liveScopeItems.join(' ')} ${desc}`.toLowerCase();
-  const offHoursSignal = /off[- ]?hours|weekend service|during services|outside service|after hours/.test(scheduleSignals);
+
 
 
   const canAskQuestion = isVendor && !projectStatusIsClosed && typeof handleUtilitySecondary === 'function';
@@ -34178,7 +34143,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const [elderSubmitted, setElderSubmitted] = useState(false);
   const [elderLoading, setElderLoading] = useState(false);
   const [profileToast, setProfileToast] = useState("");
-  const viewportWidth = useViewportWidth(1440);
+
 
 
   useEffect(() => { injectMarketplaceDetailFonts(); }, []);
@@ -34246,7 +34211,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const profileTags = vendorPresentation.tags;
 
   const bestFitItems = vendorPresentation.bestFitItems;
-  const proofPoints = vendorPresentation.proofPoints;
+
   const caseStudies = vendorPresentation.caseStudies;
 
   const reviewCount = Number(v.reviews_count || v.reviews || 0);
@@ -34255,9 +34220,9 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
 
   const responseSignal = firstNonEmpty(v.response_sla, v.response_time, '');
   const primaryResponseLabel = responseSignal || 'Not specified';
-  const serviceAreaSignal = firstNonEmpty(v.service_area, Array.isArray(v.service_regions) ? v.service_regions.join(', ') : null, v.city, '');
 
-  const churchSizeSignal = Array.isArray(v.church_sizes_served) && v.church_sizes_served.length > 0 ? v.church_sizes_served.join(', ') : (Array.isArray(v.church_size_fit) && v.church_size_fit.length > 0 ? v.church_size_fit.slice(0,3).join(', ') : '');
+
+
 
   const hasDeliverySignal = Boolean(firstNonEmpty(v.delivery_model, v.service_model, ''));
   const returnContext = readReturnContext();
@@ -34300,7 +34265,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const profileLinkState = profileProjectId ? (profileInteropEntry?.vendorsById?.[String(v.id)] || profileInteropEntry?.vendorsById?.[String(v.user_id || '')] || null) : null;
   const canProjectContextActions = !!profileProjectId && !!currentUser && !isOwner && isHirerRole(role);
 
-  const profileStageMeta = profileLinkState ? (PROJECT_VENDOR_STAGE_META?.[profileLinkState.stage] || null) : null;
+
 
   const profileVendorId = String(firstNonEmpty(v?.id, v?.vendor_id, v?.user_id, '')).trim();
   const profileVendorUserId = String(firstNonEmpty(v?.user_id, v?.vendor_user_id, v?.vendor_id, v?.id, '')).trim();
@@ -34548,11 +34513,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
      intentionally retired from this route. */
   const vendorDetailName = firstNonEmpty(v.name, v.business_name, 'Vendor');
   const vendorDetailCategory = firstNonEmpty(v.category, v.primary_category, profileTags[0], 'Church vendor');
-  const vendorDetailLocation = firstNonEmpty(
-    v.service_area,
-    [firstNonEmpty(v.service_city, v.city, ''), firstNonEmpty(v.service_state, v.state, '')].filter(Boolean).join(', '),
-    'Service area not listed',
-  );
+
   const vendorDetailHeroImage = firstNonEmpty(
     v.cover_image_url,
     v.cover_image,
@@ -39894,10 +39855,7 @@ const updateDocument = (ws, id, v) => call$7("tk_update_document", {
 	p_restricted: !!v.restricted,
 	p_notes: v.notes
 });
-const renewalsDue = (ws, days = 60) => call$7("tk_renewals_due", {
-	p_ws: ws,
-	p_days: days
-});
+
 const safeName$1 = (n) => n.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "file";
 async function uploadDocument(ws, file, v) {
 	const path = `${ws}/${crypto.randomUUID()}-${safeName$1(file.name)}`;
@@ -57701,7 +57659,7 @@ function calcVendorCompletion(vendorRow) {
   return { pct: score, missing, checks };
 }
 
-function VendorCompletionMeter({ vendorRow, portfolioCount, showToast, nav }) {
+function VendorCompletionMeter({ vendorRow, portfolioCount }) {
   const data = calcVendorCompletion({ ...vendorRow, _hasPortfolio: portfolioCount > 0 });
   const pct = data.pct;
   const color = pct >= 80 ? "var(--success)" : pct >= 50 ? "var(--warn)" : "var(--danger)";
@@ -60556,7 +60514,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
   }, []);
 
   const fmt = (n) => n >= 1000 ? `${(n/1000).toFixed(1)}K+` : n > 0 ? `${n}+` : "—";
-  const [pricingView, setPricingView] = useState(null);
+  const [pricingView] = useState(null);
 
 
   const scrollToAudience = (id) => {
@@ -62045,7 +62003,7 @@ function AuthFloatingField({ label, type = 'text', value, onChange, selectedRole
   );
 }
 
-function AuthScreen({nav,setRole,onOnboard,defaultRole,signingInRef,onLoginFallback}){
+function AuthScreen({nav,defaultRole,signingInRef,onLoginFallback}){
   const [mode,setMode]=useState("login");
   const [selectedRole,setSelectedRole]=useState(null);
   const [vendorType, setVendorType] = useState(null);
@@ -65519,7 +65477,7 @@ function AdminActivityFeed({refreshSignal = 0, onHealthChange = null, healthKey 
   );
 }
 
-function AdminReferralLeaderboard({showToast, refreshSignal = 0, onHealthChange = null, healthKey = "referralLeaderboard"}){
+function AdminReferralLeaderboard({ refreshSignal = 0, onHealthChange = null, healthKey = "referralLeaderboard"}){
   const [refs, setRefs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -68051,7 +68009,7 @@ function buildFounderBriefEvidenceTrace({ founderMetricCards = [], founderAction
     { label:"Freshness", value:founderBriefFreshnessState, tone:founderBriefFreshnessState === "Fresh" ? "healthy" : founderBriefFreshnessState === "Aging" ? "checking" : "attention", evidence:"Founder Brief recommendations degrade as the read gets older.", next:founderBriefFreshnessState === "Fresh" ? "Proceed with current trace." : "Refresh before acting on sensitive priorities." },
   ];
 }
-function buildFaithBidGrowthSignalQualityRows({ aiGrowthPriority = null, founderActions = [], founderMarketHealth = [], aiMarketplaceLiquidity = null } = {}) {
+function buildFaithBidGrowthSignalQualityRows({  founderActions = [], founderMarketHealth = [], aiMarketplaceLiquidity = null } = {}) {
   const growthActions = founderActions.filter(row => String(row?.action?.destination || "").toLowerCase() === "growth");
   const coverageActions = founderActions.filter(row => String(row?.action?.action_type || "").toLowerCase() === "marketplace_coverage");
   const weakSegments = founderMarketHealth.filter(segment => ["critical", "thin"].includes(String(segment?.coverage_status || "").toLowerCase()));
