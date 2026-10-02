@@ -395,7 +395,7 @@ if (SENTRY_DSN && typeof window !== "undefined" && !window.__kb_sentry_inited) {
       },
     });
   } catch (e) {
-    // eslint-disable-next-line no-console
+
     if (kbIsDevRuntime()) console.warn("[kb:sentry-init] failed to initialize:", e?.message || e);
   }
 }
@@ -943,7 +943,7 @@ function recordSupabaseNetworkFailure(where = "unknown", err = null, meta = {}) 
     state.locations.add(String(where || "unknown"));
 
     const online = typeof navigator === "undefined" ? null : navigator.onLine !== false;
-    // eslint-disable-next-line no-console
+
     console.warn(`[kb:${where}] Supabase network request failed`, err?.message || err, { ...meta, online, burstCount: state.count });
 
     if (typeof window !== "undefined" && (now - state.lastUiEventAt) >= KB_SUPABASE_NETWORK_UI_COOLDOWN_MS) {
@@ -993,7 +993,7 @@ const logError = (where, err, meta = {}) => {
       recordSupabaseNetworkFailure(where, err, meta);
       return;
     }
-    // eslint-disable-next-line no-console
+
     console.error(`[kb:${where}]`, err?.message || err, meta);
     if (SENTRY_DSN && Sentry && typeof Sentry.captureException === "function") {
       // Normalize string errors into Error objects so Sentry keeps the stack.
@@ -2236,7 +2236,7 @@ function VendorReferencesTab({ currentUser, vendorProfile, showToast }) {
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [currentUser?.id]);
+  useEffect(() => { load(); }, [currentUser?.id]);
 
   const summary = summarizeReferences(refs, responses);
   const responseByRefId = useMemo(() => {
