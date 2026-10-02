@@ -8,7 +8,7 @@ const invite = read('../src/WaitlistInvitationScreen.jsx');
 const consent = read('../src/LegalConsent.jsx');
 const consentModel = read('../src/legalConsentModel.js');
 const migration = read('../supabase/migrations/20260928173159_legal_consents.sql');
-const hardening = read('../supabase/migrations/20260930183658_harden_legal_consent_provenance.sql');
+const hardening = read('../supabase/migrations/20261002214045_harden_legal_consent_provenance.sql');
 const has = (src, re, msg) => assert.ok(re.test(src), msg);
 
 // shared module

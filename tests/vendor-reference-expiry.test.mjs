@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const sql = readFileSync(new URL("../supabase/migrations/20260930183737_expire_public_vendor_reference_links.sql", import.meta.url), "utf8");
+const sql = readFileSync(new URL("../supabase/migrations/20261002213931_expire_public_vendor_reference_links.sql", import.meta.url), "utf8");
 const sender = readFileSync(new URL("../supabase/functions/send-reference-email/index.ts", import.meta.url), "utf8");
 
 assert.match(sql, /add column if not exists expires_at timestamptz/);

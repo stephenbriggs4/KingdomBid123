@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const migrationUrl = new URL(
-  '../supabase/migrations/20261001234430_revoke_waitlist_attempt_browser_grants.sql',
+  '../supabase/migrations/20261002213751_revoke_waitlist_attempt_browser_grants.sql',
   import.meta.url,
 );
 
