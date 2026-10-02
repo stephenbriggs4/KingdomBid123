@@ -19,21 +19,19 @@ export default function AnalyticsScreen({ currentUser, nav, role, dependencies }
   const isTablet = viewportWidth < 1100;
   const isVendorRole = role === 'vendor';
   const hasAnalyticsAdminAccess = isAdminUser(currentUser);
-  const [stats, setStats] = useState(EMPTY_ANALYTICS_STATS);
-  const [activity, setActivity] = useState([]);
-  const [loadingAnalytics, setLoadingAnalytics] = useState(true);
-  const [analyticsError, setAnalyticsError] = useState(null);
+  const [storedStats, setStats] = useState(EMPTY_ANALYTICS_STATS);
+  const [storedActivity, setActivity] = useState([]);
+  const [storedLoadingAnalytics, setLoadingAnalytics] = useState(true);
+  const [storedAnalyticsError, setAnalyticsError] = useState(null);
+  const [loadedAnalyticsScope, setLoadedAnalyticsScope] = useState("");
+  const currentAnalyticsScope = currentUser?.id
+    ? `${currentUser.id}:${role || "church"}:${hasAnalyticsAdminAccess ? "admin" : "member"}`
+    : "";
 
   useEffect(() => {
     let alive = true;
     const userId = currentUser?.id || null;
-    if (!userId) {
-      setStats(EMPTY_ANALYTICS_STATS);
-      setActivity([]);
-      setAnalyticsError(null);
-      setLoadingAnalytics(false);
-      return () => { alive = false; };
-    }
+    if (!userId) return () => { alive = false; };
     const countQuery = (query) => query.select('id', { count:'exact', head:true });
     const zeroCount = Promise.resolve({ count:0, error:null });
     const scopedActivityQuery = hasAnalyticsAdminAccess
@@ -97,19 +95,26 @@ export default function AnalyticsScreen({ currentUser, nav, role, dependencies }
           inboxThreads: convoRes.count || 0,
         });
         setActivity(Array.isArray(feedRes.data) ? feedRes.data : []);
+        setLoadedAnalyticsScope(currentAnalyticsScope);
       } catch(err){
         logError('analytics-fetch', err, { userId, role, hasAnalyticsAdminAccess });
         if (alive) {
           setAnalyticsError('Analytics could not fully load. Refresh or check your connection.');
           setActivity([]);
+          setLoadedAnalyticsScope(currentAnalyticsScope);
         }
       } finally {
         if (alive) setLoadingAnalytics(false);
       }
     })();
     return () => { alive = false; };
-  }, [currentUser?.id, role, hasAnalyticsAdminAccess, isVendorRole, countUserConversationsSafe, logError]);
+  }, [currentUser?.id, role, hasAnalyticsAdminAccess, isVendorRole, countUserConversationsSafe, logError, currentAnalyticsScope]);
 
+  const analyticsDataIsCurrent = !!currentAnalyticsScope && loadedAnalyticsScope === currentAnalyticsScope;
+  const stats = analyticsDataIsCurrent ? storedStats : EMPTY_ANALYTICS_STATS;
+  const activity = analyticsDataIsCurrent ? storedActivity : [];
+  const loadingAnalytics = !!currentAnalyticsScope && (!analyticsDataIsCurrent || storedLoadingAnalytics);
+  const analyticsError = analyticsDataIsCurrent ? storedAnalyticsError : null;
   const formatCount = (value) => Number(value || 0).toLocaleString('en-US');
   const verifiedRate = stats.vendors ? Math.round((stats.verifiedVendors / stats.vendors) * 100) : 0;
   const decisionLoad = stats.savedProjects + stats.projectLinks + stats.inboxThreads;
