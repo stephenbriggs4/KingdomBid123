@@ -40745,7 +40745,7 @@ const setVolunteerRoleProfile = (ws, person, roleName, eligible, preferred) => c
 	p_eligible: eligible,
 	p_preferred: preferred
 });
-const getSundayStaffingRecommendations = (ws, plan) => churchlyRpc("tk_sunday_staffing_recommendations", { p_ws: ws, p_plan: plan });
+
 const getIntegrationPreflight = (ws) => churchlyRpc("tk_integration_preflight", { p_ws: ws });
 const simulateOutboundMessage = (ws, person, channel, purpose) => churchlyRpc("tk_simulate_outbound_message", { p_ws: ws, p_person: person, p_channel: channel, p_purpose: purpose });
 const simulateInboundSms = (ws, person, body) => churchlyRpc("tk_simulate_inbound_sms", { p_ws: ws, p_person: person, p_body: body });
@@ -40940,8 +40940,8 @@ const addDays = (d, n) => {
 	x.setDate(x.getDate() + n);
 	return x;
 };
-const daysBetween = (a, b) => Math.round((startOfDay(a) - startOfDay(b)) / 864e5);
-const away$1 = (n) => n === 0 ? "today" : n === 1 ? "tomorrow" : n > 0 ? `in ${n} days` : `${-n} days ago`;
+
+
 const greeting = () => {
 	const h = (/* @__PURE__ */ new Date()).getHours();
 	return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
@@ -43160,7 +43160,7 @@ function SundayPage() {
 	const isPast = plan ? new Date(plan.starts_at).getTime() < Date.now() : false;
 	const overallReady = !!plan && !isPast && readiness.issues.length === 0;
 	const statusLabel = isPast ? "Completed" : overallReady ? "Ready" : "Needs preparation";
-	const statusTone = isPast ? "bg-canvas text-muted" : overallReady ? "bg-[#e1f0e8] text-ok" : "bg-[#fbf1de] text-[#7a5411]";
+
 	const goIssue = (key) => {
 		if (key === "sermon") {
 			window.location.hash = "#church-os/sermons";
@@ -43168,17 +43168,9 @@ function SundayPage() {
 		}
 		setTab(key === "run" ? "run" : "roles");
 	};
-	const readinessTile = (label, value, detail, toneClass, onClick, href) => {
-		const cls = "rounded-xl border border-line bg-canvas px-4 py-3 text-left transition hover:border-gold";
-		const inner = /* @__PURE__ */ jsxs(Fragment, { children: [
-			/* @__PURE__ */ jsx("span", { className: "block text-[11px] font-semibold uppercase tracking-[.12em] text-muted", children: label }),
-			/* @__PURE__ */ jsx("strong", { className: `mt-1 block text-[0.95rem] ${toneClass}`, children: value }),
-			detail && /* @__PURE__ */ jsx("span", { className: "mt-0.5 block text-xs text-muted", children: detail })
-		] });
-		return href ? /* @__PURE__ */ jsx("a", { href, className: `${cls} no-underline`, children: inner }) : /* @__PURE__ */ jsx("button", { type: "button", onClick, className: cls, children: inner });
-	};
 
-	const activeServiceHelp = plan ? externalHelpCases.find((item) => item.source_surface === "sunday" && item.source_entity_id === plan.id && !externalHelpTerminalStages.has(item.stage)) || null : null;
+
+
 	const eligibleHelpGaps = readiness.roleGaps.filter((gap) => canRequestExternalHelp && externalHelpSundayRoleEligible(gap.name));
 	const issueActionLabel = (issue) => ({ team: "Open Team", responses: "Review response", run: "Build it", sermon: "Add sermon" })[issue.key] || issue.action;
 	return (
@@ -45090,46 +45082,7 @@ function PeoplePage() {
 			setError(e.message);
 		}
 	};
-	const columns = useMemo(() => [
-		{
-			header: "Name",
-			accessorFn: (r) => `${r.first_name} ${r.last_name}`.trim(),
-			cell: ({ row, getValue }) => /* @__PURE__ */ jsxs("span", {
-				className: "flex items-center gap-3",
-				children: [
-					/* @__PURE__ */ jsx(Avatar$1, { name: getValue(), size: 30 }),
-					/* @__PURE__ */ jsxs("span", { className: "min-w-0", children: [
-						/* @__PURE__ */ jsx("strong", { className: "block truncate font-semibold", children: getValue() }),
-						row.original.age_group === "minor" && /* @__PURE__ */ jsx("span", { className: "mt-0.5 block text-[11px] text-muted", children: "Under 18" })
-					] })
-				]
-			})
-		},
-		{
-			header: "Relationship",
-			accessorKey: "status",
-			cell: ({ getValue }) => /* @__PURE__ */ jsx(Badge, {
-				tone: tone$1[getValue()],
-				children: RELATIONSHIP_LABEL[getValue()] || getValue()
-			})
-		},
-		{
-			header: "Contact",
-			accessorFn: (r) => r.email || r.phone || "",
-			cell: ({ row }) => /* @__PURE__ */ jsxs("span", {
-				className: "block min-w-0 text-[13px]",
-				children: [
-					row.original.email ? /* @__PURE__ */ jsx("span", { className: "block truncate", children: row.original.email }) : null,
-					row.original.phone ? /* @__PURE__ */ jsx("span", { className: `block truncate ${row.original.email ? "text-muted" : ""}`, children: fmtPhone$1(row.original.phone) }) : !row.original.email ? /* @__PURE__ */ jsx("span", { className: "text-muted", children: "No contact details" }) : null
-				]
-			})
-		},
-		{
-			header: "Prefers",
-			accessorKey: "preferred_channel",
-			cell: ({ getValue }) => CHANNEL[getValue()] || /* @__PURE__ */ jsx("span", { className: "text-muted", children: "—" })
-		}
-	], []);
+
 	const directoryRows = useMemo(() => {
 		if (!Array.isArray(people)) return [];
 		const needle = query.trim().toLowerCase();
@@ -49186,7 +49139,7 @@ function HelpPage() {
 	return <div data-kit className="tk-page tk-help-page">
 		<TKPageHeader eyebrow="Guides & support" title="Help" subtitle="Clear answers for the work your church does most often." actions={<label className="tk-help-search"><Icon name="search" size={18} /><span className="sr-only">Search help</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search help" /></label>} />
 		<div className="tk-help-directory">
-			{visible.map(([group, topics]) => <section key={group}><h2>{group}</h2><div>{topics.map(([question, answer], index) => <details key={question} open={needle ? true : undefined}><summary><span>{question}</span><i aria-hidden="true">+</i></summary><p>{answer.replace("Media & Brand", "Media")}</p></details>)}</div></section>)}
+			{visible.map(([group, topics]) => <section key={group}><h2>{group}</h2><div>{topics.map(([question, answer]) => <details key={question} open={needle ? true : undefined}><summary><span>{question}</span><i aria-hidden="true">+</i></summary><p>{answer.replace("Media & Brand", "Media")}</p></details>)}</div></section>)}
 			{!visible.length && <div className="tk-help-empty"><h2>No matching answer</h2><p>Try a shorter search, or browse the sections again.</p><button type="button" onClick={() => setQuery("")}>Clear search</button></div>}
 		</div>
 	</div>;
@@ -56658,7 +56611,7 @@ export default function App() {
 
       // ── SIGNED_OUT ────────────────────────────────────────────────────────
       if (event === "SIGNED_OUT") {
-        const eventSeq = ++authEventSeq.current;
+
         if (isSigningOut.current) {
           setAuthReady(false);
           // Intentional sign-out triggered by handleSignOut // proceed with reset.
@@ -56849,7 +56802,7 @@ export default function App() {
     };
   }, []);
   // isHirer: true for both church and community member (both post projects and hire)
-  const isHirer = (r) => r === "church" || r === "individual";
+
   const PROTECTED = PROTECTED_ROUTES; // single source of truth — defined at module level
   const closeNavChrome = React.useCallback(() => {
     setMenuOpen(false);
@@ -57229,7 +57182,7 @@ export default function App() {
   const initials = userProfile?.org_name
     ? userProfile.org_name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase()
     : "?";
-  const roleIcon = role === "vendor" ? "" : "CH";
+
 
   // Public reference-survey page: short-circuits the app shell when /#/ref/<token> is loaded.
   if (refSurveyToken) {
@@ -57371,7 +57324,7 @@ export default function App() {
               <CrossLogo size={30} variant="monogram" />
             </div>
             <div className="nav-tabs" style={{height:48,margin:"0 8px",gap:4}}>
-              {MAIN_TABS.map((t,i)=>{
+              {MAIN_TABS.map((t)=>{
                 const isActive = t.subTab
                   ? (screen==="projects" && navSubTab===t.subTab)
                   : ((t.activeOn||[t.id]).includes(screen) && (t.activeSubTabs ? t.activeSubTabs.includes(navSubTab ?? null) : !navSubTab));
@@ -57705,7 +57658,7 @@ export default function App() {
             {id:"projects", label:"Marketplace", icon:<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>, subTab:null, activeSubTabs:[null,"vendors","browse"]},
             {id:"projects", label:"My Projects", icon:<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>, subTab:"mine"},
             ...(role === "church" ? [{id:"church-os", label:"Church Toolkit", icon:<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h3v3H8zM13 9h3v3h-3zM8 14h8"/></svg>, subTab:null, activeOn:["church-os"]}] : []),
-          ]).map((t,i)=>{
+          ]).map((t)=>{
             const isActive = t.subTab
               ? screen==="projects" && navSubTab===t.subTab
               : (t.activeOn || [t.id]).includes(screen) && (t.activeSubTabs ? t.activeSubTabs.includes(navSubTab ?? null) : !navSubTab && !(t.id==="projects" && navSubTab));
@@ -57986,7 +57939,7 @@ function ProfileStats({currentUser, role, showToast, nav}){
   const [stats, setStats] = useState({projects:0, bids:0, reviews:0, conversations:0, hired:0, projectsWon:0, totalBids:0, avgRating:0, earnings:0});
   const [badges, setBadges] = useState([]);
   const [vendorRow, setVendorRow] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [subTab, setSubTab] = useState("stats"); // "stats" | "availability" | "referrals" | "legal"
 
@@ -58803,7 +58756,7 @@ const SHOW_PLACEHOLDER_TESTIMONIALS = import.meta.env.DEV
 
 function LandingTestimonials(){
   const viewportWidth = useViewportWidth(1440);
-  const isCompactMobile = viewportWidth < 420;
+
   const isTouchCompact = viewportWidth < 900;
   // PLACEHOLDER — fabricated testimonial data for Stephen's local visual preview only.
   const TESTIMONIALS = [
@@ -58909,7 +58862,7 @@ function LandingTestimonials(){
 /* ══════════════════════════════════
    HELP MODAL // in-app FAQ
 ══════════════════════════════════ */
-function HelpModal({onClose, role, asPage = false}){
+function HelpModal({onClose, asPage = false}){
   const [tab, setTab] = useState("general");
   const [open, setOpen] = useState(null);
 
@@ -59342,7 +59295,7 @@ function getMarketplaceModeMeta({ role = '', projectTab = 'browse', openCount = 
   };
 }
 
-function getMarketplaceTabs({ role = '', openCount = 0, vendorCompareCount = 0, myBidCount = 0 } = {}) {
+function getMarketplaceTabs({ role = '', openCount = 0, myBidCount = 0 } = {}) {
   const hirerMarketplaceMode = role === 'church' || role === 'individual';
   return hirerMarketplaceMode
     ? [
@@ -59355,7 +59308,7 @@ function getMarketplaceTabs({ role = '', openCount = 0, vendorCompareCount = 0, 
       ];
 }
 
-function getMarketplaceSummaryCards({ role = '', projectTab = 'browse', openCount = 0, urgentCount = 0, vendorCompareCount = 0, projectCompareCount = 0, myActiveProjects = [], myBids = [] } = {}) {
+function getMarketplaceSummaryCards({ role = '', projectTab = 'browse', openCount = 0, urgentCount = 0, vendorCompareCount = 0, myActiveProjects = [], myBids = [] } = {}) {
   const hirerMarketplaceMode = role === 'church' || role === 'individual';
   if (!hirerMarketplaceMode) {
     return [
@@ -59588,7 +59541,7 @@ function ShareableCard({refCode, orgName, onClose}){
    JOIN SCREEN // dedicated charter members page
 ══════════════════════════════════════════════════ */
 function JoinScreen({nav, setAuthDefaultRole = null}){
-  const [signedUp, setSignedUp] = useState(false);
+  const [, setSignedUp] = useState(false);
 
   return (
     <div className="page-shell-dark">
@@ -60608,11 +60561,7 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
 
   const fmt = (n) => n >= 1000 ? `${(n/1000).toFixed(1)}K+` : n > 0 ? `${n}+` : "—";
   const [pricingView, setPricingView] = useState(null);
-  const scrollToVendorPricing = () => {
-    setPricingView("vendor");
-    if (typeof document === "undefined") return;
-    document.getElementById("pricing-section")?.scrollIntoView({ behavior:"smooth", block:"start" });
-  };
+
 
   const scrollToAudience = (id) => {
     if (typeof document === "undefined") return;
@@ -63085,7 +63034,7 @@ function AIBriefAssistant({ title, category, budget, timeline, description, urge
   );
 }
 
-function PostProject({ onSubmit, onBack, role, currentUser = null, initialProject = null }) {
+function PostProject({ onSubmit, onBack, currentUser = null, initialProject = null }) {
   const editing = !!(initialProject && initialProject.id);
   const seed = initialProject || {};
   const [title, setTitle] = useState(String(seed.title || ""));
@@ -63750,7 +63699,7 @@ const KC_ARC_DEFAULT = {bg:"#0F130A", ring:"#C4935A", verse:"Whatever you do, wo
 
 
 
-function KcProjectCard({ project: p, onSelect, actions, bidAmount, statusOverride, role, onBid, saved = false, onToggleSave = null }) {
+function KcProjectCard({ project: p, onSelect, actions, bidAmount, role, onBid, saved = false, onToggleSave = null }) {
   const project = normalizeProjectEntity(p) || p || {};
   const title = project.title || p?.title || "Untitled Project";
   const church = [project.church, p?.church_name, p?.church].map(v => String(v || '').trim()).find(v => v && !isHandleLikeChurchName(v)) || "Ministry";
@@ -69505,7 +69454,7 @@ function AvailabilityCalendar({ vendorId, editable = false, showToast = () => {}
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [avail, setAvail] = useState({}); // { "2025-06-15": "available" | "unavailable" }
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
