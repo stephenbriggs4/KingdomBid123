@@ -4460,31 +4460,7 @@ function kbMatchLocationFit(vendor = {}, { viewerCity = '', project = null } = {
 
 
 
-function kbMatchBudgetRangeFromEntity(entity = {}, kind = 'project') {
-  const minKeys = kind === 'vendor' ? ['min_project_budget'] : ['budget_min'];
-  const maxKeys = kind === 'vendor' ? ['max_project_budget'] : ['budget_max'];
-  const textKeys = kind === 'vendor' ? ['typical_budget', 'price_range', 'price'] : ['budget', 'amount'];
-  const readNum = (keys = []) => {
-    for (const key of keys) {
-      const n = Number(entity?.[key]);
-      if (Number.isFinite(n) && n > 0) return n;
-    }
-    return null;
-  };
-  const min = readNum(minKeys);
-  const max = readNum(maxKeys);
-  const text = textKeys.map(key => entity?.[key]).find(Boolean);
-  const avg = kbMatchBudgetNumber(text || '');
-  if (min || max) {
-    return {
-      min: min || max || null,
-      max: max || min || null,
-      avg: avg || (min && max ? (min + max) / 2 : (min || max || null)),
-      structured: true,
-    };
-  }
-  return avg ? { min: avg, max: avg, avg, structured: false } : { min: null, max: null, avg: null, structured: false };
-}
+
 
 
 
@@ -6792,42 +6768,6 @@ function getCompareWorkspaceCount(type = null) {
   if (type === 'projects') return (state.projects || []).length;
   if (type === 'vendors') return (state.vendors || []).length;
   return (state.projects || []).length + (state.vendors || []).length;
-}
-
-function useDealState(project = {}, conversation = {}, role = 'church', options = {}) {
-  // Workspace lives in localStorage. Subscribe to storage-sync events so
-  // workspace edits (milestone approvals, payment updates, etc.) propagate
-  // immediately instead of waiting for project.id/status to change. Tick is
-  // incremented in the listener and used as a memo dep to force re-derivation.
-  const [workspaceTick, setWorkspaceTick] = useState(0);
-  useEffect(() => {
-    if (typeof window === 'undefined' || !project?.id) return undefined;
-    const projectIdStr = String(project.id);
-    const handler = (event) => {
-      const detail = event?.detail || {};
-      if (detail?.key !== KB_PROJECT_WORKSPACE_KEY) return;
-      // Cheap relevance check: only re-derive if THIS project's slot in the
-      // workspace map actually changed. The map is keyed by projectId, so
-      // bumping the tick on every workspace write would re-derive every
-      // open useDealState in the tree on every save anywhere — fine for
-      // correctness but wasteful.
-      const map = detail?.value && typeof detail.value === 'object' ? detail.value : null;
-      if (map && !Object.prototype.hasOwnProperty.call(map, projectIdStr)) return;
-      setWorkspaceTick(t => t + 1);
-    };
-    window.addEventListener(__KB_STORAGE_SYNC_EVENT, handler);
-    return () => window.removeEventListener(__KB_STORAGE_SYNC_EVENT, handler);
-  }, [project?.id]);
-
-  const workspace = useMemo(
-    () => loadProjectWorkspace(project || {}),
-    [project?.id, project?.status, workspaceTick]
-  );
-  const dealState = useMemo(
-    () => deriveCanonicalDealState({ project, workspace, conversation, role, ...(options || {}) }),
-    [project, workspace, conversation, role, options]
-  );
-  return { workspace, dealState };
 }
 
 /**
@@ -22905,10 +22845,10 @@ const {
   VendorProfile: ScopedVendorProfile,
   VendorReviews: ScopedVendorReviews,
 } = (() => {
-let __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks;
+let __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks;
 
 function applyProjectsScreenDependencies(dependencies = {}) {
-  ({ __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDealState, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks } = dependencies || {});
+  ({ __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks } = dependencies || {});
 }
 
 function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, initialView="board", onMounted, navSubTab, onSubTabChange, forceProjectTab=null, privateMarketplaceAccess=false, isAdmin=false}){
@@ -30943,7 +30883,7 @@ const KB_PROJECT_DETAIL_BID_STATUS_PILL = {
   active: { label:'Active', background:'rgba(47,133,90,0.12)', color:'#2f855a' },
   milestone_pending: { label:'Active', background:'rgba(47,133,90,0.12)', color:'#2f855a' },
 };
-function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav, onBack, onPost, onBid, biddingEnabled = false, biddingSettingLoaded = false, onNotifyBidding = null, bidNotifyPendingId = null, onManageBids, onProjectUpdate = null, showToast = () => {}, currentUser = null }) {
+function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav, onBack, onPost, onBid, biddingEnabled = false, onNotifyBidding = null, bidNotifyPendingId = null, onManageBids, onProjectUpdate = null, showToast = () => {}, currentUser = null }) {
   const baseProject = normalizeProjectEntity(rawProject) || rawProject || {};
   const [projectOverride, setProjectOverride] = useState(null);
   const [projectPublishPending, setProjectPublishPending] = useState(false);
@@ -31307,10 +31247,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     if (typeof nav === 'function') { try { nav('vendors'); return; } catch (err) { logError('project-detail-nav-vendors', err, { projectId: project?.id || null }); } }
     try { focusProjectDetailTab('vendors'); } catch (err) { logError('project-detail-focus-vendors', err, { projectId: project?.id || null }); try { setTab('vendors'); } catch { /* non-fatal */ } }
   };
-  const handlePrepWorkflow = () => {
-    try { rememberReturnContext({ scope:'project-detail', projectId: projectDetailId || null, linkedProjectId: projectDetailId || null, tab:'ops' }); } catch (e) { if (kbIsDevRuntime()) console.warn('[kb] handlePrepWorkflow: remember return context failed', e); }
-    try { focusProjectDetailTab('ops'); } catch (e) { if (kbIsDevRuntime()) console.warn('[kb] handlePrepWorkflow: focus ops tab failed', e); logError('project-detail-focus-ops', e, { projectId: project?.id || null }); try { setTab('ops'); } catch { /* non-fatal */ } }
-  };
+
   const openProjectEditor = () => {
     if (typeof onPost === 'function') {
       try { return onPost(project); } catch (err) { logError('project-detail-edit-project', err, { projectId: project?.id || null }); }
@@ -31449,7 +31386,7 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
 
 
 
-  const reviewProjectScopeAction = () => setTab('scope');
+
   const publishProjectFromDetail = async () => {
     if (projectPublishPending || role === 'vendor' || !project?.id) return null;
     setProjectPublishPending(true);
@@ -35310,7 +35247,6 @@ function getProjectsScreenDependencies() {
     updateProjectInteropEntry,
     upsertCompareWorkspaceItem,
     upsertProjectVendorLink,
-    useDealState,
     useDebounce,
     useFocusTrap,
     useViewportWidth,
