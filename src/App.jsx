@@ -23088,8 +23088,8 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   // Keep its search/sort state local to ProjectsScreen so the header cannot
   // throw at render time. This is intentionally header-only state; the legacy
   // marketplace feed/filter logic remains untouched.
-  const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("best_match");
+  const [] = useState("");
+  const [] = useState("best_match");
   // Keyset pagination state for the open-projects feed. We page by
   // posted_at desc, using the last loaded posted_at as the cursor for the
   // next request. Microsecond-precision timestamps are unique enough in
@@ -23115,7 +23115,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   const [vendorVerified, setVendorVerified] = useState(null);
   const [bidAcceptedModal, setBidAcceptedModal] = useState(null);
   const [successMoment, setSuccessMoment] = useState(null);
-  const [confirmModal, setConfirmModal] = useState(null);
+  const [, setConfirmModal] = useState(null);
   const hireInFlightRef = useRef(false);
   const [myActiveProjects, setMyActiveProjects] = useState([]);
   const [loadingMyProjects, setLoadingMyProjects] = useState(false);
@@ -24792,7 +24792,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   // background so visited panels come back instantly.
   const handleTabSwitch = handleTabSwitchStable;
 
-  const hirerMarketplaceMode = role === "church" || role === "individual";
+
   const openCount = (projects || []).filter(p => p.status === "open").length;
   const urgentCount = (projects || []).filter(p => p.urgent).length;
   const vendorCompareCount = getCompareWorkspaceCount('vendors');
@@ -24813,25 +24813,11 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
         return () => handleTabSwitch('browse');
     }
   };
-  const activeMarketModeBound = {
-    ...activeMarketMode,
-    cta: activeMarketMode?.cta ? { ...activeMarketMode.cta, onClick: resolveMarketplaceAction(activeMarketMode.cta.actionKey) } : null,
-    secondary: activeMarketMode?.secondary ? { ...activeMarketMode.secondary, onClick: resolveMarketplaceAction(activeMarketMode.secondary.actionKey) } : null,
-  };
-  const marketplaceTabs = getMarketplaceTabs({ role, openCount, vendorCompareCount, myBidCount:(myBids || []).length });
-  const marketplaceSummaryCards = getMarketplaceSummaryCards({ role, projectTab, openCount, urgentCount, vendorCompareCount, projectCompareCount, myActiveProjects, myBids });
+
+
+
   const marketplaceCategoryCount = new Set((projects || []).map(p => String(p?.category || '').trim()).filter(Boolean)).size;
-  const marketplaceHeaderStats = role === 'vendor'
-    ? [
-        { value: openCount, label: 'live' },
-        { value: urgentCount, label: 'urgent', tone: urgentCount > 0 ? 'warm' : '' },
-        { value: (myBids || []).length, label: 'my bids' },
-      ]
-    : [
-        { value: openCount, label: 'live' },
-        { value: urgentCount, label: 'urgent', tone: urgentCount > 0 ? 'warm' : '' },
-        { value: marketplaceCategoryCount, label: 'categories' },
-      ];
+
 
   const marketplaceShell = null;
 
@@ -25880,7 +25866,7 @@ function MarketplaceProjectDirectoryCard({ project, image, categoryLabel, locati
   );
 }
 
-function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Your area', onSelect, onPost, onMyBids, showToast, nav, vendorVerified, myBids, myActiveProjects, loadingMyBids, loadingMyProjects, myProjectsFetchError = false, onRetryMyProjects, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null}){
+function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Your area', onSelect, onPost, showToast, nav, myBids, myActiveProjects, projectTab='browse', onTabSwitch, loadMoreProjects = null, hasMoreServerProjects = false, loadingMoreServerProjects = false, onSelectVendorProfile = null}){
   const marketplaceProjectsLoading = loading;
   const STORAGE_KEY = KB_STORAGE_KEYS.marketplaceBoardState;
   const SCROLL_KEY = KB_STORAGE_KEYS.marketplaceBoardScroll;
@@ -25913,7 +25899,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   // urgent failed to be active at all. The "1 urgent + 30 just-posted" case
   // was the actual bug — vendors saw Urgent (with 1 project) when Just
   // Posted (with 30) was the better default.
-  const [featuredTheme, setFeaturedTheme] = useState(null);
+  const [featuredTheme] = useState(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   // UX: collapse density. The marketplace was rendering 7 horizontal bands
   // before the project grid. We move category, location, budget, and the
@@ -25922,7 +25908,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   // make the featured carousel collapsible. The result is a default view
   // of: search + sort + Filters, then the grid. Density and saved searches live inside the sheet.
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
-  const [featuredCollapsed, setFeaturedCollapsed] = useState(() => savedState.featuredCollapsed !== false);
+  const [featuredCollapsed] = useState(() => savedState.featuredCollapsed !== false);
   const [saveSearchModal, setSaveSearchModal] = useState(null); // { suggested } | null
   const saveSearchInputRef = useRef(null);
   // R-70: had an autoFocus input (so Escape already bubbled correctly) but
@@ -25956,7 +25942,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   const [showAllVendors, setShowAllVendors] = useState(false);
   const [interopVersion, setInteropVersion] = useState(0);
   const projectGridRef = useRef(null);
-  const sheetTouchStartY = useRef(null);
+
   const filterSheetTrapRef = useFocusTrap(filterSheetOpen);
   const [marketplaceVendors, setMarketplaceVendors] = useState([]);
   const [vendorsLoading, setVendorsLoading] = useState(true);
@@ -25972,7 +25958,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   const [stripIsDragging, setStripIsDragging] = useState(false);
   const stripVelocityRef = useRef({ samples: [], lastX: 0, lastT: 0 });
   const stripMomentumRafRef = useRef(null);
-  const [gridDensity, setGridDensity] = useState('comfortable');
+  const [, setGridDensity] = useState('comfortable');
   // V45 — controls mobile "Show all" pagination of the All Projects grid.
   // Default false → cap at 6 cards on mobile / 12 desktop. Toggle reveals all.
   const [showAllProjects, setShowAllProjects] = useState(false);
@@ -26050,13 +26036,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   const stashBoardScroll = () => {
     try { sessionStorage.setItem(SCROLL_KEY, String(window.scrollY || 0)); } catch { /* non-fatal */ }
   };
-  const scrollMarketplaceGridIntoView = () => {
-    requestAnimationFrame(() => {
-      if (projectGridRef.current && typeof projectGridRef.current.scrollIntoView === 'function') {
-        projectGridRef.current.scrollIntoView({ behavior:'smooth', block:'start' });
-      }
-    });
-  };
+
   const restoreBoardScroll = () => {
     try {
       const raw = sessionStorage.getItem(SCROLL_KEY);
@@ -26075,9 +26055,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   const openProjects = useMemo(() => normalizedProjects.filter(p => p.status === 'open'), [normalizedProjects]);
   // Set of project IDs the vendor has already bid on — used to show a
   // "Proposal sent" badge on cards so vendors don't submit duplicates.
-  const bidProjectIds = useMemo(() => new Set(
-    (myBids || []).map(b => String(b.project_id || '')).filter(Boolean)
-  ), [myBids]);
+
 
   // ── Vendor personalization profile ────────────────────────────────────────
   // Pulled from currentUser.user_metadata (the vendor profile fields land
@@ -26105,9 +26083,9 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     const dbVendor = uid ? safeArray(marketplaceVendors).find(v => String(v?.user_id || v?.id || '') === uid) : null;
     return dbVendor || viewerVendorProfile || currentUser || null;
   }, [role, currentUser, marketplaceVendors, viewerVendorProfile]);
-  const myProjectPool = useMemo(() => (myActiveProjects || []).map(normalizeProjectEntity).filter(Boolean).filter(p => ['open','hired','active','bid_under_review','milestone_pending'].includes(deriveCanonicalDealState({ project:p, workspace: loadProjectWorkspace(p), role:'church' }) || 'open')), [myActiveProjects]);
+
   const interopState = useMemo(() => listProjectInteropEntries(), [interopVersion]);
-  const getInteropEntry = (projectId) => normalizeProjectInteropEntry(interopState[String(projectId)] || {});
+
 
   useEffect(() => {
     const syncInterop = (event) => {
@@ -26181,20 +26159,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     };
   }, []);
 
-  const categories = useMemo(() => {
-    const raw = Array.from(new Set(openProjects.map(p => String(p.category || '').trim()).filter(Boolean)));
-    const ordered = [
-      'Construction & Renovation',
-      'Tech / AV / Production',
-      'Creative Media',
-      'Music & Worship',
-      'Children & Youth Ministry',
-      'Web & Technology',
-      'Marketing & Communications',
-      ...raw,
-    ];
-    return ['All', ...Array.from(new Set(ordered.filter(Boolean)))];
-  }, [openProjects]);
+
 
   const budgetOptions = ['Budget: Any', 'Under $5K', '$5K-$15K', '$15K-$50K', '$50K+'];
 
@@ -26255,21 +26220,9 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     return (Date.now() - postedMs) / (1000 * 60 * 60 * 24);
   };
 
-  const getProjectStatusMeta = (project) => {
-    const ageDays = getProjectFreshness(project);
-    if (project.urgent) return { label:'Urgent', tone:'urgent', helper:'Needs attention' };
-    if (Number(project.bids || 0) >= 6) return { label:'Reviewing', tone:'reviewing', helper:'High bid activity' };
-    if (ageDays != null && ageDays <= 4) return { label:'New', tone:'new', helper:'Freshly posted' };
-    return { label:'Open', tone:'open', helper:'Accepting proposals' };
-  };
 
-  const getTrustMeta = (project) => {
-    const church = String(project.church || project.church_name || '').trim();
-    const count = churchProjectCounts[church] || 0;
-    if (count >= 3) return { label:'Repeat poster', detail:`${count} active projects` };
-    if (count === 2) return { label:'Returning church', detail:'Posted before' };
-    return { label:'New listing', detail:'First active project' };
-  };
+
+
 
   const getProjectLocationLabel = (project) => {
     const city = String(project?.city || '').trim();
@@ -26284,30 +26237,13 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     return raw.length > 24 ? `${raw.slice(0, 24).trim()}…` : raw;
   };
 
-  const locationOptions = useMemo(() => {
-    const raw = Array.from(new Set(openProjects.map(project => String(getProjectLocationLabel(project) || '').trim()).filter(Boolean)));
-    return ['All Locations', ...raw.slice(0, 24)];
-  }, [openProjects]);
 
-  const getProjectExcerpt = (project, fallback) => {
-    const raw = String(project?.description || project?.desc || fallback || '').replace(/\s+/g, ' ').trim();
-    if (!raw) return '';
-    return raw.length > 150 ? `${raw.slice(0, 147).trim()}…` : raw;
-  };
 
-  const getCompactProjectExcerpt = (project, fallback, maxLen = 92) => {
-    const raw = String(project?.description || project?.desc || fallback || '').replace(/\s+/g, ' ').trim();
-    if (!raw) return '';
-    return raw.length > maxLen ? `${raw.slice(0, Math.max(0, maxLen - 1)).trim()}…` : raw;
-  };
 
-  const getProjectActivityLabel = ({ project, relation, shared, pipeline }) => {
-    if (pipeline?.summary && pipeline.summary !== 'No vendors attached yet') return pipeline.summary;
-    if (relation?.attachedVendorIds?.length) return `${relation.attachedVendorIds.length} attached vendor${relation.attachedVendorIds.length === 1 ? '' : 's'}`;
-    const bidCount = Number(project?.bids || project?.bids_count || 0);
-    if (bidCount > 0) return `${bidCount} proposal${bidCount === 1 ? '' : 's'}`;
-    return shared?.label || 'Open';
-  };
+
+
+
+
 
   const scoreProject = (project) => {
     if (role === 'vendor') {
@@ -26425,11 +26361,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
       },
     };
   }, [openProjects]);
-  const featuredThemesMeta = {
-    urgent:      { label: 'Urgent before Sunday', sub: count => `${count} church${count !== 1 ? 'es' : ''} need${count === 1 ? 's' : ''} a vendor this week` },
-    closingSoon: { label: 'Fast projects under $1,500',          sub: count => `${count} project${count !== 1 ? 's' : ''} reviewing bids now` },
-    justPosted:  { label: 'Just posted',            sub: count => `${count} new project${count !== 1 ? 's' : ''} in the last 24 hours` },
-  };
+
   const activeThemeKeys = ['urgent','closingSoon','justPosted'].filter(k => featuredThemeBuckets[k].length >= 1);
   // Default theme picks the biggest non-empty bucket. Tie-break order:
   // urgent > closingSoon > justPosted (urgent is the most actionable signal,
@@ -26543,7 +26475,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     }
   };
 
-  const finishFeaturedPointer = (e) => {
+  const finishFeaturedPointer = () => {
     const el = featuredTrackRef.current;
     const state = featuredDragRef.current;
     if (!el || !state.active) return;
@@ -26632,30 +26564,18 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   const totalOpen = openProjects.length;
   const urgentCount = openProjects.filter(p => !!p.urgent).length;
   const reviewingCount = openProjects.filter(p => Number(p.bids || 0) >= 4).length;
-  const activePipeline = openProjects.reduce((sum, p) => sum + parseBudgetNumber(p.budget), 0);
+
   const savedCount = savedIds.size;
-  const hasActiveFilters = hasBrowseRefinements;
-  const activeFilterCount = (debouncedSearch.trim() ? 1 : 0) + (catFilter !== 'All' ? 1 : 0) + (locationFilter !== 'All Locations' ? 1 : 0) + (budgetFilter !== 'Budget: Any' ? 1 : 0) + (sortBy !== 'best_match' ? 1 : 0) + (savedOnly ? 1 : 0) + (urgentOnly ? 1 : 0) + (reviewingOnly ? 1 : 0);
-  const openProjectsHeading = 'Live projects';
+
+
+
 
   // ── Posting velocity ──────────────────────────────────────────────────────
   // Computed once per openProjects change so the meta strip can show liveness
   // ("12 new this week", "3 posted today") without rescanning per render.
   // Tells vendors the platform is moving — the difference between "worth
   // checking back" and "stale".
-  const postingVelocity = useMemo(() => {
-    const now = Date.now();
-    const day = 86400000;
-    let today = 0, week = 0;
-    openProjects.forEach(p => {
-      const ts = new Date(p.posted_at || p.created_at || 0).getTime();
-      if (!ts) return;
-      const ageMs = now - ts;
-      if (ageMs <= day) today += 1;
-      if (ageMs <= 7 * day) week += 1;
-    });
-    return { today, week };
-  }, [openProjects]);
+
 
   // ── "Best for you" (vendor personalization) ───────────────────────────────
   // Uses the existing scoreProjectForVendorLane helper. Hidden when the
@@ -26663,14 +26583,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
   // duplicates the main grid), or when filters are active (the strip
   // confuses the result count). Cap at 2 — the strip is a hint, not a list;
   // the full grid is right below it.
-  const bestForYouProjects = useMemo(() => {
-    if (!viewerVendorProfile || hasBrowseRefinements) return [];
-    const scored = openProjects
-      .map(p => scoreProjectForVendorLane(p, viewerVendorProfile))
-      .filter(p => (p.fitScore || 0) >= 70) // only surface real matches, not "anything available"
-      .sort((a, b) => (b.fitScore || 0) - (a.fitScore || 0) || Number(!!b.urgent) - Number(!!a.urgent));
-    return scored.slice(0, 2);
-  }, [openProjects, viewerVendorProfile, hasBrowseRefinements]);
+
 
   // ── Empty-state alternatives ──────────────────────────────────────────────
   // When a filter combo returns 0, instead of dead-ending the vendor we
@@ -26759,20 +26672,13 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     }
     return candidates.slice(0, 3);
   }, [hasBrowseRefinements, filteredProjects.length, openProjects, debouncedSearch, catFilter, locationFilter, budgetFilter, savedOnly, urgentOnly, reviewingOnly]);
+void emptyStateAlternatives;
 
   // ── Project freshness signal ──────────────────────────────────────────────
   // Surfaces the difference between "posted yesterday with 0 bids = opportunity"
   // and "posted 14 days ago with 0 bids = probably stale". Returns null for
   // projects where neither read applies, so the card stays clean.
-  const getProjectFreshnessSignal = (project) => {
-    const ageDays = getProjectFreshness(project);
-    const bids = Number(project?.bids || project?.bids_count || 0);
-    if (ageDays == null) return null;
-    if (ageDays <= 1 && bids === 0) return { kind: 'fresh', label: 'Be first', tone: 'fresh' };
-    if (ageDays >= 10 && bids === 0) return { kind: 'stale', label: 'Posted 10+ days ago', tone: 'stale' };
-    if (ageDays >= 3 && bids <= 1) return { kind: 'low_competition', label: 'Low competition', tone: 'fresh' };
-    return null;
-  };
+
 
   const handleToggleSave = async (project, e) => {
     if (e) { e.stopPropagation(); e.preventDefault(); }
@@ -26952,50 +26858,9 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     onSelect && onSelect(project);
   };
 
-  const browseQuickFilters = [
-    {
-      key: 'all',
-      label: 'All projects',
-      active: !savedOnly && !urgentOnly && !reviewingOnly && catFilter === 'All' && locationFilter === 'All Locations' && budgetFilter === 'Budget: Any' && !debouncedSearch.trim(),
-      count: totalOpen,
-      onClick: clearBoardFilters,
-    },
-    {
-      key: 'urgent',
-      label: 'Urgent',
-      active: urgentOnly,
-      count: urgentCount,
-      disabled: urgentCount === 0,
-      onClick: () => { setUrgentOnly(true); setSavedOnly(false); setReviewingOnly(false); setSortBy('urgent'); },
-    },
-    {
-      key: 'reviewing',
-      label: 'Active bidding',
-      active: reviewingOnly,
-      count: reviewingCount,
-      disabled: reviewingCount === 0,
-      onClick: () => { setReviewingOnly(true); setUrgentOnly(false); setSavedOnly(false); setSortBy('proposals'); },
-    },
-    {
-      key: 'saved',
-      label: 'Saved',
-      active: savedOnly,
-      count: savedCount,
-      disabled: savedCount === 0,
-      onClick: () => { setSavedOnly(true); setUrgentOnly(false); setReviewingOnly(false); },
-    },
-  ];
 
-  const activeFilterLabels = [
-    debouncedSearch.trim() ? `Search: ${debouncedSearch.trim()}` : null,
-    catFilter !== 'All' ? formatMarketplaceCategoryLabel(catFilter, catFilter) : null,
-    locationFilter !== 'All Locations' ? locationFilter : null,
-    budgetFilter !== 'Budget: Any' ? budgetFilter : null,
-    sortBy !== 'best_match' ? ({ newest:'Newest', budget:'Highest budget', proposals:'Most proposals', urgent:'Urgent first' }[sortBy] || sortBy) : null,
-    savedOnly ? 'Saved only' : null,
-    urgentOnly ? 'Urgent only' : null,
-    reviewingOnly ? 'Active bidding' : null,
-  ].filter(Boolean);
+
+
 
 
   const openVendorProfile = (vendor) => {
@@ -27013,10 +26878,10 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
 
   const vendorDataset = useMemo(() => getMarketplaceVendorDataset(marketplaceVendors), [marketplaceVendors]);
   const vendorCards = vendorDataset.shelf;
-  const vendorDirectory = vendorDataset.directory;
-  const topVendorAvgRating = vendorCards.length ? (vendorCards.reduce((sum, v) => sum + Number(v.rating || 0), 0) / vendorCards.length).toFixed(1) : '—';
-  const topVendorReviewCount = vendorCards.reduce((sum, v) => sum + Number(v.reviews || 0), 0);
-  const topVendorProjectCount = vendorCards.reduce((sum, v) => sum + Number(v.projects || 0), 0);
+
+
+
+
 
 
   const toggleVendorSave = (vendorId, e) => {
@@ -27179,79 +27044,7 @@ function ProjectBoard({projects, loading, role, currentUser, viewerLocation = 'Y
     setCatFilter(found || fallback || 'All');
   };
 
-  const handleMarketplaceVisualControl = (action) => {
-    switch (action) {
-      case 'nav-logo':
-      case 'nav-dashboard':
-        nav && nav('landing');
-        break;
-      case 'nav-projects':
-        nav && nav('my-projects');
-        break;
-      case 'nav-messages':
-        nav && nav('messages');
-        break;
-      case 'nav-marketplace':
-        nav && nav('marketplace');
-        break;
-      case 'nav-notifications':
-        nav && nav(role === 'vendor' ? 'my-work' : 'my-projects');
-        break;
-      case 'nav-profile':
-        nav && nav('profile');
-        break;
-      case 'filter-all':
-        clearBoardFilters({ announce: false });
-        break;
-      case 'filter-design':
-        applyMarketplaceVisualCategory(['design', 'brand', 'creative', 'graphic'], 'All');
-        break;
-      case 'filter-technology':
-        applyMarketplaceVisualCategory(['technology', 'web', 'app', 'software', 'systems'], 'All');
-        break;
-      case 'filter-video':
-        applyMarketplaceVisualCategory(['video', 'livestream', 'audio', 'visual', 'production'], 'All');
-        break;
-      case 'filter-marketing':
-        applyMarketplaceVisualCategory(['marketing', 'social', 'communications'], 'All');
-        break;
-      case 'filter-writing':
-        applyMarketplaceVisualCategory(['writing', 'copy', 'newsletter', 'content'], 'All');
-        break;
-      case 'more-filters':
-        setFilterSheetOpen(true);
-        break;
-      case 'sort-toggle':
-        setSortBy(prev => prev === 'best_match' ? 'newest' : prev === 'newest' ? 'budget' : prev === 'budget' ? 'proposals' : 'best_match');
-        break;
-      case 'featured-prev':
-      case 'featured-next':
-      case 'mission-next':
-      case 'popular-next':
-        showToast && showToast('Drag rows to browse more projects');
-        break;
-      case 'view-mission':
-      case 'view-popular':
-        setSortBy('proposals');
-        break;
-      case 'view-closing':
-        setUrgentOnly(true);
-        setSavedOnly(false);
-        setReviewingOnly(false);
-        setSortBy('urgent');
-        break;
-      case 'grid-view':
-        setGridDensity('comfortable');
-        showToast && showToast('Grid view active');
-        break;
-      case 'list-view':
-        setGridDensity('compact');
-        showToast && showToast('Compact view active');
-        break;
-      default:
-        break;
-    }
-  };
+
 
   const liveVisualDragRef = useRef({ active: false, x: 0, left: 0, moved: false });
   const liveVisualSuppressClickRef = useRef(false);
@@ -28122,7 +27915,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
     }
   };
 
-  const platformFeeNow = normalizedAmount > 0 ? computePlatformFee(normalizedAmount) : 0;
+
   const tips = [
     { title:'One sentence on why this project, not just any project.', body:"Churches can tell when a bid is templated. Mention something specific from the brief." },
     { title:'How you’d start.', body:'"First two weeks I’d…" beats "I have 10 years of experience" every time. Churches want a plan, not a résumé.' },
@@ -28351,7 +28144,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
 
 function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, nav, role, showToast, currentUser, myProjectsFetchError = false, onRetryMyProjects}){
   const [lane, setLane] = useState("active");
-  const [showArchived, setShowArchived] = useState(false);
+  const [] = useState(false);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 180);
   const [sortBy, setSortBy] = useState("priority");
@@ -28678,16 +28471,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
     return list;
   }, [normalizedProjects, lane, debouncedSearch, sortBy, conversationMeta, attentionProjectIds]);
 
-  const preferredInboxProject = useMemo(() => {
-    const pool = Array.isArray(filtered) && filtered.length ? filtered : normalizedProjects;
-    const ranked = [...pool].sort((a,b)=>{
-      const aMeta = conversationMeta[String(a.id)] || {};
-      const bMeta = conversationMeta[String(b.id)] || {};
-      const score = (p, meta) => ((meta.unread || 0) * 100) + (meta.convoId ? 40 : 0) + ((p.hired_vendor_id || p.hiredVendorId) ? 20 : 0) + (p.laneKey === 'active' ? 10 : 0);
-      return score(b, bMeta) - score(a, aMeta);
-    });
-    return ranked.find(p => p?.id) || null;
-  }, [filtered, normalizedProjects, conversationMeta]);
+
 
   const openDealRoom = (project)=>{
     openInboxThread(nav, {
@@ -28705,15 +28489,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
     return Boolean(project?.hired_vendor_id || project?.hiredVendorId || convo?.convoId);
   };
 
-  const getDealRoomLabel = (project) => {
-    const convo = conversationMeta[String(project?.id)] || {};
-    const unread = convo?.unread || 0;
-    if (unread > 0) return `${unread} new`;
-    if (convo?.convoId) return 'Open';
-    if (project?.hired_vendor_id || project?.hiredVendorId) return 'Start thread';
-    if ((Number(project?.attachedVendorCount || 0) || 0) > 0) return 'Awaiting hire';
-    return 'No thread yet';
-  };
+
 
   const getProjectQuickAction = (project) => {
     if (['hired','active'].includes(project?.laneKey) || ['milestone_pending','disputed'].includes(project?.deal_state) || hasDealRoomAccess(project)) {
@@ -28745,24 +28521,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
     run:() => queueDealRoomsHubNavigation(nav, { returnContext:{ scope:'my-projects', tab:'mine' } }),
   };
 
-  const markComplete = async(project)=>{
-    if (!canManageProjectWithRole(role, currentUser, project || {})) {
-      showToast && showToast('Only the posting church can mark this project complete.', 'error');
-      return;
-    }
-    try {
-      await transitionProjectLifecycleSafe(project.id, 'confirm_completion');
-      updateProjectInteropEntry(project.id, prev => ({
-        ...prev,
-        notifications:[{ id:`close-${Date.now()}`, text:`${project.title || 'Project'} marked ready to close`, tone:'success', createdAt:new Date().toISOString() }, ...(prev.notifications || [])].slice(0,12),
-        attention:[`Closeout ready for ${project.title || 'this project'}`, ...((prev.attention || []).filter(Boolean))].slice(0,8),
-      }));
-      showToast && showToast('✓ Project marked complete.');
-    } catch (err) {
-      logError('mark-complete', err, { projectId: project?.id });
-      showToast && showToast('Could not mark this project complete.', 'error');
-    }
-  };
+
 
   const manageProjectVendors = (project) => {
     const links = listProjectVendorLinks(project.id);
@@ -28819,7 +28578,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
       </div>
 
       <div className="kb-mp-mobile-unified-snapshot kb-mp-exact-marketplace-snapshot" style={{display:'grid',gridTemplateColumns:isMobile ? 'repeat(2,minmax(0,1fr))' : 'repeat(4,minmax(0,1fr))',gap:12,marginBottom:14}}>
-        {operatingSnapshot.map((item, idx) => {
+        {operatingSnapshot.map((item) => {
           const accentColor = '#b08840';
           const accentBg = 'rgba(176,136,64,0.10)';
           return (
@@ -29165,7 +28924,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
   );
 }
 
-function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse, nav, onFetchBids, onSelectProject, showToast, currentUser}){
+function MyWorkPanel({bids, loading, error, loadingProjects, onBrowse, nav, onFetchBids, onSelectProject, showToast, currentUser}){
   const [bucket, setBucket] = useState(() => consumeMyProjectsLens("active"));
   const [msgUnread, setMsgUnread] = useMessagesUnread(currentUser?.id);
   useEffect(() => {
@@ -29193,7 +28952,7 @@ function MyWorkPanel({bids, loading, error, projects, loadingProjects, onBrowse,
   const [savedRemovingId, setSavedRemovingId] = useState(null);
   const [invitedProjects, setInvitedProjects] = useState([]);
   const [invitedLoading, setInvitedLoading] = useState(false);
-  const [invitedError, setInvitedError] = useState(null);
+  const [, setInvitedError] = useState(null);
 
   useEffect(()=>{
     if (typeof onFetchBids === 'function') onFetchBids({ background: true });
