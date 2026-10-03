@@ -251,7 +251,13 @@ export function classifyDallasCandidates({ overture, existing = [], boundary, mi
     const prior = seen.get(key);
     if (prior) {
       stats.repeated_source_records += 1;
-      likelyDuplicates.push({ ...publicCandidate(candidate), duplicate_of_source_key: prior.source_external_key, reason: 'duplicate within Overture extract', match_score: 1 });
+      likelyDuplicates.push({
+        ...publicCandidate(candidate),
+        duplicate_of_source_key: prior.source_external_key,
+        reason: 'same address in Overture; possible duplicate or shared site',
+        relationship_hint: 'unresolved_same_site',
+        match_score: 1,
+      });
       continue;
     }
     seen.set(key, candidate);

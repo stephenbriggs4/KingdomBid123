@@ -44,6 +44,8 @@ npm run church-intel:classify-dallas
 npm run church-intel:fetch-irs
 npm run church-intel:reconcile-sources
 npm run church-intel:verification-sample
+npm run church-intel:verification-report
+npm run church-intel:controlled-batch
 npm run test:church-intel-acquisition
 ```
 
@@ -95,6 +97,22 @@ plain 50-case working list: 15 IRS-supported Overture churches, 15
 Overture-only churches, 5 possible duplicates, 5 incomplete records, and 10
 possible IRS-only church leads. It is deterministic, contains no automatic
 approvals, and exists to measure error before any controlled import.
+
+The verification-report command refuses to produce a measurement unless every
+gold-set case has exactly one result and every result batch preserves the
+research-only purpose ceiling. Its output remains local under `work/`.
+
+The controlled-batch command uses those measured results to create a simple
+`verify-next-100` list. It selects 50 complete Overture records independently
+supported by IRS organization evidence and 50 strong Overture-only records with
+a public verification route. It excludes source records already used in the
+completed gold set. The list is not an import and grants no canonical-write,
+outreach, export, or redistribution permission.
+
+An exact address match is only a **same-site signal**, not proof of a duplicate.
+Dallas congregations frequently share buildings or occupy different suites in
+the same building. The classifier therefore labels repeated addresses as an
+unresolved same-site relationship and never merges or discards either record.
 
 ## Pass/fail checks
 

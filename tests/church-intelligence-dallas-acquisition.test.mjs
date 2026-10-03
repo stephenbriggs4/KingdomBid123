@@ -5,6 +5,8 @@ import { classifyDallasCandidates, pointInBoundary } from '../scripts/build-dall
 import { parseCsv, selectDallasChristianOrganizations } from '../scripts/fetch-irs-dallas-christian-organizations.mjs';
 import { reconcileIrsWithDallasCandidates } from '../scripts/reconcile-dallas-church-sources.mjs';
 import { buildVerificationSample } from '../scripts/build-dallas-verification-sample.mjs';
+import { summarizeVerificationResults } from '../scripts/summarize-dallas-verification-results.mjs';
+import { buildControlledVerificationBatch } from '../scripts/build-dallas-controlled-verification-batch.mjs';
 
 const boundary = {
   type: 'FeatureCollection',
@@ -66,6 +68,8 @@ test('existing address matches and repeated Overture records become likely dupli
   assert.equal(result.likelyDuplicates.length, 2);
   assert.equal(result.likelyDuplicates.find(row => row.source_external_key === 'match-existing')?.matched_existing_id, 'existing-1');
   assert.equal(result.likelyDuplicates.find(row => row.source_external_key === 'repeat-b')?.duplicate_of_source_key, 'repeat-a');
+  assert.equal(result.likelyDuplicates.find(row => row.source_external_key === 'repeat-b')?.relationship_hint, 'unresolved_same_site');
+  assert.match(result.likelyDuplicates.find(row => row.source_external_key === 'repeat-b')?.reason || '', /shared site/);
 });
 
 test('incomplete, low-confidence, and closed records are preserved for research instead of silently discarded', () => {
@@ -155,4 +159,71 @@ test('verification sample is a deterministic 50-case cross-section instead of a 
     irs_possible_missing: 10,
   });
   assert.ok(sample.every(row => row.result === 'pending'));
+});
+
+test('verification report requires one rights-scoped result for every gold-set case', () => {
+  const statuses = [
+    ['irs_supported', 'verified_current'],
+    ['overture_only', 'probable_current'],
+    ['possible_duplicate', 'verified_current_false_duplicate_shared_site'],
+    ['needs_information', 'needs_current_site_confirmation'],
+    ['irs_possible_missing', 'outside_dallas_city'],
+  ];
+  const sample = Array.from({ length: 50 }, (_, index) => ({
+    case_id: `${statuses[index % statuses.length][0]}:${index}`,
+  }));
+  const batch = {
+    batch_id: 'fixture-batch',
+    allowed_purposes: ['research', 'verification', 'internal_analytics'],
+    prohibited_purposes: ['outreach', 'export', 'redistribution'],
+    results: sample.map((row, index) => ({ case_id: row.case_id, status: statuses[index % statuses.length][1] })),
+  };
+  const summary = summarizeVerificationResults({ sample, batches: [batch] });
+  assert.equal(summary.total_cases, 50);
+  assert.equal(summary.unique_cases, 50);
+  assert.equal(summary.measured_signals.exact_address_duplicate_candidates_confirmed_distinct_or_contaminated, 10);
+  assert.equal(summary.production_writes, 0);
+
+  assert.throws(
+    () => summarizeVerificationResults({ sample, batches: [{ ...batch, results: batch.results.slice(1) }] }),
+    /coverage mismatch/,
+  );
+  assert.throws(
+    () => summarizeVerificationResults({ sample, batches: [{ ...batch, prohibited_purposes: ['outreach'] }] }),
+    /missing prohibited purpose export/,
+  );
+});
+
+test('controlled batch selects complete strong records without reusing gold-set cases or granting promotion rights', () => {
+  const candidate = (id, confidence = 0.95) => ({
+    source_external_key: id,
+    name: `Church ${id}`,
+    address_line_1: `${id} Main St`,
+    locality: 'Dallas',
+    region_code: 'TX',
+    postal_code: '75201',
+    latitude: 32.8,
+    longitude: -96.8,
+    confidence,
+    operating_status: 'open',
+    websites: [`https://example.com/${id}`],
+    socials: [],
+    phones: [],
+    emails: [],
+  });
+  const newChurches = [candidate('done'), candidate('supported-a'), candidate('supported-b'), candidate('strong-a'), candidate('strong-b')];
+  const supported = ['supported-a', 'supported-b'].map((id, index) => ({
+    candidate: { candidate_id: id, bucket: 'apparent_new' },
+    irs: { ein: `ein-${index}`, legal_name: `Legal ${id}` },
+  }));
+  const rows = buildControlledVerificationBatch({
+    newChurches,
+    supported,
+    excludedSourceKeys: ['done'],
+    size: 4,
+    supportedTarget: 2,
+  });
+  assert.deepEqual(rows.map(row => row.lane), ['overture_irs_supported', 'overture_irs_supported', 'overture_strong', 'overture_strong']);
+  assert.ok(!rows.some(row => row.source_external_key === 'done'));
+  assert.ok(rows.every(row => row.outreach_allowed === false && row.export_allowed === false && row.canonical_write_allowed === false));
 });

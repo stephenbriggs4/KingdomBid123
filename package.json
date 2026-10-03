@@ -64,6 +64,8 @@
     "church-intel:fetch-irs": "node scripts/fetch-irs-dallas-christian-organizations.mjs",
     "church-intel:reconcile-sources": "node scripts/reconcile-dallas-church-sources.mjs",
     "church-intel:verification-sample": "node scripts/build-dallas-verification-sample.mjs",
+    "church-intel:verification-report": "node scripts/summarize-dallas-verification-results.mjs",
+    "church-intel:controlled-batch": "node scripts/build-dallas-controlled-verification-batch.mjs",
     "test:build-budget": "node scripts/check-build-budget.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
