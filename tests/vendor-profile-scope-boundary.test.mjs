@@ -22,10 +22,23 @@ function findTopLevelVariable(name) {
   );
 }
 
+function findTopLevelFunction(name) {
+  return ast.program.body.find((node) =>
+    node.type === "FunctionDeclaration" && node.id?.name === name,
+  );
+}
+
 test("vendor profile components cross the legacy IIFE boundary through explicit top-level aliases", () => {
   assert.ok(findTopLevelVariable("ScopedVendorProfile"), "ScopedVendorProfile must be bound at Program scope");
   assert.ok(findTopLevelVariable("ScopedVendorReviews"), "ScopedVendorReviews must be bound at Program scope");
-  assert.match(source, /return \{ ProjectsScreenRoute, SavedProjectsScreenRoute, VendorProfile, VendorReviews \};/);
+  assert.match(source, /return \{ ProjectsScreenRoute, SavedProjectsScreenRoute, VendorProfile, VendorReviews, applyProjectsScreenDependencies \};/);
   assert.match(source, /<ScopedVendorProfile\s+vendor=\{vendor\}/);
   assert.match(source, /<ScopedVendorReviews\s+vendorId=\{vendor\.id\}/);
+
+  const proofScreen = findTopLevelFunction("VendorProofAndReviewsScreen");
+  assert.ok(proofScreen, "VendorProofAndReviewsScreen must remain at Program scope");
+  const initializer = proofScreen.body.body[0]?.expression;
+  assert.equal(initializer?.type, "CallExpression");
+  assert.equal(initializer?.callee?.name, "applyScopedProjectsDependencies");
+  assert.equal(initializer?.arguments?.[0]?.callee?.name, "getProjectsScreenDependencies");
 });

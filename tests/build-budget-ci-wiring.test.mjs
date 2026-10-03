@@ -19,7 +19,8 @@ test("CI runs the build budget check right after building, before the test suite
 
 test("the checker script exists and exports size budgets with headroom over current output", () => {
   const script = fs.readFileSync(new URL("../scripts/check-build-budget.mjs", import.meta.url), "utf8");
-  assert.match(script, /maxBytes: 4_500_000/);
-  assert.match(script, /maxBytes: 1_050_000/);
+  assert.match(script, /maxBytes: 1_250_000/);
+  assert.match(script, /maxBytes: 150_000/);
+  assert.match(script, /zlib\.gzipSync/);
   assert.match(script, /TOTAL_DIST_MAX_BYTES = 15_000_000/);
 });

@@ -37,11 +37,6 @@ function PricingScreen({ userProfile, role, nav }) {
     .pricing-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--kb-text-eyebrow); margin-bottom: 14px; text-align: center; }
     .pricing-headline { font-family: var(--font-display), serif; font-size: 52px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; text-align: center; margin-bottom: 16px; max-width: 760px; margin-left: auto; margin-right: auto; color: var(--kb-text-primary); }
     .pricing-sub { font-size: 16px; color: var(--kb-text-body); line-height: 1.65; text-align: center; max-width: 580px; margin: 0 auto 40px; font-weight: 400; }
-    .pricing-toggle-wrap { display: flex; justify-content: center; margin-bottom: 48px; }
-    .pricing-toggle { display: inline-flex; padding: 4px; background: var(--kb-paper-alt); border: 1px solid var(--kb-border-light); border-radius: 999px; gap: 4px; }
-    .pricing-toggle button { background: none; border: none; padding: 9px 22px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--kb-text-muted); cursor: pointer; font-family: var(--font-sans), sans-serif; transition: all 0.18s; }
-    .pricing-toggle button.on { background: var(--kb-gold-rich); color: #fff; }
-    .pricing-toggle .save-pill { font-size: 10px; font-weight: 800; padding: 2px 7px; background: var(--success); color: #fff; border-radius: 999px; margin-left: 6px; letter-spacing: 0.06em; }
     .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 56px; }
     @media (max-width: 800px) { .pricing-grid { grid-template-columns: 1fr; } .pricing-headline { font-size: 36px; } }
     .pricing-card { background: var(--kb-paper-alt); border: 1px solid var(--kb-border-light); border-radius: 22px; padding: 38px 32px 32px; position: relative; transition: all 0.2s; }
@@ -311,7 +306,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav}){
     {
       icon:"",
       title:"Post your first project",
-      sub:"It's free, takes 3 minutes, and you'll have bids within 24 hours.",
+      sub:"It's free and takes about 3 minutes. Early access means no guaranteed response time; we'll tell you what to expect as the Dallas pilot grows.",
       content:(
         <div style={{marginTop:28}}>
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -328,7 +323,7 @@ function OnboardingScreen({role, currentUser, userProfile, nav}){
     {
       icon:"",
       title:"Your ministry is connected.",
-      sub:"Post your first project now — vendors are ready and waiting.",
+      sub:"Post your first project when you're ready. Dallas is a limited early-access pilot.",
       content:(
         <ChurchWorkspaceLaunchPanel
           alerts={launchOperationalAlerts}

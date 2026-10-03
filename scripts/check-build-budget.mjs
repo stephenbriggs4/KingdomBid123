@@ -5,13 +5,14 @@
 // written (2026-09-29) so normal feature growth doesn't trip it.
 import fs from "node:fs";
 import path from "node:path";
+import zlib from "node:zlib";
 
 const DIST_DIR = path.resolve(process.cwd(), "dist");
 const ASSETS_DIR = path.join(DIST_DIR, "assets");
 
 const BUDGETS = [
-  { label: "main JS entry chunk", pattern: /^index-.*\.js$/, maxBytes: 4_500_000 },
-  { label: "main CSS bundle", pattern: /^index-.*\.css$/, maxBytes: 1_050_000 },
+  { label: "main JS entry chunk", pattern: /^index-.*\.js$/, maxBytes: 1_250_000 },
+  { label: "main CSS bundle", pattern: /^index-.*\.css$/, maxBytes: 150_000 },
 ];
 const TOTAL_DIST_MAX_BYTES = 15_000_000;
 
@@ -38,10 +39,10 @@ for (const budget of BUDGETS) {
     failed = true;
     continue;
   }
-  const size = fs.statSync(path.join(ASSETS_DIR, match)).size;
+  const size = zlib.gzipSync(fs.readFileSync(path.join(ASSETS_DIR, match)), { level: 9 }).length;
   const status = size <= budget.maxBytes ? "OK" : "FAIL";
   if (status === "FAIL") failed = true;
-  console.log(`[build-budget] ${status}: ${budget.label} (${match}) is ${size.toLocaleString()} bytes, budget ${budget.maxBytes.toLocaleString()}`);
+  console.log(`[build-budget] ${status}: ${budget.label} (${match}) is ${size.toLocaleString()} bytes gzipped, budget ${budget.maxBytes.toLocaleString()}`);
 }
 
 const totalSize = dirSizeBytes(DIST_DIR);

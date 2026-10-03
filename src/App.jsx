@@ -642,6 +642,7 @@ const VERIFICATION_REVIEW_WINDOW = "within 48 hours";
 
 // Display labels — used in marketing copy, modals, and admin pricing.
 const PLATFORM_FEE_LABEL = `10% platform fee capped at $${PLATFORM_FEE_CAP}`;
+const PLATFORM_FEE_DISPLAY_ENABLED = false;
 const VENDOR_PRO_FEE_LABEL = `5% platform fee capped at $${VENDOR_PRO_FEE_CAP}`;
 const VENDOR_PRO_PRICE_LABEL = `$${VENDOR_PRO_PRICE_MONTHLY}/month`;
 // Pricing Strategy v1.7 beta defaults — visible policy, not automatic payout logic.
@@ -3946,6 +3947,25 @@ function validateProjectImageFile(file) {
   return '';
 }
 
+async function shrinkOversizedProjectImage(file) {
+  if (!file || Number(file.size || 0) <= KB_PROJECT_MEDIA_MAX_BYTES) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 2048 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+    if (!blob) return file;
+    const name = String(file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg';
+    return new File([blob], name, { type: 'image/jpeg' });
+  } catch {
+    return file;
+  }
+}
+
 function getProjectImageExtension(file) {
   const type = String(file?.type || '').toLowerCase();
   if (type === 'image/png') return 'png';
@@ -6078,10 +6098,8 @@ async function selectHireConfirmationsSafe() {
 
 async function insertHireConfirmationSafe(payload = {}) {
   // 852cn ledger-integrity lock: never write client-computed bid_amount or
-  // platform_fee directly from the browser. The client may display
-  // computePlatformFee(), but the stored ledger row must be created by the
-  // kb_create_hire_confirmation RPC, which looks up the bid/project/vendor
-  // server-side and recomputes the fee before insert.
+  // platform_fee directly from the browser. The stored ledger row is created by
+  // the kb_create_hire_confirmation RPC; the client never supplies a fee.
   const bidId = payload?.bid_id || payload?.bidId || payload?.bid?.id || null;
   const projectId = payload?.project_id || payload?.projectId || payload?.project?.id || null;
   if (!bidId || !projectId) {
@@ -6514,7 +6532,7 @@ function saveCompareWorkspaceState(nextState) {
   };
   return writeLocalJson(KB_COMPARE_WORKSPACE_KEY, next);
 }
-const KB_COMPARE_WORKSPACE_MAX_ITEMS = 8;
+const KB_COMPARE_WORKSPACE_MAX_ITEMS = 4;
 function getCompareWorkspaceLimitMessage(type) {
   const label = type === 'vendors' ? 'vendors' : 'projects';
   return `You can compare up to ${KB_COMPARE_WORKSPACE_MAX_ITEMS} ${label}. Remove one before adding another.`;
@@ -22864,8 +22882,9 @@ const {
   SavedProjectsScreenRoute: SavedProjectsScreen,
   VendorProfile: ScopedVendorProfile,
   VendorReviews: ScopedVendorReviews,
+  applyProjectsScreenDependencies: applyScopedProjectsDependencies,
 } = (() => {
-let __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks;
+let __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, kbTrackChannel, KcProjectCard, listProjectInteropEntries, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks;
 
 function applyProjectsScreenDependencies(dependencies = {}) {
   ({ __KB_STORAGE_SYNC_EVENT, __kbCanonicalizeToCategories, __kbDeriveProjectCategories, __kbReadWorkspaceMap, activateOnKey, BadgeRow, BidAcceptedModal, BidDetailContent, buildBidAcceptedModalState, buildCanonicalReferralLink, buildInteropAttentionSignals, buildOptimisticProjectRecord, buildProjectPostInsertPayload, buildVendorPairSignals, buildVendorProfileSeed, cachedQuery, canManageProjectWithRole, ChurchProjectsMarketplaceHero, clearPendingProjectTarget, clearPendingVendorTarget, clearReturnContext, computeProjectMatchForVendor, computeRecommendedVendorFit, ConfirmModal, createTrustedNotificationSafe, CustomEvent, deriveCanonicalDealState, deriveSharedProjectStatus, detailBudgetParts, detailCategory, detailGallery, detailScopeItems, ExecutionActionStack, fetchUnreadConversationCountsSafe, fetchVendorPairSignalMaps, firstNonEmpty, formatFileSize, formatMarketplaceCategoryLabel, formatMoney, getActiveGroupAttribution, getBiddingEnabledOncePerSession, getCompareWorkspaceCount, getCompareWorkspaceLimitMessage, getCurrentUserSafe, getDealStateBucket, getDealStateSummary, getDefaultProjectWorkspace, getInitialsSafe, getMarketplaceVendorDataset, getPendingProjectTarget, getPendingVendorTarget, getProjectCardBriefLine, getProjectCardCategoryLabel, getProjectCardTimelineLabel, getProjectHeroImage, getProjectInteropEntry, getRecommendedFitPresentation, getReturnNavigationTarget, getValidMediaUrl, getVendorTrustSnapshot, handleKbImageError, injectMarketplaceDetailFonts, invalidateCache, isKbTimeoutError, isMissingColumnError, isRecoverableSupabaseAuthStorageError, isSupabaseAuthLockAbort, KB_BP_MOBILE, KB_BP_WORKSPACE, KB_LIVE_MARKETPLACE_IMAGES, KB_MARKETPLACE_RUNTIME_CSS, KB_PROJECT_INTEROP_KEY, KB_PROJECT_OPS_KEY, KB_PROJECT_WORKSPACE_KEY, KB_RENDER_MATCH_CARD_IMAGES, KB_STORAGE_KEYS, KB_WORKSPACE_CLAY_BACKGROUND, KBEmptyState, KBIntentionalState, kbIsDevRuntime, kbMaybeRepairSupabaseAuthStorage, kbPerfAfterPaint, kbPerfMark, kbScheduleAfterPaint, KBSkeleton, kbTrackChannel, KcProjectCard, listProjectInteropEntries, logError, makeEmptyVendorPairSignalMaps, normalizeProjectEntity, normalizeProjectInteropEntry, normalizeRefCode, normalizeVendorEntity, openInboxThread, OperationalAlertList, persistSavedProjectRecord, pickMarketplacePresetImage, PLATFORM_FEE_CAP, PLATFORM_FEE_LABEL, PLATFORM_FEE_RATE, PLATFORM_PAYMENTS_STATUS, PostProject, PROJECT_PHASES, PROJECT_POST_SCHEMA_FLEX_KEYS, PROJECT_VENDOR_PIPELINE, PROJECT_VENDOR_STAGE_META, projectHasPostHireWorkflow, ProjectPrimaryEmptyState, queueDealRoomsHubNavigation, queueVendorNavigation, readReturnContext, rememberProjectForVendorMatching, rememberReturnContext, removeCompareWorkspaceItem, runSupabaseWithTimeout, safeArray, SAMPLE_PROJECTS, saveProjectOpsState, scoreVendorAgainstProject, selectProfilesSafe, selectUserConversationsSafe, selectVendorDirectorySafe, selectVendorMatchesSafe, setPageMeta, setPendingProjectTarget, setPendingReviewTarget, setProjectVendorStage, StripePlatformFeeModal, stripProjectPostSchemaFlexFields, SuccessMomentModal, summarizeVendorPipeline, transitionProjectLifecycleSafe, updateProjectInteropEntry, upsertCompareWorkspaceItem, upsertProjectVendorLink, useDebounce, useFocusTrap, useViewportWidth, KB_MATCHMAKER_INPUT_VERSION, KB_NAV_SCREENS, createRecommendedVendorInviteRecord, getVendorDeliveryBadge, getVendorPrimaryImage, getVendorProfilePresentation, isHirerRole, normalizeSelectedVendorProjectMeta, persistMatchmakerOutcomeEvent, queueCompareNavigation, queueProjectNavigation, readSelectedVendorProject, starFill, startConversation, writeSelectedVendorProject, ChurchMarketplaceHero, AvailabilityCalendar, VendorReferencesTrustBadge, listProjectVendorLinks } = dependencies || {});
@@ -23192,7 +23211,9 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
     setLocalProjectTab(forceProjectTab || navSubTab || defaultMarketplaceProjectTab);
   }, [forceProjectTab, navSubTab, defaultMarketplaceProjectTab]);
   const rawProjectTab = forceProjectTab || navSubTab || localProjectTab || defaultMarketplaceProjectTab;
-  const normalizedProjectTab = rawProjectTab === "shortlist" ? defaultMarketplaceProjectTab : rawProjectTab;
+  const normalizedProjectTab = rawProjectTab === "shortlist"
+    ? defaultMarketplaceProjectTab
+    : (rawProjectTab === "mine" && role === "vendor" ? "work" : rawProjectTab);
   const projectTab = normalizedProjectTab;
   // V808: keep previously visited marketplace panels warm instead of destroying
   // and rebuilding them on every tab click. First load stays lean; panels only
@@ -28329,7 +28350,7 @@ function MyProjectsCommand({projects, loading, onSelect, onPost, onManageBids, n
 
   const getProjectQuickAction = (project) => {
     if (['hired','active'].includes(project?.laneKey) || ['milestone_pending','disputed'].includes(project?.deal_state) || hasDealRoomAccess(project)) {
-      return { key:'deal-room', label:'Open deal room', run:() => openDealRoom(project) };
+      return { key:'deal-room', label:'Open conversation', run:() => openDealRoom(project) };
     }
     if ((Number(project?.bidsCount || 0) || 0) > 0) {
       return { key:'review-bids', label:'Review Bids', run:() => onManageBids(project) };
@@ -29449,8 +29470,10 @@ function MyWorkPanel({bids, loading, error, loadingProjects, onBrowse, nav, onFe
           .kb1005-empty-foot{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:38px;color:#8f958f}.kb1005-empty-foot span{width:42px;height:1px;background:#d8d2c7}.kb1005-empty-foot em{font:500 10px/1 var(--font-sans),sans-serif;letter-spacing:.3em;text-transform:uppercase;font-style:normal}
           .kb1004-layout.is-messages{grid-template-columns:minmax(0,1fr)}.kb1004-layout.is-messages .kb1004-side{display:none}
           @media(min-width:1181px){.kb1004-layout.is-messages .kb1004-filter-cells{width:calc(100% - 392px)}}
+          @media(min-width:901px) and (max-width:1180px){.kb1004-filter-cells{grid-template-columns:repeat(3,minmax(0,1fr))}.kb1004-layout{grid-template-columns:minmax(0,1fr) 300px}}
           @media(max-width:900px){.kb1004-hero-art{opacity:.6}.kb1004-intro{grid-template-columns:1fr}.kb1005-scripture,.kb1005-intro-gap{display:none}}
           @media(max-width:820px){.kb1004-hero-art,.kb1005-quote{display:none}.kb1004-intro{min-height:0}.kb1004-intro h1{font-size:52px}}
+          @media(max-width:600px){.kb1005-project-card:not(.tone-done) .kb1005-card-actions button.primary{width:100%}}
           .kb1004-intro-compact{min-height:0!important;margin-bottom:14px!important;padding-top:0!important}.kb1004-intro-compact h1{font-size:clamp(32px,3.2vw,42px)!important;line-height:1!important}.kb1004-intro-compact .kb1005-eyebrow{margin-bottom:6px!important}.kb1004-hero-compact{opacity:.35!important;height:min(140px,12vw + 20px)!important}
         `}</style>
 
@@ -29795,7 +29818,7 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
     {key:'drafts', label:'Drafts', count:groups.drafts.length, icon:'drafts'},
     {key:'archived', label:'Archived', count:groups.archived.length, icon:'archived'},
     {key:'messages', label:'Messages', count:msgUnread, icon:'messages'},
-  ];
+  ].filter(t => t.key !== 'attention' || t.count > 0 || bucket === 'attention');
   const visible = useMemo(() => {
     let list = groups[bucket] || [];
     const q = search.trim().toLowerCase();
@@ -29861,7 +29884,8 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
 
   const attention = groups.attention.slice(0,2);
   const totalResponses = rows.reduce((sum,p)=>sum+(p.bidsCount||0),0);
-  const completionPct = rows.length ? Math.round((groups.completed.length / rows.length) * 100) : 0;
+  const countableRows = rows.filter(p=>!p.draft && !p.archived);
+  const completionPct = countableRows.length ? Math.round((countableRows.filter(p=>p.completed).length / countableRows.length) * 100) : 0;
 
   return <section className="kb1005-myprojects" aria-label="My Projects">
     <style>{`
@@ -33307,7 +33331,7 @@ function AllVendorsLanding({ role, nav, onPost, onBack, showToast, onSelectVendo
 
       {isChurchMarketplace ? (
         <div className="kb-marketplace-directory-body" ref={directoryRef}>
-          <section className="kb-marketplace-featured" aria-labelledby="kb-marketplace-featured-title">
+          <section className="kb-marketplace-featured" aria-labelledby="kb-marketplace-featured-title" hidden={filteredVendors.length <= 1}>
             <div className="kb-marketplace-section-head">
               <div>
                 <p className="kb-marketplace-section-kicker">Featured</p>
@@ -34287,7 +34311,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const vendorDetailDelivery = hasDeliverySignal ? deliveryBadge.label : 'Delivery model not specified';
   const vendorDetailRating = ratingValue ? `${ratingValue.toFixed(1)} ★` : 'New to FaithBid';
   const vendorDetailScopeItems = (vendorDetailOfferings.length ? vendorDetailOfferings : [vendorDetailCategory, 'Church-focused service', 'Project planning', 'Clear handoff']).slice(0,6);
-  const vendorDetailWorkItems = [
+  const vendorDetailWorkItemsAll = [
     ...safeArray(portfolioItems).filter(item => item?.type !== 'link').map(item => ({
       title:firstNonEmpty(item?.title, item?.name, 'Representative work'),
       meta:[getVendorPortfolioSourceLabel(item), firstNonEmpty(item?.category, ''), firstNonEmpty(item?.client_name ? `For ${item.client_name}` : '', ''), firstNonEmpty(item?.description, item?.note, '')].filter(Boolean).join(' · '),
@@ -34302,14 +34326,12 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
       url:normalizeVendorPortfolioUrl(item?.url || ''),
       sourceProjectId:item?.source_project_id || null,
     })),
-  ].filter(item => item?.title).slice(0,3);
+  ].filter(item => item?.title);
+  const vendorDetailWorkItems = vendorDetailWorkItemsAll.slice(0,6);
   const vendorDetailExternalLinks = safeArray(portfolioItems)
     .filter(item => item?.type === 'link' && normalizeVendorPortfolioUrl(item?.url || ''))
     .map(item => ({ title:firstNonEmpty(item?.title, 'Website'), url:normalizeVendorPortfolioUrl(item?.url || '') }))
     .slice(0,8);
-  const vendorDetailSignalRows = vendorDetailWorkItems.length
-    ? vendorDetailWorkItems
-    : vendorDetailScopeItems.slice(0,3).map(item => ({ title:item, meta:'Service capability listed on this FaithBid profile', image:'' }));
   const vendorPdrIcon = (kind, size = 15) => {
     const common = { width:size, height:size, viewBox:'0 0 24 24', fill:'none', stroke:'currentColor', strokeWidth:'1.8', strokeLinecap:'round', strokeLinejoin:'round', 'aria-hidden':'true' };
     if (kind === 'pin') return <svg {...common}><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>;
@@ -34551,7 +34573,7 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
             <div className="kb-pdr-tabs" role="tablist" aria-label="Vendor information">
               {[
                 {key:'about', label:'Overview'},
-                {key:'work', label:`Work (${Math.max(vendorDetailWorkItems.length, portfolioItems.length)})`},
+                {key:'work', label:`Work (${vendorDetailWorkItemsAll.length})`},
                 {key:'reviews', label:`Reviews (${reviewCount})`},
               ].map(t => (
                 <button key={t.key} type="button" role="tab" aria-selected={vendorProfileTab===t.key} className={vendorProfileTab===t.key?'is-active':''} onClick={()=>setTab(t.key)}>{t.label}</button>
@@ -34623,9 +34645,10 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
 
             {vendorProfileTab === 'work' && (
               <>
-                <h2 className="kb-pdr-serif kb-pdr-section-title">Representative work</h2>
+                {!vendorDetailWorkItems.length && <div style={{padding:'14px 16px',border:'1px dashed #e5e0d6',borderRadius:8,background:'#fffdf9',marginBottom:14}}><div style={{fontSize:13,fontWeight:700,color:'#1f2937'}}>No work examples yet.</div><div style={{fontSize:12,color:'#5b6470',marginTop:4}}>Services offered: {vendorDetailScopeItems.join(', ')}</div></div>}
+                {vendorDetailWorkItems.length > 0 && <h2 className="kb-pdr-serif kb-pdr-section-title">Representative work</h2>}
                 <div className="kb-pdr-files">
-                  {(vendorDetailWorkItems.length ? vendorDetailWorkItems : vendorDetailSignalRows).map((item,idx)=>(
+                  {vendorDetailWorkItems.map((item,idx)=>(
                     <div className="kb-pdr-file" key={`${item.title}-${idx}`}>
                       <span><strong>{item.title}</strong><small>{item.meta}</small></span>
                       <button type="button" onClick={()=>{
@@ -34663,10 +34686,10 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
               <p className="kb-pdr-church-copy">{firstNonEmpty(v.tagline, v.headline, 'Review this vendor’s services, trust signals, and profile information before reaching out.')}</p>
             </div>
 
-            <div className="kb-pdr-card">
+            <div className="kb-pdr-card" style={vendorDetailWorkItems.length ? undefined : {display:'none'}}>
               <div className="kb-pdr-similar-head"><h3 className="kb-pdr-card-title">Representative work</h3><button type="button" className="kb-pdr-viewmore" onClick={()=>setTab('work')}>View more&nbsp; →</button></div>
               <div className="kb-pdr-similar-list">
-                {vendorDetailSignalRows.slice(0,3).map((item,idx)=>(
+                {vendorDetailWorkItems.slice(0,3).map((item,idx)=>(
                   <button key={`${item.title}-${idx}`} type="button" className="kb-pdr-similar-row" onClick={()=>setTab('work')}>
                     <span className="kb-pdr-similar-img">{item.image?<img src={item.image} alt="" onError={handleKbImageError}/>:<span style={{width:'100%',height:'100%',display:'grid',placeItems:'center',background:'#ece8de',color:'#496356',fontWeight:850,fontSize:11}}>FB</span>}</span>
                     <span><span className="kb-pdr-similar-title">{item.title}</span><span className="kb-pdr-similar-meta">{item.meta}</span></span>
@@ -34906,7 +34929,7 @@ function ProjectsScreenRoute({ dependencies, ...props }) {
   return <ProjectsScreen {...props} />;
 }
 
-return { ProjectsScreenRoute, SavedProjectsScreenRoute, VendorProfile, VendorReviews };
+return { ProjectsScreenRoute, SavedProjectsScreenRoute, VendorProfile, VendorReviews, applyProjectsScreenDependencies };
 })();
 const CompareWorkspaceScreen = React.lazy(() => import("./WorkspaceScreens.jsx").then(module => ({ default: module.CompareWorkspaceScreenRoute })));
 const SettingsScreen = React.lazy(() => import("./SettingsScreen.jsx"));
@@ -55709,13 +55732,14 @@ export default function App() {
     roleRef.current = role;
   }, [role]);
 
+  const anonymousMarketplaceVisit = !currentUser?.id && screen === "projects";
   useEffect(() => {
     let active = true;
     const userId = currentUser?.id || null;
     // Public information, signup, and authentication routes do not consume
     // Marketplace data. Defer this backend gate until an authenticated session
     // exists or a Marketplace workspace is actually requested.
-    const shouldLoadMarketplaceGate = Boolean(userId) || screen === "projects";
+    const shouldLoadMarketplaceGate = Boolean(userId) || anonymousMarketplaceVisit;
     if (!shouldLoadMarketplaceGate) {
       return () => { active = false; };
     }
@@ -55774,7 +55798,7 @@ export default function App() {
 
     loadGate();
     return () => { active = false; };
-  }, [currentUser?.id, userProfile?.onboarding_complete, marketplaceGateRetry, screen]);
+  }, [currentUser?.id, userProfile?.onboarding_complete, marketplaceGateRetry, anonymousMarketplaceVisit]);
 
 
   useEffect(() => {
@@ -57183,16 +57207,16 @@ export default function App() {
             role="status"
             aria-live="polite"
             style={{
-              minHeight:"72vh",
+              minHeight: marketplaceGateError ? "72vh" : "auto",
               display:"flex",
               alignItems:"center",
               justifyContent:"center",
-              padding:"48px 20px",
+              padding:"32px 20px",
               background:"#fffdf8"
             }}
           >
-            <div style={{textAlign:"center",maxWidth:440}}>
-              <div style={{width:34,height:34,borderRadius:"50%",border:"3px solid rgba(28,40,20,0.10)",borderTopColor:"#1C2814",animation:"spin 0.7s linear infinite",margin:"0 auto 16px"}}/>
+            <div style={{textAlign:"center",maxWidth:440,width:"100%"}}>
+              {!marketplaceGateError && <div style={{width:34,height:34,borderRadius:"50%",border:"3px solid rgba(28,40,20,0.10)",borderTopColor:"#1C2814",animation:"spin 0.7s linear infinite",margin:"0 auto 16px"}}/>}
               <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.16em",textTransform:"uppercase",color:"#B08840",marginBottom:8}}>
                 {marketplaceGateError ? "Access check unavailable" : !authReady || !marketplaceGateLoaded ? "Checking private access" : "Private prelaunch"}
               </div>
@@ -57228,8 +57252,8 @@ export default function App() {
         {screen==="reviews" && <LegacyDestinationRedirect nav={nav} role={role} kind="reviews"/>}
         {screen==="admin" && <>{isAdmin && <AdminReviewSubnav active="admin" nav={nav}/>}<React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Admin Console…</div>}><AdminScreen showToast={showToast} adminUser={currentUser} adminProfile={userProfile} nav={nav} dependencies={getAdminScreenDependencies()}/></React.Suspense></>}
         {screen==="profile" && authReady && <><ProfileWorkspaceTabs role={role} active="profile" nav={nav}/><React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Profile...</div>}><ProfileScreen role={role} currentUser={currentUser} userProfile={userProfile} setUserProfile={setUserProfile} showToast={showToast} nav={nav} initialTab="overview" charterFirstRun={isCharterVendorFirstRunProfile(userProfile)} dependencies={getProfileScreenDependencies()}/></React.Suspense></>}
-        {screen==="profile-proof" && authReady && (role==="vendor" ? <><ProfileWorkspaceTabs role={role} active="profile-proof" nav={nav}/><VendorPortfolioProofScreen role={role} currentUser={currentUser} userProfile={userProfile} showToast={showToast} nav={nav}/></> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
-        {screen==="profile-reviews" && authReady && (role==="vendor" ? <VendorOwnReviewsScreen role={role} currentUser={currentUser} nav={nav}/> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
+        {screen==="profile-proof" && authReady && (role==="vendor" ? <VendorProofAndReviewsScreen role={role} currentUser={currentUser} userProfile={userProfile} showToast={showToast} nav={nav}/> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
+        {screen==="profile-reviews" && authReady && (role==="vendor" ? <VendorProofAndReviewsScreen role={role} currentUser={currentUser} userProfile={userProfile} showToast={showToast} nav={nav}/> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
         {screen==="profile-feedback" && authReady && (role!=="vendor" ? <ChurchFeedbackProfileScreen role={role} currentUser={currentUser} nav={nav}/> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
         {screen==="profile-insights" && authReady && (role==="vendor" ? <VendorInsightsProfileScreen role={role} currentUser={currentUser} nav={nav}/> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
         {screen==="verify-profile" && authReady && (role==="vendor" ? <React.Suspense fallback={<div role="status" aria-live="polite" style={{minHeight:"70vh",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:14}}>Loading Profile...</div>}><ProfileScreen role={role} currentUser={currentUser} userProfile={userProfile} setUserProfile={setUserProfile} showToast={showToast} nav={nav} initialTab="verify" dependencies={getProfileScreenDependencies()}/></React.Suspense> : <LegacyDestinationRedirect nav={nav} role={role} kind="profile"/>)}
@@ -57336,8 +57360,8 @@ function calcVendorCompletion(vendorRow) {
     { key:"tags",              label:"Skills / specialties",   weight:10, pass:!!(vendorRow.tags && vendorRow.tags.length > 0) },
     { key:"portfolio",         label:"Portfolio item",         weight:20, pass:!!(vendorRow._hasPortfolio) },
     { key:"tagline",           label:"Tagline",                weight:10, pass:!!(vendorRow.tagline && vendorRow.tagline.length > 5) },
-    { key:"min_project_budget",label:"Budget range",           weight: 5, pass:!!(vendorRow.min_project_budget) },
-    { key:"response_time",     label:"Response time set",      weight: 5, pass:!!(vendorRow.response_time) },
+    { key:"church_sizes_served",label:"Church sizes served",   weight: 5, pass:Array.isArray(vendorRow.church_sizes_served) ? vendorRow.church_sizes_served.length > 0 : !!vendorRow.church_sizes_served },
+    { key:"service_state",     label:"Service state",          weight: 5, pass:!!(vendorRow.service_state) },
   ];
   const score = checks.reduce((acc, c) => acc + (c.pass ? c.weight : 0), 0);
   const missing = checks.filter(c => !c.pass).map(c => c.label);
@@ -57852,6 +57876,24 @@ function TrustedVendorRoster({currentUser, nav, showToast = () => {}}){
   // Fetch the user's actual referral_code so the copy-link button below
   // generates a link the referral lookup can resolve. UUID slices won't.
   const [referralCode, setReferralCode] = useState(null);
+  const [savedRoster, setSavedRoster] = useState([]);
+
+  useEffect(() => {
+    if (!currentUser?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: saved } = await supabase.from('saved_vendors').select('vendor_id').eq('user_id', currentUser.id).limit(50);
+        const ids = (saved || []).map(row => row.vendor_id).filter(Boolean);
+        if (!ids.length) { if (!cancelled) setSavedRoster([]); return; }
+        const { data: vendorRows } = await supabase.from('vendors').select('id,user_id,name,category,city').in('id', ids);
+        if (!cancelled) setSavedRoster(vendorRows || []);
+      } catch (err) {
+        logError('trusted-roster-saved-fetch', err, { userId: currentUser.id });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [currentUser?.id]);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -57974,9 +58016,33 @@ function TrustedVendorRoster({currentUser, nav, showToast = () => {}}){
                   document.dispatchEvent(new CustomEvent("kb:openVendor", { detail: b.vendor_id }));
                   nav("vendors");
                 }} style={{background:"var(--cream-dark)",border:"1px solid var(--border)",borderRadius:"var(--r-sm)",padding:"5px 11px",fontSize:11,fontWeight:600,color:"var(--text-mid)",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}} title={`View ${b.vendor_name}'s profile`}>View profile →</button>
+                <button type="button" onClick={()=>{
+                  try { sessionStorage.setItem(KB_HIRE_AGAIN_SEED_KEY, JSON.stringify({ vendorName: b.vendor_name || "your past partner", category: b.category || "" })); } catch { /* non-fatal */ }
+                  nav("projects");
+                  setTimeout(() => document.dispatchEvent(new CustomEvent("kb:post-project")), 300);
+                }} style={{background:"var(--navy)",border:"none",borderRadius:"var(--r-sm)",padding:"5px 11px",fontSize:11,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>Hire again</button>
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {savedRoster.length > 0 && (
+        <div style={{marginTop:22}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.14em",textTransform:"uppercase",color:"#B08840",marginBottom:10}}>Saved vendors</div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {savedRoster.map((v) => (
+              <div key={v.id} style={{background:"#fff",borderRadius:"var(--r-md)",border:"1px solid var(--border)",padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+                <div>
+                  <div style={{fontSize:13,fontWeight:700,color:"var(--navy)"}}>{v.name || "Vendor"}</div>
+                  <div style={{fontSize:11,color:"var(--text-muted)"}}>{v.category || "Service provider"}{v.city ? ` · ${v.city}` : ""}</div>
+                </div>
+                <button type="button" onClick={()=>{
+                  document.dispatchEvent(new CustomEvent("kb:openVendor", { detail: v.id }));
+                  nav("vendors");
+                }} style={{background:"var(--cream-dark)",border:"1px solid var(--border)",borderRadius:"var(--r-sm)",padding:"5px 11px",fontSize:11,fontWeight:600,color:"var(--text-mid)",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif"}}>View profile →</button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -58188,14 +58254,14 @@ function StripePlatformFeeModal({bid, project, onClose, onSuccess, showToast}){
         <div style={{padding:"20px 24px",borderBottom:"1px solid var(--border)"}}>
           {[
             {label:"Vendor bid amount", val: formatMoney(bid.amount || 0)},
-            {label:`FaithBid success fee (${PLATFORM_FEE_LABEL})`, val: formatMoney(feeAmount)},
+            ...(PLATFORM_FEE_DISPLAY_ENABLED ? [{label:`FaithBid success fee (${PLATFORM_FEE_LABEL})`, val: formatMoney(feeAmount)}] : []),
           ].map((r)=>(
             <div key={r.label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
               <span style={{fontSize:13,color:"var(--text-muted)"}}>{r.label}</span>
               <span style={{fontSize:13,fontWeight:600,color:"var(--navy)"}}>{r.val}</span>
             </div>
           ))}
-          {proSavingsAmount > 0 ? (
+          {PLATFORM_FEE_DISPLAY_ENABLED && proSavingsAmount > 0 ? (
             <div style={{padding:"11px 13px",background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.22)",borderRadius:"var(--r-sm)",fontSize:12,color:"#166534",lineHeight:1.55,marginTop:8}}>
               Vendor Pro would lower this fee to <strong>{formatMoney(proFeeAmount)}</strong> and save <strong>{formatMoney(proSavingsAmount)}</strong> on this hire. Accepted Charter Vendors receive {CHARTER_VENDOR_PRO_FREE_MONTHS} months of Pro free at launch.
             </div>
@@ -60171,13 +60237,16 @@ function LandingScreen({nav, setAuthDefaultRole, setStartFreeDefaultRole, teleme
       try {
         // head:true on count queries — landing page hits this on every visit,
         // so dropping the row payload is a measurable bandwidth win.
-        const [churchRes, vendorRes, projectRes, reviewRes, foundingRes] = await Promise.all([
-          countProfilesByRoleSafe("church"),
-          supabase.from("vendors").select("id", {count:"exact",head:true}).eq("verified", true),
-          supabase.from("projects").select("id", {count:"exact",head:true}),
-          supabase.from("reviews").select("rating").limit(1000),
-          supabase.from("early_signups").select("id", {count:"exact",head:true}),
-        ]);
+        const [churchRes, vendorRes, projectRes, reviewRes, foundingRes] = await withRequestDeadline(
+          () => Promise.all([
+            countProfilesByRoleSafe("church"),
+            supabase.from("vendors").select("id", {count:"exact",head:true}).eq("verified", true),
+            supabase.from("projects").select("id", {count:"exact",head:true}),
+            supabase.from("reviews").select("rating").limit(1000),
+            supabase.from("early_signups").select("id", {count:"exact",head:true}),
+          ]),
+          { timeoutMs: 12000, label: "Landing stats" },
+        );
         if (cancelled) return;
         const churches = churchRes.count || 0;
         const vendors = vendorRes.count || 0;
@@ -62673,11 +62742,21 @@ function AIBriefAssistant({ title, category, budget, timeline, description, urge
   );
 }
 
+const KB_HIRE_AGAIN_SEED_KEY = 'kb:hireAgainSeed';
+
 function PostProject({ onSubmit, onBack, currentUser = null, initialProject = null }) {
   const editing = !!(initialProject && initialProject.id);
+  const hireAgainSeed = useState(() => {
+    if (editing) return null;
+    try {
+      const raw = sessionStorage.getItem(KB_HIRE_AGAIN_SEED_KEY);
+      sessionStorage.removeItem(KB_HIRE_AGAIN_SEED_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  })[0];
   const seed = initialProject || {};
-  const [title, setTitle] = useState(String(seed.title || ""));
-  const [category, setCategory] = useState(String(seed.category || seed.primary_category || ""));
+  const [title, setTitle] = useState(String(seed.title || (hireAgainSeed ? `Follow-up work with ${hireAgainSeed.vendorName}` : "")));
+  const [category, setCategory] = useState(String(seed.category || seed.primary_category || hireAgainSeed?.category || ""));
   const [customCategory, setCustomCategory] = useState(String((String(seed.category || seed.primary_category || "") === "Other" && Array.isArray(seed.category_tags) ? seed.category_tags[0] : "") || ""));
   const [budget, setBudget] = useState(String(seed.budget || ""));
   const [timeline, setTimeline] = useState(String(seed.timeline || ""));
@@ -62711,9 +62790,10 @@ function PostProject({ onSubmit, onBack, currentUser = null, initialProject = nu
   const [heroImagePreview, setHeroImagePreview] = useState("");
   const heroImageInputRef = React.useRef(null);
 
-  const handleHeroImageChange = (event) => {
-    const file = event.target.files?.[0] || null;
-    if (!file) return;
+  const handleHeroImageChange = async (event) => {
+    const original = event.target.files?.[0] || null;
+    if (!original) return;
+    const file = await shrinkOversizedProjectImage(original);
     const validationError = validateProjectImageFile(file);
     if (validationError) {
       setErr(validationError);
@@ -62744,8 +62824,6 @@ function PostProject({ onSubmit, onBack, currentUser = null, initialProject = nu
   if (!category) missing.push({ id: "pp-s1", msg: "Choose a category." });
   else if (!otherOk) missing.push({ id: "pp-other", msg: "Tell us what kind of help you need." });
   if (!descOk) missing.push({ id: "pp-desc", msg: description.trim() ? "Add a little more detail — at least 20 characters." : "Describe the work you need." });
-  if (!budget) missing.push({ id: "pp-s3", msg: "Choose a budget range." });
-  if (!timeline) missing.push({ id: "pp-s3", msg: "Choose a timeline." });
   if (!deliveryPreference) missing.push({ id: "pp-s4", msg: "Choose how the work can be delivered." });
   else if (!locationReady) missing.push({ id: "pp-city", msg: "Add the city and state for on-site work." });
   const canSubmit = missing.length === 0;
@@ -63836,7 +63914,7 @@ function VendorWinModal({project, church, amount, onClose, onMessage}){
               </div>
             )}
           </div>
-          {proSavingsAmount > 0 ? (
+          {PLATFORM_FEE_DISPLAY_ENABLED && proSavingsAmount > 0 ? (
             <div style={{background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.22)",borderRadius:"var(--r-md)",padding:"14px 16px",marginBottom:20,color:"#166534"}}>
               <div style={{fontSize:10,fontWeight:800,letterSpacing:1.4,textTransform:"uppercase",marginBottom:6}}>Vendor Pro savings</div>
               <div style={{fontSize:13,lineHeight:1.65,fontWeight:600}}>
@@ -64855,23 +64933,30 @@ function ChurchFeedbackModal({ project, onClose, onSaved, showToast }) {
 
 function ProfileWorkspaceTabs({ role, active, nav }) {
   const tabs = role === 'vendor'
-    ? [{id:'profile',label:'Profile'},{id:'profile-proof',label:'Proof'},{id:'profile-reviews',label:'Reviews'},{id:'profile-insights',label:'Insights'}]
+    ? [{id:'profile',label:'Profile'},{id:'profile-proof',label:'Proof'},{id:'profile-insights',label:'Insights'}]
     : [{id:'profile',label:'Profile'},{id:'profile-feedback',label:'Feedback'}];
   return <div style={{background:'#fbf8f1',borderBottom:'1px solid rgba(28,40,20,.10)'}}><div style={{maxWidth:1180,margin:'0 auto',padding:'0 24px',display:'flex',gap:22,overflowX:'auto'}}>{tabs.map(tab=><button key={tab.id} type="button" onClick={()=>nav(tab.id)} aria-current={active===tab.id?'page':undefined} style={{height:46,border:0,borderBottom:active===tab.id?'2px solid #174737':'2px solid transparent',background:'transparent',color:active===tab.id?'#17352b':'#7b807b',fontSize:12.5,fontWeight:active===tab.id?850:700,cursor:'pointer',whiteSpace:'nowrap'}}>{tab.label}</button>)}</div></div>;
 }
 
-function VendorOwnReviewsScreen({ currentUser, nav, role }) {
+function VendorProofReviewsSection({ currentUser }) {
   const [vendor,setVendor]=useState(null);
-  const [loading,setLoading]=useState(true);
-  useEffect(()=>{let cancelled=false;(async()=>{try{const {data,error}=await supabase.from('vendors').select('id,user_id,name,city,category,rating,reviews_count').eq('user_id',currentUser?.id).maybeSingle();if(error)throw error;if(!cancelled)setVendor(data||null);}catch(err){logError('profile-reviews-vendor-read',err,{userId:currentUser?.id});}finally{if(!cancelled)setLoading(false);}})();return()=>{cancelled=true};},[currentUser?.id]);
-  return <div style={{minHeight:'calc(100vh - 48px)',background:'#faf8f3'}}><ProfileWorkspaceTabs role={role} active="profile-reviews" nav={nav}/><div style={{maxWidth:1050,margin:'0 auto',padding:'28px 24px 70px'}}><div style={{marginBottom:18}}><div style={{fontSize:10,fontWeight:850,letterSpacing:'.14em',textTransform:'uppercase',color:'#9a7436'}}>Profile · Reviews</div><h1 style={{fontFamily:'var(--font-display),serif',fontSize:42,lineHeight:1.03,color:'#17352b',margin:'6px 0'}}>What churches say about your work.</h1><p style={{fontSize:13.5,color:'#665e52',lineHeight:1.6,maxWidth:680,margin:0}}>Verified project reviews live with your profile now, where churches actually evaluate you.</p></div>{loading?<KBSkeleton variant="card"/>:vendor?.id?<ScopedVendorReviews vendorId={vendor.id} vendor={vendor}/>:<VendorProfilePanel title="No vendor profile yet">Your vendor profile is still being prepared.</VendorProfilePanel>}</div></div>;
+  useEffect(()=>{let cancelled=false;(async()=>{try{const {data,error}=await supabase.from('vendors').select('id,user_id,name,city,category,rating,reviews_count').eq('user_id',currentUser?.id).maybeSingle();if(error)throw error;if(!cancelled)setVendor(data||null);}catch(err){logError('profile-proof-reviews-vendor-read',err,{userId:currentUser?.id});}})();return()=>{cancelled=true};},[currentUser?.id]);
+  if(!vendor?.id) return null;
+  return <section style={{maxWidth:1050,margin:'0 auto',padding:'0 24px 70px'}}><h2 style={{fontFamily:'var(--font-display),serif',fontSize:30,color:'#17352b',margin:'0 0 12px'}}>What churches say about your work</h2><ScopedVendorReviews vendorId={vendor.id} vendor={vendor}/></section>;
+}
+
+function VendorProofAndReviewsScreen({ role, currentUser, userProfile, showToast, nav }) {
+  applyScopedProjectsDependencies(getProjectsScreenDependencies());
+  return <><ProfileWorkspaceTabs role={role} active="profile-proof" nav={nav}/><VendorPortfolioProofScreen role={role} currentUser={currentUser} userProfile={userProfile} showToast={showToast} nav={nav}/><VendorProofReviewsSection currentUser={currentUser}/></>;
 }
 
 function ChurchFeedbackProfileScreen({ currentUser, nav, role }) {
   const [rows,setRows]=useState([]); const [loading,setLoading]=useState(true); const [error,setError]=useState('');
   useEffect(()=>{let cancelled=false;(async()=>{if(!currentUser?.id){setRows([]);setLoading(false);return;}setLoading(true);setError('');try{const {data,error}=await supabase.from('church_feedback').select('id,project_id,tags,created_at,updated_at').eq('church_id',currentUser.id).order('created_at',{ascending:false}).limit(100);if(error)throw error;if(!cancelled)setRows(data||[]);}catch(err){logError('profile-church-feedback-load',err,{userId:currentUser.id});if(!cancelled)setError("Feedback couldn't load right now.");}finally{if(!cancelled)setLoading(false);}})();return()=>{cancelled=true};},[currentUser?.id]);
+  const [projectTitles,setProjectTitles]=useState({});
+  useEffect(()=>{const ids=[...new Set(rows.map(row=>row.project_id).filter(Boolean))];if(!ids.length)return;let cancelled=false;(async()=>{try{const {data}=await supabase.from('projects').select('id,title').in('id',ids);if(!cancelled&&data)setProjectTitles(Object.fromEntries(data.map(p=>[p.id,p.title])));}catch(err){logError('profile-church-feedback-projects',err,{count:ids.length});}})();return()=>{cancelled=true};},[rows]);
   const counts=useMemo(()=>{const map=new Map();rows.forEach(row=>(Array.isArray(row.tags)?row.tags:[]).forEach(tag=>map.set(tag,(map.get(tag)||0)+1)));return [...map.entries()].sort((a,b)=>b[1]-a[1]);},[rows]);
-  return <div style={{minHeight:'calc(100vh - 48px)',background:'#faf8f3'}}><ProfileWorkspaceTabs role={role} active="profile-feedback" nav={nav}/><div style={{maxWidth:980,margin:'0 auto',padding:'28px 24px 70px'}}><div style={{fontSize:10,fontWeight:850,letterSpacing:'.14em',textTransform:'uppercase',color:'#9a7436'}}>Profile · Feedback</div><h1 style={{fontFamily:'var(--font-display),serif',fontSize:42,lineHeight:1.03,color:'#17352b',margin:'6px 0'}}>How vendors experienced working with your church.</h1><p style={{fontSize:13.5,color:'#665e52',lineHeight:1.6,maxWidth:700}}>Church reputation stays intentionally lightweight: no public star contest, just recurring signals from completed FaithBid projects.</p>{loading?<KBSkeleton variant="card"/>:error?<div style={{padding:16,border:'1px solid #ead1cc',borderRadius:12,background:'#fff5f2',color:'#8b3b2f'}}>{error}</div>:rows.length?<><div style={{display:'flex',gap:9,flexWrap:'wrap',marginTop:24}}>{counts.map(([tag,count])=><span key={tag} style={{padding:'9px 12px',borderRadius:999,border:'1px solid rgba(23,71,55,.14)',background:'#fff',fontSize:12,fontWeight:800,color:'#21493b'}}>{tag} · {count}</span>)}</div><div style={{marginTop:20,padding:18,border:'1px solid #dfd8cc',borderRadius:14,background:'#fffdf9'}}><strong style={{fontFamily:'var(--font-display),serif',fontSize:20,color:'#17352b'}}>{rows.length} completed-project feedback record{rows.length===1?'':'s'}</strong><div style={{fontSize:12.5,color:'#6b6459',marginTop:5}}>Signals appear only after the hired vendor completes work with your church.</div></div></>:<div style={{marginTop:24,padding:24,border:'1px dashed #d8d1c5',borderRadius:14,background:'rgba(255,255,255,.6)',textAlign:'center',color:'#6b6459'}}>Vendor feedback will appear here after completed FaithBid projects.</div>}</div></div>;
+  return <div style={{minHeight:'calc(100vh - 48px)',background:'#faf8f3'}}><ProfileWorkspaceTabs role={role} active="profile-feedback" nav={nav}/><div style={{maxWidth:980,margin:'0 auto',padding:'28px 24px 70px'}}><div style={{fontSize:10,fontWeight:850,letterSpacing:'.14em',textTransform:'uppercase',color:'#9a7436'}}>Profile · Feedback</div><h1 style={{fontFamily:'var(--font-display),serif',fontSize:42,lineHeight:1.03,color:'#17352b',margin:'6px 0'}}>How vendors experienced working with your church.</h1><p style={{fontSize:13.5,color:'#665e52',lineHeight:1.6,maxWidth:700}}>Church reputation stays intentionally lightweight: no public star contest, just recurring signals from completed FaithBid projects.</p>{loading?<KBSkeleton variant="card"/>:error?<div style={{padding:16,border:'1px solid #ead1cc',borderRadius:12,background:'#fff5f2',color:'#8b3b2f'}}>{error}</div>:rows.length?<><div style={{display:'flex',gap:9,flexWrap:'wrap',marginTop:24}}>{counts.map(([tag,count])=><span key={tag} style={{padding:'9px 12px',borderRadius:999,border:'1px solid rgba(23,71,55,.14)',background:'#fff',fontSize:12,fontWeight:800,color:'#21493b'}}>{tag} · {count}</span>)}</div><div style={{marginTop:20,padding:18,border:'1px solid #dfd8cc',borderRadius:14,background:'#fffdf9'}}><strong style={{fontFamily:'var(--font-display),serif',fontSize:20,color:'#17352b'}}>{rows.length} completed-project feedback record{rows.length===1?'':'s'}</strong><div style={{fontSize:12.5,color:'#6b6459',marginTop:5}}>Signals appear only after the hired vendor completes work with your church.</div></div><div style={{marginTop:14,display:'grid',gap:10}}>{rows.map(row=><div key={row.id} style={{padding:'14px 16px',border:'1px solid #dfd8cc',borderRadius:12,background:'#fff'}}><div style={{fontSize:13.5,fontWeight:800,color:'#17352b'}}>{projectTitles[row.project_id]||'Completed project'}</div><div style={{fontSize:11.5,color:'#6b6459',marginTop:3}}>{new Date(row.created_at).toLocaleDateString()}</div><div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:8}}>{(Array.isArray(row.tags)?row.tags:[]).map(tag=><span key={tag} style={{padding:'5px 9px',borderRadius:999,border:'1px solid rgba(23,71,55,.14)',fontSize:11.5,fontWeight:700,color:'#21493b'}}>{tag}</span>)}</div></div>)}</div></>:<div style={{marginTop:24,padding:24,border:'1px dashed #d8d1c5',borderRadius:14,background:'rgba(255,255,255,.6)',textAlign:'center',color:'#6b6459'}}>Vendor feedback will appear here after completed FaithBid projects.</div>}</div></div>;
 }
 
 function VendorInsightsProfileScreen({ currentUser, nav, role }) {
@@ -68539,7 +68624,7 @@ function NotificationBell({currentUser, role, nav, onBidAccepted}){
     let operationalProjects = [];
     const refreshOperationalNotifs = () => {
       if (cancelled) return;
-      const alertRows = collectOperationalAlertsForProjects(operationalProjects, readLocalJson(KB_PROJECT_OPS_KEY, {})).slice(0, 4).map((alert, idx) => normalizeNotificationEntity({
+      const alertRows = collectOperationalAlertsForProjects(operationalProjects, {}).slice(0, 4).map((alert, idx) => normalizeNotificationEntity({
         id:`op-${alert.id}-${idx}`,
         title:alert.title,
         body:alert.body,
@@ -68705,7 +68790,7 @@ function NotificationBell({currentUser, role, nav, onBidAccepted}){
 
   return (
     <div ref={bellRef} style={{position:"relative"}}>
-      <button type="button" aria-label={unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'} aria-expanded={open} onClick={()=>setOpen(o=>!o)} style={{width:32,height:32,borderRadius:999,border:"none",background:"transparent",boxShadow:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",flexShrink:0,color:"#1C2814",opacity:open?1:.82,transition:"opacity 0.18s ease, transform 0.18s ease"}}>
+      <button type="button" aria-label={unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'} aria-expanded={open} onClick={()=>setOpen(o=>!o)} style={{width:44,height:44,borderRadius:999,border:"none",background:"transparent",boxShadow:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",flexShrink:0,color:"#1C2814",opacity:open?1:.82,transition:"opacity 0.18s ease, transform 0.18s ease"}}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C2814" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         {unread>0&&<div style={{position:"absolute",top:-4,right:-4,minWidth:17,height:17,padding:"0 4px",borderRadius:999,background:"#8a3324",border:"2px solid #fffdf8",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:800,color:"#fff",fontFamily:"var(--font-sans),monospace"}}>{unread>9?"9+":unread}</div>}
       </button>

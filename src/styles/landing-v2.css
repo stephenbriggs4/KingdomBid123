@@ -1573,3 +1573,11 @@ html body .fb-landing-v2 .fb-landing-hero-wordmark {
 }
 html body .fb-landing-v2 .fb-landing-hero-wordmark { background-color: #102f2b; }
 html body .fb-landing-v2 .fb-landing-hero-wordmark { width: clamp(195px, 15vw, 265px); }
+
+/* Audit 41.2: footer link touch targets meet the 44px minimum. */
+html body #root footer.fb-public-footer-v2 .fb-foot__group ul li a,
+html body #root footer.fb-public-footer-v2 .fb-foot__group ul li button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}

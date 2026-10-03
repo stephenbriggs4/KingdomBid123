@@ -743,6 +743,13 @@ html body #root .mkt2-root .kbm-mp-toolbar {
   background: rgba(255, 255, 255, 0.91);
   cursor: pointer;
   backdrop-filter: blur(8px);
+  position: relative;
+}
+
+.mkt2-root .faithbid-card-11a__save::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
 }
 
 .mkt2-root .faithbid-card-11a__save span {
