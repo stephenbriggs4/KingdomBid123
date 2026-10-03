@@ -17,6 +17,16 @@ test-results
 .env.*
 !.env.example
 
+# Local Church Intelligence acquisition artifacts and temporary runtimes.
+work/dallas-church-acquisition/
+work/overture-package/
+work/overture-tools/
+work/pip-temp/
+work/uv-cache/
+work/uv-tools/
+work/uv-bin/
+work/uv-python/
+
 # Local recovery snapshots; the verified baseline lives in Git.
 src/App.jsx.pre-*
 src/*_before_*.js

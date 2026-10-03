@@ -53,9 +53,27 @@ if (!features.length || features.some((feature) => String(feature.attributes?.CI
   throw new Error('Native response is empty or contains a non-Dallas feature');
 }
 
+// This derived WGS84 copy is only for local candidate filtering. The untouched
+// native EPSG:2276 response above remains the authoritative import artifact.
+const wgs84Params = new URLSearchParams({
+  where: '1=1',
+  outFields: 'OBJECTID,CITY',
+  returnGeometry: 'true',
+  outSR: '4326',
+  f: 'geojson',
+});
+const wgs84 = await getJson(`${layerUrl}/query?${wgs84Params}`);
+if (wgs84.data?.type !== 'FeatureCollection' || wgs84.data.features?.length !== expectedCount) {
+  throw new Error('Derived WGS84 response is missing or has an unexpected feature count');
+}
+if (wgs84.data.features.some((feature) => !['Polygon', 'MultiPolygon'].includes(feature.geometry?.type))) {
+  throw new Error('Derived WGS84 response contains a non-polygon geometry');
+}
+
 await mkdir(outputDir, { recursive: true });
 await writeFile(path.join(outputDir, metadataFormat === 'pjson' ? 'layer-metadata.json' : 'layer-metadata.html'), metadata.bytes);
 await writeFile(path.join(outputDir, 'native-city-limits.json'), native.bytes);
+await writeFile(path.join(outputDir, 'city-limits-wgs84.geojson'), wgs84.bytes);
 const manifest = {
   source_url: layerUrl,
   retrieved_at: new Date().toISOString(),
@@ -69,6 +87,9 @@ const manifest = {
   received_count: features.length,
   metadata_sha256: sha256(metadata.bytes),
   native_response_sha256: sha256(native.bytes),
+  derived_wgs84_response_sha256: sha256(wgs84.bytes),
+  derived_wgs84_query: Object.fromEntries(wgs84Params),
+  derived_wgs84_use: 'local candidate filtering only; native EPSG:2276 remains authoritative',
   normalization_procedure_version: 'dallas_boundary_norm_v1',
 };
 await writeFile(path.join(outputDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
