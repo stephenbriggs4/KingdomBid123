@@ -41,6 +41,9 @@ the FaithBid frontend and does not require WSL.
 npm run church-intel:fetch-dallas-boundary
 npm run church-intel:fetch-overture
 npm run church-intel:classify-dallas
+npm run church-intel:fetch-irs
+npm run church-intel:reconcile-sources
+npm run church-intel:verification-sample
 npm run test:church-intel-acquisition
 ```
 
@@ -71,6 +74,27 @@ a stratified verification set from all three buckets, measure the error and
 duplicate rates, then reconcile against at least one independent source family.
 Only records that pass that evidence check should enter the canonical Dallas
 directory through an admin-controlled import.
+
+The included IRS cross-check is that first independent source family. It uses
+the official Texas Exempt Organizations Business Master File and limits the
+extract to Dallas filing addresses with Christianity, Protestant, or Roman
+Catholic NTEE codes (`X20`, `X21`, `X22`). IRS matches strengthen organization
+identity; IRS-only rows remain possible organizations, never assumed church
+sites. The IRS explicitly says filing addresses may be headquarters and that
+churches which never applied for recognition are absent from this dataset.
+
+The validated IRS run found 831 Dallas-filed Christian organizations. Of
+those, 188 strongly matched a current Overture/FaithBid research record and 54
+had ambiguous possible matches. The remaining 589 were split into 114
+church-like physical-address leads and 475 organization-only leads. None of the
+114 are counted as Dallas church sites until their address is geocoded, tested
+against the City polygon, and verified as an operating congregation.
+
+The verification-sample command turns the large acquisition result into one
+plain 50-case working list: 15 IRS-supported Overture churches, 15
+Overture-only churches, 5 possible duplicates, 5 incomplete records, and 10
+possible IRS-only church leads. It is deterministic, contains no automatic
+approvals, and exists to measure error before any controlled import.
 
 ## Pass/fail checks
 

@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
 import { classifyDallasCandidates, pointInBoundary } from '../scripts/build-dallas-church-candidates.mjs';
+import { parseCsv, selectDallasChristianOrganizations } from '../scripts/fetch-irs-dallas-christian-organizations.mjs';
+import { reconcileIrsWithDallasCandidates } from '../scripts/reconcile-dallas-church-sources.mjs';
+import { buildVerificationSample } from '../scripts/build-dallas-verification-sample.mjs';
 
 const boundary = {
   type: 'FeatureCollection',
@@ -99,4 +102,57 @@ test('boundary fetch preserves native EPSG:2276 authority and labels WGS84 as de
   assert.match(source, /Deliberately no outSR/);
   assert.match(source, /wkid !== 2276/);
   assert.match(source, /local candidate filtering only; native EPSG:2276 remains authoritative/);
+});
+
+test('IRS cross-check selects only Dallas Christian organization codes and parses quoted names', () => {
+  const csv = [
+    'EIN,NAME,ICO,STREET,CITY,STATE,ZIP,GROUP,SUBSECTION,AFFILIATION,CLASSIFICATION,RULING,DEDUCTIBILITY,FOUNDATION,ACTIVITY,ORGANIZATION,STATUS,TAX_PERIOD,ASSET_CD,INCOME_CD,FILING_REQ_CD,PF_FILING_REQ_CD,ACCT_PD,ASSET_AMT,INCOME_AMT,REVENUE_AMT,NTEE_CD,SORT_NAME',
+    '123456789,"GRACE, COMMUNITY CHURCH",,100 MAIN ST,DALLAS,TX,75201,,03,,,,,,,,01,,,,,,,,,,X20,',
+    '223456789,MOSQUE EXAMPLE,,200 MAIN ST,DALLAS,TX,75201,,03,,,,,,,,01,,,,,,,,,,X40,',
+    '323456789,OUTSIDE CHURCH,,300 MAIN ST,GARLAND,TX,75040,,03,,,,,,,,01,,,,,,,,,,X21,',
+  ].join('\n');
+  assert.equal(parseCsv(csv)[1][1], 'GRACE, COMMUNITY CHURCH');
+  const selected = selectDallasChristianOrganizations(csv);
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].legal_name, 'GRACE, COMMUNITY CHURCH');
+  assert.equal(selected[0].status_code, '01');
+});
+
+test('IRS evidence supports or flags candidates but never creates a church site by itself', () => {
+  const result = reconcileIrsWithDallasCandidates({
+    irsRecords: [
+      { ein: '1', legal_name: 'Grace Community Church', street: '100 Main Street', postal_code: '75201' },
+      { ein: '2', legal_name: 'Unmatched Christian Organization', street: '900 Unknown Rd', postal_code: '75240' },
+      { ein: '3', legal_name: 'Unmatched Dallas Church', street: '800 Missing Ave', postal_code: '75241' },
+    ],
+    existing: [],
+    overtureBuckets: { apparent_new: [{ source_external_key: 'gers-1', name: 'Grace Community Church', address_line_1: '100 Main St', postal_code: '75201' }] },
+  });
+  assert.equal(result.matches.length, 1);
+  assert.equal(result.matches[0].basis, 'same street address');
+  assert.equal(result.irsOnly.length, 2);
+  assert.equal(result.irsOnly.find(row => row.ein === '2')?.lead_type, 'organization_only');
+  assert.equal(result.irsOnly.find(row => row.ein === '3')?.lead_type, 'possible_missing_church');
+});
+
+test('verification sample is a deterministic 50-case cross-section instead of a blind bulk import', () => {
+  const overtureRow = index => ({ source_external_key: `gers-${index}`, name: `Church ${index}`, address_line_1: `${index} Main St`, locality: 'Dallas', region_code: 'TX', postal_code: '75201' });
+  const supported = Array.from({ length: 15 }, (_, index) => ({ irs: { ein: `irs-${index}`, city: 'Dallas', state: 'TX' }, candidate: { bucket: 'apparent_new', candidate_id: `gers-${index}`, candidate_name: `Church ${index}`, candidate_street: `${index} Main St`, candidate_postal_code: '75201' } }));
+  const sample = buildVerificationSample({
+    newChurches: Array.from({ length: 30 }, (_, index) => overtureRow(index)),
+    duplicates: Array.from({ length: 5 }, (_, index) => ({ ...overtureRow(100 + index), reason: 'fixture duplicate' })),
+    needsInformation: Array.from({ length: 5 }, (_, index) => ({ ...overtureRow(200 + index), problems: ['fixture gap'] })),
+    supported,
+    possibleMissing: Array.from({ length: 10 }, (_, index) => ({ ein: `missing-${index}`, legal_name: `Missing Church ${index}`, street: `${index} Oak Ave`, city: 'Dallas', state: 'TX', postal_code: '75202' })),
+  });
+  assert.equal(sample.length, 50);
+  assert.equal(new Set(sample.map(row => row.case_id)).size, 50);
+  assert.deepEqual(Object.fromEntries(['irs_supported', 'overture_only', 'possible_duplicate', 'needs_information', 'irs_possible_missing'].map(lane => [lane, sample.filter(row => row.lane === lane).length])), {
+    irs_supported: 15,
+    overture_only: 15,
+    possible_duplicate: 5,
+    needs_information: 5,
+    irs_possible_missing: 10,
+  });
+  assert.ok(sample.every(row => row.result === 'pending'));
 });

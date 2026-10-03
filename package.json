@@ -61,6 +61,9 @@
     "church-intel:fetch-dallas-boundary": "node scripts/fetch-dallas-boundary.mjs",
     "church-intel:fetch-overture": "uv run --no-cache --python 3.12 --with duckdb==1.4.1 python scripts/fetch-overture-dallas-churches.py",
     "church-intel:classify-dallas": "node scripts/build-dallas-church-candidates.mjs --overture work/dallas-church-acquisition/overture-churches.json --existing work/dallas-boundary-native/sites.json --boundary work/dallas-boundary-native/city-limits-wgs84.geojson --output work/dallas-church-acquisition/results",
+    "church-intel:fetch-irs": "node scripts/fetch-irs-dallas-christian-organizations.mjs",
+    "church-intel:reconcile-sources": "node scripts/reconcile-dallas-church-sources.mjs",
+    "church-intel:verification-sample": "node scripts/build-dallas-verification-sample.mjs",
     "test:build-budget": "node scripts/check-build-budget.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
