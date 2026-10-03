@@ -1,10 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "./supabaseClient";
 import { withRequestDeadline } from "./supabaseReliability";
 import "leaflet/dist/leaflet.css";
 import "./styles/church-intelligence.css";
 
-const TABS = [["home","Overview"],["churches","All Churches"],["map","Map"]];
+const TABS = [["churches","Churches"],["home","Progress"],["map","Map"]];
+
+const DALLAS_RESEARCH_SNAPSHOT = Object.freeze({
+  candidateCount: 1962,
+  reviewedCount: 235,
+  sourceObservationCount: 1990,
+  updatedLabel: "October 3, 2026",
+});
 
 const OPERATING_STATES = ["active","inactive","unknown"];
 
@@ -75,7 +82,7 @@ function Field({ label, children, hint }) {
 }
 
 export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
-  const [tab, setTab] = useState("home");
+  const [tab, setTab] = useState("churches");
   const [banner, setBanner] = useState(null);
 
   const purpose = "research";
@@ -84,6 +91,10 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   const [directoryLoading, setDirectoryLoading] = useState(true);
   const [directoryError, setDirectoryError] = useState("");
   const [directorySearch, setDirectorySearch] = useState("");
+  const [denominationFilter, setDenominationFilter] = useState("all");
+  const [postalFilter, setPostalFilter] = useState("all");
+  const [faithBidFilter, setFaithBidFilter] = useState("all");
+  const [detailsFilter, setDetailsFilter] = useState("all");
   const [matchResults, setMatchResults] = useState({});
   const [matchLoadingId, setMatchLoadingId] = useState(null);
   const [selectedOrgId, setSelectedOrgId] = useState(null);
@@ -169,12 +180,36 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   const churchesWithDenominations = useMemo(() => directory.filter(d => d.denomination).length, [directory]);
   const churchesOnFaithBid = useMemo(() => directory.filter(d => d.linked_to_faithbid).length, [directory]);
   const mappedChurches = useMemo(() => directory.filter(d => d.latitude != null && d.longitude != null).length, [directory]);
+  const deferredSearch = useDeferredValue(directorySearch.trim().toLowerCase());
+  const denominations = useMemo(() => [...new Set(directory.map(row => row.denomination).filter(Boolean))].sort((a, b) => a.localeCompare(b)), [directory]);
+  const postalCodes = useMemo(() => [...new Set(directory.map(row => row.postal_code?.slice(0, 5)).filter(Boolean))].sort(), [directory]);
+  const filteredDirectory = useMemo(() => directory.filter(row => {
+    const matchesSearch = !deferredSearch || [row.canonical_name, row.address_line_1, row.postal_code, row.locality]
+      .filter(Boolean)
+      .some(value => value.toLowerCase().includes(deferredSearch));
+    const matchesDenomination = denominationFilter === "all" || row.denomination === denominationFilter;
+    const matchesPostalCode = postalFilter === "all" || row.postal_code?.startsWith(postalFilter);
+    const matchesFaithBid = faithBidFilter === "all"
+      || (faithBidFilter === "connected" ? row.linked_to_faithbid : !row.linked_to_faithbid);
+    const hasMissingDetails = !row.address_line_1 || !row.denomination;
+    const matchesDetails = detailsFilter === "all"
+      || (detailsFilter === "missing" ? hasMissingDetails : !hasMissingDetails);
+    return matchesSearch && matchesDenomination && matchesPostalCode && matchesFaithBid && matchesDetails;
+  }), [deferredSearch, denominationFilter, detailsFilter, directory, faithBidFilter, postalFilter]);
+
+  const clearDirectoryFilters = () => {
+    setDirectorySearch("");
+    setDenominationFilter("all");
+    setPostalFilter("all");
+    setFaithBidFilter("all");
+    setDetailsFilter("all");
+  };
 
   if (!isAdmin) return <div className="ci-denied"><p className="ci-eyebrow">Internal workspace</p><h1>Church Intelligence is restricted.</h1><p>This research workspace is available only to FaithBid platform administrators.</p><button type="button" onClick={() => nav?.("projects")}>Back to marketplace</button></div>;
 
   return <section className="ci-shell" aria-label="Church Intelligence">
     <header className="ci-hero">
-      <div><p className="ci-eyebrow">FaithBid internal · Dallas V1</p><h1>Dallas Church Census</h1><p>One simple place to find every Dallas church, keep its basic information current, and see whether it already has a FaithBid account.</p></div>
+      <div><p className="ci-eyebrow">FaithBid internal · Dallas</p><h1>Dallas Church Directory</h1><p>Find a church, see the information FaithBid has, and connect churches that already have an account.</p></div>
       <div className="ci-actions"><span className={online ? "live" : ""}>{directoryLoading ? "Loading church list" : online ? "Church list ready" : "Church list needs attention"}</span><button type="button" onClick={refreshAll} disabled={directoryLoading}>{directoryLoading ? "Loading…" : "Refresh list"}</button></div>
     </header>
 
@@ -206,32 +241,41 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
         ) : (
           <>
             <div className="ci-panel-head">
-              <div><p className="ci-eyebrow">Dallas church directory</p><h2>All Churches</h2><p className="ci-panel-intro">Search the churches currently in FaithBid's Dallas list. Open any church to see the information we have.</p></div>
+              <div><p className="ci-eyebrow">Dallas church directory</p><h2>Churches</h2><p className="ci-panel-intro">These are the churches currently loaded into FaithBid. The research pipeline has {DALLAS_RESEARCH_SNAPSHOT.candidateCount.toLocaleString()} Dallas candidates ready for continued cleanup and import.</p></div>
               <div className="ci-panel-head-actions">
                 <input className="ci-search" type="search" aria-label="Search churches" placeholder="Search name, street, or ZIP…" value={directorySearch} onChange={e => setDirectorySearch(e.target.value)} />
                 <button type="button" onClick={() => setShowNewOrgModal(true)}>+ Add church</button>
               </div>
             </div>
+            <div className="ci-directory-toolbar">
+              <p aria-live="polite"><strong>{filteredDirectory.length}</strong> of {directory.length} live churches</p>
+              <div>
+                <label><span>Denomination</span><select aria-label="Filter by denomination" value={denominationFilter} onChange={event => setDenominationFilter(event.target.value)}><option value="all">All denominations</option>{denominations.map(value => <option key={value} value={value}>{value}</option>)}</select></label>
+                <label><span>ZIP code</span><select aria-label="Filter by ZIP code" value={postalFilter} onChange={event => setPostalFilter(event.target.value)}><option value="all">All ZIP codes</option>{postalCodes.map(value => <option key={value} value={value}>{value}</option>)}</select></label>
+                <label><span>FaithBid</span><select aria-label="Filter by FaithBid connection" value={faithBidFilter} onChange={event => setFaithBidFilter(event.target.value)}><option value="all">All churches</option><option value="connected">Connected</option><option value="not-connected">Not connected</option></select></label>
+                <label><span>Information</span><select aria-label="Filter by information completeness" value={detailsFilter} onChange={event => setDetailsFilter(event.target.value)}><option value="all">All records</option><option value="complete">Basics complete</option><option value="missing">Missing basics</option></select></label>
+                {(directorySearch || denominationFilter !== "all" || postalFilter !== "all" || faithBidFilter !== "all" || detailsFilter !== "all") && <button type="button" className="ci-clear-filters" onClick={clearDirectoryFilters}>Clear filters</button>}
+              </div>
+            </div>
             {directoryLoading ? <div className="ci-loading" role="status">Loading Dallas churches…</div>
               : directoryError ? <div className="ci-alert" role="alert"><div><strong>Church Intelligence could not load.</strong><span>{directoryError}</span></div><button type="button" onClick={refreshDirectory}>Try again</button></div>
-              : directory.length ? (() => {
-                  const q = directorySearch.trim().toLowerCase();
-                  const rows = q ? directory.filter(d => [d.canonical_name, d.address_line_1, d.postal_code, d.locality].filter(Boolean).some(v => v.toLowerCase().includes(q))) : directory;
-                  return rows.length ? <div className="ci-table-wrap"><table className="ci-table"><thead><tr><th>Church</th><th>Address</th><th>Denomination</th><th>FaithBid account</th><th /></tr></thead><tbody>{rows.map(row => <React.Fragment key={row.id}><tr>
-                    <td><strong>{row.canonical_name || "Unnamed organization"}</strong></td>
-                    <td>{row.address_line_1 ? <>{row.address_line_1}<span className="ci-addr-sub">{row.locality}, {row.region_code} {row.postal_code}</span></> : <span className="ci-muted">No address on file</span>}</td>
-                    <td>{row.denomination || <span className="ci-muted">—</span>}</td>
-                    <td>{row.linked_to_faithbid ? <Badge tone="good">Connected</Badge> : <button type="button" className="ci-badge-btn" disabled={matchLoadingId === row.id} onClick={() => checkMatch(row.id)}>{matchLoadingId === row.id ? "Checking…" : "Find account"}</button>}</td>
-                    <td><button type="button" className="ci-link-btn" onClick={() => openOrgDetail(row.id)}>View →</button></td>
-                  </tr>
-                  {matchResults[row.id] !== undefined && <tr className="ci-detail-row"><td colSpan={5}><div className="ci-case-detail">
+              : directory.length ? filteredDirectory.length ? <div className="ci-church-list">{filteredDirectory.map(row => <article className="ci-church-row" key={row.id}>
+                  <button type="button" className="ci-church-main" onClick={() => openOrgDetail(row.id)}>
+                    <span className="ci-church-mark" aria-hidden="true">{(row.canonical_name || "C").trim().charAt(0).toUpperCase()}</span>
+                    <span className="ci-church-copy"><strong>{row.canonical_name || "Unnamed church"}</strong><span>{row.address_line_1 ? `${row.address_line_1} · ${row.locality}, ${row.region_code} ${row.postal_code || ""}` : "Address not recorded"}</span></span>
+                    <span className="ci-church-denomination">{row.denomination || "Denomination not recorded"}</span>
+                  </button>
+                  <div className="ci-church-actions">
+                    {row.linked_to_faithbid ? <Badge tone="good">On FaithBid</Badge> : <button type="button" className="ci-badge-btn" disabled={matchLoadingId === row.id} onClick={() => checkMatch(row.id)}>{matchLoadingId === row.id ? "Checking…" : "Find FaithBid account"}</button>}
+                    <button type="button" className="ci-link-btn" onClick={() => openOrgDetail(row.id)} aria-label={`View ${row.canonical_name || "church"}`}>View →</button>
+                  </div>
+                  {matchResults[row.id] !== undefined && <div className="ci-case-detail">
                     {matchResults[row.id].length ? matchResults[row.id].map(m => <div key={m.profile_id} className="ci-match-row">
                       <div><strong>{m.org_name || "Unnamed account"}</strong><span className="ci-addr-sub">{m.city}, {m.state_code} {m.denomination ? `· ${m.denomination}` : ""} · {Math.round(m.name_similarity * 100)}% name match{m.city_match ? " · same city" : ""}</span></div>
                       <button type="button" disabled={busy} onClick={() => linkMatch(row.id, m.profile_id)}>Link this account</button>
-                    </div>) : <p className="ci-muted">No FaithBid church account looks like a match yet. This church likely hasn't signed up on FaithBid.</p>}
-                  </div></td></tr>}
-                  </React.Fragment>)}</tbody></table></div> : <Empty eyebrow="No matches" title="No churches match that search." detail="Try a different name, street, or zip code." />;
-                })()
+                    </div>) : <p className="ci-muted">No matching FaithBid church account was found.</p>}
+                  </div>}
+                </article>)}</div> : <Empty eyebrow="No matches" title="No churches match those filters." detail="Clear the filters or try another name, street, or ZIP code." />
               : <Empty eyebrow="Dallas church directory" title="No churches have been added yet." detail="Add the first church to begin building the Dallas list." />}
           </>
         )
@@ -261,23 +305,25 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
 function CensusHome({ directoryLoading, directoryError, loadedRecords, churchesWithAddresses, churchesWithDenominations, churchesOnFaithBid, onNavigate, onAddChurch }) {
   return <>
     <div className="ci-home-heading">
-      <div><p className="ci-eyebrow">The goal</p><h2>Every church in Dallas, in one useful list</h2><p>Find the churches, keep their basic information current, and know which ones already have a FaithBid account.</p></div>
+      <div><p className="ci-eyebrow">Dallas progress</p><h2>Every Dallas church, without the clutter</h2><p>The research list and the live FaithBid directory are tracked separately so staff can see exactly what is ready and what still needs to be loaded.</p></div>
       <div className="ci-home-actions"><button type="button" onClick={() => onNavigate("churches")}>View all churches</button><button type="button" className="ci-btn-secondary" onClick={onAddChurch}>Add a church</button></div>
     </div>
 
     {directoryError ? <div className="ci-alert" role="alert"><div><strong>The Dallas church list could not load.</strong><span>{directoryError}</span></div></div> : null}
 
     <div className="ci-metrics">
-      <Metric label="Churches found" value={directoryLoading ? "—" : loadedRecords} detail="Currently in the Dallas directory" tone="green" />
-      <Metric label="Addresses on file" value={directoryLoading ? "—" : churchesWithAddresses} detail="Churches we can place on the map" />
-      <Metric label="Denominations known" value={directoryLoading ? "—" : churchesWithDenominations} detail="Churches with a tradition recorded" />
-      <Metric label="On FaithBid" value={directoryLoading ? "—" : churchesOnFaithBid} detail="Connected to an existing church account" />
+      <Metric label="Candidates discovered" value={DALLAS_RESEARCH_SNAPSHOT.candidateCount.toLocaleString()} detail={`Research snapshot · ${DALLAS_RESEARCH_SNAPSHOT.updatedLabel}`} tone="gold" />
+      <Metric label="Live directory" value={directoryLoading ? "—" : loadedRecords} detail="Churches currently loaded into FaithBid" tone="green" />
+      <Metric label="Reviewed candidates" value={DALLAS_RESEARCH_SNAPSHOT.reviewedCount} detail="Verified or directory-supported" />
+      <Metric label="Waiting to load" value={directoryLoading ? "—" : Math.max(DALLAS_RESEARCH_SNAPSHOT.candidateCount - loadedRecords, 0).toLocaleString()} detail="Candidates not yet in the live directory" />
     </div>
 
     <div className="ci-simple-plan">
-      <div><p className="ci-eyebrow">What this tab is for</p><h3>Build the complete Dallas church directory</h3><p>The current number is a starting point, not the final Dallas total. We will keep adding churches until the list is complete enough to use for the pilot.</p></div>
-      <ol><li><strong>Find every church</strong><span>Add missing Dallas congregations.</span></li><li><strong>Fill in the basics</strong><span>Name, address, denomination, website, and phone.</span></li><li><strong>Connect FaithBid accounts</strong><span>Match churches that have already joined the platform.</span></li></ol>
+      <div><p className="ci-eyebrow">What happens next</p><h3>Move the clean candidates into FaithBid</h3><p>{DALLAS_RESEARCH_SNAPSHOT.sourceObservationCount.toLocaleString()} source observations have already been combined into one master candidate set. The remaining work is controlled import and cleanup—not more complicated architecture.</p></div>
+      <ol><li><strong>Load candidates</strong><span>Add the master candidate set in controlled batches.</span></li><li><strong>Clean obvious conflicts</strong><span>Fix real duplicates and bad identities as they appear.</span></li><li><strong>Connect FaithBid accounts</strong><span>Match churches that have already joined.</span></li></ol>
     </div>
+
+    <div className="ci-live-basics"><span><strong>{directoryLoading ? "—" : churchesWithAddresses}</strong> live records have addresses</span><span><strong>{directoryLoading ? "—" : churchesWithDenominations}</strong> have denominations</span><span><strong>{directoryLoading ? "—" : churchesOnFaithBid}</strong> are connected to FaithBid</span></div>
   </>;
 }
 

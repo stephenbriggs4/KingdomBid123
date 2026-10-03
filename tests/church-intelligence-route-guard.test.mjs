@@ -35,13 +35,17 @@ test("the component only reaches church_intel data through narrow admin-gated RP
 });
 
 test("the Dallas census workflow stays focused on the church list instead of backend machinery", () => {
-  assert.match(component, /const TABS = \[\["home","Overview"\],\["churches","All Churches"\],\["map","Map"\]\]/);
-  assert.match(component, /<h1>Dallas Church Census<\/h1>/);
-  assert.match(component, /Every church in Dallas, in one useful list/);
-  assert.match(component, /Churches found/);
-  assert.match(component, /Addresses on file/);
-  assert.match(component, /Denominations known/);
-  assert.match(component, /On FaithBid/);
+  assert.match(component, /const TABS = \[\["churches","Churches"\],\["home","Progress"\],\["map","Map"\]\]/);
+  assert.match(component, /useState\("churches"\)/);
+  assert.match(component, /<h1>Dallas Church Directory<\/h1>/);
+  assert.match(component, /Every Dallas church, without the clutter/);
+  assert.match(component, /Candidates discovered/);
+  assert.match(component, /Live directory/);
+  assert.match(component, /Waiting to load/);
+  assert.match(component, /Filter by denomination/);
+  assert.match(component, /Filter by ZIP code/);
+  assert.match(component, /Filter by FaithBid connection/);
+  assert.match(component, /Filter by information completeness/);
   assert.doesNotMatch(component, /Review Queue/);
   assert.doesNotMatch(component, /Resolve \/ dismiss/);
   assert.doesNotMatch(component, /meters from the Dallas city line/);
