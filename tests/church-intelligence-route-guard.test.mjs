@@ -26,21 +26,37 @@ test("the component only reaches church_intel data through narrow admin-gated RP
   assert.match(component, /withRequestDeadline/);
   for (const rpc of [
     "ci_list_organizations_overview", "ci_get_organization",
-    "ci_list_review_cases", "ci_list_sources", "ci_list_boundary_versions", "ci_list_system_links",
-    "ci_suggest_faithbid_matches", "ci_create_research_bundle", "ci_promote_claim",
-    "ci_open_review_case", "ci_resolve_review_case", "ci_apply_source_policy_restriction",
-    "ci_stage_dallas_boundary", "ci_publish_boundary", "ci_set_system_link",
+    "ci_list_sources", "ci_suggest_faithbid_matches", "ci_create_research_bundle",
+    "ci_open_review_case", "ci_resolve_review_case", "ci_set_system_link",
   ]) {
     assert.ok(component.includes(`"${rpc}"`), `expected a callRpc(...) call naming ${rpc}`);
   }
   assert.doesNotMatch(component, /\.from\(["']church_intel\./);
 });
 
-test("data health distinguishes verified runtime evidence from designed or unpopulated controls", () => {
-  const foundationChecksBlock = component.slice(component.indexOf("const foundationChecks"), component.indexOf("], [online"));
-  assert.match(foundationChecksBlock, /"Private RPC boundary"/);
-  assert.match(foundationChecksBlock, /"Canonical hierarchy", "Designed"/);
-  assert.match(foundationChecksBlock, /"Dallas geography"/);
-  // The boundary row must be driven by real published-boundary state, not a hardcoded string.
-  assert.match(foundationChecksBlock, /publishedBoundaries > 0 \? "Published" : "Not published"/);
+test("the Dallas census workflow stays focused on the church list instead of backend machinery", () => {
+  assert.match(component, /const TABS = \[\["home","Overview"\],\["churches","All Churches"\],\["map","Map"\]\]/);
+  assert.match(component, /<h1>Dallas Church Census<\/h1>/);
+  assert.match(component, /Every church in Dallas, in one useful list/);
+  assert.match(component, /Churches found/);
+  assert.match(component, /Addresses on file/);
+  assert.match(component, /Denominations known/);
+  assert.match(component, /On FaithBid/);
+  assert.doesNotMatch(component, /Review Queue/);
+  assert.doesNotMatch(component, /Resolve \/ dismiss/);
+  assert.doesNotMatch(component, /meters from the Dallas city line/);
+  assert.doesNotMatch(component, /tab === "controls"/);
+});
+
+test("Church Intelligence dialogs trap keyboard focus, close on Escape, and restore focus", () => {
+  const modalStart = component.indexOf("function Modal(");
+  const modalEnd = component.indexOf("function Field(", modalStart);
+  const modal = component.slice(modalStart, modalEnd);
+  assert.match(modal, /const dialogRef = useRef\(null\)/);
+  assert.match(modal, /event\.key === "Escape"/);
+  assert.match(modal, /event\.key !== "Tab"/);
+  assert.match(modal, /event\.shiftKey && document\.activeElement === first/);
+  assert.match(modal, /document\.activeElement === last/);
+  assert.match(modal, /previouslyFocused\.focus\(\)/);
+  assert.match(modal, /aria-label=\{title\}/);
 });

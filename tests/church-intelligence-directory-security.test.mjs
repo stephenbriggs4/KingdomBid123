@@ -36,7 +36,7 @@ test('the directory overview is authenticated-only and FaithBid status ignores o
   assert.match(overview, /l2\.system_key = 'faithbid_profile' and l2\.link_status = 'active'/);
 });
 
-test('human-confirmed account links carry a reversible review basis', () => {
+test('human-confirmed account links carry a reversible review basis without exposing case controls in the UI', () => {
   const linkStart = component.indexOf('const linkMatch = async');
   const linkEnd = component.indexOf('const online =', linkStart);
   const linkFlow = component.slice(linkStart, linkEnd);
@@ -44,14 +44,11 @@ test('human-confirmed account links carry a reversible review basis', () => {
   assert.match(linkFlow, /p_organization_id: orgId/);
   assert.match(linkFlow, /p_review_id: reviewId/);
   assert.match(linkFlow, /ci_resolve_review_case/);
+  assert.match(linkFlow, /ci_resolve_review_case", \{ p_review_id: reviewId/);
+  assert.doesNotMatch(linkFlow, /ci_resolve_review_case", \{ p_case_id:/);
   assert.doesNotMatch(linkFlow, /p_status: "active"[^}]+p_review_id: null/);
-  const manualStart = component.indexOf('{showNewLinkModal && <NewLinkModal');
-  const manualEnd = component.indexOf('</section>;', manualStart);
-  const manualFlow = component.slice(manualStart, manualEnd);
-  assert.match(manualFlow, /form\.status === "active" \? await callRpc\("ci_open_review_case"/);
-  assert.match(manualFlow, /p_organization_id: form\.organizationId/);
-  assert.match(manualFlow, /p_review_id: reviewId/);
-  assert.match(manualFlow, /if \(reviewId\) await callRpc\("ci_resolve_review_case"/);
+  assert.doesNotMatch(component, /Open review case/);
+  assert.doesNotMatch(component, /Resolve \/ dismiss/);
 });
 
 test('pgTAP reflects the complete 19-RPC surface and narrow Profiles columns', () => {
