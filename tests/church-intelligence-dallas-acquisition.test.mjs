@@ -7,6 +7,7 @@ import { reconcileIrsWithDallasCandidates } from '../scripts/reconcile-dallas-ch
 import { buildVerificationSample } from '../scripts/build-dallas-verification-sample.mjs';
 import { summarizeVerificationResults } from '../scripts/summarize-dallas-verification-results.mjs';
 import { buildControlledVerificationBatch } from '../scripts/build-dallas-controlled-verification-batch.mjs';
+import { summarizeControlledVerificationResults } from '../scripts/summarize-dallas-controlled-verification-results.mjs';
 
 const boundary = {
   type: 'FeatureCollection',
@@ -226,4 +227,48 @@ test('controlled batch selects complete strong records without reusing gold-set 
   assert.deepEqual(rows.map(row => row.lane), ['overture_irs_supported', 'overture_irs_supported', 'overture_strong', 'overture_strong']);
   assert.ok(!rows.some(row => row.source_external_key === 'done'));
   assert.ok(rows.every(row => row.outreach_allowed === false && row.export_allowed === false && row.canonical_write_allowed === false));
+});
+
+test('controlled report requires complete rights-scoped results and measures each source lane', () => {
+  const candidates = Array.from({ length: 100 }, (_, index) => ({
+    verification_order: index + 1,
+    source_external_key: `source-${index + 1}`,
+    lane: index < 50 ? 'overture_irs_supported' : 'overture_strong',
+  }));
+  const results = candidates.map((candidate, index) => ({
+    verification_order: candidate.verification_order,
+    source_external_key: candidate.source_external_key,
+    status: index < 69
+      ? 'verified_current'
+      : index < 89
+        ? 'probable_current'
+        : index < 98
+          ? 'needs_current_confirmation'
+          : 'excluded_non_congregation',
+  }));
+  const batch = {
+    batch_id: 'controlled-fixture',
+    allowed_purposes: ['research', 'verification', 'internal_analytics'],
+    prohibited_purposes: ['outreach', 'export', 'redistribution'],
+    results,
+  };
+  const summary = summarizeControlledVerificationResults({ candidates, batches: [batch] });
+  assert.equal(summary.total_results, 100);
+  assert.equal(summary.categories.verified, 69);
+  assert.equal(summary.categories.probable, 20);
+  assert.equal(summary.categories.needs_confirmation, 9);
+  assert.equal(summary.categories.excluded, 2);
+  assert.equal(summary.usable_current_or_probable, 89);
+  assert.equal(summary.lanes.overture_irs_supported.total, 50);
+  assert.equal(summary.lanes.overture_strong.total, 50);
+  assert.equal(summary.production_writes, 0);
+
+  assert.throws(
+    () => summarizeControlledVerificationResults({ candidates, batches: [{ ...batch, results: results.slice(1) }] }),
+    /exactly 100 rows/,
+  );
+  assert.throws(
+    () => summarizeControlledVerificationResults({ candidates, batches: [{ ...batch, prohibited_purposes: ['outreach'] }] }),
+    /missing prohibited purpose export/,
+  );
 });

@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -131,20 +131,79 @@ function asCsv(rows) {
   return `${columns.join(',')}\n${rows.map(row => columns.map(column => csvValue(row[column])).join(',')).join('\n')}\n`;
 }
 
+function parseCliArgs(args) {
+  const options = {
+    root: 'work/dallas-church-acquisition',
+    batch: '001',
+    size: 100,
+    supportedTarget: 50,
+  };
+  for (let index = 0; index < args.length; index += 1) {
+    const value = args[index];
+    if (!value.startsWith('--')) {
+      options.root = value;
+      continue;
+    }
+    const [flag, inline] = value.split('=', 2);
+    const next = inline ?? args[index + 1];
+    if (inline === undefined) index += 1;
+    if (flag === '--batch') options.batch = String(next).padStart(3, '0');
+    else if (flag === '--size') options.size = Number(next);
+    else if (flag === '--supported-target') options.supportedTarget = Number(next);
+    else if (flag === '--root') options.root = next;
+    else throw new Error(`Unknown argument ${flag}`);
+  }
+  if (!Number.isInteger(options.size) || options.size < 1) throw new Error('--size must be a positive integer');
+  if (!Number.isInteger(options.supportedTarget) || options.supportedTarget < 0 || options.supportedTarget > options.size) {
+    throw new Error('--supported-target must be an integer between 0 and --size');
+  }
+  if (!/^\d{3}$/.test(options.batch)) throw new Error('--batch must be a three-digit batch number');
+  return options;
+}
+
+async function priorControlledSourceKeys(root, currentBatch) {
+  const current = Number(currentBatch);
+  const names = (await readdir(root, { withFileTypes: true }))
+    .filter(entry => entry.isDirectory() && /^controlled-batch-\d{3}$/.test(entry.name))
+    .filter(entry => Number(entry.name.slice(-3)) < current)
+    .map(entry => entry.name)
+    .sort();
+  const sourceKeys = [];
+  for (const name of names) {
+    const files = (await readdir(path.join(root, name)))
+      .filter(filename => /^verify-next-\d+\.json$/.test(filename))
+      .sort();
+    for (const filename of files) {
+      const rows = JSON.parse(await readFile(path.join(root, name, filename), 'utf8'));
+      sourceKeys.push(...rows.map(row => row.source_external_key));
+    }
+  }
+  return sourceKeys;
+}
+
 async function main() {
-  const root = path.resolve(process.argv[2] || 'work/dallas-church-acquisition');
+  const options = parseCliArgs(process.argv.slice(2));
+  const root = path.resolve(options.root);
   const readJson = async filepath => JSON.parse(await readFile(filepath, 'utf8'));
   const [newChurches, supported, goldSample] = await Promise.all([
     readJson(path.join(root, 'results', 'new-churches.json')),
     readJson(path.join(root, 'reconciliation', 'irs-supported-records.json')),
     readJson(path.join(root, 'verification-sample', 'dallas-verification-sample.json')),
   ]);
-  const excludedSourceKeys = goldSample.flatMap(row => row.source_keys || []);
-  const rows = buildControlledVerificationBatch({ newChurches, supported, excludedSourceKeys });
-  const outputDir = path.join(root, 'controlled-batch-001');
+  const goldSourceKeys = goldSample.flatMap(row => row.source_keys || []);
+  const priorSourceKeys = await priorControlledSourceKeys(root, options.batch);
+  const excludedSourceKeys = [...new Set([...goldSourceKeys, ...priorSourceKeys])];
+  const rows = buildControlledVerificationBatch({
+    newChurches,
+    supported,
+    excludedSourceKeys,
+    size: options.size,
+    supportedTarget: options.supportedTarget,
+  });
+  const outputDir = path.join(root, `controlled-batch-${options.batch}`);
   await mkdir(outputDir, { recursive: true });
-  await writeFile(path.join(outputDir, 'verify-next-100.json'), `${JSON.stringify(rows, null, 2)}\n`);
-  await writeFile(path.join(outputDir, 'verify-next-100.csv'), asCsv(rows));
+  await writeFile(path.join(outputDir, `verify-next-${options.size}.json`), `${JSON.stringify(rows, null, 2)}\n`);
+  await writeFile(path.join(outputDir, `verify-next-${options.size}.csv`), asCsv(rows));
   const laneCounts = Object.fromEntries([...new Set(rows.map(row => row.lane))].map(lane => [lane, rows.filter(row => row.lane === lane).length]));
   const manifest = {
     generated_at: new Date().toISOString(),
@@ -152,7 +211,8 @@ async function main() {
     production_writes: 0,
     total: rows.length,
     lanes: laneCounts,
-    excluded_completed_gold_set_source_keys: excludedSourceKeys.length,
+    excluded_completed_gold_set_source_keys: goldSourceKeys.length,
+    excluded_prior_controlled_source_keys: priorSourceKeys.length,
     purpose_scope: [...PURPOSES],
     prohibited_purposes: ['outreach', 'export', 'redistribution'],
     canonical_write_allowed: false,

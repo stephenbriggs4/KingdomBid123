@@ -46,6 +46,7 @@ npm run church-intel:reconcile-sources
 npm run church-intel:verification-sample
 npm run church-intel:verification-report
 npm run church-intel:controlled-batch
+npm run church-intel:controlled-report
 npm run test:church-intel-acquisition
 ```
 
@@ -109,6 +110,24 @@ a public verification route. It excludes source records already used in the
 completed gold set. The list is not an import and grants no canonical-write,
 outreach, export, or redistribution permission.
 
+## Controlled batch 001 result — October 3, 2026
+
+All 100 candidates were researched and reconciled back to their exact source
+keys. The measured result was 69 verified current, 20 probable current, 9 held
+for another check, and 2 excluded. The Overture + IRS lane produced 44 of 50
+current-or-probable records; the strong Overture-only lane produced 45 of 50.
+
+The small difference confirms that IRS evidence is useful corroboration, not a
+requirement for a usable church candidate. It also confirms that neither lane is
+safe for blind import. Five bad or unattributable website links were quarantined,
+and the review found moves, name changes, a shared host site, a secondary
+ministry site, a same-campus dual address, identity conflicts, and a stale church
+record whose current occupant is not a church.
+
+The complete measured interpretation is in
+`docs/CHURCH_INTEL_DALLAS_CONTROLLED_BATCH_RESULTS.md`. The reproducible local
+summary is generated with `npm run church-intel:controlled-report`.
+
 An exact address match is only a **same-site signal**, not proof of a duplicate.
 Dallas congregations frequently share buildings or occupy different suites in
 the same building. The classifier therefore labels repeated addresses as an
@@ -129,8 +148,9 @@ unresolved same-site relationship and never merges or discards either record.
 
 ## What comes next
 
-After the first run, measure the candidate counts and manually inspect a
-representative sample from all three lists. Only after that review should an
-admin-controlled import path be considered. Additional free/official source
-families should then be compared to find Dallas churches Overture missed; they
-must remain separate evidence rather than being silently blended into Overture.
+Continue through the remaining high-quality candidates in controlled batches,
+using the measured evidence rules above. Verified records can later enter a
+separate admin-controlled promotion pass; probable and unresolved records stay
+research-only. Additional free/official source families should be compared to
+find Dallas churches Overture missed, and each source must remain separate
+evidence rather than being silently blended into Overture.

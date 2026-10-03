@@ -66,6 +66,8 @@
     "church-intel:verification-sample": "node scripts/build-dallas-verification-sample.mjs",
     "church-intel:verification-report": "node scripts/summarize-dallas-verification-results.mjs",
     "church-intel:controlled-batch": "node scripts/build-dallas-controlled-verification-batch.mjs",
+    "church-intel:controlled-batch-002": "node scripts/build-dallas-controlled-verification-batch.mjs --batch 002 --size 200 --supported-target 100",
+    "church-intel:controlled-report": "node scripts/summarize-dallas-controlled-verification-results.mjs",
     "test:build-budget": "node scripts/check-build-budget.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
