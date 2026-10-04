@@ -1,9 +1,8 @@
--- DRAFT. Do not apply until the disposable replay gate passes.
 -- Fixes Sentry JAVASCRIPT-REACT-35: "permission denied for function kb_submit_church_feedback".
--- The public wrapper runs as the calling user (SECURITY INVOKER), but the private
--- function's EXECUTE is revoked from authenticated. Running the wrapper as its owner
--- lets it reach the private function. The private function still checks auth.uid()
--- and the completed-project/hired-vendor rules, so no new access is granted.
+-- The public wrapper must run as its owner so it can reach the private function,
+-- whose EXECUTE privilege is intentionally unavailable to authenticated callers.
+-- The private function remains the authorization boundary: it reads auth.uid()
+-- and enforces the completed-project and hired-vendor requirements.
 
 create or replace function public.marketplace_service_submit_church_feedback(
   p_project_id uuid,
