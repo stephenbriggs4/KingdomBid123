@@ -59885,11 +59885,11 @@ const LANDING_GLIMPSE_CARDS = [
     title: "Facilities service provider",
     location: "Dallas, TX",
     services: "Facility care · Preventive maintenance",
-    status: { tone: "available", label: "Available now · Serves DFW" },
+    status: { tone: "limited", label: "Example profile" },
     image: "/gpi/volunteer.jpg",
     focus: "64% 34%",
     alt: "Volunteers in matching blue shirts collecting litter outdoors",
-    callout: "Every vendor is reviewed before they’re listed.",
+    callout: "Illustrative card. Vendors are reviewed before they’re listed.",
   },
   {
     position: "center",
@@ -59897,11 +59897,11 @@ const LANDING_GLIMPSE_CARDS = [
     title: "Creative services team",
     location: "Dallas, TX",
     services: "Brand identity · Web design",
-    status: { tone: "limited", label: "Booking this month · Serves North Texas" },
+    status: { tone: "limited", label: "Example profile" },
     image: "/gpi/creative.jpg",
     focus: "50% 58%",
     alt: "A creative team sharing their artwork in a bright, window-lined studio",
-    callout: "See real availability before you reach out.",
+    callout: "Illustrative card. Availability is shown on real profiles.",
   },
   {
     position: "right",
@@ -59909,16 +59909,11 @@ const LANDING_GLIMPSE_CARDS = [
     title: "Technology support partner",
     location: "Richardson, TX",
     services: "Systems support · Digital operations",
-    status: { tone: "available", label: "Available this week · Remote + DFW" },
+    status: { tone: "limited", label: "Example profile" },
     image: "/gpi/professional.jpg",
     focus: "72% 30%",
     alt: "Two colleagues talking at a professional gathering",
-    review: {
-      label: "Church-submitted review",
-      quote: "Responsive, knowledgeable, and a true partner in our mission.",
-      attribution: "— Example church review",
-    },
-    callout: "Church-submitted reviews.",
+    callout: "Illustrative card. Reviews appear only after real projects.",
   },
 ];
 
@@ -60074,7 +60069,7 @@ function LandingExampleReveal() {
         <header className="kb-landing-glimpse__head">
           <div className="kb-landing-glimpse__eyebrow">A glimpse inside</div>
           <h2 id="landing-example-reveal-title"><span>See how the right work</span> <span>comes into focus.</span></h2>
-          <p className="kb-landing-glimpse__sub">A look inside the marketplace.</p>
+          <p className="kb-landing-glimpse__sub">Illustrative examples, not live vendor listings.</p>
         </header>
         <div className="kb-landing-glimpse__stage" role="group" aria-label="Illustrative example of three FaithBid vendor profile cards">
           <div className="kb-landing-glimpse__halo" aria-hidden="true" />

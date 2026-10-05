@@ -9,7 +9,8 @@ test("landing keeps the illustrative example reveal after the how-it-works jump"
   assert.match(source, /onClick=\{scrollToHowItWorks\} aria-label="Learn how FaithBid works"/);
   assert.match(source, /id="landing-example-reveal"/);
   assert.match(source, /aria-label="Illustrative example of three FaithBid vendor profile cards"/);
-  assert.equal((source.match(/— Example church review/g) || []).length, 1);
+  assert.equal((source.match(/— Example church review/g) || []).length, 0);
+  assert.match(source, /Illustrative example of three FaithBid vendor profile cards/);
 });
 
 test("reveal uses three editorial cards and respects reduced motion", () => {

@@ -35,25 +35,23 @@ test('three cards carry the approved content in the approved order', () => {
   assert.match(reveal, /Facility care · Preventive maintenance/);
   assert.match(reveal, /Brand identity · Web design/);
   assert.match(reveal, /Systems support · Digital operations/);
-  assert.match(reveal, /Available now · Serves DFW/);
-  assert.match(reveal, /Booking this month · Serves North Texas/);
-  assert.match(reveal, /Available this week · Remote \+ DFW/);
+  assert.equal((reveal.match(/label: "Example profile"/g) || []).length, 3);
   assert.match(reveal, /\/gpi\/volunteer\.jpg[\s\S]*\/gpi\/creative\.jpg[\s\S]*\/gpi\/professional\.jpg/);
   assert.match(reveal, /Faith Verified/);
-  assert.match(reveal, /Church-submitted review/);
 });
 
 test('illustrative content never claims real churches, named testimonials, or invented ratings data', () => {
-  assert.match(reveal, /— Example church review/);
+  assert.doesNotMatch(reveal, /Available now · Serves DFW|Booking this month|Available this week/);
+  assert.doesNotMatch(reveal, /Church-submitted review|— Example church review/);
   assert.doesNotMatch(reveal, /Grace Community Church/);
   assert.doesNotMatch(reveal, /Real reviews from real churches/);
   assert.doesNotMatch(reveal, /reviews_count|rating:|avg_rating/);
 });
 
 test('three annotations are real elements with decorative connectors', () => {
-  assert.match(reveal, /Every vendor is reviewed before they’re listed\./);
-  assert.match(reveal, /See real availability before you reach out\./);
-  assert.match(reveal, /Church-submitted reviews\./);
+  assert.match(reveal, /Illustrative card\. Vendors are reviewed before they’re listed\./);
+  assert.match(reveal, /Illustrative card\. Availability is shown on real profiles\./);
+  assert.match(reveal, /Illustrative card\. Reviews appear only after real projects\./);
   assert.equal((reveal.match(/<svg className="kb-landing-glimpse__line"[^>]*aria-hidden="true"/g) || []).length, 3);
   assert.match(reveal, /kb-landing-glimpse__halo" aria-hidden="true"/);
   assert.match(reveal, /kb-landing-glimpse__ground" aria-hidden="true"/);
