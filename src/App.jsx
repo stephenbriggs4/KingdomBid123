@@ -27922,7 +27922,7 @@ function BidForm({ project, onBack, onSubmit, showToast }) {
           <FilePicker id="kb-bid-form-files" files={attachFiles} onChange={setAttachFiles} max={5} label="Attach a quote or scope document (optional)" help="PDF, Word, Excel or images. Up to 15 MB each." disabled={submitting} showToast={showToast} />
 
           {err ? (
-            <div style={{padding:'10px 12px', borderRadius:10, background:'rgba(220,38,38,0.06)', border:'1px solid rgba(220,38,38,0.18)', fontSize:13, color:'#b1342a'}}>
+            <div role="alert" style={{padding:'10px 12px', borderRadius:10, background:'rgba(220,38,38,0.06)', border:'1px solid rgba(220,38,38,0.18)', fontSize:13, color:'#b1342a'}}>
               {err}
             </div>
           ) : null}

@@ -570,7 +570,7 @@ function ResetPasswordScreen({nav, showToast}){
 
         {!done && recoveryState === "valid" && (
           <>
-            {error && <div style={{padding:"12px 16px",background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"var(--r-sm)",fontSize:13,color:"#FCA5A5",marginBottom:20}}>Error: {error}</div>}
+            {error && <div role="alert" style={{padding:"12px 16px",background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"var(--r-sm)",fontSize:13,color:"#FCA5A5",marginBottom:20}}>Error: {error}</div>}
             <div style={{position:"relative",marginBottom:28}}>
               <label style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"var(--atext-muted)",display:"block",marginBottom:8}}>New Password</label>
               <input aria-label="At least 8 characters" type="password" autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters" style={{width:"100%",padding:"14px 16px",background:"rgba(245,240,232,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:10,fontSize:15,color:"#fff",fontFamily:"var(--font-sans),sans-serif",outline:"none",boxSizing:"border-box"}}/>
