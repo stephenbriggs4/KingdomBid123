@@ -58452,7 +58452,7 @@ function LandingPricing({nav, setStartFreeDefaultRole, initialView = null}){
 // PLACEHOLDER — fabricated testimonials, MUST replace before prospect-facing use.
 // This guard is deliberately impossible to enable in a production build.
 const SHOW_PLACEHOLDER_TESTIMONIALS = import.meta.env.DEV
-  && import.meta.env.VITE_SHOW_PLACEHOLDER_TESTIMONIALS !== "false";
+  && import.meta.env.VITE_SHOW_PLACEHOLDER_TESTIMONIALS === "true";
 
 function LandingTestimonials(){
   const viewportWidth = useViewportWidth(1440);

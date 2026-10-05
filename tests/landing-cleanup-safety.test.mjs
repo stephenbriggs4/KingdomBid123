@@ -13,6 +13,8 @@ test("superseded Faith Verified component is removed while the live trust strip 
 test("placeholder testimonials are visibly marked and cannot render in production", () => {
   assert.match(source, /PLACEHOLDER — fabricated testimonials, MUST replace before prospect-facing use/);
   assert.match(source, /const SHOW_PLACEHOLDER_TESTIMONIALS = import\.meta\.env\.DEV/);
+  assert.match(source, /VITE_SHOW_PLACEHOLDER_TESTIMONIALS === "true"/);
+  assert.doesNotMatch(source, /VITE_SHOW_PLACEHOLDER_TESTIMONIALS !== "false"/);
   assert.match(source, /SHOW_PLACEHOLDER_TESTIMONIALS && <LandingTestimonials\s*\/>/);
 });
 
