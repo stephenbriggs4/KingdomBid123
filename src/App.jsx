@@ -34320,7 +34320,8 @@ function VendorProfile({vendor:v = {}, onBack = () => {}, nav = () => {}, onEdit
   const vendorDetailDisplayLocation = firstNonEmpty(v.service_area, [vendorDetailCity, vendorDetailState].filter(Boolean).join(', '), 'Service area not listed');
   const vendorDetailDelivery = hasDeliverySignal ? deliveryBadge.label : 'Delivery model not specified';
   const vendorDetailRating = ratingValue ? `${ratingValue.toFixed(1)} ★` : 'New to FaithBid';
-  const vendorDetailScopeItems = (vendorDetailOfferings.length ? vendorDetailOfferings : [vendorDetailCategory, 'Church-focused service', 'Project planning', 'Clear handoff']).slice(0,6);
+  // Never invent capabilities: fall back only to the vendor's real category when no offerings are listed.
+  const vendorDetailScopeItems = (vendorDetailOfferings.length ? vendorDetailOfferings : [vendorDetailCategory].filter(Boolean)).slice(0,6);
   const vendorDetailWorkItemsAll = [
     ...safeArray(portfolioItems).filter(item => item?.type !== 'link').map(item => ({
       title:firstNonEmpty(item?.title, item?.name, 'Representative work'),
