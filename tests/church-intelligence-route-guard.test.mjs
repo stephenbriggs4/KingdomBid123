@@ -34,22 +34,40 @@ test("the component only reaches church_intel data through narrow admin-gated RP
   assert.doesNotMatch(component, /\.from\(["']church_intel\./);
 });
 
-test("the Dallas census workflow stays focused on the church list instead of backend machinery", () => {
-  assert.match(component, /const TABS = \[\["churches","Churches"\],\["home","Progress"\],\["map","Map"\]\]/);
-  assert.match(component, /useState\("churches"\)/);
-  assert.match(component, /<h1>Dallas Church Directory<\/h1>/);
-  assert.match(component, /Every Dallas church, without the clutter/);
-  assert.match(component, /Candidates discovered/);
-  assert.match(component, /Live directory/);
-  assert.match(component, /Waiting to load/);
+test("the Dallas workflow is one directory-first search experience instead of an operations dashboard", () => {
+  assert.match(component, /const QUICK_FILTERS = \[/);
+  assert.match(component, /useState\("list"\)/);
+  assert.match(component, /<h1>Dallas Churches<\/h1>/);
+  assert.match(component, /Find a Dallas church/);
+  assert.match(component, /Search by church name, street, city, or ZIP code/);
+  assert.match(component, /Church candidates found/);
+  assert.match(component, /Loaded in FaithBid/);
+  assert.match(component, /Basics complete/);
+  assert.match(component, /Connected accounts/);
   assert.match(component, /Filter by denomination/);
   assert.match(component, /Filter by ZIP code/);
-  assert.match(component, /Filter by FaithBid connection/);
-  assert.match(component, /Filter by information completeness/);
+  assert.match(component, /aria-label="Directory view"/);
+  assert.doesNotMatch(component, /const TABS =/);
+  assert.doesNotMatch(component, />Progress<\/button>/);
   assert.doesNotMatch(component, /Review Queue/);
   assert.doesNotMatch(component, /Resolve \/ dismiss/);
   assert.doesNotMatch(component, /meters from the Dallas city line/);
   assert.doesNotMatch(component, /tab === "controls"/);
+});
+
+test("FaithBid account matching stays inside church detail instead of cluttering every directory row", () => {
+  const detailStart = component.indexOf("function OrgDetail(");
+  const detailEnd = component.indexOf("function DallasMap(", detailStart);
+  const detail = component.slice(detailStart, detailEnd);
+  assert.match(detail, /Find matching account/);
+  assert.match(detail, /Possible FaithBid accounts/);
+  assert.match(detail, /Link this account/);
+
+  const listStart = component.indexOf('<div className="ci-church-list">');
+  const listEnd = component.indexOf('<Empty eyebrow="No matches"', listStart);
+  const list = component.slice(listStart, listEnd);
+  assert.doesNotMatch(list, /Find FaithBid account/);
+  assert.doesNotMatch(list, /Link this account/);
 });
 
 test("Church Intelligence dialogs trap keyboard focus, close on Escape, and restore focus", () => {
