@@ -709,11 +709,16 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                     {label:"Denomination",     done:!!form.denomination,         action:()=>setTab("account")},
                     {label:"Faith statement",  done:!!form.faith_statement,      action:()=>setTab("account")},
                   ];
-                  // Vendors use the same weighted score as My Work so both screens always agree.
-                  const pct = vendorRow
-                    ? calcVendorCompletion({ ...vendorRow, _hasPortfolio: (overviewStats.portfolioCount || 0) > 0 }).pct
-                    : Math.round(checks.filter(c=>c.done).length / checks.length * 100);
-                  const next = checks.find(c=>!c.done);
+                  // Vendors read percentage, remaining count, and next step from the same canonical helper
+                  // that My Work uses, so no second checklist can drift from the score.
+                  const completion = vendorRow
+                    ? calcVendorCompletion({ ...vendorRow, _hasPortfolio: (overviewStats.portfolioCount || 0) > 0 })
+                    : null;
+                  const pct = completion ? completion.pct : Math.round(checks.filter(c=>c.done).length / checks.length * 100);
+                  const remainingCount = completion ? completion.remaining : checks.filter(c=>!c.done).length;
+                  const next = completion
+                    ? (completion.next ? { label: completion.next.label, action: () => setTab(completion.next.key === "portfolio" ? "portfolio" : "vendor") } : null)
+                    : checks.find(c=>!c.done);
                   if (pct === 100) return null;
                   return (
                     <div style={{gridColumn:"1 / -1",background:"linear-gradient(135deg,#fffaf0,#f7ecd5)",border:"1px solid #e9d5a5",borderRadius:18,padding:"20px 22px",marginBottom:2,boxShadow:"0 6px 18px rgba(176,136,64,0.08)",position:"relative",overflow:"hidden"}}>
@@ -722,7 +727,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                         <div style={{flex:1,minWidth:220}}>
                           <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:10}}>
                             <div style={{fontFamily:"var(--font-display),serif",fontSize:22,fontWeight:700,color:"#1C2814",letterSpacing:-0.4}}>{pct}% complete</div>
-                            <div style={{fontSize:12,color:"#7a6c4f"}}>· {checks.filter(c=>!c.done).length} step{checks.filter(c=>!c.done).length!==1?"s":""} remaining</div>
+                            <div style={{fontSize:12,color:"#7a6c4f"}}>· {remainingCount} step{remainingCount!==1?"s":""} remaining</div>
                           </div>
                           <div style={{height:5,background:"rgba(176,136,64,0.18)",borderRadius:3,overflow:"hidden",marginBottom:10}}>
                             <div style={{height:"100%",width:`${pct}%`,background:"linear-gradient(90deg,#c9a45c,#b08840)",borderRadius:3,transition:"width 0.6s ease"}}/>
