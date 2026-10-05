@@ -31793,12 +31793,14 @@ function ProjectDetail({ project: rawProject, initialTab = 'overview', role, nav
     if (kind === 'lightbulb') return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M9 18h6M10 22h4"/><path d="M8.2 14.5A7 7 0 1 1 15.8 14.5c-.9.8-1.8 1.8-1.8 3.5h-4c0-1.7-.9-2.7-1.8-3.5Z"/></svg>;
     return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>;
   };
+  // Completed or archived projects are closed records: owners get no Edit control here, matching the My Projects card menu.
+  const ownerCanEditDetail = viewerCanManageProject && !project?.completed && !project?.archived;
   const utilButtons = [
     viewerCanManageProject
-      ? { key:'edit', label:'Edit project', onClick:runDetailAction(openProjectEditor,null,'project-detail-render-edit') }
+      ? (ownerCanEditDetail ? { key:'edit', label:'Edit project', onClick:runDetailAction(openProjectEditor,null,'project-detail-render-edit') } : null)
       : { key:'save', label: projectSaved?'♥ Saved':'♡ Save', onClick:toggleProjectSavedFromDetail, disabled:projectSaveBusy },
     { key:'share', label:'↗ Share', onClick:shareProjectFromDetail },
-  ];
+  ].filter(Boolean);
   return (
     <div className="kb-project-preview-page kb-project-detail-reference" id="kb-project-detail-main">
       <style>{`

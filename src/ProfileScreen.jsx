@@ -898,10 +898,13 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                         </select>
                       </div>
                     )}
+                    {/* Vendors edit their faith statement once, on Public profile (the church-visible field the completion score reads). */}
+                    {role !== "vendor" && (
                     <div style={{...psx.field,marginBottom:0}}>
                       <label style={psx.label} htmlFor="ob-faith">Faith statement</label>
                       <textarea id="ob-faith" rows={3} value={form.faith_statement} onChange={e=>set("faith_statement",e.target.value)} placeholder="How does your faith shape your work or ministry?" style={psx.textarea} onFocus={psx.inputFocus} onBlur={psx.inputBlur}/>
                     </div>
+                    )}
                   </div>
                 </div>
                 <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
