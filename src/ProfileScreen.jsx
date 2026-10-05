@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 import { VendorBusinessDetailsPanel, VendorCredentialsPanel } from "./VendorCredentialsPanel";
+import { calcVendorCompletion } from "./vendorCompletion";
 
 let CATEGORIES, CrossLogo, KBSkeleton, KB_BP_MOBILE, KB_US_STATE_CODES, ProfileStats, ReferralDashboard, TrustedVendorRoster, VendorCompletionMeter, VendorPortfolioEditor, VendorReferencesTab, VendorVerificationFlow, buildVendorProfilePreviewSeed, getDeliveryModelMeta, getReturnNavigationTarget, isKbTimeoutError, kbIsDevRuntime, logError, normalizeDeliveryModel, queueVendorNavigation, readReturnContext, runSupabaseWithFallback, runSupabaseWithTimeout, selectProfilesBestEffort, serializeVendorServiceModel, syncProfileVendorMirror, useViewportWidth;
 
@@ -706,7 +707,10 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
                     {label:"Denomination",     done:!!form.denomination,         action:()=>setTab("account")},
                     {label:"Faith statement",  done:!!form.faith_statement,      action:()=>setTab("account")},
                   ];
-                  const pct = Math.round(checks.filter(c=>c.done).length / checks.length * 100);
+                  // Vendors use the same weighted score as My Work so both screens always agree.
+                  const pct = vendorRow
+                    ? calcVendorCompletion({ ...vendorRow, _hasPortfolio: (overviewStats.portfolioCount || 0) > 0 }).pct
+                    : Math.round(checks.filter(c=>c.done).length / checks.length * 100);
                   const next = checks.find(c=>!c.done);
                   if (pct === 100) return null;
                   return (
@@ -902,7 +906,7 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
             {/* VENDOR PUBLIC PROFILE */}
             {tab==="vendor" && (
               <div style={{maxWidth:720,margin:"0 auto"}}>
-                {vendorRow && <VendorCompletionMeter vendorRow={{...vendorRow,...vendorForm}} portfolioCount={overviewStats.portfolioCount||0} showToast={showToast} nav={()=>setTab("portfolio")}/>}
+                {vendorRow && <VendorCompletionMeter vendorRow={vendorRow} portfolioCount={overviewStats.portfolioCount||0} showToast={showToast} nav={()=>setTab("portfolio")}/>}
                 {/* Faith Verified status banner removed — badge appears on profile itself */}
                 {!isVerified && !isPending && (
                   <button type="button" onClick={()=>setTab("verify")} style={{width:"100%",background:"linear-gradient(135deg,#fffaf0,#f7ecd5)",border:"1px solid #e9d5a5",borderRadius:18,padding:"18px 22px",marginBottom:18,cursor:"pointer",display:"flex",alignItems:"center",gap:16,textAlign:"left",boxShadow:"0 6px 18px rgba(176,136,64,0.06)",position:"relative",overflow:"hidden"}}>
