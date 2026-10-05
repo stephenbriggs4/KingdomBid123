@@ -61929,9 +61929,9 @@ function AuthScreen({nav,defaultRole,signingInRef,onLoginFallback}){
   };
 
   const errBanner=error?(
-    <div style={{padding:"12px 16px",background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"var(--r-sm)",fontSize:13,color:"#FCA5A5",marginBottom:28}}>Error: {error}</div>
+    <div role="alert" style={{padding:"12px 16px",background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"var(--r-sm)",fontSize:13,color:"#FCA5A5",marginBottom:28}}>Error: {error}</div>
   ):successMsg?(
-    <div style={{padding:"12px 16px",background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.2)",borderRadius:"var(--r-sm)",fontSize:13,color:"rgba(34,197,94,0.9)",marginBottom:28}}>{successMsg}</div>
+    <div role="status" style={{padding:"12px 16px",background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.2)",borderRadius:"var(--r-sm)",fontSize:13,color:"rgba(34,197,94,0.9)",marginBottom:28}}>{successMsg}</div>
   ):null;
 
   if(mode==="login") return (
