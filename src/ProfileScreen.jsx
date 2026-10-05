@@ -467,7 +467,8 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
       return {padding:"3px 10px",borderRadius:999,background:palette.bg,border:`1px solid ${palette.border}`,fontSize:9.5,fontWeight:800,color:palette.color,letterSpacing:0.6,fontFamily:"var(--font-sans),monospace"};
     },
     tabsWrap:{maxWidth:1100,margin:"0 auto",padding:"0 28px",borderBottom:"1px solid #ece4d2",display:"flex",gap:24,overflowX:"auto"},
-    tab:(active)=>({padding:"12px 0 14px",fontSize:13,fontWeight:active?700:600,color:active?"#1C2814":"#7d7363",position:"relative",background:"none",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"color 0.15s",whiteSpace:"nowrap"}),
+    // flexShrink:0 keeps each label at full width so the tab strip scrolls instead of squeezing labels together on phones.
+    tab:(active)=>({padding:"12px 0 14px",fontSize:13,fontWeight:active?700:600,color:active?"#1C2814":"#7d7363",position:"relative",background:"none",border:"none",cursor:"pointer",fontFamily:"var(--font-sans),sans-serif",transition:"color 0.15s",whiteSpace:"nowrap",flexShrink:0}),
     tabBar:{position:"absolute",left:0,right:0,bottom:-1,height:2.5,background:"linear-gradient(90deg,#c9a45c,#b08840)",borderRadius:2},
     tabDot:{position:"absolute",top:9,right:-9,width:6,height:6,borderRadius:"50%",background:"#b08840"},
     panel:{background:"#fff",border:"1px solid #dfd5c2",borderRadius:18,marginBottom:18,boxShadow:"0 6px 18px rgba(28,40,20,0.04)",overflow:"hidden"},
