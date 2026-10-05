@@ -29,7 +29,9 @@ function ProfileScreen({role, currentUser, userProfile, setUserProfile, showToas
     try { return window.sessionStorage.getItem("kb_profile_scroll_to"); }
     catch { return null; }
   });
-  const [tab, setTab] = useState(initialTab || (profileScrollTarget ? "vendor" : "profile"));
+  // A pending scroll target (for example "Manage specialties" from My Work) must open the tab that holds it,
+  // even though App always passes initialTab="overview" for this route.
+  const [tab, setTab] = useState(profileScrollTarget ? "vendor" : (initialTab || "profile"));
   const [loading, setLoading] = useState(true);
   const [charterFirstRunActive, setCharterFirstRunActive] = useState(Boolean(charterFirstRun));
   const [charterStep, setCharterStep] = useState(1);
