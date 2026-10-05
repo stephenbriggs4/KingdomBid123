@@ -962,7 +962,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                   className="kb-waitlist-input"
                   value={form.full_name}
                   onChange={set("full_name")}
-                  placeholder={isVendor ? "Alex Martinez" : "Pastor Sarah Chen"}
+                  placeholder="Your full name"
                   maxLength={120}
                   style={{ ...fieldStyle, borderColor: inputBorderFor("full_name") }}
                 />
@@ -979,7 +979,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                       className="kb-waitlist-input"
                       value={form.org_name}
                       onChange={set("org_name")}
-                      placeholder="Grace Community Church"
+                      placeholder="Your church or ministry"
                       maxLength={160}
                       style={{ ...fieldStyle, borderColor: inputBorderFor("org_name") }}
                     />
@@ -994,7 +994,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
                       type="email"
                       value={form.email}
                       onChange={set("email")}
-                      placeholder="sarah@gracechurch.org"
+                      placeholder="name@yourchurch.org"
                       maxLength={254}
                       style={{ ...fieldStyle, borderColor: inputBorderFor("email") }}
                     />
