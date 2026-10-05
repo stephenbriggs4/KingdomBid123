@@ -916,7 +916,7 @@ function WaitlistFlow({ mode = "church", nav, showToast, setAuthDefaultRole = nu
           </div>
 
           {err ? (
-            <div style={{ padding: "10px 12px", borderRadius: 10, background: isVendor ? "rgba(232,167,92,0.1)" : "rgba(220,38,38,0.08)", border: `1px solid ${isVendor ? "rgba(232,167,92,0.28)" : "rgba(220,38,38,0.25)"}`, fontSize: 13, color: isVendor ? "#E8A75C" : "#DC2626", lineHeight: 1.5, marginBottom: 18 }}>
+            <div role="alert" style={{ padding: "10px 12px", borderRadius: 10, background: isVendor ? "rgba(232,167,92,0.1)" : "rgba(220,38,38,0.08)", border: `1px solid ${isVendor ? "rgba(232,167,92,0.28)" : "rgba(220,38,38,0.25)"}`, fontSize: 13, color: isVendor ? "#E8A75C" : "#DC2626", lineHeight: 1.5, marginBottom: 18 }}>
               {err}
             </div>
           ) : null}
