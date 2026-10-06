@@ -200,3 +200,9 @@ Production security advisor: 513 findings across 5 lint types. Test project advi
 - Invited sign-up is unchanged, since invitations use their own flow.
 - Regression test: `tests/auth-public-signup-hidden.test.mjs`. Tests: 340 passing, 0 failing, 7 skipped. Build passes.
 - Not changed: the consent-capture design for `AuthScreen` sign-up. If you want self-serve sign-up on that screen later, it needs a consent kind and the consent checkbox added, and it should be tested on the test project.
+
+## Self-directed checks (no decisions needed)
+
+- **Live anonymous-access tests against production** (`tests/anon-rls-negative.test.mjs`, public anon key, read-only): 4 of 4 pass. This was the only live-gated test file.
+- **Accessibility labels** (sign-in, marketplace, post-a-project form, church and signed out): no unlabeled form fields, no buttons without an accessible name, no images without alt text. A first pass flagged 12 unnamed buttons, but that came from reading `innerText`, which was unreliable for these elements. Re-checked with accessible names: none unnamed. No patch needed.
+- **Sign-in throttling:** no client-side retry limit in the sign-in code. Relies on Supabase Auth's server-side rate limits. No change made.
