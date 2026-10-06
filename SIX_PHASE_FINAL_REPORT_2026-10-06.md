@@ -149,3 +149,8 @@ Production security advisor: 513 findings across 5 lint types. Test project advi
 3. **Church first-login onboarding: blocked.** Needs a fresh church account, which was declined. Code path only. Next step if wanted: approve one disposable account and this becomes a browser test.
 4. **Performance: partly done.** Removed three unreferenced images (about 1.7 MB; commit `205fbf8`). No runtime dependencies are unused. The largest remaining item is the 1.68 MB parchment PNG (one reference) and the 955 kB CSS bundle (`legacy-route-patches.css` is 547 kB with many overlapping overrides). Compression needs an image tool that isn't installed; CSS trimming needs a careful visual pass. Neither is a no-change edit, so both are left for a separate change.
 5. **Church Intelligence: planning only.** The Phase 1 design (`outputs/PHASE_1_*`) is approved for design, not for migrations, UI, or ingestion. Next step: explicit approval to start the schema build on the test project first.
+
+## Remote
+
+- `origin`: https://github.com/stephenbriggs4/KingdomBid123.git
+- Branch `audit/p1-controls-completion` pushed at `7ea4c49` (verified with `git ls-remote`). Nothing pushed to `main`.
