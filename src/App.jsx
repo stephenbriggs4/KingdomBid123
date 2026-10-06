@@ -22902,7 +22902,6 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   const [biddingEnabled, setBiddingEnabled] = useState(false);
   const [biddingSettingLoaded, setBiddingSettingLoaded] = useState(false);
   const [bidNotifyPendingId, setBidNotifyPendingId] = useState(null);
-  const [confirmCompleteId, setConfirmCompleteId] = useState(null);
   const [confirmCancelId, setConfirmCancelId] = useState(null);
   useEffect(()=>{ if(onMounted) onMounted(); },[]);
   useEffect(() => {
@@ -24669,7 +24668,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
       {successMomentModal}
     </>
   );
-  if(view==="detail" && selectedProject) return (<><ProjectDetail project={selectedProject} initialTab={selectedProjectInitialTab} role={role} nav={handleProjectDetailNav} showToast={showToast} onBack={reset} onPost={goToPostProject} onBid={openBidWhenEnabled} onViewMyBids={()=>setView("mybids")} biddingEnabled={biddingEnabled || privateMarketplaceAccess || isAdmin} biddingSettingLoaded={biddingSettingLoaded || privateMarketplaceAccess || isAdmin} onNotifyBidding={requestBidOpeningNotification} bidNotifyPendingId={bidNotifyPendingId} onManageBids={(p)=>openProjectBidReview(p || selectedProject)} onProjectUpdate={(updated)=>{const normalized = normalizeProjectEntity(updated); if (normalized?.id) { setSelectedProjectId(normalized.id); setSelectedProjectFallback(normalized); patchProjectEverywhere(normalized.id, updated); }}} onComplete={(projectId)=>setConfirmCompleteId(projectId)} onCancel={(projectId)=>setConfirmCancelId(projectId)} currentUser={currentUser}/>{bidReviewModalNode}{stripeModalNode}</>);
+  if(view==="detail" && selectedProject) return (<><ProjectDetail project={selectedProject} initialTab={selectedProjectInitialTab} role={role} nav={handleProjectDetailNav} showToast={showToast} onBack={reset} onPost={goToPostProject} onBid={openBidWhenEnabled} onViewMyBids={()=>setView("mybids")} biddingEnabled={biddingEnabled || privateMarketplaceAccess || isAdmin} biddingSettingLoaded={biddingSettingLoaded || privateMarketplaceAccess || isAdmin} onNotifyBidding={requestBidOpeningNotification} bidNotifyPendingId={bidNotifyPendingId} onManageBids={(p)=>openProjectBidReview(p || selectedProject)} onProjectUpdate={(updated)=>{const normalized = normalizeProjectEntity(updated); if (normalized?.id) { setSelectedProjectId(normalized.id); setSelectedProjectFallback(normalized); patchProjectEverywhere(normalized.id, updated); }}} onCancel={(projectId)=>setConfirmCancelId(projectId)} currentUser={currentUser}/>{bidReviewModalNode}{stripeModalNode}</>);
   if(view==="mybids") return (
     <MyBidsScreen bids={myBids} loading={loadingMyBids} currentUser={currentUser} showToast={showToast} onBack={()=>setView("board")} onEditSuccess={()=>fetchMyBids({ force: true })}/>
   );
@@ -24703,47 +24702,6 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
 
   const marketplaceShell = null;
 
-  const doMarkComplete = async (projectId) => {
-    const user = await getCurrentUserSafe();
-    if (!user || !canManageProjectWithRole(role, user, selectedProject || selectedProjectFallback || {})) {
-      showToast("Only the posting church can confirm project completion.", "error");
-      return;
-    }
-    let lifecycleProject = null;
-    try {
-      lifecycleProject = await transitionProjectLifecycleSafe(projectId, 'confirm_completion');
-    } catch (completeError) {
-      logError("project-complete", completeError, { projectId });
-      showToast(completeError?.message || "Could not confirm project completion.", "error");
-      return;
-    }
-    let hiredBid = bids.find(b=>b.hired);
-    if (!hiredBid) {
-      const { data: hiredBidRow } = await supabase.from("bids").select("vendor_id,vendor_name,status").eq("project_id", projectId).eq("status", "hired").maybeSingle();
-      if (hiredBidRow) hiredBid = { ...hiredBidRow, hired: true };
-    }
-    const vendorName = hiredBid?.vendor_name || "your vendor";
-    const vendorId   = hiredBid?.vendor_id   || lifecycleProject?.hired_vendor_id || null;
-    try {
-      const { error: notificationError } = await createTrustedNotificationSafe("review_prompt", projectId);
-      if (notificationError) throw notificationError;
-    } catch(err){ logError('review-prompt-notify', err, { userId: user.id, projectId }); }
-    patchProjectEverywhere(projectId, lifecycleProject || { status:"completed" });
-    invalidateCache('projects-board');
-    saveProjectOpsState(projectId, prev => ({ ...prev, closeout: { ...(prev.closeout || {}), status:'completed', finalReview:'requested', reviewRequested:true } }), lifecycleProject || selectedProject || {});
-    showToast("Project completion confirmed. You can review the vendor from Completed in My Projects.");
-    if (reviewNavTimerRef.current) clearTimeout(reviewNavTimerRef.current);
-    reviewNavTimerRef.current = setTimeout(()=>{
-      setPendingReviewTarget({
-        vendor_id:  vendorId,
-        name:       vendorName,
-        emoji:      hiredBid?.vendor_emoji || "",
-        project:    selectedProject?.title || "",
-        project_id: selectedProject?.id || projectId || null,
-      });
-      nav("my-projects");
-    }, 1800);
-  };
 
   const doMarkCancelled = async (projectId) => {
     const user = await getCurrentUserSafe();
@@ -24814,15 +24772,6 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
           onClose={()=>setBidAcceptedModal(null)}
           onMessage={()=>openInboxThread(nav, { projectId: bidAcceptedModal.project?.id || null, vendorId: bidAcceptedModal.vendor?.vendor_id || null, vendorName: bidAcceptedModal.vendor?.name || null, createIfMissing: Boolean(bidAcceptedModal.vendor?.vendor_id) })}
           onViewProject={()=>{ setBidAcceptedModal(null); setView("detail"); }}
-        />
-      )}
-      {confirmCompleteId && (
-        <ConfirmModal
-          title="Confirm this project is complete?"
-          body="The vendor has requested completion. Confirming records the project as completed and moves it into closeout and review. Payment coordination remains separate."
-          confirmLabel="Confirm Completion"
-          onConfirm={()=>{ doMarkComplete(confirmCompleteId); setConfirmCompleteId(null); }}
-          onCancel={()=>setConfirmCompleteId(null)}
         />
       )}
       {confirmCancelId && (
