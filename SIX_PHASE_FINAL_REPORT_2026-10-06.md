@@ -193,3 +193,10 @@ Production security advisor: 513 findings across 5 lint types. Test project advi
 - Leaked-password protection: needs Supabase Pro.
 - Stylesheet trim and image compression: deferred to separate changes.
 - Church Intelligence build: needs approval.
+
+## Sign-up consent gap: fixed
+
+- The public sign-in page (`#auth`) no longer shows "Create an account" to visitors. Verified signed out: the button is gone, and sign-in, Request Access, and the waitlist remain. Consent-gated flows still create accounts.
+- Invited sign-up is unchanged, since invitations use their own flow.
+- Regression test: `tests/auth-public-signup-hidden.test.mjs`. Tests: 340 passing, 0 failing, 7 skipped. Build passes.
+- Not changed: the consent-capture design for `AuthScreen` sign-up. If you want self-serve sign-up on that screen later, it needs a consent kind and the consent checkbox added, and it should be tested on the test project.

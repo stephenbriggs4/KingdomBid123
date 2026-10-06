@@ -38159,7 +38159,7 @@ function AuthScreen({ invited = false }) {
 							onClick: () => setMode("signin"),
 							children: "Sign in"
 						}),
-						mode !== "signup" && /* @__PURE__ */ jsx("button", {
+						invited && mode !== "signup" && /* @__PURE__ */ jsx("button", {
 							type: "button",
 							className: "link",
 							onClick: () => setMode("signup"),
