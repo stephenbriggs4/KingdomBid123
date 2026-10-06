@@ -24092,6 +24092,15 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
       </div>
     </div>
   ) : null;
+  const stripeModalNode = stripeModal ? (
+    <StripePlatformFeeModal
+      bid={stripeModal.bid}
+      project={stripeModal.project}
+      onClose={()=>setStripeModal(null)}
+      onSuccess={()=>confirmHire(stripeModal?.bid?.id)}
+      showToast={showToast}
+    />
+  ) : null;
   const reset = () => {
     const returnTarget = getReturnNavigationTarget(readReturnContext(), 'projects');
     clearSelectedProject();
@@ -24656,19 +24665,11 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
   if(view==="bids") return (
     <>
       <ManageBids project={selectedProject} bids={bids} loading={loadingBids} error={bidFetchError} onRetry={()=>fetchBids(selectedProject?.id, selectedProject)} onAccept={handleAcceptBid} onDecline={handleDeclineBid} onBack={()=>setView("detail")} showToast={showToast} onNav={nav}/>
-      {stripeModal && (
-        <StripePlatformFeeModal
-          bid={stripeModal.bid}
-          project={stripeModal.project}
-          onClose={()=>setStripeModal(null)}
-          onSuccess={()=>confirmHire(stripeModal?.bid?.id)}
-          showToast={showToast}
-        />
-      )}
+      {stripeModalNode}
       {successMomentModal}
     </>
   );
-  if(view==="detail" && selectedProject) return (<><ProjectDetail project={selectedProject} initialTab={selectedProjectInitialTab} role={role} nav={handleProjectDetailNav} showToast={showToast} onBack={reset} onPost={goToPostProject} onBid={openBidWhenEnabled} onViewMyBids={()=>setView("mybids")} biddingEnabled={biddingEnabled || privateMarketplaceAccess || isAdmin} biddingSettingLoaded={biddingSettingLoaded || privateMarketplaceAccess || isAdmin} onNotifyBidding={requestBidOpeningNotification} bidNotifyPendingId={bidNotifyPendingId} onManageBids={(p)=>openProjectBidReview(p || selectedProject)} onProjectUpdate={(updated)=>{const normalized = normalizeProjectEntity(updated); if (normalized?.id) { setSelectedProjectId(normalized.id); setSelectedProjectFallback(normalized); patchProjectEverywhere(normalized.id, updated); }}} onComplete={(projectId)=>setConfirmCompleteId(projectId)} onCancel={(projectId)=>setConfirmCancelId(projectId)} currentUser={currentUser}/>{bidReviewModalNode}</>);
+  if(view==="detail" && selectedProject) return (<><ProjectDetail project={selectedProject} initialTab={selectedProjectInitialTab} role={role} nav={handleProjectDetailNav} showToast={showToast} onBack={reset} onPost={goToPostProject} onBid={openBidWhenEnabled} onViewMyBids={()=>setView("mybids")} biddingEnabled={biddingEnabled || privateMarketplaceAccess || isAdmin} biddingSettingLoaded={biddingSettingLoaded || privateMarketplaceAccess || isAdmin} onNotifyBidding={requestBidOpeningNotification} bidNotifyPendingId={bidNotifyPendingId} onManageBids={(p)=>openProjectBidReview(p || selectedProject)} onProjectUpdate={(updated)=>{const normalized = normalizeProjectEntity(updated); if (normalized?.id) { setSelectedProjectId(normalized.id); setSelectedProjectFallback(normalized); patchProjectEverywhere(normalized.id, updated); }}} onComplete={(projectId)=>setConfirmCompleteId(projectId)} onCancel={(projectId)=>setConfirmCancelId(projectId)} currentUser={currentUser}/>{bidReviewModalNode}{stripeModalNode}</>);
   if(view==="mybids") return (
     <MyBidsScreen bids={myBids} loading={loadingMyBids} currentUser={currentUser} showToast={showToast} onBack={()=>setView("board")} onEditSuccess={()=>fetchMyBids({ force: true })}/>
   );
@@ -24677,6 +24678,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
     <>
       <VendorProfile vendor={selectedVendorProfile} onBack={handleVendorProfileBack} nav={nav} role={role} showToast={showToast} contextProjects={myActiveProjects} currentUser={currentUser} onReviewBid={openProjectBidReview}/>
       {bidReviewModalNode}
+      {stripeModalNode}
     </>
   );
 
@@ -24834,6 +24836,7 @@ function ProjectsScreen({role, currentUser, userProfile = null, showToast, nav, 
         />
       )}
       {bidReviewModalNode}
+      {stripeModalNode}
     </>
   );
 }
