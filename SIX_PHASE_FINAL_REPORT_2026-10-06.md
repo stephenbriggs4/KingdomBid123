@@ -154,3 +154,42 @@ Production security advisor: 513 findings across 5 lint types. Test project advi
 
 - `origin`: https://github.com/stephenbriggs4/KingdomBid123.git
 - Branch `audit/p1-controls-completion` pushed at `7ea4c49` (verified with `git ls-remote`). Nothing pushed to `main`.
+
+## Platform audit (this pass)
+
+### A. Security and safety
+- **A1 Dependency audit:** 2 high-severity findings in `image-size` (denial of service via crafted JXL/HEIF/ICNS images), pulled in by `pptxgenjs`. The fix is a breaking downgrade of `pptxgenjs` to 4.0.0, so it was **not applied**. Risk is limited to parsing untrusted images. Decide before next release.
+- **A2 Secrets:** `.env` and `.env.*` are git-ignored; no key-shaped secrets in tracked files.
+- **A3 Migration drift:** production has `church_intelligence_phase1`, `church_intelligence_auth_dependency_bridge`, `church_intelligence_rpc_acl_hardening`, and `church_intelligence_revoke_lingering_postgres_membership` applied. The Church Intelligence design docs said the live database must not be changed for this, so **this needs your review**. Later Church Intelligence migrations (2026-09-30 to 2026-10-02) are **not** on production.
+- **A3 Feedback migration:** production has `harden_church_feedback_wrapper_execution` (2026-10-04), which fixes a Sentry error. The file you asked to leave unapplied (`church_feedback_wrapper_security_definer.sql`) is **not in the repo**. Confirm this is the change you intended.
+- **A4 Backups:** not visible through these tools. **Needs your check** in the Supabase dashboard.
+
+### B. Public forms
+- All public write functions checked have server-side guards (spam trap, rate limit, or validation). Vendor survey responses are protected by a secret token. Waitlist inherits its guard from the base function.
+
+### C. Authorization
+- Church Toolkit personal-data readers check active membership through `toolkit_core.is_member`, which uses the signed-in user's ID. Kids-team reads also limit roles. No gap found.
+
+### D. Launch-route states
+- Church and vendor screens scanned for leaked placeholder text (undefined, NaN, null, [object Object]) and page errors: none found.
+
+### E. Keyboard and focus
+- Sign-in and My Projects: every tabbed control shows a visible focus indicator.
+
+### F. Monitoring
+- Sentry initializes when `VITE_SENTRY_DSN` is set; `.env` sets it. The production migration cites a Sentry issue, so errors reach Sentry. **Dashboard confirmation needs your login.**
+
+### G. Compliance
+- **HIGH: the "Create an account" option on the `#auth` screen (`src/App.jsx` ~38165) creates accounts without a consent checkbox or a consent record.** The waitlist, invite, guest, and start-free flows do require consent. Fix: route sign-up through a consent-gated flow, or add the consent step that writes to `legal_consents`. Not patched here, because it changes the sign-up flow.
+
+### H. Rollback
+- The production revoke can be reversed with:
+  `grant execute on function private.faithbid_sync_project_bids_count_v1(), private.kb_seed_cohort_gated_growth_foundations_v0(), private.kb_seed_real_project_milestone_tasks_v0() to public, anon;`
+  This restores the previous default grants. The triggers keep working either way.
+
+### Not done in this pass (blocked or deferred)
+- Real-device phone test: needs your phone.
+- Church first-login onboarding: needs a fresh account.
+- Leaked-password protection: needs Supabase Pro.
+- Stylesheet trim and image compression: deferred to separate changes.
+- Church Intelligence build: needs approval.
