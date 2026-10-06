@@ -29914,6 +29914,14 @@ function ChurchMyProjectsRenderPanel({projects, loading, onSelect, onPost, onMan
       .kb1005-layout>.kb1005-main{container-type:inline-size}
       @media(min-width:821px){@container (max-width:999px){.kb1005-filter-cell{gap:7px;padding:0 8px;font-size:14px;white-space:nowrap}.kb1005-filter-cell.active{font-size:13px}.kb1005-filter-cell svg{display:none}.kb1005-filter-count{min-width:22px;height:22px;padding:0 5px;font-size:11px}}@container (max-width:799px){.kb1005-filter-cell{gap:6px;padding:0 5px;font-size:13px}.kb1005-filter-cell.active{font-size:12.5px}.kb1005-filter-count{min-width:20px;height:20px;font-size:10.5px}}}
       @media(max-width:820px){.kb1005-myprojects{padding:22px 16px 84px}.kb1005-intro h1{font-size:46px}.kb1005-filter-cells{grid-template-columns:repeat(2,minmax(0,1fr));height:auto;background:transparent;border:0;box-shadow:none;gap:8px;overflow:visible}.kb1005-filter-cell{min-height:50px;border:1px solid #ded8cc!important;border-radius:8px;background:#fff}.kb1005-toolbar{grid-template-columns:1fr auto}.kb1005-sort{grid-column:1/-1;grid-row:2}.kb1005-card-grid{grid-template-columns:1fr}.kb1005-side{grid-template-columns:1fr}}
+      .kb1005-filter-cell{height:auto;min-height:50px;min-width:0;padding:8px 12px;border-radius:999px;white-space:normal;line-height:1.15;text-align:center;flex-wrap:wrap;overflow-wrap:anywhere}
+      .kb1005-filter-cell>span:not(.kb1005-filter-count){min-width:0;overflow-wrap:anywhere}
+      .kb1005-filter-count{flex:0 0 auto}
+      @media(min-width:821px) and (max-width:1180px){.kb1005-layout{grid-template-columns:minmax(0,1fr)}}
+      .kb1005-filter-cells{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-start;margin-bottom:14px}
+      .kb1005-filter-cell{flex:0 0 auto;height:38px;min-height:38px;padding:0 14px;gap:7px;font-size:13px;line-height:1;white-space:nowrap;border-radius:999px;border:1px solid #ded8cc;box-shadow:0 1px 4px rgba(31,43,35,.05)}
+      .kb1005-filter-cell svg{width:14px;height:14px}
+      .kb1005-filter-count{min-width:20px;height:20px;padding:0 6px;font-size:11px;border-radius:999px}
       @media(max-width:560px){.kb1005-project-card{grid-template-columns:1fr}.kb1005-card-media{margin:12px 12px 0;height:170px;min-height:170px}.kb1005-filter-cells{grid-template-columns:1fr 1fr}.kb1005-toolbar{grid-template-columns:1fr}.kb1005-view-toggle{display:flex}.kb1005-card-main{padding:14px}.kb1005-side-card{padding:16px}}
     `}</style>
     <style>{`
