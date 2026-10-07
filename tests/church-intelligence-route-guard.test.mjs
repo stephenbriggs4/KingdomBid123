@@ -40,10 +40,15 @@ test("the Dallas workflow is one directory-first search experience instead of an
   assert.match(component, /<h1>Dallas Churches<\/h1>/);
   assert.match(component, /Find a Dallas church/);
   assert.match(component, /Search by church name, street, city, or ZIP code/);
-  assert.match(component, /Church candidates found/);
   assert.match(component, /Loaded in FaithBid/);
   assert.match(component, /Basics complete/);
   assert.match(component, /Connected accounts/);
+  // R-2026-10-07: "Church candidates found" was a frozen, hardcoded number
+  // (DALLAS_RESEARCH_SNAPSHOT.candidateCount) presented as if it were live.
+  // Removed rather than fixed -- a stat nobody can act on and that lies about
+  // being current is worse than no stat.
+  assert.doesNotMatch(component, /Church candidates found/);
+  assert.doesNotMatch(component, /DALLAS_RESEARCH_SNAPSHOT/);
   assert.match(component, /Filter by denomination/);
   assert.match(component, /Filter by ZIP code/);
   assert.match(component, /aria-label="Directory view"/);
@@ -53,6 +58,19 @@ test("the Dallas workflow is one directory-first search experience instead of an
   assert.doesNotMatch(component, /Resolve \/ dismiss/);
   assert.doesNotMatch(component, /meters from the Dallas city line/);
   assert.doesNotMatch(component, /tab === "controls"/);
+});
+
+test("Add church warns on a likely duplicate name without blocking submission", () => {
+  const modalStart = component.indexOf("function NewOrgModal(");
+  assert.ok(modalStart > 0, "NewOrgModal not found");
+  const modal = component.slice(modalStart);
+  assert.match(component, /function normalizeChurchName\(value\)/);
+  assert.match(modal, /const possibleDuplicates = useMemo\(/);
+  assert.match(modal, /ci-dup-warning/);
+  assert.match(modal, /Already in the directory\?/);
+  // Must never factor into whether the form can submit -- it is a warning, not a gate.
+  const canSubmitLine = modal.match(/const canSubmit = [^\n]+/)?.[0] || "";
+  assert.doesNotMatch(canSubmitLine, /possibleDuplicates/);
 });
 
 test("FaithBid account matching stays inside church detail instead of cluttering every directory row", () => {

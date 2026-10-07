@@ -11,13 +11,6 @@ const QUICK_FILTERS = [
   ["connected", "On FaithBid"],
 ];
 
-const DALLAS_RESEARCH_SNAPSHOT = Object.freeze({
-  candidateCount: 1962,
-  reviewedCount: 235,
-  sourceObservationCount: 1990,
-  updatedLabel: "October 3, 2026",
-});
-
 const OPERATING_STATES = ["active","inactive","unknown"];
 
 async function sha256Hex(input) {
@@ -182,7 +175,6 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
       ready,
       missing: directory.length - ready,
       connected: directory.filter(row => row.linked_to_faithbid).length,
-      waiting: Math.max(DALLAS_RESEARCH_SNAPSHOT.candidateCount - directory.length, 0),
     };
   }, [directory]);
   const deferredSearch = useDeferredValue(directorySearch.trim().toLowerCase());
@@ -220,11 +212,9 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
     <Banner banner={banner} onDismiss={() => setBanner(null)} />
 
     <section className="ci-coverage" aria-label="Dallas church coverage">
-      <div><span>Church candidates found</span><strong>{DALLAS_RESEARCH_SNAPSHOT.candidateCount.toLocaleString()}</strong></div>
       <div><span>Loaded in FaithBid</span><strong>{directoryLoading ? "—" : directory.length.toLocaleString()}</strong></div>
       <div><span>Basics complete</span><strong>{directoryLoading ? "—" : directoryStats.ready.toLocaleString()}</strong></div>
       <div><span>Connected accounts</span><strong>{directoryLoading ? "—" : directoryStats.connected.toLocaleString()}</strong></div>
-      <p><strong>{directoryLoading ? "—" : directoryStats.waiting.toLocaleString()}</strong> researched candidates remain to be loaded in controlled batches.</p>
     </section>
 
     <div className="ci-panel ci-directory-panel">
@@ -296,7 +286,7 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
 
     </div>
 
-    {showNewOrgModal && <NewOrgModal sources={sources} busy={busy} onClose={() => setShowNewOrgModal(false)} onSubmit={async (bundle, reason) => {
+    {showNewOrgModal && <NewOrgModal sources={sources} directory={directory} busy={busy} onClose={() => setShowNewOrgModal(false)} onSubmit={async (bundle, reason) => {
       setBusy(true);
       try { await callRpc("ci_create_research_bundle", { p_bundle: bundle, p_reason: reason }, "Create research bundle");
         notify("success", "Church added to the Dallas directory."); setShowNewOrgModal(false); await refreshDirectory();
@@ -394,12 +384,31 @@ function DallasMap({ rows, onSelect }) {
   return <div className="ci-map-wrap">{mapError ? <div className="ci-alert" role="alert"><div><strong>Map unavailable.</strong><span>{mapError}</span></div></div> : null}<div ref={containerRef} className="ci-map" /><div className="ci-map-legend"><span><i style={{ background: "#286046" }} />Church in the directory</span></div></div>;
 }
 
-function NewOrgModal({ sources, busy, onClose, onSubmit }) {
+function normalizeChurchName(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(word => word && !["the", "of", "a", "an", "church"].includes(word))
+    .join(" ")
+    .trim();
+}
+
+function NewOrgModal({ sources, directory, busy, onClose, onSubmit }) {
   const [name, setName] = useState(""); const [state, setState] = useState("active"); const [campus, setCampus] = useState("");
   const [addr1, setAddr1] = useState(""); const [addr2, setAddr2] = useState(""); const [locality, setLocality] = useState("Dallas"); const [region, setRegion] = useState("TX"); const [postal, setPostal] = useState("");
   const [notes, setNotes] = useState("");
   const [submitError, setSubmitError] = useState("");
   const source = sources.find(item => item.source_key?.includes("manual")) || sources[0];
+
+  const possibleDuplicates = useMemo(() => {
+    const normalizedInput = normalizeChurchName(name);
+    if (normalizedInput.length < 4) return [];
+    return (directory || []).filter(row => {
+      const normalizedExisting = normalizeChurchName(row.canonical_name);
+      return normalizedExisting && (normalizedExisting === normalizedInput || normalizedExisting.includes(normalizedInput) || normalizedInput.includes(normalizedExisting));
+    }).slice(0, 5);
+  }, [name, directory]);
 
   const canSubmit = name.trim().length >= 2 && addr1.trim() && locality.trim() && region.trim() && source?.id;
 
@@ -424,7 +433,16 @@ function NewOrgModal({ sources, busy, onClose, onSubmit }) {
 
   return <Modal title="Add a church" subtitle="Add the church's basic information. The system will handle the internal recordkeeping." onClose={onClose} wide>
     <div className="ci-form-grid">
-      <Field label="Church name *"><input value={name} onChange={e => setName(e.target.value)} placeholder="First Baptist Church of Dallas" /></Field>
+      <Field label="Church name *">
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="First Baptist Church of Dallas" />
+        {possibleDuplicates.length > 0 && (
+          <div className="ci-dup-warning" role="status">
+            <strong>Already in the directory?</strong>
+            <ul>{possibleDuplicates.map(row => <li key={row.id}>{row.canonical_name}{row.address_line_1 ? ` · ${row.address_line_1}, ${row.locality}` : ""}</li>)}</ul>
+            <span>Check these before adding a new record — this may already be loaded.</span>
+          </div>
+        )}
+      </Field>
       <Field label="Status"><select value={state} onChange={e => setState(e.target.value)}>{OPERATING_STATES.map(s => <option key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</option>)}</select></Field>
       <Field label="Campus name" hint="Only needed when this is one campus of a larger church"><input value={campus} onChange={e => setCampus(e.target.value)} /></Field>
       <Field label="Street address *"><input value={addr1} onChange={e => setAddr1(e.target.value)} /></Field>
