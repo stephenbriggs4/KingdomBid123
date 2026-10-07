@@ -1081,9 +1081,7 @@ html body .fb-landing-v2 .fb-landing-nav-brand .kb-brand-logo-full {
   image-rendering: auto;
   object-fit: cover !important;
   object-position: 50% 0% !important;
-}
-html body .fb-landing-v2 .fb-landing-nav-brand { min-width: 0 !important; }
-html body .fb-landing-v2 .fb-landing-nav-links { gap: clamp(14px, 2.2vw, 34px); }
+}html body .fb-landing-v2 .fb-landing-nav-links { gap: clamp(14px, 2.2vw, 34px); }
 html body .fb-landing-v2 .fb-landing-signin { font-weight: 500 !important; color: #33443f !important; }
 html body .fb-landing-v2 .fb-landing-request { min-height: 44px; }
 html body .fb-landing-v2 .fb-landing-nav { padding-top: 14px !important; padding-bottom: 14px !important; }

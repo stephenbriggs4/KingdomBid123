@@ -2686,9 +2686,7 @@ html body #root .topnav-brand .kb-brand-logo-wordmark {
 }
 
 /* Rails: both arrows are always shown (the unusable one is dimmed), plus a slim scroll track under the row. */
-.kb-rail-arrow { display: grid !important; width: 48px; height: 48px; margin-top: -24px; background: #fffdf8; border: 1px solid rgba(23, 75, 59, .35); box-shadow: 0 10px 26px rgba(28, 40, 20, .2); }
-.kb-rail-arrow[hidden] { display: grid !important; }
-.kb-rail-arrow:disabled { opacity: .38 !important; cursor: default; box-shadow: none; }
+.kb-rail-arrow { display: grid !important; width: 48px; height: 48px; margin-top: -24px; background: #fffdf8; border: 1px solid rgba(23, 75, 59, .35); box-shadow: 0 10px 26px rgba(28, 40, 20, .2); }.kb-rail-arrow:disabled { opacity: .38 !important; cursor: default; box-shadow: none; }
 .kb-rail-arrow.is-prev { left: -24px; }
 .kb-rail-arrow.is-next { right: -24px; }
 .kb-rail-track { position: relative; height: 3px; margin: 14px 0 0; border-radius: 999px; background: rgba(23, 75, 59, .14); overflow: hidden; }
@@ -2798,10 +2796,7 @@ html body #root .mkt2-root section.mkt2-header { background: transparent !import
 .kb-rail-wrap::before, .kb-rail-wrap::after {
   height: 3px !important;
   background: linear-gradient(90deg, rgba(176, 132, 52, 0) 0%, rgba(168, 121, 40, .95) 4%, rgba(168, 121, 40, .95) 96%, rgba(176, 132, 52, 0) 100%) !important;
-}
-.kb-rail-wrap::before { box-shadow: 0 6px 0 rgba(168, 121, 40, .4) !important; }
-.kb-rail-wrap::after { box-shadow: 0 -6px 0 rgba(168, 121, 40, .4) !important; }
-html body #root .mkt2-root { background: transparent !important; }
+}html body #root .mkt2-root { background: transparent !important; }
 
 /* Category bar attaches to the header photo; everything below moves up with it. */
 .mkt2-root nav.mkt2-categories { margin-top: 0 !important; margin-bottom: 0 !important; border-radius: 0 0 14px 14px; border-top: 0; }
