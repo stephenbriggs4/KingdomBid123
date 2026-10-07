@@ -54913,7 +54913,7 @@ const CHURCH_OS_MODERN_TOOLKIT_CSS = `
 const CHURCH_OS_CANVAS_TEXTURE_CSS = `
 .os-main{
   background-color:#f6f3ec;
-  background-image:url("/textures/church-os-parchment.png");
+  background-image:url("/textures/church-os-parchment.jpg");
   background-position:center top;
   background-repeat:repeat-y;
   background-size:100% auto;
