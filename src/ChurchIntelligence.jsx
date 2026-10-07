@@ -127,10 +127,12 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   const [directorySearch, setDirectorySearch] = useState(() => initialParams.get("q") || "");
   const [statusFilters, setStatusFilters] = useState(() => (initialParams.get("status") || "").split(",").filter(Boolean));
   const [denominationFilters, setDenominationFilters] = useState(() => (initialParams.get("denom") || "").split(",").filter(Boolean));
+  const [districtFilters, setDistrictFilters] = useState(() => (initialParams.get("district") || "").split(",").filter(Boolean));
   const [postalFilter, setPostalFilter] = useState(() => initialParams.get("zip") || "all");
   const [connectedOnly, setConnectedOnly] = useState(() => initialParams.get("connected") === "1");
   const [showDensity, setShowDensity] = useState(false);
   const [boundaryGeojson, setBoundaryGeojson] = useState(null);
+  const [districtGeojson, setDistrictGeojson] = useState(null);
   const [matchResults, setMatchResults] = useState({});
   const [matchLoadingId, setMatchLoadingId] = useState(null);
   const [selectedOrgId, setSelectedOrgId] = useState(null);
@@ -156,7 +158,7 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
     if (!currentUser?.id || !isAdmin) return;
     setDirectoryLoading(true); setDirectoryError("");
     try {
-      const data = await callRpc("ci_list_organizations_overview", { p_limit: 500 }, "Church Intelligence directory read");
+      const data = await callRpc("ci_list_organizations_overview", { p_limit: 500, p_include_council_district: true }, "Church Intelligence directory read");
       setDirectory(Array.isArray(data) ? data : []);
     } catch (err) { setDirectory([]); setDirectoryError(err?.message || "The directory service did not respond."); }
     finally { setDirectoryLoading(false); }
@@ -173,9 +175,13 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   const refreshBoundary = useCallback(async () => {
     if (!currentUser?.id || !isAdmin) return;
     try {
-      const data = await callRpc("ci_get_boundary_geojson", { p_scope: "city" }, "Church Intelligence boundary read");
-      setBoundaryGeojson(data || null);
-    } catch { setBoundaryGeojson(null); }
+      const [city, districts] = await Promise.all([
+        callRpc("ci_get_boundary_geojson", { p_scope: "city" }, "Church Intelligence city boundary read"),
+        callRpc("ci_get_boundary_geojson", { p_scope: "district" }, "Church Intelligence district boundary read"),
+      ]);
+      setBoundaryGeojson(city || null);
+      setDistrictGeojson(districts || null);
+    } catch { setBoundaryGeojson(null); setDistrictGeojson(null); }
   }, [currentUser?.id, isAdmin, callRpc]);
 
   const refreshAll = useCallback(() => {
@@ -192,11 +198,12 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
     const params = new URLSearchParams();
     if (statusFilters.length) params.set("status", statusFilters.join(","));
     if (denominationFilters.length) params.set("denom", denominationFilters.join(","));
+    if (districtFilters.length) params.set("district", districtFilters.join(","));
     if (postalFilter !== "all") params.set("zip", postalFilter);
     if (connectedOnly) params.set("connected", "1");
     if (directorySearch.trim()) params.set("q", directorySearch.trim());
     writeHashParams(params);
-  }, [statusFilters, denominationFilters, postalFilter, connectedOnly, directorySearch]);
+  }, [statusFilters, denominationFilters, districtFilters, postalFilter, connectedOnly, directorySearch]);
 
   const openOrgDetail = useCallback(async (orgId) => {
     setSelectedOrgId(orgId); setOrgDetail(null); setOrgDetailError(""); setOrgDetailLoading(true);
@@ -245,17 +252,19 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   const deferredSearch = useDeferredValue(directorySearch.trim().toLowerCase());
   const denominations = useMemo(() => [...new Set(directory.map(row => row.denomination).filter(Boolean))].sort((a, b) => a.localeCompare(b)), [directory]);
   const postalCodes = useMemo(() => [...new Set(directory.map(row => row.postal_code?.slice(0, 5)).filter(Boolean))].sort(), [directory]);
+  const councilDistricts = useMemo(() => Array.from({ length: 14 }, (_, index) => String(index + 1)), []);
 
   const matchesSearchFn = useCallback((row) => !deferredSearch || [row.canonical_name, row.address_line_1, row.postal_code, row.locality]
     .filter(Boolean).some(value => value.toLowerCase().includes(deferredSearch)), [deferredSearch]);
   const matchesZipFn = useCallback((row) => postalFilter === "all" || row.postal_code?.startsWith(postalFilter), [postalFilter]);
+  const matchesDistrictFn = useCallback((row) => !districtFilters.length || districtFilters.includes(String(row.council_district || "")), [districtFilters]);
   const matchesConnectedFn = useCallback((row) => !connectedOnly || row.linked_to_faithbid, [connectedOnly]);
 
   const filteredDirectory = useMemo(() => directory.filter(row => {
     const matchesDenomination = !denominationFilters.length || denominationFilters.includes(row.denomination);
     const matchesStatus = !statusFilters.length || statusFilters.includes(churchStatus(row));
-    return matchesSearchFn(row) && matchesDenomination && matchesZipFn(row) && matchesConnectedFn(row) && matchesStatus;
-  }), [directory, denominationFilters, statusFilters, matchesSearchFn, matchesZipFn, matchesConnectedFn]);
+    return matchesSearchFn(row) && matchesDenomination && matchesDistrictFn(row) && matchesZipFn(row) && matchesConnectedFn(row) && matchesStatus;
+  }), [directory, denominationFilters, statusFilters, matchesSearchFn, matchesDistrictFn, matchesZipFn, matchesConnectedFn]);
 
   // Faceted counts: how many results each option would add given every
   // OTHER active filter (but not itself), computed client-side off the
@@ -265,36 +274,49 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   const statusCounts = useMemo(() => {
     const counts = Object.fromEntries(STATUS_ORDER.map(key => [key, 0]));
     for (const row of directory) {
-      if (!matchesSearchFn(row) || !matchesZipFn(row) || !matchesConnectedFn(row)) continue;
+      if (!matchesSearchFn(row) || !matchesDistrictFn(row) || !matchesZipFn(row) || !matchesConnectedFn(row)) continue;
       if (denominationFilters.length && !denominationFilters.includes(row.denomination)) continue;
       counts[churchStatus(row)] = (counts[churchStatus(row)] || 0) + 1;
     }
     return counts;
-  }, [directory, denominationFilters, matchesSearchFn, matchesZipFn, matchesConnectedFn]);
+  }, [directory, denominationFilters, matchesSearchFn, matchesDistrictFn, matchesZipFn, matchesConnectedFn]);
   const denominationCounts = useMemo(() => {
     const counts = {};
     for (const row of directory) {
       if (!row.denomination) continue;
-      if (!matchesSearchFn(row) || !matchesZipFn(row) || !matchesConnectedFn(row)) continue;
+      if (!matchesSearchFn(row) || !matchesDistrictFn(row) || !matchesZipFn(row) || !matchesConnectedFn(row)) continue;
       if (statusFilters.length && !statusFilters.includes(churchStatus(row))) continue;
       counts[row.denomination] = (counts[row.denomination] || 0) + 1;
     }
     return counts;
-  }, [directory, statusFilters, matchesSearchFn, matchesZipFn, matchesConnectedFn]);
+  }, [directory, statusFilters, matchesSearchFn, matchesDistrictFn, matchesZipFn, matchesConnectedFn]);
+  const districtCounts = useMemo(() => {
+    const counts = Object.fromEntries(councilDistricts.map(value => [value, 0]));
+    for (const row of directory) {
+      if (!matchesSearchFn(row) || !matchesZipFn(row) || !matchesConnectedFn(row)) continue;
+      if (denominationFilters.length && !denominationFilters.includes(row.denomination)) continue;
+      if (statusFilters.length && !statusFilters.includes(churchStatus(row))) continue;
+      const district = String(row.council_district || "");
+      if (district) counts[district] = (counts[district] || 0) + 1;
+    }
+    return counts;
+  }, [councilDistricts, directory, denominationFilters, statusFilters, matchesSearchFn, matchesZipFn, matchesConnectedFn]);
 
   const toggleStatusFilter = (key) => setStatusFilters(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
   const toggleDenominationFilter = (value) => setDenominationFilters(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
+  const toggleDistrictFilter = (value) => setDistrictFilters(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
   const applySavedView = (view) => {
     const result = view.apply();
     if ("statuses" in result) setStatusFilters(result.statuses);
     if ("connectedOnly" in result) setConnectedOnly(result.connectedOnly);
   };
 
-  const hasActiveFilters = directorySearch || statusFilters.length || denominationFilters.length || postalFilter !== "all" || connectedOnly;
+  const hasActiveFilters = directorySearch || statusFilters.length || denominationFilters.length || districtFilters.length || postalFilter !== "all" || connectedOnly;
   const clearDirectoryFilters = () => {
     setDirectorySearch("");
     setStatusFilters([]);
     setDenominationFilters([]);
+    setDistrictFilters([]);
     setPostalFilter("all");
     setConnectedOnly(false);
   };
@@ -364,12 +386,18 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
               <p aria-live="polite"><strong>{filteredDirectory.length}</strong> {filteredDirectory.length === 1 ? "church" : "churches"} shown</p>
               <div>
                 <details className="ci-multiselect">
+                  <summary>Council district{districtFilters.length ? ` (${districtFilters.length})` : ""}</summary>
+                  <div className="ci-multiselect-panel">
+                    {councilDistricts.map(value => <label key={value}><input type="checkbox" checked={districtFilters.includes(value)} onChange={() => toggleDistrictFilter(value)} />District {value} <span>· {districtCounts[value] || 0}</span></label>)}
+                  </div>
+                </details>
+                <details className="ci-multiselect">
                   <summary>Denomination{denominationFilters.length ? ` (${denominationFilters.length})` : ""}</summary>
                   <div className="ci-multiselect-panel">
                     {denominations.map(value => <label key={value}><input type="checkbox" checked={denominationFilters.includes(value)} onChange={() => toggleDenominationFilter(value)} />{value} <span>· {denominationCounts[value] || 0}</span></label>)}
                   </div>
                 </details>
-                <label><span>ZIP code</span><select aria-label="Filter by ZIP code" value={postalFilter} onChange={event => setPostalFilter(event.target.value)}><option value="all">All ZIP codes</option>{postalCodes.map(value => <option key={value} value={value}>{value}</option>)}</select></label>
+                <label><span>Precise ZIP</span><select aria-label="Filter by ZIP code" value={postalFilter} onChange={event => setPostalFilter(event.target.value)}><option value="all">All ZIP codes</option>{postalCodes.map(value => <option key={value} value={value}>{value}</option>)}</select></label>
                 {hasActiveFilters && <button type="button" className="ci-clear-filters" onClick={clearDirectoryFilters}>Reset all</button>}
               </div>
             </div>
@@ -380,7 +408,7 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
                     <span><strong>{filteredDirectory.filter(row => row.latitude != null && row.longitude != null).length}</strong> of {filteredDirectory.length} matching churches shown on the map.</span>
                     <button type="button" className={`ci-density-toggle${showDensity ? " active" : ""}`} aria-pressed={showDensity} onClick={() => setShowDensity(v => !v)}>Density view</button>
                   </div>
-                  <DallasMap rows={filteredDirectory} onSelect={(orgId) => { setView("list"); void openOrgDetail(orgId); }} boundary={boundaryGeojson} showDensity={showDensity} />
+                  <DallasMap rows={filteredDirectory} onSelect={(orgId) => { setView("list"); void openOrgDetail(orgId); }} boundary={boundaryGeojson} districts={districtGeojson} activeDistricts={districtFilters} onDistrictToggle={toggleDistrictFilter} showDensity={showDensity} />
                 </>
               : directory.length ? filteredDirectory.length ? <div className="ci-church-list">{filteredDirectory.map(row => {
                 const status = churchStatus(row);
@@ -388,7 +416,7 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
                   <button type="button" className="ci-church-main" onClick={() => openOrgDetail(row.id)}>
                     <span className="ci-church-mark" aria-hidden="true" style={{ background: STATUS_META[status].color }}>{(row.canonical_name || "C").trim().charAt(0).toUpperCase()}</span>
                     <span className="ci-church-copy"><strong>{row.canonical_name || "Unnamed church"}</strong><span>{row.address_line_1 ? `${row.address_line_1} · ${row.locality}, ${row.region_code} ${row.postal_code || ""}` : "Address not recorded"}</span></span>
-                    <span className="ci-church-denomination">{row.denomination || "Denomination not recorded"}</span>
+                    <span className="ci-church-denomination">{row.denomination || "Denomination not recorded"}{row.council_district ? ` · District ${row.council_district}` : ""}</span>
                   </button>
                   <div className="ci-church-actions">
                     <Badge tone={status === "verified" ? "good" : status === "candidate" ? "neutral" : "warn"}>{STATUS_META[status].label}</Badge>
@@ -507,13 +535,15 @@ function densityCells(rows) {
   });
 }
 
-function DallasMap({ rows, onSelect, boundary, showDensity }) {
+function DallasMap({ rows, onSelect, boundary, districts, activeDistricts, onDistrictToggle, showDensity }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const layerRef = useRef(null);
   const boundaryLayerRef = useRef(null);
+  const districtLayerRef = useRef(null);
   const leafletRef = useRef(null);
   const [mapError, setMapError] = useState("");
+  const [mapReady, setMapReady] = useState(false);
 
   const render = useCallback(() => {
     const L = leafletRef.current;
@@ -568,8 +598,11 @@ function DallasMap({ rows, onSelect, boundary, showDensity }) {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 19,
         }).addTo(mapRef.current);
+        mapRef.current.createPane("ciDistrictPane");
+        mapRef.current.getPane("ciDistrictPane").style.zIndex = "350";
         layerRef.current = L.layerGroup().addTo(mapRef.current);
         mapRef.current.on("moveend zoomend", render);
+        setMapReady(true);
       }
       render();
       const validRows = rows.filter(r => r.latitude != null && r.longitude != null);
@@ -592,7 +625,27 @@ function DallasMap({ rows, onSelect, boundary, showDensity }) {
       interactive: false,
     }).addTo(map);
     boundaryLayerRef.current.bringToBack();
-  }, [boundary]);
+  }, [boundary, mapReady]);
+
+  useEffect(() => {
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (!L || !map || !districts?.geometry) return;
+    if (districtLayerRef.current) { map.removeLayer(districtLayerRef.current); districtLayerRef.current = null; }
+    districtLayerRef.current = L.geoJSON(districts.geometry, {
+      style: feature => {
+        const district = String(feature?.properties?.council_district || "");
+        const active = activeDistricts.includes(district);
+        return { pane: "ciDistrictPane", color: active ? "#1f7a4a" : "#5d6f66", weight: active ? 3 : 1.25, fill: true, fillColor: active ? "#1f7a4a" : "#6f8a7d", fillOpacity: active ? 0.12 : 0.035 };
+      },
+      onEachFeature: (feature, layer) => {
+        const district = String(feature?.properties?.council_district || "");
+        layer.bindTooltip(`Council District ${district}`, { direction: "center", sticky: true });
+        layer.on("click", () => onDistrictToggle(district));
+      },
+    }).addTo(map);
+    if (boundaryLayerRef.current) boundaryLayerRef.current.bringToBack();
+  }, [districts, activeDistricts, onDistrictToggle, mapReady]);
 
   useEffect(() => () => { if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; } }, []);
 
@@ -604,6 +657,7 @@ function DallasMap({ rows, onSelect, boundary, showDensity }) {
         ? <span><i style={{ background: "#17352b" }} />More loaded churches in this area</span>
         : STATUS_ORDER.map(key => <span key={key}><i style={{ background: STATUS_META[key].color }} />{STATUS_META[key].label}</span>)}
       {boundary && <span className="ci-map-legend-boundary"><i className="ci-map-legend-line" />City of Dallas boundary</span>}
+      {districts && <span className="ci-map-legend-boundary"><i className="ci-map-legend-line" />Click a council district to filter</span>}
     </div>
   </div>;
 }

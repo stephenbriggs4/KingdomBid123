@@ -59,6 +59,7 @@
     "test:e2e:install": "playwright install chromium",
     "test:dependency-audit": "node scripts/check-dependency-audit.mjs",
     "church-intel:fetch-dallas-boundary": "node scripts/fetch-dallas-boundary.mjs",
+    "church-intel:fetch-dallas-council-districts": "node scripts/fetch-dallas-council-districts.mjs",
     "church-intel:fetch-overture": "uv run --no-cache --python 3.12 --with duckdb==1.4.1 python scripts/fetch-overture-dallas-churches.py",
     "church-intel:classify-dallas": "node scripts/build-dallas-church-candidates.mjs --overture work/dallas-church-acquisition/overture-churches.json --existing work/dallas-boundary-native/sites.json --boundary work/dallas-boundary-native/city-limits-wgs84.geojson --output work/dallas-church-acquisition/results",
     "church-intel:fetch-irs": "node scripts/fetch-irs-dallas-christian-organizations.mjs",
