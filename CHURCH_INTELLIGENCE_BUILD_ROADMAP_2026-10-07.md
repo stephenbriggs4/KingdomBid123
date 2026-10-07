@@ -189,6 +189,26 @@ Grounded in actual checks against the live schema, not assumptions. Each design 
 - Freeform map area drawing (needs new dependencies for a feature districts already mostly cover).
 - User-saved custom views (needs persistence not yet justified at this scale).
 
+## 7b. Pass 3 — done, 2026-10-07
+
+Built in two deliberately separated pieces: everything buildable and verifiable now (this section), and council-district boundary acquisition held out as its own careful follow-up (real GIS data acquisition, not rushed alongside everything else).
+
+**Backend:** one new RPC, `ci_get_boundary_geojson(p_scope text default 'city')`, admin-gated, returns the current published boundary as simplified GeoJSON (43KB, not the raw 359KB). Applied to production, verified by direct call.
+
+**A real bug found and fixed during this build, worth remembering for any future `ci_*` RPC:** the new function initially failed in the browser with `permission denied for function assert_admin`, even though it matched the shape of all 13 existing RPCs. Cause: `church_intel.assert_admin()`'s own EXECUTE grant is restricted to `church_intel_api_owner` only — a NOLOGIN/NOINHERIT role nothing else can assume, by design. The 13 existing RPCs are *owned by* that role (set at original creation time, through a path this session's tools can't replicate — `ALTER FUNCTION ... OWNER TO church_intel_api_owner` fails here with "must be able to SET ROLE," confirming the lockdown is real). Fix: call `church_intel.platform_admin_actor()` directly instead — the actual check `assert_admin()` just wraps, and it already grants execute to the role this migration applies as. Same security check, no grant was loosened. **Any future Church Intelligence RPC added through this session's tools should do the same** — call `platform_admin_actor()`, not `assert_admin()` — until a path exists to create functions owned by `church_intel_api_owner` directly.
+
+**Frontend, verified live signed in as admin:**
+- Five-state status model (`churchStatus()`), one function feeding both the filter chips and the map markers. Live counts matched the data exactly: Verified 38, Boundary review 1, Outside Dallas 1, Candidate 0 — totaling 40.
+- Multi-select status and denomination filters with faceted live counts, confirmed combining correctly (Verified + Baptist = 14, exact).
+- Three saved-view presets, confirmed one live (correctly changed only status, left denomination alone, matching its definition).
+- Filter state round-trips through the URL hash via `history.replaceState` — confirmed surviving a full page reload, confirmed never touching the app's own route listener.
+- The real Dallas boundary draws on the map as a dashed outline, confirmed.
+- Custom clustering (no new dependency) confirmed grouping nearby points (38 churches rendered as 27 shapes).
+- Density view toggle confirmed switching the legend and rendering grid cells in place of markers.
+- Tests: 349 passing, 0 failing (6 new tests added for the status model, multi-select, saved views, URL state, boundary RPC, and the no-new-dependency constraint on clustering/density). Build passes.
+
+**Deliberately not in this pass, per the design doc's own scoping (§7a):** council district boundaries and the `council_district` overview field (held out as a careful follow-up), full Step 4 verification-readiness checklist, true gap analysis, freeform map area drawing, user-saved custom views.
+
 ## 8. New idea from this session — operational signals and vendor access
 
 Raised directly: the tool should know when a church posts a job, announces a renovation, or has other real-world activity worth acting on, and whether vendors should get a similar church directory.

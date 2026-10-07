@@ -35,7 +35,6 @@ test("the component only reaches church_intel data through narrow admin-gated RP
 });
 
 test("the Dallas workflow is one directory-first search experience instead of an operations dashboard", () => {
-  assert.match(component, /const QUICK_FILTERS = \[/);
   assert.match(component, /useState\("list"\)/);
   assert.match(component, /<h1>Dallas Churches<\/h1>/);
   assert.match(component, /Find a Dallas church/);
@@ -49,15 +48,84 @@ test("the Dallas workflow is one directory-first search experience instead of an
   // being current is worse than no stat.
   assert.doesNotMatch(component, /Church candidates found/);
   assert.doesNotMatch(component, /DALLAS_RESEARCH_SNAPSHOT/);
-  assert.match(component, /Filter by denomination/);
   assert.match(component, /Filter by ZIP code/);
   assert.match(component, /aria-label="Directory view"/);
   assert.doesNotMatch(component, /const TABS =/);
   assert.doesNotMatch(component, />Progress<\/button>/);
-  assert.doesNotMatch(component, /Review Queue/);
   assert.doesNotMatch(component, /Resolve \/ dismiss/);
   assert.doesNotMatch(component, /meters from the Dallas city line/);
   assert.doesNotMatch(component, /tab === "controls"/);
+});
+
+test("R-2026-10-07 Pass 3: one status model feeds both the filter chips and the map markers", () => {
+  // The whole point is a single definition of status, derived from fields
+  // the overview RPC already returns -- not two different "verified"s in
+  // two different places.
+  assert.match(component, /function churchStatus\(row\)/);
+  const statusFnBody = component.slice(component.indexOf("function churchStatus"), component.indexOf("function churchStatus") + 400);
+  assert.match(statusFnBody, /dallas_membership/);
+  assert.match(statusFnBody, /open_review_case_count/);
+  assert.match(statusFnBody, /has_promoted_claim/);
+  // Used by the directory rows...
+  assert.match(component, /style=\{\{ background: STATUS_META\[status\]\.color \}\}/);
+  // ...and by the map markers -- same function, not a re-derivation.
+  const mapStart = component.indexOf("function DallasMap(");
+  assert.ok(mapStart > 0, "DallasMap not found");
+  assert.match(component.slice(mapStart), /churchStatus\(row\)/);
+  // The old weak "basics complete = has address + denomination" quick
+  // filter is gone as a filter mechanism (the label survives only as a
+  // coverage-stat tile name, asserted above).
+  assert.doesNotMatch(component, /const QUICK_FILTERS = \[/);
+  assert.doesNotMatch(component, /hasMissingDetails/);
+});
+
+test("R-2026-10-07 Pass 3: filters are multi-select with faceted counts, not single-value dropdowns", () => {
+  assert.match(component, /const \[statusFilters, setStatusFilters\] = useState/);
+  assert.match(component, /const \[denominationFilters, setDenominationFilters\] = useState/);
+  assert.match(component, /const toggleStatusFilter = /);
+  assert.match(component, /const toggleDenominationFilter = /);
+  assert.match(component, /const statusCounts = useMemo/);
+  assert.match(component, /const denominationCounts = useMemo/);
+  // Faceted counts are client-side and only honest under the RPC's cap --
+  // this must stay documented, not silently assumed to scale.
+  assert.match(component, /Honest only while the directory stays under/);
+});
+
+test("R-2026-10-07 Pass 3: saved views are fixed presets, not a new persistence layer", () => {
+  assert.match(component, /const SAVED_VIEWS = \[/);
+  assert.match(component, /Needs review/);
+  assert.match(component, /Not yet checked against FaithBid/);
+  // No new table, no localStorage persistence claimed for this -- just a
+  // shorthand for filter states the existing controls already support.
+  assert.doesNotMatch(component, /localStorage/);
+});
+
+test("R-2026-10-07 Pass 3: filter state round-trips through the URL hash without touching app routing", () => {
+  assert.match(component, /function parseHashParams\(/);
+  assert.match(component, /function writeHashParams\(/);
+  // history.replaceState, never location.hash=, so this can never fire the
+  // app-level hashchange route listener in App.jsx.
+  assert.match(component, /window\.history\.replaceState\(/);
+  assert.doesNotMatch(component, /window\.location\.hash\s*=/);
+});
+
+test("R-2026-10-07 Pass 3: the map draws the real published boundary via a dedicated admin-gated RPC, not a hardcoded shape", () => {
+  assert.match(component, /ci_get_boundary_geojson/);
+  assert.match(component, /boundary\?\.geometry/);
+  // Boundary is its own effect, independent of the rows/clustering effect,
+  // so panning or filtering never re-fetches or re-draws it.
+  const boundaryEffectIndex = component.indexOf("boundaryLayerRef.current = L.geoJSON");
+  assert.ok(boundaryEffectIndex > 0, "boundary layer effect not found");
+});
+
+test("R-2026-10-07 Pass 3: clustering and the density view are custom, not a new npm dependency", () => {
+  assert.match(component, /function clusterPoints\(/);
+  assert.match(component, /function densityCells\(/);
+  assert.doesNotMatch(component, /import\(["']leaflet\.markercluster["']\)/);
+  assert.doesNotMatch(component, /import\(["']leaflet\.heat["']\)/);
+  // The density view is honestly scoped as "what's loaded," never promoted
+  // to a claim about coverage gaps.
+  assert.match(component, /Deliberately not called a "gap" view/);
 });
 
 test("Add church warns on a likely duplicate name without blocking submission", () => {
