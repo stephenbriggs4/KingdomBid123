@@ -37,9 +37,9 @@ The most recent written plan (`CHURCH_INTELLIGENCE_DALLAS_CENSUS_REDESIGN_MAP_20
 The 2026-09-30 gold-set report set two conditions before full Dallas acquisition (1,922 more candidates) should start:
 
 - **Gate 1 — published City boundary polygon: CLEARED.** Published, current, and all 40 existing sites have been evaluated against it.
-- **Gate 2 — a second independent source per claim: PARTIALLY CLEARED (55%).** 22 of 40 records now have genuine two-source-family corroboration (Pass 2, §7). 18 remain single-source, named individually in §7, awaiting a human follow-up (phone/social/in-person) that a web search alone couldn't close.
+- **Gate 2 — CLEARED FOR CONTROLLED ACQUISITION, not for corroboration.** 22 of 40 records have genuine two-source-family corroboration (Pass 2, §7). The remaining 18 are still visibly single-source; on 2026-10-07 Stephen explicitly accepted each one for controlled acquisition only, with a 90-day review date. The decisions do not manufacture a second source or make those records verified.
 
-**Recommendation: still do not start full acquisition.** Pass 2 proved the independence model works end-to-end (web search alone closed 22 of 40) — that was the open question, and it's answered. But the gate itself isn't fully cleared: 18 of 40 are still single-source, and the whole reason this gate exists is to avoid repeating the original mistake at 40x the scale. Close the remaining 18 (or confirm, per-record, that no second source exists and that's being accepted deliberately) before acquiring the next 1,922 — not because Pass 2 failed, but because "mostly cleared" and "cleared" aren't the same gate.
+**Current acquisition decision:** a measured controlled batch is allowed because all 18 exceptions were explicitly recorded per organization. An uncontrolled 1,922-record import is still not authorized. The next measured batch and its result are recorded in §7f.
 
 ## 4. Recommended build sequence
 
@@ -242,9 +242,16 @@ Built in two deliberately separated pieces: everything buildable and verifiable 
 - Replaced the old promoted-claim proxy with the actual readiness contract: address + denomination + confirmed Dallas inclusion + no open review. Because the current records have no denomination evidence claims, the truthful live result is **0 verified, 39 candidate, 1 outside Dallas** — the earlier 38/1/1 Pass 3 display was useful as an interim status model but is superseded by this stricter readiness rule.
 - Added a paginated directory read, Review Queue with resolve/dismiss actions, evidence-rich organization profiles (source, source class, observed/retrieved dates, claim status, sites, boundary membership, review history), and a compare-and-confirm step before FaithBid linking.
 - Resolved the final boundary review with evidence and the existing manual-override path; production now has **0 open review cases**.
-- Added Coverage & Health with truthful evidence-gate reporting: **22 genuinely corroborated, 18 single-source pending, 0 accepted exceptions**. Acceptance is a per-organization human decision stored in its own ledger and never counted as corroborating evidence.
-- The controlled acquisition batch remains blocked exactly as Gate 2 requires. It must not start until the 18 records are corroborated or deliberately accepted per record for controlled acquisition.
+- Added Coverage & Health with truthful evidence-gate reporting. The final live state is **22 genuinely corroborated, 18 single-source deliberately accepted, 0 pending**. Acceptance is a per-organization human decision stored in its own ledger and never counted as corroborating evidence.
+- All 18 exception decisions were recorded with the narrow allowed purposes (`research`, `verification`, `internal_analytics`) and a 90-day review due 2027-01-05. This clears only a measured controlled batch, never an uncontrolled full import.
 - Final verification after these changes: **369 tests total; 362 passed, 7 intentionally skipped, 0 failed.** Production build passes. The existing large-main-bundle warning remains; `App.jsx` was not split or modularized.
+
+## 7f. Controlled batch 002 — measured and complete (2026-10-07)
+
+- Reused the already-researched 200-record batch instead of generating duplicate candidates: 98 Overture+IRS-supported and 102 strong Overture candidates, with the completed 20 ten-record result files validated against the manifest.
+- Fixed a real reporter defect found during closure: the controlled-report script hardcoded a 100-row filename and count even though batch 002 was deliberately configured for 200. It now discovers the one `verify-next-N.json` file and validates any positive, deliberately sized batch against its own candidate count; a regression test covers this.
+- Final measurement: **41 verified, 151 probable, 8 held for confirmation; 192 usable current/probable total.** Five bad links were quarantined, two identity transitions require confirmation, and no IRS identity conflict or stale/non-congregation exclusion was reported.
+- The measurement remains a dry run with **0 production writes**. Rights remain restricted to research, verification, and internal analytics; outreach, export, redistribution, and canonical writes remain prohibited. This completes the roadmap's measured-batch step without turning research candidates into production facts.
 
 ## 8. New idea from this session — operational signals and vendor access
 
@@ -289,4 +296,6 @@ Deliberately excluded: leadership changes, event calendars, sermon series, gener
 - Classification uses a strict structured LLM response for only the actionable categories in §8a: jobs/staff openings, renovation/capital projects, new campuses/relocations, and explicit facilities help. Leadership changes, events, sermons, and general news remain excluded.
 - Added the Website Signals admin inbox with source-linked evidence and explicit confirm/dismiss actions. No signal automatically creates a project, contacts a church, or writes to Growth Engine.
 - Scheduled the production worker weekly (Sunday 08:17 UTC) with a separate encrypted cron secret. The schedule is live and active.
-- Live verification processed 10 real website targets. All 10 were safely recorded as `classifier_failed` because production does not yet have `OPENAI_API_KEY`; no guessed signals were created. **This is an external configuration blocker, not unfinished code.** Once that secret is added, rerun the worker and verify at least one changed-page classification before calling signal detection operational.
+- Live verification processed 10 real website targets. All 10 were safely recorded as `classifier_failed` because production does not have `OPENAI_API_KEY`; no guessed signals were created.
+- The OpenAI Platform account was checked live before creating a key: it has **$0.00 API credit**, and API billing is separate from ChatGPT. No key or payment method was added, honoring the requirement that this remain free. The scanner infrastructure and review UI are complete and safely dormant; AI classification is intentionally not operational unless free API credit becomes available or Stephen separately approves a capped paid budget.
+- No public FaithBid website, custom domain, Vercel deployment, or public URL is required for this worker. It runs on Supabase's hosted function endpoint and monitors the churches' own public sites.

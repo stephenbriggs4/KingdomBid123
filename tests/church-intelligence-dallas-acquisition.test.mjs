@@ -265,10 +265,31 @@ test('controlled report requires complete rights-scoped results and measures eac
 
   assert.throws(
     () => summarizeControlledVerificationResults({ candidates, batches: [{ ...batch, results: results.slice(1) }] }),
-    /exactly 100 rows/,
+    /match the candidate count of 100/,
   );
   assert.throws(
     () => summarizeControlledVerificationResults({ candidates, batches: [{ ...batch, prohibited_purposes: ['outreach'] }] }),
     /missing prohibited purpose export/,
   );
+});
+
+test('controlled report supports deliberately sized batches instead of assuming 100 rows', () => {
+  const candidates = Array.from({ length: 2 }, (_, index) => ({
+    verification_order: index + 1,
+    source_external_key: `sized-${index + 1}`,
+    lane: 'overture_strong',
+  }));
+  const batch = {
+    batch_id: 'controlled-sized-fixture',
+    allowed_purposes: ['research', 'verification', 'internal_analytics'],
+    prohibited_purposes: ['outreach', 'export', 'redistribution'],
+    results: candidates.map(candidate => ({
+      verification_order: candidate.verification_order,
+      source_external_key: candidate.source_external_key,
+      status: 'verified_current',
+    })),
+  };
+  const summary = summarizeControlledVerificationResults({ candidates, batches: [batch] });
+  assert.equal(summary.total_candidates, 2);
+  assert.equal(summary.total_results, 2);
 });

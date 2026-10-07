@@ -33,23 +33,24 @@ const countBy = (rows, getter) => Object.fromEntries(
 );
 
 export function summarizeControlledVerificationResults({ candidates, batches }) {
-  if (!Array.isArray(candidates) || candidates.length !== 100) {
-    throw new Error(`Controlled batch must contain exactly 100 candidates; received ${candidates?.length ?? 0}`);
+  if (!Array.isArray(candidates) || candidates.length < 1) {
+    throw new Error(`Controlled batch must contain at least one candidate; received ${candidates?.length ?? 0}`);
   }
+  const expectedCount = candidates.length;
   const candidateOrders = candidates.map(row => row.verification_order);
   const candidateKeys = candidates.map(row => row.source_external_key);
-  if (new Set(candidateOrders).size !== 100 || new Set(candidateKeys).size !== 100) {
+  if (new Set(candidateOrders).size !== expectedCount || new Set(candidateKeys).size !== expectedCount) {
     throw new Error('Controlled-batch verification orders and source keys must be unique');
   }
 
   for (const batch of batches) requirePurposeScope(batch);
   const results = batches.flatMap(batch => batch.results || []);
-  if (results.length !== 100) {
-    throw new Error(`Controlled results must contain exactly 100 rows; received ${results.length}`);
+  if (results.length !== expectedCount) {
+    throw new Error(`Controlled results must match the candidate count of ${expectedCount}; received ${results.length}`);
   }
   const resultOrders = results.map(row => row.verification_order);
   const resultKeys = results.map(row => row.source_external_key);
-  if (new Set(resultOrders).size !== 100 || new Set(resultKeys).size !== 100) {
+  if (new Set(resultOrders).size !== expectedCount || new Set(resultKeys).size !== expectedCount) {
     throw new Error('Controlled result verification orders and source keys must be unique');
   }
 
@@ -112,8 +113,13 @@ export function summarizeControlledVerificationResults({ candidates, batches }) 
 
 async function main() {
   const root = path.resolve(process.argv[2] || 'work/dallas-church-acquisition/controlled-batch-001');
-  const candidates = JSON.parse(await readFile(path.join(root, 'verify-next-100.json'), 'utf8'));
-  const names = (await readdir(root))
+  const directoryNames = await readdir(root);
+  const candidateNames = directoryNames.filter(name => /^verify-next-\d+\.json$/.test(name));
+  if (candidateNames.length !== 1) {
+    throw new Error(`Controlled batch directory must contain exactly one verify-next-N.json file; found ${candidateNames.length}`);
+  }
+  const candidates = JSON.parse(await readFile(path.join(root, candidateNames[0]), 'utf8'));
+  const names = directoryNames
     .filter(name => /^verification-results-\d{3}-\d{3}\.json$/.test(name))
     .sort();
   const batches = await Promise.all(names.map(async name => JSON.parse(await readFile(path.join(root, name), 'utf8'))));
