@@ -26,20 +26,20 @@ The most recent written plan (`CHURCH_INTELLIGENCE_DALLAS_CENSUS_REDESIGN_MAP_20
 2. **There is no Review Queue screen.** The one open boundary review case exists in the database but is not visible or actionable anywhere in the current UI. Staff cannot currently see or resolve it without direct SQL.
 3. **"Basics complete" is a weak proxy** (has an address and a denomination). It does not check Dallas boundary confirmation, evidence sufficiency, or open review cases. A record can show "Basics complete" while sitting in an unresolved boundary-review case.
 4. **No pagination.** The directory read is capped at 500 rows. Fine at 40 records; will silently truncate the "Dallas total" once acquisition scales past 500.
-5. **Evidence independence has not progressed.** All 40 claims still trace to exactly one source family (`manual_web_research_dallas_v1`). The second `source_registry` entry that now exists is the Dallas boundary source, not a second independent source for church identity — confirmed by directly inspecting both rows. This was the other open gate in the 2026-09-30 gold-set report, and it is still open.
+5. **Evidence independence — partially closed, not still fully open.** *(Correction: this item was written before Pass 2 and is stale as originally phrased — see §7 for what actually happened.)* As of Pass 2 (2026-10-07), 22 of 40 claims now have genuine two-source-family corroboration (16 via the church's own official website, 6 via an official denomination/government record); 18 remain single-source and are named in §7 for manual follow-up. The gate below is updated to match.
 6. **No Coverage & Health view** — no visibility into geographic distribution, ZIP gaps, staleness, or duplicate rate.
 7. **No Controls area.** Boundary staging/publishing and source-policy management were done directly via SQL/RPC this session, not through any admin screen. Fine at this scale; will not scale to routine staff use.
 8. **The church profile is a solid "Church 360-lite," not full Church 360.** It shows current evidence claims as flat key/value pairs with no source attribution, no claim status (observed/promoted/superseded), no former names, no site-level detail, no boundary-membership result, and no review history. Confirmed by reading the `OrgDetail` component directly.
-9. **A specific, previously-documented contract bug may still be live:** `ci_resolve_review_case` takes `p_review_id`, and the Oct 2 doc flagged at least one call site using the wrong parameter name (`p_case_id`) elsewhere in the codebase. The call site inside `ChurchIntelligence.jsx` itself is correct (uses `p_review_id`). Any other call site should be checked before relying on it.
+9. **The previously-documented `p_case_id`/`p_review_id` contract bug — checked, not live.** *(Resolved 2026-10-07.)* Grepped the entire repo for every reference to `ci_resolve_review_case`: one call site (`ChurchIntelligence.jsx`, correct, uses `p_review_id`), one SQL definition (correct), and an existing test (`church-intelligence-directory-security.test.mjs`) that explicitly asserts the wrong param name is absent. No second call site exists anywhere in the codebase. The Oct 2 doc's concern doesn't apply to the code as it exists today — either it was already fixed by the time that doc was written, or it described a risk that never materialized here.
 
 ## 3. The two acquisition gates, and where they actually stand
 
 The 2026-09-30 gold-set report set two conditions before full Dallas acquisition (1,922 more candidates) should start:
 
 - **Gate 1 — published City boundary polygon: CLEARED.** Published, current, and all 40 existing sites have been evaluated against it.
-- **Gate 2 — a second independent source per claim: NOT CLEARED.** Still single-source-family across all 40 records.
+- **Gate 2 — a second independent source per claim: PARTIALLY CLEARED (55%).** 22 of 40 records now have genuine two-source-family corroboration (Pass 2, §7). 18 remain single-source, named individually in §7, awaiting a human follow-up (phone/social/in-person) that a web search alone couldn't close.
 
-**Recommendation: do not start full acquisition yet.** Gate 2 is the one that actually protects data quality at scale — without it, acquiring 1,922 more records just produces 1,962 single-source, unverifiable candidates instead of 40. This should be fixed on the existing 40 first (cheap, bounded, proves the independence model actually works) before it's trusted on a much larger batch.
+**Recommendation: still do not start full acquisition.** Pass 2 proved the independence model works end-to-end (web search alone closed 22 of 40) — that was the open question, and it's answered. But the gate itself isn't fully cleared: 18 of 40 are still single-source, and the whole reason this gate exists is to avoid repeating the original mistake at 40x the scale. Close the remaining 18 (or confirm, per-record, that no second source exists and that's being accepted deliberately) before acquiring the next 1,922 — not because Pass 2 failed, but because "mostly cleared" and "cleared" aren't the same gate.
 
 ## 4. Recommended build sequence
 
@@ -209,6 +209,43 @@ Built in two deliberately separated pieces: everything buildable and verifiable 
 
 **Deliberately not in this pass, per the design doc's own scoping (§7a):** council district boundaries and the `council_district` overview field (held out as a careful follow-up), full Step 4 verification-readiness checklist, true gap analysis, freeform map area drawing, user-saved custom views.
 
+## 7c. Council districts — the endpoint itself, verified live (2026-10-07, later same day)
+
+§7a recommended council districts and described the pipeline that would fetch them. At that point the actual GIS layer had not been opened — it was a sound plan aimed at an unconfirmed target. Fixed that: fetched the real service directly and confirmed every fact the acquisition step depends on, rather than writing "the district layer" as a placeholder.
+
+**The service:** `https://gis.dallascityhall.com/arcgis/rest/services/Basemap/CouncilAreas/MapServer`, layer index `0`. Confirmed via `documentInfo.Title`: **"Dallas City Council Districts."** Same ArcGIS host and folder (`Basemap`) as the city-limits layer already in production use (`CityLimits`), so no new domain or auth path to trust — it's the same GIS platform this system already cites as a source.
+
+**Provenance, straight from the service's own metadata (`serviceDescription`):** *"As required by the Dallas City Charter, redistricting of elected official districts is required every ten years based on updated Census information. This feature layer represents the updated city council district boundaries as approved by the Dallas City Council on Jun 27, 2022, effective on May 6, 2023. Boundaries are based upon the 2020 Census Block geography."* This is the official, current (post-2022-redistricting) map, not a stale pre-redistricting one — worth stating plainly since Dallas redistricts every ten years and an old cached copy of this layer would be wrong, not just imprecise.
+
+**The known metadata-renderer flakiness from the city-boundary work reappeared identically here** (`/0?f=pjson` → HTTP 500 `{"error":{"code":500,"message":"json"}}`), confirming it's a general quirk of this GIS host's JSON renderer, not specific to one layer. Worked around exactly the way `scripts/fetch-dallas-boundary.mjs` already does: skip the metadata endpoint, go straight to the query endpoint, which works cleanly.
+
+**Confirmed by direct query** (`/0/query?where=1=1&outFields=*&returnGeometry=false&f=json`):
+- **14 features** — exactly Dallas's 14 council districts, not a partial or merged layer.
+- **Fields:** `OBJECTID` (OID), `COUNCIL` (integer, 1–14 — the real district-number field, analogous to how `CityLimits` used `CITY`), `DISTRICT` (string, same value as text, `displayFieldName`), `COUNCILPER` (string, alias `CouncilMember` — e.g. District 1 → "Chad West," District 2 → "Jesse Moreno," District 3 → "Zarin Gracey," District 4 → "Maxie Johnson," District 5 → "Jaime Resendez").
+- **Geometry type: `Polygon`** (confirmed via a GeoJSON fetch, `outSR=4326`), one polygon per district — exactly what `ci_stage_dallas_boundary`/`ci_publish_boundary` already expect, since they were built against the same kind of layer.
+- **Raw size: 972,050 bytes (~972 KB)** for all 14 districts combined, geometry included, no simplification — checked directly, not estimated (roughly 2.7× the single city-boundary polygon's 359 KB, which tracks: 14 more-complex polygons vs. one). The same `ST_SimplifyPreserveTopology(boundary, 0.0003)` tolerance proven on the city boundary (359 KB → 43 KB, a ~88% reduction) should be re-verified per-district rather than assumed identical, since district boundaries have more total edge length and finer street-level jogs than the city outline — but there's no reason to expect it to fail the same visual-accuracy check at city scale.
+
+**One real caveat found, not in the original plan: `COUNCILPER` is a point-in-time officeholder name, not a stable boundary fact.** The *boundaries* are stable until the next redistricting (next due ~2032, per the ten-year charter cycle). The *council member name* attached to each district changes with elections and can go stale the moment this data is cached — Dallas's next municipal election is 2027. **Recommendation: pull `COUNCIL` (the district number) and the geometry; do not store or display `COUNCILPER` as if it were current.** If a church profile ever needs "who's your council member," that should be a live lookup or a clearly-dated fact, not a value frozen at acquisition time from a layer whose own documentation doesn't claim to track officeholder changes.
+
+**Net effect at the time of this verification:** the exact URL, layer index, field names, geometry type, and byte size were confirmed facts, and the one real gotcha (`COUNCILPER` staleness) was found before it could become a bug. The build that followed is recorded in §7d.
+
+## 7d. Council districts — built and verified live (2026-10-07)
+
+- Reused the proven city-boundary path exactly: fetch → `ci_stage_dallas_boundary` → `ci_publish_boundary`; no schema migration or parallel boundary table was introduced.
+- Published 14 current rows with `boundary_scope='district'`. Stored only the stable `COUNCIL` district number and geometry; `COUNCILPER` was deliberately excluded.
+- Added server-side `council_district` assignment to the overview with `ST_Contains` against the published district boundaries.
+- Made council district the primary geographic filter, retained ZIP as the clearly labeled **Precise ZIP** secondary filter, and made district polygons clickable on the map.
+- Verified live in production and again in the signed-in admin UI: all 40 rows load, all 14 district shapes render, and selecting District 1 updates the URL and narrows the result to the correct four churches.
+
+## 7e. Trust and operating views — built and verified live (2026-10-07)
+
+- Replaced the old promoted-claim proxy with the actual readiness contract: address + denomination + confirmed Dallas inclusion + no open review. Because the current records have no denomination evidence claims, the truthful live result is **0 verified, 39 candidate, 1 outside Dallas** — the earlier 38/1/1 Pass 3 display was useful as an interim status model but is superseded by this stricter readiness rule.
+- Added a paginated directory read, Review Queue with resolve/dismiss actions, evidence-rich organization profiles (source, source class, observed/retrieved dates, claim status, sites, boundary membership, review history), and a compare-and-confirm step before FaithBid linking.
+- Resolved the final boundary review with evidence and the existing manual-override path; production now has **0 open review cases**.
+- Added Coverage & Health with truthful evidence-gate reporting: **22 genuinely corroborated, 18 single-source pending, 0 accepted exceptions**. Acceptance is a per-organization human decision stored in its own ledger and never counted as corroborating evidence.
+- The controlled acquisition batch remains blocked exactly as Gate 2 requires. It must not start until the 18 records are corroborated or deliberately accepted per record for controlled acquisition.
+- Final verification after these changes: **369 tests total; 362 passed, 7 intentionally skipped, 0 failed.** Production build passes. The existing large-main-bundle warning remains; `App.jsx` was not split or modularized.
+
 ## 8. New idea from this session — operational signals and vendor access
 
 Raised directly: the tool should know when a church posts a job, announces a renovation, or has other real-world activity worth acting on, and whether vendors should get a similar church directory.
@@ -242,3 +279,14 @@ Deliberately excluded: leadership changes, event calendars, sermon series, gener
 **Social media (Facebook/Instagram): still deferred, not reconsidered.** Platforms require their own API access and generally the account owner's permission — not freely fetchable at scale. v1 stores the social links for a human to click; automated monitoring is a later phase gated on the church connecting their own account.
 
 **Priority call:** build this after council-district work and after evidence-provenance-on-profile, not before. Those two make the existing 40-church tool more trustworthy today with no new infrastructure. Signal monitoring is the first genuinely new capability (new table, a scheduled job, a real ongoing LLM-call cost) — better to build it on a tool that's already solid than bolt it onto one still mid-upgrade. Cost is small at 40 churches with change-detection skipping unchanged pages; scales roughly linearly with church count, and a real fraction of any larger batch won't have a crawlable public site at all.
+
+**The "hand a signal to Growth Engine" bridge is not hypothetical — it already exists in the schema, confirmed live, unused.** `church_intel.church_system_links.system_key` already has a CHECK constraint permitting four values, one of which is `'growth_church'` — requiring `growth_church_id` non-null, and that column carries a real foreign key to `public.growth_churches`. The RPC to write it (`ci_set_system_link`, with `p_system_key: 'growth_church'`) already exists too, same as the three other link types this screen already uses to connect a church-intel record to a FaithBid profile. Checked the table directly: 0 rows use `'growth_church'` today — the mechanism was built but never exercised. Practically, this means "signal becomes a Growth Engine lead" is not a new integration to design later; it's **wiring work against a bridge that's already there** — the day `operational_signals` ships with a confirmed, human-reviewed signal, handing it to Growth Engine is an existing RPC call away, not a new cross-system contract to negotiate.
+
+### 8b. Website signal monitoring v1 — built; activation key still required (2026-10-07)
+
+- Added private, forced-RLS monitor state, scan-run, and operational-signal tables. Signals remain separate from identity evidence and always retain the source URL, supporting quote, content hash, confidence, and human-review status.
+- Deployed the bounded website worker to production. It checks at most 10 churches per run and 5 first-party pages per church, respects `robots.txt`, identifies itself, blocks local/private destinations, applies time and size limits, and skips classification when content is unchanged.
+- Classification uses a strict structured LLM response for only the actionable categories in §8a: jobs/staff openings, renovation/capital projects, new campuses/relocations, and explicit facilities help. Leadership changes, events, sermons, and general news remain excluded.
+- Added the Website Signals admin inbox with source-linked evidence and explicit confirm/dismiss actions. No signal automatically creates a project, contacts a church, or writes to Growth Engine.
+- Scheduled the production worker weekly (Sunday 08:17 UTC) with a separate encrypted cron secret. The schedule is live and active.
+- Live verification processed 10 real website targets. All 10 were safely recorded as `classifier_failed` because production does not yet have `OPENAI_API_KEY`; no guessed signals were created. **This is an external configuration blocker, not unfinished code.** Once that secret is added, rerun the worker and verify at least one changed-page classification before calling signal detection operational.

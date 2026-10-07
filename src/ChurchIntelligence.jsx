@@ -21,10 +21,11 @@ const STATUS_META = {
 const STATUS_ORDER = ["verified", "needs_review", "boundary_review", "outside_dallas", "candidate"];
 
 function churchStatus(row) {
+  if (row?.intelligence_status && STATUS_META[row.intelligence_status]) return row.intelligence_status;
   if (row?.dallas_membership === "excluded") return "outside_dallas";
   if ((row?.open_review_case_count || 0) > 0) return "needs_review";
   if (row?.dallas_membership === "review") return "boundary_review";
-  if (row?.has_promoted_claim) return "verified";
+  if (row?.is_ready) return "verified";
   return "candidate";
 }
 
@@ -116,6 +117,7 @@ function Field({ label, children, hint }) {
 
 export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   const [view, setView] = useState("list");
+  const [workspaceTab, setWorkspaceTab] = useState("directory");
   const [banner, setBanner] = useState(null);
 
   const purpose = "research";
@@ -123,6 +125,7 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   const [directory, setDirectory] = useState([]);
   const [directoryLoading, setDirectoryLoading] = useState(true);
   const [directoryError, setDirectoryError] = useState("");
+  const [directoryRefreshedAt, setDirectoryRefreshedAt] = useState(null);
   const initialParams = useMemo(() => parseHashParams(), []);
   const [directorySearch, setDirectorySearch] = useState(() => initialParams.get("q") || "");
   const [statusFilters, setStatusFilters] = useState(() => (initialParams.get("status") || "").split(",").filter(Boolean));
@@ -141,6 +144,11 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   const [orgDetailError, setOrgDetailError] = useState("");
 
   const [sources, setSources] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [signals, setSignals] = useState([]);
+  const [signalsLoading, setSignalsLoading] = useState(false);
+  const [health, setHealth] = useState(null);
 
   const [showNewOrgModal, setShowNewOrgModal] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -153,15 +161,55 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
     if (error) throw error;
     return data;
   }, []);
+  const notify = useCallback((type, text) => setBanner({ type, text }), []);
 
   const refreshDirectory = useCallback(async () => {
     if (!currentUser?.id || !isAdmin) return;
     setDirectoryLoading(true); setDirectoryError("");
     try {
-      const data = await callRpc("ci_list_organizations_overview", { p_limit: 500, p_include_council_district: true }, "Church Intelligence directory read");
-      setDirectory(Array.isArray(data) ? data : []);
+      const rows = [];
+      let offset = 0;
+      let total = 0;
+      let refreshedAt = null;
+      do {
+        const page = await callRpc("ci_list_organizations_overview_page", { p_limit: 200, p_offset: offset }, "Church Intelligence directory read");
+        const pageRows = Array.isArray(page?.rows) ? page.rows : [];
+        rows.push(...pageRows);
+        total = Number(page?.total || 0);
+        refreshedAt = page?.refreshed_at || refreshedAt;
+        offset += pageRows.length;
+        if (!pageRows.length) break;
+      } while (offset < total);
+      setDirectory(rows);
+      setDirectoryRefreshedAt(refreshedAt);
     } catch (err) { setDirectory([]); setDirectoryError(err?.message || "The directory service did not respond."); }
     finally { setDirectoryLoading(false); }
+  }, [currentUser?.id, isAdmin, callRpc]);
+
+  const refreshReviews = useCallback(async () => {
+    if (!currentUser?.id || !isAdmin) return;
+    setReviewsLoading(true);
+    try {
+      const data = await callRpc("ci_list_review_cases", { p_status: null, p_limit: 200 }, "Church Intelligence review queue");
+      setReviews(Array.isArray(data) ? data : []);
+    } catch (err) { notify("error", err?.message || "Could not load the review queue."); }
+    finally { setReviewsLoading(false); }
+  }, [currentUser?.id, isAdmin, callRpc, notify]);
+
+  const refreshSignals = useCallback(async () => {
+    if (!currentUser?.id || !isAdmin) return;
+    setSignalsLoading(true);
+    try {
+      const data = await callRpc("ci_list_operational_signals", { p_status: null, p_limit: 500 }, "Church website signals");
+      setSignals(Array.isArray(data) ? data : []);
+    } catch (err) { notify("error", err?.message || "Could not load website signals."); }
+    finally { setSignalsLoading(false); }
+  }, [currentUser?.id, isAdmin, callRpc, notify]);
+
+  const refreshHealth = useCallback(async () => {
+    if (!currentUser?.id || !isAdmin) return;
+    try { setHealth(await callRpc("ci_get_health_summary", {}, "Church Intelligence health summary")); }
+    catch { setHealth(null); }
   }, [currentUser?.id, isAdmin, callRpc]);
 
   const refreshSources = useCallback(async () => {
@@ -185,8 +233,8 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   }, [currentUser?.id, isAdmin, callRpc]);
 
   const refreshAll = useCallback(() => {
-    void refreshDirectory(); void refreshSources(); void refreshBoundary();
-  }, [refreshDirectory, refreshSources, refreshBoundary]);
+    void refreshDirectory(); void refreshSources(); void refreshBoundary(); void refreshReviews(); void refreshSignals(); void refreshHealth();
+  }, [refreshDirectory, refreshSources, refreshBoundary, refreshReviews, refreshSignals, refreshHealth]);
 
   useEffect(() => { const t = setTimeout(() => { refreshAll(); }, 0); return () => clearTimeout(t); }, [refreshAll]);
 
@@ -208,13 +256,11 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   const openOrgDetail = useCallback(async (orgId) => {
     setSelectedOrgId(orgId); setOrgDetail(null); setOrgDetailError(""); setOrgDetailLoading(true);
     try {
-      const data = await callRpc("ci_get_organization", { p_organization_id: orgId, p_requested_purpose: purpose }, "Church Intelligence organization detail");
+      const data = await callRpc("ci_get_organization_profile", { p_organization_id: orgId, p_requested_purpose: purpose }, "Church Intelligence organization detail");
       setOrgDetail(data);
     } catch (err) { setOrgDetailError(err?.message || "Could not load this organization."); }
     finally { setOrgDetailLoading(false); }
   }, [callRpc, purpose]);
-
-  const notify = (type, text) => setBanner({ type, text });
 
   const checkMatch = async (orgId) => {
     setMatchLoadingId(orgId);
@@ -242,13 +288,35 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
 
   const online = !directoryLoading && !directoryError;
   const directoryStats = useMemo(() => {
-    const ready = directory.filter(row => row.address_line_1 && row.denomination).length;
+    const ready = directory.filter(row => row.is_ready).length;
     return {
       ready,
       missing: directory.length - ready,
       connected: directory.filter(row => row.linked_to_faithbid).length,
     };
   }, [directory]);
+
+  const resolveReview = async (review, status) => {
+    const reason = window.prompt(status === "resolved" ? "What evidence or decision resolves this case?" : "Why should this case be dismissed?");
+    if (!reason?.trim()) return;
+    setBusy(true);
+    try {
+      await callRpc("ci_resolve_review_case", { p_review_id: review.id, p_status: status, p_resolution: { decision: status, note: reason.trim() }, p_reason: reason.trim() }, "Resolve Church Intelligence review");
+      notify("success", `Review ${status}.`); await Promise.all([refreshReviews(), refreshDirectory(), refreshHealth()]);
+    } catch (err) { notify("error", err?.message || "Could not update this review."); }
+    finally { setBusy(false); }
+  };
+
+  const reviewSignal = async (signal, status) => {
+    const reason = window.prompt(status === "dismissed" ? "Why is this not actionable?" : "What did you verify on the church website?");
+    if (!reason?.trim()) return;
+    setBusy(true);
+    try {
+      await callRpc("ci_review_operational_signal", { p_signal_id: signal.id, p_status: status, p_reason: reason.trim() }, "Review church website signal");
+      notify("success", status === "dismissed" ? "Signal dismissed." : "Signal confirmed as reviewed."); await Promise.all([refreshSignals(), refreshHealth()]);
+    } catch (err) { notify("error", err?.message || "Could not update this signal."); }
+    finally { setBusy(false); }
+  };
   const deferredSearch = useDeferredValue(directorySearch.trim().toLowerCase());
   const denominations = useMemo(() => [...new Set(directory.map(row => row.denomination).filter(Boolean))].sort((a, b) => a.localeCompare(b)), [directory]);
   const postalCodes = useMemo(() => [...new Set(directory.map(row => row.postal_code?.slice(0, 5)).filter(Boolean))].sort(), [directory]);
@@ -267,10 +335,8 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
   }), [directory, denominationFilters, statusFilters, matchesSearchFn, matchesDistrictFn, matchesZipFn, matchesConnectedFn]);
 
   // Faceted counts: how many results each option would add given every
-  // OTHER active filter (but not itself), computed client-side off the
-  // already-loaded directory. Honest only while the directory stays under
-  // the RPC's 500-row cap -- once real pagination ships, this needs to move
-  // server-side into an aggregate read. Flagged in the roadmap, not hidden.
+  // OTHER active filter (but not itself). The paginated loader collects the
+  // complete directory before these client-side counts are calculated.
   const statusCounts = useMemo(() => {
     const counts = Object.fromEntries(STATUS_ORDER.map(key => [key, 0]));
     for (const row of directory) {
@@ -331,13 +397,23 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
 
     <Banner banner={banner} onDismiss={() => setBanner(null)} />
 
+    <nav className="ci-tabs" aria-label="Church Intelligence workspace">
+      {[['directory','Directory'],['reviews',`Review Queue${reviews.filter(item => ['open','in_progress'].includes(item.status)).length ? ` (${reviews.filter(item => ['open','in_progress'].includes(item.status)).length})` : ''}`],['signals',`Website Signals${signals.filter(item => item.status === 'new').length ? ` (${signals.filter(item => item.status === 'new').length})` : ''}`],['health','Coverage & Health']].map(([key,label]) =>
+        <button key={key} type="button" className={workspaceTab === key ? "active" : ""} aria-pressed={workspaceTab === key} onClick={() => { setWorkspaceTab(key); setSelectedOrgId(null); }}>{label}</button>
+      )}
+    </nav>
+
     <section className="ci-coverage" aria-label="Dallas church coverage">
       <div><span>Loaded in FaithBid</span><strong>{directoryLoading ? "—" : directory.length.toLocaleString()}</strong></div>
       <div><span>Basics complete</span><strong>{directoryLoading ? "—" : directoryStats.ready.toLocaleString()}</strong></div>
       <div><span>Connected accounts</span><strong>{directoryLoading ? "—" : directoryStats.connected.toLocaleString()}</strong></div>
+      <p><strong>As of:</strong> {directoryRefreshedAt ? new Date(directoryRefreshedAt).toLocaleString() : directoryLoading ? "Loading…" : "Unavailable"}. Readiness requires an address, denomination, confirmed Dallas inclusion, and no open review.</p>
     </section>
 
-    <div className="ci-panel ci-directory-panel">
+    {workspaceTab === "reviews" ? <ReviewQueue reviews={reviews} loading={reviewsLoading} busy={busy} onResolve={resolveReview} />
+      : workspaceTab === "signals" ? <SignalsInbox signals={signals} loading={signalsLoading} busy={busy} onReview={reviewSignal} />
+      : workspaceTab === "health" ? <HealthPanel health={health} directory={directory} />
+      : <div className="ci-panel ci-directory-panel">
       {selectedOrgId ? (
           <OrgDetail
             overviewRow={directory.find(d => d.id === selectedOrgId)}
@@ -428,7 +504,7 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
           </>
       )}
 
-    </div>
+    </div>}
 
     {showNewOrgModal && <NewOrgModal sources={sources} directory={directory} busy={busy} onClose={() => setShowNewOrgModal(false)} onSubmit={async (bundle, reason) => {
       setBusy(true);
@@ -437,6 +513,49 @@ export default function ChurchIntelligence({ currentUser, isAdmin, nav }) {
       } catch (err) { notify("error", err?.message || "Could not add this church."); }
       finally { setBusy(false); }
     }} />}
+  </section>;
+}
+
+function ReviewQueue({ reviews, loading, busy, onResolve }) {
+  const active = reviews.filter(item => ["open", "in_progress"].includes(item.status));
+  const closed = reviews.filter(item => !["open", "in_progress"].includes(item.status));
+  return <section className="ci-panel">
+    <div className="ci-panel-head"><div><p className="ci-eyebrow">Human decisions</p><h2>Review Queue</h2><p className="ci-panel-intro">Resolve boundary questions, evidence conflicts, corrections, and other cases before records are treated as ready.</p></div><span>{active.length} open</span></div>
+    {loading ? <div className="ci-loading">Loading review cases…</div> : active.length ? <div className="ci-review-list">{active.map(item => <article className="ci-review-card" key={item.id}>
+      <div><div className="ci-chip-row"><Badge tone={item.severity === "high" || item.severity === "critical" ? "danger" : "warn"}>{item.severity}</Badge><Badge>{item.case_type.replace(/_/g, " ")}</Badge></div><h3>{item.subject_organization_name || "Record-level review"}</h3><p>{item.case_payload?.reason || item.case_payload?.note || "Open the supporting record and document the decision."}</p><small>Opened {new Date(item.created_at).toLocaleString()}</small></div>
+      <div className="ci-review-actions"><button type="button" disabled={busy} onClick={() => onResolve(item, "resolved")}>Resolve</button><button type="button" className="ci-btn-secondary" disabled={busy} onClick={() => onResolve(item, "dismissed")}>Dismiss</button></div>
+    </article>)}</div> : <Empty eyebrow="Review queue" title="No open cases." detail="All current Church Intelligence review cases have a documented decision." />}
+    {!!closed.length && <details className="ci-history"><summary>Closed history ({closed.length})</summary><div className="ci-review-list compact">{closed.map(item => <article className="ci-review-card" key={item.id}><div><Badge tone="muted">{item.status}</Badge><h3>{item.subject_organization_name || item.case_type.replace(/_/g, " ")}</h3><p>{item.resolution?.note || item.resolution?.reason || "Decision recorded."}</p></div></article>)}</div></details>}
+  </section>;
+}
+
+function SignalsInbox({ signals, loading, busy, onReview }) {
+  const active = signals.filter(item => item.status === "new");
+  return <section className="ci-panel">
+    <div className="ci-panel-head"><div><p className="ci-eyebrow">First-party church websites</p><h2>Website Signals</h2><p className="ci-panel-intro">Weekly hints about jobs, renovations, capital campaigns, campuses, relocations, and physical projects. These are not canonical facts until a person confirms them.</p></div><span>{active.length} new</span></div>
+    <div className="ci-signal-safety"><strong>Human review required.</strong> Leadership posts, events, sermons, and general news are excluded. Nothing is sent to Growth Engine automatically.</div>
+    {loading ? <div className="ci-loading">Loading website signals…</div> : signals.length ? <div className="ci-signal-grid">{signals.map(signal => <article className="ci-signal-card" key={signal.id}>
+      <div className="ci-chip-row"><Badge tone={signal.status === "new" ? "warn" : signal.status === "dismissed" ? "muted" : "good"}>{signal.status}</Badge><Badge>{signal.signal_type.replace(/_/g, " ")}</Badge><span className="ci-confidence">{Math.round(Number(signal.confidence_score) * 100)}% confidence</span></div>
+      <h3>{signal.title}</h3><strong>{signal.canonical_name}</strong><p>{signal.summary}</p><blockquote>“{signal.evidence_quote}”</blockquote>
+      <div className="ci-signal-footer"><a href={signal.source_url} target="_blank" rel="noreferrer">Verify on church website ↗</a><span>Detected {new Date(signal.detected_at).toLocaleDateString()}</span></div>
+      {signal.status === "new" && <div className="ci-review-actions"><button type="button" disabled={busy} onClick={() => onReview(signal, "reviewed")}>Confirm reviewed</button><button type="button" className="ci-btn-secondary" disabled={busy} onClick={() => onReview(signal, "dismissed")}>Dismiss</button></div>}
+      {signal.review_reason && <small className="ci-decision-note">Decision: {signal.review_reason}</small>}
+    </article>)}</div> : <Empty eyebrow="Website signal monitor" title="No signals have been detected yet." detail="The weekly monitor will place only source-linked, AI-classified hints here for human confirmation." />}
+  </section>;
+}
+
+function HealthPanel({ health, directory }) {
+  const values = [
+    ["Organizations", health?.organizations ?? directory.length, "Canonical church records"],
+    ["Websites", health?.canonical_websites ?? "—", "Eligible first-party sites"],
+    ["Two-source", health?.two_source_organizations ?? "—", "Genuinely independent corroboration"],
+    ["Single-source", health?.single_source_organizations ?? "—", "Must close or be deliberately accepted"],
+    ["Open reviews", health?.open_reviews ?? "—", "Human decisions outstanding"],
+    ["New signals", health?.new_signals ?? "—", "Website hints awaiting review"],
+  ];
+  return <section className="ci-panel"><div className="ci-panel-head"><div><p className="ci-eyebrow">Coverage controls</p><h2>Coverage & Health</h2><p className="ci-panel-intro">This is the honest operating picture—loaded records, independent evidence, review debt, and monitor freshness.</p></div><span>{health?.as_of ? `As of ${new Date(health.as_of).toLocaleString()}` : "Loading"}</span></div>
+    <div className="ci-coverage-grid">{values.map(([label,value,detail]) => <article key={label}><strong>{typeof value === "number" ? value.toLocaleString() : value}</strong><span>{label} · {detail}</span></article>)}</div>
+    <div className="ci-health-grid"><article className="ci-health"><span className="good">Evidence gate</span><h3>{health?.single_source_pending ? "Partially cleared" : "Cleared"}</h3><p>{health?.two_source_organizations ?? 0} records have at least two independent source families; {health?.single_source_organizations ?? 0} remain visibly single-source ({health?.single_source_accepted ?? 0} deliberately accepted, {health?.single_source_pending ?? health?.single_source_organizations ?? 0} pending).</p></article><article className="ci-health"><span className="paused">Acquisition gate</span><h3>{health?.single_source_pending ? "Large batch held" : "Controlled batch allowed"}</h3><p>{health?.single_source_pending ? "The 1,922-candidate expansion remains blocked until the pending single-source records are closed or deliberately accepted." : "Only a measured, reviewed batch is allowed; this is not approval for an uncontrolled full import."}</p></article><article className="ci-health"><span className="good">Website monitor</span><h3>{health?.last_website_scan ? "Running" : "Ready for first run"}</h3><p>{health?.last_website_scan ? `Last scan ${new Date(health.last_website_scan).toLocaleString()}` : "No website scan has been recorded yet."}</p></article></div>
   </section>;
 }
 
@@ -450,6 +569,7 @@ function formatClaimValue(value) {
 }
 
 function OrgDetail({ detail, overviewRow, loading, error, onBack, matchResults, matchLoading, busy, onCheckMatch, onLinkMatch }) {
+  const [pendingMatch, setPendingMatch] = useState(null);
   const currentClaims = detail?.claims?.filter(claim => claim.claim_status !== "rejected" && claim.claim_status !== "superseded") || [];
   const churchName = detail?.organization?.canonical_name || overviewRow?.canonical_name || "Church";
   return <>
@@ -464,6 +584,9 @@ function OrgDetail({ detail, overviewRow, loading, error, onBack, matchResults, 
             <div className="ci-profile-row"><span>Address</span><strong>{overviewRow?.address_line_1 ? `${overviewRow.address_line_1}, ${overviewRow.locality}, ${overviewRow.region_code} ${overviewRow.postal_code || ""}` : "Not recorded"}</strong></div>
             <div className="ci-profile-row"><span>Denomination</span><strong>{overviewRow?.denomination || "Not recorded"}</strong></div>
             <div className="ci-profile-row"><span>Status</span><strong>{String(detail.organization?.operating_state || overviewRow?.operating_state || "Unknown").replace(/^./, value => value.toUpperCase())}</strong></div>
+            <div className="ci-profile-row"><span>Dallas membership</span><strong>{overviewRow?.dallas_membership || "Not evaluated"}{overviewRow?.council_district ? ` · District ${overviewRow.council_district}` : ""}</strong></div>
+            <div className="ci-profile-row"><span>Independent sources</span><strong>{detail.evidence_summary?.independent_source_families ?? overviewRow?.evidence_family_count ?? 0}</strong></div>
+            <div className="ci-profile-row"><span>Evidence observed</span><strong>{detail.evidence_summary?.last_observed_at ? new Date(detail.evidence_summary.last_observed_at).toLocaleDateString() : "Not recorded"}</strong></div>
           </section>
           <section className="ci-account-card">
             <div><p className="ci-eyebrow">FaithBid account</p><h3>{overviewRow?.linked_to_faithbid ? "Connected" : "Not connected yet"}</h3><p>{overviewRow?.linked_to_faithbid ? "This research record is already linked to a FaithBid church account." : "Check for an existing church account before creating or linking anything manually."}</p></div>
@@ -471,16 +594,27 @@ function OrgDetail({ detail, overviewRow, loading, error, onBack, matchResults, 
           </section>
         </div>
 
-        {matchResults !== undefined && !overviewRow?.linked_to_faithbid && <section className="ci-match-panel"><h3>Possible FaithBid accounts</h3>{matchResults.length ? matchResults.map(match => <div key={match.profile_id} className="ci-match-row"><div><strong>{match.org_name || "Unnamed account"}</strong><span className="ci-addr-sub">{match.city}, {match.state_code}{match.denomination ? ` · ${match.denomination}` : ""} · {Math.round(match.name_similarity * 100)}% name match{match.city_match ? " · same city" : ""}</span></div><button type="button" disabled={busy} onClick={() => onLinkMatch(match.profile_id)}>{busy ? "Linking…" : "Link this account"}</button></div>) : <p className="ci-muted">No likely FaithBid account was found. Nothing was changed.</p>}</section>}
+        {matchResults !== undefined && !overviewRow?.linked_to_faithbid && <section className="ci-match-panel"><h3>Possible FaithBid accounts</h3>{matchResults.length ? matchResults.map(match => <div key={match.profile_id} className="ci-match-row"><div><strong>{match.org_name || "Unnamed account"}</strong><span className="ci-addr-sub">{match.city}, {match.state_code}{match.denomination ? ` · ${match.denomination}` : ""} · {Math.round(match.name_similarity * 100)}% name match{match.city_match ? " · same city" : ""}</span></div><button type="button" disabled={busy} onClick={() => setPendingMatch(match)}>Compare & confirm</button></div>) : <p className="ci-muted">No likely FaithBid account was found. Nothing was changed.</p>}</section>}
 
         {detail.campuses?.length > 1 && <>
           <h3>Campuses</h3>
           <div className="ci-table-wrap"><table className="ci-table"><thead><tr><th>Campus</th><th>Primary</th></tr></thead><tbody>{detail.campuses.map(c => <tr key={c.id}><td>{c.campus_name}</td><td>{c.is_primary ? "Yes" : "No"}</td></tr>)}</tbody></table></div>
         </>}
 
-        <h3>Information on file</h3>
-        {currentClaims.length ? <div className="ci-facts-list">{currentClaims.map(claim => <div key={claim.id}><span>{claim.attribute_key.replace(/_/g, " ")}</span><strong>{formatClaimValue(claim.asserted_value)}</strong></div>)}</div> : <p className="ci-muted">No additional information is on file yet.</p>}
+        <h3>Sites & boundary membership</h3>
+        {detail.campuses?.some(campus => campus.sites?.length) ? <div className="ci-site-list">{detail.campuses.flatMap(campus => (campus.sites || []).map(site => <article key={site.id}><strong>{campus.campus_name}</strong><p>{site.address_line_1}, {site.locality}, {site.region_code} {site.postal_code || ""}</p><div className="ci-chip-row">{(site.memberships || []).map((membership, index) => <Badge key={`${membership.boundary_scope}-${index}`} tone={membership.membership_result === "included" ? "good" : "warn"}>{membership.boundary_scope === "district" ? `District ${membership.council_district}` : `Dallas ${membership.membership_result}`}</Badge>)}</div></article>))}</div> : <p className="ci-muted">No current site is recorded.</p>}
+
+        <h3>Evidence & provenance</h3>
+        {currentClaims.length ? <div className="ci-evidence-list">{currentClaims.map(claim => <article key={claim.id}><div><span>{claim.attribute_key.replace(/[_.]/g, " ")}</span><Badge tone={claim.claim_status === "promoted" ? "good" : "neutral"}>{claim.claim_status}</Badge></div><strong>{formatClaimValue(claim.asserted_value)}</strong><p>{claim.source?.display_name || "Source not named"}{claim.source?.authority_class ? ` · ${claim.source.authority_class}` : ""} · observed {new Date(claim.observed_at).toLocaleDateString()}{claim.source?.retrieved_at ? ` · retrieved ${new Date(claim.source.retrieved_at).toLocaleDateString()}` : ""}</p>{claim.source?.source_url && <a href={claim.source.source_url} target="_blank" rel="noreferrer">Open source ↗</a>}</article>)}</div> : <p className="ci-muted">No additional information is on file yet.</p>}
+
+        <h3>Review history</h3>
+        {detail.reviews?.length ? <div className="ci-review-history">{detail.reviews.map(review => <article key={review.id}><Badge tone={review.status === "resolved" ? "good" : review.status === "dismissed" ? "muted" : "warn"}>{review.status}</Badge><strong>{review.case_type.replace(/_/g, " ")}</strong><span>{new Date(review.created_at).toLocaleDateString()}</span></article>)}</div> : <p className="ci-muted">No review cases have been recorded.</p>}
       </div>}
+    {pendingMatch && <Modal title="Confirm the account link" subtitle="Compare both records. This creates an audited Church Intelligence link only after you confirm." onClose={() => setPendingMatch(null)}>
+      <div className="ci-compare-grid"><article><p className="ci-eyebrow">Church Intelligence</p><h4>{churchName}</h4><p>{overviewRow?.address_line_1}, {overviewRow?.locality}, {overviewRow?.region_code} {overviewRow?.postal_code || ""}</p><p>{overviewRow?.denomination || "Denomination not recorded"}</p></article><article><p className="ci-eyebrow">FaithBid account</p><h4>{pendingMatch.org_name || "Unnamed account"}</h4><p>{pendingMatch.city}, {pendingMatch.state_code}</p><p>{pendingMatch.denomination || "Denomination not recorded"}</p></article></div>
+      <p className="ci-confirm-note">Name similarity: {Math.round(pendingMatch.name_similarity * 100)}%. Confirm only if these describe the same church organization.</p>
+      <div className="ci-modal-actions"><button type="button" className="ci-btn-secondary" onClick={() => setPendingMatch(null)}>Cancel</button><button type="button" disabled={busy} onClick={async () => { await onLinkMatch(pendingMatch.profile_id); setPendingMatch(null); }}>{busy ? "Linking…" : "Confirm link"}</button></div>
+    </Modal>}
   </>;
 }
 

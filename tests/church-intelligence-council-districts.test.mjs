@@ -34,7 +34,7 @@ test('overview assigns district server-side with ST_Contains', () => {
   assert.match(migration, /'council_district'/);
   assert.match(migration, /extensions\.st_contains\(/);
   assert.match(migration, /extensions\.st_makepoint\(/);
-  assert.match(component, /p_include_council_district: true/);
+  assert.match(component, /ci_list_organizations_overview_page/);
 });
 
 test('district boundary read uses the direct platform-admin gate', () => {

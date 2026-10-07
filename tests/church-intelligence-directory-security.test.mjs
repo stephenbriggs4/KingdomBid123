@@ -36,7 +36,7 @@ test('the directory overview is authenticated-only and FaithBid status ignores o
   assert.match(overview, /l2\.system_key = 'faithbid_profile' and l2\.link_status = 'active'/);
 });
 
-test('human-confirmed account links carry a reversible review basis without exposing case controls in the UI', () => {
+test('human-confirmed account links carry a reversible review basis and require compare-confirm', () => {
   const linkStart = component.indexOf('const linkMatch = async');
   const linkEnd = component.indexOf('const online =', linkStart);
   const linkFlow = component.slice(linkStart, linkEnd);
@@ -47,8 +47,9 @@ test('human-confirmed account links carry a reversible review basis without expo
   assert.match(linkFlow, /ci_resolve_review_case", \{ p_review_id: reviewId/);
   assert.doesNotMatch(linkFlow, /ci_resolve_review_case", \{ p_case_id:/);
   assert.doesNotMatch(linkFlow, /p_status: "active"[^}]+p_review_id: null/);
-  assert.doesNotMatch(component, /Open review case/);
-  assert.doesNotMatch(component, /Resolve \/ dismiss/);
+  assert.match(component, /Compare & confirm/);
+  assert.match(component, /Confirm the account link/);
+  assert.match(component, /Confirm only if these describe the same church organization/);
 });
 
 test('pgTAP reflects the complete 19-RPC surface and narrow Profiles columns', () => {

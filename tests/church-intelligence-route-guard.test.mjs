@@ -25,9 +25,10 @@ test("the component only reaches church_intel data through narrow admin-gated RP
   assert.match(component, /signal => supabase\.rpc\(fn, args\)\.abortSignal\(signal\)/);
   assert.match(component, /withRequestDeadline/);
   for (const rpc of [
-    "ci_list_organizations_overview", "ci_get_organization",
+    "ci_list_organizations_overview_page", "ci_get_organization_profile",
     "ci_list_sources", "ci_suggest_faithbid_matches", "ci_create_research_bundle",
     "ci_open_review_case", "ci_resolve_review_case", "ci_set_system_link",
+    "ci_list_operational_signals", "ci_get_health_summary",
   ]) {
     assert.ok(component.includes(`"${rpc}"`), `expected a callRpc(...) call naming ${rpc}`);
   }
@@ -65,7 +66,8 @@ test("R-2026-10-07 Pass 3: one status model feeds both the filter chips and the 
   const statusFnBody = component.slice(component.indexOf("function churchStatus"), component.indexOf("function churchStatus") + 400);
   assert.match(statusFnBody, /dallas_membership/);
   assert.match(statusFnBody, /open_review_case_count/);
-  assert.match(statusFnBody, /has_promoted_claim/);
+  assert.match(statusFnBody, /is_ready/);
+  assert.match(statusFnBody, /intelligence_status/);
   // Used by the directory rows...
   assert.match(component, /style=\{\{ background: STATUS_META\[status\]\.color \}\}/);
   // ...and by the map markers -- same function, not a re-derivation.
@@ -86,9 +88,9 @@ test("R-2026-10-07 Pass 3: filters are multi-select with faceted counts, not sin
   assert.match(component, /const toggleDenominationFilter = /);
   assert.match(component, /const statusCounts = useMemo/);
   assert.match(component, /const denominationCounts = useMemo/);
-  // Faceted counts are client-side and only honest under the RPC's cap --
-  // this must stay documented, not silently assumed to scale.
-  assert.match(component, /Honest only while the directory stays under/);
+  // Faceted counts are client-side only after the complete paginated
+  // directory has been collected.
+  assert.match(component, /complete directory before these client-side counts/);
 });
 
 test("R-2026-10-07 Pass 3: saved views are fixed presets, not a new persistence layer", () => {
@@ -147,13 +149,14 @@ test("FaithBid account matching stays inside church detail instead of cluttering
   const detail = component.slice(detailStart, detailEnd);
   assert.match(detail, /Find matching account/);
   assert.match(detail, /Possible FaithBid accounts/);
-  assert.match(detail, /Link this account/);
+  assert.match(detail, /Compare & confirm/);
+  assert.match(detail, /Confirm link/);
 
   const listStart = component.indexOf('<div className="ci-church-list">');
   const listEnd = component.indexOf('<Empty eyebrow="No matches"', listStart);
   const list = component.slice(listStart, listEnd);
   assert.doesNotMatch(list, /Find FaithBid account/);
-  assert.doesNotMatch(list, /Link this account/);
+  assert.doesNotMatch(list, /Compare & confirm/);
 });
 
 test("Church Intelligence dialogs trap keyboard focus, close on Escape, and restore focus", () => {
