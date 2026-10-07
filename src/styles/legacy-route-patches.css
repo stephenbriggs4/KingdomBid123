@@ -8249,7 +8249,13 @@ html body .gpi-discovery-header-copy{
       html body .kb-settings-head-wrap{padding:14px!important;}
       html body .kb-settings-head-panel{padding:22px 18px!important;border-radius:18px!important;}
       html body .kb-settings-head-panel h1{font-size:30px!important;line-height:1.04!important;}
-      html body .kb-settings-tabs{padding:0 14px!important;gap:20px!important;position:sticky!important;top:var(--kb852bm-topnav-h)!important;z-index:40!important;background:rgba(250,248,244,.97)!important;backdrop-filter:blur(10px)!important;}
+      /* R-2026-10-07 (VISUAL_UX_AUDIT_2026-09-30.md 15.3): this row overflowed
+         horizontally with scroll as the only way to reach the last tabs
+         (Legal, Danger Zone). A simulated touch swipe produced zero
+         scrollLeft movement in testing, matching the original audit finding;
+         wrap instead of relying on any scroll gesture working, so every tab
+         stays visible with no interaction required to discover or reach it. */
+      html body .kb-settings-tabs{padding:0 14px!important;gap:14px 20px!important;flex-wrap:wrap!important;overflow-x:visible!important;mask-image:none!important;-webkit-mask-image:none!important;position:sticky!important;top:var(--kb852bm-topnav-h)!important;z-index:40!important;background:rgba(250,248,244,.97)!important;backdrop-filter:blur(10px)!important;}
       html body .kb-settings-body{width:100%!important;max-width:none!important;padding:18px 14px 0!important;}
       html body .kb-settings-body input,html body .kb-settings-body select,html body .kb-settings-body textarea{max-width:100%!important;min-width:0!important;}
       html body .kb-settings-body button{max-width:100%!important;}

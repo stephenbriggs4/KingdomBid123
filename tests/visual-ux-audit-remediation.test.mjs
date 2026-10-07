@@ -11,12 +11,29 @@ const messages = read("../src/MessagesTab.jsx");
 const compare = read("../src/WorkspaceScreens.jsx");
 const tokens = read("../src/index.css");
 const landingStyles = read("../src/styles/landing-v2.css");
+const legacyPatches = read("../src/styles/legacy-route-patches.css");
 
 test("mobile settings tabs expose touch scrolling and real tab semantics", () => {
   assert.match(settings, /WebkitOverflowScrolling:"touch"/);
   assert.match(settings, /touchAction:"pan-x pan-y"/);
   assert.match(settings, /role="tablist" aria-label="Settings sections"/);
   assert.match(settings, /role="tab" aria-selected=/);
+});
+
+// R-2026-10-07 (VISUAL_UX_AUDIT_2026-09-30.md 15.3): the properties above
+// (WebkitOverflowScrolling/touchAction) were already present and gave false
+// confidence -- a simulated touch swipe on the live row still produced zero
+// scrollLeft movement, matching the original audit finding exactly, even
+// with those properties set. Every tab (including Danger Zone, which holds
+// Sign Out) must be reachable with zero scroll gesture of any kind, not
+// just theoretically scrollable.
+test("mobile settings tabs wrap instead of relying on horizontal scroll to reach Danger Zone", () => {
+  const mobileBlock = legacyPatches.slice(
+    legacyPatches.indexOf("@media(max-width:760px){"),
+    legacyPatches.indexOf("Admin viewport safety retained"),
+  );
+  assert.match(mobileBlock, /\.kb-settings-tabs\{[^}]*flex-wrap:wrap!important/);
+  assert.match(mobileBlock, /\.kb-settings-tabs\{[^}]*overflow-x:visible!important/);
 });
 
 test("legal acknowledgement wraps safely and describes draft early-access policy honestly", () => {
